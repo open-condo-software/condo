@@ -8543,6 +8543,464 @@ export type BankIntegrationsUpdateInput = {
   data?: Maybe<BankIntegrationUpdateInput>;
 };
 
+/**  information about synchronization process of transactions with external source of from uploaded file  */
+export type BankSyncTask = {
+  __typename?: 'BankSyncTask';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the BankSyncTask List config, or
+   *  2. As an alias to the field set on 'labelField' in the BankSyncTask List config, or
+   *  3. As an alias to a 'name' field on the BankSyncTask List (if one exists), or
+   *  4. As an alias to the 'id' field on the BankSyncTask List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Bank account for which current synchronization operation is performed  */
+  account?: Maybe<BankAccount>;
+  /**  Integration context of account for which current synchronization operation is performed  */
+  integrationContext?: Maybe<BankIntegrationContext>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  Property to which sync operation in this task should be related. When property is specified, new BankAccount will be connected to it if it does not exists  */
+  property?: Maybe<Property>;
+  /**  Status of current synchronization operation  */
+  status?: Maybe<BankSyncTaskStatusType>;
+  /**  Uploaded file form which transactions should be   */
+  file?: Maybe<File>;
+  /**  Count of transactions to import. Can be unknown in advance  */
+  totalCount?: Maybe<Scalars['Int']>;
+  /**  Count of transactions, that has been actually created in our database based in data from external source, determined by integration context  */
+  processedCount?: Maybe<Scalars['Int']>;
+  /**  User that requested this operation. Will be used for read access checks to display all tasks somewhere and to display progress indicator of ongoing exporting task for current user  */
+  user?: Maybe<User>;
+  /**  Additional data, specific to used integration  */
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type BankSyncTaskCreateInput = {
+  account?: Maybe<BankAccountRelateToOneInput>;
+  integrationContext?: Maybe<BankIntegrationContextRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  status?: Maybe<BankSyncTaskStatusType>;
+  file?: Maybe<Scalars['Upload']>;
+  totalCount?: Maybe<Scalars['Int']>;
+  processedCount?: Maybe<Scalars['Int']>;
+  user?: Maybe<UserRelateToOneInput>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type BankSyncTaskHistoryRecord = {
+  __typename?: 'BankSyncTaskHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the BankSyncTaskHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the BankSyncTaskHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the BankSyncTaskHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the BankSyncTaskHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  account?: Maybe<Scalars['String']>;
+  integrationContext?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  totalCount?: Maybe<Scalars['Int']>;
+  processedCount?: Maybe<Scalars['Int']>;
+  user?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BankSyncTaskHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type BankSyncTaskHistoryRecordCreateInput = {
+  account?: Maybe<Scalars['String']>;
+  integrationContext?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  totalCount?: Maybe<Scalars['Int']>;
+  processedCount?: Maybe<Scalars['Int']>;
+  user?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BankSyncTaskHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum BankSyncTaskHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type BankSyncTaskHistoryRecordUpdateInput = {
+  account?: Maybe<Scalars['String']>;
+  integrationContext?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  totalCount?: Maybe<Scalars['Int']>;
+  processedCount?: Maybe<Scalars['Int']>;
+  user?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BankSyncTaskHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type BankSyncTaskHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<BankSyncTaskHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<BankSyncTaskHistoryRecordWhereInput>>>;
+  account?: Maybe<Scalars['String']>;
+  account_not?: Maybe<Scalars['String']>;
+  account_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  account_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  integrationContext?: Maybe<Scalars['String']>;
+  integrationContext_not?: Maybe<Scalars['String']>;
+  integrationContext_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  integrationContext_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status?: Maybe<Scalars['String']>;
+  status_not?: Maybe<Scalars['String']>;
+  status_contains?: Maybe<Scalars['String']>;
+  status_not_contains?: Maybe<Scalars['String']>;
+  status_starts_with?: Maybe<Scalars['String']>;
+  status_not_starts_with?: Maybe<Scalars['String']>;
+  status_ends_with?: Maybe<Scalars['String']>;
+  status_not_ends_with?: Maybe<Scalars['String']>;
+  status_i?: Maybe<Scalars['String']>;
+  status_not_i?: Maybe<Scalars['String']>;
+  status_contains_i?: Maybe<Scalars['String']>;
+  status_not_contains_i?: Maybe<Scalars['String']>;
+  status_starts_with_i?: Maybe<Scalars['String']>;
+  status_not_starts_with_i?: Maybe<Scalars['String']>;
+  status_ends_with_i?: Maybe<Scalars['String']>;
+  status_not_ends_with_i?: Maybe<Scalars['String']>;
+  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file?: Maybe<Scalars['JSON']>;
+  file_not?: Maybe<Scalars['JSON']>;
+  file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  totalCount?: Maybe<Scalars['Int']>;
+  totalCount_not?: Maybe<Scalars['Int']>;
+  totalCount_lt?: Maybe<Scalars['Int']>;
+  totalCount_lte?: Maybe<Scalars['Int']>;
+  totalCount_gt?: Maybe<Scalars['Int']>;
+  totalCount_gte?: Maybe<Scalars['Int']>;
+  totalCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  totalCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  processedCount?: Maybe<Scalars['Int']>;
+  processedCount_not?: Maybe<Scalars['Int']>;
+  processedCount_lt?: Maybe<Scalars['Int']>;
+  processedCount_lte?: Maybe<Scalars['Int']>;
+  processedCount_gt?: Maybe<Scalars['Int']>;
+  processedCount_gte?: Maybe<Scalars['Int']>;
+  processedCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  processedCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<BankSyncTaskHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<BankSyncTaskHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<BankSyncTaskHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<BankSyncTaskHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type BankSyncTaskHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type BankSyncTaskHistoryRecordsCreateInput = {
+  data?: Maybe<BankSyncTaskHistoryRecordCreateInput>;
+};
+
+export type BankSyncTaskHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<BankSyncTaskHistoryRecordUpdateInput>;
+};
+
+export enum BankSyncTaskStatusType {
+  Processing = 'processing',
+  Completed = 'completed',
+  Error = 'error',
+  Cancelled = 'cancelled'
+}
+
+export type BankSyncTaskUpdateInput = {
+  account?: Maybe<BankAccountRelateToOneInput>;
+  integrationContext?: Maybe<BankIntegrationContextRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  status?: Maybe<BankSyncTaskStatusType>;
+  file?: Maybe<Scalars['Upload']>;
+  totalCount?: Maybe<Scalars['Int']>;
+  processedCount?: Maybe<Scalars['Int']>;
+  user?: Maybe<UserRelateToOneInput>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type BankSyncTaskWhereInput = {
+  AND?: Maybe<Array<Maybe<BankSyncTaskWhereInput>>>;
+  OR?: Maybe<Array<Maybe<BankSyncTaskWhereInput>>>;
+  account?: Maybe<BankAccountWhereInput>;
+  account_is_null?: Maybe<Scalars['Boolean']>;
+  integrationContext?: Maybe<BankIntegrationContextWhereInput>;
+  integrationContext_is_null?: Maybe<Scalars['Boolean']>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
+  status?: Maybe<BankSyncTaskStatusType>;
+  status_not?: Maybe<BankSyncTaskStatusType>;
+  status_in?: Maybe<Array<Maybe<BankSyncTaskStatusType>>>;
+  status_not_in?: Maybe<Array<Maybe<BankSyncTaskStatusType>>>;
+  file?: Maybe<Scalars['String']>;
+  file_not?: Maybe<Scalars['String']>;
+  file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalCount?: Maybe<Scalars['Int']>;
+  totalCount_not?: Maybe<Scalars['Int']>;
+  totalCount_lt?: Maybe<Scalars['Int']>;
+  totalCount_lte?: Maybe<Scalars['Int']>;
+  totalCount_gt?: Maybe<Scalars['Int']>;
+  totalCount_gte?: Maybe<Scalars['Int']>;
+  totalCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  totalCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  processedCount?: Maybe<Scalars['Int']>;
+  processedCount_not?: Maybe<Scalars['Int']>;
+  processedCount_lt?: Maybe<Scalars['Int']>;
+  processedCount_lte?: Maybe<Scalars['Int']>;
+  processedCount_gt?: Maybe<Scalars['Int']>;
+  processedCount_gte?: Maybe<Scalars['Int']>;
+  processedCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  processedCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type BankSyncTaskWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type BankSyncTasksCreateInput = {
+  data?: Maybe<BankSyncTaskCreateInput>;
+};
+
+export type BankSyncTasksUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<BankSyncTaskUpdateInput>;
+};
+
 /**  Transaction related to costs of Organization with BankAccount. Full fields set from data import will be stored in "meta"  */
 export type BankTransaction = {
   __typename?: 'BankTransaction';
@@ -17569,6 +18027,7 @@ export type ImportBankTransactionsInput = {
   sender: Scalars['JSON'];
   file: Scalars['Upload'];
   organizationId: Scalars['ID'];
+  propertyId: Scalars['ID'];
 };
 
 export type ImportBankTransactionsOutput = {
@@ -25541,6 +26000,30 @@ export type Mutation = {
   deleteBankTransaction?: Maybe<BankTransaction>;
   /**  Delete multiple BankTransaction items by ID.  */
   deleteBankTransactions?: Maybe<Array<Maybe<BankTransaction>>>;
+  /**  Create a single BankSyncTaskHistoryRecord item.  */
+  createBankSyncTaskHistoryRecord?: Maybe<BankSyncTaskHistoryRecord>;
+  /**  Create multiple BankSyncTaskHistoryRecord items.  */
+  createBankSyncTaskHistoryRecords?: Maybe<Array<Maybe<BankSyncTaskHistoryRecord>>>;
+  /**  Update a single BankSyncTaskHistoryRecord item by ID.  */
+  updateBankSyncTaskHistoryRecord?: Maybe<BankSyncTaskHistoryRecord>;
+  /**  Update multiple BankSyncTaskHistoryRecord items by ID.  */
+  updateBankSyncTaskHistoryRecords?: Maybe<Array<Maybe<BankSyncTaskHistoryRecord>>>;
+  /**  Delete a single BankSyncTaskHistoryRecord item by ID.  */
+  deleteBankSyncTaskHistoryRecord?: Maybe<BankSyncTaskHistoryRecord>;
+  /**  Delete multiple BankSyncTaskHistoryRecord items by ID.  */
+  deleteBankSyncTaskHistoryRecords?: Maybe<Array<Maybe<BankSyncTaskHistoryRecord>>>;
+  /**  Create a single BankSyncTask item.  */
+  createBankSyncTask?: Maybe<BankSyncTask>;
+  /**  Create multiple BankSyncTask items.  */
+  createBankSyncTasks?: Maybe<Array<Maybe<BankSyncTask>>>;
+  /**  Update a single BankSyncTask item by ID.  */
+  updateBankSyncTask?: Maybe<BankSyncTask>;
+  /**  Update multiple BankSyncTask items by ID.  */
+  updateBankSyncTasks?: Maybe<Array<Maybe<BankSyncTask>>>;
+  /**  Delete a single BankSyncTask item by ID.  */
+  deleteBankSyncTask?: Maybe<BankSyncTask>;
+  /**  Delete multiple BankSyncTask items by ID.  */
+  deleteBankSyncTasks?: Maybe<Array<Maybe<BankSyncTask>>>;
   /**  Create a single TicketHistoryRecord item.  */
   createTicketHistoryRecord?: Maybe<TicketHistoryRecord>;
   /**  Create multiple TicketHistoryRecord items.  */
@@ -30465,6 +30948,68 @@ export type MutationDeleteBankTransactionArgs = {
 
 
 export type MutationDeleteBankTransactionsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateBankSyncTaskHistoryRecordArgs = {
+  data?: Maybe<BankSyncTaskHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateBankSyncTaskHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<BankSyncTaskHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateBankSyncTaskHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<BankSyncTaskHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateBankSyncTaskHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<BankSyncTaskHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteBankSyncTaskHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteBankSyncTaskHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateBankSyncTaskArgs = {
+  data?: Maybe<BankSyncTaskCreateInput>;
+};
+
+
+export type MutationCreateBankSyncTasksArgs = {
+  data?: Maybe<Array<Maybe<BankSyncTasksCreateInput>>>;
+};
+
+
+export type MutationUpdateBankSyncTaskArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<BankSyncTaskUpdateInput>;
+};
+
+
+export type MutationUpdateBankSyncTasksArgs = {
+  data?: Maybe<Array<Maybe<BankSyncTasksUpdateInput>>>;
+};
+
+
+export type MutationDeleteBankSyncTaskArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteBankSyncTasksArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -41612,6 +42157,22 @@ export type Query = {
   _allBankTransactionsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the BankTransaction list.  */
   _BankTransactionsMeta?: Maybe<_ListMeta>;
+  /**  Search for all BankSyncTaskHistoryRecord items which match the where clause.  */
+  allBankSyncTaskHistoryRecords?: Maybe<Array<Maybe<BankSyncTaskHistoryRecord>>>;
+  /**  Search for the BankSyncTaskHistoryRecord item with the matching ID.  */
+  BankSyncTaskHistoryRecord?: Maybe<BankSyncTaskHistoryRecord>;
+  /**  Perform a meta-query on all BankSyncTaskHistoryRecord items which match the where clause.  */
+  _allBankSyncTaskHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the BankSyncTaskHistoryRecord list.  */
+  _BankSyncTaskHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all BankSyncTask items which match the where clause.  */
+  allBankSyncTasks?: Maybe<Array<Maybe<BankSyncTask>>>;
+  /**  Search for the BankSyncTask item with the matching ID.  */
+  BankSyncTask?: Maybe<BankSyncTask>;
+  /**  Perform a meta-query on all BankSyncTask items which match the where clause.  */
+  _allBankSyncTasksMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the BankSyncTask list.  */
+  _BankSyncTasksMeta?: Maybe<_ListMeta>;
   /**  Search for all TicketHistoryRecord items which match the where clause.  */
   allTicketHistoryRecords?: Maybe<Array<Maybe<TicketHistoryRecord>>>;
   /**  Search for the TicketHistoryRecord item with the matching ID.  */
@@ -44184,6 +44745,56 @@ export type Query_AllBankTransactionsMetaArgs = {
   where?: Maybe<BankTransactionWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortBankTransactionsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllBankSyncTaskHistoryRecordsArgs = {
+  where?: Maybe<BankSyncTaskHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBankSyncTaskHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryBankSyncTaskHistoryRecordArgs = {
+  where: BankSyncTaskHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllBankSyncTaskHistoryRecordsMetaArgs = {
+  where?: Maybe<BankSyncTaskHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBankSyncTaskHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllBankSyncTasksArgs = {
+  where?: Maybe<BankSyncTaskWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBankSyncTasksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryBankSyncTaskArgs = {
+  where: BankSyncTaskWhereUniqueInput;
+};
+
+
+export type Query_AllBankSyncTasksMetaArgs = {
+  where?: Maybe<BankSyncTaskWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBankSyncTasksBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -51831,6 +52442,66 @@ export enum SortBankIntegrationHistoryRecordsBy {
 export enum SortBankIntegrationsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortBankSyncTaskHistoryRecordsBy {
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  TotalCountAsc = 'totalCount_ASC',
+  TotalCountDesc = 'totalCount_DESC',
+  ProcessedCountAsc = 'processedCount_ASC',
+  ProcessedCountDesc = 'processedCount_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortBankSyncTasksBy {
+  AccountAsc = 'account_ASC',
+  AccountDesc = 'account_DESC',
+  IntegrationContextAsc = 'integrationContext_ASC',
+  IntegrationContextDesc = 'integrationContext_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  TotalCountAsc = 'totalCount_ASC',
+  TotalCountDesc = 'totalCount_DESC',
+  ProcessedCountAsc = 'processedCount_ASC',
+  ProcessedCountDesc = 'processedCount_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

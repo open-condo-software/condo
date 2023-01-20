@@ -17152,6 +17152,546 @@ input BankTransactionsCreateInput {
   data: BankTransactionCreateInput
 }
 
+enum BankSyncTaskHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type BankSyncTaskHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the BankSyncTaskHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the BankSyncTaskHistoryRecord List config, or
+   3. As an alias to a 'name' field on the BankSyncTaskHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the BankSyncTaskHistoryRecord List.
+  """
+  _label_: String
+  account: String
+  integrationContext: String
+  organization: String
+  property: String
+  status: String
+  file: JSON
+  totalCount: Int
+  processedCount: Int
+  user: String
+  meta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankSyncTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankSyncTaskHistoryRecordWhereInput {
+  AND: [BankSyncTaskHistoryRecordWhereInput]
+  OR: [BankSyncTaskHistoryRecordWhereInput]
+  account: String
+  account_not: String
+  account_in: [String]
+  account_not_in: [String]
+  integrationContext: String
+  integrationContext_not: String
+  integrationContext_in: [String]
+  integrationContext_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  property: String
+  property_not: String
+  property_in: [String]
+  property_not_in: [String]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  file: JSON
+  file_not: JSON
+  file_in: [JSON]
+  file_not_in: [JSON]
+  totalCount: Int
+  totalCount_not: Int
+  totalCount_lt: Int
+  totalCount_lte: Int
+  totalCount_gt: Int
+  totalCount_gte: Int
+  totalCount_in: [Int]
+  totalCount_not_in: [Int]
+  processedCount: Int
+  processedCount_not: Int
+  processedCount_lt: Int
+  processedCount_lte: Int
+  processedCount_gt: Int
+  processedCount_gte: Int
+  processedCount_in: [Int]
+  processedCount_not_in: [Int]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: BankSyncTaskHistoryRecordHistoryActionType
+  history_action_not: BankSyncTaskHistoryRecordHistoryActionType
+  history_action_in: [BankSyncTaskHistoryRecordHistoryActionType]
+  history_action_not_in: [BankSyncTaskHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input BankSyncTaskHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortBankSyncTaskHistoryRecordsBy {
+  status_ASC
+  status_DESC
+  totalCount_ASC
+  totalCount_DESC
+  processedCount_ASC
+  processedCount_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input BankSyncTaskHistoryRecordUpdateInput {
+  account: String
+  integrationContext: String
+  organization: String
+  property: String
+  status: String
+  file: JSON
+  totalCount: Int
+  processedCount: Int
+  user: String
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankSyncTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankSyncTaskHistoryRecordsUpdateInput {
+  id: ID!
+  data: BankSyncTaskHistoryRecordUpdateInput
+}
+
+input BankSyncTaskHistoryRecordCreateInput {
+  account: String
+  integrationContext: String
+  organization: String
+  property: String
+  status: String
+  file: JSON
+  totalCount: Int
+  processedCount: Int
+  user: String
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankSyncTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankSyncTaskHistoryRecordsCreateInput {
+  data: BankSyncTaskHistoryRecordCreateInput
+}
+
+enum BankSyncTaskStatusType {
+  processing
+  completed
+  error
+  cancelled
+}
+
+""" information about synchronization process of transactions with external source of from uploaded file 
+"""
+type BankSyncTask {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the BankSyncTask List config, or
+   2. As an alias to the field set on 'labelField' in the BankSyncTask List config, or
+   3. As an alias to a 'name' field on the BankSyncTask List (if one exists), or
+   4. As an alias to the 'id' field on the BankSyncTask List.
+  """
+  _label_: String
+
+  """ Bank account for which current synchronization operation is performed 
+  """
+  account: BankAccount
+
+  """ Integration context of account for which current synchronization operation is performed 
+  """
+  integrationContext: BankIntegrationContext
+
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
+  """ Property to which sync operation in this task should be related. When property is specified, new BankAccount will be connected to it if it does not exists 
+  """
+  property: Property
+
+  """ Status of current synchronization operation """
+  status: BankSyncTaskStatusType
+
+  """ Uploaded file form which transactions should be  """
+  file: File
+
+  """ Count of transactions to import. Can be unknown in advance """
+  totalCount: Int
+
+  """ Count of transactions, that has been actually created in our database based in data from external source, determined by integration context 
+  """
+  processedCount: Int
+
+  """ User that requested this operation. Will be used for read access checks to display all tasks somewhere and to display progress indicator of ongoing exporting task for current user 
+  """
+  user: User
+
+  """ Additional data, specific to used integration """
+  meta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input BankSyncTaskWhereInput {
+  AND: [BankSyncTaskWhereInput]
+  OR: [BankSyncTaskWhereInput]
+  account: BankAccountWhereInput
+  account_is_null: Boolean
+  integrationContext: BankIntegrationContextWhereInput
+  integrationContext_is_null: Boolean
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  property: PropertyWhereInput
+  property_is_null: Boolean
+  status: BankSyncTaskStatusType
+  status_not: BankSyncTaskStatusType
+  status_in: [BankSyncTaskStatusType]
+  status_not_in: [BankSyncTaskStatusType]
+  file: String
+  file_not: String
+  file_in: [String]
+  file_not_in: [String]
+  totalCount: Int
+  totalCount_not: Int
+  totalCount_lt: Int
+  totalCount_lte: Int
+  totalCount_gt: Int
+  totalCount_gte: Int
+  totalCount_in: [Int]
+  totalCount_not_in: [Int]
+  processedCount: Int
+  processedCount_not: Int
+  processedCount_lt: Int
+  processedCount_lte: Int
+  processedCount_gt: Int
+  processedCount_gte: Int
+  processedCount_in: [Int]
+  processedCount_not_in: [Int]
+  user: UserWhereInput
+  user_is_null: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input BankSyncTaskWhereUniqueInput {
+  id: ID!
+}
+
+enum SortBankSyncTasksBy {
+  account_ASC
+  account_DESC
+  integrationContext_ASC
+  integrationContext_DESC
+  organization_ASC
+  organization_DESC
+  property_ASC
+  property_DESC
+  status_ASC
+  status_DESC
+  totalCount_ASC
+  totalCount_DESC
+  processedCount_ASC
+  processedCount_DESC
+  user_ASC
+  user_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input BankSyncTaskUpdateInput {
+  account: BankAccountRelateToOneInput
+  integrationContext: BankIntegrationContextRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  property: PropertyRelateToOneInput
+  status: BankSyncTaskStatusType
+  file: Upload
+  totalCount: Int
+  processedCount: Int
+  user: UserRelateToOneInput
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input BankSyncTasksUpdateInput {
+  id: ID!
+  data: BankSyncTaskUpdateInput
+}
+
+input BankSyncTaskCreateInput {
+  account: BankAccountRelateToOneInput
+  integrationContext: BankIntegrationContextRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  property: PropertyRelateToOneInput
+  status: BankSyncTaskStatusType
+  file: Upload
+  totalCount: Int
+  processedCount: Int
+  user: UserRelateToOneInput
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input BankSyncTasksCreateInput {
+  data: BankSyncTaskCreateInput
+}
+
 enum TicketHistoryRecordHistoryActionType {
   c
   u
@@ -52368,6 +52908,7 @@ input ImportBankTransactionsInput {
   sender: JSON!
   file: Upload!
   organizationId: ID!
+  propertyId: ID!
 }
 
 type ImportBankTransactionsOutput {
@@ -53720,6 +54261,33 @@ type Query {
 
   """ Retrieve the meta-data for the BankTransaction list. """
   _BankTransactionsMeta: _ListMeta
+
+  """ Search for all BankSyncTaskHistoryRecord items which match the where clause. 
+  """
+  allBankSyncTaskHistoryRecords(where: BankSyncTaskHistoryRecordWhereInput, search: String, sortBy: [SortBankSyncTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [BankSyncTaskHistoryRecord]
+
+  """ Search for the BankSyncTaskHistoryRecord item with the matching ID. """
+  BankSyncTaskHistoryRecord(where: BankSyncTaskHistoryRecordWhereUniqueInput!): BankSyncTaskHistoryRecord
+
+  """ Perform a meta-query on all BankSyncTaskHistoryRecord items which match the where clause. 
+  """
+  _allBankSyncTaskHistoryRecordsMeta(where: BankSyncTaskHistoryRecordWhereInput, search: String, sortBy: [SortBankSyncTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the BankSyncTaskHistoryRecord list. """
+  _BankSyncTaskHistoryRecordsMeta: _ListMeta
+
+  """ Search for all BankSyncTask items which match the where clause. """
+  allBankSyncTasks(where: BankSyncTaskWhereInput, search: String, sortBy: [SortBankSyncTasksBy!], orderBy: String, first: Int, skip: Int): [BankSyncTask]
+
+  """ Search for the BankSyncTask item with the matching ID. """
+  BankSyncTask(where: BankSyncTaskWhereUniqueInput!): BankSyncTask
+
+  """ Perform a meta-query on all BankSyncTask items which match the where clause. 
+  """
+  _allBankSyncTasksMeta(where: BankSyncTaskWhereInput, search: String, sortBy: [SortBankSyncTasksBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the BankSyncTask list. """
+  _BankSyncTasksMeta: _ListMeta
 
   """ Search for all TicketHistoryRecord items which match the where clause. 
   """
@@ -56671,6 +57239,42 @@ type Mutation {
 
   """ Delete multiple BankTransaction items by ID. """
   deleteBankTransactions(ids: [ID!]): [BankTransaction]
+
+  """ Create a single BankSyncTaskHistoryRecord item. """
+  createBankSyncTaskHistoryRecord(data: BankSyncTaskHistoryRecordCreateInput): BankSyncTaskHistoryRecord
+
+  """ Create multiple BankSyncTaskHistoryRecord items. """
+  createBankSyncTaskHistoryRecords(data: [BankSyncTaskHistoryRecordsCreateInput]): [BankSyncTaskHistoryRecord]
+
+  """ Update a single BankSyncTaskHistoryRecord item by ID. """
+  updateBankSyncTaskHistoryRecord(id: ID!, data: BankSyncTaskHistoryRecordUpdateInput): BankSyncTaskHistoryRecord
+
+  """ Update multiple BankSyncTaskHistoryRecord items by ID. """
+  updateBankSyncTaskHistoryRecords(data: [BankSyncTaskHistoryRecordsUpdateInput]): [BankSyncTaskHistoryRecord]
+
+  """ Delete a single BankSyncTaskHistoryRecord item by ID. """
+  deleteBankSyncTaskHistoryRecord(id: ID!): BankSyncTaskHistoryRecord
+
+  """ Delete multiple BankSyncTaskHistoryRecord items by ID. """
+  deleteBankSyncTaskHistoryRecords(ids: [ID!]): [BankSyncTaskHistoryRecord]
+
+  """ Create a single BankSyncTask item. """
+  createBankSyncTask(data: BankSyncTaskCreateInput): BankSyncTask
+
+  """ Create multiple BankSyncTask items. """
+  createBankSyncTasks(data: [BankSyncTasksCreateInput]): [BankSyncTask]
+
+  """ Update a single BankSyncTask item by ID. """
+  updateBankSyncTask(id: ID!, data: BankSyncTaskUpdateInput): BankSyncTask
+
+  """ Update multiple BankSyncTask items by ID. """
+  updateBankSyncTasks(data: [BankSyncTasksUpdateInput]): [BankSyncTask]
+
+  """ Delete a single BankSyncTask item by ID. """
+  deleteBankSyncTask(id: ID!): BankSyncTask
+
+  """ Delete multiple BankSyncTask items by ID. """
+  deleteBankSyncTasks(ids: [ID!]): [BankSyncTask]
 
   """ Create a single TicketHistoryRecord item. """
   createTicketHistoryRecord(data: TicketHistoryRecordCreateInput): TicketHistoryRecord

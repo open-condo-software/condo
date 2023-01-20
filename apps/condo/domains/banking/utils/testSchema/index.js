@@ -277,7 +277,6 @@ async function createTestBankSyncTask (client, account, integrationContext, orga
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestBankSyncTask logic for generate fields
     const attrs = {
         dv: 1,
         sender,
@@ -285,6 +284,9 @@ async function createTestBankSyncTask (client, account, integrationContext, orga
         integrationContext: { connect: { id: integrationContext.id } },
         organization: { connect: { id: organization.id } },
         ...extraAttrs,
+    }
+    if (client.user) {
+        attrs.user = { connect: { id: client.user.id } }
     }
     const obj = await BankSyncTask.create(client, attrs)
     return [obj, attrs]
@@ -295,7 +297,6 @@ async function updateTestBankSyncTask (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestBankSyncTask logic for generate fields
     const attrs = {
         dv: 1,
         sender,
