@@ -355,7 +355,44 @@ describe('SyncRemoteClientService', () => {
             const device2 = RemoteClient.getOne(admin, { id: device.id })
 
             expect(device2.pushToken).toBeFalsy()
+        })
 
+        it('registers two devices and clears previously registered pushTokenVoIP that is being reused for second device', async () => {
+            const client = await makeClient()
+            const client1 = await makeClient()
+            const admin = await makeLoggedInAdminClient()
+            const payload = getRandomTokenData({ pushToken: undefined, pushTransport: undefined, meta: null })
+            const payload1Extra = {
+                pushTokenVoIP: payload.pushTokenVoIP,
+                pushTransportVoIP: payload.pushTransportVoIP,
+                pushTypeVoIP: payload.pushTypeVoIP,
+                meta: null,
+            }
+            const payload1 = getRandomTokenData(payload1Extra)
+            const [device] = await syncRemoteClientByTestClient(client, payload)
+
+            expect(device.id).not.toBeFalsy()
+            expect(device.deviceId).toEqual(payload.deviceId)
+            expect(device.appId).toEqual(payload.appId)
+            expect(device.pushTransportVoIP).toEqual(payload.pushTransportVoIP)
+            expect(device.devicePlatform).toEqual(payload.devicePlatform)
+            expect(device.pushTokenVoIP).toEqual(payload.pushTokenVoIP)
+            expect(device.meta).toBeNull()
+            expect(device.owner).toBeNull()
+
+            const [device1] = await syncRemoteClientByTestClient(client1, payload1)
+
+            expect(device1.deviceId).toEqual(payload1.deviceId)
+            expect(device1.appId).toEqual(payload1.appId)
+            expect(device1.pushTransportVoIP).toEqual(payload1.pushTransportVoIP)
+            expect(device1.devicePlatform).toEqual(payload1.devicePlatform)
+            expect(device1.pushTokenVoIP).toEqual(payload1.pushTokenVoIP)
+            expect(device1.meta).toBeNull()
+            expect(device1.owner).toBeNull()
+
+            const device2 = RemoteClient.getOne(admin, { id: device.id })
+
+            expect(device2.pushTokenVoIP).toBeFalsy()
         })
 
     })

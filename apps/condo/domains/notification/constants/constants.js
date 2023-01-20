@@ -48,6 +48,7 @@ const CUSTOM_CONTENT_MESSAGE_TYPE = 'CUSTOM_CONTENT_MESSAGE'
 const CUSTOM_CONTENT_MESSAGE_PUSH_TYPE = 'CUSTOM_CONTENT_MESSAGE_PUSH'
 const CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE = 'CUSTOM_CONTENT_MESSAGE_EMAIL'
 const CUSTOM_CONTENT_MESSAGE_SMS_TYPE = 'CUSTOM_CONTENT_MESSAGE_SMS'
+const VOIP_INCOMING_CALL_MESSAGE_TYPE = 'VOIP_INCOMING_CALL_MESSAGE'
 
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -85,6 +86,7 @@ const MESSAGE_TYPES = [
     CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
     CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
     CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
+    VOIP_INCOMING_CALL_MESSAGE_TYPE,
 ]
 
 /**
@@ -96,6 +98,7 @@ const MESSAGE_TYPES_TRANSPORTS = {
     [MESSAGE_FORWARDED_TO_SUPPORT_TYPE]: [EMAIL_TRANSPORT],
     [SHARE_TICKET_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
     [BANK_ACCOUNT_CREATION_REQUEST_TYPE]: [EMAIL_TRANSPORT],
+    [VOIP_INCOMING_CALL_MESSAGE_TYPE]: [PUSH_TRANSPORT],
 }
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
@@ -396,6 +399,15 @@ const MESSAGE_META = {
             messageBatchId: { required: false },
         },
     },
+    [VOIP_INCOMING_CALL_MESSAGE_TYPE]: {
+        dv: { required: true },
+        title: { required: false },
+        body: { required: true },
+        data: {
+            B2CAppId: { required: true },
+            callId: { required: true },
+        },
+    },
 }
 
 
@@ -417,6 +429,7 @@ const DEFAULT_MESSAGE_DELIVERY_OPTIONS = {
     allowedTransports: [PUSH_TRANSPORT, EMAIL_TRANSPORT],
     defaultTransports: [PUSH_TRANSPORT],
     isAllowedToChangeDefaultTransport: true,
+    isVoIP: false,
 }
 
 /**
@@ -489,6 +502,12 @@ const MESSAGE_DELIVERY_OPTIONS = {
         allowedTransports: [EMAIL_TRANSPORT],
         defaultTransports: [EMAIL_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
+    },
+    [VOIP_INCOMING_CALL_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+        isVoIP: true,
     },
 }
 
@@ -661,4 +680,5 @@ module.exports = {
     MESSAGE_DELIVERY_DEFAULT_PRIORITY,
     MESSAGE_DELIVERY_SLOW_PRIORITY,
     MESSAGE_DELIVERY_FAST_PRIORITY,
+    VOIP_INCOMING_CALL_MESSAGE_TYPE,
 }

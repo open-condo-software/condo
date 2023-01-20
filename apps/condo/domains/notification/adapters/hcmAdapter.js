@@ -3,6 +3,7 @@ const { isEmpty, isObject, isNull, get } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 
@@ -16,6 +17,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const {
     EMPTY_HCM_CONFIG_ERROR,
+    HCM_UNSUPPORTED_APP_ID_ERROR,
     INVALID_HCM_CONFIG_ERROR,
     EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
 } = require('@condo/domains/notification/constants/errors')
@@ -49,6 +51,7 @@ class HCMAdapter {
         [APP_RESIDENT_KEY]: null,
         [APP_MASTER_KEY]: null,
     }
+    #configErrors = []
 
     constructor (config = HCM_CONFIG) {
         try {
@@ -58,6 +61,7 @@ class HCMAdapter {
             this.apps[APP_RESIDENT_KEY] = new HCMMessaging(config[APP_RESIDENT_KEY])
         } catch (error) {
 
+            this.#configErrors.push(error)
             // For CI/local tests config is useless because of emulation via FAKE tokens
             logger.error({ msg: 'HCMAdapter error', error })
         }
@@ -70,7 +74,7 @@ class HCMAdapter {
      * @returns {*}
      */
     static getAppType (appIds, token) {
-        return HUAWEI_APP_TYPE_BY_APP_ID[appIds[token]]
+        return HUAWEI_APP_TYPE_BY_APP_ID[get(appIds, token)]
     }
 
     /**
@@ -82,7 +86,7 @@ class HCMAdapter {
 
         CONFIG_VALIDATED_FIELDS.forEach(
             (field) => {
-                if (isEmpty(get(config, field))) throw new Error(INVALID_HCM_CONFIG_ERROR)
+                if (isEmpty(get(config, field))) throw new Error(`${INVALID_HCM_CONFIG_ERROR} Field missing: ${field}`)
             }
         )
     }
@@ -257,6 +261,15 @@ class HCMAdapter {
             result = HCMAdapter.injectFakeResults(HCMAdapter.getEmptyResult(), fakeNotifications, appIds)
         }
 
+        if (isEmpty(fakeNotifications) && !isEmpty(notifications) && !isEmpty(this.#configErrors)) {
+            const hcmResult = HCMAdapter.getEmptyResult()
+
+            hcmResult.failureCount += 1
+            hcmResult.responses.push({ state: 'error', error: 'No Huawei config available.', details: this.#configErrors, apps: this.apps })
+
+            return [false, { ...hcmResult, pushContext }]
+        }
+
         // NOTE: we try to fire HCM request only if HCM was initialized and we have some real notifications
         if (!isNull(this.apps[APP_MASTER_KEY]) && !isNull(this.apps[APP_RESIDENT_KEY]) && !isEmpty(notifications)) {
             const hcmResult = HCMAdapter.getEmptyResult()
@@ -268,6 +281,8 @@ class HCMAdapter {
                 const app = this.apps[appType]
 
                 try {
+                    if (!appType || !app) throw new Error(`${HCM_UNSUPPORTED_APP_ID_ERROR}: ${get(appIds, notifications[idx].token)}`)
+
                     const sendResult = await app.send(notification)
 
                     hcmResult.responses.push({
@@ -290,10 +305,11 @@ class HCMAdapter {
                     if (!SUCCESS_CODES.includes(sendResult.code)) hcmResult.failureCount += 1
 
                 } catch (error) {
-                    logger.error({ msg: 'sendNotification error', error })
+                    const safeError = safeFormatError(error, false)
 
                     hcmResult.failureCount += 1
-                    hcmResult.responses.push({ state: 'error', error })
+                    hcmResult.responses.push({ state: 'error', error: safeError })
+                    logger.error({ msg: 'sendNotification error', error: safeError })
                 }
             }
 

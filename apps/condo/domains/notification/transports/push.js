@@ -20,24 +20,43 @@ const ADAPTERS = {
 }
 
 /**
- * Request push tokens for user. Able to detect FireBase/Huawei and different appId versions.
+ * Prepares conditions
  * @param ownerId
- * @param id
- * @returns {Promise<{tokensByTransport: {[p: string]: [], '[PUSH_TRANSPORT_HUAWEI]': *[], '[PUSH_TRANSPORT_APPLE]': *[], '[PUSH_TRANSPORT_FIREBASE]': *[]}, appIds: {}, pushTypes: {}, count}|*[]>}
+ * @param remoteClientId
+ * @param isVoIP
+ * @returns {{deletedAt: null, pushToken_not?: null, pushTransport_in?: [string, string, string]}|{deletedAt: null, pushTokenVoIP_not?: null, pushTransportVoIP_in?: [string, string, string]}}
  */
-async function getTokens (ownerId, id) {
-    if (!ownerId && !id) return []
-
-    const condition = {
+function getTokensConditions (ownerId, remoteClientId, isVoIP) {
+    const conditions = {
         deletedAt: null,
-        pushToken_not: null,
-        pushTransport_in: PUSH_TRANSPORT_TYPES,
     }
 
-    if (ownerId) condition.owner = { id: ownerId }
-    if (id) condition.id_in = [id]
+    if (ownerId) conditions.owner = { id: ownerId }
+    if (remoteClientId) conditions.id_in = [remoteClientId]
 
-    const remoteClients =  await find('RemoteClient', condition)
+    if (isVoIP) {
+        conditions.pushTokenVoIP_not = null
+        conditions.pushTransportVoIP_in = PUSH_TRANSPORT_TYPES
+    } else {
+        conditions.pushToken_not =  null
+        conditions.pushTransport_in = PUSH_TRANSPORT_TYPES
+    }
+
+    return conditions
+}
+
+/**
+ * Request push tokens for user. Able to detect FireBase/Huawei and different appId versions. isVoIP flag is used to substitute VoIP pushToken, pushType and pushTransport fields.
+ * @param ownerId
+ * @param remoteClientId
+ * @param isVoIP
+ * @returns {Promise<{tokensByTransport: {[p: string]: [], '[PUSH_TRANSPORT_HUAWEI]': *[], '[PUSH_TRANSPORT_APPLE]': *[], '[PUSH_TRANSPORT_FIREBASE]': *[]}, appIds: {}, pushTypes: {}, count}|*[]>}
+ */
+async function getTokens (ownerId, remoteClientId, isVoIP = false) {
+    if (!ownerId && !remoteClientId) return []
+
+    const conditions = getTokensConditions(ownerId, remoteClientId, isVoIP)
+    const remoteClients =  await find('RemoteClient', conditions)
     const tokensByTransport = {
         [PUSH_TRANSPORT_FIREBASE]: [],
         [PUSH_TRANSPORT_HUAWEI]: [],
@@ -47,10 +66,18 @@ async function getTokens (ownerId, id) {
     const appIds = {}
 
     if (!isEmpty(remoteClients)) {
-        remoteClients.forEach(({ pushToken, pushType, pushTransport, appId }) => {
-            tokensByTransport[pushTransport].push(pushToken)
-            pushTypes[pushToken] = pushType
-            appIds[pushToken] = appId
+        remoteClients.forEach((remoteClient) => {
+            const {
+                appId, pushToken, pushType, pushTransport,
+                pushTokenVoIP, pushTypeVoIP, pushTransportVoIP,
+            } = remoteClient
+            const transport = isVoIP ? pushTransportVoIP : pushTransport
+            const token = isVoIP ? pushTokenVoIP : pushToken
+            const type = isVoIP ? pushTypeVoIP : pushType
+
+            tokensByTransport[transport].push(token)
+            pushTypes[token] = type
+            appIds[token] = appId
         })
     }
 
@@ -86,17 +113,18 @@ const mixResult = (container, result) => {
 }
 
 /**
- * Send notification using corresponding transports (depending on FireBase/Huawei and appId)
+ * Send notification using corresponding transports (depending on FireBase/Huawei/Apple, appId, isVoIP)
  * @param notification
  * @param data
  * @param user
  * @param remoteClient
+ * @param isVoIP
  * @returns {Promise<[boolean, {error: string}]|(boolean|{})[]>}
  */
-async function send ({ notification, data, user, remoteClient } = {}) {
+async function send ({ notification, data, user, remoteClient } = {}, isVoIP = false) {
     const userId = get(user, 'id')
     const remoteClientId = get(remoteClient, 'id')
-    const { tokensByTransport, pushTypes, appIds, count } = await getTokens(userId, remoteClientId)
+    const { tokensByTransport, pushTypes, appIds, count } = await getTokens(userId, remoteClientId, isVoIP)
 
     let container = {}
     let _isOk = false

@@ -14,13 +14,16 @@ const getRandomFakeFailToken = () => `${PUSH_FAKE_TOKEN_FAIL}-${faker.datatype.u
 const getRandomTokenData = (extraAttrs = {}) => {
     const pushTransport = get(extraAttrs, 'pushTransport') || sample(PUSH_TRANSPORT_TYPES)
     const devicePlatform = sample(DEVICE_PLATFORM_TYPES)
+    const pushToken = faker.datatype.uuid()
 
     return {
         deviceId: faker.datatype.uuid(),
         appId: faker.datatype.uuid(),
-        pushToken: faker.datatype.uuid(),
+        pushToken,
         pushTransport,
         devicePlatform,
+        pushTokenVoIP: pushToken,
+        pushTransportVoIP: pushTransport,
         meta: { pushTransport },
         ...extraAttrs,
     }

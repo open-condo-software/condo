@@ -26270,6 +26270,25 @@ export type Mutation = {
    * 				"required": false
    * 			}
    * 		}
+   * 	},
+   * 	"VOIP_INCOMING_CALL_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"title": {
+   * 			"required": false
+   * 		},
+   * 		"body": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"B2CAppId": {
+   * 				"required": true
+   * 			},
+   * 			"callId": {
+   * 				"required": true
+   * 			}
+   * 		}
    * 	}
    * }`
    *
@@ -44550,6 +44569,12 @@ export type RemoteClient = {
   devicePlatform?: Maybe<RemoteClientDevicePlatformType>;
   /**  Represents the type of push to be sent to the remote client like default/silent-data/etc. Remote client can control structure of data sent via push to the device using this field.Some remote clients are able to show own notifications instead system ones. To do so they have to receive push, containing no notification part, which is sent if this field is equal to PUSH_TYPE_SILENT_DATA.  */
   pushType?: Maybe<RemoteClientPushTypeType>;
+  /**  Used by transport services (FireBase, Apple, Huawei, etc.) to transfer VoIP push notifications to devices.  */
+  pushTokenVoIP?: Maybe<Scalars['String']>;
+  /**  Transport service, that delivers VoIP push notifications to client device. Type of device requires specific transport service, e.g. Huawei devices can not receive notifications through FireBase.  */
+  pushTransportVoIP?: Maybe<RemoteClientPushTransportVoIpType>;
+  /**  Represents the type of VoIP push to be sent to the remote client like default/silent-data/etc. Remote client can control structure of data sent via push to the device using this field.Some remote clients are able to show own notifications instead system ones. To do so they have to receive push, containing no notification part, which is sent if this field is equal to PUSH_TYPE_SILENT_DATA.  */
+  pushTypeVoIP?: Maybe<RemoteClientPushTypeVoIpType>;
   /**  Owner user of a device and a push token. User, which is logged in on the device. Push token can be created by anonymous user and connected to authorized user later on.  */
   owner?: Maybe<User>;
   /**  RemoteClient metadata. OS type, OS version, etc.  */
@@ -44577,6 +44602,9 @@ export type RemoteClientCreateInput = {
   pushTransport?: Maybe<RemoteClientPushTransportType>;
   devicePlatform?: Maybe<RemoteClientDevicePlatformType>;
   pushType?: Maybe<RemoteClientPushTypeType>;
+  pushTokenVoIP?: Maybe<Scalars['String']>;
+  pushTransportVoIP?: Maybe<RemoteClientPushTransportVoIpType>;
+  pushTypeVoIP?: Maybe<RemoteClientPushTypeVoIpType>;
   owner?: Maybe<UserRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -44613,6 +44641,9 @@ export type RemoteClientHistoryRecord = {
   pushTransport?: Maybe<Scalars['String']>;
   devicePlatform?: Maybe<Scalars['String']>;
   pushType?: Maybe<Scalars['String']>;
+  pushTokenVoIP?: Maybe<Scalars['String']>;
+  pushTransportVoIP?: Maybe<Scalars['String']>;
+  pushTypeVoIP?: Maybe<Scalars['String']>;
   owner?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -44637,6 +44668,9 @@ export type RemoteClientHistoryRecordCreateInput = {
   pushTransport?: Maybe<Scalars['String']>;
   devicePlatform?: Maybe<Scalars['String']>;
   pushType?: Maybe<Scalars['String']>;
+  pushTokenVoIP?: Maybe<Scalars['String']>;
+  pushTransportVoIP?: Maybe<Scalars['String']>;
+  pushTypeVoIP?: Maybe<Scalars['String']>;
   owner?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -44666,6 +44700,9 @@ export type RemoteClientHistoryRecordUpdateInput = {
   pushTransport?: Maybe<Scalars['String']>;
   devicePlatform?: Maybe<Scalars['String']>;
   pushType?: Maybe<Scalars['String']>;
+  pushTokenVoIP?: Maybe<Scalars['String']>;
+  pushTransportVoIP?: Maybe<Scalars['String']>;
+  pushTypeVoIP?: Maybe<Scalars['String']>;
   owner?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -44793,6 +44830,60 @@ export type RemoteClientHistoryRecordWhereInput = {
   pushType_not_ends_with_i?: Maybe<Scalars['String']>;
   pushType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   pushType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushTokenVoIP?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not?: Maybe<Scalars['String']>;
+  pushTokenVoIP_contains?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_contains?: Maybe<Scalars['String']>;
+  pushTokenVoIP_starts_with?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_starts_with?: Maybe<Scalars['String']>;
+  pushTokenVoIP_ends_with?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_ends_with?: Maybe<Scalars['String']>;
+  pushTokenVoIP_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_contains_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_contains_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_starts_with_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_starts_with_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_ends_with_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_ends_with_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushTokenVoIP_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushTransportVoIP?: Maybe<Scalars['String']>;
+  pushTransportVoIP_not?: Maybe<Scalars['String']>;
+  pushTransportVoIP_contains?: Maybe<Scalars['String']>;
+  pushTransportVoIP_not_contains?: Maybe<Scalars['String']>;
+  pushTransportVoIP_starts_with?: Maybe<Scalars['String']>;
+  pushTransportVoIP_not_starts_with?: Maybe<Scalars['String']>;
+  pushTransportVoIP_ends_with?: Maybe<Scalars['String']>;
+  pushTransportVoIP_not_ends_with?: Maybe<Scalars['String']>;
+  pushTransportVoIP_i?: Maybe<Scalars['String']>;
+  pushTransportVoIP_not_i?: Maybe<Scalars['String']>;
+  pushTransportVoIP_contains_i?: Maybe<Scalars['String']>;
+  pushTransportVoIP_not_contains_i?: Maybe<Scalars['String']>;
+  pushTransportVoIP_starts_with_i?: Maybe<Scalars['String']>;
+  pushTransportVoIP_not_starts_with_i?: Maybe<Scalars['String']>;
+  pushTransportVoIP_ends_with_i?: Maybe<Scalars['String']>;
+  pushTransportVoIP_not_ends_with_i?: Maybe<Scalars['String']>;
+  pushTransportVoIP_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushTransportVoIP_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushTypeVoIP?: Maybe<Scalars['String']>;
+  pushTypeVoIP_not?: Maybe<Scalars['String']>;
+  pushTypeVoIP_contains?: Maybe<Scalars['String']>;
+  pushTypeVoIP_not_contains?: Maybe<Scalars['String']>;
+  pushTypeVoIP_starts_with?: Maybe<Scalars['String']>;
+  pushTypeVoIP_not_starts_with?: Maybe<Scalars['String']>;
+  pushTypeVoIP_ends_with?: Maybe<Scalars['String']>;
+  pushTypeVoIP_not_ends_with?: Maybe<Scalars['String']>;
+  pushTypeVoIP_i?: Maybe<Scalars['String']>;
+  pushTypeVoIP_not_i?: Maybe<Scalars['String']>;
+  pushTypeVoIP_contains_i?: Maybe<Scalars['String']>;
+  pushTypeVoIP_not_contains_i?: Maybe<Scalars['String']>;
+  pushTypeVoIP_starts_with_i?: Maybe<Scalars['String']>;
+  pushTypeVoIP_not_starts_with_i?: Maybe<Scalars['String']>;
+  pushTypeVoIP_ends_with_i?: Maybe<Scalars['String']>;
+  pushTypeVoIP_not_ends_with_i?: Maybe<Scalars['String']>;
+  pushTypeVoIP_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushTypeVoIP_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   owner?: Maybe<Scalars['String']>;
   owner_not?: Maybe<Scalars['String']>;
   owner_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -44898,7 +44989,18 @@ export enum RemoteClientPushTransportType {
   Huawei = 'huawei'
 }
 
+export enum RemoteClientPushTransportVoIpType {
+  Firebase = 'firebase',
+  Apple = 'apple',
+  Huawei = 'huawei'
+}
+
 export enum RemoteClientPushTypeType {
+  Default = 'default',
+  SilentData = 'silent_data'
+}
+
+export enum RemoteClientPushTypeVoIpType {
   Default = 'default',
   SilentData = 'silent_data'
 }
@@ -44917,6 +45019,9 @@ export type RemoteClientUpdateInput = {
   pushTransport?: Maybe<RemoteClientPushTransportType>;
   devicePlatform?: Maybe<RemoteClientDevicePlatformType>;
   pushType?: Maybe<RemoteClientPushTypeType>;
+  pushTokenVoIP?: Maybe<Scalars['String']>;
+  pushTransportVoIP?: Maybe<RemoteClientPushTransportVoIpType>;
+  pushTypeVoIP?: Maybe<RemoteClientPushTypeVoIpType>;
   owner?: Maybe<UserRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -44999,6 +45104,32 @@ export type RemoteClientWhereInput = {
   pushType_not?: Maybe<RemoteClientPushTypeType>;
   pushType_in?: Maybe<Array<Maybe<RemoteClientPushTypeType>>>;
   pushType_not_in?: Maybe<Array<Maybe<RemoteClientPushTypeType>>>;
+  pushTokenVoIP?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not?: Maybe<Scalars['String']>;
+  pushTokenVoIP_contains?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_contains?: Maybe<Scalars['String']>;
+  pushTokenVoIP_starts_with?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_starts_with?: Maybe<Scalars['String']>;
+  pushTokenVoIP_ends_with?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_ends_with?: Maybe<Scalars['String']>;
+  pushTokenVoIP_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_contains_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_contains_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_starts_with_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_starts_with_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_ends_with_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_not_ends_with_i?: Maybe<Scalars['String']>;
+  pushTokenVoIP_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushTokenVoIP_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushTransportVoIP?: Maybe<RemoteClientPushTransportVoIpType>;
+  pushTransportVoIP_not?: Maybe<RemoteClientPushTransportVoIpType>;
+  pushTransportVoIP_in?: Maybe<Array<Maybe<RemoteClientPushTransportVoIpType>>>;
+  pushTransportVoIP_not_in?: Maybe<Array<Maybe<RemoteClientPushTransportVoIpType>>>;
+  pushTypeVoIP?: Maybe<RemoteClientPushTypeVoIpType>;
+  pushTypeVoIP_not?: Maybe<RemoteClientPushTypeVoIpType>;
+  pushTypeVoIP_in?: Maybe<Array<Maybe<RemoteClientPushTypeVoIpType>>>;
+  pushTypeVoIP_not_in?: Maybe<Array<Maybe<RemoteClientPushTypeVoIpType>>>;
   owner?: Maybe<UserWhereInput>;
   owner_is_null?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -45846,7 +45977,8 @@ export enum SendMessageType {
   CustomContentMessage = 'CUSTOM_CONTENT_MESSAGE',
   CustomContentMessagePush = 'CUSTOM_CONTENT_MESSAGE_PUSH',
   CustomContentMessageEmail = 'CUSTOM_CONTENT_MESSAGE_EMAIL',
-  CustomContentMessageSms = 'CUSTOM_CONTENT_MESSAGE_SMS'
+  CustomContentMessageSms = 'CUSTOM_CONTENT_MESSAGE_SMS',
+  VoipIncomingCallMessage = 'VOIP_INCOMING_CALL_MESSAGE'
 }
 
 export type SenderField = {
@@ -50491,6 +50623,12 @@ export enum SortRemoteClientHistoryRecordsBy {
   DevicePlatformDesc = 'devicePlatform_DESC',
   PushTypeAsc = 'pushType_ASC',
   PushTypeDesc = 'pushType_DESC',
+  PushTokenVoIpAsc = 'pushTokenVoIP_ASC',
+  PushTokenVoIpDesc = 'pushTokenVoIP_DESC',
+  PushTransportVoIpAsc = 'pushTransportVoIP_ASC',
+  PushTransportVoIpDesc = 'pushTransportVoIP_DESC',
+  PushTypeVoIpAsc = 'pushTypeVoIP_ASC',
+  PushTypeVoIpDesc = 'pushTypeVoIP_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -50522,6 +50660,12 @@ export enum SortRemoteClientsBy {
   DevicePlatformDesc = 'devicePlatform_DESC',
   PushTypeAsc = 'pushType_ASC',
   PushTypeDesc = 'pushType_DESC',
+  PushTokenVoIpAsc = 'pushTokenVoIP_ASC',
+  PushTokenVoIpDesc = 'pushTokenVoIP_DESC',
+  PushTransportVoIpAsc = 'pushTransportVoIP_ASC',
+  PushTransportVoIpDesc = 'pushTransportVoIP_DESC',
+  PushTypeVoIpAsc = 'pushTypeVoIP_ASC',
+  PushTypeVoIpDesc = 'pushTypeVoIP_DESC',
   OwnerAsc = 'owner_ASC',
   OwnerDesc = 'owner_DESC',
   IdAsc = 'id_ASC',
@@ -52135,6 +52279,9 @@ export type SyncRemoteClientInput = {
   devicePlatform?: Maybe<DevicePlatformType>;
   pushType?: Maybe<PushType>;
   meta?: Maybe<Scalars['JSON']>;
+  pushTokenVoIP?: Maybe<Scalars['String']>;
+  pushTransportVoIP?: Maybe<PushTransportType>;
+  pushTypeVoIP?: Maybe<PushType>;
 };
 
 /**  Users request or contact with the user. It has fields `clientName`, `clientPhone`, `clientEmail`, which stores contact information at the moment of creating or updating. Values of these fields are independent from related entities, like Contact, Resident etc. If by some reason related entities will be deleted, unavailable or will change its contact information, these fields will stay unchanged.So, by creating a new ticket with connection to some contact entity (Contact, Resident), these fields will be populated by its contact information if other values are not explicitly provided.  */

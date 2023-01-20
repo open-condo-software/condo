@@ -40,7 +40,16 @@ const MESSAGE_SENDING_STATUSES = {
     [MESSAGE_RESENDING_STATUS]: true,
 }
 
-async function _sendMessageByAdapter (transport, adapter, messageContext) {
+/**
+ * Sends message using corresponding adapter
+ * @param transport
+ * @param adapter
+ * @param messageContext
+ * @param isVoIP
+ * @returns {Promise<*|[boolean, {fakeAdapter: boolean, messageContext, transport}]>}
+ * @private
+ */
+async function _sendMessageByAdapter (transport, adapter, messageContext, isVoIP) {
     // NOTE: push adapters able to handle fake push tokens and working without credentials,
     // to emulate real push transfer and API responses.
     // Besides, this fakeAdapter thing prevents deep testing push transfer logic internals.
@@ -51,22 +60,22 @@ async function _sendMessageByAdapter (transport, adapter, messageContext) {
         return [true, { fakeAdapter: true, transport, messageContext }]
     }
 
-    return await adapter.send(messageContext)
+    return await adapter.send(messageContext, isVoIP)
 }
 
 /**
  * Extends DEFAULT_MESSAGE_DELIVERY_OPTIONS with MESSAGE_DELIVERY_OPTIONS[type] if available
  * @param type
- * @returns {{transports: *, strategy: *}}
+ * @returns {{isVoIP: *, transports: *, strategy: *}}
  */
-function getMessageTransportsAndStrategy (type) {
-    const { strategy, defaultTransports } =
+function getMessageOptions (type) {
+    const { strategy, defaultTransports, isVoIP } =
         {
             ...DEFAULT_MESSAGE_DELIVERY_OPTIONS,
             ...get(MESSAGE_DELIVERY_OPTIONS, type, {}),
         }
 
-    return { strategy, transports: defaultTransports }
+    return { strategy, transports: defaultTransports, isVoIP }
 }
 
 /**
@@ -115,12 +124,14 @@ async function deliverMessage (messageId) {
 
     await Message.update(context, message.id, messageInitData)
 
-    const { strategy, transports } = getMessageTransportsAndStrategy(message.type)
+    const { strategy, transports, isVoIP } = getMessageOptions(message.type)
     const sendByOneTransport = strategy === MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT
 
     processingMeta.defaultTransports = transports
     processingMeta.transports = []
     processingMeta.transportsMeta = []
+
+    if (isVoIP) processingMeta.isVoIP = isVoIP
 
     let successCnt = 0
 
@@ -138,7 +149,7 @@ async function deliverMessage (messageId) {
             transportMeta.messageContext = messageContext
             processingMeta.transports.push(transport)
 
-            const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext)
+            const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
             transportMeta.deliveryMetadata = deliveryMetadata
             transportMeta.status = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
             processingMeta.step = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS

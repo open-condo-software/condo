@@ -58,7 +58,7 @@ describe('export', async () => {
             taskServerUtils,
         })
 
-        expect(loadRecordsBatch.mock.calls.length).toBe(numberOfIterations)
-        expect(convertRecordToFileRow.mock.calls.length).toBe(totalRecordsCount)
+        expect(loadRecordsBatch.mock.calls).toHaveLength(numberOfIterations)
+        expect(convertRecordToFileRow.mock.calls).toHaveLength(totalRecordsCount)
     })
 })

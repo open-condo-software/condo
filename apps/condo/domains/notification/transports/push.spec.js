@@ -90,7 +90,7 @@ describe('push transport', () => {
 
                 const { responses, pushContext, successCount, failureCount } = transportMeta.deliveryMetadata
 
-                expect(responses.length).toEqual(1)
+                expect(responses).toHaveLength(1)
                 expect(responses[0].code).toEqual(PUSH_SUCCESS_CODE)
                 expect(responses[0].type).toEqual('Fake')
                 expect(responses[0].appType).toEqual(HUAWEI_APP_TYPE_BY_APP_ID[payload.appId])
@@ -152,7 +152,7 @@ describe('push transport', () => {
 
                 const { responses, pushContext, successCount, failureCount } = transportMeta.deliveryMetadata
 
-                expect(responses.length).toEqual(1)
+                expect(responses).toHaveLength(1)
                 expect(responses[0].code).toEqual(PUSH_PARTIAL_SUCCESS_CODE)
                 expect(responses[0].type).toEqual('Fake')
                 expect(responses[0].appType).toEqual(HUAWEI_APP_TYPE_BY_APP_ID[payload.appId])
@@ -215,7 +215,7 @@ describe('push transport', () => {
 
                 const { responses, pushContext, successCount, failureCount } = transportMeta.deliveryMetadata
 
-                expect(responses.length).toEqual(1)
+                expect(responses).toHaveLength(1)
                 expect(responses[0].code).toEqual(PUSH_SUCCESS_CODE)
                 expect(responses[0].type).toEqual('Fake')
                 expect(responses[0].appType).toEqual(HUAWEI_APP_TYPE_BY_APP_ID[payload.appId])
@@ -282,7 +282,7 @@ describe('push transport', () => {
 
                 const { responses, pushContext, successCount, failureCount } = transportMeta.deliveryMetadata
 
-                expect(responses.length).toEqual(1)
+                expect(responses).toHaveLength(1)
                 expect(responses[0].code).toEqual(PUSH_SUCCESS_CODE)
                 expect(responses[0].type).toEqual('Fake')
                 expect(responses[0].appType).toEqual(HUAWEI_APP_TYPE_BY_APP_ID[payload.appId])
@@ -344,7 +344,7 @@ describe('push transport', () => {
 
                 const { responses, pushContext, successCount, failureCount } = transportMeta.deliveryMetadata
 
-                expect(responses.length).toEqual(1)
+                expect(responses).toHaveLength(1)
                 expect(responses[0].code).toEqual(PUSH_PARTIAL_SUCCESS_CODE)
                 expect(responses[0].type).toEqual('Fake')
                 expect(responses[0].appType).toEqual(HUAWEI_APP_TYPE_BY_APP_ID[payload.appId])
@@ -407,7 +407,7 @@ describe('push transport', () => {
 
                 const { responses, pushContext, successCount, failureCount } = transportMeta.deliveryMetadata
 
-                expect(responses.length).toEqual(1)
+                expect(responses).toHaveLength(1)
                 expect(responses[0].code).toEqual(PUSH_SUCCESS_CODE)
                 expect(responses[0].type).toEqual('Fake')
                 expect(responses[0].appType).toEqual(HUAWEI_APP_TYPE_BY_APP_ID[payload.appId])
@@ -695,7 +695,7 @@ describe('push transport', () => {
 
                 const { responses, pushContext, successCount, failureCount } = transportMeta.deliveryMetadata
 
-                expect(responses.length).toEqual(6)
+                expect(responses).toHaveLength(6)
 
                 expect(successCount).toEqual(4)
                 expect(failureCount).toEqual(2)
