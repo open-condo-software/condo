@@ -46,17 +46,41 @@ const CondoWebAppShowProgressBarParamsSchema = {
     properties: {
         message: { type: 'string' },
         description: { type: 'string' },
+        externalTaskId: { type: 'string' },
     },
     required: ['message'],
     additionalProperties: false,
+}
+
+const CondoWebAppUpdateProgressBarParamsSchema = {
+    type: 'object',
+    properties: {
+        barId: { type: 'string' },
+        data: {
+            type: 'object',
+            properties: {
+                message: { type: 'string' },
+                description: { type: 'string' },
+                progress: { type: 'integer' },
+                status: { type: 'string', enum: ['completed', 'error'] },
+            },
+            additionalProperties: false,
+            required: [],
+            minProperties: 1,
+        },
+    },
+    additionalProperties: false,
+    required: ['barId', 'data'],
 }
 
 export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValidator<Method> }
 
 export const validators: ValidatorsType = {
     CondoWebSendAnalyticsEvent: ajv.compile(CondoWebSendAnalyticsEventParamsSchema),
+    CondoWebAppGetActiveProgressBars: NoParamsValidator,
     CondoWebAppGetLaunchParams: NoParamsValidator,
     CondoWebAppResizeWindow: ajv.compile(CondoWebAppResizeWindowParamsSchema),
     CondoWebAppShowNotification: ajv.compile(CondoWebAppShowNotificationParamsSchema),
     CondoWebAppShowProgressBar: ajv.compile(CondoWebAppShowProgressBarParamsSchema),
+    CondoWebAppUpdateProgressBar: ajv.compile(CondoWebAppUpdateProgressBarParamsSchema),
 }

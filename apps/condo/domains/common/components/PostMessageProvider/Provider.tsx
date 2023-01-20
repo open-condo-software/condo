@@ -19,6 +19,8 @@ import {
     handleNotification,
     useLaunchParamsHandler,
     useShowProgressBarHandler,
+    useGetActiveProgressBarsHandler,
+    useUpdateProgressBarHandler,
 } from './globalHandlers'
 
 
@@ -135,14 +137,24 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     }, [])
 
     const launchParamsHandler = useLaunchParamsHandler()
+    const showProgressBarHandler = useShowProgressBarHandler()
+    const getActiveProgressBarsHandler = useGetActiveProgressBarsHandler()
+    const updateProgressBarHandler = useUpdateProgressBarHandler()
     useEffect(() => {
         addEventHandler('CondoWebAppGetLaunchParams', '*', launchParamsHandler)
     }, [addEventHandler, launchParamsHandler])
 
-    const showProgressBarHandler = useShowProgressBarHandler()
     useEffect(() => {
         addEventHandler('CondoWebAppShowProgressBar', '*', showProgressBarHandler)
     }, [addEventHandler, showProgressBarHandler])
+
+    useEffect(() => {
+        addEventHandler('CondoWebAppGetActiveProgressBars', '*', getActiveProgressBarsHandler)
+    }, [addEventHandler, getActiveProgressBarsHandler])
+
+    useEffect(() => {
+        addEventHandler('CondoWebAppUpdateProgressBar', '*', updateProgressBarHandler)
+    }, [addEventHandler, updateProgressBarHandler])
 
     const addOrigin = useCallback((origin: string) => {
         setAllowedOrigins((prev) => prev.includes(origin) ? prev : [...prev, origin])
@@ -198,7 +210,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
             const validator = validators[method]
             if (validator(params)) {
                 try {
-                    const result = handler(params)
+                    const result = handler(params, origin)
                     return event.source.postMessage({
                         type: `${method}Result`,
                         data: {
