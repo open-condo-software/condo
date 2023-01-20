@@ -4,10 +4,11 @@ const { get } = require('lodash')
  */
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { getById } = require('@open-condo/keystone/schema')
+
 const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { getById } = require('@open-condo/keystone/schema')
 
 async function canReadBankTransactions ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

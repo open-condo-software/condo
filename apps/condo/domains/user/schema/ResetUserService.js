@@ -16,16 +16,18 @@
  * 2. User wants to remove all his data from our system.
  */
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
+const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/user/access/ResetUserService')
 const { DELETED_USER_NAME } = require('@condo/domains/user/constants')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
-const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+
 const { USER_NOT_FOUND, CANNOT_RESET_ADMIN_USER } = require('../constants/errors')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+
 
 const ERRORS = {
     DV_VERSION_MISMATCH: {

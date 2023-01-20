@@ -7,12 +7,11 @@
 const Big = require('big.js')
 
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
-const { find } = require('@open-condo/keystone/schema')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const { find } = require('@open-condo/keystone/schema')
 
-const { Payment } = require('@condo/domains/acquiring/gql')
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
-
+const { Payment } = require('@condo/domains/acquiring/gql')
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationContextGQL } = require('@condo/domains/billing/gql')

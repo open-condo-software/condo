@@ -3,15 +3,15 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { Message } = require('./Message')
-const { SendMessageService } = require('./SendMessageService')
-const { RemoteClient } = require('./RemoteClient')
-const { SyncRemoteClientService } = require('./SyncRemoteClientService')
 const { DisconnectUserFromRemoteClientService } = require('./DisconnectUserFromRemoteClientService')
-const { SetMessageStatusService } = require('./SetMessageStatusService')
-const { MessageUserBlackList } = require('./MessageUserBlackList')
-const { MessageOrganizationBlackList } = require('./MessageOrganizationBlackList')
+const { Message } = require('./Message')
 const { MessageBatch } = require('./MessageBatch')
+const { MessageOrganizationBlackList } = require('./MessageOrganizationBlackList')
+const { MessageUserBlackList } = require('./MessageUserBlackList')
+const { RemoteClient } = require('./RemoteClient')
+const { SendMessageService } = require('./SendMessageService')
+const { SetMessageStatusService } = require('./SetMessageStatusService')
+const { SyncRemoteClientService } = require('./SyncRemoteClientService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {

@@ -6,18 +6,15 @@ const { Relationship } = require('@keystonejs/fields')
 const { get } = require('lodash')
 
 const { Json } = require('@open-condo/keystone/fields')
-const { find, getById, GQLListSchema } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { find, getById, GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingIntegrationOrganizationContext')
 const { validateReport } = require('@condo/domains/billing/utils/validation.utils')
-
-const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@condo/domains/miniapp/schema/fields/context')
-
-const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@condo/domains/miniapp/schema/fields/context')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrationOrganizationContext', {
     schemaDoc: 'Integration state and settings for all organizations. The existence of this object means that there is a configured integration between the `billing data source` and `this API`',

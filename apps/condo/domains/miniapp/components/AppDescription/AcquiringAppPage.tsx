@@ -1,16 +1,18 @@
-import React, { useCallback, useState } from 'react'
 import get from 'lodash/get'
 import Error from 'next/error'
 import Head from 'next/head'
+import React, { useCallback, useState } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { PageWrapper, PageContent as PageContentWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+
 import { AcquiringIntegration, AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
+import { PageWrapper, PageContent as PageContentWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { ACQUIRING_APP_TYPE, ACCRUALS_AND_PAYMENTS_CATEGORY } from '@condo/domains/miniapp/constants'
 
-import { PageContent } from './PageContent'
 import { ConnectModal } from './ConnectModal'
+import { PageContent } from './PageContent'
 
 type AcquiringAppPageProps = {
     id: string

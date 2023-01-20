@@ -1,6 +1,15 @@
+import { Typography } from 'antd'
+import get from 'lodash/get'
+import Head from 'next/head'
+import React, { CSSProperties, useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
 import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
 import { SettingsTabPaneDescriptor } from '@condo/domains/common/components/settings/Tabs'
 import {
@@ -21,13 +30,8 @@ import { SubscriptionPane } from '@condo/domains/subscription/components/Subscri
 import {
     SettingsContent as TicketPropertyHintSettings,
 } from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
-import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
-import { Typography } from 'antd'
-import get from 'lodash/get'
-import Head from 'next/head'
-import React, { CSSProperties, useMemo } from 'react'
-import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
+
+
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 

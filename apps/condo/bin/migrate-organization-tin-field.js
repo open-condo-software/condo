@@ -6,9 +6,12 @@
  */
 
 const path = require('path')
-const { get } = require('lodash')
+
 const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { get } = require('lodash')
+
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+
 const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 

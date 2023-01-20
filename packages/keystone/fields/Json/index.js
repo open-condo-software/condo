@@ -1,5 +1,6 @@
-const { JsonImplementation, JsonKnexFieldAdapter, JsonMongooseFieldAdapter, JsonPrismaFieldAdapter } = require('./Implementation')
 const { Text } = require('@keystonejs/fields')
+
+const { JsonImplementation, JsonKnexFieldAdapter, JsonMongooseFieldAdapter, JsonPrismaFieldAdapter } = require('./Implementation')
 
 module.exports = {
     type: 'Json',

@@ -9,9 +9,10 @@
  *      yarn workspace @app/condo node bin/fix-database-migration-state.js
  */
 
+const index = require('@app/condo')
+
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
-const index = require('@app/condo')
 
 function exit (code, error) {
     console.error(error)

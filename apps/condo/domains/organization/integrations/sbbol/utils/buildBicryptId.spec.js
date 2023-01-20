@@ -3,6 +3,7 @@
 const mockLoggerError = jest.fn()
 
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
+
 const { buildBicryptId } = require('./buildBicryptId')
 
 jest.mock('@open-condo/keystone/logging', () => {

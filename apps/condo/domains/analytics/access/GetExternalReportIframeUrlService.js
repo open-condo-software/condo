@@ -4,8 +4,9 @@
 const isEmpty = require('lodash/isEmpty')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { find } = require('@open-condo/keystone/schema')
+
+const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canGetExternalReportIframeUrl ({ authentication: { item: user }, args: { data: { id } } }) {
     if (!user) return throwAuthenticationError()

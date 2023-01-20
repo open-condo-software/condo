@@ -1,18 +1,19 @@
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
-import { useIntl } from '@open-condo/next/intl'
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, Input, Row, Typography } from 'antd'
 import get from 'lodash/get'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
 
 import { Button } from '@condo/domains/common/components/Button'
-import { colors } from '@condo/domains/common/constants/style'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { MAX_COMMENT_LENGTH } from '@condo/domains/ticket/constants'
-import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ClipIcon } from '@condo/domains/common/components/icons/ClipIcon'
 import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
+import { colors } from '@condo/domains/common/constants/style'
+import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
+import { MAX_COMMENT_LENGTH } from '@condo/domains/ticket/constants'
 
 import { CommentWithFiles } from './index'
 

@@ -3,9 +3,9 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { CreateOnBoardingService } = require('./CreateOnBoardingService')
 const { OnBoarding } = require('./OnBoarding')
 const { OnBoardingStep } = require('./OnBoardingStep')
-const { CreateOnBoardingService } = require('./CreateOnBoardingService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {

@@ -3,14 +3,14 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { AcceptOrRejectOrganizationInviteService } = require('./AcceptOrRejectOrganizationInviteService')
+const { InviteNewOrganizationEmployeeService } = require('./InviteNewOrganizationEmployeeService')
 const { Organization } = require('./Organization')
 const { OrganizationEmployee } = require('./OrganizationEmployee')
 const { OrganizationEmployeeRole } = require('./OrganizationEmployeeRole')
-const { RegisterNewOrganizationService } = require('./RegisterNewOrganizationService')
-const { InviteNewOrganizationEmployeeService } = require('./InviteNewOrganizationEmployeeService')
-const { AcceptOrRejectOrganizationInviteService } = require('./AcceptOrRejectOrganizationInviteService')
-const { OrganizationLink } = require('./OrganizationLink')
 const { OrganizationEmployeeSpecialization } = require('./OrganizationEmployeeSpecialization')
+const { OrganizationLink } = require('./OrganizationLink')
+const { RegisterNewOrganizationService } = require('./RegisterNewOrganizationService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {

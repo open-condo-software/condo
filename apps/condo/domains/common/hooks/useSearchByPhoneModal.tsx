@@ -1,22 +1,23 @@
 import styled from '@emotion/styled'
-import { useIntl } from '@open-condo/next/intl'
 import { AutoComplete, Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
+
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
 import { GraphQlSearchInput, SearchComponentType } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Modal } from '@condo/domains/common/components/Modal'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { colors } from '@condo/domains/common/constants/style'
 import {
     ClientType,
     mapSearchItemToOption,
     redirectToForm,
 } from '@condo/domains/contact/utils/clientCard'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { colors } from '@condo/domains/common/constants/style'
 
 const StyledModal = styled(Modal)`
   animation-duration: 0s !important;

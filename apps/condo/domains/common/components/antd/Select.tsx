@@ -1,12 +1,13 @@
-import React from 'react'
 import { Select as DefaultSelect, SelectProps } from 'antd'
-import { useTracking, TrackingEventPropertiesType, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { RefSelectProps } from 'antd/lib/select'
-import get from 'lodash/get'
-import isFunction from 'lodash/isFunction'
 import compact from 'lodash/compact'
+import get from 'lodash/get'
 import isArray from 'lodash/isArray'
 import isEmpty from 'lodash/isEmpty'
+import isFunction from 'lodash/isFunction'
+import React from 'react'
+
+import { useTracking, TrackingEventPropertiesType, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 export interface CustomSelectProps<T> extends SelectProps<T> {
     eventName?: string

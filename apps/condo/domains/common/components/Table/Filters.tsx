@@ -1,21 +1,21 @@
-import React, { ComponentProps, CSSProperties, useCallback } from 'react'
-import get from 'lodash/get'
-import isFunction from 'lodash/isFunction'
-import dayjs from 'dayjs'
-import Input from '@condo/domains/common/components/antd/Input'
-import Select from '@condo/domains/common/components/antd/Select'
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import { FilterValue } from 'antd/es/table/interface'
 import { FilterFilled } from '@ant-design/icons'
 import { ApolloClient } from '@apollo/client'
+import { FilterValue } from 'antd/es/table/interface'
+import dayjs from 'dayjs'
+import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
+import React, { ComponentProps, CSSProperties, useCallback } from 'react'
 
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
 import { colors } from '@condo/domains/common/constants/style'
 
 import { OptionType, QueryArgType } from '../../utils/tables.utils'
-import DatePicker from '../Pickers/DatePicker'
-import { FilterContainer, SelectFilterContainer } from '../TableFilter'
 import { GraphQlSearchInput } from '../GraphQlSearchInput'
+import DatePicker from '../Pickers/DatePicker'
 import DateRangePicker from '../Pickers/DateRangePicker'
+import { FilterContainer, SelectFilterContainer } from '../TableFilter'
 
 type FilterIconType = (filtered?: boolean) => React.ReactNode
 type FilterValueType = (path: string | Array<string>, filters: { [x: string]: QueryArgType }) => FilterValue

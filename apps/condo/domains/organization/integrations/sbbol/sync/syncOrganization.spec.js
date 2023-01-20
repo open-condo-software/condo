@@ -2,19 +2,21 @@
  * @jest-environment node
  */
 
-const { v4: uuid } = require('uuid')
-const faker = require('faker')
+const index = require('@app/condo/index')
 const { getItem, updateItem } = require('@keystonejs/server-side-graphql-client')
+const faker = require('faker')
+const { v4: uuid } = require('uuid')
 
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
+
+const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
 
 const { MockSbbolResponses } = require('./MockSbbolResponses')
 const { syncOrganization } = require('./syncOrganization')
 const { syncUser } = require('./syncUser')
-const index = require('@app/condo/index')
+
 const { keystone } = index
 
 describe('syncOrganization from SBBOL', () => {

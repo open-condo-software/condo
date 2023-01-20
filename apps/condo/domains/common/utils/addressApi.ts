@@ -1,5 +1,5 @@
-import getConfig from 'next/config'
 import { AddressMetaField } from '@app/condo/schema'
+import getConfig from 'next/config'
 
 type TSuggestion = AddressMetaField & {
     rawValue: string,

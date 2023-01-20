@@ -1,8 +1,11 @@
-import React, { useCallback } from 'react'
 import Base from 'antd/lib/typography/Base'
 import classNames from 'classnames'
-import { sendAnalyticsClickEvent, extractChildrenContent } from '../_utils/analytics'
+import React, { useCallback } from 'react'
+
 import { TYPOGRAPHY_CLASS_PREFIX, TEXT_SIZES } from './constants'
+
+import { sendAnalyticsClickEvent, extractChildrenContent } from '../_utils/analytics'
+
 
 export type TypographyLinkProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> & {
     title?: string

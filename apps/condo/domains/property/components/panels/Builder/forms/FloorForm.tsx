@@ -1,10 +1,13 @@
-import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
-import { useIntl } from '@open-condo/next/intl'
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { Row, Col, Space, Typography, InputNumber } from 'antd'
-import Select from '@condo/domains/common/components/antd/Select'
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
+
 import {
     IPropertyMapModalForm,
     MODAL_FORM_ROW_GUTTER,

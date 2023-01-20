@@ -1,14 +1,16 @@
 const faker = require('faker')
-const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
-const { getTicketReport } = require('@condo/domains/analytics/utils/testSchema')
-const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+
 const { expectToThrowAuthenticationErrorToResult, expectToThrowGraphQLRequestError } = require('@open-condo/keystone/test.utils')
 const { makeClient } = require('@open-condo/keystone/test.utils')
+
+const { getTicketReport } = require('@condo/domains/analytics/utils/testSchema')
+const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const { makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketReportService', () => {
     describe('Validations', () => {

@@ -1,5 +1,5 @@
-const xlsx = require('xlsx')
 const mkdirp = require('mkdirp')
+const xlsx = require('xlsx')
 /**
  * Required process arguments:
  * 1) Domain directory name <string> (Example: ticket) - this locates generated template to domain related path

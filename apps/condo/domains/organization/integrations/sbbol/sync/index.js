@@ -1,16 +1,18 @@
 const faker = require('faker')
 
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { getOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/OrganizationEmployee')
-const { SBBOL_IMPORT_NAME } = require('../constants')
-const { getSbbolSecretStorage } = require('../utils')
-const { dvSenderFields } = require('../constants')
-const { syncUser } = require('./syncUser')
+
 const { syncOrganization } = require('./syncOrganization')
 const { syncServiceSubscriptions } = require('./syncServiceSubscriptions')
 const { syncTokens } = require('./syncTokens')
+const { syncUser } = require('./syncUser')
+
+const { dvSenderFields } = require('../constants')
+const { SBBOL_IMPORT_NAME } = require('../constants')
+const { getSbbolSecretStorage } = require('../utils')
 
 /**
  * Params for direct execution of GraphQL queries and mutations using Keystone

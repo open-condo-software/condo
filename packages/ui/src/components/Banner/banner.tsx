@@ -1,9 +1,10 @@
+import classNames from 'classnames'
 import React, { useCallback, useRef } from 'react'
+
+import { sendAnalyticsClickEvent } from '../_utils/analytics'
+import { useSize } from '../_utils/hooks'
 import { Button } from '../Button'
 import { Typography } from '../Typography'
-import { useSize } from '../_utils/hooks'
-import { sendAnalyticsClickEvent } from '../_utils/analytics'
-import classNames from 'classnames'
 
 export type BannerProps = {
     title: string

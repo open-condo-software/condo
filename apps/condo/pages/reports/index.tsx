@@ -1,16 +1,18 @@
-import React from 'react'
-import Head from 'next/head'
 import { Typography, Row, Col, RowProps } from 'antd'
-import { useIntl } from '@open-condo/next/intl'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { Loader } from '@condo/domains/common/components/Loader'
+import Head from 'next/head'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+
 import ExternalReportCard from '@condo/domains/analytics/components/ExternalReportCard'
 import { ExternalReport } from '@condo/domains/analytics/utils/clientSchema/index'
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 const EXTERNAL_REPORT_ROW_GUTTER: RowProps['gutter'] = [32, 40]
 

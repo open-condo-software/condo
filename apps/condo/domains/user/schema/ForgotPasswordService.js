@@ -1,16 +1,20 @@
-const { v4: uuid } = require('uuid')
-const conf = require('@open-condo/config')
-const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
-const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/common')
-const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
-const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { ForgotPasswordAction, User } = require('@condo/domains/user/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { v4: uuid } = require('uuid')
+
+const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { TOKEN_NOT_FOUND, PASSWORD_IS_TOO_SHORT, USER_NOT_FOUND } = require('../constants/errors')
+const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
+
+const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { WRONG_PHONE_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/common')
+const { ForgotPasswordAction, User } = require('@condo/domains/user/utils/serverSchema')
+
+
+const { TOKEN_NOT_FOUND, PASSWORD_IS_TOO_SHORT, USER_NOT_FOUND } = require('../constants/errors')
 const { findTokenAndRelatedUser, markTokenAsUsed } = require('../utils/serverSchema')
 
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24

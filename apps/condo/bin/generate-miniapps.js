@@ -1,8 +1,10 @@
 const path = require('path')
-const faker = require('faker')
+
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')
+const faker = require('faker')
+
 const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
+const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')
 const { B2BApp } = require('@condo/domains/miniapp/utils/serverSchema')
 
 class AppsGenerator {

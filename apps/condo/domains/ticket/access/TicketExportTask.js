@@ -3,9 +3,11 @@
  */
 const Ajv = require('ajv')
 const { get, compact, uniq } = require('lodash')
+
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { CANCELLED } = require('@condo/domains/common/constants/export')
 const { find } = require('@open-condo/keystone/schema')
+
+const { CANCELLED } = require('@condo/domains/common/constants/export')
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,

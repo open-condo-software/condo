@@ -1,8 +1,9 @@
 import { notification } from 'antd'
-import { NETWORK_ERROR } from '@condo/domains/common/constants/errors'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
+
+import { NETWORK_ERROR } from '@condo/domains/common/constants/errors'
 
 /**
  * Mapping of error codes to field errors

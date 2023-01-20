@@ -1,11 +1,13 @@
-const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
-const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
-const { AddressInjection } = require('@address-service/domains/address/utils/serverSchema')
 const get = require('lodash/get')
-const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
-const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { validate: validateUuid } = require('uuid')
+
+const { AddressInjection } = require('@address-service/domains/address/utils/serverSchema')
+const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
+const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
+
+const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
 
 const SEPARATOR = ':'
 

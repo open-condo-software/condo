@@ -1,7 +1,7 @@
 /** @type {import('ow').default} */
-const ow = require('ow')
-const { pickBy, identity, isFunction, isArray } = require('lodash')
 const Emittery = require('emittery')
+const { pickBy, identity, isFunction, isArray } = require('lodash')
+const ow = require('ow')
 
 const { GQL_SCHEMA_PLUGIN } = require('./plugins/utils/typing')
 

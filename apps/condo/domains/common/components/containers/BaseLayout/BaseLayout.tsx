@@ -1,11 +1,15 @@
 /** @jsx jsx */
-import React, { CSSProperties, FunctionComponent, useEffect, ElementType } from 'react'
 import { jsx } from '@emotion/react'
 import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { SideNav } from './components/SideNav'
-import Router from 'next/router'
+import MenuItem from 'antd/lib/menu/MenuItem'
 import classnames from 'classnames'
+import Router from 'next/router'
+import React, { CSSProperties, FunctionComponent, useEffect, ElementType } from 'react'
+
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+
+import { SideNav } from './components/SideNav'
 import {
     LAYOUT_CSS,
     PAGE_CONTENT_CSS,
@@ -15,10 +19,8 @@ import {
     SUB_LAYOUT_CSS,
     TABLE_PAGE_CONTENT_CSS,
 } from './components/styles'
-import MenuItem from 'antd/lib/menu/MenuItem'
-import { Header } from './Header'
 import { ITopMenuItemsProps } from './components/TopMenuItems'
-import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { Header } from './Header'
 import 'antd/dist/antd.less'
 import '@open-condo/ui/dist/styles.min.css'
 

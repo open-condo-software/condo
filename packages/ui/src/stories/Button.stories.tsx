@@ -1,6 +1,7 @@
-import React from 'react'
-import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { DeleteFilled, EditFilled } from '@ant-design/icons'
+import { ComponentStory, ComponentMeta } from '@storybook/react'
+import React from 'react'
+
 import { Button } from '@open-condo/ui/src'
 
 const icons = {

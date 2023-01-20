@@ -1,17 +1,17 @@
+import { MinusCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import { Rule } from 'rc-field-form/lib/interface'
-import React, { useCallback, useMemo, useState } from 'react'
 import { AutoComplete, Col, Form, Radio } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import { MinusCircleOutlined } from '@ant-design/icons'
+import { Rule } from 'rc-field-form/lib/interface'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { colors } from '@condo/domains/common/constants/style'
-import { Contact as TContact } from '@condo/domains/contact/schema'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { colors } from '@condo/domains/common/constants/style'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
+import { Contact as TContact } from '@condo/domains/contact/schema'
 
 import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
 

@@ -1,14 +1,16 @@
-import React, { useMemo } from 'react'
-import { useRouter } from 'next/router'
-import Error from 'next/error'
 import get from 'lodash/get'
-import { useOrganization } from '@open-condo/next/organization'
+import Error from 'next/error'
+import { useRouter } from 'next/router'
+import React, { useMemo } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
-import { BILLING_APP_TYPE, ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
+import { useOrganization } from '@open-condo/next/organization'
+
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { B2BAppPage, AcquiringAppPage, BillingAppPage } from '@condo/domains/miniapp/components/AppDescription'
+import { BILLING_APP_TYPE, ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 type PageType = React.FC & {
     requiredAccess: React.ReactNode

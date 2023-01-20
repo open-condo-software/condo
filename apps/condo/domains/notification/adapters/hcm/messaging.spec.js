@@ -1,4 +1,5 @@
 const { get } = require('lodash')
+
 const conf = require('@open-condo/config')
 
 const {
@@ -9,8 +10,8 @@ const {
     APP_MASTER_KEY,
 } = require('@condo/domains/notification/constants/constants')
 
-const HCMMessaging = require('./messaging')
 const { PUSH_SUCCESS_CODE } = require('./constants')
+const HCMMessaging = require('./messaging')
 
 const HCM_CONFIG = conf[HCM_CONFIG_ENV] ? JSON.parse(conf[HCM_CONFIG_ENV]) : null
 const HCM_PUSH_TOKEN_TEST_RESIDENT = conf[HCM_CONFIG_TEST_PUSHTOKEN_ENV_RESIDENT] || null

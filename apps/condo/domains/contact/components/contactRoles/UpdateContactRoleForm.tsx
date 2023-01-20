@@ -1,10 +1,13 @@
+import { get } from 'lodash'
+import React, { useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
-import { useIntl } from '@open-condo/next/intl'
-import { get } from 'lodash'
-import React, { useMemo } from 'react'
+
 import { BaseContactRoleForm } from './BaseContactRoleForm'
 
 export const UpdateContactRoleForm = ({ id }) => {

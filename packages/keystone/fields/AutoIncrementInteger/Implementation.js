@@ -1,6 +1,6 @@
+const { Integer } = require('@keystonejs/fields')
 const { default: Redlock } = require('redlock')
 
-const { Integer } = require('@keystonejs/fields')
 
 const { getRedisClient } = require('@open-condo/keystone/redis')
 

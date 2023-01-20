@@ -1,10 +1,11 @@
-import find from 'lodash/find'
-import get from 'lodash/get'
-import findIndex from 'lodash/findIndex'
-import isFunction from 'lodash/isFunction'
-import { ITasksStorage, OnCompleteFunc } from '../index'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
+import find from 'lodash/find'
+import findIndex from 'lodash/findIndex'
+import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
+
+import { ITasksStorage, OnCompleteFunc } from '../index'
 
 dayjs.extend(isToday)
 

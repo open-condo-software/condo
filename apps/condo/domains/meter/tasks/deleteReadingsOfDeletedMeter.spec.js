@@ -2,12 +2,11 @@
  * @jest-environment node
  */
 
+const { CALL_METER_READING_SOURCE_ID, COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const {
     MeterReadingSource,
     createTestMeterReading, MeterResource, createTestMeter, updateTestMeter,
 } = require('@condo/domains/meter/utils/testSchema')
-const { CALL_METER_READING_SOURCE_ID, COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
-
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
 describe('deleteReadingsOfDeletedMeter', () => {

@@ -1,4 +1,5 @@
 const path = require('path')
+
 const { WebHookModelValidator } = require('./validator')
 
 describe('WebHookModelValidator', () => {

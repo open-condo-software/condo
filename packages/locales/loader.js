@@ -1,9 +1,11 @@
 // TODO (DOMA-3868) Move this package to app/condo, remove this package and redeclare functions used in other packages locally
-const path = require('path')
 const fs = require('fs')
+const path = require('path')
 const process = require('process')
-const conf = require('@open-condo/config')
+
 const { get, template, isEmpty } = require('lodash')
+
+const conf = require('@open-condo/config')
 
 const VARIABLE_REGEXP = /{([\s\S]+?)}/g
 

@@ -1,12 +1,14 @@
-import React from 'react'
-import { Col, Row, RowProps, Typography } from 'antd'
 import styled from '@emotion/styled'
+import { Col, Row, RowProps, Typography } from 'antd'
+import Router from 'next/router'
+import React from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 
+import { Button } from '@condo/domains/common/components/Button'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
-import { Button } from '@condo/domains/common/components/Button'
-import Router from 'next/router'
+
 
 export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
   height: 55vh;

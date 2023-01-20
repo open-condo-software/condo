@@ -1,8 +1,9 @@
-const path = require('path')
-const fs = require('fs')
-const get = require('lodash/get')
-const util = require('util')
 const childProcess = require('child_process')
+const fs = require('fs')
+const path = require('path')
+const util = require('util')
+
+const get = require('lodash/get')
 const {
     jsonInputForTargetLanguage,
     InputData,

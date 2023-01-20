@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react'
+import cookie from 'js-cookie'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
-import cookie from 'js-cookie'
 import getConfig from 'next/config'
+import { useEffect, useRef } from 'react'
+
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 

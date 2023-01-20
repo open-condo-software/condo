@@ -3,11 +3,15 @@
  */
 
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
+const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
+const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
 const {
     LOGO_FIELD,
     APPS_FILE_ADAPTER,
@@ -22,8 +26,6 @@ const {
     PRICE_FIELD,
     CONTEXT_DEFAULT_STATUS_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
-const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
-const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 

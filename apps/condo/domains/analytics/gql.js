@@ -4,9 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const { gql } = require('graphql-tag')
+
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
-const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 

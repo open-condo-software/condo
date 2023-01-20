@@ -6,12 +6,13 @@
 const get = require('lodash/get')
 
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
+const { find } = require('@open-condo/keystone/schema')
+
+const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
-const { find } = require('@open-condo/keystone/schema')
-const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { MeterReadingFilterTemplate: MeterReadingFilterTemplateGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 

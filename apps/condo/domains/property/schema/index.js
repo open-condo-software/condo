@@ -3,9 +3,9 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { Property } = require('./Property')
 const { CheckPropertyWithAddressExistService } = require('./CheckPropertyWithAddressExistService')
 const { ExportPropertiesToExcelService } = require('./ExportPropertiesToExcelService')
+const { Property } = require('./Property')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {

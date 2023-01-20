@@ -1,6 +1,7 @@
 import React from 'react'
-import { UpdatePropertyForm } from './UpdatePropertyForm'
+
 import { CreatePropertyForm } from './CreatePropertyForm'
+import { UpdatePropertyForm } from './UpdatePropertyForm'
 
 interface IPropertyFormProps {
     id?: string

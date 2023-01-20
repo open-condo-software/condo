@@ -1,5 +1,14 @@
-const faker = require('faker')
 const dayjs = require('dayjs')
+const faker = require('faker')
+
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowValidationFailureError,
+} = require('@open-condo/keystone/test.utils')
+const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
+const { WebHookModelValidator } = require('@open-condo/webhooks/model-validator')
 const {
     createTestWebhook,
     softDeleteTestWebhook,
@@ -8,14 +17,6 @@ const {
     softDeleteTestWebhookSubscription,
     WebhookSubscription,
 } = require('@open-condo/webhooks/schema/utils/testSchema')
-const { WebHookModelValidator } = require('@open-condo/webhooks/model-validator')
-const {
-    expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAuthenticationErrorToObj,
-    expectToThrowAuthenticationErrorToObjects,
-    expectToThrowValidationFailureError,
-} = require('@open-condo/keystone/test.utils')
-const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
 
 const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
     describe(`WebhookSubscription tests for ${appName} app`, () => {

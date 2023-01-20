@@ -1,5 +1,6 @@
-import React from 'react'
 import Icon from '@ant-design/icons'
+import React from 'react'
+
 import { colors } from '@condo/domains/common/constants/style'
 
 export const AppealIconSVG = ({ width = 20, height = 20, bgColor = colors.white }) => {

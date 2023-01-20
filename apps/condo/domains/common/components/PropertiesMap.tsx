@@ -1,8 +1,10 @@
-import React, { ComponentProps, useMemo } from 'react'
-import { css } from '@emotion/react'
-import { MapGL } from '@condo/domains/common/components/MapGL'
-import has from 'lodash/has'
 import { Property as PropertyType } from '@app/condo/schema'
+import { css } from '@emotion/react'
+import has from 'lodash/has'
+import React, { ComponentProps, useMemo } from 'react'
+
+import { MapGL } from '@condo/domains/common/components/MapGL'
+
 
 type PropertiesMapProps = {
     properties: (PropertyType)[]

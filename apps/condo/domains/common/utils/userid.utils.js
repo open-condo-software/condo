@@ -1,4 +1,5 @@
 import cookie from 'js-cookie'
+
 import { makeId } from './makeid.utils'
 
 function getCurrentUserId () {

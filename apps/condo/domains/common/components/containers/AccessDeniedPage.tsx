@@ -1,11 +1,15 @@
 import styled from '@emotion/styled'
-import Head from 'next/head'
-import { useIntl } from '@open-condo/next/intl'
-import { fontSizes } from '@condo/domains/common/constants/style'
-import { Poster } from '../Poster'
-import { PageContent, PageHeader, PageWrapper } from './BaseLayout'
-import React, { CSSProperties } from 'react'
 import { Col, Row, Typography } from 'antd'
+import Head from 'next/head'
+import React, { CSSProperties } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { fontSizes } from '@condo/domains/common/constants/style'
+
+import { PageContent, PageHeader, PageWrapper } from './BaseLayout'
+
+import { Poster } from '../Poster'
 
 export const AccessDeniedPosterWrapper = styled.div`
   height: 160px;

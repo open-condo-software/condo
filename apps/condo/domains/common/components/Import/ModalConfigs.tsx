@@ -1,8 +1,10 @@
-import React, { createContext } from 'react'
 import { Alert, Progress } from 'antd'
 import get from 'lodash/get'
-import { Columns, ProcessedRow } from '../../utils/importer'
+import React, { createContext } from 'react'
 import XLSX from 'xlsx'
+
+import { Columns, ProcessedRow } from '../../utils/importer'
+
 
 export const ModalContext = createContext({ progress: 0, error: null, isImported: false })
 

@@ -1,6 +1,6 @@
-const { createCronTask } = require('@open-condo/keystone/tasks')
-const { getLogger } = require('@open-condo/keystone/logging')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const { SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK } = require('@condo/domains/common/constants/featureflags')
 

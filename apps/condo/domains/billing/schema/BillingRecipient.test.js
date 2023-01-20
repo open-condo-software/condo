@@ -7,12 +7,6 @@ import {
 } from '@open-condo/keystone/test.utils'
 
 const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const {
-    makeClientWithSupportUser,
-    makeClientWithNewRegisteredAndLoggedInUser,
-} = require('@condo/domains/user/utils/testSchema')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAccessDeniedErrorToObj,
@@ -27,6 +21,12 @@ const {
     makeOrganizationIntegrationManager,
     makeClientWithIntegrationAccess,
 } = require('@condo/domains/billing/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const {
+    makeClientWithSupportUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+} = require('@condo/domains/user/utils/testSchema')
+
 
 
 describe('BillingRecipient', () => {

@@ -1,5 +1,5 @@
-import { useCallback } from 'react'
 import { notification } from 'antd'
+import { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 

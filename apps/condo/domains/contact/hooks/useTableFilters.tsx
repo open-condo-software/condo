@@ -1,11 +1,12 @@
+import { MeterReadingWhereInput } from '@app/condo/schema'
 import { useMemo } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 
 import {
     ComponentType,
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
-import { MeterReadingWhereInput } from '@app/condo/schema'
 import {
     getFilter,
     getStringContainsFilter,

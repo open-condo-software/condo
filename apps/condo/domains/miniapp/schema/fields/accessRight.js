@@ -1,7 +1,9 @@
 const { Relationship } = require('@keystonejs/fields')
+
 const { getById } = require('@open-condo/keystone/schema')
-const { SERVICE } = require('@condo/domains/user/constants/common')
+
 const { NON_SERVICE_USER_ERROR } = require('@condo/domains/miniapp/constants')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
 const SERVICE_USER_FIELD = {
     schemaDoc: `Link to user. Note, that user must be of "${SERVICE}" type`,

@@ -1,7 +1,8 @@
+import omit from 'lodash/omit'
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import omit from 'lodash/omit'
+
 import { Typography } from '../Typography'
 
 const REMARK_PLUGINS = [

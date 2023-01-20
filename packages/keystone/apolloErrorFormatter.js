@@ -26,9 +26,8 @@ const {
     isInstance: isKeystoneErrorInstance,
 } = require('apollo-errors')
 const { ApolloError, AuthenticationError } = require('apollo-server-errors')
-const { printError } = require('graphql')
-
 const ensureError = require('ensure-error')
+const { printError } = require('graphql')
 const { pick, pickBy, identity, toArray, _, toString, get, set, isArray } = require('lodash')
 
 const conf = require('@open-condo/config')

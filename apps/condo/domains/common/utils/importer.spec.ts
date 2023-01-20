@@ -1,5 +1,6 @@
-import { Importer, ObjectCreator, RowValidator, RowNormalizer, Columns, TableRow, ProcessedRow, ImporterErrorMessages } from './importer'
 import get from 'lodash/get'
+
+import { Importer, ObjectCreator, RowValidator, RowNormalizer, Columns, TableRow, ProcessedRow, ImporterErrorMessages } from './importer'
 
 const bypassNormalizer: RowNormalizer = (row) => {
     return Promise.resolve({ row })

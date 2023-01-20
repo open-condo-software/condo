@@ -1,20 +1,23 @@
-import React, { useCallback, useMemo, useState } from 'react'
 import { Col, Form, Row, RowProps, Typography } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
 import Router, { useRouter } from 'next/router'
-import { FormattedMessage } from '@open-condo/next/intl'
-import { useIntl } from '@open-condo/next/intl'
-import { Button } from '@condo/domains/common/components/Button'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/constants/errors'
-import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
+import React, { useCallback, useMemo, useState } from 'react'
+
 import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
+import { FormattedMessage } from '@open-condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
+
+import Input from '@condo/domains/common/components/antd/Input'
+import { Button } from '@condo/domains/common/components/Button'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
-import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { colors } from '@condo/domains/common/constants/style'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/constants/errors'
+import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
+
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',

@@ -1,21 +1,24 @@
+
+const path = require('path')
+
+const { GraphQLApp } = require('@keystonejs/app-graphql')
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+const faker = require('faker')
+const { Client } = require('pg')
+
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const {
     Ticket,
     TicketStatus,
     TicketClassifier,
     TicketComment,
 } = require('@condo/domains/ticket/utils/serverSchema')
-
-const { Property } = require('@condo/domains/property/utils/serverSchema')
-const { demoProperties } = require('./constants')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { User } = require('@condo/domains/user/utils/serverSchema')
-const faker = require('faker')
-const path = require('path')
-const { Client } = require('pg')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
-const dayjs = require('dayjs')
-const utc = require('dayjs/plugin/utc')
-const { DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+
+const { demoProperties } = require('./constants')
 dayjs.extend(utc)
 
 const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'

@@ -1,9 +1,13 @@
-const carbone = require('carbone')
-const FileAdapter = require('./fileAdapter')
-const { Duplex } = require('stream')
 const path = require('path')
-const { v4: uuid } = require('uuid')
+const { Duplex } = require('stream')
 const { Readable } = require('stream')
+
+const carbone = require('carbone')
+const { v4: uuid } = require('uuid')
+
+const FileAdapter = require('./fileAdapter')
+
+
 
 const EXCEL_FILE_META = {
     mimetype: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

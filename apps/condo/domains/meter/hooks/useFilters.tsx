@@ -1,8 +1,9 @@
-import { useMemo } from 'react'
 import { MeterReadingWhereInput, MeterReadingSource as MeterReadingSourceType, MeterResource as MeterResourceType } from '@app/condo/schema'
 import get from 'lodash/get'
-import { useOrganization } from '@open-condo/next/organization'
+import { useMemo } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import {
     ComponentType,
@@ -10,11 +11,11 @@ import {
     FilterComponentSize,
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
-import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import {
     getDayRangeFilter, getFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
+import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 import { MeterReadingSource, MeterResource } from '../utils/clientSchema'
 

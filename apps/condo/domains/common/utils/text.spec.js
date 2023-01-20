@@ -1,4 +1,5 @@
 const faker = require('faker')
+
 const { normalizeText } = require('./text')
 
 describe('normalizeText()', () => {

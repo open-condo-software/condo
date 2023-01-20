@@ -1,18 +1,6 @@
 /** @jsx jsx */
 import { CloseOutlined } from '@ant-design/icons'
 import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitSubType, Property as PropertyType } from '@app/condo/schema'
-import { Button } from '@condo/domains/common/components/Button'
-import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
-import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
-import { AddSectionFloor } from '@condo/domains/property/components/panels/Builder/forms/FloorForm'
-import { AddParkingForm, EditParkingForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingForm'
-import { ParkingUnitForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingUnitForm'
-import { AddSectionForm, EditSectionForm } from '@condo/domains/property/components/panels/Builder/forms/SectionForm'
-import { UnitForm } from '@condo/domains/property/components/panels/Builder/forms/UnitForm'
-import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
-import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
-import { Property } from '@condo/domains/property/utils/clientSchema'
-import { useIntl } from '@open-condo/next/intl'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import {
@@ -23,7 +11,6 @@ import {
     Space,
     Typography,
 } from 'antd'
-import Select from '@condo/domains/common/components/antd/Select'
 import cloneDeep from 'lodash/cloneDeep'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
@@ -34,8 +21,24 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import ScrollContainer from 'react-indiana-drag-scroll'
-import BuildingEditTopMenu from './BuildingEditTopMenu'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import Select from '@condo/domains/common/components/antd/Select'
+import { Button } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
+import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
+import { AddSectionFloor } from '@condo/domains/property/components/panels/Builder/forms/FloorForm'
+import { AddParkingForm, EditParkingForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingForm'
+import { ParkingUnitForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingUnitForm'
+import { AddSectionForm, EditSectionForm } from '@condo/domains/property/components/panels/Builder/forms/SectionForm'
+import { UnitForm } from '@condo/domains/property/components/panels/Builder/forms/UnitForm'
+import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
+import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
+import { Property } from '@condo/domains/property/utils/clientSchema'
+
+import BuildingEditTopMenu from './BuildingEditTopMenu'
 import {
     BuildingAxisY,
     BuildingChooseSections,
@@ -46,7 +49,6 @@ import {
     PropertyMapFloor,
     UnitTypeLegendItem,
 } from './BuildingPanelCommon'
-
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
 

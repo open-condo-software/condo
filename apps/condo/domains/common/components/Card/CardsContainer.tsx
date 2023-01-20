@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
 import { Col, Row } from 'antd'
 import { Breakpoint } from 'antd/es/_util/responsiveObserve'
 import { Gutter } from 'antd/es/grid/row'
+import React, { useEffect, useState } from 'react'
 
 import { useLayoutContext } from '../LayoutContext'
 

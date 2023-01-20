@@ -1,6 +1,6 @@
-const pluralize = require('pluralize')
-const fetch = require('node-fetch')
 const { gql } = require('graphql-tag')
+const fetch = require('node-fetch')
+const pluralize = require('pluralize')
 
 const buildQuery = (modelName, fields) => {
     const pluralName = pluralize.plural(modelName)

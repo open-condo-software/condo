@@ -1,13 +1,4 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { FilePdfFilled, QuestionCircleOutlined } from '@ant-design/icons'
-import { Col, Row, Typography } from 'antd'
-import { Gutter } from 'antd/lib/grid/row'
-import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
-import styled from '@emotion/styled'
-import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
-import { ResolvedIntlConfig } from 'react-intl'
-
 import {
     SortTicketCommentsBy,
     SortTicketsBy,
@@ -15,19 +6,28 @@ import {
     TicketWhereInput,
     User as IUser,
 } from '@app/condo/schema'
+import styled from '@emotion/styled'
+import { Col, Row, Typography } from 'antd'
+import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
+import { Gutter } from 'antd/lib/grid/row'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import { ResolvedIntlConfig } from 'react-intl'
+
 import { useIntl } from '@open-condo/next/intl'
 
-import { PDF } from '@condo/domains/common/constants/export'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import { TicketComment } from '@condo/domains/ticket/utils/clientSchema'
-import { Modal } from '@condo/domains/common/components/Modal'
 import { Button } from '@condo/domains/common/components/Button'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { ChevronIcon as ChevronIconBase } from '@condo/domains/common/components/icons/ChevronIcon'
 import { CommentPreview } from '@condo/domains/common/components/Comments/Comment'
+import { ChevronIcon as ChevronIconBase } from '@condo/domains/common/components/icons/ChevronIcon'
+import { Modal } from '@condo/domains/common/components/Modal'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { TrackingEventType, useTracking } from '@condo/domains/common/components/TrackingContext'
+import { PDF } from '@condo/domains/common/constants/export'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { TicketComment } from '@condo/domains/ticket/utils/clientSchema'
 
 import { useTicketExportTaskUIInterface } from './useTicketExportTaskUIInterface'
 

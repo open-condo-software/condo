@@ -1,13 +1,13 @@
+import { TicketExportTask } from '@app/condo/schema'
 import get from 'lodash/get'
 
 import { useIntl } from '@open-condo/next/intl'
-import { TicketExportTask } from '@app/condo/schema'
 
 import { ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
-import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
-import { TicketExportTask as TicketExportTaskApi } from '@condo/domains/ticket/utils/clientSchema'
 import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
+import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
+import { TicketExportTask as TicketExportTaskApi } from '@condo/domains/ticket/utils/clientSchema'
 
 
 export const useTicketExportTaskUIInterface = () => {

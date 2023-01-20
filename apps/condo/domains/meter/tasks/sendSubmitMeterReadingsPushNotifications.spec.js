@@ -2,16 +2,10 @@
  * @jest-environment node
  */
 
+const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
-
-const {
-    METER_SUBMIT_READINGS_REMINDER_TYPE,
-    METER_VERIFICATION_DATE_EXPIRED_TYPE,
-    CALL_METER_READING_SOURCE_ID,
-} = require('@condo/domains/notification/constants/constants')
-const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
 
 const { sendSubmitMeterReadingsPushNotifications } = require('@condo/domains/meter/tasks/sendSubmitMeterReadingsPushNotifications')
 const {
@@ -19,8 +13,14 @@ const {
     makeClientWithResidentAndMeter,
     createTestMeterReading,
 } = require('@condo/domains/meter/utils/testSchema')
+const {
+    METER_SUBMIT_READINGS_REMINDER_TYPE,
+    METER_VERIFICATION_DATE_EXPIRED_TYPE,
+    CALL_METER_READING_SOURCE_ID,
+} = require('@condo/domains/notification/constants/constants')
+const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
 
-const index = require('@app/condo/index')
+
 
 const { keystone } = index
 

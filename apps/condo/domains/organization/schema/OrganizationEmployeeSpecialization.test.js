@@ -10,10 +10,10 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, createTestOrganizationEmployeeSpecialization, updateTestOrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('OrganizationEmployeeSpecialization', () => {
     describe('accesses', () => {

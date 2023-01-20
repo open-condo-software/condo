@@ -1,11 +1,13 @@
+import { Typography } from 'antd'
+import Head from 'next/head'
+import React, { CSSProperties } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import PaymentsPageContent from '@condo/domains/acquiring/components/payments/PaymentsPageContent'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { useIntl } from '@open-condo/next/intl'
-import { Typography } from 'antd'
-import Head from 'next/head'
-import React, { CSSProperties } from 'react'
 
 const PAGE_HEADER_TITLE_STYLES: CSSProperties = { margin: 0 }
 

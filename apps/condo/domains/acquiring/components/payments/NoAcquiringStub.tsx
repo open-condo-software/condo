@@ -1,6 +1,8 @@
-import EmptyListView from '@condo/domains/common/components/EmptyListView'
 import React from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
+
+import EmptyListView from '@condo/domains/common/components/EmptyListView'
 import { ACCRUALS_AND_PAYMENTS_CATEGORY } from '@condo/domains/miniapp/constants'
 
 const NoAcquiringStub = (): JSX.Element => {

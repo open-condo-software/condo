@@ -1,6 +1,8 @@
 const path = require('path')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+
 const lessLoader = require('./less-loader.config.json')
 
 const baseCssLoaders = [

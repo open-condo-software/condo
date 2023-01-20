@@ -3,11 +3,13 @@
  */
 
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
+
+const { BillingMeterResource, createTestBillingMeterResource } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
-const { BillingMeterResource, createTestBillingMeterResource } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
+
 
 describe('BillingMeterResource', () => {
     test('admin: create BillingMeterResource', async () => {

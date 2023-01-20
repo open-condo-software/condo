@@ -1,10 +1,12 @@
 /** @jsx jsx */
 
-import { colors } from '@condo/domains/common/constants/style'
-import styled from '@emotion/styled'
-import React from 'react'
-import { Image } from 'antd'
 import { jsx, css, keyframes } from '@emotion/react'
+import styled from '@emotion/styled'
+import { Image } from 'antd'
+import React from 'react'
+
+import { colors } from '@condo/domains/common/constants/style'
+
 
 const LogoWrapper = styled.span`
   display: inline-flex;

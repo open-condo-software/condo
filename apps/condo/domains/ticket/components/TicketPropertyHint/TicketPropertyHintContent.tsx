@@ -1,8 +1,9 @@
-import React from 'react'
 import styled from '@emotion/styled'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
 
 import { HtmlContent, HtmlContentProps } from '@condo/domains/common/components/HtmlContent'
-import { useIntl } from '@open-condo/next/intl'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 
 type TicketPropertyHintContentProps = HtmlContentProps & {

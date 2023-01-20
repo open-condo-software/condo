@@ -1,6 +1,7 @@
-const access = require('./access')
 const dayjs = require('dayjs')
 const faker = require('faker')
+
+const access = require('./access')
 
 const ACCESS_FUNC = [
     access.userIsAdmin,

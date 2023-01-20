@@ -1,10 +1,10 @@
-const { isEmpty, isObject, isNull, get } = require('lodash')
 const faker = require('faker')
+const { isEmpty, isObject, isNull, get } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 
 const { HUAWEI_SILENT_DATA_PUSH_ENABLED } = require('@condo/domains/common/constants/featureflags')
 const {
@@ -24,7 +24,6 @@ const {
     DEFAULT_NOTIFICATION_OPTIONS,
     PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE, SUCCESS_CODES,
 } = require('./hcm/constants')
-
 const HCMMessaging = require('./hcm/messaging')
 
 const HCM_CONFIG = conf[HCM_CONFIG_ENV] ? JSON.parse(conf[HCM_CONFIG_ENV]) : null

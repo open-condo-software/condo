@@ -1,5 +1,6 @@
 import { isEmpty } from 'lodash'
 import React from 'react'
+
 const { ESCAPE_REGEX } = require('../constants/regexps')
 
 interface IHighliterProps {

@@ -1,12 +1,16 @@
 /** @jsx jsx */
-import React, { useCallback, useEffect, useState } from 'react'
-import { useIntl } from '@open-condo/next/intl'
-import { css, jsx } from '@emotion/react'
-import Router from 'next/router'
-import { Card as AntCard, CardProps, Col, Dropdown, Menu, Row, RowProps, Skeleton, Space } from 'antd'
 import { DownOutlined, RightOutlined } from '@ant-design/icons'
-import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { TicketReportPeriodType } from '@app/condo/schema'
+import { css, jsx } from '@emotion/react'
+import { Card as AntCard, CardProps, Col, Dropdown, Menu, Row, RowProps, Skeleton, Space } from 'antd'
+import Router from 'next/router'
+import React, { useCallback, useEffect, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { colors, fontSizes } from '@condo/domains/common/constants/style'
+
+
 import { Button } from './Button'
 
 interface IStatsCardProps {

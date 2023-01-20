@@ -1,35 +1,37 @@
 /** @jsx jsx */
+import { css, jsx } from '@emotion/react'
 import { Col, Form, Row } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
+import find from 'lodash/find'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useEffect, useMemo } from 'react'
-import { useOrganization } from '@open-condo/next/organization'
-import { useRouter } from 'next/router'
-import { useIntl } from '@open-condo/next/intl'
+
 import { useApolloClient } from '@open-condo/next/apollo'
-import get from 'lodash/get'
-import find from 'lodash/find'
-import isEmpty from 'lodash/isEmpty'
-import { normalizePhone } from '@condo/domains/common/utils/phone'
-import { normalizeEmail } from '@condo/domains/common/utils/mail'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import { Alert } from '@condo/domains/common/components/Alert'
+import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
+import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { shadows } from '@condo/domains/common/constants/style'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { normalizeEmail } from '@condo/domains/common/utils/mail'
+import { normalizePhone } from '@condo/domains/common/utils/phone'
+import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
 import {
     OrganizationEmployee,
     OrganizationEmployeeRole,
     useInviteNewOrganizationEmployee,
 } from '@condo/domains/organization/utils/clientSchema'
-import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { Alert } from '@condo/domains/common/components/Alert'
-import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
-import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { shadows } from '@condo/domains/common/constants/style'
-import { css, jsx } from '@emotion/react'
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {

@@ -1,13 +1,17 @@
-import dotenv from 'dotenv'
-import path from 'path'
-import fs from 'fs-extra'
-import chalk from 'chalk'
 import { execSync } from 'child_process'
+import path from 'path'
+
 import { transform } from '@svgr/core'
+import chalk from 'chalk'
+import dotenv from 'dotenv'
+import fs from 'fs-extra'
+
+
+
+import { getSVGData, downloadSVGs } from './getSVGData'
 import config from './svgr.config'
 import { fillTemplate } from './template'
 
-import { getSVGData, downloadSVGs } from './getSVGData'
 
 dotenv.config()
 

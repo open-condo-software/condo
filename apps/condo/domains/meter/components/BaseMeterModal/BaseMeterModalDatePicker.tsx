@@ -1,13 +1,16 @@
-import { Rule } from 'rc-field-form/lib/interface'
-import dayjs, { Dayjs } from 'dayjs'
-import React, { CSSProperties } from 'react'
-import { useIntl } from '@open-condo/next/intl'
 import { Col } from 'antd'
+import dayjs, { Dayjs } from 'dayjs'
+import { Rule } from 'rc-field-form/lib/interface'
+import React, { CSSProperties } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 
-import { METER_MODAL_FORM_ITEM_SPAN } from '../../constants/constants'
 import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
+
+import { METER_MODAL_FORM_ITEM_SPAN } from '../../constants/constants'
 
 interface ICreateMeterModalDatePickerProps {
     label: string,

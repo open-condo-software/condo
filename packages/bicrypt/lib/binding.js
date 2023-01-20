@@ -1,5 +1,6 @@
-const path = require('path')
 const { existsSync: checkPath } = require('fs')
+const path = require('path')
+
 const { DOMParser } = require('@xmldom/xmldom')
 const xmlC14n = require('xml-c14n')
 // eslint-disable-next-line import/order

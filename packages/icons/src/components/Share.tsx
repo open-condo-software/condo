@@ -1,5 +1,6 @@
 /** This file is auto-generated, do not edit it manually **/
 import React from 'react'
+
 import { IconWrapper, IconProps } from '../wrappers'
 
 export const Share: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => {

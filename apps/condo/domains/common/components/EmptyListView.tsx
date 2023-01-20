@@ -2,9 +2,10 @@ import { Empty, EmptyProps, Space, Typography, Row, Col } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import isUndefined from 'lodash/isUndefined'
 import { useRouter } from 'next/router'
+import React, { CSSProperties } from 'react'
+
 import { Button } from './Button'
 import { EmptyIcon } from './EmptyIcon'
-import React, { CSSProperties } from 'react'
 
 export interface IEmptyListProps {
     label: string | React.ReactElement

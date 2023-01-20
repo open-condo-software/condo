@@ -1,11 +1,12 @@
 import { ParsedUrlQuery } from 'querystring'
-import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
-import isArray from 'lodash/isArray'
-import isObject from 'lodash/isObject'
-import isNumber from 'lodash/isNumber'
-import { FilterValue } from 'antd/es/table/interface'
+
 import { Property } from '@app/condo/schema'
+import { FilterValue } from 'antd/es/table/interface'
+import get from 'lodash/get'
+import isArray from 'lodash/isArray'
+import isEmpty from 'lodash/isEmpty'
+import isNumber from 'lodash/isNumber'
+import isObject from 'lodash/isObject'
 import { NextRouter } from 'next/router'
 import qs from 'qs'
 

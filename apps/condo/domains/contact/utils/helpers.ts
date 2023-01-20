@@ -1,11 +1,12 @@
-import { SortOrder } from 'antd/es/table/interface'
-import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
+
 import {
     Contact,
     ContactWhereInput,
     SortContactsBy,
 } from '@app/condo/schema'
+import { SortOrder } from 'antd/es/table/interface'
+import get from 'lodash/get'
 
 export interface IFilters extends Pick<Contact, 'name' | 'phone' | 'email'> {
     search?: string

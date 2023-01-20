@@ -3,20 +3,20 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { User } = require('./User')
-const { RegisterNewUserService } = require('./RegisterNewUserService')
 const { AuthenticateUserWithPhoneAndPasswordService } = require('./AuthenticateUserWithPhoneAndPasswordService')
-const { ForgotPasswordAction  } = require('./ForgotPasswordAction')
-const { ForgotPasswordService } = require('./ForgotPasswordService')
+const { ChangePhoneNumberResidentUserService } = require('./ChangePhoneNumberResidentUserService')
 const { ConfirmPhoneAction } = require('./ConfirmPhoneAction')
 const { ConfirmPhoneActionService } = require('./ConfirmPhoneActionService')
-const { SigninResidentUserService } = require('./SigninResidentUserService')
-const { ChangePhoneNumberResidentUserService } = require('./ChangePhoneNumberResidentUserService')
-const { SigninAsUserService } = require('./SigninAsUserService')
+const { ForgotPasswordAction  } = require('./ForgotPasswordAction')
+const { ForgotPasswordService } = require('./ForgotPasswordService')
+const { OidcClient } = require('./OidcClient')
 const { RegisterNewServiceUserService } = require('./RegisterNewServiceUserService')
+const { RegisterNewUserService } = require('./RegisterNewUserService')
 const { ResetUserService } = require('./ResetUserService')
 const { SendMessageToSupportService } = require('./SendMessageToSupportService')
-const { OidcClient } = require('./OidcClient')
+const { SigninAsUserService } = require('./SigninAsUserService')
+const { SigninResidentUserService } = require('./SigninResidentUserService')
+const { User } = require('./User')
 const { UserExternalIdentity } = require('./UserExternalIdentity')
 /* AUTOGENERATE MARKER <REQUIRE> */
 

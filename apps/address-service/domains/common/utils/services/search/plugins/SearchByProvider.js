@@ -1,8 +1,10 @@
-const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
+const get = require('lodash/get')
+
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
-const get = require('lodash/get')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
+
+const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
 
 class SearchByProvider extends AbstractSearchPlugin {
 

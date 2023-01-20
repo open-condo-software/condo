@@ -3,20 +3,22 @@
  */
 
 const { Text, Relationship } = require('@keystonejs/fields')
+const { isEmpty, isUndefined, isNull } = require('lodash')
+
 const { Json } = require('@open-condo/keystone/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
+const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')
+const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
+const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
-const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const { AcquiringIntegrationContext: ContextServerSchema } = require('@condo/domains/acquiring/utils/serverSchema')
-const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { isEmpty, isUndefined, isNull } = require('lodash')
-const { STATUS_FIELD, getStatusDescription, getStatusResolver } = require('@condo/domains/miniapp/schema/fields/context')
+const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const { STATUS_FIELD, getStatusDescription, getStatusResolver } = require('@condo/domains/miniapp/schema/fields/context')
 
 
 const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationContext', {

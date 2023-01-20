@@ -1,8 +1,10 @@
-import React, { useMemo } from 'react'
-import { useIntl } from '@open-condo/next/intl'
-import { getTextRender, getMoneyRender } from '@condo/domains/common/components/Table/Renders'
-import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import get from 'lodash/get'
+import React, { useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { TableRecord } from '@condo/domains/common/components/Table/Index'
+import { getTextRender, getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 
 type AlignType = 'right' | 'left' | 'center'
 

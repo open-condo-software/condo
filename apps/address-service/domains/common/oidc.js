@@ -1,7 +1,9 @@
-const conf = require('@open-condo/config')
 const express = require('express')
-const { generators, Issuer } = require('openid-client')
 const { get, isObject } = require('lodash')
+const { generators, Issuer } = require('openid-client')
+
+const conf = require('@open-condo/config')
+
 const { createOrUpdateUser } = require('@address-service/domains/common/utils/serverSchema/createOrUpdateUser')
 
 class OIDCHelper {

@@ -1,12 +1,14 @@
-import React from 'react'
-import Head from 'next/head'
 import get from 'lodash/get'
+import Head from 'next/head'
+import React from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+
 import { PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { CatalogPageContent } from '@condo/domains/miniapp/components/Catalog/PageContent'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 type PageType = React.FC & {
     requiredAccess: React.ReactNode

@@ -1,5 +1,5 @@
-const fetch = require('node-fetch')
 const { get, isArray, isString, isEmpty } = require('lodash')
+const fetch = require('node-fetch')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 

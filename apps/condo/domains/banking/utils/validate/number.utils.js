@@ -9,8 +9,8 @@
  *
  */
 
-const { validateRoutingNumber } = require('@condo/domains/banking/utils/validate/routingNumber.utils')
 const { getCountrySpecificValidator } = require('@condo/domains/banking/utils/validate/countrySpecificValidators')
+const { validateRoutingNumber } = require('@condo/domains/banking/utils/validate/routingNumber.utils')
 
 const EMPTY = 'Number is empty'
 const NOT_NUMERIC = 'Number can contain only digits'

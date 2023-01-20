@@ -5,16 +5,16 @@
 const faker = require('faker')
 
 const { makeLoggedInAdminClient, UUID_RE } = require('@open-condo/keystone/test.utils')
-
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowInternalError } = require('@open-condo/keystone/test.utils')
+
+const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 const {
     createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestTicket, createTestUserTicketCommentReadTime, updateTestUserTicketCommentReadTime, UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/testSchema')
-const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
+const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('UserTicketCommentReadTime', () => {
     describe('employee', () => {

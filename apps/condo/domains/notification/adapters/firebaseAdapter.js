@@ -1,6 +1,6 @@
+const faker = require('faker')
 const admin = require('firebase-admin')
 const { isEmpty, isNull, get, isObject } = require('lodash')
-const faker = require('faker')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')

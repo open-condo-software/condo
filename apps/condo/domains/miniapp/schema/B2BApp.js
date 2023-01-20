@@ -3,9 +3,20 @@
  */
 
 const { Text, Select, Relationship, Checkbox } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
+const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/miniapp/access/B2BApp')
+const {
+    B2B_APP_CATEGORIES,
+    OTHER_CATEGORY,
+    GLOBAL_APP_NO_APP_URL_ERROR,
+    NON_GLOBAL_APP_WITH_FEATURES_ERROR,
+} = require('@condo/domains/miniapp/constants')
+const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
+const { GLOBAL_FEATURES_FIELD } = require('@condo/domains/miniapp/schema/fields/globalFeaturesField')
 const {
     LOGO_FIELD,
     APPS_FILE_ADAPTER,
@@ -20,15 +31,6 @@ const {
     DISPLAY_PRIORITY_FIELD,
     PRICE_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
-const {
-    B2B_APP_CATEGORIES,
-    OTHER_CATEGORY,
-    GLOBAL_APP_NO_APP_URL_ERROR,
-    NON_GLOBAL_APP_WITH_FEATURES_ERROR,
-} = require('@condo/domains/miniapp/constants')
-const { GLOBAL_FEATURES_FIELD } = require('@condo/domains/miniapp/schema/fields/globalFeaturesField')
-const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
-const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 

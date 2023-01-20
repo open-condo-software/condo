@@ -8,7 +8,9 @@ import {
     AddressSourceUpdateInput,
     QueryAllAddressSourcesArgs,
 } from '@app/address-service/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { AddressSource as AddressSourceGQL } from '@address-service/domains/address/gql'
 
 const {

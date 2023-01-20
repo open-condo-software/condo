@@ -1,26 +1,24 @@
 const { get, isEmpty, isFunction, uniq, groupBy, isNull } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getLocalized } = require('@open-condo/locales/loader')
 
+const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { CURRENCY_SYMBOLS, DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { getStartDates } = require('@condo/domains/common/utils/date')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-
-const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
-
 const {
     BILLING_RECEIPT_ADDED_TYPE,
     // BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { getLocalized } = require('@open-condo/locales/loader')
-const { getLogger } = require('@open-condo/keystone/logging')
+
 
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
 const CHUNK_SIZE = 20

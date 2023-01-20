@@ -62,8 +62,8 @@
  */
 
 const { ApolloError } = require('apollo-server-errors')
-const { cloneDeep, get, template, templateSettings, isArray, isEmpty, isObject } = require('lodash')
 const cuid = require('cuid')
+const { cloneDeep, get, template, templateSettings, isArray, isEmpty, isObject } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')

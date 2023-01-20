@@ -1,9 +1,11 @@
-import React from 'react'
 import Head from 'next/head'
+import React from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { EditContactForm } from '@condo/domains/contact/components/EditContactForm'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 const ContactUpdatePage = () => {
     const intl = useIntl()

@@ -3,21 +3,22 @@
  */
 
 const { pick } = require('lodash')
-const { makeLoggedInAdminClient, makeClient, expectToThrowValidationFailureError } = require('@open-condo/keystone/test.utils')
 
+const { makeLoggedInAdminClient, makeClient, expectToThrowValidationFailureError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { BankAccount, createTestBankAccount, updateTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { BankIntegration, createTestBankIntegrationContext } = require('../utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+
 const { BANK_INTEGRATION_IDS } = require('../constants')
+const { BankIntegration, createTestBankIntegrationContext } = require('../utils/testSchema')
 
 const ISO_8601_FULL = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?$/i
 

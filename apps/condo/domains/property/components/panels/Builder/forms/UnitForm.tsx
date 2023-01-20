@@ -1,14 +1,18 @@
 /** @jsx jsx */
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
-import { useIntl } from '@open-condo/next/intl'
-import { BuildingUnitSubType } from '@app/condo/schema'
-import { Row, Col, Space, Typography } from 'antd'
-import Select from '@condo/domains/common/components/antd/Select'
-import Input from '@condo/domains/common/components/antd/Input'
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import { Button } from '@condo/domains/common/components/Button'
 import { DeleteFilled } from '@ant-design/icons'
+import { BuildingUnitSubType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
+import { Row, Col, Space, Typography } from 'antd'
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
+import { Button } from '@condo/domains/common/components/Button'
+import { MapEditMode } from '@condo/domains/property/components/panels/Builder/MapConstructor'
+
 import {
     IPropertyMapModalForm,
     MODAL_FORM_ROW_GUTTER,
@@ -19,7 +23,6 @@ import {
     BUTTON_SPACE_SIZE,
     FormModalCss,
 } from './BaseUnitForm'
-import { MapEditMode } from '@condo/domains/property/components/panels/Builder/MapConstructor'
 
 const { Option } = Select
 

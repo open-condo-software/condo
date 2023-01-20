@@ -1,11 +1,12 @@
 const { Relationship, DateTimeUtc, Select, Text, Integer } = require('@keystonejs/fields')
+
+const conf = require('@open-condo/config')
 const { Json } = require('@open-condo/keystone/fields')
 const { uuided, versioned, tracked, softDeleted, dvAndSender, historical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
-const access = require('@open-condo/webhooks/schema/access/WebhookSubscription')
-const { WebHookModelValidator, getModelValidator, setModelValidator } = require('@open-condo/webhooks/model-validator')
 const { DEFAULT_MAX_PACK_SIZE, DEFAULT_UNAVAILABILITY_THRESHOLD } = require('@open-condo/webhooks/constants')
-const conf = require('@open-condo/config')
+const { WebHookModelValidator, getModelValidator, setModelValidator } = require('@open-condo/webhooks/model-validator')
+const access = require('@open-condo/webhooks/schema/access/WebhookSubscription')
 
 const UNAVAILABILITY_THRESHOLD = (typeof conf['WEBHOOK_BLOCK_THRESHOLD'] === 'number' && conf['WEBHOOK_BLOCK_THRESHOLD'] > 0)
     ? conf['WEBHOOK_BLOCK_THRESHOLD']

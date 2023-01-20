@@ -1,5 +1,5 @@
-import React from 'react'
 import { Card as AntdCard, CardProps as DefaultCardProps } from 'antd'
+import React from 'react'
 
 import { CardWrapper, CardWrapperProps } from './CardWrapper'
 

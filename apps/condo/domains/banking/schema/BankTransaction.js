@@ -3,13 +3,15 @@
  */
 
 const { Text, Relationship, CalendarDay } = require('@keystonejs/fields')
+
 const { Json } = require('@open-condo/keystone/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/banking/access/BankTransaction')
-const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 
 const BankTransaction = new GQLListSchema('BankTransaction', {

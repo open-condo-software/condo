@@ -1,6 +1,6 @@
+import axios from 'axios'
 import * as Figma from 'figma-js'
 import { processFile } from 'figma-transformer'
-import axios from 'axios'
 
 const DEFAULT_BATCH_SIZE = 100
 

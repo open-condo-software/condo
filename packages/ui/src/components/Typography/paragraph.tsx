@@ -1,8 +1,10 @@
-import React from 'react'
-import type { ParagraphProps as DefaultParagraphProps } from 'antd/lib/typography/Paragraph'
 import Base from 'antd/lib/typography/Base'
 import classNames from 'classnames'
+import React from 'react'
+
 import { TYPOGRAPHY_CLASS_PREFIX, TEXT_SIZES, TEXT_TYPES } from './constants'
+
+import type { ParagraphProps as DefaultParagraphProps } from 'antd/lib/typography/Paragraph'
 
 export type TypographyParagraphProps = Omit<DefaultParagraphProps,
 'keyboard'

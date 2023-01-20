@@ -1,6 +1,6 @@
 const { find } = require('@open-condo/keystone/schema')
-const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
 const { createTask } = require('@open-condo/keystone/tasks')
+const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
 
 async function sendModelWebhooks (modelName) {
     // TODO(DOMA-4570): Add filter for only responsive subscriptions (failCount < threshold)

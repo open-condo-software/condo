@@ -1,15 +1,17 @@
-const chalk = require('chalk')
-const boxen = require('boxen')
-const yargs = require('yargs/yargs')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
-const ncp = require('ncp')
-const { promisify } = require('util')
-const nunjucks = require('nunjucks')
 const { Readable } = require('stream')
+const { promisify } = require('util')
+
+const boxen = require('boxen')
+const chalk = require('chalk')
 const { replace } = require('lodash')
+const ncp = require('ncp')
+const nunjucks = require('nunjucks')
 const pluralize = require('pluralize')
+const yargs = require('yargs/yargs')
+
 const conf = require('@open-condo/config')
 
 const DEFAULT_APPLICATION_TEMPLATE = 'app00'

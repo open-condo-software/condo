@@ -1,5 +1,5 @@
-import React from 'react'
 import { Alert as DefaultAlert, AlertProps as DefaultAlertProps } from 'antd'
+import React from 'react'
 
 type CondoAlertProps = {
     type: 'success' | 'info' | 'warning' | 'error';

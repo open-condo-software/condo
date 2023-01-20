@@ -1,14 +1,14 @@
-import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
+import { Col, Row, Typography } from 'antd'
+import { Gutter } from 'antd/lib/grid/row'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
-import { Col, Row, Typography } from 'antd'
-import { Gutter } from 'antd/lib/grid/row'
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 

@@ -1,9 +1,10 @@
-const { cloneDeep } = require('lodash/lang')
 const { DateTimeUtc } = require('@keystonejs/fields')
+const { cloneDeep } = require('lodash/lang')
 
-const { GQLListSchema } = require('../../schema')
-const { Json, DateInterval } = require('../../fields')
 const { convertStringToTypes } = require('./registerSchema')
+
+const { Json, DateInterval } = require('../../fields')
+const { GQLListSchema } = require('../../schema')
 
 const TestMessage = new GQLListSchema('TestMessage', {
     schemaDoc: 'Notification message',

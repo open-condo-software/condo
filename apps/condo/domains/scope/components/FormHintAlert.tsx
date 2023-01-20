@@ -3,8 +3,8 @@ import React, { CSSProperties, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { Alert } from '@condo/domains/common/components/Alert'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 
 const ALERT_MESSAGE_STYLE: CSSProperties = { color: 'inherit', marginBottom: '4px' }
 const EMPLOYEES_LIST_LINK_CLICK_EVENT_NAME = 'PropertyScopeUpdateToEmployeeList'

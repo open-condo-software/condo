@@ -1,5 +1,6 @@
 import { ConfigProvider, InputProps } from 'antd'
 import { SizeType } from 'antd/es/config-provider/SizeContext'
+import get from 'lodash/get'
 import React, {
     useRef,
     useImperativeHandle,
@@ -11,8 +12,9 @@ import React, {
     forwardRef, CSSProperties,
 } from 'react'
 import ReactPhoneInput, { PhoneInputProps } from 'react-phone-input-2'
+
 import { useOrganization } from '@open-condo/next/organization'
-import get from 'lodash/get'
+
 import { colors } from '@condo/domains/common/constants/style'
 import 'react-phone-input-2/lib/style.css'
 

@@ -1,6 +1,8 @@
 import React from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 import { Modal, Typography, Button } from '@open-condo/ui'
+
 import { CONTEXT_IN_PROGRESS_STATUS, CONTEXT_FINISHED_STATUS, CONTEXT_ERROR_STATUS } from '@condo/domains/miniapp/constants'
 
 type ConnectModalProps = {

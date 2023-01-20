@@ -1,5 +1,5 @@
-const isString = require('lodash/isString')
 const isNumber = require('lodash/isNumber')
+const isString = require('lodash/isString')
 
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 

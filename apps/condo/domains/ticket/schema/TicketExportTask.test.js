@@ -4,13 +4,15 @@
 const dayjs = require('dayjs')
 const difference = require('lodash/difference')
 const get = require('lodash/get')
+
 const conf = require('@open-condo/config')
-const { i18n } = require('@open-condo/locales/loader')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
+const { i18n } = require('@open-condo/locales/loader')
+
 const { EXPORT_STATUS_VALUES, CANCELLED, EXPORT_PROCESSING_BATCH_SIZE, EXCEL } = require('@condo/domains/common/constants/export')
 const { downloadFile, readXlsx, expectDataFormat, getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 const {
@@ -18,10 +20,10 @@ const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask, TicketStatus, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketExportTask', () => {
     describe('validations', () => {

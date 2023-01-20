@@ -1,21 +1,22 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import { Meter as MeterType } from '@app/condo/schema'
 import { Typography } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { Meter as MeterType } from '@app/condo/schema'
+
+import { CustomButtonProps } from '@condo/domains/common/components/Button'
 import {
     DeleteButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
-import { CustomButtonProps } from '@condo/domains/common/components/Button'
+import { AutoSourceAlert } from '@condo/domains/meter/components/BaseMeterModal/AutoSourceAlert'
 
 import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'
 import { Meter } from '../utils/clientSchema'
-import { AutoSourceAlert } from '@condo/domains/meter/components/BaseMeterModal/AutoSourceAlert'
 
 const INITIAL_VALUES_KEYS = [
     'accountNumber', 'number', 'resource', 'place', 'numberOfTariffs', 'installationDate',

@@ -5,13 +5,14 @@
  *      yarn workspace @app/condo node bin/fix-billing-receipts
  */
 
-const { get } = require('lodash')
 
 const path = require('path')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
 
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { get } = require('lodash')
+
 const { BillingReceipt, BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 
 
 async function main () {

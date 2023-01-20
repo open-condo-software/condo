@@ -1,7 +1,9 @@
 import { Upload, message } from 'antd'
 import React from 'react'
-import { useIntl } from '@open-condo/next/intl'
 import XLSX from 'xlsx'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { TABLE_UPLOAD_ACCEPT_FILES } from '../constants/fileExtensions'
 import { makeAntdCols, makeAntdData } from '../utils/excel.utils'
 

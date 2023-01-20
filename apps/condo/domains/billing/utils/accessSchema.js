@@ -1,7 +1,9 @@
 const get = require('lodash/get')
 const uniq = require('lodash/uniq')
-const { getById, find } = require('@open-condo/keystone/schema')
+
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { getById, find } = require('@open-condo/keystone/schema')
+
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 async function checkBillingIntegrationsAccessRights (userId, integrationIds) {

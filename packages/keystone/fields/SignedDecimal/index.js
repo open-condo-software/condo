@@ -1,4 +1,5 @@
 const { Decimal } = require('@keystonejs/fields')
+
 const { SignedDecimal } = require('./Implementation')
 
 module.exports = {

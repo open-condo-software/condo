@@ -1,6 +1,7 @@
+const { get } = require('lodash')
+
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 // TODO (DOMA-3868) Remove domain specific logic from here
-const { get } = require('lodash')
 const { find } = require('@open-condo/keystone/schema')
 
 const RESIDENT_TYPE_USER = 'resident'

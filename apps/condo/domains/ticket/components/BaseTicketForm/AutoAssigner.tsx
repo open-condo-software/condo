@@ -1,9 +1,9 @@
 import { Alert, Col } from 'antd'
 import React, { useState } from 'react'
 
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 
 import {
     getEmployeesSortedByTicketVisibilityType,

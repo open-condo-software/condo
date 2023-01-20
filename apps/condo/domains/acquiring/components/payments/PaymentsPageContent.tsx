@@ -1,14 +1,16 @@
 import { ApolloError } from '@apollo/client'
+import { Typography } from 'antd'
+import { get, isString } from 'lodash'
+import React, { useMemo } from 'react'
+
+import { useOrganization } from '@open-condo/next/organization'
+
 import NoAcquiringStub from '@condo/domains/acquiring/components/payments/NoAcquiringStub'
 import NoBillingStub from '@condo/domains/acquiring/components/payments/NoBillingStub'
 import PaymentsTable from '@condo/domains/acquiring/components/payments/PaymentsTable'
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { useOrganization } from '@open-condo/next/organization'
-import { Typography } from 'antd'
-import { get, isString } from 'lodash'
-import React, { useMemo } from 'react'
 
 function renderError (error: ApolloError | string) {
     if (isString(error)) {

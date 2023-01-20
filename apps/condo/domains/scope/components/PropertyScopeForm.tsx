@@ -1,7 +1,7 @@
 import React from 'react'
 
-import { UpdatePropertyScopeForm } from './UpdatePropertyScopeForm'
 import { CreatePropertyScopeForm } from './CreatePropertyScopeForm'
+import { UpdatePropertyScopeForm } from './UpdatePropertyScopeForm'
 
 interface IPropertyScopeFormProps {
     id?: string

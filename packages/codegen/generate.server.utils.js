@@ -1,8 +1,8 @@
 const { pickBy, get, isEmpty, isObject } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { getById } = require('@open-condo/keystone/schema')
 const { GQLError } = require('@open-condo/keystone/errors')
+const { getById } = require('@open-condo/keystone/schema')
 
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 

@@ -1,8 +1,11 @@
-import { useIntl } from '@open-condo/next/intl'
-import { useMemo } from 'react'
 import { Typography } from 'antd'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { useMemo } from 'react'
 import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+
 
 type LastReportType = {
     totalReceipts: number

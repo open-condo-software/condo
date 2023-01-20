@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react'
 import { ComponentMeta, ComponentStory } from '@storybook/react'
 import get from 'lodash/get'
+import React, { useMemo } from 'react'
+
 import { Button, Modal as Component, Typography } from '@open-condo/ui/src'
 
 const LOREM_TEXT = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus aliquid amet dolores eligendi' +

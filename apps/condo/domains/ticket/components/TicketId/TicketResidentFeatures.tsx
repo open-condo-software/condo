@@ -1,10 +1,10 @@
+import { SortBillingReceiptsBy, Ticket } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import React from 'react'
 
-import { SortBillingReceiptsBy, Ticket } from '@app/condo/schema'
 import { useIntl } from '@open-condo/next/intl'
 
 import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'

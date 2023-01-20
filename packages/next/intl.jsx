@@ -1,7 +1,8 @@
-import { IntlProvider, useIntl, FormattedMessage } from 'react-intl'
-import React, { useEffect, useState } from 'react'
 import cookie from 'js-cookie'
 import nextCookie from 'next-cookies'
+import React, { useEffect, useState } from 'react'
+import { IntlProvider, useIntl, FormattedMessage } from 'react-intl'
+
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 
 const LocaleContext = React.createContext({})

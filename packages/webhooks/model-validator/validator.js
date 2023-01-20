@@ -1,10 +1,11 @@
 const fs = require('fs')
-const Ajv = require('ajv')
-const get = require('lodash/get')
-const { loadSchemaSync } = require('@graphql-tools/load')
+
 const { GraphQLFileLoader } = require('@graphql-tools/graphql-file-loader')
+const { loadSchemaSync } = require('@graphql-tools/load')
+const Ajv = require('ajv')
 const { introspectionFromSchema } = require('graphql')
 const { fromIntrospectionQuery } = require('graphql-2-json-schema')
+const get = require('lodash/get')
 
 /**
  * Consumes path of generated schema.ts file and creates schema-generator from it

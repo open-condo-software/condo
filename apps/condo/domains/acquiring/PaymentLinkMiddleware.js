@@ -1,6 +1,7 @@
 const express = require('express')
-const { PaymentLinkRouter } = require('@condo/domains/acquiring/routes/paymentLinkRouter')
+
 const { PAYMENT_LINK_PATH } = require('@condo/domains/acquiring/constants/links')
+const { PaymentLinkRouter } = require('@condo/domains/acquiring/routes/paymentLinkRouter')
 
 class PaymentLinkMiddleware {
     async prepareMiddleware () {

@@ -6,12 +6,11 @@ const omit = require('lodash/omit')
 
 const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/serverSchema/helpers')
-
-const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const access = require('@condo/domains/resident/access/RegisterResidentService')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 
 const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
     types: [

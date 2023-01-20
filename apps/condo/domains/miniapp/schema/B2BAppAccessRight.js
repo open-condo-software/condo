@@ -3,8 +3,10 @@
  */
 
 const { Relationship } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/miniapp/access/B2BAppAccessRight')
 const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
 

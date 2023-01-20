@@ -3,13 +3,15 @@
  */
 
 const { Text } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const access = require('@address-service/domains/address/access/AddressInjection')
 const get = require('lodash/get')
+
 const { Json, AddressPartWithType } = require('@open-condo/keystone/fields')
-const { VALID_HOUSE_TYPES } = require('@condo/domains/property/constants/common')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
+const access = require('@address-service/domains/address/access/AddressInjection')
 const { KEYWORDS_SPECIAL_SYMBOLS_REGEX } = require('@address-service/domains/address/constants')
+const { VALID_HOUSE_TYPES } = require('@condo/domains/property/constants/common')
 
 const readOnlyAccess = {
     read: true,

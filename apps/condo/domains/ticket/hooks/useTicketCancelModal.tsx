@@ -1,9 +1,10 @@
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Typography } from 'antd'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
-import { Modal } from '@condo/domains/common/components/Modal'
-import { Button } from '@app/condo/domains/common/components/Button'
 import { useIntl } from '@open-condo/next/intl'
+
+import { Button } from '@app/condo/domains/common/components/Button'
+import { Modal } from '@condo/domains/common/components/Modal'
 
 type useTicketCancelModalType = (updateTicket: (id: string) => void) => { openModal: (statusCanceledId: string) => void, cancelTicketModal: JSX.Element, closeModal: () => void }
 

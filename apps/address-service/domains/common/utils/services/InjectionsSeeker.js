@@ -1,7 +1,8 @@
-const { AddressInjection } = require('@address-service/domains/address/utils/serverSchema')
 const get = require('lodash/get')
-const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
+
 const { KEYWORDS_SPECIAL_SYMBOLS_REGEX } = require('@address-service/domains/address/constants')
+const { AddressInjection } = require('@address-service/domains/address/utils/serverSchema')
+const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
 /**
  * A class used to search injections within database.

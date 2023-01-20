@@ -1,8 +1,9 @@
 const express = require('express')
 const get = require('lodash/get')
-const { getSuggestionsProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
-const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
+
 const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
+const { getSuggestionsProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 
 /**
  * @typedef {Object} NormalizedSuggestion

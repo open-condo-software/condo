@@ -1,10 +1,10 @@
+import { BuildingSection, BuildingUnit, BuildingUnitSubType, Property } from '@app/condo/schema'
 import { LabeledValue } from 'antd/lib/select'
 import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback } from 'react'
 
-import { BuildingSection, BuildingUnit, BuildingUnitSubType, Property } from '@app/condo/schema'
 import { useIntl } from '@open-condo/next/intl'
 
 import Input from '@condo/domains/common/components/antd/Input'

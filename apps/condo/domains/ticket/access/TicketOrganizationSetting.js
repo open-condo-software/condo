@@ -3,6 +3,7 @@
  */
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,

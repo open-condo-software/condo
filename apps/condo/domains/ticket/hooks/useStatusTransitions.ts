@@ -1,7 +1,8 @@
+import { Organization, OrganizationEmployee } from '@app/condo/schema'
 import get from 'lodash/get'
+
 import { TicketStatus } from '../utils/clientSchema'
 import { getPossibleStatuses } from '../utils/status'
-import { Organization, OrganizationEmployee } from '@app/condo/schema'
 
 export const useStatusTransitions = (ticketStatusId: string, organization: Organization, employee: OrganizationEmployee) => {
     const { objs: statusList, loading } = TicketStatus.useObjects({})

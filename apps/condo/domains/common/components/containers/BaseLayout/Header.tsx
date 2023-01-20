@@ -1,16 +1,20 @@
+import { MenuOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Layout, Space } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
-import { colors } from '@condo/domains/common/constants/style'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+
 import { useAuth } from '@open-condo/next/auth'
+
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { colors } from '@condo/domains/common/constants/style'
+import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
+
+import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
+
 import { Logo } from '../../Logo'
 import { ResidentActions } from '../../ResidentActions/ResidentActions'
-import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
-import { MenuOutlined } from '@ant-design/icons'
-import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 
 const DesktopHeader = styled(Layout.Header)`
   z-index: 9;

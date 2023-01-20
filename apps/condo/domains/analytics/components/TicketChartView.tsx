@@ -1,23 +1,28 @@
-import React, { useRef, useEffect, useState, useCallback, useLayoutEffect } from 'react'
-import { useIntl } from '@open-condo/next/intl'
+import { DownOutlined } from '@ant-design/icons'
+import { TicketGroupedCounter } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import { Skeleton, Typography, List } from 'antd'
-import get from 'lodash/get'
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import ReactECharts from 'echarts-for-react'
+import get from 'lodash/get'
+import React, { useRef, useEffect, useState, useCallback, useLayoutEffect } from 'react'
+import InfiniteScroll from 'react-infinite-scroller'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import TicketChart, {
     ChartConfigResult,
     EchartsSeries,
     ViewModeTypes,
 } from '@condo/domains/analytics/components/TicketChart'
-import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
-import { TicketGroupedCounter } from '@app/condo/schema'
-import { colors } from '@condo/domains/common/constants/style'
-import InfiniteScroll from 'react-infinite-scroller'
 import { TICKET_CHART_PAGE_SIZE } from '@condo/domains/analytics/utils/helpers'
 import { getChartOptions, GroupTicketsByTypes } from '@condo/domains/analytics/utils/helpers'
-import styled from '@emotion/styled'
 import { Button } from '@condo/domains/common/components/Button'
-import { DownOutlined } from '@ant-design/icons'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
+import { colors } from '@condo/domains/common/constants/style'
+
+
+
 
 export interface ITicketAnalyticsPageWidgetProps {
     data: null | TicketGroupedCounter[]

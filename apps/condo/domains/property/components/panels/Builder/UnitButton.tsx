@@ -1,10 +1,11 @@
 /** @jsx jsx */
 import { BuildingUnitSubType } from '@app/condo/schema'
-import { colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
 import { css, jsx } from '@emotion/react'
 import { Button, ButtonProps } from 'antd'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import React from 'react'
+
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
 
 const buttonCss = css`
     display: inline-block;

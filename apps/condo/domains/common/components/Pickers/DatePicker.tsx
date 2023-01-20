@@ -1,13 +1,13 @@
-import React, { useContext } from 'react'
-import { Dayjs } from 'dayjs'
-import dayjsGenerateConfig from 'rc-picker/lib/generate/dayjs'
+import { ConfigProvider } from 'antd'
 import generatePicker, {
     PickerDateProps,
     PickerProps,
     PickerTimeProps,
     RangePickerProps,
 } from 'antd/lib/date-picker/generatePicker'
-import { ConfigProvider } from 'antd'
+import { Dayjs } from 'dayjs'
+import dayjsGenerateConfig from 'rc-picker/lib/generate/dayjs'
+import React, { useContext } from 'react'
 
 type PickerType =
     React.ComponentClass<PickerProps<Dayjs>, any>

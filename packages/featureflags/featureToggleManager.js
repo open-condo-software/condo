@@ -1,8 +1,9 @@
-const { get } = require('lodash')
 const { GrowthBook } = require('@growthbook/growthbook')
+const { get } = require('lodash')
+
 const conf = require('@open-condo/config')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 
 const logger = getLogger('featureToggleManager')
 

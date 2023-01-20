@@ -1,11 +1,12 @@
-const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js')
-const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
-const { SBBOL_IDP_TYPE, STAFF } = require('@condo/domains/user/constants/common')
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { dvSenderFields } = require('../constants')
+const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js')
+const { SBBOL_IDP_TYPE, STAFF } = require('@condo/domains/user/constants/common')
+const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
 const { User, UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
+
+const { dvSenderFields } = require('../constants')
 
 const createOnboarding = async ({ keystone, user }) => {
     const userContext = await keystone.createContext({

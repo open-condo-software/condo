@@ -1,4 +1,5 @@
 const qs = require('qs')
+
 const { JAVASCRIPT_URL_XSS } = require('@condo/domains/common/constants/regexps')
 
 function getQueryParams () {

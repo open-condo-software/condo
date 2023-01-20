@@ -1,6 +1,7 @@
-import getConfig from 'next/config'
 import { get, compact, isEmpty } from 'lodash'
+import getConfig from 'next/config'
 import { validate as uuidValidate } from 'uuid'
+
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 
 export type ITrackerLogEventType = {

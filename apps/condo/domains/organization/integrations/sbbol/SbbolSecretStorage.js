@@ -1,7 +1,8 @@
 const dayjs = require('dayjs')
+
 const conf = require('@open-condo/config')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 

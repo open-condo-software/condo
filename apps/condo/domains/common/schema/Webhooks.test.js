@@ -1,11 +1,12 @@
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
-const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { WebhookTests } = require('@open-condo/webhooks/schema/models/Webhook.test')
 const {
     WebhookSubscriptionBasicTests,
     WebhookSubscriptionModelSwitchTests, 
 } = require('@open-condo/webhooks/schema/models/WebhookSubscription.test')
+
+const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 async function initializeActors () {
     const admin = await makeLoggedInAdminClient()

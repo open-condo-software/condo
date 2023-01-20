@@ -58,8 +58,9 @@
     ]
  */
 
-const { Logger } = require('@condo/domains/common/utils/logger.js')
+const Big = require('big.js')
 const { get } = require('lodash')
+
 const {
     FEE_DISTRIBUTION_UNSUPPORTED_FORMULA,
     FEE_DISTRIBUTION_INCOMPLETE_FORMULA,
@@ -69,8 +70,8 @@ const {
 const {
     AcquiringIntegrationContext: AcquiringIntegrationContextApi,
 } = require('@condo/domains/acquiring/utils/serverSchema')
+const { Logger } = require('@condo/domains/common/utils/logger.js')
 
-const Big = require('big.js')
 
 class FeeDistribution extends Logger {
 

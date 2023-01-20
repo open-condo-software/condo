@@ -1,12 +1,18 @@
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { REGISTER_NEW_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql.js')
 const { updateItem, getItems } = require('@keystonejs/server-side-graphql-client')
-const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { uniqBy } = require('lodash')
+
 const conf = require('@open-condo/config')
-const { dvSenderFields } = require('../constants')
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+
 const { CUSTOMER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { REGISTER_NEW_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql.js')
+const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
+
+
+
+const { dvSenderFields } = require('../constants')
+
 
 const CUSTOMER_EMAIL = conf.NOTIFY_ABOUT_NEW_ORGANIZATION_EMAIL
 

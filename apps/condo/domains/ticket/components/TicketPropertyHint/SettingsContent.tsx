@@ -1,4 +1,5 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
+import { SortTicketPropertyHintsBy } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -9,21 +10,20 @@ import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { SortTicketPropertyHintsBy } from '@app/condo/schema'
 
-import Input from '@condo/domains/common/components/antd/Input'
-import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import ActionBar from '@condo/domains/common/components/ActionBar'
+import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useTicketPropertyHintTableColumns } from '@condo/domains/ticket/hooks/useTicketPropertyHintTableColumns'
 import {
     useTicketPropertyHintPropertyFilters,
     useTicketPropertyHintTableFilters,
 } from '@condo/domains/ticket/hooks/useTicketPropertyHintTableFilters'
-import { useTicketPropertyHintTableColumns } from '@condo/domains/ticket/hooks/useTicketPropertyHintTableColumns'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 

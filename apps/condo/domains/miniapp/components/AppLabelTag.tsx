@@ -1,9 +1,11 @@
-import React from 'react'
 import get from 'lodash/get'
+import React from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
-import { colors } from '@open-condo/ui/dist/colors'
 import { Tag } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
+
 import { APP_FREE_LABEL, APP_DISCOUNT_LABEL, APP_POPULAR_LABEL, APP_NEW_LABEL } from '@condo/domains/miniapp/constants'
 
 const LABEL_TO_TAG_PROPS = {

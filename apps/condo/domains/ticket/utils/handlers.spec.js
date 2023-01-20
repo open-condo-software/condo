@@ -1,11 +1,12 @@
-const faker = require('faker')
-
 import {
     detectEventTypes,
     ASSIGNEE_CONNECTED_EVENT_TYPE,
     EXECUTOR_CONNECTED_EVENT_TYPE,
     STATUS_CHANGED_EVENT_TYPE,
 } from './handlers'
+
+const faker = require('faker')
+
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
 

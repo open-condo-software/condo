@@ -1,8 +1,10 @@
 const path = require('path')
+
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const isEmpty = require('lodash/isEmpty')
-const { Ticket, TicketChange } = require('@condo/domains/ticket/utils/serverSchema')
+
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { Ticket, TicketChange } = require('@condo/domains/ticket/utils/serverSchema')
 
 class FixTicketsStatusUpdatedAt {
     context = null

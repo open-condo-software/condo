@@ -1,8 +1,9 @@
 import { GrowthBook, GrowthBookProvider, useGrowthBook } from '@growthbook/growthbook-react'
+import get from 'lodash/get'
+import isEqual from 'lodash/isEqual'
 import getConfig from 'next/config'
 import { createContext, useCallback, useContext, useEffect } from 'react'
-import isEqual from 'lodash/isEqual'
-import get from 'lodash/get'
+
 import { useAuth } from '@open-condo/next/auth'
 
 const growthbook = new GrowthBook()

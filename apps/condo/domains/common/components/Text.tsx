@@ -1,6 +1,7 @@
 import styled from '@emotion/styled'
 import { Typography } from 'antd'
 import { SizeType } from 'antd/es/config-provider/SizeContext'
+
 import { colors } from '@condo/domains/common/constants/style'
 
 export const SubText = styled(Typography.Text)<{ size: SizeType }>`

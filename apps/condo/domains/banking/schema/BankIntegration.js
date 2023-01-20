@@ -3,8 +3,9 @@
  */
 
 const { LocalizedText } = require('@open-condo/keystone/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/banking/access/BankIntegration')
 
 

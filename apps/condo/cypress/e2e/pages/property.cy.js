@@ -1,5 +1,5 @@
-import { authUserWithCookies } from '../../plugins/auth'
 import { PropertyMapCreate, PropertyMapEdit, PropertyMapUnitEdit } from '../../objects/Property'
+import { authUserWithCookies } from '../../plugins/auth'
 
 describe('Property', function () {
     describe('User', function () {

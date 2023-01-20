@@ -8,7 +8,9 @@ import {
     ResidentUpdateInput,
     QueryAllResidentsArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { Resident as ResidentGQL } from '@condo/domains/resident/gql'
 
 const {

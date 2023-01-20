@@ -1,5 +1,6 @@
-import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
+import React from 'react'
+
 import { Checkbox as Component } from '@open-condo/ui/src'
 
 export default {

@@ -3,15 +3,15 @@
  */
 
 const faker = require('faker')
+
 const { expectToThrowAuthenticationErrorToObjects } = require(
     '@open-condo/keystone/test.utils')
-
-const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
 const { makeLoggedInAdminClient, makeLoggedInClient, makeClient, getRandomString } = require('@open-condo/keystone/test.utils')
+const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
 
 const { BillingCategory, createTestBillingCategory, updateTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
+const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('BillingCategory', () => {
 

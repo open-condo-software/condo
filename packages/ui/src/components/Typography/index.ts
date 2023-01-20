@@ -1,7 +1,7 @@
-import { Title } from './title'
-import { Text } from './text'
 import { Link } from './link'
 import { Paragraph } from './paragraph'
+import { Text } from './text'
+import { Title } from './title'
 import './style.less'
 
 export type { TypographyTitleProps } from './title'

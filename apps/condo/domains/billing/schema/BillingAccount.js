@@ -3,16 +3,19 @@
  */
 
 const { Text } = require('@keystonejs/fields')
+
 const { Json } = require('@open-condo/keystone/fields')
-const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { IMPORT_ID_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/billing/access/BillingAccount')
 const {
     JSON_EXPECT_OBJECT_ERROR,
     UNEQUAL_CONTEXT_ERROR,
 } = require('@condo/domains/common/constants/errors')
+const { IMPORT_ID_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD } = require('./fields/relations')
 

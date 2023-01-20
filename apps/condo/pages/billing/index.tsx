@@ -1,14 +1,16 @@
-import React from 'react'
-import Head from 'next/head'
-import { useIntl } from '@open-condo/next/intl'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Typography } from 'antd'
-import { BillingPageContent } from '@condo/domains/billing/components/BillingPageContent'
-import { useOrganization } from '@open-condo/next/organization'
 import get from 'lodash/get'
+import Head from 'next/head'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import { BillingPageContent } from '@condo/domains/billing/components/BillingPageContent'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
+import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 const BillingPage = () => {
     const intl = useIntl()

@@ -1,7 +1,8 @@
-import React, { CSSProperties, useCallback } from 'react'
-import { useRouter } from 'next/router'
-import { Space, Image } from 'antd'
 import styled from '@emotion/styled'
+import { Space, Image } from 'antd'
+import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography, Button } from '@open-condo/ui'
 

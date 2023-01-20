@@ -3,15 +3,16 @@
  */
 
 const faker = require('faker')
-const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@open-condo/keystone/test.utils')
 
-const { MeterReadingFilterTemplate, createTestMeterReadingFilterTemplate, updateTestMeterReadingFilterTemplate } = require('@condo/domains/meter/utils/testSchema')
+const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
     expectToThrowAuthenticationErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
+
+const { MeterReadingFilterTemplate, createTestMeterReadingFilterTemplate, updateTestMeterReadingFilterTemplate } = require('@condo/domains/meter/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,

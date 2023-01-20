@@ -6,14 +6,14 @@
 const { AcquiringIntegration } = require('./AcquiringIntegration')
 const { AcquiringIntegrationAccessRight } = require('./AcquiringIntegrationAccessRight')
 const { AcquiringIntegrationContext } = require('./AcquiringIntegrationContext')
+const { ExportPaymentsService } = require('./ExportPaymentsService')
+const { GeneratePaymentLinkService } = require('./GeneratePaymentLinkService')
 const { MultiPayment } = require('./MultiPayment')
 const { Payment } = require('./Payment')
-const { RegisterMultiPaymentService } = require('./RegisterMultiPaymentService')
-const { ExportPaymentsService } = require('./ExportPaymentsService')
 const { PaymentsFilterTemplate } = require('./PaymentsFilterTemplate')
 const { RegisterMultiPaymentForOneReceiptService } = require('./RegisterMultiPaymentForOneReceiptService')
 const { RegisterMultiPaymentForVirtualReceiptService } = require('./RegisterMultiPaymentForVirtualReceiptService')
-const { GeneratePaymentLinkService } = require('./GeneratePaymentLinkService')
+const { RegisterMultiPaymentService } = require('./RegisterMultiPaymentService')
 const { SumPaymentsService } = require('./SumPaymentsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 

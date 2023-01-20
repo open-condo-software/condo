@@ -1,12 +1,11 @@
 import { get } from 'lodash'
 import React, { useMemo } from 'react'
 
-import { useOrganization } from '@open-condo/next/organization'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
-
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 
 import { BaseContactRoleForm } from './BaseContactRoleForm'

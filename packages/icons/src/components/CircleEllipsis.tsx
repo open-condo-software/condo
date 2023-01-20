@@ -1,5 +1,6 @@
 /** This file is auto-generated, do not edit it manually **/
 import React from 'react'
+
 import { IconWrapper, IconProps } from '../wrappers'
 
 export const CircleEllipsis: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => {

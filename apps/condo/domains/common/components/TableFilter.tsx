@@ -1,17 +1,19 @@
-import React, { CSSProperties } from 'react'
-import isFunction from 'lodash/isFunction'
-import { Space } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import { CheckboxOptionType } from 'antd/es'
-import { FilterDropdownProps } from 'antd/lib/table/interface'
 import { FilterFilled } from '@ant-design/icons'
 import styled from '@emotion/styled'
+import { Space } from 'antd'
+import { CheckboxOptionType } from 'antd/es'
+import { FilterDropdownProps } from 'antd/lib/table/interface'
+import isFunction from 'lodash/isFunction'
+import React, { CSSProperties } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { colors } from '../constants/style'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import Input from '@condo/domains/common/components/antd/Input'
+
 import { Button } from './Button'
+
+import { colors } from '../constants/style'
 
 export interface IFilterContainerProps {
     clearFilters: () => void

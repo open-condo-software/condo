@@ -1,9 +1,10 @@
-import React from 'react'
 import {
     Carousel as DefaultCarousel,
     CarouselProps as DefaultCarouselProps,
 } from 'antd'
 import { CarouselRef } from 'antd/lib/carousel'
+import React from 'react'
+
 import { CarouselArrow } from './arrow'
 
 const CAROUSEL_CLASS_PREFIX = 'condo-carousel'

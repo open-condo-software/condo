@@ -1,30 +1,32 @@
-import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
+import { MeterResource } from '@app/condo/schema'
 import { Global, css } from '@emotion/react'
 import { Col, Row } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+import dayjs, { Dayjs } from 'dayjs'
+import get from 'lodash/get'
+import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
-import { useIntl } from '@open-condo/next/intl'
-import dayjs, { Dayjs } from 'dayjs'
-import { MeterResource } from '@app/condo/schema'
-import get from 'lodash/get'
-import { Gutter } from 'antd/es/grid/row'
-
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { ShowMoreFieldsButton } from '@condo/domains/common/components/ShowMoreFieldsButton'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
-import { useMeterValidations } from '../../hooks/useMeterValidations'
-import { METER_MODAL_FORM_ITEM_SPAN } from '../../constants/constants'
-import { MeterModalDatePicker } from './BaseMeterModalDatePicker'
 import { BaseMeterModalAccountNumberField } from './BaseMeterModalAccountNumberField'
-import { ELECTRICITY_METER_RESOURCE_ID } from '../../constants/constants'
-import { searchMeterResources } from '../../utils/clientSchema/search'
+import { MeterModalDatePicker } from './BaseMeterModalDatePicker'
 import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
+
+import { METER_MODAL_FORM_ITEM_SPAN } from '../../constants/constants'
+import { ELECTRICITY_METER_RESOURCE_ID } from '../../constants/constants'
 import {
     EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT,
     EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
 } from '../../constants/errors'
+import { useMeterValidations } from '../../hooks/useMeterValidations'
+import { searchMeterResources } from '../../utils/clientSchema/search'
 
 type InitialMeterFormValuesType = {
     propertyId?: string

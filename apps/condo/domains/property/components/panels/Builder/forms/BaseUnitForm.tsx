@@ -1,7 +1,8 @@
 /** @jsx jsx */
-import React from 'react'
-import { RowProps } from 'antd'
 import { css, jsx } from '@emotion/react'
+import { RowProps } from 'antd'
+import React from 'react'
+
 import { colors } from '@condo/domains/common/constants/style'
 import { MapEdit } from '@condo/domains/property/components/panels/Builder/MapConstructor'
 

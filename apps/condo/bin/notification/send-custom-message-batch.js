@@ -7,11 +7,10 @@
  *      yarn workspace @app/condo node ./bin/notification/send-custom-message-batch
  */
 
-const { MessageBatch } = require('@condo/domains/notification/utils/serverSchema')
 const { CUSTOM_CONTENT_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { MessageBatch } = require('@condo/domains/notification/utils/serverSchema')
 
 const { connectKeystone } = require('../lib/keystone.helpers')
-
 const { prompt } = require('../lib/prompt')
 
 const LINE_ENDINGS_REGEXP = /[\r\n]+/giu

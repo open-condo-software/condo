@@ -1,5 +1,6 @@
-const { SbbolOauth2Api } = require('../oauth2')
 const { getSbbolSecretStorage } = require('./getSbbolSecretStorage')
+
+const { SbbolOauth2Api } = require('../oauth2')
 
 /**
  * Each route handler here in each application instance needs an instance of `SbbolOauth2Api` with actual

@@ -3,10 +3,12 @@
  */
 
 const get = require('lodash/get')
-const { getById } = require('@open-condo/keystone/schema')
+
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { getById } = require('@open-condo/keystone/schema')
+
 const { checkB2BAppAccessRight } = require('@condo/domains/miniapp/utils/accessSchema')
+const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 

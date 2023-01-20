@@ -1,6 +1,8 @@
 import { Property, PropertyCreateInput, PropertyUpdateInput, QueryAllPropertiesArgs } from '@app/condo/schema'
-import { PropertyTable as PropertyTableGQL } from '@condo/domains/property/gql'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
+import { PropertyTable as PropertyTableGQL } from '@condo/domains/property/gql'
 
 const {
     useObject,

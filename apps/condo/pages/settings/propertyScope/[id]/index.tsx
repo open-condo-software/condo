@@ -1,16 +1,11 @@
-import { renderBlockedObject } from '@condo/domains/common/components/GraphQlSearchInput'
-import {
-    EmployeeNameAndSpecializations,
-    getEmployeeSpecializationsMessage,
-} from '@condo/domains/organization/utils/clientSchema/Renders'
-import { Gutter } from 'antd/es/grid/row'
-import uniq from 'lodash/uniq'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
 import { Col, Row, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
+import uniq from 'lodash/uniq'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -22,18 +17,22 @@ import {
     DeleteButtonWithConfirmModal,
     IDeleteActionButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import { renderBlockedObject } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
-
 import { SETTINGS_TAB_PROPERTY_SCOPE } from '@condo/domains/common/constants/settingsTabs'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
+import {
+    EmployeeNameAndSpecializations,
+    getEmployeeSpecializationsMessage,
+} from '@condo/domains/organization/utils/clientSchema/Renders'
 import {
     PropertyScope,
     PropertyScopeOrganizationEmployee,
     PropertyScopeProperty,
 } from '@condo/domains/scope/utils/clientSchema'
-import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
+import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
     type: 'sberDangerGhost',

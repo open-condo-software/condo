@@ -3,7 +3,6 @@
  */
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
-
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -11,13 +10,13 @@ const {
     expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 
+
+const { ContactRole, createTestContactRole, updateTestContactRole } = require('@condo/domains/contact/utils/testSchema')
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
-
-const { ContactRole, createTestContactRole, updateTestContactRole } = require('@condo/domains/contact/utils/testSchema')
-const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema')
 
 describe('ContactRole', () => {
     describe('CRUD tests', () => {

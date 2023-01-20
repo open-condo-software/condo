@@ -1,15 +1,19 @@
-const faker = require('faker')
-const { v4: uuid } = require('uuid')
 const { Text, Checkbox, Relationship, Uuid, Select } = require('@keystonejs/fields')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
+const faker = require('faker')
+const { v4: uuid } = require('uuid')
 
-const { GQLListSchema, GQLCustomSchema } = require('@open-condo/keystone/schema')
 const access = require('@open-condo/keystone/access')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { GQLListSchema, GQLCustomSchema } = require('@open-condo/keystone/schema')
+
+const { User } = require('./User')
+
 const { getByCondition } = require('../schema')
 const { find } = require('../schema')
 const { getById } = require('../schema')
-const { User } = require('./User')
-const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+
+
 
 const Organization = new GQLListSchema('Organization', {
     fields: {

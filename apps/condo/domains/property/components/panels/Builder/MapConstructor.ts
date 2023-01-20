@@ -8,21 +8,23 @@ import {
     BuildingUnitSubType,
     BuildingFloorType, BuildingSectionType, BuildingMapType,
 } from '@app/condo/schema'
-import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
-import { NUMERIC_REGEXP } from '@condo/domains/property/constants/regexps'
 import Ajv from 'ajv'
 import cloneDeep from 'lodash/cloneDeep'
 import compact from 'lodash/compact'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import has from 'lodash/has'
+import invert from 'lodash/invert'
 import isEmpty from 'lodash/isEmpty'
 import isObjectEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
+import isNull from 'lodash/isNull'
 import last from 'lodash/last'
 import uniq from 'lodash/uniq'
-import invert from 'lodash/invert'
-import isNull from 'lodash/isNull'
+
+import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
+import { NUMERIC_REGEXP } from '@condo/domains/property/constants/regexps'
+
 import MapSchemaJSON from './MapJsonSchema.json'
 
 const ajv = new Ajv()

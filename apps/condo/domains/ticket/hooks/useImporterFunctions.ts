@@ -1,14 +1,16 @@
+import { TicketCreateInput } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
+import { useEffect, useRef } from 'react'
 
-import { useIntl } from '@open-condo/next/intl'
 import { useApolloClient } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { TicketCreateInput } from '@app/condo/schema'
 
+import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import {
     Columns,
     DATE_PARSING_FORMAT,
@@ -16,13 +18,12 @@ import {
     RowNormalizer,
     RowValidator,
 } from '@condo/domains/common/utils/importer'
-import { useAddressApi } from '@condo/domains/common/components/AddressApi'
-import { searchContacts, searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
-import { useEffect, useRef } from 'react'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { searchContacts, searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+
 
 const normalizeIsResidentTicket = (value: string, yes: string, no: string) => {
     const VALID_VALUES = [yes, no, '']

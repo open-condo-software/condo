@@ -3,14 +3,15 @@
  */
 
 const { Text, File, Url, Select, Integer, Checkbox } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const access = require('@condo/domains/miniapp/access/B2BAppPromoBlock')
-const { PROMO_BLOCK_TEXT_VARIANTS, PROMO_BLOCK_DARK_TEXT_VARIANT } = require('@condo/domains/miniapp/constants')
-const { HEX_CODE_REGEXP, LINEAR_GRADIENT_REGEXP } = require('@condo/domains/common/constants/regexps')
 
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
+const { HEX_CODE_REGEXP, LINEAR_GRADIENT_REGEXP } = require('@condo/domains/common/constants/regexps')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
+const access = require('@condo/domains/miniapp/access/B2BAppPromoBlock')
+const { PROMO_BLOCK_TEXT_VARIANTS, PROMO_BLOCK_DARK_TEXT_VARIANT } = require('@condo/domains/miniapp/constants')
 const PROMO_BLOCK_FOLDER_NAME = 'B2BAppPromoBlocks'
 const Adapter = new FileAdapter(PROMO_BLOCK_FOLDER_NAME)
 const fileMetaAfterChange = getFileMetaAfterChange(Adapter, 'backgroundImage')

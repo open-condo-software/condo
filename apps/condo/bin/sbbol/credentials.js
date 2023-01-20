@@ -14,9 +14,11 @@
  * @example Display credentials values
  * yarn node apps/condo/bin/sbbol/credentials.js get
  */
-const { values } = require('lodash')
 const Ajv = require('ajv')
+const { values } = require('lodash')
+
 const { getRandomString } = require('@open-condo/keystone/test.utils')
+
 const { changeClientSecret, getSbbolSecretStorage } = require('@condo/domains/organization/integrations/sbbol/utils')
 
 const COMMAND = {

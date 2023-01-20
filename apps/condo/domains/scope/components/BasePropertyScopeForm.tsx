@@ -1,31 +1,32 @@
-import { Col, Form, Input, Row } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
-import { difference, isEmpty } from 'lodash'
-import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
-
-import { useIntl } from '@open-condo/next/intl'
-import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-
-import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import {
-    searchOrganizationProperty,
-} from '@condo/domains/scope/utils/clientSchema/search'
-import { SETTINGS_TAB_PROPERTY_SCOPE } from '@condo/domains/common/constants/settingsTabs'
-import { PropertyScopeOrganizationEmployee, PropertyScopeProperty } from '@condo/domains/scope/utils/clientSchema'
 import {
     PropertyScopeOrganizationEmployee as PropertyScopeOrganizationEmployeeType,
     PropertyScopeProperty as PropertyScopePropertyType,
 } from '@app/condo/schema'
-import { Loader } from '@condo/domains/common/components/Loader'
+import { Col, Form, Input, Row } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+import { difference, isEmpty } from 'lodash'
+import get from 'lodash/get'
+import { useRouter } from 'next/router'
+import React, { useCallback, useMemo, useState } from 'react'
+
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { useIntl } from '@open-condo/next/intl'
+
+import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
-import { searchEmployeeWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { SETTINGS_TAB_PROPERTY_SCOPE } from '@condo/domains/common/constants/settingsTabs'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { searchEmployeeWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
 import { MAX_NAME_LENGTH } from '@condo/domains/scope/constants/index'
+import { PropertyScopeOrganizationEmployee, PropertyScopeProperty } from '@condo/domains/scope/utils/clientSchema'
+import {
+    searchOrganizationProperty,
+} from '@condo/domains/scope/utils/clientSchema/search'
 import { convertEmployeesToOptions } from '@condo/domains/scope/utils/clientSchema/utils'
 
 import { FormHintAlert } from './FormHintAlert'
-import get from 'lodash/get'
+
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {

@@ -4,15 +4,16 @@
 
 const fs = require('fs')
 const path = require('path')
+
+const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 const faker = require('faker')
 const { escape, isEmpty, get } = require('lodash')
 
 const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
-
-const { LOCALES, EN_LOCALE, RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { getTranslations } = require('@open-condo/locales/loader')
 
+const { LOCALES, EN_LOCALE, RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const {
     MESSAGE_TYPES,
     MESSAGE_TRANSPORTS,
@@ -33,12 +34,10 @@ const {
     templateEngine,
     TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT,
 } = require('@condo/domains/notification/templates')
-const { createTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const emailTransport = require('@condo/domains/notification/transports/email')
 const smsTransport = require('@condo/domains/notification/transports/sms')
-
+const { createTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const index = require('@app/condo/index')
 
 const { SHARE_TICKET_MESSAGE_TYPE, CUSTOMER_IMPORTANT_NOTE_TYPE } = require('./constants/constants')
 

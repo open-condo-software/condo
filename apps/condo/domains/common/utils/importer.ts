@@ -1,7 +1,7 @@
-import isEqual from 'lodash/isEqual'
-import cloneDeep from 'lodash/cloneDeep'
 import dayjs from 'dayjs'
+import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
+import isEqual from 'lodash/isEqual'
 
 export type TableRow = Array<Record<'value', string | number | Date>>
 export type ProcessedRow = {

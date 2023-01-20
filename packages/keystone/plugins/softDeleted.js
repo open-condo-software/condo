@@ -1,5 +1,5 @@
-const { get, isPlainObject } = require('lodash')
 const { getType } = require('@keystonejs/utils')
+const { get, isPlainObject } = require('lodash')
 
 const { composeResolveInputHook, evaluateKeystoneAccessResult } = require('./utils')
 const { plugin } = require('./utils/typing')

@@ -1,10 +1,12 @@
-import { useIntl } from '@open-condo/next/intl'
-import Head from 'next/head'
-import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Typography, Row, Col } from 'antd'
+import Head from 'next/head'
 import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { CreateContactForm } from '@condo/domains/contact/components/CreateContactForm'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 interface ICreateContactPage extends React.FC {
     headerAction?: JSX.Element

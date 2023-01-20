@@ -1,3 +1,12 @@
+import { Col, FormInstance, Row, Select, Typography } from 'antd'
+import { every } from 'lodash'
+import { differenceBy } from 'lodash'
+import get from 'lodash/get'
+import { Rule } from 'rc-field-form/lib/interface'
+import React, { useCallback, useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
@@ -17,15 +26,9 @@ import {
     isEmployeeSpecializationAndPropertyMatchesToScope,
 } from '@condo/domains/scope/utils/clientSchema/utils'
 
-import { useIntl } from '@open-condo/next/intl'
-import { Col, FormInstance, Row, Select, Typography } from 'antd'
-import { every } from 'lodash'
-import { differenceBy } from 'lodash'
-import get from 'lodash/get'
-import { Rule } from 'rc-field-form/lib/interface'
-import React, { useCallback, useMemo } from 'react'
 
 import { AutoAssigner } from './AutoAssigner'
+
 import { TicketFormItem } from './index'
 
 type TicketAssignmentsProps = {

@@ -8,7 +8,6 @@ const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.ut
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
-
 const { Resident: ResidentGQL } = require('@condo/domains/property/gql')
 const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('@condo/domains/property/gql')
 /* AUTOGENERATE MARKER <IMPORT> */

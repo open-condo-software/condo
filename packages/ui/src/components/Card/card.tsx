@@ -1,8 +1,8 @@
-import React, { CSSProperties } from 'react'
 import {
     Card as DefaultCard,
     CardProps as DefaultCardProps,
 } from 'antd'
+import React, { CSSProperties } from 'react'
 
 const CARD_CLASS_PREFIX = 'condo-card'
 

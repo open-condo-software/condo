@@ -1,8 +1,11 @@
-import { useMemo } from 'react'
-import { Rule } from 'rc-field-form/lib/interface'
-import { useIntl } from '@open-condo/next/intl'
 import dayjs from 'dayjs'
 import isEmpty from 'lodash/isEmpty'
+import { Rule } from 'rc-field-form/lib/interface'
+import { useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 export const usePropertyValidations = ({ organizationId, addressValidatorError, address }) => {

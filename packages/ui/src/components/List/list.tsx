@@ -1,8 +1,11 @@
-import React, { useMemo } from 'react'
 import { List as DefaultList } from 'antd'
-import type { ListProps as DefaultListProps } from 'antd'
+import React, { useMemo } from 'react'
+
+
 import { Typography } from '@open-condo/ui/src'
 import type { TypographyTextProps } from '@open-condo/ui/src'
+
+import type { ListProps as DefaultListProps } from 'antd'
 import type { ListItemProps as DefaultListItemProps } from 'antd/lib/list'
 
 const LIST_CLASS_PREFIX = 'condo-list'

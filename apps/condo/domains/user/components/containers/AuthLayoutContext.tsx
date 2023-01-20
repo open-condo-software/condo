@@ -1,10 +1,12 @@
 import React, { createContext, useCallback } from 'react'
+
 import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, SIGNIN_MUTATION } from '@condo/domains/user/gql'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 interface IAuthLayoutContext {
     isMobile: boolean

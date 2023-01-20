@@ -1,15 +1,17 @@
 import { Typography } from 'antd'
-import { useAuth } from '@open-condo/next/auth'
-import { useOrganization } from '@open-condo/next/organization'
-import { useIntl } from '@open-condo/next/intl'
 import get from 'lodash/get'
-import { OnBoarding as OnBoardingHooks } from '@condo/domains/onboarding/utils/clientSchema'
-
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
-import { Loader } from '@condo/domains/common/components/Loader'
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
+
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { OnBoarding as OnBoardingHooks } from '@condo/domains/onboarding/utils/clientSchema'
+
 
 const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions }) => {
     const intl = useIntl()

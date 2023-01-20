@@ -3,14 +3,16 @@
  */
 
 const faker = require('faker')
+
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+
 const { ExternalReport, createTestExternalReport, updateTestExternalReport } = require('@condo/domains/analytics/utils/testSchema')
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('ExternalReport', () => {
     describe('CRUD tests', () => {

@@ -1,38 +1,26 @@
 /** @jsx jsx */
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
+import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLabel } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
-import { getQueryParams } from '@condo/domains/common/utils/url.utils'
-import Head from 'next/head'
-import { useIntl } from '@open-condo/next/intl'
-import {
-    PageContent,
-    PageHeader,
-    PageWrapper,
-    useLayoutContext,
-} from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Col, Divider, Form, notification, Radio, Row, Select, TableColumnsType, Tabs, Typography } from 'antd'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { useOrganization } from '@open-condo/next/organization'
+import dayjs, { Dayjs } from 'dayjs'
+import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import sum from 'lodash/sum'
-import { EXPORT_TICKET_ANALYTICS_TO_EXCEL, TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
-import { useApolloClient, useLazyQuery } from '@open-condo/next/apollo'
-
-import dayjs, { Dayjs } from 'dayjs'
-import quarterOfYear from 'dayjs/plugin/quarterOfYear'
-import { fontSizes } from '@condo/domains/common/constants/style'
-
-import { BarChartIcon, LinearChartIcon, PieChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
-import { Button } from '@condo/domains/common/components/Button'
-import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
-import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
+import { useApolloClient, useLazyQuery } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
 import TicketChart, { TicketSelectTypes, ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
+import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
+import TicketListView from '@condo/domains/analytics/components/TicketListView'
+import { EXPORT_TICKET_ANALYTICS_TO_EXCEL, TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
 import {
     filterToQuery,
     getAggregatedData,
@@ -41,22 +29,34 @@ import {
     ticketAnalyticsPageFilters,
     isEmptyAnalyticsData,
 } from '@condo/domains/analytics/utils/helpers'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { MAX_FILTERED_ELEMENTS, MAX_TAG_TEXT_LENGTH } from '@condo/domains/analytics/utils/helpers'
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import { Button } from '@condo/domains/common/components/Button'
 import {
-    searchEmployeeUser,
-    searchOrganizationProperty,
-} from '@condo/domains/ticket/utils/clientSchema/search'
-import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
-import TicketListView from '@condo/domains/analytics/components/TicketListView'
+    PageContent,
+    PageHeader,
+    PageWrapper,
+    useLayoutContext,
+} from '@condo/domains/common/components/containers/BaseLayout'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { BarChartIcon, LinearChartIcon, PieChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
+import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
+import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { fontSizes } from '@condo/domains/common/constants/style'
+import { getQueryParams } from '@condo/domains/common/utils/url.utils'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
     DATE_DISPLAY_FORMAT,
     TICKET_REPORT_DAY_GROUP_STEPS,
     TICKET_REPORT_TABLE_MAIN_GROUP,
 } from '@condo/domains/ticket/constants/common'
-import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLabel } from '@app/condo/schema'
-import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketWarningModal } from '@condo/domains/ticket/hooks/useTicketWarningModal'
-import { MAX_FILTERED_ELEMENTS, MAX_TAG_TEXT_LENGTH } from '@condo/domains/analytics/utils/helpers'
+import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import {
+    searchEmployeeUser,
+    searchOrganizationProperty,
+} from '@condo/domains/ticket/utils/clientSchema/search'
 
 dayjs.extend(quarterOfYear)
 

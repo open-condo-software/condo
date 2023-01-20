@@ -1,5 +1,5 @@
-import React from 'react'
 import { User } from '@app/condo/schema'
+import React from 'react'
 
 // Should be used in case when there is no technical way to tell exactly the progress of the task
 export const TASK_PROGRESS_UNKNOWN = 'TASK_PROGRESS_UNKNOWN'

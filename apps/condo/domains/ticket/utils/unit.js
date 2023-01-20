@@ -1,4 +1,5 @@
 const { get } = require('lodash')
+
 const { SECTION_SECTION_TYPE, PARKING_SECTION_TYPE, PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const SECTIONS_TYPE = 'sections'
 function getSectionAndFloorByUnitName (property, unitName, unitType) {

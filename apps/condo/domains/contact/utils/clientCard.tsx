@@ -1,3 +1,4 @@
+import { BuildingUnitSubType } from '@app/condo/schema'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { gql } from 'graphql-tag'
@@ -7,13 +8,14 @@ import { NextRouter, useRouter } from 'next/router'
 import qs from 'qs'
 import React, { useCallback } from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
+
 import Select from '@condo/domains/common/components/antd/Select'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
+import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { TICKET_PROPERTY_FIELDS } from '@condo/domains/ticket/gql'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
-import { renderPhone } from '@condo/domains/common/utils/Renders'
-import { useIntl } from '@open-condo/next/intl'
-import { BuildingUnitSubType } from '@app/condo/schema'
+
 import { useLayoutContext } from '../../common/components/LayoutContext'
 
 export enum ClientType {

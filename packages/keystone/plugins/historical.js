@@ -1,8 +1,9 @@
-const { v4: uuid } = require('uuid')
 const { get, isFunction } = require('lodash')
+const { v4: uuid } = require('uuid')
 
 const { composeNonResolveInputHook, isValidDate } = require('./utils')
 const { plugin } = require('./utils/typing')
+
 const { GQLListSchema } = require('../schema')
 
 const GQL_TYPE_SUFFIX = 'HistoryRecord'

@@ -1,14 +1,17 @@
+import { Property, Ticket } from '@app/condo/schema'
 import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import { isEmpty } from 'lodash'
-import React, { CSSProperties } from 'react'
 import get from 'lodash/get'
+import isString from 'lodash/isString'
+import React, { CSSProperties } from 'react'
 
-import { Property, Ticket } from '@app/condo/schema'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { getAddressCellRender } from '@condo/domains/property/utils/clientSchema/Renders'
+import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
 
@@ -18,9 +21,8 @@ import {
     hasUnreadResidentComments,
     TicketDeadlineType,
 } from '../helpers'
-import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
-import isString from 'lodash/isString'
-import { getAddressCellRender } from '@condo/domains/property/utils/clientSchema/Renders'
+
+
 
 const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = { position: 'absolute', left: '-50px', top: '35%' }
 const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { padding: '24px' }

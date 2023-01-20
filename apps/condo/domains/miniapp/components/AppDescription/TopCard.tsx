@@ -1,18 +1,21 @@
-import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
-import { useRouter } from 'next/router'
 import { CheckOutlined } from '@ant-design/icons'
+import styled from '@emotion/styled'
 import { Col, Row, Space, Image } from 'antd'
-import type { RowProps, ColProps } from 'antd'
+import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Tag, Carousel, Button } from '@open-condo/ui'
 import type { ButtonProps, CarouselRef } from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
 import { colors } from '@open-condo/ui/dist/colors'
+
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
-import styled from '@emotion/styled'
 
 import { AppLabelTag } from '../AppLabelTag'
+
+import type { RowProps, ColProps } from 'antd'
 
 const CAROUSEL_CHANGE_DELAY_IN_MS = 6000 // 6 sec
 const CAROUSEL_CHANGE_SPEED_IN_MS = 800 // 0.8 sec

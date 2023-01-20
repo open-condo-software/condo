@@ -1,7 +1,8 @@
-import React, { CSSProperties } from 'react'
 import {
     Tag as DefaultTag,
 } from 'antd'
+import React, { CSSProperties } from 'react'
+
 import { colors } from '@open-condo/ui/src/colors'
 
 const TAG_CLASS_PREFIX = 'condo-tag'

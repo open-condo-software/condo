@@ -2,20 +2,20 @@
  * @jest-environment node
  */
 
+const index = require('@app/condo/index')
+
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { Message } = require('@condo/domains/notification/utils/testSchema')
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
-
+const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { Resident } = require('@condo/domains/resident/utils/testSchema')
 
-const { makeBillingReceiptWithResident } = require('./spec.helpers')
 const { makeMessageKey, makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationsForPeriod } = require('./sendBillingReceiptsAddedNotifications')
+const { makeBillingReceiptWithResident } = require('./spec.helpers')
 
-const index = require('@app/condo/index')
 
 describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
     setFakeClientMode(index)

@@ -3,8 +3,9 @@
  */
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { getById, getByCondition } = require('@open-condo/keystone/schema')
+
+const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadPaymentsFilterTemplates ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

@@ -1,5 +1,6 @@
-import type { RequestParamValidator, AllRequestMethods } from './types'
 import Ajv from 'ajv'
+
+import type { RequestParamValidator, AllRequestMethods } from './types'
 
 const ajv = new Ajv()
 

@@ -1,4 +1,5 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
+import { SortPropertyScopesBy } from '@app/condo/schema'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
@@ -7,18 +8,17 @@ import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { SortPropertyScopesBy } from '@app/condo/schema'
 
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { Button } from '@condo/domains/common/components/Button'
+import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { EXPORT_PROPERTY_SCOPE_QUERY } from '@condo/domains/scope/gql'
 import { usePropertyScopeColumns } from '@condo/domains/scope/hooks/useTableColumns'
 import { usePropertyScopeTableFilters } from '@condo/domains/scope/hooks/useTableFilters'
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
-import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { EXPORT_PROPERTY_SCOPE_QUERY } from '@condo/domains/scope/gql'
 
 const SORTABLE_PROPERTIES = ['name']
 const PROPERTY_SCOPES_DEFAULT_SORT_BY = ['createdAt_DESC']

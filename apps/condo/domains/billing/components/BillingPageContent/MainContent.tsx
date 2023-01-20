@@ -1,12 +1,19 @@
-import React, { useEffect } from 'react'
 import { Col, Row, Tabs } from 'antd'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { useIntl } from '@open-condo/next/intl'
-import { IContextProps } from './index'
-import { ReceiptsTable } from './ReceiptsTable'
 import get from 'lodash/get'
-import { ReportMessage } from '../ReportMessage'
+import React, { useEffect } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
+
+import { ReceiptsTable } from './ReceiptsTable'
+
+import { ReportMessage } from '../ReportMessage'
+
+import { IContextProps } from './index'
+
+
 
 export const MainContent: React.FC<IContextProps> = ({ context }) => {
     const intl = useIntl()

@@ -3,28 +3,15 @@
  */
 
 const { Text, DateTimeUtc, Select, Relationship, Virtual } = require('@keystonejs/fields')
-const { getById, find } = require('@open-condo/keystone/schema')
+const Big = require('big.js')
+const get = require('lodash/get')
+
 const { Json } = require('@open-condo/keystone/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const {
-    CURRENCY_CODE_FIELD,
-    NON_NEGATIVE_MONEY_FIELD,
-    POSITIVE_MONEY_AMOUNT_FIELD,
-    IMPORT_ID_FIELD,
-} = require('@condo/domains/common/schema/fields')
-const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-const {
-    AVAILABLE_PAYMENT_METHODS,
-    MULTIPAYMENT_STATUSES,
-    MULTIPAYMENT_DONE_STATUS,
-    MULTIPAYMENT_INIT_STATUS,
-    MULTIPAYMENT_TRANSITIONS,
-    MULTIPAYMENT_REQUIRED_FIELDS,
-    MULTIPAYMENT_FROZEN_FIELDS,
-    PAYMENT_DONE_STATUS,
-    PAYMENT_INIT_STATUS,
-} = require('@condo/domains/acquiring/constants/payment')
+const { getById, find } = require('@open-condo/keystone/schema')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
+const access = require('@condo/domains/acquiring/access/MultiPayment')
 const {
     MULTIPAYMENT_EMPTY_PAYMENTS,
     MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
@@ -48,10 +35,28 @@ const {
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
 } = require('@condo/domains/acquiring/constants/errors')
+const {
+    AVAILABLE_PAYMENT_METHODS,
+    MULTIPAYMENT_STATUSES,
+    MULTIPAYMENT_DONE_STATUS,
+    MULTIPAYMENT_INIT_STATUS,
+    MULTIPAYMENT_TRANSITIONS,
+    MULTIPAYMENT_REQUIRED_FIELDS,
+    MULTIPAYMENT_FROZEN_FIELDS,
+    PAYMENT_DONE_STATUS,
+    PAYMENT_INIT_STATUS,
+} = require('@condo/domains/acquiring/constants/payment')
+const {
+    CURRENCY_CODE_FIELD,
+    NON_NEGATIVE_MONEY_FIELD,
+    POSITIVE_MONEY_AMOUNT_FIELD,
+    IMPORT_ID_FIELD,
+} = require('@condo/domains/common/schema/fields')
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
-const access = require('@condo/domains/acquiring/access/MultiPayment')
-const get = require('lodash/get')
-const Big = require('big.js')
+
+
 
 
 const MultiPayment = new GQLListSchema('MultiPayment', {

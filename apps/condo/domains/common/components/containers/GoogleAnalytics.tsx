@@ -1,5 +1,5 @@
-import React from 'react'
 import getConfig from 'next/config'
+import React from 'react'
 
 const GoogleAnalytics = () => {
     const { publicRuntimeConfig } = getConfig()

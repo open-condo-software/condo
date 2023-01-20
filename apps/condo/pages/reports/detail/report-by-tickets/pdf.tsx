@@ -1,29 +1,33 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { TicketAnalyticsGroupBy, TicketGroupedCounter, TicketLabel } from '@app/condo/schema'
 import { Col, notification, Row, TableColumnsType, Typography } from 'antd'
-import dynamic from 'next/dynamic'
-import { useIntl } from '@open-condo/next/intl'
-import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
-import TicketListView from '@condo/domains/analytics/components/TicketListView'
-import { useLazyQuery } from '@open-condo/next/apollo'
-import { TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
-import { getQueryParams } from '@condo/domains/common/utils/url.utils'
-import { useOrganization } from '@open-condo/next/organization'
+import dayjs from 'dayjs'
 import get from 'lodash/get'
 import sum from 'lodash/sum'
-import { createPdfWithPageBreaks } from '@condo/domains/common/utils/pdf'
-import dayjs from 'dayjs'
+import dynamic from 'next/dynamic'
+import React, { useEffect, useRef, useState } from 'react'
+
+
+import { useLazyQuery } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import TicketChart from '@condo/domains/analytics/components/TicketChart'
+import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
+import TicketListView from '@condo/domains/analytics/components/TicketListView'
+import { TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
 import { filterToQuery, getAggregatedData } from '@condo/domains/analytics/utils/helpers'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { Logo } from '@condo/domains/common/components/Logo'
+import { colors } from '@condo/domains/common/constants/style'
+import { createPdfWithPageBreaks } from '@condo/domains/common/utils/pdf'
+import { getQueryParams } from '@condo/domains/common/utils/url.utils'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
     DATE_DISPLAY_FORMAT,
     PDF_REPORT_WIDTH,
     TICKET_REPORT_TABLE_MAIN_GROUP,
 } from '@condo/domains/ticket/constants/common'
-import { Logo } from '@condo/domains/common/components/Logo'
-import { colors } from '@condo/domains/common/constants/style'
-import TicketChart from '@condo/domains/analytics/components/TicketChart'
-import { TicketAnalyticsGroupBy, TicketGroupedCounter, TicketLabel } from '@app/condo/schema'
+
 
 const PdfView = () => {
     const intl = useIntl()

@@ -6,14 +6,15 @@
 const get = require('lodash/get')
 
 
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const { find } = require('@open-condo/keystone/schema')
+
+const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { PropertyScope: PropertyScopeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeOrganizationEmployee: PropertyScopeOrganizationEmployeeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeProperty: PropertyScopePropertyGQL } = require('@condo/domains/scope/gql')
-const { find } = require('@open-condo/keystone/schema')
 const { AssigneeScope: AssigneeScopeGQL } = require('@condo/domains/scope/gql')
-const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { EXPORT_PROPERTY_SCOPE_MUTATION } = require('@condo/domains/scope/gql')
-const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const PropertyScope = generateServerUtils(PropertyScopeGQL)

@@ -1,9 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { Typography } from 'antd'
-import React, { useEffect } from 'react'
 import Router, { useRouter } from 'next/router'
 import qs from 'qs'
+import React, { useEffect } from 'react'
+
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 

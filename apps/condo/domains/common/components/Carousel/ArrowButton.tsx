@@ -1,6 +1,8 @@
-import React, { useMemo } from 'react'
-import { colors, shadows } from '@condo/domains/common/constants/style'
 import styled from '@emotion/styled'
+import React, { useMemo } from 'react'
+
+import { colors, shadows } from '@condo/domains/common/constants/style'
+
 import { ArrowBoldRight } from '../icons/ArrowBold'
 
 interface ArrowButtonTypeProp {

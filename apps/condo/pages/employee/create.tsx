@@ -1,12 +1,14 @@
 /** @jsx jsx */
+import { jsx } from '@emotion/react'
 import { Typography, Row, Col } from 'antd'
 import Head from 'next/head'
 import React from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
+
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { CreateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/CreateEmployeeForm'
-import { jsx } from '@emotion/react'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element

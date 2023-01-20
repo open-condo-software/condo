@@ -3,9 +3,10 @@
  */
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
-const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
+
+const { TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
+const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketClassifier CRUD', () => {
     describe('User', () => {

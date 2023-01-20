@@ -1,11 +1,13 @@
 const path = require('path')
+
+const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { has } = require('lodash')
 const { Client } = require('pg')
+
 const {
     Property,
 } = require('@condo/domains/property/utils/serverSchema')
 const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { has } = require('lodash')
 
 
 class PropertyMapUpdater {

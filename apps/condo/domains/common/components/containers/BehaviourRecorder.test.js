@@ -1,4 +1,5 @@
 import TestRenderer from 'react-test-renderer'
+
 import BehaviorRecorder, { htmlFor, parseParamsFor } from './BehaviorRecorder'
 
 const CORRECT_PLERDY_PARAMS = '{"site_hash_code": "1234567890abcdefghijklmnopqrstyv", "suid": 12345}'

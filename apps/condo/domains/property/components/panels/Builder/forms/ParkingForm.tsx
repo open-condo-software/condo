@@ -1,12 +1,15 @@
 /** @jsx jsx */
-import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { useIntl } from '@open-condo/next/intl'
+import { DownOutlined, DeleteFilled } from '@ant-design/icons'
 import { jsx } from '@emotion/react'
 import { Row, Col, Space, Typography, InputNumber } from 'antd'
-import { DownOutlined, DeleteFilled } from '@ant-design/icons'
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+
 import {
     IPropertyMapModalForm,
     MODAL_FORM_ROW_GUTTER,

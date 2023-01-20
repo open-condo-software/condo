@@ -1,5 +1,6 @@
-import React from 'react'
 import { Alert, Typography } from 'antd'
+import React from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 
 type IAutoSourceAlertProps = {

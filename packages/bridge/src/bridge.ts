@@ -1,3 +1,7 @@
+import { promisifySend } from './promisify'
+
+import pkg from '../package.json'
+
 import type {
     WebBridge,
     CondoBridge,
@@ -6,8 +10,6 @@ import type {
     RequestId,
     CondoBridgeSubscriptionListener,
 } from './types/bridge'
-import { promisifySend } from './promisify'
-import pkg from '../package.json'
 
 export const IS_CLIENT_SIDE = typeof window !== 'undefined'
 // TODO(DOMA-5084): add mobile clients env checks

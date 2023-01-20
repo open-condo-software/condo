@@ -1,22 +1,22 @@
 import { Typography } from 'antd'
+import get from 'lodash/get'
+import { identity } from 'lodash/util'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
-import { identity } from 'lodash/util'
-import get from 'lodash/get'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { getFilteredValue } from '@condo/domains/common/utils/helpers'
-import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 
-import { IFilters } from '@condo/domains/organization/utils/helpers'
-import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { getEmployeeSpecializationsMessage, renderPhone } from '@condo/domains/organization/utils/clientSchema/Renders'
+import { IFilters } from '@condo/domains/organization/utils/helpers'
 
 const TEXT_STYLES = { margin: 0 }
 

@@ -1,7 +1,6 @@
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import getConfig from 'next/config'
-
 import ym, { YMInitializer } from 'react-yandex-metrika'
 
 const YandexMetrika = () => {

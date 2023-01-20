@@ -3,14 +3,17 @@
  */
 
 const { Integer, DateTimeUtc } = require('@keystonejs/fields')
-const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
-const access = require('@condo/domains/billing/access/BillingAccountMeterReading')
 
-const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, BILLING_ACCOUNT_METER_FIELD } = require('./fields/relations')
-const { PERIOD_FIELD, RAW_DATA_FIELD } = require('./fields/common')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+
+const access = require('@condo/domains/billing/access/BillingAccountMeterReading')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
+const { IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
+
+const { PERIOD_FIELD, RAW_DATA_FIELD } = require('./fields/common')
+const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD, BILLING_ACCOUNT_METER_FIELD } = require('./fields/relations')
+
 
 const BillingAccountMeterReading = new GQLListSchema('BillingAccountMeterReading', {
     schemaDoc: 'Meter reading. In a multi-tariff meter case, we store all values in one object',

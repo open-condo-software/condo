@@ -1,5 +1,5 @@
-const { RedisAdapter } = require('./RedisAdapter')
 const { OidcModelClientAdapter } = require('./OidcModelClientAdapter')
+const { RedisAdapter } = require('./RedisAdapter')
 
 function createAdapterClass (context = null) {
     return class AdapterFactory {

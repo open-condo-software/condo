@@ -1,4 +1,5 @@
 import cookie from 'js-cookie'
+
 const sample = require('lodash/sample')
 
 function makeId (length) {

@@ -6,13 +6,14 @@
  */
 
 const path = require('path')
-const dayjs = require('dayjs')
 
 const { GraphQLApp } = require('@keystonejs/app-graphql')
+const dayjs = require('dayjs')
+
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { User, UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
 const { IDP_TYPES } = require('@condo/domains/user/constants/common')
+const { User, UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
 
 
 // init utils & common vars

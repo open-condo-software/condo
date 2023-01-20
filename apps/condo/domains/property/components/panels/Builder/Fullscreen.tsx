@@ -1,7 +1,8 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
-import { colors, DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 import styled from '@emotion/styled'
+
+import { colors, DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 
 export const FullscreenWrapper = styled.div<{
     mode?: 'view' | 'edit';

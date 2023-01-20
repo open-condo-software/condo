@@ -1,16 +1,21 @@
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { transitions } from '@condo/domains/common/constants/style'
-import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import styled from '@emotion/styled'
-import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from 'antd'
 import classnames from 'classnames'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { colors } from '../constants/style'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { transitions } from '@condo/domains/common/constants/style'
+import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
+
+
 import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
 import { TrackingEventType, useTracking } from './TrackingContext'
+
+import { colors } from '../constants/style'
 
 const IconWrapper = styled.div``
 

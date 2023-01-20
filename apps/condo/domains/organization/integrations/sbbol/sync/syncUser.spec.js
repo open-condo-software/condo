@@ -2,22 +2,24 @@
  * @jest-environment node
  */
 
+const index = require('@app/condo/index')
+const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const { v4: uuid } = require('uuid')
+
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
+
+const { OnBoarding: OnBoardingApi } = require('@condo/domains/onboarding/utils/serverSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { MockSbbolResponses } = require('./MockSbbolResponses')
+const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/common')
 const {
     User: UserApi,
     UserExternalIdentity: UserExternalIdentityApi,
 } = require('@condo/domains/user/utils/serverSchema')
-const { OnBoarding: OnBoardingApi } = require('@condo/domains/onboarding/utils/serverSchema')
-const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/common')
 
+const { MockSbbolResponses } = require('./MockSbbolResponses')
 const { syncUser } = require('./syncUser')
 
-const index = require('@app/condo/index')
 const { keystone } = index
 
 describe('syncUser from SBBOL', () => {

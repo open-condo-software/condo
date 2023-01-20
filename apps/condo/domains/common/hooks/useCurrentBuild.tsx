@@ -1,6 +1,6 @@
-import useSWR from 'swr'
 import get from 'lodash/get'
 import getConfig from 'next/config'
+import useSWR from 'swr'
 
 const {
     publicRuntimeConfig: { serverUrl },

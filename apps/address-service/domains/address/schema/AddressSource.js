@@ -3,13 +3,16 @@
  */
 
 const { Text, Relationship } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const isEmpty = require('lodash/isEmpty')
+
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const access = require('@address-service/domains/address/access/AddressSource')
 const { SOURCE_ALREADY_EXISTS_ERROR } = require('@address-service/domains/address/constants')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { AddressSource: AddressSourceApi } = require('@address-service/domains/address/utils/serverSchema')
-const isEmpty = require('lodash/isEmpty')
+
 
 const errors = {
     SAME_SOURCE: {

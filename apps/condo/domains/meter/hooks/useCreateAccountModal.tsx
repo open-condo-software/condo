@@ -1,8 +1,10 @@
-import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 import { Form } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
 import React, { useState } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
+
+import Input from '@condo/domains/common/components/antd/Input'
+import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 
 export const useCreateAccountModal = ()=> {
     const intl = useIntl()

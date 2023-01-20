@@ -1,4 +1,5 @@
 import styled from '@emotion/styled'
+
 import { colors } from '@condo/domains/common/constants/style'
 
 export const SlideContainer = styled.div`

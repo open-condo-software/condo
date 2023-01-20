@@ -1,3 +1,4 @@
+import { Editor } from '@tinymce/tinymce-react'
 import { Alert, Col, Form, Input, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get, isEmpty } from 'lodash'
@@ -6,21 +7,20 @@ import { useRouter } from 'next/router'
 import qs from 'qs'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
-import { Editor } from '@tinymce/tinymce-react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { SETTINGS_TAB_PROPERTY_HINT } from '@condo/domains/common/constants/settingsTabs'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
     searchOrganizationProperty,
     searchOrganizationPropertyWithoutPropertyHint,
 } from '@condo/domains/ticket/utils/clientSchema/search'
-import { SETTINGS_TAB_PROPERTY_HINT } from '@condo/domains/common/constants/settingsTabs'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {

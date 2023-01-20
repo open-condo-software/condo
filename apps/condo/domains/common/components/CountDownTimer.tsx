@@ -1,7 +1,9 @@
 import get from 'lodash/get'
 import React, { useEffect, useState } from 'react'
-import { timer } from '../utils/timer'
+
 import { extractRootDomain } from '@condo/domains/common/utils/url.utils.js'
+
+import { timer } from '../utils/timer'
 
 const DEFAULT_TIMEOUT = 60 // s
 

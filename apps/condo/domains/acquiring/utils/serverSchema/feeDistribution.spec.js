@@ -2,12 +2,14 @@
  * @jest-environment node
  */
 
-const { FeeDistribution, compactDistributionSettings } = require('./feeDistribution')
 const Big = require('big.js')
+
 const {
     FEE_DISTRIBUTION_UNSUPPORTED_FORMULA,
     FEE_DISTRIBUTION_INCOMPLETE_FORMULA,
 } = require('@condo/domains/acquiring/constants/errors.js')
+
+const { FeeDistribution, compactDistributionSettings } = require('./feeDistribution')
 
 
 const TEST_CASES = [

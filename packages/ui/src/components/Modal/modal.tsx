@@ -1,8 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react'
 import { Modal as DefaultModal, ModalProps as DefaultModalProps } from 'antd'
 import classNames from 'classnames'
-import { Typography } from '../Typography'
+import React, { useEffect, useRef, useState } from 'react'
+
 import { Cross } from './cross'
+
+import { Typography } from '../Typography'
+
 
 type CondoModalWidthType = 'small' | 'big' | 'fit-content'
 

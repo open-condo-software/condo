@@ -4,13 +4,15 @@
  * Note: contextId can be obtained thorough admin panel
  */
 
-const { BillingProperty, BillingAccount, BillingReceipt, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
-const faker = require('faker')
 const path = require('path')
-const { buildFakeAddressMeta } = require('@condo/domains/property/utils/testSchema/factories')
+
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { getPreviousPeriods } = require('@condo/domains/billing/utils/period')
 const dayjs = require('dayjs')
+const faker = require('faker')
+
+const { getPreviousPeriods } = require('@condo/domains/billing/utils/period')
+const { BillingProperty, BillingAccount, BillingReceipt, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
+const { buildFakeAddressMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
 const PROPERTY_QUANTITY = 10
 const AVAILABLE_LEVELS = {

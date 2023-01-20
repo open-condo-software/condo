@@ -1,6 +1,7 @@
 const { Text, File, Checkbox, Select, Integer } = require('@keystonejs/fields')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { Markdown } = require('@keystonejs/fields-markdown')
+
+const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS, B2B_APPS_LABELS } = require('@condo/domains/miniapp/constants')
 
 const APPS_FILE_ADAPTER = new FileAdapter('apps')

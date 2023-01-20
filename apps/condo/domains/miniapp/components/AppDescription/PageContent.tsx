@@ -1,19 +1,23 @@
-import React, { useEffect, useState } from 'react'
-import { Row, Col } from 'antd'
-import type { RowProps, ColProps } from 'antd'
-import get from 'lodash/get'
-import { useIntl } from '@open-condo/next/intl'
-import { Markdown, Carousel, Typography } from '@open-condo/ui'
-import { useOrganization } from '@open-condo/next/organization'
-import { useLazyQuery } from '@open-condo/next/apollo'
 import { MiniAppOutput } from '@app/condo/schema'
-import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
+import { Row, Col } from 'antd'
+import get from 'lodash/get'
+import React, { useEffect, useState } from 'react'
 
-import { TopCard } from './TopCard'
+import { useLazyQuery } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { Markdown, Carousel, Typography } from '@open-condo/ui'
+
+import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql'
+
 import { DeveloperCard } from './DeveloperCard'
+import { TopCard } from './TopCard'
+
 import { AppCard, MIN_CARD_WIDTH } from '../AppCard'
+
+import type { RowProps, ColProps } from 'antd'
 
 
 const CAROUSEL_GAP = 40

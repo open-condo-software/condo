@@ -1,3 +1,10 @@
+import get from 'lodash/get'
+import { useEffect, useRef } from 'react'
+
+import { useApolloClient } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { Columns, ObjectCreator, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
 import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
@@ -9,14 +16,10 @@ import {
     WAREHOUSE_UNIT_TYPE,
 } from '@condo/domains/property/constants/common'
 import { searchContacts, searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import { useApolloClient } from '@open-condo/next/apollo'
-import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
-import get from 'lodash/get'
-import { useEffect, useRef } from 'react'
 
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
+
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const SPLIT_PATTERN = /[,;.]+/g
 

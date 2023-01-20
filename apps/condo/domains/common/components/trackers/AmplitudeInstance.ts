@@ -1,5 +1,7 @@
 import amplitude, { Identify } from 'amplitude-js'
+
 import { getCurrentUserId } from '@condo/domains/common/utils/userid.utils'
+
 import TrackerInstance, { ITrackerLogEventType } from './TrackerInstance'
 
 const INSTANCE_NAME = 'amplitude'

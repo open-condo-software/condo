@@ -1,9 +1,11 @@
-import { colors, shadows, zIndex } from '@condo/domains/common/constants/style'
-const { red } = require('@ant-design/colors')
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Layout, Menu } from 'antd'
+
+import { colors, shadows, zIndex } from '@condo/domains/common/constants/style'
 import { gradients } from '@condo/domains/common/constants/style'
+
+const { red } = require('@ant-design/colors')
 
 export const SIDE_MENU_WIDTH = 256
 export const COLLAPSED_SIDE_MENU_WIDTH = 92

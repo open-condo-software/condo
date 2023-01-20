@@ -1,3 +1,7 @@
+import { Tabs } from 'antd'
+import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback, useMemo } from 'react'
+
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import {
     SettingsTabPaneDescriptor,
@@ -8,9 +12,6 @@ import {
     SideBlockTabs,
 } from '@condo/domains/common/components/Tabs'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { Tabs } from 'antd'
-import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 type PageContentProps = {
     settingsTabs: SettingsTabPaneDescriptor[]

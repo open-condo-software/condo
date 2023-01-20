@@ -1,9 +1,4 @@
-import { get, isNull } from 'lodash'
-import dayjs  from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import duration from 'dayjs/plugin/duration'
 import { ParsedUrlQuery } from 'querystring'
-import { SortOrder } from 'antd/es/table/interface'
 
 import {
     Ticket,
@@ -12,6 +7,11 @@ import {
     TicketStatusWhereInput,
     TicketWhereInput,
 } from '@app/condo/schema'
+import { SortOrder } from 'antd/es/table/interface'
+import dayjs  from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import { get, isNull } from 'lodash'
 
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE, DEFERRED_STATUS_TYPE } from '@condo/domains/ticket/constants'

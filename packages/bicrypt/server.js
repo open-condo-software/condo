@@ -1,6 +1,6 @@
 require('dotenv').config()
-const express = require('express')
 const bodyParser = require('body-parser')
+const express = require('express')
 const app = express()
 
 const { CondoBicryptSign } = require('@open-condo/bicrypt')

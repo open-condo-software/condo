@@ -1,6 +1,6 @@
-const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/utils/string.utils')
-const { validateNumber } = require('@condo/domains/banking/utils/validate/number.utils')
 const { createValidRuNumber } = require('@condo/domains/banking/utils/testSchema/bankAccount')
+const { validateNumber } = require('@condo/domains/banking/utils/validate/number.utils')
+const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/utils/string.utils')
 
 const SPACES = SPACE_SYMBOLS.split('')
 

@@ -1,22 +1,22 @@
-const { generators, Issuer } = require('openid-client') // certified openid client will all checks
-const express = require('express')
-const { isObject, get } = require('lodash')
 
-const { Keystone } = require('@keystonejs/keystone')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { NextApp } = require('@keystonejs/app-next')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
+const { Keystone } = require('@keystonejs/keystone')
+const { createItems } = require('@keystonejs/server-side-graphql-client')
+const express = require('express')
+const { isObject, get } = require('lodash')
+const { generators, Issuer } = require('openid-client') // certified openid client will all checks
 
 const conf = require('@open-condo/config')
-const { EmptyApp } = require('@open-condo/keystone/test.utils')
-const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
-const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
-
-const { createOrUpdateUser } = require('@miniapp/domains/condo/utils/serverSchema/createOrUpdateUser')
-const { createItems } = require('@keystonejs/server-side-graphql-client')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
+const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
+const { EmptyApp } = require('@open-condo/keystone/test.utils')
+
 const { CONDO_ACCESS_TOKEN_KEY, CONDO_ORGANIZATION_KEY } = require('./domains/condo/constants/common')
+const { createOrUpdateUser } = require('@miniapp/domains/condo/utils/serverSchema/createOrUpdateUser')
 
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 

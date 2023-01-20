@@ -1,4 +1,5 @@
 import styled from '@emotion/styled'
+
 import { colors, DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 
 export const PaymentsSumTable = styled.div`

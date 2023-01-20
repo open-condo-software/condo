@@ -2,21 +2,18 @@ const { flatten, uniq } = require('lodash')
 
 const conf = require('@open-condo/config')
 
-const { getStartDates } = require('@condo/domains/common/utils/date')
-
 const { BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
-
-const { Message, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
+const { getStartDates } = require('@condo/domains/common/utils/date')
 const {
     RESIDENT_ADD_BILLING_ACCOUNT_TYPE, MESSAGE_SENT_STATUS,
     MESSAGE_DELIVERED_STATUS, MESSAGE_READ_STATUS,
 } = require('@condo/domains/notification/constants/constants')
-
+const { Message, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
-
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 const { BillingContextScriptCore, prepareAndProceed } = require('./lib/billing-context-script-core')
+
 const { getUniqueByField, getConnectionsMapping } = require('../lib/helpers')
 
 /**

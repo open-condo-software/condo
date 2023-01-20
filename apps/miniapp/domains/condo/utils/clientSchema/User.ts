@@ -4,10 +4,10 @@
 
 import { pick, get } from 'lodash'
 
-import { getClientSideSenderInfo } from '@miniapp/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@miniapp/domains/common/utils/codegeneration/generate.hooks'
-
+import { getClientSideSenderInfo } from '@miniapp/domains/common/utils/userid.utils'
 import { User as UserGQL } from '@miniapp/domains/condo/gql'
+
 import { User, UserUpdateInput, QueryAllUsersArgs } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'isAdmin', 'isSupport', 'type']

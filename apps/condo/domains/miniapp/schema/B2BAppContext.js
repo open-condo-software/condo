@@ -3,10 +3,12 @@
  */
 
 const { Relationship } = require('@keystonejs/fields')
+
 const { Json } = require('@open-condo/keystone/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
+
 const access = require('@condo/domains/miniapp/access/B2BAppContext')
 const { NO_CONTEXT_STATUS_ERROR } = require('@condo/domains/miniapp/constants')
 const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@condo/domains/miniapp/schema/fields/context')

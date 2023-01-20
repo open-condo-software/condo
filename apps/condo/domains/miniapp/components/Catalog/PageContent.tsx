@@ -1,25 +1,29 @@
-import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
+import { SortB2BAppPromoBlocksBy } from '@app/condo/schema'
+import { Row, Col } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { Row, Col } from 'antd'
-import type { RowProps, ColProps } from 'antd'
-import { Typography, Carousel, Banner } from '@open-condo/ui'
+import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
+
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { SortB2BAppPromoBlocksBy } from '@app/condo/schema'
-import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import type { MiniAppOutput } from '@app/condo/schema'
-import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { B2BAppPromoBlock } from '@condo/domains/miniapp/utils/clientSchema'
-import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql.js'
-import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, ALL_APPS_CATEGORIES, ALL_APPS_CATEGORY, CONNECTED_APPS_CATEGORY } from '@condo/domains/miniapp/constants'
+import { Typography, Carousel, Banner } from '@open-condo/ui'
+
 import Input from '@condo/domains/common/components/antd/Input'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
-import type { TabContent } from './CardGrid'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, ALL_APPS_CATEGORIES, ALL_APPS_CATEGORY, CONNECTED_APPS_CATEGORY } from '@condo/domains/miniapp/constants'
+import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql.js'
+import { B2BAppPromoBlock } from '@condo/domains/miniapp/utils/clientSchema'
+
 import { CardGrid } from './CardGrid'
+
+import type { TabContent } from './CardGrid'
+import type { MiniAppOutput } from '@app/condo/schema'
+import type { RowProps, ColProps } from 'antd'
 
 const SECTION_SPACING: RowProps['gutter'] = [0, 40]
 const CONTENT_SPACING: RowProps['gutter'] = [40, 40]

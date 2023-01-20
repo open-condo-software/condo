@@ -1,9 +1,11 @@
 import styled from '@emotion/styled'
 import { Tabs } from 'antd'
-import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import React from 'react'
-import { ITrackingComponent, TrackingEventType, useTracking } from './TrackingContext'
+
+import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
+
 import { StarIcon } from './icons/Star'
+import { ITrackingComponent, TrackingEventType, useTracking } from './TrackingContext'
 
 const IconWrapper = styled.span`
   display: flex;
