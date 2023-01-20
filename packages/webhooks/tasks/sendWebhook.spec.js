@@ -10,8 +10,9 @@ const {
     softDeleteTestWebhookSubscription,
     updateTestWebhookSubscription,
 } = require('@open-condo/webhooks/schema/utils/testSchema')
-const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
+// eslint-disable-next-line import/order
 const utils = require('@open-condo/webhooks/tasks/tasks.utils')
+
 const STABLE_URL = faker.internet.url()
 const STABLE_CALLS = []
 let ODD_COUNTER = 0
@@ -35,7 +36,8 @@ jest.spyOn(utils, 'trySendData').mockImplementation((url, objs) => {
     }
 })
 
-
+// eslint-disable-next-line import/order
+const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
 const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer, entryPointPath) => {
     describe(`sendWebhook task basic tests for ${appName} app`, () => {
         const appEntryPoint = require(entryPointPath)
