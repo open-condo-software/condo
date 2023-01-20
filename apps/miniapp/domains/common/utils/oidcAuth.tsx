@@ -25,8 +25,6 @@ const OidcAuthProvider = ({ children }) => {
     const NoAccessToStorageMessage = intl.formatMessage({ id: 'NoAccessToStorage' })
     const AskForAccessButtonMessage = intl.formatMessage({ id: 'AskForAccessButton' })
 
-    // const { organization: condoOrganization, isLoading: isOrganizationLoading } = useOrganization()
-    // const { result: condoUser, isLoading: isCondoUserLoading } = condoBridge.useUser()
     const { context, loading } = useLaunchParams()
     const { user, isLoading: isUserLoading, isAuthenticated } = useAuth()
 
