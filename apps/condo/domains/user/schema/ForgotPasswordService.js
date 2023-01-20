@@ -1,7 +1,6 @@
 const { v4: uuid } = require('uuid')
 const conf = require('@open-condo/config')
 const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
-const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/common')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
@@ -13,6 +12,8 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { TOKEN_NOT_FOUND, PASSWORD_IS_TOO_SHORT, USER_NOT_FOUND } = require('../constants/errors')
 const { WRONG_PHONE_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { findTokenAndRelatedUser, markTokenAsUsed } = require('../utils/serverSchema')
+
+const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 
 /**
  * List of possible errors, that this custom schema can throw

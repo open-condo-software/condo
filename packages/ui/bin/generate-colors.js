@@ -2,13 +2,14 @@ const path = require('path')
 const fs = require('fs')
 const get = require('lodash/get')
 const util = require('util')
-const exec = util.promisify(require('child_process').exec)
-
+const childProcess = require('child_process')
 const {
     jsonInputForTargetLanguage,
     InputData,
     quicktype,
 } = require('quicktype-core')
+
+const exec = util.promisify(childProcess.exec)
 
 const TOKENS_PATH = path.join(__dirname, '../src/tokens/tokens.json')
 const COLORS_PATH = path.join(__dirname, '../src/colors/colors.json')

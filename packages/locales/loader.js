@@ -15,6 +15,7 @@ const loadTranslations = () => {
 
     translations = localeFolders
         .map(languageCode => ({
+            // eslint-disable-next-line import/order
             [languageCode]: require(path.join(translationsDir, `${languageCode}/${languageCode}.json`)),
         }))
         .reduce((prev, curr) => ({ ...prev, ...curr }))

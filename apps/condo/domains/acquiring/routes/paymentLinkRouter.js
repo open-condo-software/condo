@@ -1,7 +1,6 @@
 const querystring = require('querystring')
 const { isNil } = require('lodash')
 const { getLogger } = require('@open-condo/keystone/logging')
-const logger = getLogger('payment/linkHandler')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const {
@@ -22,6 +21,8 @@ const {
 } = require('@condo/domains/acquiring/constants/links')
 const { PAYMENT_LINK } = require('@condo/domains/common/constants/featureflags')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+
+const logger = getLogger('payment/linkHandler')
 
 const PAYMENT_LINK_WINDOW_SIZE = 60 // seconds
 const MAX_PAYMENT_LINK_REQUEST_BY_WINDOW = 5

@@ -4,10 +4,10 @@ import { Col, Row, Typography, Button, Skeleton } from 'antd'
 import { useIntl } from '@open-condo/next/intl'
 import { green } from '@ant-design/colors'
 import { TicketChange as TicketChangeType } from '@app/condo/schema'
-// TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"
-// import { SortTicketChangesBy } from '@condo/schema'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
+// TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"
+// import { SortTicketChangesBy } from '@condo/schema'
 
 interface ITicketChangesProps {
     items: TicketChangeType[],

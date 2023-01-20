@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { Col, Form, Row } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
-const { Option } = Select
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { uniqBy, isEmpty, find, pick, get } from 'lodash'
@@ -12,6 +11,8 @@ import { Gutter } from 'antd/es/grid/row'
 import { TicketFormItem } from './BaseTicketForm'
 import { PREDICT_TICKET_CLASSIFICATION_QUERY } from '@condo/domains/ticket/gql.js'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
+
+const { Option } = Select
 
 interface Options {
     id: string
