@@ -9,9 +9,9 @@ import { useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { Button } from '@condo/domains/common/components/Button'
+import { useLaunchParams } from '@condo/domains/miniapp/hooks/useLaunchParams'
 import { PageContent, PageHeader, PageWrapper } from '@miniapp/domains/common/components/BaseLayout'
 import { useOidcAuth } from '@miniapp/domains/common/utils/oidcAuth'
-import { useLaunchParams } from '@condo/domains/miniapp/hooks/useLaunchParams'
 
 const { publicRuntimeConfig: { condoUrl } } = getConfig()
 

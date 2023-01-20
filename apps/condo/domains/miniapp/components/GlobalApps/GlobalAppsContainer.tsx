@@ -1,13 +1,16 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react'
-import { useHotkeys } from 'react-hotkeys-hook'
+import { SortB2BAppsBy } from '@app/condo/schema'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
-import { useAuth } from '@open-condo/next/auth'
-import { SortB2BAppsBy } from '@app/condo/schema'
+import React, { useRef, useEffect, useState, useCallback } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
+
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { useAuth } from '@open-condo/next/auth'
+
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
-import { B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
+
 import {
     useGlobalAppsFeaturesContext,
     IRequestFeatureHandler,

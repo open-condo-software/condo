@@ -1,14 +1,16 @@
-import React, { useEffect } from 'react'
 import get from 'lodash/get'
-import { useRouter } from 'next/router'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
+import React, { useEffect } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
-import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
+
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
-import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
+import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
 
 
 type BillingAppPageProps = {

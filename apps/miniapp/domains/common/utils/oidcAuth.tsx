@@ -1,7 +1,9 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react'
 import Router from 'next/router'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
+
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+
 import { useLaunchParams } from '@condo/domains/miniapp/hooks/useLaunchParams'
 
 interface IUseOidcAuthHookValue {
