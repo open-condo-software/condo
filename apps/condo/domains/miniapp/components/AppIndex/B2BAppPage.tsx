@@ -1,16 +1,18 @@
-import React, { useEffect } from 'react'
 import get from 'lodash/get'
-import { useRouter } from 'next/router'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
+import React, { useEffect } from 'react'
+
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+
 import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
-import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 import { B2B_APP_TYPE } from '@condo/domains/miniapp/constants'
+import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 
 type B2BAppPageProps = {
     id: string

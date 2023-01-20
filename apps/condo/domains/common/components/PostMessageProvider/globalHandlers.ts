@@ -1,15 +1,18 @@
-import { useCallback, useContext } from 'react'
 import { notification } from 'antd'
-import { v4 as uuidV4 } from 'uuid'
+import dayjs from 'dayjs'
 import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
-import dayjs from 'dayjs'
-import { useIntl } from '@open-condo/next/intl'
+import { useCallback, useContext } from 'react'
+import { v4 as uuidV4 } from 'uuid'
+
 import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { STAFF } from '@condo/domains/user/constants/common'
-import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
+
 import { TASK_STATUS, TasksContext } from '@condo/domains/common/components/tasks'
+import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
+import { STAFF } from '@condo/domains/user/constants/common'
+
 import type { RequestHandler } from './types'
 
 export const handleNotification: RequestHandler<'CondoWebAppShowNotification'> = (params) => {

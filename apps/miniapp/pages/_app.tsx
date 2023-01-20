@@ -1,13 +1,4 @@
-import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
-import { AppFrameWrapper } from '@condo/domains/miniapp/components/AppFrameWrapper'
-import '@condo/domains/common/components/wdyr'
-import { messagesImporter as condoMessageImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
-import { withApollo } from '@open-condo/next/apollo'
-import { withAuth } from '@open-condo/next/auth'
-import { useIntl, withIntl } from '@open-condo/next/intl'
 import { CacheProvider } from '@emotion/core'
-import { BaseLayout, LayoutContextProvider } from '@miniapp/domains/common/components/BaseLayout'
-import { withOidcAuth } from '@miniapp/domains/common/utils/oidcAuth'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
@@ -16,6 +7,17 @@ import { cache } from 'emotion'
 import { gql } from 'graphql-tag'
 import Head from 'next/head'
 import React from 'react'
+
+import { withApollo } from '@open-condo/next/apollo'
+import { withAuth } from '@open-condo/next/auth'
+import { useIntl, withIntl } from '@open-condo/next/intl'
+
+import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
+import { messagesImporter as condoMessageImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
+import { AppFrameWrapper } from '@condo/domains/miniapp/components/AppFrameWrapper'
+import { BaseLayout, LayoutContextProvider } from '@miniapp/domains/common/components/BaseLayout'
+import { withOidcAuth } from '@miniapp/domains/common/utils/oidcAuth'
+import '@condo/domains/common/components/wdyr'
 
 const ANT_LOCALES = {
     ru: ruRU,

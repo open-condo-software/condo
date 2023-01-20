@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+
 import type { ResultResponseData, ErrorResponseData } from '@open-condo/bridge'
 import bridge from '@open-condo/bridge'
 

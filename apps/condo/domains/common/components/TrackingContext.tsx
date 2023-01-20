@@ -1,17 +1,21 @@
+import compact from 'lodash/compact'
+import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
+import isUndefined from 'lodash/isUndefined'
+import pick from 'lodash/pick'
+import upperFirst from 'lodash/upperFirst'
+import { useRouter } from 'next/router'
 import React, { createContext, useContext, useEffect, useRef, useCallback } from 'react'
+
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
-import { useRouter } from 'next/router'
-import get from 'lodash/get'
-import pick from 'lodash/pick'
-import compact from 'lodash/compact'
-import isUndefined from 'lodash/isUndefined'
-import isFunction from 'lodash/isFunction'
-import upperFirst from 'lodash/upperFirst'
+
 import { TRACKING_USER_FIELDS } from '@condo/domains/user/constants'
-import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstance'
-import AmplitudeInstance from './trackers/AmplitudeInstance'
+
 import { usePostMessageContext } from './PostMessageProvider'
+import AmplitudeInstance from './trackers/AmplitudeInstance'
+import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstance'
+
 import type { RequestHandler } from './PostMessageProvider/types'
 
 const TRACKING_INITIAL_VALUE = {

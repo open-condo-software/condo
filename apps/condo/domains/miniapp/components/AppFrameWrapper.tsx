@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react'
 import { css, Global } from '@emotion/react'
+import React, { useEffect } from 'react'
+
 import bridge from '@open-condo/bridge'
 
 const BODY_RESIZE_STYLES = css`

@@ -1,19 +1,23 @@
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import get from 'lodash/get'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
-import { Loader } from '@condo/domains/common/components/Loader'
+
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import type { IBasicEmptyListProps } from '@condo/domains/common/components/EmptyListView'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
-import type { RequestHandler } from '@condo/domains/common/components/PostMessageProvider/types'
-import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import {
     parseMessage,
     RESIZE_MESSAGE_TYPE,
 } from '@condo/domains/common/utils/iframe.utils'
+import { extractOrigin } from '@condo/domains/common/utils/url.utils'
+
+import type { IBasicEmptyListProps } from '@condo/domains/common/components/EmptyListView'
+import type { RequestHandler } from '@condo/domains/common/components/PostMessageProvider/types'
+
 
 const DEFAULT_FRAME_HEIGHT = 700
 
