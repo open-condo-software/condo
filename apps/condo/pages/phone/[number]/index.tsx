@@ -1,6 +1,7 @@
 import {
     BuildingUnitSubType,
     Contact as ContactType,
+    Organization as OrganizationType,
     Property,
     SortTicketsBy,
     Ticket as TicketType,
@@ -44,6 +45,7 @@ import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketP
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 
 
 //#region Constants, types and styles
@@ -74,6 +76,7 @@ type TabDataType = {
     property: Property,
     unitName: string,
     unitType: string
+    organization: OrganizationType
 }
 
 const StyledCarouselWrapper = styled(Col)`
@@ -317,6 +320,7 @@ const ClientCardTabContent = ({
     handleContactEditClick = null,
     contact = null,
     showOrganizationMessage = false,
+    organization,
 }) => {
     const intl = useIntl()
     const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
@@ -339,6 +343,8 @@ const ClientCardTabContent = ({
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
     const lastCreatedTicket = get(tickets, 0)
+    const propertyId = useMemo(() => get(property, 'id', null), [property])
+    const organizationId = useMemo(() => get(organization, 'id'), [organization])
 
     const columns = useClientCardTicketTableColumns(tickets)
     const { logEvent } = useTracking()
@@ -401,10 +407,20 @@ const ClientCardTabContent = ({
                                     />
                                 </Col>
                                 <TicketPropertyHintCard
-                                    propertyId={get(property, 'id', null)}
+                                    propertyId={propertyId}
                                     hintContentStyle={HINT_CARD_STYLE}
                                     withCol
                                 />
+                                {
+                                    propertyId && organizationId && (
+                                        <Col span={24}>
+                                            <IncidentHints
+                                                organizationId={organizationId}
+                                                propertyId={propertyId}
+                                            />
+                                        </Col>
+                                    )
+                                }
                             </Row>
                         </Col>
                         <Col span={24}>
@@ -462,6 +478,7 @@ const ContactClientTabContent = ({
     unitType,
     phone,
     canManageContacts,
+    organization,
     showOrganizationMessage = false,
 }) => {
     const router = useRouter()
@@ -518,11 +535,12 @@ const ContactClientTabContent = ({
             canManageContacts={canManageContacts}
             contact={contact}
             showOrganizationMessage={showOrganizationMessage}
+            organization={organization}
         />
     )
 }
 
-const NotResidentClientTabContent = ({ property, unitName, unitType, phone, showOrganizationMessage = false }) => {
+const NotResidentClientTabContent = ({ property, unitName, unitType, phone, organization, showOrganizationMessage = false }) => {
     const router = useRouter()
 
     const searchTicketsQuery = useMemo(() => ({
@@ -559,6 +577,7 @@ const NotResidentClientTabContent = ({ property, unitName, unitType, phone, show
             handleTicketCreateClick={handleTicketCreateClick}
             canManageContacts={false}
             showOrganizationMessage={showOrganizationMessage}
+            organization={organization}
         />
     )
 }
@@ -576,6 +595,7 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
     const unitName = get(tabData, 'unitName')
     const unitType = get(tabData, 'unitType')
     const type = get(tabData, 'type')
+    const organization = get(tabData, 'organization')
 
     return type === ClientType.Resident ? (
         <ContactClientTabContent
@@ -585,6 +605,7 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
             unitType={unitType}
             canManageContacts={canManageContacts}
             showOrganizationMessage={showOrganizationMessage}
+            organization={organization}
         />
     ) : (
         <NotResidentClientTabContent
@@ -593,6 +614,7 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
             unitName={unitName}
             unitType={unitType}
             showOrganizationMessage={showOrganizationMessage}
+            organization={organization}
         />
     )
 }
@@ -667,9 +689,10 @@ const ClientCardPageContent = ({
         const { type, property: propertyId, unitName, unitType } = parseCardDataFromQuery(activeTab)
         const tabDataWithProperty = tabsData.find(({ property }) => property.id === propertyId)
         const property = get(tabDataWithProperty, 'property')
+        const organization = get(tabDataWithProperty, 'organization')
 
         if (property) {
-            setActiveTabData({ type, property, unitName, unitType })
+            setActiveTabData({ type, property, unitName, unitType, organization })
         }
     }, [activeTab, tabsData])
 
@@ -810,12 +833,14 @@ export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts, sho
             property: contact.property,
             unitName: contact.unitName,
             unitType: contact.unitType,
+            organization: contact.organization,
         }))
         const notResidentData = uniqBy(notResidentTickets.map(ticket => ({
             type: ClientType.NotResident,
             property: ticket.property,
             unitName: ticket.unitName,
             unitType: ticket.unitType,
+            organization: ticket.organization,
         })), 'property.id')
         const employeesData = uniqBy(employeeTickets.map(ticket => ({
             type: ClientType.NotResident,
@@ -823,6 +848,7 @@ export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts, sho
             property: ticket.property,
             unitName: ticket.unitName,
             unitType: ticket.unitType,
+            organization: ticket.organization,
         })), 'property.id')
 
         return [...contactsData, ...notResidentData, ...employeesData]
