@@ -6,6 +6,7 @@ const RELEASE_LIST = [
     'tsconfig',
     'icons',
     'ui',
+    'bridge',
 ]
 
 const releasePaths = RELEASE_LIST.map(pkgName => path.join(__dirname, '..', 'packages', pkgName, 'package.json'))
