@@ -926,6 +926,7 @@ __metadata:
     "@keystonejs/list-plugins": ^8.1.0
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
+    "@open-condo/bridge": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
@@ -1022,6 +1023,7 @@ __metadata:
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
     "@miniapp/domains": "link:./domains"
+    "@open-condo/bridge": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
@@ -1108,6 +1110,7 @@ __metadata:
     "@keystonejs/list-plugins": ^8.1.0
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
+    "@open-condo/bridge": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
@@ -1206,6 +1209,7 @@ __metadata:
     "@keystonejs/list-plugins": ^8.1.0
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
+    "@open-condo/bridge": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
@@ -8567,7 +8571,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@open-condo/bridge@workspace:packages/bridge":
+"@open-condo/bridge@workspace:^, @open-condo/bridge@workspace:packages/bridge":
   version: 0.0.0-use.local
   resolution: "@open-condo/bridge@workspace:packages/bridge"
   dependencies:
