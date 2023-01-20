@@ -161,6 +161,14 @@ module.exports = {
                     'type',
                 ],
                 pathGroups: [
+                    // Some libraries named as files.
+                    // Something like `big.js` at `apps/condorb/domains/condorb/integration/sberSecurePay.js`
+                    // To prevent recognizing as local file we add these libraries to the `external` group.
+                    //
+                    {
+                        pattern: 'big.js',
+                        group: 'external',
+                    },
                     // packages
                     {
                         pattern: '@open-condo/**',
