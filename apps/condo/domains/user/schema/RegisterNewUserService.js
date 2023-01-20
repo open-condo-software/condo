@@ -1,17 +1,21 @@
+const { isEmpty, get } = require('lodash')
+
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
-const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
+const { NOT_UNIQUE, WRONG_FORMAT, WRONG_VALUE, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
-const { isEmpty, get } = require('lodash')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
-const { NOT_UNIQUE, WRONG_FORMAT, WRONG_VALUE, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
+const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
+
 const { UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, UNABLE_TO_CREATE_USER } = require('../constants/errors')
-const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+
 
 /**
  * List of possible errors, that this custom schema can throw

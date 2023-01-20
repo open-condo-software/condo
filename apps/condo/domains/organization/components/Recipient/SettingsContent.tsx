@@ -1,16 +1,15 @@
-import get from 'lodash/get'
-import React from 'react'
 import styled from '@emotion/styled'
 import { Row, Col, Typography, Alert } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import get from 'lodash/get'
+import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { colors } from '@condo/domains/common/constants/style'
 
 import { BillingRecipient, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
-
+import { colors } from '@condo/domains/common/constants/style'
 import { Recipient } from '@condo/domains/organization/components/Recipient'
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]

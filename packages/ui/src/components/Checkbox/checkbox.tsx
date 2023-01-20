@@ -1,5 +1,6 @@
-import React from 'react'
 import { Checkbox as DefaultCheckbox, CheckboxProps as DefaultCheckboxProps } from 'antd'
+import React from 'react'
+
 import { Typography, TypographyTextProps } from '../Typography'
 
 const CHECKBOX_CLASS_PREFIX = 'condo-checkbox'

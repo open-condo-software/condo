@@ -3,9 +3,11 @@
  */
 
 const { get } = require('lodash')
-const { getById } = require('@open-condo/keystone/schema')
-const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
+
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { getById } = require('@open-condo/keystone/schema')
+
+const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
 
 async function canReadBillingMeterResources ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

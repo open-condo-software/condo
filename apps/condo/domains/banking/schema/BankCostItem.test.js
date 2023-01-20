@@ -3,15 +3,14 @@
  */
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowGQLError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
-
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { BankCostItem, createTestBankCategory, createTestBankCostItem, updateTestBankCostItem } = require('@condo/domains/banking/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { BankCostItem, createTestBankCategory, createTestBankCostItem, updateTestBankCostItem } = require('@condo/domains/banking/utils/testSchema')
 
 let admin
 let user

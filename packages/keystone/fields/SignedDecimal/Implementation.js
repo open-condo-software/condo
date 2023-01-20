@@ -1,6 +1,6 @@
 const { Decimal } = require('@keystonejs/fields')
-const get = require('lodash/get')
 const Big = require('big.js')
+const get = require('lodash/get')
 
 const AVAILABLE_TYPES = ['negative', 'positive', 'non-negative', 'non-positive']
 

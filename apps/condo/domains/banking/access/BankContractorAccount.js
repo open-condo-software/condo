@@ -4,7 +4,9 @@
  */
 
 const get = require('lodash/get')
+
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,

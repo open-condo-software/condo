@@ -1,6 +1,7 @@
-import { useMemo } from 'react'
-import { useIntl } from '@open-condo/next/intl'
 import { Ticket } from '@app/condo/schema'
+import { useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
 
 import { FiltersTooltipDataObject } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 

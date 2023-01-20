@@ -8,6 +8,7 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { colors } from '@condo/domains/common/constants/style'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
+
 import { TicketPropertyHintContent } from './TicketPropertyHintContent'
 
 const StyledAlert = styled(Alert)`

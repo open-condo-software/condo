@@ -1,11 +1,12 @@
-import React, { useState, Dispatch, SetStateAction } from 'react'
-import { useRouter } from 'next/router'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
+import { useRouter } from 'next/router'
+import React, { useState, Dispatch, SetStateAction } from 'react'
 
-import { Modal } from '@condo/domains/common/components/Modal'
 import { useIntl } from '@open-condo/next/intl'
+
 import { Button } from '@condo/domains/common/components/Button'
+import { Modal } from '@condo/domains/common/components/Modal'
 import { Poster } from '@condo/domains/common/components/Poster'
 
 const PosterWrapper = styled.div`

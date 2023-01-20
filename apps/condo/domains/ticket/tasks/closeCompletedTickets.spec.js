@@ -2,22 +2,22 @@
  * @jest-environment node
  */
 
+const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 const faker = require('faker')
 
 const { setFakeClientMode, makeLoggedInAdminClient, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
-const { createTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { createTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSchema')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 const { closeCompletedTickets, ERROR_START_TICKET_CLOSING } = require('./closeCompletedTickets')
 
-const index = require('@app/condo/index')
 
 describe('closeCompletedTickets', () => {
     setFakeClientMode(index)

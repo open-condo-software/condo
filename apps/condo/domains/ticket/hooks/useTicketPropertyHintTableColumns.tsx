@@ -1,6 +1,8 @@
+import { TicketPropertyHint } from '@app/condo/schema'
 import map from 'lodash/map'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
@@ -9,10 +11,9 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
-import { TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
-import { TicketPropertyHint } from '@app/condo/schema'
-import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 import { getManyPropertiesAddressRender } from '@condo/domains/property/utils/clientSchema/Renders'
+import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
+import { TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 
 const HINT_STYLES: CSSProperties = { maxHeight: '6.5em', maxWidth: '300px', overflow: 'hidden', wordBreak: 'break-word', whiteSpace: 'inherit' }
 

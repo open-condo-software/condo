@@ -4,9 +4,6 @@
 const faker = require('faker')
 
 const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
-
-const { DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE } = require('@condo/domains/common/constants/errors')
-
 const {
     expectToThrowValidationFailureError,
     expectToThrowAuthenticationErrorToObjects,
@@ -16,6 +13,7 @@ const {
     expectToThrowInternalError,
 } = require('@open-condo/keystone/test.utils')
 
+const { DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE } = require('@condo/domains/common/constants/errors')
 const { RemoteClient, createTestRemoteClient, updateTestRemoteClient } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
 

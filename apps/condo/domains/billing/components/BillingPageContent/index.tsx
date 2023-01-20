@@ -1,17 +1,21 @@
-import React, { CSSProperties } from 'react'
-import { useIntl } from '@open-condo/next/intl'
-import { EmptyListView, BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { ApolloError } from '@apollo/client'
+import { BillingIntegrationOrganizationContext } from '@app/condo/schema'
 import { Typography } from 'antd'
+import React, { CSSProperties } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { EmptyListView, BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import {
     CONTEXT_IN_PROGRESS_STATUS,
     CONTEXT_ERROR_STATUS,
     ACCRUALS_AND_PAYMENTS_CATEGORY,
 } from '@condo/domains/miniapp/constants'
-import { ApolloError } from '@apollo/client'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
+
 import { MainContent } from './MainContent'
-import { BillingIntegrationOrganizationContext } from '@app/condo/schema'
+
 
 const BILLING_SETTINGS_ROUTE = `/miniapps?tab=${ACCRUALS_AND_PAYMENTS_CATEGORY}`
 

@@ -1,16 +1,19 @@
 const faker = require('faker')
 
 const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
-const { createTestUser } = require('@condo/domains/user/utils/testSchema')
-
-const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-
-const { OrganizationEmployee, OrganizationEmployeeRole } = require('../utils/testSchema')
-const { ServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
 
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common.js')
-const { expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { ServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
 const { TicketOrganizationSetting } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestUser } = require('@condo/domains/user/utils/testSchema')
+
+
+const { OrganizationEmployee, OrganizationEmployeeRole } = require('../utils/testSchema')
+
+
+
 
 const EXCLUDE_CHECK_FIELDS = ['name', 'description']
 

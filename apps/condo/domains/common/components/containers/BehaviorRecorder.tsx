@@ -1,6 +1,6 @@
-import React from 'react'
-import getConfig from 'next/config'
 import _ from 'lodash'
+import getConfig from 'next/config'
+import React from 'react'
 
 type BehaviourRecordingEngine = 'plerdy'
 

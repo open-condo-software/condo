@@ -9,12 +9,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowValidationFailureError, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const {
-    TicketOrganizationSetting,
-    createTestTicketOrganizationSetting,
-    updateTestTicketOrganizationSetting,
-} = require('@condo/domains/ticket/utils/testSchema')
+
 const {
     registerNewOrganization,
     createTestOrganizationEmployeeRole,
@@ -26,6 +21,12 @@ const {
     MAX_TICKET_DEADLINE_DURATION,
     DEFAULT_TICKET_DEADLINE_DURATION,
 } = require('@condo/domains/ticket/constants/common')
+const {
+    TicketOrganizationSetting,
+    createTestTicketOrganizationSetting,
+    updateTestTicketOrganizationSetting,
+} = require('@condo/domains/ticket/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketOrganizationSetting', () => {
     describe('CRUD', () => {

@@ -1,31 +1,33 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
 import { Col, Form, Row, Space } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
+import { difference, find, get } from 'lodash'
 import { useRouter } from 'next/router'
+import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useEffect, useMemo } from 'react'
-import { useIntl } from '@open-condo/next/intl'
+
 import { useApolloClient } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+
+import { Alert } from '@condo/domains/common/components/Alert'
+import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
-import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
-import { useAuth } from '@open-condo/next/auth'
+import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
+import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
-import { Alert } from '@condo/domains/common/components/Alert'
-import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { Rule } from 'rc-field-form/lib/interface'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
+import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
+import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import {
     ClassifiersQueryRemote,
     TicketClassifierTypes,
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
-import { difference, find, get } from 'lodash'
-import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
+import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {

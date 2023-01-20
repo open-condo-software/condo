@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+
 import { useMutation, useQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 

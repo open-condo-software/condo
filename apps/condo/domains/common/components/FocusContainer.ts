@@ -1,4 +1,5 @@
 import styled from '@emotion/styled'
+
 import { colors, DEFAULT_BORDER_RADIUS } from '../constants/style'
 
 interface IFocusContainerProps {

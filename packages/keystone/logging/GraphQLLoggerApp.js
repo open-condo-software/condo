@@ -1,11 +1,12 @@
-const { get } = require('lodash')
 const cuid = require('cuid')
 const ensureError = require('ensure-error')
+const { get } = require('lodash')
 const { serializeError } = require('serialize-error')
 
-const { safeFormatError } = require('../apolloErrorFormatter')
 const { getLogger } = require('./getLogger')
 const { normalizeQuery, normalizeVariables } = require('./normalize')
+
+const { safeFormatError } = require('../apolloErrorFormatter')
 
 const graphqlLogger = getLogger('graphql')
 

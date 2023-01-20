@@ -1,15 +1,17 @@
-import React, { useEffect } from 'react'
 import { Form, Space, Typography } from 'antd'
-import { useRouter } from 'next/router'
-import { useIntl } from '@open-condo/next/intl'
 import get from 'lodash/get'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import React, { useEffect } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import { Button } from '@condo/domains/common/components/Button'
+import { Loader } from '@condo/domains/common/components/Loader'
 import BasePropertyMapForm from '@condo/domains/property/components/BasePropertyMapForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-import { useOrganization } from '@open-condo/next/organization'
-import { Loader } from '@condo/domains/common/components/Loader'
-import { Button } from '@condo/domains/common/components/Button'
-import ActionBar from '@condo/domains/common/components/ActionBar'
 
 interface ICreatePropertyForm {
     id: string

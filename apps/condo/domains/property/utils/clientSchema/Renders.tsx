@@ -1,9 +1,9 @@
+import { Property } from '@app/condo/schema'
 import { Typography } from 'antd'
-import { isEmpty } from 'lodash'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
+import { isEmpty } from 'lodash'
 
-import { Property } from '@app/condo/schema'
 
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'

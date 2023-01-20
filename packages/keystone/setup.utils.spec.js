@@ -1,5 +1,6 @@
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
+
 const { getAdapter, getCookieSecret } = require('./setup.utils')
 
 describe('getAdapter()', () => {

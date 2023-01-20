@@ -3,6 +3,7 @@
  * Documentation should be specified in a `doc` property of custom query or mutation configuration.
  */
 const values = require('lodash/values')
+
 const { GQL_CUSTOM_SCHEMA_TYPE } = require('../schema')
 
 /**

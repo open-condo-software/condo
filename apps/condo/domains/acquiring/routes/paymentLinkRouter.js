@@ -1,12 +1,11 @@
 const querystring = require('querystring')
+
 const { isNil } = require('lodash')
+
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
-const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
-const {
-    registerMultiPaymentForOneReceipt,
-    registerMultiPaymentForVirtualReceipt,
-} = require('@condo/domains/acquiring/utils/serverSchema')
+
 const {
     PAYMENT_LINK_QP: {
         acquiringIntegrationContextQp,
@@ -19,6 +18,10 @@ const {
         accountNumberQp,
     },
 } = require('@condo/domains/acquiring/constants/links')
+const {
+    registerMultiPaymentForOneReceipt,
+    registerMultiPaymentForVirtualReceipt,
+} = require('@condo/domains/acquiring/utils/serverSchema')
 const { PAYMENT_LINK } = require('@condo/domains/common/constants/featureflags')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 

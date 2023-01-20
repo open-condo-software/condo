@@ -1,12 +1,13 @@
-const chalk = require('chalk')
-const boxen = require('boxen')
-const path = require('path')
 const fs = require('fs')
+const path = require('path')
 const { promisify } = require('util')
+
+const boxen = require('boxen')
+const chalk = require('chalk')
 const { printSchema } = require('graphql')
 
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 const { taskQueue } = require('@open-condo/keystone/tasks')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 const writeFile = promisify(fs.writeFile)
 

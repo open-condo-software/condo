@@ -1,11 +1,12 @@
-import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { Typography } from '@open-condo/ui/src'
+import { Space } from 'antd'
+import React from 'react'
+
 import type { IconProps } from '@open-condo/icons'
 import * as AllIcons from '@open-condo/icons'
+import { Typography } from '@open-condo/ui/src'
 
 // TODO(DOMA-4682): Move to UI-kit
-import { Space } from 'antd'
 import 'antd/lib/space/style/index.less'
 
 type IconBlockProps = {

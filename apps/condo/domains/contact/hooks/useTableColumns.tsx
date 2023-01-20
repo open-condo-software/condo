@@ -1,21 +1,22 @@
-import { useCallback, useMemo } from 'react'
+import { Contact } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
+import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { getFilteredValue } from '@condo/domains/common/utils/helpers'
-import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import {
     getAddressRender,
     getTableCellRenderer,
     getUnitNameRender,
 } from '@condo/domains/common/components/Table/Renders'
-import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 import { IFilters } from '../utils/helpers'
-import { Contact } from '@app/condo/schema'
+
 
 export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const intl = useIntl()

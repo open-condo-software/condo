@@ -1,9 +1,10 @@
-import React, { useState, Dispatch, SetStateAction } from 'react'
 import { Col, Row, Typography } from 'antd'
+import React, { useState, Dispatch, SetStateAction } from 'react'
 
-import { Modal } from '@condo/domains/common/components/Modal'
 import { useIntl } from '@open-condo/next/intl'
+
 import { Button } from '@condo/domains/common/components/Button'
+import { Modal } from '@condo/domains/common/components/Modal'
 
 interface IApplySubscriptionModal {
     SubscriptionPaymentModal: React.FC

@@ -1,10 +1,12 @@
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
-const { User } = require('@condo/domains/user/utils/serverSchema')
+
+const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
+const { User } = require('@condo/domains/user/utils/serverSchema')
+
 const { USER_NOT_FOUND, WRONG_PASSWORD } = require('../constants/errors')
 
 /**

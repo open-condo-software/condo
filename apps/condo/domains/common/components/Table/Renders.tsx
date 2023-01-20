@@ -1,26 +1,29 @@
-import React, { useMemo } from 'react'
+import { Property, BuildingUnitSubType } from '@app/condo/schema'
 import { Typography } from 'antd'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { FilterValue } from 'antd/es/table/interface'
+import { EllipsisConfig } from 'antd/es/typography/Base'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isBoolean from 'lodash/isBoolean'
-import isString from 'lodash/isString'
 import isNull from 'lodash/isNull'
-import { FilterValue } from 'antd/es/table/interface'
-import { EllipsisConfig } from 'antd/es/typography/Base'
+import isString from 'lodash/isString'
+import Link from 'next/link'
+import React, { useMemo } from 'react'
 
-import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
 import { TTextHighlighterRenderPartFN } from '@condo/domains/common/components/TextHighlighter'
-
-import { LOCALES } from '../../constants/locale'
-import { TextHighlighter, TTextHighlighterProps } from '../TextHighlighter'
-import { ELLIPSIS_ROWS } from '../../constants/style'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
 
 import { EmptyTableCell } from './EmptyTableCell'
-import { Property, BuildingUnitSubType } from '@app/condo/schema'
+
+import { LOCALES } from '../../constants/locale'
+import { ELLIPSIS_ROWS } from '../../constants/style'
 import { getAddressDetails } from '../../utils/helpers'
-import Link from 'next/link'
+import { TextHighlighter, TTextHighlighterProps } from '../TextHighlighter'
+
+
+
 
 export type RenderReturnType = string | React.ReactNode
 

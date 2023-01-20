@@ -3,19 +3,19 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { BillingIntegration } = require('./BillingIntegration')
-const { BillingIntegrationAccessRight } = require('./BillingIntegrationAccessRight')
-const { BillingIntegrationOrganizationContext } = require('./BillingIntegrationOrganizationContext')
-const { BillingIntegrationLog } = require('./BillingIntegrationLog')
-const { BillingProperty } = require('./BillingProperty')
+const { AllResidentBillingReceiptsService } = require('./AllResidentBillingReceiptsService')
 const { BillingAccount } = require('./BillingAccount')
-const { BillingMeterResource } = require('./BillingMeterResource')
 const { BillingAccountMeter } = require('./BillingAccountMeter')
 const { BillingAccountMeterReading } = require('./BillingAccountMeterReading')
-const { BillingReceipt } = require('./BillingReceipt')
-const { AllResidentBillingReceiptsService } = require('./AllResidentBillingReceiptsService')
-const { BillingRecipient } = require('./BillingRecipient')
 const { BillingCategory } = require('./BillingCategory')
+const { BillingIntegration } = require('./BillingIntegration')
+const { BillingIntegrationAccessRight } = require('./BillingIntegrationAccessRight')
+const { BillingIntegrationLog } = require('./BillingIntegrationLog')
+const { BillingIntegrationOrganizationContext } = require('./BillingIntegrationOrganizationContext')
+const { BillingMeterResource } = require('./BillingMeterResource')
+const { BillingProperty } = require('./BillingProperty')
+const { BillingReceipt } = require('./BillingReceipt')
+const { BillingRecipient } = require('./BillingRecipient')
 const { RegisterBillingReceiptsService } = require('./RegisterBillingReceiptsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 

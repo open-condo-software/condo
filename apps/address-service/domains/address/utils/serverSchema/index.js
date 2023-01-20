@@ -4,8 +4,9 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { Address: AddressGQL } = require('@address-service/domains/address/gql')
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
+
+const { Address: AddressGQL } = require('@address-service/domains/address/gql')
 const { AddressInjection: AddressInjectionGQL } = require('@address-service/domains/address/gql')
 const { AddressSource: AddressSourceGQL } = require('@address-service/domains/address/gql')
 /* AUTOGENERATE MARKER <IMPORT> */

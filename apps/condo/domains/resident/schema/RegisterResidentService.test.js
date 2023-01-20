@@ -7,20 +7,16 @@ const get = require('lodash/get')
 const sample = require('lodash/sample')
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor } = require('@open-condo/keystone/test.utils')
-
 const { expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { registerNewOrganization, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-
+const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestProperty, makeClientWithResidentAccessAndProperty, Property } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
-
 const { registerResidentByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
-
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
-const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
 describe('manageResidentToPropertyAndOrganizationConnections worker task tests', () => {
     it('connects new property with matched address to existing orphan residents (no other props)', async () => {

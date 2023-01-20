@@ -1,17 +1,19 @@
-const { Keystone } = require('@keystonejs/keystone')
-const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
+const { Keystone } = require('@keystonejs/keystone')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
+const identity = require('lodash/identity')
+const nextCookie = require('next-cookies')
+
 const conf = require('@open-condo/config')
 const access = require('@open-condo/keystone/access')
-const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
-const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
-const { SuggestionKeystoneApp } = require('@address-service/domains/common/utils/services/suggest/SuggestionKeystoneApp')
-const { SearchKeystoneApp } = require('@address-service/domains/common/utils/services/search/SearchKeystoneApp')
-const { OIDCKeystoneApp } = require('@address-service/domains/common/oidc')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
-const identity = require('lodash/identity')
+const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
+const { GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
+const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
+
+const { OIDCKeystoneApp } = require('@address-service/domains/common/oidc')
 const {
     SearchBySource,
     SearchByProvider,
@@ -20,10 +22,10 @@ const {
     SearchByGooglePlaceId,
     SearchByFiasId,
 } = require('@address-service/domains/common/utils/services/search/plugins')
-const { GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
-const nextCookie = require('next-cookies')
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { SearchKeystoneApp } = require('@address-service/domains/common/utils/services/search/SearchKeystoneApp')
+const { SuggestionKeystoneApp } = require('@address-service/domains/common/utils/services/suggest/SuggestionKeystoneApp')
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
+const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'

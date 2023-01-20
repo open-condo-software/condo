@@ -1,6 +1,8 @@
 const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
+
 const { Json } = require('@open-condo/keystone/fields')
+
 const { getValidator } = require('@condo/domains/common/schema/json.utils')
 
 const GalleryJSONSchema = {

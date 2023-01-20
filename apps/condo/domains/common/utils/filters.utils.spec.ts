@@ -1,5 +1,6 @@
-import { ComponentType, getQueryToValueProcessorByType } from './filters.utils'
 import dayjs from 'dayjs'
+
+import { ComponentType, getQueryToValueProcessorByType } from './filters.utils'
 
 describe('Filter utils', () => {
     describe('getQueryToValueProcessorByType', () => {

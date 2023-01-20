@@ -3,11 +3,14 @@
  */
 
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/billing/access/BillingIntegration')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
-const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')
+const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
+const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
 const {
     LOGO_FIELD,
     APPS_FILE_ADAPTER,
@@ -22,8 +25,9 @@ const {
     LABEL_FIELD,
     PRICE_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
-const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
-const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
+
+const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')
+
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 

@@ -1,5 +1,6 @@
-import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
+import React from 'react'
+
 import { Banner as Component } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 

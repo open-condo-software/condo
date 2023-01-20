@@ -1,6 +1,7 @@
-const { keys, transform, pick, pickBy, omit, difference, isEqual } = require('lodash')
 const { Text, Uuid } = require('@keystonejs/fields')
 const { Relationship } = require('@keystonejs/fields')
+const { keys, transform, pick, pickBy, omit, difference, isEqual } = require('lodash')
+
 const { Json, LocalizedText } = require('@open-condo/keystone/fields')
 
 /**

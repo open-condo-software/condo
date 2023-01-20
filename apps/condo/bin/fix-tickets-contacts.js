@@ -1,8 +1,11 @@
 const path = require('path')
-const { find, getByCondition } = require('@open-condo/keystone/schema')
-const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
+
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const get = require('lodash/get')
+
+const { find, getByCondition } = require('@open-condo/keystone/schema')
+
+const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 class FixTicketClients {

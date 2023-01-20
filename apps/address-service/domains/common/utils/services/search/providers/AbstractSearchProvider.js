@@ -15,8 +15,9 @@
  * @property {NormalizedSearchData} data
  */
 
-const { searchContexts } = require('@address-service/domains/common/constants/contexts')
 const get = require('lodash/get')
+
+const { searchContexts } = require('@address-service/domains/common/constants/contexts')
 
 /**
  * @abstract

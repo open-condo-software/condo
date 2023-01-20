@@ -1,8 +1,11 @@
-import React from 'react'
 import { Space } from 'antd'
-import type { SpaceProps } from 'antd'
+import React from 'react'
+
+
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography } from '@open-condo/ui'
+
+import type { SpaceProps } from 'antd'
 
 const SECTION_VERT_SPACING = 20
 const SECTION_HOR_SPACING = 100

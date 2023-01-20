@@ -1,10 +1,12 @@
-import React from 'react'
-import get from 'lodash/get'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { Typography } from '@open-condo/ui/src'
-import { colors } from '@open-condo/ui/src/colors'
-import type { TypographyParagraphProps } from '@open-condo/ui/src'
 import { styled } from '@storybook/theming'
+import get from 'lodash/get'
+import React from 'react'
+
+import { Typography } from '@open-condo/ui/src'
+import type { TypographyParagraphProps } from '@open-condo/ui/src'
+import { colors } from '@open-condo/ui/src/colors'
+
 
 const AVAILABLE_TYPES: Array<TypographyParagraphProps['type']> = [
     undefined,

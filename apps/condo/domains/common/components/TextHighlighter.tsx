@@ -1,10 +1,10 @@
-import React from 'react'
-import isEmpty from 'lodash/isEmpty'
 import { Typography } from 'antd'
 import { BaseType } from 'antd/lib/typography/Base'
+import { isNull } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
+import React from 'react'
 
 import { getEscaped } from '@condo/domains/common/utils/string.utils'
-import { isNull } from 'lodash'
 
 export type TTextHighlighterRenderPartFN = (
     part: string,

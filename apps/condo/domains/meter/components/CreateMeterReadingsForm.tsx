@@ -1,24 +1,26 @@
+import { BuildingUnitSubType, SortMeterReadingsBy, SortMetersBy, Meter as MeterType, MeterReading as MeterReadingType } from '@app/condo/schema'
 import { Col, ColProps, Form, Row, Typography } from 'antd'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import uniqWith from 'lodash/uniqWith'
-import get from 'lodash/get'
 import { Gutter } from 'antd/es/grid/row'
+import get from 'lodash/get'
+import uniqWith from 'lodash/uniqWith'
 import { useRouter } from 'next/router'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { BuildingUnitSubType, SortMeterReadingsBy, SortMetersBy, Meter as MeterType, MeterReading as MeterReadingType } from '@app/condo/schema'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
-import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { Property } from '@condo/domains/property/utils/clientSchema'
-import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
-import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
-import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
 import { Table, TABLE_SCROlL_CONFIG } from '@condo/domains/common/components/Table/Index'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
+import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
+import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
+import { Property } from '@condo/domains/property/utils/clientSchema'
+import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
+
+import { CreateMeterReadingsActionBar } from './CreateMeterReadingsActionBar'
 
 import {
     CALL_METER_READING_SOURCE_ID,
@@ -26,7 +28,6 @@ import {
 import { useCreateMeterModal } from '../hooks/useCreateMeterModal'
 import { useMeterTableColumns } from '../hooks/useMeterTableColumns'
 import { useUpdateMeterModal } from '../hooks/useUpdateMeterModal'
-import { CreateMeterReadingsActionBar } from './CreateMeterReadingsActionBar'
 import { Meter, MeterReading } from '../utils/clientSchema'
 
 export const LAYOUT = {

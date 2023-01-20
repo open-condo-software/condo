@@ -1,13 +1,12 @@
 /** @jsx jsx */
 
+import { TicketFile as TicketFileType } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
 import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
 import UploadList from 'antd/lib/upload/UploadList'
 import React, { useCallback, useMemo } from 'react'
 
-import { TicketFile as TicketFileType } from '@app/condo/schema'
 import { colors, fontSizes } from '@app/condo/domains/common/constants/style'
-
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
 
 

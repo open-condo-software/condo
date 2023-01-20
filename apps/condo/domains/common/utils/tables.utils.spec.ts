@@ -1,3 +1,5 @@
+import dayjs from 'dayjs'
+
 import {
     SorterColumn,
     ColumnInfo,
@@ -15,7 +17,6 @@ import {
     getSorterMap,
     convertColumns,
 } from './tables.utils'
-import dayjs from 'dayjs'
 
 function randInt (maxValue) {
     return Math.floor(Math.random() * maxValue)

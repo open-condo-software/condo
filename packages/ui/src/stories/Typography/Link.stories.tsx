@@ -1,9 +1,10 @@
-import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { Space } from 'antd'
+import React from 'react'
+
 import { Typography } from '@open-condo/ui/src'
 
 // TODO(DOMA-4682): Move to UI-kit
-import { Space } from 'antd'
 import 'antd/lib/space/style/index.less'
 
 export default {

@@ -1,5 +1,5 @@
-import React  from 'react'
 import { Select, Typography } from 'antd'
+import React  from 'react'
 
 export const renderBlockedObject = (intl, text, postfix?) => {
     const BlockedMessage = intl.formatMessage({ id: 'employee.isBlocked' })

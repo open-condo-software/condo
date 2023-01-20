@@ -2,7 +2,9 @@ import { isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { createContext, Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
+
 import { useLazyQuery } from '@open-condo/next/apollo'
+
 import { GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
 
 interface IRegisterContext {

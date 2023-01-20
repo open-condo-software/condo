@@ -3,18 +3,18 @@
  */
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
-
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { BankIntegrationContext, createTestBankIntegrationContext, updateTestBankIntegrationContext } = require('@condo/domains/banking/utils/testSchema')
+const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
-const { BankIntegrationContext, createTestBankIntegrationContext, updateTestBankIntegrationContext } = require('@condo/domains/banking/utils/testSchema')
-const { BankIntegration } = require('../utils/testSchema')
 const { BANK_INTEGRATION_IDS } = require('../constants')
-const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { BankIntegration } = require('../utils/testSchema')
+
 
 let adminClient
 let supportClient

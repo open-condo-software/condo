@@ -4,9 +4,9 @@
 
 const get = require('lodash/get')
 
+const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
-const { isSoftDelete } = require('@open-condo/keystone/access')
 
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor, checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 

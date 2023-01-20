@@ -1,5 +1,5 @@
-import React from 'react'
 import isEmpty from 'lodash/isEmpty'
+import React from 'react'
 
 import { getEscaped } from '@condo/domains/common/utils/string.utils'
 

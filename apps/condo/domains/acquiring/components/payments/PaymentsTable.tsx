@@ -1,22 +1,32 @@
-import React, { useEffect, useState, useCallback } from 'react'
 import { FilterFilled } from '@ant-design/icons'
+import { BillingIntegrationOrganizationContext, SortPaymentsBy } from '@app/condo/schema'
 import { Col, Row, Space, Typography } from 'antd'
+import { Gutter } from 'antd/lib/grid/row'
+import dayjs, { Dayjs } from 'dayjs'
+import { get, isEmpty } from 'lodash'
+import { useRouter } from 'next/router'
+import React, { useEffect, useState, useCallback } from 'react'
+
+import { useQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { useQuery } from '@open-condo/next/apollo'
-import { BillingIntegrationOrganizationContext, SortPaymentsBy } from '@app/condo/schema'
-import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
+
+
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
+import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { EXPORT_PAYMENTS_TO_EXCEL, SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
 import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
 import { IFilters } from '@condo/domains/acquiring/utils/helpers'
+import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Modal } from '@condo/domains/common/components/Modal'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
+import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import {
@@ -26,13 +36,7 @@ import {
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import Input from '@condo/domains/common/components/antd/Input'
-import { Gutter } from 'antd/lib/grid/row'
-import dayjs, { Dayjs } from 'dayjs'
-import { get, isEmpty } from 'lodash'
-import { useRouter } from 'next/router'
-import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
-import { Modal } from '@condo/domains/common/components/Modal'
+
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']

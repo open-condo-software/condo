@@ -1,10 +1,12 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { useIntl } from '@open-condo/next/intl'
+import { BuildingUnitSubType } from '@app/condo/schema'
 import { Typography } from 'antd'
+import React, { useCallback, useMemo, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
 
 import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'
 import { Meter } from '../utils/clientSchema'
-import { BuildingUnitSubType } from '@app/condo/schema'
+
 
 export function useCreateMeterModal (organizationId: string, propertyId: string, unitName: string, unitType: BuildingUnitSubType, refetch) {
     const intl = useIntl()

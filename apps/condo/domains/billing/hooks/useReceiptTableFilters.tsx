@@ -1,11 +1,14 @@
-import { useMemo } from 'react'
-import get from 'lodash/get'
-import { useIntl } from '@open-condo/next/intl'
 import { BillingCategory as BillingCategoryType } from '@app/condo/schema'
 import { BillingIntegrationOrganizationContext, BillingReceiptWhereInput } from '@app/condo/schema'
+import get from 'lodash/get'
+import { useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+
+import { BillingCategory } from '@condo/domains/billing/utils/clientSchema'
 import { ComponentType, convertToOptions, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { categoryToSearchQuery, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
-import { BillingCategory } from '@condo/domains/billing/utils/clientSchema'
 
 const addressFilter = getStringContainsFilter(['property', 'address'])
 const unitNameFilter = getStringContainsFilter(['account', 'unitName'])

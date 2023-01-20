@@ -1,6 +1,8 @@
-import React from 'react'
 import { Form } from 'antd'
+import React from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
+
 import { Button, CustomButtonProps } from './Button'
 
 export const FormResetButton: React.FC<CustomButtonProps> = (props) => {

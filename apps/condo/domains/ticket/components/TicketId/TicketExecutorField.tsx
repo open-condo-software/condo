@@ -1,14 +1,16 @@
-import React, { useMemo } from 'react'
+import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
 import { get } from 'lodash'
 import Link from 'next/link'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Ticket } from '@app/condo/schema'
+
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { TICKET_CARD_LINK_STYLE } from '@condo/domains/ticket/constants/style'
+
 import { TicketUserInfoField } from './TicketUserInfoField'
 
 type TicketExecutorFieldProps = {

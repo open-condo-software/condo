@@ -1,22 +1,22 @@
+import { Ticket, TicketWhereInput } from '@app/condo/schema'
 import get from 'lodash/get'
 import { createContext, useContext } from 'react'
 
-import { Ticket, TicketWhereInput } from '@app/condo/schema'
-import { useOrganization } from '@open-condo/next/organization'
 import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
-import {
-    PropertyScope,
-    PropertyScopeOrganizationEmployee,
-    PropertyScopeProperty,
-} from '@condo/domains/scope/utils/clientSchema'
 import {
     ORGANIZATION_TICKET_VISIBILITY,
     PROPERTY_AND_SPECIALIZATION_VISIBILITY,
     PROPERTY_TICKET_VISIBILITY,
     ASSIGNED_TICKET_VISIBILITY,
 } from '@condo/domains/organization/constants/common'
+import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
+import {
+    PropertyScope,
+    PropertyScopeOrganizationEmployee,
+    PropertyScopeProperty,
+} from '@condo/domains/scope/utils/clientSchema'
 
 
 interface ITicketVisibilityContext {

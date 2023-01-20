@@ -2,7 +2,14 @@
  * @type {Cypress.PluginConfig}
  */
 const isEmpty = require('lodash/isEmpty')
+
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestTicket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const {
     createTestUser,
     createTestForgotPasswordAction,
@@ -10,11 +17,6 @@ const {
     makeLoggedInClient,
     makeClientWithSupportUser, updateTestUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { createTestTicket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 
 let userObject = {}
 let supportObject = {}

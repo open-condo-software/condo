@@ -1,8 +1,10 @@
-import React from 'react'
-import type { TitleProps as DefaultTitleProps } from 'antd/lib/typography/Title'
 import Base from 'antd/lib/typography/Base'
 import classNames from 'classnames'
+import React from 'react'
+
 import { TYPOGRAPHY_CLASS_PREFIX } from './constants'
+
+import type { TitleProps as DefaultTitleProps } from 'antd/lib/typography/Title'
 
 declare const TITLE_LEVELS: [1, 2, 3, 4, 5, 6]
 declare const TITLE_TYPES: ['inverted', 'secondary', 'danger', 'warning', 'info', 'success']

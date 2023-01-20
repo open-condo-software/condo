@@ -1,12 +1,14 @@
+import { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
 import { Col, Row, Skeleton, Tag, Typography } from 'antd'
 import get from 'lodash/get'
 import React, { useCallback } from 'react'
-import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
+
 import { useIntl } from '@open-condo/next/intl'
+
 import { Button } from '@condo/domains/common/components/Button'
-import { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 
 interface IOrganizationName {
     name: string

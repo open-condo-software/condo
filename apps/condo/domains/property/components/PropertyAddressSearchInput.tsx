@@ -1,20 +1,19 @@
 /** @jsx jsx */
-import React, { CSSProperties, Dispatch, SetStateAction, useCallback } from 'react'
-import get from 'lodash/get'
-import { Select, SelectProps, Typography } from 'antd'
-
-import { Organization, Property } from '@app/condo/schema'
-import { useApolloClient } from '@open-condo/next/apollo'
 import { grey } from '@ant-design/colors'
+import { Organization, Property } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
+import { Select, SelectProps, Typography } from 'antd'
+import get from 'lodash/get'
+import React, { CSSProperties, Dispatch, SetStateAction, useCallback } from 'react'
+
+import { useApolloClient } from '@open-condo/next/apollo'
+
 
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { Highlighter } from '@condo/domains/common/components/Highlighter'
 import { QUERY_SPLIT_REGEX } from '@condo/domains/common/constants/regexps'
-
-import { searchProperty, searchSingleProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-
 import { colors } from '@condo/domains/common/constants/style'
+import { searchProperty, searchSingleProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 type IAddressSearchInput = SelectProps<string> & {
     organization: Organization

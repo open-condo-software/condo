@@ -3,8 +3,9 @@
  */
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadTicketCommentsTimes ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

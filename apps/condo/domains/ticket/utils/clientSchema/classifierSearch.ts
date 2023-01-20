@@ -1,13 +1,17 @@
-import { ITicketClassifierWhereInput } from './TicketClassifier'
+import { QueryAllTicketCategoryClassifiersArgs, TicketClassifier } from '@app/condo/schema'
+import { filter, isEmpty, sortBy } from 'lodash'
+
+import { ApolloClient } from '@open-condo/next/apollo'
+
 import {
     TicketCategoryClassifier as TicketCategoryClassifierGQL,
     TicketClassifier as TicketClassifierGQL,
     TicketPlaceClassifier as TicketPlaceClassifierGQL,
     TicketProblemClassifier as TicketProblemClassifierGQL,
 } from '@condo/domains/ticket/gql'
-import { ApolloClient } from '@open-condo/next/apollo'
-import { filter, isEmpty, sortBy } from 'lodash'
-import { QueryAllTicketCategoryClassifiersArgs, TicketClassifier } from '@app/condo/schema'
+
+import { ITicketClassifierWhereInput } from './TicketClassifier'
+
 
 const MAX_SEARCH_COUNT = 20
 

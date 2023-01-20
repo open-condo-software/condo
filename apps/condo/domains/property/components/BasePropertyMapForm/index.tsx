@@ -1,14 +1,16 @@
-import React, { useState, useCallback } from 'react'
+import { BuildingMap, Property } from '@app/condo/schema'
 import { Typography, Form } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
-import { useIntl } from '@open-condo/next/intl'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import React, { useState, useCallback } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'
-import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
-import { BuildingMap, Property } from '@app/condo/schema'
 import { BuildingPanelEdit } from '@condo/domains/property/components/panels/Builder/BuildingPanelEdit'
+import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 
 export interface IPropertyMapFormProps {
     id: string

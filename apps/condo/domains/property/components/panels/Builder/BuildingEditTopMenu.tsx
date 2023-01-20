@@ -1,9 +1,12 @@
 /** @jsx jsx */
-import React, { useMemo } from 'react'
 import { css, jsx } from '@emotion/react'
 import { Dropdown, DropDownProps, Menu, MenuProps } from 'antd'
-import { Button } from '@condo/domains/common/components/Button'
+import React, { useMemo } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
+
+import { Button } from '@condo/domains/common/components/Button'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import {
     FlatIcon,
     FloorIcon,
@@ -12,7 +15,7 @@ import {
     SectionIcon,
 } from '@condo/domains/common/components/icons/PropertyMapIcons'
 import { colors } from '@condo/domains/common/constants/style'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+
 import { MapEdit } from './MapConstructor'
 
 const DROPDOWN_TRIGGER: DropDownProps['trigger'] = ['hover', 'click']

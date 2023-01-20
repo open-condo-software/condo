@@ -1,4 +1,10 @@
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+    BuildingUnitSubType,
+    Contact as ContactType,
+    Property,
+    SortTicketsBy,
+    Ticket as TicketType,
+} from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import { CarouselRef } from 'antd/es/carousel'
@@ -8,33 +14,26 @@ import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-
-import { BuildingIcon } from '@condo/domains/common/components/icons/BuildingIcon'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
-import { renderPhone } from '@condo/domains/common/utils/Renders'
-
-import {
-    BuildingUnitSubType,
-    Contact as ContactType,
-    Property,
-    SortTicketsBy,
-    Ticket as TicketType,
-} from '@app/condo/schema'
+import { Carousel, Typography as UITypography } from '@open-condo/ui'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
-import { Carousel, Typography as UITypography } from '@open-condo/ui'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
+import { BuildingIcon } from '@condo/domains/common/components/icons/BuildingIcon'
 import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { Tag } from '@condo/domains/common/components/Tag'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { colors, fontSizes, gradients, shadows, transitions } from '@condo/domains/common/constants/style'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
+import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
@@ -46,7 +45,6 @@ import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketP
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { updateQuery } from '@condo/domains/common/utils/helpers'
 
 
 //#region Constants, types and styles

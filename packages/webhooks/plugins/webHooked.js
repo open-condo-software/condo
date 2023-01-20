@@ -1,5 +1,5 @@
-const { GQL_SCHEMA_PLUGIN } = require('@open-condo/keystone/plugins/utils/typing')
 const { composeNonResolveInputHook } = require('@open-condo/keystone/plugins/utils')
+const { GQL_SCHEMA_PLUGIN } = require('@open-condo/keystone/plugins/utils/typing')
 const { getModelValidator } = require('@open-condo/webhooks/model-validator')
 const { sendModelWebhooks } = require('@open-condo/webhooks/tasks')
 

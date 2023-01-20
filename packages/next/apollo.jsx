@@ -1,5 +1,3 @@
-import React from 'react'
-import Head from 'next/head'
 import {
     ApolloClient,
     ApolloProvider,
@@ -9,9 +7,12 @@ import {
     useQuery,
     useSubscription,
 } from '@apollo/client'
+import { createUploadLink } from 'apollo-upload-client'
 import fetch from 'isomorphic-unfetch'
 import getConfig from 'next/config'
-import { createUploadLink } from 'apollo-upload-client'
+import Head from 'next/head'
+import React from 'react'
+
 import {
     _useEmitterMutation,
     MutationEmitter,

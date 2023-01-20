@@ -1,12 +1,16 @@
+import { Col, Row, Typography } from 'antd'
 import getConfig from 'next/config'
 import React from 'react'
-import { Col, Row, Typography } from 'antd'
+
+import { useIntl, FormattedMessage } from '@open-condo/next/intl'
+
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Poster } from '@condo/domains/common/components/Poster'
 import { colors } from '@condo/domains/common/constants/style'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useIntl, FormattedMessage } from '@open-condo/next/intl'
-import { ChildrenWrapper, Footer, Layout, PageContent, PosterWrapper, ReCaptchaContainer } from './styles'
+
+
 import { AuthHeader } from './AuthHeader'
+import { ChildrenWrapper, Footer, Layout, PageContent, PosterWrapper, ReCaptchaContainer } from './styles'
 
 interface IPosterLayoutProps {
     headerAction: React.ReactElement

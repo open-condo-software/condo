@@ -8,7 +8,9 @@ import {
     PropertyScopePropertyUpdateInput,
     QueryAllPropertyScopePropertiesArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { PropertyScopeProperty as PropertyScopePropertyGQL } from '@condo/domains/scope/gql'
 
 const {

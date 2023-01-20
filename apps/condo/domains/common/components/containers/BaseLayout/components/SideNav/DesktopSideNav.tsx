@@ -1,14 +1,17 @@
 /** @jsx jsx */
+import { LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { jsx } from '@emotion/react'
 import { Layout } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
+
 import { useOrganization } from '@open-condo/next/organization'
+
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
-import { Logo } from '@condo/domains/common/components/Logo'
-import { LeftOutlined, RightOutlined } from '@ant-design/icons'
+
 import { Button } from '../../../../Button'
 import {
     LayoutTriggerWrapper,

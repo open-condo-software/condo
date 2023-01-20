@@ -2,9 +2,9 @@ const Queue = require('bull')
 
 const conf = require('@open-condo/config')
 
-const { prepareKeystoneExpressApp, getRandomString } = require('./test.utils')
-const { getRedisClient } = require('./redis')
 const { getLogger } = require('./logging')
+const { getRedisClient } = require('./redis')
+const { prepareKeystoneExpressApp, getRandomString } = require('./test.utils')
 
 const TASK_TYPE = 'TASK'
 const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')

@@ -5,7 +5,6 @@
 const faker = require('faker')
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
-
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -13,34 +12,28 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
-
 const {
     MESSAGE_SENT_STATUS,
     TICKET_COMMENT_ADDED_TYPE, DEVICE_PLATFORM_ANDROID, APP_RESIDENT_ID_ANDROID,
 } = require('@condo/domains/notification/constants/constants')
 const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
-
+const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty, makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-
+const { createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSchema')
 const { TicketComment, createTestTicketComment, updateTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
-
-const { createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
-
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('../constants')
-const { updateTestTicket } = require('../utils/testSchema')
 const { STATUS_IDS } = require('../constants/statusTransitions')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
+const { updateTestTicket } = require('../utils/testSchema')
 
 describe('TicketComment', () => {
     describe('employee', () => {

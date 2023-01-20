@@ -3,16 +3,17 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+import { BulbIcon } from '@condo/domains/common/components/icons/BulbIcon'
+import { FireIcon } from '@condo/domains/common/components/icons/FireIcon'
+import { RadiatorIcon } from '@condo/domains/common/components/icons/RadiatorIcon'
+import { SnowflakeIcon } from '@condo/domains/common/components/icons/SnowflakeIcon'
+import { StoveIcon } from '@condo/domains/common/components/icons/StoveIcon'
+
 import {
     COLD_WATER_METER_RESOURCE_ID, ELECTRICITY_METER_RESOURCE_ID,
     GAS_SUPPLY_METER_RESOURCE_ID, HEAT_SUPPLY_METER_RESOURCE_ID,
     HOT_WATER_METER_RESOURCE_ID,
 } from '../../constants/constants'
-import { SnowflakeIcon } from '@condo/domains/common/components/icons/SnowflakeIcon'
-import { FireIcon } from '@condo/domains/common/components/icons/FireIcon'
-import { StoveIcon } from '@condo/domains/common/components/icons/StoveIcon'
-import { BulbIcon } from '@condo/domains/common/components/icons/BulbIcon'
-import { RadiatorIcon } from '@condo/domains/common/components/icons/RadiatorIcon'
 
 export * as MeterResource from './MeterResource'
 export * as MeterReadingSource from './MeterReadingSource'

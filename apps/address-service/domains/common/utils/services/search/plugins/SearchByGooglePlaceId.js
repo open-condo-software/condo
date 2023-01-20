@@ -1,7 +1,10 @@
-const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
-const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const get = require('lodash/get')
+
+const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
+
+const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
+
 const { GoogleSearchProvider } = require('../providers')
 
 const SEPARATOR = ':'

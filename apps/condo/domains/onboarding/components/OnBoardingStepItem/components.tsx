@@ -1,7 +1,9 @@
 import styled from '@emotion/styled'
 import React from 'react'
-import { shadows, transitions, colors, DEFAULT_BORDER_WIDTH } from '@condo/domains/common/constants/style'
+
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { shadows, transitions, colors, DEFAULT_BORDER_WIDTH } from '@condo/domains/common/constants/style'
+
 import { OnBoardingStepType } from './index'
 
 export const ActivateStepIcon = styled.div`

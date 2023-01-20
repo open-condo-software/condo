@@ -5,8 +5,8 @@
 
 const { BankAccount } = require('./BankAccount')
 const { BankCategory } = require('./BankCategory')
-const { BankCostItem } = require('./BankCostItem')
 const { BankContractorAccount } = require('./BankContractorAccount')
+const { BankCostItem } = require('./BankCostItem')
 const { BankIntegration } = require('./BankIntegration')
 const { CreateBankAccountRequestService } = require('./CreateBankAccountRequestService')
 const { BankIntegrationContext } = require('./BankIntegrationContext')

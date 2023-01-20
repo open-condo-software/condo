@@ -1,6 +1,7 @@
-const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
 const { Relationship } = require('@keystonejs/fields')
 const get = require('lodash/get')
+
+const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
 const { getById } = require('@open-condo/keystone/schema')
 
 const addOrganizationFieldPlugin = ({ fromField, isRequired }) => plugin(({ fields = {}, ...rest }) => {

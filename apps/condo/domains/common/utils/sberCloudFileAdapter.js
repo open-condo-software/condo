@@ -1,9 +1,12 @@
+const path = require('path')
+
+const { getItem } = require('@keystonejs/server-side-graphql-client')
 const ObsClient = require('esdk-obs-nodejs')
 const express = require('express')
-const path = require('path')
-const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
-const { getItem } = require('@keystonejs/server-side-graphql-client')
 const { isEmpty } = require('lodash')
+
+const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
+
 
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL
 

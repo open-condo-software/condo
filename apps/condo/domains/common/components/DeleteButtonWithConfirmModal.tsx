@@ -1,11 +1,12 @@
-import React, { useState } from 'react'
 import { DeleteFilled } from '@ant-design/icons'
 import { Typography } from 'antd'
+import React, { useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
 
 import { Button, CustomButtonProps } from '@condo/domains/common/components/Button'
 import { Modal } from '@condo/domains/common/components/Modal'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { useIntl } from '@open-condo/next/intl'
 
 export interface IDeleteActionButtonWithConfirmModal {
     title: string

@@ -1,7 +1,7 @@
 import React from 'react'
 
-import { UpdateTicketPropertyHintForm } from './UpdateTicketPropertyHintForm'
 import { CreateTicketPropertyHintForm } from './CreateTicketPropertyHintForm'
+import { UpdateTicketPropertyHintForm } from './UpdateTicketPropertyHintForm'
 
 interface ITicketFormProps {
     id?: string

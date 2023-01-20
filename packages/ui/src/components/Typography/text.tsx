@@ -1,9 +1,11 @@
-import React from 'react'
-import type { TextProps as DefaultTextProps } from 'antd/lib/typography/Text'
 import Base from 'antd/lib/typography/Base'
 import classNames from 'classnames'
 import merge from 'lodash/merge'
+import React from 'react'
+
 import { TYPOGRAPHY_CLASS_PREFIX, TEXT_SIZES, TEXT_TYPES, TOOLTIP_CLASS_PREFIX } from './constants'
+
+import type { TextProps as DefaultTextProps } from 'antd/lib/typography/Text'
 
 const DEFAULT_ELLIPSIS_CONFIG = { tooltip: { prefixCls: TOOLTIP_CLASS_PREFIX } }
 

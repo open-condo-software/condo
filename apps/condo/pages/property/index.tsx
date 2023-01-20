@@ -1,32 +1,37 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useState } from 'react'
-import {
-    PageWrapper,
-    useLayoutContext,
-} from '@condo/domains/common/components/containers/BaseLayout'
-import { Col, Radio, Row, RowProps, Typography } from 'antd'
-import Head from 'next/head'
-import { jsx } from '@emotion/react'
-import { useIntl } from '@open-condo/next/intl'
-import { useRouter } from 'next/router'
-import { useOrganization } from '@open-condo/next/organization'
-
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import BuildingsTable from '@condo/domains/property/components/BuildingsTable'
-import { useTableColumns as usePropertiesTableColumns } from '@condo/domains/property/hooks/useTableColumns'
-import { useTableFilters as usePropertyTableFilters } from '@condo/domains/property/hooks/useTableFilters'
-
-import PropertiesMap from '@condo/domains/common/components/PropertiesMap'
 import {
     OrganizationEmployeeRole,
     PropertyWhereInput,
     Property as PropertyType,
     SortPropertiesBy,
 } from '@app/condo/schema'
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { jsx } from '@emotion/react'
+import { Col, Radio, Row, RowProps, Typography } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
-import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback, useState } from 'react'
+
+
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import {
+    PageWrapper,
+    useLayoutContext,
+} from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import PropertiesMap from '@condo/domains/common/components/PropertiesMap'
+import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import BuildingsTable from '@condo/domains/property/components/BuildingsTable'
+import { useTableColumns as usePropertiesTableColumns } from '@condo/domains/property/hooks/useTableColumns'
+import { useTableFilters as usePropertyTableFilters } from '@condo/domains/property/hooks/useTableFilters'
+
+
+
+
 
 
 type PropertiesType = 'buildings'

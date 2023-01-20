@@ -1,22 +1,23 @@
-import { useCallback, useMemo } from 'react'
-import { useRouter } from 'next/router'
 import get from 'lodash/get'
+import { useRouter } from 'next/router'
+import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+
 import {
     getDateRender,
     getTableCellRenderer,
 } from '@condo/domains/common/components/Table/Renders'
-import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { IFilters } from '@condo/domains/ticket/utils/helpers'
+import { TicketComment } from '@condo/domains/ticket/utils/clientSchema'
 import {
     getClassifierRender,
     getStatusRender,
     getTicketDetailsRender,
 } from '@condo/domains/ticket/utils/clientSchema/Renders'
-import { TicketComment } from '@condo/domains/ticket/utils/clientSchema'
+import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 export function useClientCardTicketTableColumns (tickets) {
     const intl = useIntl()

@@ -1,23 +1,20 @@
-const { get, isEmpty, uniq } = require('lodash')
 const dayjs = require('dayjs')
+const { get, isEmpty, uniq } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { BillingIntegrationOrganizationContext, BillingProperty, BillingReceipt, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { getStartDates, DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
-
-const { BillingIntegrationOrganizationContext, BillingProperty, BillingReceipt, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
-
 const { BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { getLogger } = require('@open-condo/keystone/logging')
+
 
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_RESIDENTS_NO_ACCOUNT_NOTIFICATION_CREATED_AT'
 

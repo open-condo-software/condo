@@ -3,9 +3,9 @@
  */
 const get = require('lodash/get')
 
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadTicketPropertyHints ({ authentication: { item: user } }) {

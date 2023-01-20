@@ -1,20 +1,22 @@
+import { TicketComment, TicketUpdateInput, TicketCommentFile, Ticket } from '@app/condo/schema'
+import styled from '@emotion/styled'
+import { Empty, Tabs, Typography } from 'antd'
 import get from 'lodash/get'
 import React, { CSSProperties, UIEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Empty, Tabs, Typography } from 'antd'
-import styled from '@emotion/styled'
 
 import { useIntl } from '@open-condo/next/intl'
-import { TicketComment, TicketUpdateInput, TicketCommentFile, Ticket } from '@app/condo/schema'
+
 
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
-import { Loader } from '../Loader'
 
-import { Module } from '../MultipleFileUpload'
-import { useLayoutContext } from '../LayoutContext'
 import { Comment } from './Comment'
 import { CommentForm } from './CommentForm'
+
+import { useLayoutContext } from '../LayoutContext'
+import { Loader } from '../Loader'
+import { Module } from '../MultipleFileUpload'
 
 interface IContainerProps {
     isSmall: boolean

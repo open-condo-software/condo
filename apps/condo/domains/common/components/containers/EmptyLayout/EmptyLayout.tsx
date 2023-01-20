@@ -1,7 +1,8 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import React, { CSSProperties } from 'react'
 import { Layout } from 'antd'
+import React, { CSSProperties } from 'react'
+
 import {
     LAYOUT_CSS,
     SUB_LAYOUT_CSS,

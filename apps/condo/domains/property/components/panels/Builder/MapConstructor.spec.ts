@@ -1,10 +1,12 @@
 import { BuildingMap, BuildingMapEntityType, BuildingSectionType, BuildingUnitSubType } from '@app/condo/schema'
+import { cloneDeep } from 'lodash'
+
 import {
     autoFixBuildingMapJson,
     buildingMapJson,
     notValidBuildingMapJson,
 } from '@condo/domains/property/constants/property'
-import { cloneDeep } from 'lodash'
+
 import { MapEdit } from './MapConstructor'
 
 const testSection = {

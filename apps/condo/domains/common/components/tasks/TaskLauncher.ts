@@ -1,7 +1,8 @@
 import { useCallback, useContext, useState } from 'react'
 
-import { ITask, TaskRecord } from './index'
 import { TasksContext } from './TasksContextProvider'
+
+import { ITask, TaskRecord } from './index'
 
 type UseTaskLauncherOutputType = {
     loading: boolean

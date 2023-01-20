@@ -1,7 +1,8 @@
-import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { styled } from '@storybook/theming'
 import { get } from 'lodash'
+import React from 'react'
+
 import { Carousel as Component } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 

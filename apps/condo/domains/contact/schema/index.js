@@ -4,8 +4,8 @@
  */
 
 const { Contact } = require('./Contact')
-const { ExportContactsService } = require('./ExportContactsService')
 const { ContactRole } = require('./ContactRole')
+const { ExportContactsService } = require('./ExportContactsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {

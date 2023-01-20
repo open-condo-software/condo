@@ -1,6 +1,8 @@
-const { validatePeriod } = require('@condo/domains/billing/utils/validation.utils')
 const { CalendarDay } = require('@keystonejs/fields')
+
 const { Json } = require('@open-condo/keystone/fields')
+
+const { validatePeriod } = require('@condo/domains/billing/utils/validation.utils')
 
 const PERIOD_FIELD = {
     schemaDoc: 'Period date: Generated on template <year>-<month>-01',

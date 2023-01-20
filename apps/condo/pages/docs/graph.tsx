@@ -1,8 +1,8 @@
 // @ts-nocheck
 import fetch from 'isomorphic-fetch'
+import getConfig from 'next/config'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
-import getConfig from 'next/config'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'

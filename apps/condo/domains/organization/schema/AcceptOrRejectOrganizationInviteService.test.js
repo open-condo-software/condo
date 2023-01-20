@@ -1,8 +1,10 @@
 const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
 
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
+const { GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY } = require('../gql')
 const {
     createTestOrganizationEmployee,
     createTestOrganizationEmployeeRole,
@@ -11,8 +13,6 @@ const {
     inviteNewOrganizationEmployee,
     makeClientWithRegisteredOrganization,
 } = require('../utils/testSchema')
-const { GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY } = require('../gql')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
 describe('AcceptOrRejectOrganizationInviteService', () => {
     describe('acceptOrRejectOrganizationInviteById', () => {

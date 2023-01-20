@@ -1,10 +1,12 @@
-import React from 'react'
 import { Space } from 'antd'
+import React from 'react'
+
 import { useAuth } from '@open-condo/next/auth'
-import { UserMenu } from '@condo/domains/user/components/UserMenu'
 import { useOrganization } from '@open-condo/next/organization'
+
 import { OrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
+import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 export interface ITopMenuItemsProps {
     headerAction?: React.ElementType

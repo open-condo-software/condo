@@ -5,8 +5,10 @@
  */
 const { isEmpty } = require('lodash')
 
-const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+
+const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
+const { AddressMetaDataFields } = require('@condo/domains/property/schema/fields/AddressMetaField')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
 const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
@@ -27,7 +29,6 @@ const { TicketPropertyHint: TicketPropertyHintGQL } = require('@condo/domains/ti
 const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@condo/domains/ticket/gql')
 const { TicketOrganizationSetting: TicketOrganizationSettingGQL } = require('@condo/domains/ticket/gql')
 const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
-const { AddressMetaDataFields } = require('@condo/domains/property/schema/fields/AddressMetaField')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)

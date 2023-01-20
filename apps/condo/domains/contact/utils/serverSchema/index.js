@@ -5,6 +5,7 @@
  */
 
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
+
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { Contact: ContactGQL } = require('@condo/domains/contact/gql')
 const { ContactRole: ContactRoleGQL } = require('@condo/domains/contact/gql')

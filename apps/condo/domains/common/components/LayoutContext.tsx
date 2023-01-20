@@ -1,6 +1,7 @@
 import { Grid } from 'antd'
 import { ScreenMap } from 'antd/es/_util/responsiveObserve'
 import React, { createContext, useContext, useEffect, useState } from 'react'
+
 import { ITopNotification, useTopNotificationsHook } from './TopNotifications'
 
 const { useBreakpoint } = Grid

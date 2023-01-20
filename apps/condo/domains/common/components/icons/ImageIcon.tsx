@@ -1,5 +1,5 @@
-import React from 'react'
 import Icon from '@ant-design/icons'
+import React from 'react'
 
 const ImageIconSVG = () => (
     <svg width='25' height='24' viewBox='0 0 25 20' fill='none' xmlns='http://www.w3.org/2000/svg'>

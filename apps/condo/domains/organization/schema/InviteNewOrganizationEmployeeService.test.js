@@ -1,8 +1,8 @@
 const faker = require('faker')
 
 const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
-
 const { expectToThrowAuthenticationErrorToObj, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
 
 const {
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -10,21 +10,17 @@ const {
     EMAIL_TRANSPORT,
 } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
-
+const { OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const {
     inviteNewOrganizationEmployee,
     reInviteNewOrganizationEmployee,
     makeClientWithRegisteredOrganization,
     acceptOrRejectOrganizationInviteById,
 } = require('@condo/domains/organization/utils/testSchema/Organization')
-
 const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
-
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
-const { OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
 
 describe('InviteNewOrganizationEmployeeService', () => {
     describe('inviteNewOrganizationEmployee', () => {

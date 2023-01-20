@@ -1,4 +1,5 @@
 import { Col, ColProps } from 'antd'
+
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 export const ResponsiveCol = ({ style, children, ...otherProps }: ColProps) => {

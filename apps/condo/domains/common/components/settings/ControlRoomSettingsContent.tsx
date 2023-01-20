@@ -1,14 +1,15 @@
-import React  from 'react'
 import { Col, Row, Typography } from 'antd'
-import get from 'lodash/get'
 import { Gutter } from 'antd/es/grid/row'
+import get from 'lodash/get'
+import React  from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+
 import { CardsContainer } from '@condo/domains/common/components/Card/CardsContainer'
-import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
-import { TicketDeadlineSettingCard } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingCard'
 import { SettingCardSkeleton } from '@condo/domains/common/components/settings/SettingCard'
+import { TicketDeadlineSettingCard } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingCard'
+import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
 
 const CONTENT_GUTTER: Gutter | [Gutter, Gutter] = [0, 40]
 

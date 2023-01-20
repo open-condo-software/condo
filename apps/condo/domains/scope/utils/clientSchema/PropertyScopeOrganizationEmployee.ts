@@ -8,7 +8,9 @@ import {
     PropertyScopeOrganizationEmployeeUpdateInput,
     QueryAllPropertyScopeOrganizationEmployeesArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { PropertyScopeOrganizationEmployee as PropertyScopeOrganizationEmployeeGQL } from '@condo/domains/scope/gql'
 
 const {

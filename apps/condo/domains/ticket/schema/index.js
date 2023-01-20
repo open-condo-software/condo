@@ -3,27 +3,27 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { Ticket } = require('./Ticket')
-const { TicketSource } = require('./TicketSource')
-const { TicketStatus } = require('./TicketStatus')
-const { TicketFile } = require('./TicketFile')
-const { TicketChange } = require('./TicketChange')
-const { TicketComment } = require('./TicketComment')
-const { ShareTicketService } = require('./ShareTicketService')
-const { TicketPlaceClassifier } = require('./TicketPlaceClassifier')
-const { TicketCategoryClassifier } = require('./TicketCategoryClassifier')
-const { TicketProblemClassifier } = require('./TicketProblemClassifier')
-const { TicketClassifier } = require('./TicketClassifier')
 
-const { TicketFilterTemplate } = require('./TicketFilterTemplate')
 const { PredictTicketClassificationService } = require('./PredictTicketClassificationService')
+const { ShareTicketService } = require('./ShareTicketService')
+const { Ticket } = require('./Ticket')
+const { TicketCategoryClassifier } = require('./TicketCategoryClassifier')
+const { TicketChange } = require('./TicketChange')
+const { TicketClassifier } = require('./TicketClassifier')
+const { TicketComment } = require('./TicketComment')
 const { TicketCommentFile } = require('./TicketCommentFile')
 const { TicketCommentsTime } = require('./TicketCommentsTime')
-const { UserTicketCommentReadTime } = require('./UserTicketCommentReadTime')
+const { TicketExportTask } = require('./TicketExportTask')
+const { TicketFile } = require('./TicketFile')
+const { TicketFilterTemplate } = require('./TicketFilterTemplate')
+const { TicketOrganizationSetting } = require('./TicketOrganizationSetting')
+const { TicketPlaceClassifier } = require('./TicketPlaceClassifier')
+const { TicketProblemClassifier } = require('./TicketProblemClassifier')
 const { TicketPropertyHint } = require('./TicketPropertyHint')
 const { TicketPropertyHintProperty } = require('./TicketPropertyHintProperty')
-const { TicketExportTask } = require('./TicketExportTask')
-const { TicketOrganizationSetting } = require('./TicketOrganizationSetting')
+const { TicketSource } = require('./TicketSource')
+const { TicketStatus } = require('./TicketStatus')
+const { UserTicketCommentReadTime } = require('./UserTicketCommentReadTime')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {

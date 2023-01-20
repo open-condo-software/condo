@@ -5,9 +5,6 @@
 const faker = require('faker')
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@open-condo/keystone/test.utils')
-
-const { sleep } = require('@condo/domains/common/utils/sleep')
-
 const {
     catchErrorFrom,
     expectToThrowAuthenticationErrorToObjects,
@@ -20,29 +17,13 @@ const {
     createTestBillingAccount,
     makeContextWithOrganizationAndIntegrationAsAdmin,
 } = require('@condo/domains/billing/utils/testSchema')
+const { sleep } = require('@condo/domains/common/utils/sleep')
 const {
-    createTestB2BApp,
-    createTestB2BAppContext,
-} = require('@condo/domains/miniapp/utils/testSchema')
-
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-
-const {
-    createTestProperty,
-    makeClientWithProperty,
-    Property,
-    makeClientWithResidentAccessAndProperty,
-} = require('@condo/domains/property/utils/testSchema')
-
-const {
-    createTestOrganization,
-    updateTestOrganizationEmployee,
-    createTestOrganizationEmployeeRole,
-    createTestOrganizationWithAccessToAnotherOrganization,
-    makeEmployeeUserClientWithAbilities,
-    updateTestOrganization, createTestOrganizationEmployee,
-} = require('@condo/domains/organization/utils/testSchema')
-
+    CALL_METER_READING_SOURCE_ID,
+    COLD_WATER_METER_RESOURCE_ID,
+    METER_READING_SOURCE_INTERNAL_IMPORT_TYPE,
+    METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE,
+} = require('@condo/domains/meter/constants/constants')
 const {
     MeterResource,
     MeterReadingSource,
@@ -54,17 +35,29 @@ const {
     updateTestMeter,
 } = require('@condo/domains/meter/utils/testSchema')
 const {
-    CALL_METER_READING_SOURCE_ID,
-    COLD_WATER_METER_RESOURCE_ID,
-    METER_READING_SOURCE_INTERNAL_IMPORT_TYPE,
-    METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE,
-} = require('@condo/domains/meter/constants/constants')
-
+    createTestB2BApp,
+    createTestB2BAppContext,
+} = require('@condo/domains/miniapp/utils/testSchema')
+const {
+    createTestOrganization,
+    updateTestOrganizationEmployee,
+    createTestOrganizationEmployeeRole,
+    createTestOrganizationWithAccessToAnotherOrganization,
+    makeEmployeeUserClientWithAbilities,
+    updateTestOrganization, createTestOrganizationEmployee,
+} = require('@condo/domains/organization/utils/testSchema')
+const {
+    createTestProperty,
+    makeClientWithProperty,
+    Property,
+    makeClientWithResidentAccessAndProperty,
+} = require('@condo/domains/property/utils/testSchema')
 const {
     createTestResident,
     createTestServiceConsumer,
     updateTestServiceConsumer,
 } = require('@condo/domains/resident/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('MeterReading', () => {
     describe('CRUD', () => {

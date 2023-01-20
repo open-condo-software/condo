@@ -1,7 +1,7 @@
-const { manageTicketPropertyAddressChange } = require('./manageTicketPropertyAddressChange')
 const { closeCompletedTicketsCron: closeCompletedTickets } = require('./closeCompletedTickets')
-const { reopenDeferredTicketsCron: reopenDeferredTickets } = require('./reopenDeferredTickets')
 const { exportTickets } = require('./exportTickets')
+const { manageTicketPropertyAddressChange } = require('./manageTicketPropertyAddressChange')
+const { reopenDeferredTicketsCron: reopenDeferredTickets } = require('./reopenDeferredTickets')
 
 module.exports = {
     manageTicketPropertyAddressChange,

@@ -1,13 +1,16 @@
-import React, { useEffect } from 'react'
-import { FROM_INPUT_CSS } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { Global } from '@emotion/react'
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
-import { useIntl } from '@open-condo/next/intl'
-import { useRouter } from 'next/router'
 import getConfig from 'next/config'
-import { PosterLayout } from './PosterLayout'
-import { AuthLayoutContextProvider } from './AuthLayoutContext'
+import { useRouter } from 'next/router'
+import React, { useEffect } from 'react'
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { FROM_INPUT_CSS } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+
+import { AuthLayoutContextProvider } from './AuthLayoutContext'
+import { PosterLayout } from './PosterLayout'
 
 const { publicRuntimeConfig: { googleCaptcha } } = getConfig()
 

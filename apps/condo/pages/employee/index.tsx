@@ -1,9 +1,22 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
+import { SortOrganizationEmployeesBy } from '@app/condo/schema'
+import { Col, Row, Typography } from 'antd'
+import { get } from 'lodash'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import React, { useCallback } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
 import ActionBar from '@condo/domains/common/components/ActionBar'
+import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
@@ -13,18 +26,9 @@ import { useTableColumns } from '@condo/domains/organization/hooks/useTableColum
 import { useTableFilters } from '@condo/domains/organization/hooks/useTableFilters'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
-import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
-import { Col, Row, Typography } from 'antd'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
-import Input from '@condo/domains/common/components/antd/Input'
-import { get } from 'lodash'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
-import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { SortOrganizationEmployeesBy } from '@app/condo/schema'
+
+
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 const SORTABLE_PROPERTIES = ['name', 'role', 'position', 'phone']

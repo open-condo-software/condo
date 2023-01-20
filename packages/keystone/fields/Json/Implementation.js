@@ -1,7 +1,7 @@
-const { Implementation } = require('@keystonejs/fields')
-const { MongooseFieldAdapter } = require('@keystonejs/adapter-mongoose')
 const { KnexFieldAdapter } = require('@keystonejs/adapter-knex')
+const { MongooseFieldAdapter } = require('@keystonejs/adapter-mongoose')
 const { PrismaFieldAdapter } = require('@keystonejs/adapter-prisma')
+const { Implementation } = require('@keystonejs/fields')
 const stringify = JSON.stringify
 
 class JsonImplementation extends Implementation {

@@ -3,10 +3,11 @@
  */
 
 const { makeClient } = require('@open-condo/keystone/test.utils')
+const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { exportPropertiesToExcelByTestClient } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
-const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 
 // TODO(zuch): remove after tests will have obs configuration in .env

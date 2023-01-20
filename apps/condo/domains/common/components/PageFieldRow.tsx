@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react'
 import { Col, Row, Typography } from 'antd'
 import { EllipsisConfig } from 'antd/es/typography/Base'
 import { WhiteSpaceProperty } from 'csstype'
+import React, { useMemo } from 'react'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 

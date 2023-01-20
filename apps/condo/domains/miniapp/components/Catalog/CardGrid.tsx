@@ -1,13 +1,14 @@
-import React, { CSSProperties, useCallback } from 'react'
 import { css, Global } from '@emotion/react'
-import get from 'lodash/get'
 import { Tabs, Col, Row, RowProps } from 'antd'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
-import type { MiniAppOutput } from '@app/condo/schema'
-import { SideBlockTabs, TopRowTabs, Tab } from '@condo/domains/common/components/Tabs'
+
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { SideBlockTabs, TopRowTabs, Tab } from '@condo/domains/common/components/Tabs'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import {
     ALL_APPS_CATEGORY,
@@ -22,6 +23,8 @@ import {
 
 import { AppCard, MIN_CARD_WIDTH } from '../AppCard'
 import { Star, List, Wallet, House, SmartHome, Rocket, CircleEllipsis, CheckSquare } from '../icons'
+
+import type { MiniAppOutput } from '@app/condo/schema'
 
 const SEARCH_TAB_KEY = 'search'
 const TAB_GUTTER = 8

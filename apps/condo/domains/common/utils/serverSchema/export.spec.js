@@ -1,5 +1,6 @@
-const fill = require('lodash/fill')
 const faker = require('faker')
+const fill = require('lodash/fill')
+
 const { exportRecordsAsCsvFile, exportRecordsAsXlsxFile } = require('./export')
 
 const mockContext = () => ({})

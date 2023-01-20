@@ -1,17 +1,20 @@
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { notification } from 'antd'
-import { useOrganization } from '@open-condo/next/organization'
-import React from 'react'
 import { get } from 'lodash'
-import { FormattedMessage } from '@open-condo/next/intl'
-import { useAuth } from '@open-condo/next/auth'
-import { useIntl } from '@open-condo/next/intl'
-import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import React from 'react'
+
 import { useMutation } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
+import { FormattedMessage } from '@open-condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+
+import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import {
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
 } from '@condo/domains/organization/gql'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 interface IOrganizationInvitesHookResult {
     loading: boolean

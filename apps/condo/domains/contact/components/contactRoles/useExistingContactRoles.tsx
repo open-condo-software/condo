@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 
 type UseExistingContactRoles = () => Set<string>

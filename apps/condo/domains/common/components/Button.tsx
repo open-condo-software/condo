@@ -1,12 +1,15 @@
 /** @jsx jsx */
-import React from 'react'
-import { css, jsx } from '@emotion/react'
 import { green } from '@ant-design/colors'
+import { css, jsx } from '@emotion/react'
 import { Button as DefaultButton, ButtonProps } from 'antd'
 import isArray from 'lodash/isArray'
 import isString from 'lodash/isString'
-import { colors, gradients, transitions } from '../constants/style'
+import React from 'react'
+
 import { ITrackingComponent, useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+
+import { colors, gradients, transitions } from '../constants/style'
+
 
 const buttonCss = (color) => {
     // Ant returns an array of hue-separated colors, check them out here

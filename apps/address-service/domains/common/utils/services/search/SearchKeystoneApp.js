@@ -1,5 +1,6 @@
 const express = require('express')
 const get = require('lodash/get')
+
 const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 
 /**

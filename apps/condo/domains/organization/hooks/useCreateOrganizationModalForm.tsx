@@ -1,18 +1,17 @@
-import React, { useState, Dispatch, SetStateAction, useCallback } from 'react'
+import { BaseQueryOptions } from '@apollo/client'
 import { Form, Typography } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
+import React, { useState, Dispatch, SetStateAction, useCallback } from 'react'
 
-import { BaseQueryOptions } from '@apollo/client'
-import { useIntl } from '@open-condo/next/intl'
 import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
+import Input from '@condo/domains/common/components/antd/Input'
+import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
-
 import { TIN_LENGTH } from '@condo/domains/organization/constants/common'
 import { EMPTY_NAME_ERROR, TIN_TOO_SHORT_ERROR, TIN_VALUE_INVALID } from '@condo/domains/organization/constants/errors'
 import { REGISTER_NEW_ORGANIZATION_MUTATION } from '@condo/domains/organization/gql'

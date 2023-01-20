@@ -5,9 +5,6 @@
 const faker = require('faker')
 
 const { makeClient, UUID_RE, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-
-const { sleep } = require('@condo/domains/common/utils/sleep')
-
 const {
     expectToThrowValidationFailureError,
     expectToThrowAccessDeniedErrorToObj,
@@ -21,7 +18,14 @@ const {
     createTestBillingProperty,
     makeContextWithOrganizationAndIntegrationAsAdmin,
 } = require('@condo/domains/billing/utils/testSchema')
-
+const { sleep } = require('@condo/domains/common/utils/sleep')
+const { AUTOMATIC_METER_NO_MASTER_APP, B2C_APP_NOT_AVAILABLE, B2B_APP_NOT_CONNECTED } = require('@condo/domains/meter/constants/errors')
+const {
+    createTestB2BApp,
+    createTestB2BAppContext,
+    createTestB2CApp,
+    createTestB2CAppProperty,
+} = require('@condo/domains/miniapp/utils/testSchema')
 const {
     createTestOrganization,
     updateTestOrganizationEmployee,
@@ -30,23 +34,13 @@ const {
     makeEmployeeUserClientWithAbilities,
     updateTestOrganization, createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
-
-const {
-    createTestB2BApp,
-    createTestB2BAppContext,
-    createTestB2CApp,
-    createTestB2CAppProperty,
-} = require('@condo/domains/miniapp/utils/testSchema')
-
 const { createTestProperty, Property } = require('@condo/domains/property/utils/testSchema')
-
 const { createTestResident, updateTestServiceConsumer, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
-const { MeterResource, Meter, createTestMeter, updateTestMeter } = require('../utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('../constants/constants')
-const { AUTOMATIC_METER_NO_MASTER_APP, B2C_APP_NOT_AVAILABLE, B2B_APP_NOT_CONNECTED } = require('@condo/domains/meter/constants/errors')
+const { MeterResource, Meter, createTestMeter, updateTestMeter } = require('../utils/testSchema')
+
 
 describe('Meter', () => {
     describe('CRUD', () => {

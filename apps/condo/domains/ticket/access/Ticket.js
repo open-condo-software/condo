@@ -3,13 +3,15 @@
  */
 
 const get = require('lodash/get')
-const omit = require('lodash/omit')
 const isEmpty = require('lodash/isEmpty')
-const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { getById, find } = require('@open-condo/keystone/schema')
+const omit = require('lodash/omit')
+
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { getById, find } = require('@open-condo/keystone/schema')
+
+const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadTickets ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()

@@ -1,7 +1,9 @@
+const fs = require('fs')
+
 const conf = require('@open-condo/config')
 const { i18n } = require('@open-condo/locales/loader')
+
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const fs = require('fs')
 
 const EXPORT_TYPE_PAYMENTS = 'payments'
 const EXPORT_TYPE_CONTACTS = 'contacts'

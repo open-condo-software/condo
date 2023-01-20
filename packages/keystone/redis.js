@@ -1,6 +1,7 @@
 const IORedis = require('ioredis')
 
 const conf = require('@open-condo/config')
+
 const { getLogger } = require('./logging')
 
 const REDIS_CLIENTS = {}

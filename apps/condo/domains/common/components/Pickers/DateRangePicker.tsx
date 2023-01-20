@@ -1,14 +1,16 @@
 /** @jsx jsx */
-import React from 'react'
+import { DownOutlined, MinusOutlined } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
-import DatePicker from './DatePicker'
+import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
-import dayjs, { Dayjs } from 'dayjs'
-import { DownOutlined, MinusOutlined } from '@ant-design/icons'
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
+import React from 'react'
+
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { fontSizes } from '@condo/domains/common/constants/style'
+
+import DatePicker from './DatePicker'
 
 
 const RANGE_PICKER_CSS = css`

@@ -1,16 +1,21 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/react'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
-import styled from '@emotion/styled'
 import { InfoCircleOutlined } from '@ant-design/icons'
-import { useIntl } from '@open-condo/next/intl'
+import { css, jsx } from '@emotion/react'
+import styled from '@emotion/styled'
 import { Col, List, notification, Progress, Row, Typography } from 'antd'
-import isFunction from 'lodash/isFunction'
 import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 
-import { TASK_COMPLETED_STATUS, TASK_ERROR_STATUS, TASK_PROCESSING_STATUS, TASK_CANCELLED_STATUS } from '@condo/domains/common/constants/tasks'
-import { colors } from '@condo/domains/common/constants/style'
+import { useIntl } from '@open-condo/next/intl'
+
 import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
+import { colors } from '@condo/domains/common/constants/style'
+import { TASK_COMPLETED_STATUS, TASK_ERROR_STATUS, TASK_PROCESSING_STATUS, TASK_CANCELLED_STATUS } from '@condo/domains/common/constants/tasks'
+
+import { CheckIcon } from '../icons/Check'
+import { CloseCircleIcon } from '../icons/CloseCircleIcon'
+import { CrossIcon } from '../icons/CrossIcon'
 
 import {
     ITaskTrackableItem,
@@ -22,9 +27,6 @@ import {
     TaskRecordProgress,
     TasksContext,
 } from './index'
-import { CheckIcon } from '../icons/Check'
-import { CrossIcon } from '../icons/CrossIcon'
-import { CloseCircleIcon } from '../icons/CloseCircleIcon'
 
 
 const InfiniteSpinningStyle = css`

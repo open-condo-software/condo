@@ -1,11 +1,10 @@
 const { Select } = require('@keystonejs/fields')
 
 const LocalizedText = require('@open-condo/keystone/fields/LocalizedText')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-
 const { TICKET_SOURCE_TYPES } = require('@condo/domains/ticket/constants/common')
 
 const READ_ONLY_ACCESS = {

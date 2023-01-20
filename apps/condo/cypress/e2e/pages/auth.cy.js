@@ -1,5 +1,6 @@
-import { SignIn, ForgotPassword, Registration }  from '../../objects/Auth'
 import faker from 'faker'
+
+import { SignIn, ForgotPassword, Registration }  from '../../objects/Auth'
 
 describe('Auth scenarios', () => {
 

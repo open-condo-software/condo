@@ -1,15 +1,18 @@
 /** @jsx jsx */
-import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { useIntl } from '@open-condo/next/intl'
-import { jsx } from '@emotion/react'
+import { DownOutlined, DeleteFilled } from '@ant-design/icons'
 import { BuildingUnitSubType } from '@app/condo/schema'
+import { jsx } from '@emotion/react'
 import { Row, Col, Space, Typography, InputNumber } from 'antd'
 import isEmpty from 'lodash/isEmpty'
-import { MAX_PROPERTY_FLOORS_COUNT, MAX_PROPERTY_UNITS_COUNT_PER_FLOOR } from '@condo/domains/property/constants/property'
-import { DownOutlined, DeleteFilled } from '@ant-design/icons'
-import { Button } from '@condo/domains/common/components/Button'
-import Select from '@condo/domains/common/components/antd/Select'
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import Select from '@condo/domains/common/components/antd/Select'
+import { Button } from '@condo/domains/common/components/Button'
+import { MAX_PROPERTY_FLOORS_COUNT, MAX_PROPERTY_UNITS_COUNT_PER_FLOOR } from '@condo/domains/property/constants/property'
+
 import {
     IPropertyMapModalForm,
     MODAL_FORM_ROW_GUTTER,

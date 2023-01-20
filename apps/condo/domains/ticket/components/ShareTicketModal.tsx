@@ -1,30 +1,37 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/react'
-import { EN_LOCALE } from '@condo/domains/common/constants/locale'
-import { Col, Collapse, notification, Row, Typography } from 'antd'
+import crypto from 'crypto'
 
-import { Modal } from '@condo/domains/common/components/Modal'
-import React, { useState } from 'react'
-import { CloseCircleFilled, RightOutlined, ShareAltOutlined } from '@ant-design/icons'
-import { Button } from '@condo/domains/common/components/Button'
 import { green } from '@ant-design/colors'
-import Link from 'next/link'
-import { useIntl } from '@open-condo/next/intl'
-import { useMutation } from '@open-condo/next/apollo'
-import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
-import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { CloseCircleFilled, RightOutlined, ShareAltOutlined } from '@ant-design/icons'
+import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
+import { Col, Collapse, notification, Row, Typography } from 'antd'
+import { get, isEmpty } from 'lodash'
+import getConfig from 'next/config'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import React, { useState } from 'react'
+
+import { Organization } from '@open-condo/keystone/schema'
+import { useMutation } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+
+import { Button } from '@condo/domains/common/components/Button'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Modal } from '@condo/domains/common/components/Modal'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { EN_LOCALE } from '@condo/domains/common/constants/locale'
 import { colors } from '@condo/domains/common/constants/style'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { useRouter } from 'next/router'
-import crypto from 'crypto'
-import getConfig from 'next/config'
 import { ALGORITHM, CRYPTOENCODING, SALT } from '@condo/domains/ticket/constants/crypto'
-import { Organization } from '@open-condo/keystone/schema'
-import { get, isEmpty } from 'lodash'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
+import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
+
+
+
+
+
 
 const collapse = css`
   border-radius: 8px;

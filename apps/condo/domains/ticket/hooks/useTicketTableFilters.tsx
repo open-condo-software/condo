@@ -5,8 +5,13 @@ import {
     TicketStatus as TicketStatusType,
     TicketWhereInput,
 } from '@app/condo/schema'
-import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { get } from 'lodash'
+import React, { useMemo } from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
     ComponentType,
     convertToOptions,
@@ -19,15 +24,19 @@ import {
     getNumberFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
-import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
-import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
-import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
-import { get } from 'lodash'
-import React, { useMemo } from 'react'
 import {
     searchOrganizationPropertyScope,
 } from '@condo/domains/scope/utils/clientSchema/search'
+import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
+import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
+
+
+
+import {
+    FilterModalCategoryClassifierSelect,
+    FilterModalPlaceClassifierSelect,
+    FilterModalProblemClassifierSelect,
+} from './useModalFilterClassifiers'
 
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import {
@@ -38,11 +47,6 @@ import {
     getIsResidentContactFilter, getPropertyScopeFilter,
     getTicketAttributesFilter,
 } from '../utils/tables.utils'
-import {
-    FilterModalCategoryClassifierSelect,
-    FilterModalPlaceClassifierSelect,
-    FilterModalProblemClassifierSelect,
-} from './useModalFilterClassifiers'
 
 const filterNumber = getNumberFilter('number')
 const filterCreatedAtRange = getDayRangeFilter('createdAt')

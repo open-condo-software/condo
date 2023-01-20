@@ -1,9 +1,9 @@
+import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
 import { get } from 'lodash'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Ticket } from '@app/condo/schema'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { CLOSED_STATUS_TYPE, REVIEW_VALUES } from '@condo/domains/ticket/constants'

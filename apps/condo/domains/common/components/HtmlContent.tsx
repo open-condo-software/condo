@@ -1,7 +1,8 @@
 import styled from '@emotion/styled'
 import React, { CSSProperties, useMemo } from 'react'
-import { sanitizeXss } from '@condo/domains/common/utils/xss'
+
 import { colors } from '@condo/domains/common/constants/style'
+import { sanitizeXss } from '@condo/domains/common/utils/xss'
 
 export type HtmlContentProps = {
     html: string

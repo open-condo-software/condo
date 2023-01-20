@@ -1,6 +1,8 @@
-const { getById } = require('@open-condo/keystone/schema')
-const { createAdapterClass } = require('./adapter')
 const { get } = require('lodash')
+
+const { getById } = require('@open-condo/keystone/schema')
+
+const { createAdapterClass } = require('./adapter')
 
 const HTTPS_REGEXP = /^https:/
 

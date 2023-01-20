@@ -1,5 +1,6 @@
-const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
 const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
+
+const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
 
 class SearchBySource extends AbstractSearchPlugin {
 

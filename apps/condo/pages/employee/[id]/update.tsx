@@ -4,9 +4,9 @@ import React, { CSSProperties } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { UpdateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/UpdateEmployeeForm'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 const TITLE_STYLES: CSSProperties = { margin: 0, fontWeight: 'bold' }
 

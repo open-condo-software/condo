@@ -1,9 +1,13 @@
-const conf = require('@open-condo/config')
+const fs = require('fs')
+const path = require('path')
+
 const dayjs = require('dayjs')
 const { get, unescape } = require('lodash')
 const Nunjucks = require('nunjucks')
-const path = require('path')
-const fs = require('fs')
+
+const conf = require('@open-condo/config')
+const { i18n } = require('@open-condo/locales/loader')
+
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 
 const {
@@ -16,7 +20,6 @@ const {
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
 } = require('./constants/constants')
-const { i18n } = require('@open-condo/locales/loader')
 
 const LANG_DIR_RELATED = '../../lang'
 const TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT = 'D MMMM YYYY'

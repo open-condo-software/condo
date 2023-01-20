@@ -1,14 +1,16 @@
-import React from 'react'
-import get from 'lodash/get'
-import { styled } from '@storybook/theming'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { colors } from '@open-condo/ui/src/colors'
-import { Typography, Card } from '@open-condo/ui/src'
-import tokens from '@open-condo/ui/src/tokens/tokens.json'
+import { styled } from '@storybook/theming'
+import { Space } from 'antd'
 import { identity } from 'lodash'
+import get from 'lodash/get'
+import React from 'react'
+
+import { Typography, Card } from '@open-condo/ui/src'
+import { colors } from '@open-condo/ui/src/colors'
+import tokens from '@open-condo/ui/src/tokens/tokens.json'
+
 
 // TODO(DOMA-4682): Move to UI-kit
-import { Space } from 'antd'
 import 'antd/lib/space/style/index.less'
 
 type SwatchColors = { [key: string]: string }

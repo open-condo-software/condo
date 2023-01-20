@@ -10,13 +10,13 @@ import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { getManyEmployeesNameRender } from '@condo/domains/organization/utils/clientSchema/Renders'
 import {
     geOneAddressAndPropertiesCountRender,
 } from '@condo/domains/property/utils/clientSchema/Renders'
-import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { PropertyScopeOrganizationEmployee, PropertyScopeProperty } from '@condo/domains/scope/utils/clientSchema'
-import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
+import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     const intl = useIntl()

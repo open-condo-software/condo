@@ -1,14 +1,20 @@
-import { useOrganization } from '@open-condo/next/organization'
-import { useApolloClient } from '@open-condo/next/apollo'
-import { useEffect, useRef } from 'react'
-import { useAddressApi } from '../../common/components/AddressApi'
-import get from 'lodash/get'
-import { Property } from '../utils/clientSchema'
-import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import { MapEdit } from '../components/panels/Builder/MapConstructor'
 import { BuildingMapType, PropertyTypeType } from '@app/condo/schema'
-import { TableRow, Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
+import get from 'lodash/get'
+import { useEffect, useRef } from 'react'
+
+import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import { TableRow, Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
+import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+
+import { useAddressApi } from '../../common/components/AddressApi'
+import { MapEdit } from '../components/panels/Builder/MapConstructor'
+import { Property } from '../utils/clientSchema'
+
+
+
 
 const createPropertyUnitsMap = (units, sections, floors) => {
     const unitsOnFloor = Math.floor(units / (floors * sections))

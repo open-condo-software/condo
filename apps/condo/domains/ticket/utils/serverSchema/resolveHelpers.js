@@ -1,18 +1,18 @@
-const { isUndefined, isEmpty, get } = require('lodash')
 const dayjs = require('dayjs')
+const { isUndefined, isEmpty, get } = require('lodash')
 
 const { find } = require('@open-condo/keystone/schema')
 const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
-const { TicketPropertyHintProperty } = require('@condo/domains/ticket/utils/serverSchema')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
-const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE, REVIEW_VALUES } = require('@condo/domains/ticket/constants')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE, REVIEW_VALUES } = require('@condo/domains/ticket/constants')
 const { DEFERRED_STATUS_TYPE, DEFAULT_DEFERRED_DAYS } = require('@condo/domains/ticket/constants')
+const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { TicketPropertyHintProperty } = require('@condo/domains/ticket/utils/serverSchema')
+const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
 
 const hasEmployee = (id, employees) => id && employees.some(employee => get(employee, ['user', 'id'], null) === id)
 

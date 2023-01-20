@@ -1,8 +1,8 @@
+const { DADATA_PROVIDER, GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const {
     DadataSearchProvider,
     GoogleSearchProvider,
 } = require('@address-service/domains/common/utils/services/search/providers')
-const { DADATA_PROVIDER, GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const {
     GoogleSuggestionProvider,
     DadataSuggestionProvider,

@@ -1,7 +1,9 @@
-import React from 'react'
-import { Col, Row, Typography } from 'antd'
 import styled from '@emotion/styled'
+import { Col, Row, Typography } from 'antd'
+import React from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
+
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 

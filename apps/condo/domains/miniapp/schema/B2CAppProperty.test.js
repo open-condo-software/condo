@@ -1,4 +1,5 @@
 const dayjs = require('dayjs')
+
 const {
     makeLoggedInAdminClient,
     makeClient,
@@ -9,12 +10,11 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
+
 const {
-    makeClientWithNewRegisteredAndLoggedInUser,
-    makeClientWithSupportUser,
-    makeClientWithServiceUser,
-    makeClientWithResidentUser,
-} = require('@condo/domains/user/utils/testSchema')
+    INCORRECT_HOUSE_TYPE_ERROR,
+    INCORRECT_ADDRESS_ERROR,
+} = require('@condo/domains/miniapp/constants')
 const {
     createTestB2CApp,
     createTestB2CAppAccessRight,
@@ -24,9 +24,11 @@ const {
     getFakeAddress,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const {
-    INCORRECT_HOUSE_TYPE_ERROR,
-    INCORRECT_ADDRESS_ERROR,
-} = require('@condo/domains/miniapp/constants')
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithSupportUser,
+    makeClientWithServiceUser,
+    makeClientWithResidentUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 describe('B2CAppProperty', () => {
     let admin

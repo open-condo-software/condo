@@ -1,8 +1,7 @@
-import React, { useMemo } from 'react'
+import { User } from '@app/condo/schema'
 import { Typography } from 'antd'
 import { get } from 'lodash'
-
-import { User } from '@app/condo/schema'
+import React, { useMemo } from 'react'
 
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'

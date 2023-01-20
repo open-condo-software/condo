@@ -6,10 +6,10 @@ const faker = require('faker')
 
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 
-const { createTestPropertyScope } = require('@condo/domains/scope/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { EXPORT_PROPERTY_SCOPE_QUERY } = require('@condo/domains/scope/gql')
+const { createTestPropertyScope } = require('@condo/domains/scope/utils/testSchema')
+const { createTestUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
  
 describe('ExportPropertyScopeToExcelService', () => {
     describe('User', () => {

@@ -1,6 +1,7 @@
-import React from 'react'
-import isString from 'lodash/isString'
 import identity from 'lodash/identity'
+import isString from 'lodash/isString'
+import React from 'react'
+
 import { version } from '@open-condo/ui/package.json'
 
 type ComponentSpecificClickEventProps = {

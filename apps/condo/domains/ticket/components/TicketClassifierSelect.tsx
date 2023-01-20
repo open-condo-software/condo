@@ -1,16 +1,20 @@
-import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { Col, Form, Row } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
-import Select from '@condo/domains/common/components/antd/Select'
+import { Gutter } from 'antd/es/grid/row'
+import { uniqBy, isEmpty, find, pick, get } from 'lodash'
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
+
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { uniqBy, isEmpty, find, pick, get } from 'lodash'
-import { ClassifiersQueryLocal, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+
+import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
 import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
-import { Gutter } from 'antd/es/grid/row'
-import { TicketFormItem } from './BaseTicketForm'
-import { PREDICT_TICKET_CLASSIFICATION_QUERY } from '@condo/domains/ticket/gql.js'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
+import { PREDICT_TICKET_CLASSIFICATION_QUERY } from '@condo/domains/ticket/gql.js'
+import { ClassifiersQueryLocal, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+
+import { TicketFormItem } from './BaseTicketForm'
+
 
 const { Option } = Select
 

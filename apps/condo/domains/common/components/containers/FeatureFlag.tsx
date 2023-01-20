@@ -14,13 +14,14 @@
  *
  */
 
-import React, { ReactNode, useState } from 'react'
-import getConfig from 'next/config'
-import { useHotkeys } from 'react-hotkeys-hook'
 import { Switch, Alert } from 'antd'
+import getConfig from 'next/config'
+import React, { ReactNode, useState } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
+
+import { useIntl } from '@open-condo/next/intl'
 
 import { Modal } from '@condo/domains/common/components/Modal'
-import { useIntl } from '@open-condo/next/intl'
 
 
 const getEnabledFeatures = (): Array<string> => {

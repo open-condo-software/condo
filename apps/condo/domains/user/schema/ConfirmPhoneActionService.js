@@ -1,29 +1,28 @@
-const { v4: uuid } = require('uuid')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
+const { v4: uuid } = require('uuid')
+
 const conf = require('@open-condo/config')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
-const { captchaCheck } = require('@condo/domains/user/utils/googleRecaptcha3')
-const {
-    ConfirmPhoneAction,
-    generateSmsCode,
-} = require('@condo/domains/user/utils/serverSchema')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
+
+const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
+const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
     LOCK_TIMEOUT,
     CONFIRM_PHONE_SMS_MAX_RETRIES,
 } = require('@condo/domains/user/constants/common')
-const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
-const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-
+const {
+    MAX_SMS_FOR_IP_BY_DAY,
+    MAX_SMS_FOR_PHONE_BY_DAY,
+} = require('@condo/domains/user/constants/common')
 const {
     CAPTCHA_CHECK_FAILED,
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
@@ -31,10 +30,12 @@ const {
     SMS_CODE_MAX_RETRIES_REACHED,
     SMS_CODE_VERIFICATION_FAILED, GQL_ERRORS,
 } = require('@condo/domains/user/constants/errors')
+const { captchaCheck } = require('@condo/domains/user/utils/googleRecaptcha3')
 const {
-    MAX_SMS_FOR_IP_BY_DAY,
-    MAX_SMS_FOR_PHONE_BY_DAY,
-} = require('@condo/domains/user/constants/common')
+    ConfirmPhoneAction,
+    generateSmsCode,
+} = require('@condo/domains/user/utils/serverSchema')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
 

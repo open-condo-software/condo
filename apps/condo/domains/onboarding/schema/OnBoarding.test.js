@@ -3,13 +3,13 @@
  */
 
 const { makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
-
-const { OnBoarding, createTestOnBoarding, updateTestOnBoarding } = require('@condo/domains/onboarding/utils/testSchema')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
+
+const { OnBoarding, createTestOnBoarding, updateTestOnBoarding } = require('@condo/domains/onboarding/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('OnBoarding', () => {

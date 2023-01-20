@@ -1,5 +1,5 @@
-const RU = require('dayjs/locale/ru')
 const EN = require('dayjs/locale/en')
+const RU = require('dayjs/locale/ru')
 
 const RU_LOCALE = 'ru'
 const EN_LOCALE = 'en'

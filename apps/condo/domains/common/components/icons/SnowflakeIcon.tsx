@@ -1,5 +1,5 @@
-import React from 'react'
 import Icon from '@ant-design/icons'
+import React from 'react'
 
 const SnowflakeIconSVG = ({ width = 20, height = 20 }) => {
     return (

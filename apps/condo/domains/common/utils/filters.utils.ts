@@ -1,14 +1,15 @@
-import isEmpty from 'lodash/isEmpty'
-import React, { CSSProperties } from 'react'
-import get from 'lodash/get'
-import pickBy from 'lodash/pickBy'
-import dayjs, { Dayjs } from 'dayjs'
-import { FormItemProps } from 'antd/es'
 import { DatePickerProps, FormInstance, InputProps, SelectProps } from 'antd'
+import { FormItemProps } from 'antd/es'
 import { CheckboxGroupProps } from 'antd/es/checkbox'
+import dayjs, { Dayjs } from 'dayjs'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import pickBy from 'lodash/pickBy'
 import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
+import React, { CSSProperties } from 'react'
 
 import { FiltersFromQueryType, OptionType, QueryMeta } from './tables.utils'
+
 import { ISearchInputProps } from '../components/GraphQlSearchInput'
 import {
     getDateFilterDropdown,

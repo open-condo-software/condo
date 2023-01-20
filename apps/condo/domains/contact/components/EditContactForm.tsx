@@ -1,3 +1,12 @@
+import { Col, Form, Row, Space, Typography } from 'antd'
+import { Gutter } from 'antd/lib/grid/row'
+import get from 'lodash/get'
+import { useRouter } from 'next/router'
+import React, { CSSProperties, useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -6,18 +15,13 @@ import { FormResetButton } from '@condo/domains/common/components/FormResetButto
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { fontSizes } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
 import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-import { useIntl } from '@open-condo/next/intl'
-import { Col, Form, Row, Space, Typography } from 'antd'
-import { Gutter } from 'antd/lib/grid/row'
-import get from 'lodash/get'
-import { useRouter } from 'next/router'
-import React, { CSSProperties, useMemo } from 'react'
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import { fontSizes } from '@condo/domains/common/constants/style'
-import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
+
+
 import { ContactRoleSelect } from './contactRoles/ContactRoleSelect'
 
 const INPUT_LAYOUT_PROPS = {

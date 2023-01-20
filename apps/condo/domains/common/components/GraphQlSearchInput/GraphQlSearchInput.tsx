@@ -1,15 +1,15 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
-import { AutoComplete, Select, SelectProps, Typography } from 'antd'
-import get from 'lodash/get'
-import throttle from 'lodash/throttle'
-import isFunction from 'lodash/isFunction'
-import isEmpty from 'lodash/isEmpty'
-import uniqBy from 'lodash/uniqBy'
-import debounce from 'lodash/debounce'
-
 import { ApolloClient } from '@apollo/client'
+import { AutoComplete, Select, SelectProps, Typography } from 'antd'
+import debounce from 'lodash/debounce'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import isFunction from 'lodash/isFunction'
+import throttle from 'lodash/throttle'
+import uniqBy from 'lodash/uniqBy'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
+
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
@@ -19,9 +19,9 @@ import {
     TrackingEventType,
 } from '@condo/domains/common/components/TrackingContext'
 
-import { Loader } from '../Loader'
-import { WhereType } from '../../utils/tables.utils'
 import { isNeedToLoadNewElements } from '../../utils/select.utils'
+import { WhereType } from '../../utils/tables.utils'
+import { Loader } from '../Loader'
 
 
 type GraphQlSearchInputOption = {

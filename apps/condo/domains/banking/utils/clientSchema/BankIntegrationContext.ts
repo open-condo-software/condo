@@ -8,7 +8,9 @@ import {
     BankIntegrationContextUpdateInput,
     QueryAllBankIntegrationContextsArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { BankIntegrationContext as BankIntegrationContextGQL } from '@condo/domains/banking/gql'
 
 const {

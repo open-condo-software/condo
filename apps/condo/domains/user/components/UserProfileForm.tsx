@@ -1,18 +1,22 @@
-import React, { useCallback } from 'react'
 import { Col, Form, Row, Space, Typography } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { User } from '@condo/domains/user/utils/clientSchema'
-import { useIntl } from '@open-condo/next/intl'
+import React, { useCallback } from 'react'
+
+
 import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+
+import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { UserAvatar } from './UserAvatar'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
+import { User } from '@condo/domains/user/utils/clientSchema'
+
+import { UserAvatar } from './UserAvatar'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {

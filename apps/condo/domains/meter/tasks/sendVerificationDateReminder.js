@@ -7,14 +7,10 @@ const { getLocalized } = require('@open-condo/locales/loader')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
-
-const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
-
+const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 const rightJoin = (heads, edges, joinFn, selectFn) => {

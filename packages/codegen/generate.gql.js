@@ -1,5 +1,5 @@
-const pluralize = require('pluralize')
 const { gql } = require('graphql-tag')
+const pluralize = require('pluralize')
 
 const DEFAULT_PAGE_SIZE = 100
 

@@ -1,14 +1,17 @@
 const { ApolloClient, InMemoryCache, ApolloLink } = require('@apollo/client')
 const { BatchHttpLink } = require('@apollo/client/link/batch-http')
-const { createUploadLink } = require('apollo-upload-client')
-const { onError }  = require('apollo-link-error')
 const { RetryLink } = require('@apollo/client/link/retry')
-const { getLogger } = require('@open-condo/keystone/logging')
-const fetch = require('cross-fetch/polyfill').fetch
+const { onError }  = require('apollo-link-error')
+const { createUploadLink } = require('apollo-upload-client')
+const fetchPoltfill = require('cross-fetch/polyfill')
 const { chunk: splitArray } = require('lodash')
+
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { MAX_REQUESTS_IN_BATCH, MAX_MODIFY_OPERATIONS_IN_REQUEST, MAX_RETRIES_ON_NETWORK_ERROR, LOAD_CHUNK_SIZE } = require('./constants')
 const { SIGNIN_BY_EMAIL_MUTATION, SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('./lib/gql')
+
+const fetch = fetchPoltfill.fetch
 
 class ApolloServerClient {
 

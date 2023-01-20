@@ -1,6 +1,7 @@
-import { QueryMeta, SorterColumn, convertSortersToSortBy } from '../utils/tables.utils'
-import { useMemo } from 'react'
 import get from 'lodash/get'
+import { useMemo } from 'react'
+
+import { QueryMeta, SorterColumn, convertSortersToSortBy } from '../utils/tables.utils'
 
 const DEFAULT_SORT_BY = ['createdAt_DESC']
 

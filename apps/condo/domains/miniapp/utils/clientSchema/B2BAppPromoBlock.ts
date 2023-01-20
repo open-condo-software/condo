@@ -8,7 +8,9 @@ import {
     B2BAppPromoBlockUpdateInput,
     QueryAllB2BAppPromoBlocksArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { B2BAppPromoBlock as B2BAppPromoBlockGQL } from '@condo/domains/miniapp/gql'
 
 const {

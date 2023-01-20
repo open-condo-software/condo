@@ -1,11 +1,12 @@
 // NOTE: same as keystone logger
-const pino = require('pino')
 const falsey = require('falsey')
-const serializers = require('pino-std-serializers')
 const { toString } = require('lodash')
+const pino = require('pino')
+const serializers = require('pino-std-serializers')
+
+const { normalizeVariables } = require('./normalize')
 
 const { safeFormatError } = require('../apolloErrorFormatter')
-const { normalizeVariables } = require('./normalize')
 
 function getLogger (name) {
     return pino({

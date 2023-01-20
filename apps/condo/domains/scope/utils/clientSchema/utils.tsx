@@ -1,6 +1,7 @@
 import { differenceBy, get, isEmpty } from 'lodash'
 import React from 'react'
 
+import { renderBlockedOption } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
     ASSIGNED_TICKET_VISIBILITY,
     PROPERTY_AND_SPECIALIZATION_VISIBILITY,
@@ -8,7 +9,6 @@ import {
 import {
     EmployeeNameAndSpecializations,
 } from '@condo/domains/organization/utils/clientSchema/Renders'
-import { renderBlockedOption } from '@condo/domains/common/components/GraphQlSearchInput'
 
 /**
  * Returns a new array with sorted employees in the following order:

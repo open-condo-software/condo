@@ -1,19 +1,21 @@
 import { EditFilled } from '@ant-design/icons'
 import { Col, Row, Typography } from 'antd'
+import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import React, { useEffect, useMemo } from 'react'
-import get from 'lodash/get'
-import { useIntl } from '@open-condo/next/intl'
+
 import { useAuth } from '@open-condo/next/auth'
-import { Button } from '@condo/domains/common/components/Button'
-import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
-import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
-import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
+import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+
+import { Button } from '@condo/domains/common/components/Button'
+import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
+import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
+import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
+import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
+import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
 
 export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
     const intl = useIntl()

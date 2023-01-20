@@ -8,8 +8,8 @@ import { useMemo } from 'react'
 
 import { useMutation } from '@open-condo/next/apollo'
 
-import { REGISTER_NEW_ORGANIZATION_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } from '@condo/domains/organization/gql'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { REGISTER_NEW_ORGANIZATION_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } from '@condo/domains/organization/gql'
 
 import * as Organization from './Organization'
 import * as OrganizationEmployee from './OrganizationEmployee'

@@ -3,9 +3,8 @@
  */
 
 const faker = require('faker')
-const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@open-condo/keystone/test.utils')
 
-const { TicketFilterTemplate, createTestTicketFilterTemplate, updateTestTicketFilterTemplate } = require('@condo/domains/ticket/utils/testSchema')
+const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,
     expectToThrowAccessDeniedErrorToObj,
@@ -13,11 +12,13 @@ const {
     expectToThrowValidationFailureError,
     expectToThrowAuthenticationErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
+
 const { createTestOrganization, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
+const { TicketFilterTemplate, createTestTicketFilterTemplate, updateTestTicketFilterTemplate } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketFilterTemplate', () => {

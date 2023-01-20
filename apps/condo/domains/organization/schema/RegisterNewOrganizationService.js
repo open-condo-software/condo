@@ -1,8 +1,9 @@
-const { createConfirmedEmployee, createOrganization, createDefaultRoles, pushOrganizationToSalesCRM } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/organization/access/RegisterNewOrganizationService')
-const { createTrialSubscription } = require('@condo/domains/subscription/utils/serverSchema/ServiceSubscription')
+const { createConfirmedEmployee, createOrganization, createDefaultRoles, pushOrganizationToSalesCRM } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { PropertyScope, createDefaultPropertyScopeForNewOrganization } = require('@condo/domains/scope/utils/serverSchema')
+const { createTrialSubscription } = require('@condo/domains/subscription/utils/serverSchema/ServiceSubscription')
 const { TicketOrganizationSetting } = require('@condo/domains/ticket/utils/serverSchema')
 
 const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizationService', {

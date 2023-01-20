@@ -1,18 +1,21 @@
+import { green } from '@ant-design/colors'
+import { RestFilled } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Dropdown, Space, Menu } from 'antd'
-import { RestFilled } from '@ant-design/icons'
-import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
+import Router from 'next/router'
+import React, { useMemo } from 'react'
+
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+
+
+import { Button } from '@condo/domains/common/components/Button'
 import {
     TopMenuItem,
     StyledMenuItem,
     MENU_ICON_STYLES,
 } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
-import React, { useMemo } from 'react'
-import Router from 'next/router'
-import { useAuth } from '@open-condo/next/auth'
-import { useIntl } from '@open-condo/next/intl'
-import { green } from '@ant-design/colors'
-import { Button } from '@condo/domains/common/components/Button'
+import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
 function goToSignin () {
     Router.push('/auth/signin')

@@ -1,5 +1,5 @@
-import sample from 'lodash/sample'
 import faker from 'faker'
+import sample from 'lodash/sample'
 
 import { TicketCreate, TicketView, TicketEdit, TicketImport } from '../../objects/Ticket'
 import { authUserWithCookies } from '../../plugins/auth'

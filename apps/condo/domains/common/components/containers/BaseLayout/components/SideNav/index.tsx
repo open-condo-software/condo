@@ -1,5 +1,7 @@
 import React from 'react'
+
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+
 import { DesktopSideNav } from './DesktopSideNav'
 import { MobileSideNav } from './MobileSideNav'
 

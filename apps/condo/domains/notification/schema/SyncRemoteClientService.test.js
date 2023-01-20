@@ -7,10 +7,10 @@ const faker = require('faker')
 const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { PUSH_TYPE_SILENT_DATA } = require('@condo/domains/notification/constants/constants')
-const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
 const {
     RemoteClient, syncRemoteClientByTestClient,
 } = require('@condo/domains/notification/utils/testSchema')
+const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
 
 describe('SyncRemoteClientService', () => {
     describe('Anonymous', () => {

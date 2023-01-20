@@ -2,11 +2,12 @@
  * @jest-environment node
  */
 
+const index = require('@app/condo/index')
+
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const { sendBillingReceiptNotifications } = require('./sendBillingReceiptNotifications')
 
-const index = require('@app/condo/index')
 
 describe('sendBillingReceiptNotifications', () => {
     setFakeClientMode(index)

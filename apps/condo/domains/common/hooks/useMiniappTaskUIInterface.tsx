@@ -1,6 +1,6 @@
-import { TasksLocalStorage } from '@condo/domains/common/components/tasks/storage/TasksLocalStorage'
 import { ITask, TaskRecord } from '@condo/domains/common/components/tasks'
 import { TASK_REMOVE_STRATEGY }  from '@condo/domains/common/components/tasks'
+import { TasksLocalStorage } from '@condo/domains/common/components/tasks/storage/TasksLocalStorage'
 
 export const useMiniappTaskUIInterface = () => {
     const TaskUIInterface: ITask = {

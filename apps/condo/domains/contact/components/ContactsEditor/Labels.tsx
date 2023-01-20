@@ -1,5 +1,5 @@
-import React from 'react'
 import { Col, Typography } from 'antd'
+import React from 'react'
 
 interface ILabelsProps {
     left: React.ReactNode,

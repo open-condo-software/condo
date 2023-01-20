@@ -1,7 +1,5 @@
-const { isEmpty } = require('lodash')
 const faker = require('faker')
-
-const { getStartDates } = require('@condo/domains/common/utils/date')
+const { isEmpty } = require('lodash')
 
 const {
     createTestBillingIntegration,
@@ -11,14 +9,11 @@ const {
     createTestBillingProperty,
     createTestBillingAccount,
 } = require('@condo/domains/billing/utils/testSchema')
-
+const { getStartDates } = require('@condo/domains/common/utils/date')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
-
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-
 const { registerResidentByTestClient, registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
-
 const { makeClientWithSupportUser, makeClientWithServiceUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 /**

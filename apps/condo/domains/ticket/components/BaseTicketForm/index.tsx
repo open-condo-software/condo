@@ -1,13 +1,3 @@
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
-import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
-import isFunction from 'lodash/isFunction'
-import isNull from 'lodash/isNull'
-import { useRouter } from 'next/router'
-import dayjs from 'dayjs'
-
 import {
     BuildingUnitSubType,
     Organization,
@@ -18,6 +8,17 @@ import {
     TicketStatusTypeType,
     TicketSource as TicketSourceType,
 } from '@app/condo/schema'
+import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+import dayjs from 'dayjs'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import isFunction from 'lodash/isFunction'
+import isNull from 'lodash/isNull'
+import omit from 'lodash/omit'
+import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
@@ -32,29 +33,29 @@ import Prompt from '@condo/domains/common/components/Prompt'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
 import { colors } from '@condo/domains/common/constants/style'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
+import { convertToOptions } from '@condo/domains/common/utils/filters.utils'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
-import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
-import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSchema'
-import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
-import { RESIDENT } from '@condo/domains/user/constants/common'
-import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM } from '@condo/domains/ticket/constants/common'
-import { convertToOptions } from '@condo/domains/common/utils/filters.utils'
 import {
     TicketFormContextProvider,
     useTicketFormContext,
 } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
+import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
+import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM } from '@condo/domains/ticket/constants/common'
+import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSchema'
+import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+import { RESIDENT } from '@condo/domains/user/constants/common'
 
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
-import { useTicketValidations } from './useTicketValidations'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
-import omit from 'lodash/omit'
+import { useTicketValidations } from './useTicketValidations'
+
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues = {}, hasNotResidentTab = true }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])

@@ -1,16 +1,16 @@
+import { MinusCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
+import { AutoComplete, Col, Radio } from 'antd'
+import { OptionProps } from 'antd/lib/mentions'
+import { get } from 'lodash'
 import debounce from 'lodash/debounce'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { OptionProps } from 'antd/lib/mentions'
-import { AutoComplete, Col, Radio } from 'antd'
-import { get } from 'lodash'
-import { MinusCircleOutlined } from '@ant-design/icons'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { colors } from '@condo/domains/common/constants/style'
 import { OrganizationEmployee } from '@condo/domains/contact/schema'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 
 import { ContactValue } from './index'
 

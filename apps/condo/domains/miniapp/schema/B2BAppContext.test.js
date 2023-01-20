@@ -3,27 +3,29 @@
  */
 
 const dayjs = require('dayjs')
+
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
-const {
-    makeClientWithSupportUser,
-    makeClientWithNewRegisteredAndLoggedInUser,
-} = require('@condo/domains/user/utils/testSchema')
-const {
-    createTestB2BApp,
-    createTestB2BAppContext,
-    updateTestB2BAppContext,
-    B2BAppContext,
-} = require('@condo/domains/miniapp/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
-const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { CONTEXT_STATUSES } = require('@condo/domains/miniapp/constants')
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
+
+const { CONTEXT_STATUSES } = require('@condo/domains/miniapp/constants')
+const {
+    createTestB2BApp,
+    createTestB2BAppContext,
+    updateTestB2BAppContext,
+    B2BAppContext,
+} = require('@condo/domains/miniapp/utils/testSchema')
+const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const {
+    makeClientWithSupportUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 describe('B2BAppContext', () => {
     describe('CRUD', () => {

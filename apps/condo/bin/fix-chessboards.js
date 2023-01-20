@@ -1,13 +1,15 @@
+const path = require('path')
+
+const { GraphQLApp } = require('@keystonejs/app-graphql')
+const Ajv = require('ajv')
+const { has, get, isEmpty, compact, trim } = require('lodash')
+const { Client } = require('pg')
+
+const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 const {
     Property,
 } = require('@condo/domains/property/utils/serverSchema')
 const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers.js')
-const path = require('path')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
-const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
-const Ajv = require('ajv')
-const { has, get, isEmpty, compact, trim } = require('lodash')
-const { Client } = require('pg')
 // const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 
 const mapValidator = (new Ajv()).compile(MapSchemaJSON)

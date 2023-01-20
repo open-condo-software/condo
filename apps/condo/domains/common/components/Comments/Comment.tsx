@@ -1,24 +1,28 @@
 /** @jsx jsx */
 import { grey } from '@ant-design/colors'
 import { DeleteFilled, EditFilled } from '@ant-design/icons'
-import { Comment as AntComment, Image, Popconfirm, Typography } from 'antd'
-import dayjs from 'dayjs'
-import isEmpty from 'lodash/isEmpty'
-import get from 'lodash/get'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import { User, TicketComment } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
+import { Comment as AntComment, Image, Popconfirm, Typography } from 'antd'
+import dayjs from 'dayjs'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
-import { User, TicketComment } from '@app/condo/schema'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
-const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
 import { Button } from '../Button'
+
 import { CommentWithFiles } from './index'
+
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+
+
 
 interface ICommentProps {
     comment: CommentWithFiles,

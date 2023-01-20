@@ -1,12 +1,9 @@
-import { useCallback, useMemo } from 'react'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
+import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { getFilteredValue } from '@condo/domains/common/utils/helpers'
-import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {
     getDateRender,
@@ -14,6 +11,9 @@ import {
     getTextRender,
     getAddressRender,
 } from '@condo/domains/common/components/Table/Renders'
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getResourceRender, getUnitRender } from '@condo/domains/meter/utils/clientSchema/Renders'
 import { getTicketUserNameRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 

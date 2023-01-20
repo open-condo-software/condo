@@ -1,6 +1,7 @@
-import { colors } from '@condo/domains/common/constants/style'
 import styled from '@emotion/styled'
 import React, { useEffect, useRef } from 'react'
+
+import { colors } from '@condo/domains/common/constants/style'
 import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
 
 const Canvas = styled.canvas`

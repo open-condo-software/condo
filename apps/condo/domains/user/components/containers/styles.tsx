@@ -1,6 +1,7 @@
 import styled from '@emotion/styled'
-import { colors } from '@condo/domains/common/constants/style'
 import { Layout as AntLayout } from 'antd'
+
+import { colors } from '@condo/domains/common/constants/style'
 
 interface IFooterProps {
     isSmall: boolean

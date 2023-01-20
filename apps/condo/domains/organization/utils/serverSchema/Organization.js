@@ -1,15 +1,17 @@
 const axios = require('axios').default
 const { get } = require('lodash')
 
-const conf = require('@open-condo/config')
-const { getById } = require('@open-condo/keystone/schema')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getById } = require('@open-condo/keystone/schema')
+
+const { DEFAULT_ROLES } = require('../../constants/common')
+const { Organization, OrganizationEmployee } = require('../../gql')
+const { SBBOL_FINGERPRINT_NAME } = require('../../integrations/sbbol/constants')
 
 const { OrganizationEmployeeRole } = require('./index')
-const { Organization, OrganizationEmployee } = require('../../gql')
-const { DEFAULT_ROLES } = require('../../constants/common')
-const { SBBOL_FINGERPRINT_NAME } = require('../../integrations/sbbol/constants')
-const { getLogger } = require('@open-condo/keystone/logging')
+
 
 const logger = getLogger('sales_crm')
 const SALES_CRM_WEBHOOKS_URL = (conf.SALES_CRM_WEBHOOKS_URL) ? JSON.parse(conf.SALES_CRM_WEBHOOKS_URL) : null

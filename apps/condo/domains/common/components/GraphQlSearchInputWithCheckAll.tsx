@@ -1,13 +1,14 @@
+import styled from '@emotion/styled'
 import { Col, Form, FormInstance, FormItemProps, Row } from 'antd'
 import { get, isFunction } from 'lodash'
-
 import React, { ComponentProps, useCallback, useEffect, useState } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
+
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 import Checkbox from './antd/Checkbox'
 import { GraphQlSearchInput } from './GraphQlSearchInput'
-import styled from '@emotion/styled'
 
 type InputWithCheckAllProps = {
     onCheckBoxChange?: (value: boolean) => void

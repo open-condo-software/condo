@@ -4,9 +4,10 @@
 const faker = require('faker')
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
-const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { TicketProblemClassifier, createTestTicketProblemClassifier, updateTestTicketProblemClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
+
+const { TicketProblemClassifier, createTestTicketProblemClassifier, updateTestTicketProblemClassifier } = require('@condo/domains/ticket/utils/testSchema')
+const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketProblemClassifier CRUD', () => {
     describe('User', () => {

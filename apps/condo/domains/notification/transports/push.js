@@ -2,6 +2,8 @@ const { get, isEmpty } = require('lodash')
 
 const { find } = require('@open-condo/keystone/schema')
 
+const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
+const HCMAdapter = require('@condo/domains/notification/adapters/hcmAdapter')
 const {
     PUSH_TRANSPORT,
     PUSH_TRANSPORT_TYPES,
@@ -9,8 +11,6 @@ const {
     PUSH_TRANSPORT_APPLE,
     PUSH_TRANSPORT_HUAWEI,
 } = require('@condo/domains/notification/constants/constants')
-const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
-const HCMAdapter = require('@condo/domains/notification/adapters/hcmAdapter')
 const { renderTemplate } = require('@condo/domains/notification/templates')
 
 const ADAPTERS = {

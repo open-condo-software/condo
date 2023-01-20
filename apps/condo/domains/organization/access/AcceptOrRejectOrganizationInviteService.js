@@ -1,4 +1,5 @@
 const { get } = require('lodash')
+
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition, getById } = require('@open-condo/keystone/schema')
 

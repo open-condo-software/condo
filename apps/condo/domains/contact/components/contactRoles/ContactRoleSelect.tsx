@@ -1,7 +1,8 @@
 import { ContactRole as IContactRole } from '@app/condo/schema'
-import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { Select, SelectProps } from 'antd'
 import React, { useMemo } from 'react'
+
+import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 
 interface IEmployeeRoleSelectProps extends SelectProps<string> {
     roles: Array<IContactRole>

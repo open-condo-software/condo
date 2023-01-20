@@ -1,14 +1,18 @@
-import React, { ComponentProps, useCallback, useState } from 'react'
-import Router, { useRouter } from 'next/router'
+import { UserOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Menu, Avatar } from 'antd'
+import Router, { useRouter } from 'next/router'
+import React, { ComponentProps, useCallback, useState } from 'react'
 
-import { Modal } from '@condo/domains/common/components/Modal'
-import { colors } from '@condo/domains/common/constants/style'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+
 import { Button } from '@condo/domains/common/components/Button'
-import { UserOutlined } from '@ant-design/icons'
+import { Modal } from '@condo/domains/common/components/Modal'
+import { colors } from '@condo/domains/common/constants/style'
+
+
+
 import { ModalWrapper } from './styles'
 
 function goToSignin () {

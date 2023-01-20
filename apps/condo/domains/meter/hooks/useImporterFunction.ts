@@ -1,13 +1,21 @@
-import { useEffect, useMemo, useRef } from 'react'
-import dayjs from 'dayjs'
-import { useOrganization } from '@open-condo/next/organization'
-import { useApolloClient } from '@open-condo/next/apollo'
-import get from 'lodash/get'
-import map from 'lodash/map'
-import isEmpty from 'lodash/isEmpty'
 import { SortMetersBy } from '@app/condo/schema'
-import { useIntl } from '@open-condo/next/intl'
+import dayjs from 'dayjs'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import map from 'lodash/map'
+import { useEffect, useMemo, useRef } from 'react'
 
+import { useApolloClient } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import {
+    APARTMENT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE,
+    FLAT_UNIT_TYPE,
+    PARKING_UNIT_TYPE,
+    WAREHOUSE_UNIT_TYPE,
+} from '@app/condo/domains/property/constants/common'
+import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import {
     Columns,
     DATE_PARSING_FORMAT,
@@ -16,17 +24,8 @@ import {
     RowNormalizer,
     RowValidator,
 } from '@condo/domains/common/utils/importer'
-import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { searchPropertyWithMap } from '@condo/domains/property/utils/clientSchema/search'
-import {
-    APARTMENT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE,
-    FLAT_UNIT_TYPE,
-    PARKING_UNIT_TYPE,
-    WAREHOUSE_UNIT_TYPE,
-} from '@app/condo/domains/property/constants/common'
 
-import { Meter, MeterReading } from '../utils/clientSchema'
-import { searchMeter } from '../utils/clientSchema/search'
 import {
     COLD_WATER_METER_RESOURCE_ID,
     ELECTRICITY_METER_RESOURCE_ID,
@@ -35,6 +34,8 @@ import {
     HOT_WATER_METER_RESOURCE_ID,
     IMPORT_CONDO_METER_READING_SOURCE_ID,
 } from '../constants/constants'
+import { Meter, MeterReading } from '../utils/clientSchema'
+import { searchMeter } from '../utils/clientSchema/search'
 
 const MONTH_PARSING_FORMAT = 'YYYY-MM'
 

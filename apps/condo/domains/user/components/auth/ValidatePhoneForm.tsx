@@ -1,13 +1,17 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Col, Form, Row, Space, Typography, RowProps } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
-import { FormattedMessage } from '@open-condo/next/intl'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+
 import { useMutation } from '@open-condo/next/apollo'
+import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
+
+import Input from '@condo/domains/common/components/antd/Input'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
+import { colors } from '@condo/domains/common/constants/style'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { SMS_CODE_LENGTH, SMS_CODE_TTL } from '@condo/domains/user/constants/common'
 import {
     CONFIRM_PHONE_ACTION_EXPIRED,
@@ -16,9 +20,8 @@ import {
     CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED, TOO_MANY_REQUESTS,
 } from '@condo/domains/user/constants/errors'
 import { COMPLETE_CONFIRM_PHONE_MUTATION, RESEND_CONFIRM_PHONE_SMS_MUTATION } from '@condo/domains/user/gql'
+
 import { RegisterContext } from './RegisterContextProvider'
-import { colors } from '@condo/domains/common/constants/style'
-import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 
 
 const ROW_STYLES: React.CSSProperties = {

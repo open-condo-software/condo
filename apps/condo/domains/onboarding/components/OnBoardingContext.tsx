@@ -1,31 +1,35 @@
 import { BankFilled, CheckOutlined, CreditCardFilled, ProfileFilled, WechatFilled } from '@ant-design/icons'
-import get from 'lodash/get'
-import Router, { useRouter } from 'next/router'
-import React, { createContext, useContext, useEffect } from 'react'
-import { useAuth } from '@open-condo/next/auth'
-import { useApolloClient } from '@open-condo/next/apollo'
-import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
-import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
-import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
-import { OnBoarding as OnBoardingHooks, OnBoardingStep as OnBoardingStepHooks } from '@condo/domains/onboarding/utils/clientSchema'
 import {
     OnBoarding as IOnBoarding,
     OnBoardingStep as IOnBoardingStep,
 } from '@app/condo/schema'
-import { OrganizationEmployee as OrganizationEmployeeGql } from '@condo/domains/organization/gql'
-import { Property as PropertyGql } from '@condo/domains/property/gql'
-import { BillingIntegrationOrganizationContext as BillingGql } from '@condo/domains/billing/gql'
+import get from 'lodash/get'
+import Router, { useRouter } from 'next/router'
+import React, { createContext, useContext, useEffect } from 'react'
+
+import { useApolloClient } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
+
 import { AcquiringIntegrationContext as AcquiringGql } from '@condo/domains/acquiring/gql'
+import { BillingIntegrationOrganizationContext as BillingGql } from '@condo/domains/billing/gql'
 import { useFocusContext } from '@condo/domains/common/components/Focus/FocusContextProvider'
+import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
+import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { ONBOARDING_COMPLETED_PROGRESS } from '@condo/domains/onboarding/constants'
 import { useOnBoardingCompleteModal } from '@condo/domains/onboarding/hooks/useOnBoardingCompleeteModal'
+import { OnBoarding as OnBoardingHooks, OnBoardingStep as OnBoardingStepHooks } from '@condo/domains/onboarding/utils/clientSchema'
 import {
     getOnBoardingProgress,
     getStepKey,
     getStepType,
 } from '@condo/domains/onboarding/utils/stepUtils'
+import { OrganizationEmployee as OrganizationEmployeeGql } from '@condo/domains/organization/gql'
+import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
+import { Property as PropertyGql } from '@condo/domains/property/gql'
+
 import { OnBoardingStepType } from './OnBoardingStepItem'
-import { ONBOARDING_COMPLETED_PROGRESS } from '@condo/domains/onboarding/constants'
-import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+
 
 interface IDecoratedOnBoardingStepType extends Omit<IOnBoardingStep, 'action'> {
     stepAction: () => void,

@@ -1,6 +1,6 @@
-const { countryPhoneData } = require('phone')
 const faker = require('faker')
 const { max, repeat, get } = require('lodash')
+const { countryPhoneData } = require('phone')
 
 const { normalizePhone } = require('./phone')
 

@@ -1,11 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react'
-import { useRouter } from 'next/router'
-import { isEqual, pick } from 'lodash'
 import { FormInstance } from 'antd'
+import { isEqual, pick } from 'lodash'
+import { useRouter } from 'next/router'
+import React, { useEffect, useState, useRef } from 'react'
 
-import { Modal } from '@condo/domains/common/components/Modal'
 import { useIntl } from '@open-condo/next/intl'
+
 import { Button } from '@condo/domains/common/components/Button'
+import { Modal } from '@condo/domains/common/components/Modal'
 
 interface IPromptProps {
     title: string

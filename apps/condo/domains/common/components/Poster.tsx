@@ -1,6 +1,7 @@
 import styled from '@emotion/styled'
 import React from 'react'
 import ProgressiveImage from 'react-progressive-image'
+
 import { transitions } from '@condo/domains/common/constants/style'
 
 interface IImageProps {

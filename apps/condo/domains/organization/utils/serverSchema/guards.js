@@ -1,7 +1,10 @@
-const { OrganizationEmployee } = require('./index')
-const { User } = require('@condo/domains/user/utils/serverSchema')
-const { STAFF } = require('@condo/domains/user/constants/common')
 const { isEmpty } = require('lodash')
+
+const { STAFF } = require('@condo/domains/user/constants/common')
+const { User } = require('@condo/domains/user/utils/serverSchema')
+
+const { OrganizationEmployee } = require('./index')
+
 
 const checkEmployeeExistency = async (context, organization, email, phone, user) => {
     // priority to search: by user, by phone, by email

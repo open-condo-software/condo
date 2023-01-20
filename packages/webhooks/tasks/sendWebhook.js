@@ -1,11 +1,12 @@
-const { default: RedLock } = require('redlock')
 const dayjs = require('dayjs')
-const { taskQueue, createTask } = require('@open-condo/keystone/tasks')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { getLogger } = require('@open-condo/keystone/logging')
+const { default: RedLock } = require('redlock')
+
 const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
-const { WebhookSubscription } = require('@open-condo/webhooks/schema/utils/serverSchema')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { taskQueue, createTask } = require('@open-condo/keystone/tasks')
 const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
+const { WebhookSubscription } = require('@open-condo/webhooks/schema/utils/serverSchema')
 const { trySendData, buildQuery } = require('@open-condo/webhooks/tasks/tasks.utils')
 
 const LOCK_DURATION = 30 * 1000 // 30 sec

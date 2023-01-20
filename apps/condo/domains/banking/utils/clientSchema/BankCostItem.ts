@@ -8,7 +8,9 @@ import {
     BankCostItemUpdateInput,
     QueryAllBankCostItemsArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { BankCostItem as BankCostItemGQL } from '@condo/domains/banking/gql'
 
 const {

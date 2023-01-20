@@ -1,5 +1,6 @@
-import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
+import React from 'react'
+
 import { Markdown as Component } from '@open-condo/ui/src'
 
 const MD_EXAMPLE = `

@@ -1,6 +1,7 @@
-import React from 'react'
 import { Radio as DefaultRadio, RadioProps } from 'antd'
 import get from 'lodash/get'
+import React from 'react'
+
 import { useTracking, TrackingEventPropertiesType, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 export interface CustomRadioProps extends RadioProps {

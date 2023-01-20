@@ -8,7 +8,9 @@ import {
     BankCategoryUpdateInput,
     QueryAllBankCategoriesArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { BankCategory as BankCategoryGQL } from '@condo/domains/banking/gql'
 
 const {

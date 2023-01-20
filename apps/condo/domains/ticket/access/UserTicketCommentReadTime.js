@@ -4,11 +4,11 @@
 
 const get = require('lodash/get')
 
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
-const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadUserTicketCommentReadTimes ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

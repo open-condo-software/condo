@@ -9,6 +9,7 @@ import {
     QueryAllAddressInjectionsArgs,
 } from '@app/address-service/schema'
 import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
 import { AddressInjection as AddressInjectionGQL } from '@address-service/domains/address/gql'
 
 // TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO

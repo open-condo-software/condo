@@ -1,20 +1,23 @@
-import React, { useCallback, useContext, useState } from 'react'
 import { Col, Form, Row, RowProps, Typography } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
 import get from 'lodash/get'
+import React, { useCallback, useContext, useState } from 'react'
+
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+
+import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+import { RequiredFlagWrapper } from '@condo/domains/user/components/containers/styles'
+import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
+
 import { useRegisterFormValidators } from './hooks'
 import { RegisterContext } from './RegisterContextProvider'
-import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
-import { colors } from '@condo/domains/common/constants/style'
-import { RequiredFlagWrapper } from '@condo/domains/user/components/containers/styles'
 
 
 interface IRegisterFormProps {

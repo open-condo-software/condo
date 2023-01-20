@@ -1,4 +1,5 @@
 const { createWorker } = require('@open-condo/keystone/tasks')
+
 const index = require('./index')
 
 createWorker(index)

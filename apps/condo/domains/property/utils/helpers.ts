@@ -1,9 +1,11 @@
+import { ParsedUrlQuery } from 'querystring'
+
+import { AddressMetaField, Property, PropertyWhereInput } from '@app/condo/schema'
 import { SortOrder } from 'antd/es/table/interface'
 import get from 'lodash/get'
-import { ParsedUrlQuery } from 'querystring'
-import { AddressMetaField, Property, PropertyWhereInput } from '@app/condo/schema'
-import { getAddressDetails } from '@condo/domains/common/utils/helpers'
+
 import { TTextHighlighterProps } from '@condo/domains/common/components/TextHighlighter'
+import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 
 
 export const PROPERTY_PAGE_SIZE = 10

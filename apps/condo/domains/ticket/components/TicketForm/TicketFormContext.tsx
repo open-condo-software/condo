@@ -1,6 +1,6 @@
+import { TicketOrganizationSetting } from '@app/condo/schema'
 import React, { useEffect, useState } from 'react'
 
-import { TicketOrganizationSetting } from '@app/condo/schema'
 
 import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
 

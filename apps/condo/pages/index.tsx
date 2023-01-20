@@ -1,9 +1,11 @@
-import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import get from 'lodash/get'
-import React, { useEffect } from 'react'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { useRouter } from 'next/router'
+import React, { useEffect } from 'react'
+
 import { useOrganization } from '@open-condo/next/organization'
+
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 
 
 const IndexPage = () => {

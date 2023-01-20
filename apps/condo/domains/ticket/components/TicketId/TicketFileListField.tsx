@@ -1,8 +1,9 @@
-import React from 'react'
+import { SortTicketFilesBy, Ticket } from '@app/condo/schema'
 import { isEmpty } from 'lodash'
+import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { SortTicketFilesBy, Ticket } from '@app/condo/schema'
+
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'

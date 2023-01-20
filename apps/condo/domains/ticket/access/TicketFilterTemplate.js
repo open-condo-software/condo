@@ -4,6 +4,7 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition, getById } = require('@open-condo/keystone/schema')
+
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadTicketFilterTemplates ({ authentication: { item: user } }) {

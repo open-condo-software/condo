@@ -3,14 +3,18 @@
  */
 
 const { Relationship, Text } = require('@keystonejs/fields')
+
 const { Json } = require('@open-condo/keystone/fields')
-const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/billing/access/BillingAccountMeter')
+const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
+const { IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
+
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
-const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
+
 
 const BillingAccountMeter = new GQLListSchema('BillingAccountMeter', {
     schemaDoc: 'All `personal meter` (non `whole-building meter`) objects from `billing data source`. In case of the meter can measure several resources we create a separate object for each resource',

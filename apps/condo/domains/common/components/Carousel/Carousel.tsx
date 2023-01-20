@@ -1,8 +1,9 @@
+import { Carousel as DefaultCarousel, CarouselProps } from 'antd'
 import { CarouselRef } from 'antd/es/carousel'
 import React, { forwardRef, ForwardRefExoticComponent, RefAttributes } from 'react'
-import { Carousel as DefaultCarousel, CarouselProps } from 'antd'
-import { SlideContainer } from './SlideContainer'
+
 import { ArrowButton } from './ArrowButton'
+import { SlideContainer } from './SlideContainer'
 
 const INITIAL_PROPS: CarouselProps = {
     dots: false,

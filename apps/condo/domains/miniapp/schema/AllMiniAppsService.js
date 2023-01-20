@@ -3,7 +3,10 @@
  */
 
 const dayjs = require('dayjs')
+
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/miniapp/access/AllMiniAppsService')
 const {
     ACQUIRING_APP_TYPE,
@@ -14,7 +17,6 @@ const {
     ALL_APPS_CATEGORIES,
     CONTEXT_FINISHED_STATUS,
 } = require('@condo/domains/miniapp/constants')
-const { find } = require('@open-condo/keystone/schema')
 const { APPS_FILE_ADAPTER } = require('@condo/domains/miniapp/schema/fields/integration')
 
 const priorityCompare = (lhs, rhs) => {

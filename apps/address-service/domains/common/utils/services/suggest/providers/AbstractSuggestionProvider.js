@@ -1,5 +1,6 @@
-const { suggestionContexts } = require('@address-service/domains/common/constants/contexts')
 const get = require('lodash/get')
+
+const { suggestionContexts } = require('@address-service/domains/common/constants/contexts')
 
 /**
  * @abstract

@@ -1,9 +1,5 @@
 import { green } from '@ant-design/colors'
 import { SortTicketsBy, Ticket as TicketSchema } from '@app/condo/schema'
-import { Loader } from '@condo/domains/common/components/Loader'
-import { colors } from '@condo/domains/common/constants/style'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { useIntl } from '@open-condo/next/intl'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps, Space, Typography } from 'antd'
 import get from 'lodash/get'
@@ -12,8 +8,17 @@ import pickBy from 'lodash/pickBy'
 import Link from 'next/link'
 import qs, { IStringifyOptions } from 'qs'
 import React, { useMemo } from 'react'
-import { useLayoutContext } from '../LayoutContext'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { Loader } from '@condo/domains/common/components/Loader'
+import { colors } from '@condo/domains/common/constants/style'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+
+
 import { TicketOverview } from './TicketOverview'
+
+import { useLayoutContext } from '../LayoutContext'
 
 interface IContainerProps {
     isSmall: boolean

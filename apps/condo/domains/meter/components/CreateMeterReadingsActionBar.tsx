@@ -1,14 +1,16 @@
-import React, { CSSProperties } from 'react'
-import { useIntl } from '@open-condo/next/intl'
-import { Col, Form, Row } from 'antd'
-import { isEmpty } from 'lodash'
 import { PlusCircleFilled } from '@ant-design/icons'
+import { Col, Form, Row } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+import { isEmpty } from 'lodash'
+import React, { CSSProperties } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 
 import { ErrorsContainer } from './ErrorsContainer'
-import { Gutter } from 'antd/es/grid/row'
+
 
 const BUTTON_STYLE: CSSProperties = { marginRight: '12px' }
 const VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]

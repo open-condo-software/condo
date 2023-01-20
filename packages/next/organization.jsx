@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { useQuery } from './apollo'
 import { gql } from 'graphql-tag'
 import cookie from 'js-cookie'
-import { useAuth } from './auth'
 import nextCookie from 'next-cookies'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+
+import { useQuery } from './apollo'
+import { useAuth } from './auth'
+
 
 const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 

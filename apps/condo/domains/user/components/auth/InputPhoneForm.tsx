@@ -1,21 +1,27 @@
-import { Button } from '@condo/domains/common/components/Button'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { normalizePhone } from '@condo/domains/common/utils/phone'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
-import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
-import { useMutation } from '@open-condo/next/apollo'
-import { useIntl } from '@open-condo/next/intl'
 import { Col, Form, Row, RowProps, Typography } from 'antd'
 import Router from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
+
+import { useMutation } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
 import { FormattedMessage } from '@open-condo/next/intl'
-import { RegisterContext } from './RegisterContextProvider'
-import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
-import { colors } from '@condo/domains/common/constants/style'
+
+import { Button } from '@condo/domains/common/components/Button'
 import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
+import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { colors } from '@condo/domains/common/constants/style'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { normalizePhone } from '@condo/domains/common/utils/phone'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
+import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
+
+
+
+import { RegisterContext } from './RegisterContextProvider'
+
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',

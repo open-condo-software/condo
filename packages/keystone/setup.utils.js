@@ -1,10 +1,10 @@
-const { v5: uuidv5 } = require('uuid')
 
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
-const IORedis = require('ioredis')
-const session = require('express-session')
 const connectRedis = require('connect-redis')
+const session = require('express-session')
+const IORedis = require('ioredis')
+const { v5: uuidv5 } = require('uuid')
 
 const RedisStore = connectRedis(session)
 

@@ -5,10 +5,12 @@
  *      yarn workspace @app/condo node bin/send-verification-date-reminder
  */
 
-const dayjs = require('dayjs')
 
 const path = require('path')
+
 const { GraphQLApp } = require('@keystonejs/app-graphql')
+const dayjs = require('dayjs')
+
 const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 
 

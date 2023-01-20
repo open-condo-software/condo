@@ -3,10 +3,12 @@
  */
 
 const get = require('lodash/get')
-const { getById } = require('@open-condo/keystone/schema')
+
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
+const { getById } = require('@open-condo/keystone/schema')
+
 const { checkB2CAppAccessRight } = require('@condo/domains/miniapp/utils/accessSchema')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 async function canReadB2CAppBuilds ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

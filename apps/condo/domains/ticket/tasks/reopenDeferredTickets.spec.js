@@ -2,27 +2,29 @@
  * @jest-environment node
  */
 
-const faker = require('faker')
+const index = require('@app/condo/index')
 const dayjs = require('dayjs')
+const faker = require('faker')
 const { get } = require('lodash')
 
 const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
-const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { Ticket, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { reopenDeferredTickets } = require('./reopenDeferredTickets')
+
 const { STATUS_IDS } = require('../constants/statusTransitions')
 
-const index = require('@app/condo/index')
 
 describe('reopenDeferredTickets', () => {
     setFakeClientMode(index)

@@ -3,6 +3,7 @@ const utc = require('dayjs/plugin/utc')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 const { getRedisClient } = require('@open-condo/keystone/redis')
+
 const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 
 dayjs.extend(utc)

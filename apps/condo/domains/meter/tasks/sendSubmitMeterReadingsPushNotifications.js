@@ -2,23 +2,21 @@ const dayjs = require('dayjs')
 const { get, uniq, isNull } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { getLocalized } = require('@open-condo/locales/loader')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-
+const { rightJoin, joinResidentsToMeters } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const {
     METER_SUBMIT_READINGS_REMINDER_TYPE,
     METER_VERIFICATION_DATE_EXPIRED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
-const { rightJoin, joinResidentsToMeters } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 
 const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
 

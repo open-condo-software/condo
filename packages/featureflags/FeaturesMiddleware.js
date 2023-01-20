@@ -1,4 +1,5 @@
 const express = require('express')
+
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 
 class FeaturesMiddleware {

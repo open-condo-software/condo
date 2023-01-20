@@ -1,9 +1,11 @@
-const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/AbstractSuggestionProvider')
-const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
-const conf = require('@open-condo/config')
 const get = require('lodash/get')
 const fetch = require('node-fetch')
 const { v4: uuid } = require('uuid')
+
+const conf = require('@open-condo/config')
+
+const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/AbstractSuggestionProvider')
 
 /**
  * @typedef {Object} GooglePredictionObjectStructuredFormatting

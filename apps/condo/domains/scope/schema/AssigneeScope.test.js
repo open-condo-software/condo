@@ -10,12 +10,12 @@ const {
     expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { AssigneeScope, createTestAssigneeScope, updateTestAssigneeScope } = require('@condo/domains/scope/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { AssigneeScope, createTestAssigneeScope, updateTestAssigneeScope } = require('@condo/domains/scope/utils/testSchema')
 const { createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('AssigneeScope', () => {
     describe('access', () => {

@@ -1,4 +1,17 @@
 import { EditFilled } from '@ant-design/icons'
+import { Alert, Col, Row, Space, Switch, Tag, Typography } from 'antd'
+import { map } from 'lodash'
+import get from 'lodash/get'
+import Head from 'next/head'
+import Link from 'next/link'
+import Router from 'next/router'
+import { useRouter } from 'next/router'
+import React, { useCallback, useMemo } from 'react'
+
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
 import { Button } from '@condo/domains/common/components/Button'
 import {
     PageContent,
@@ -7,26 +20,19 @@ import {
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
+import { fontSizes } from '@condo/domains/common/constants/style'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
-import { Alert, Col, Row, Space, Switch, Tag, Typography } from 'antd'
-import Router from 'next/router'
-import get from 'lodash/get'
-import Head from 'next/head'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
-import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
-import { fontSizes } from '@condo/domains/common/constants/style'
-import { map } from 'lodash'
-import { useAuth } from '@open-condo/next/auth'
+
+
+
+
 
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()

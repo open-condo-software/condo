@@ -1,11 +1,11 @@
-const {
-    DadataSearchProvider,
-} = require('@address-service/domains/common/utils/services/search/providers')
+const { DADATA_PROVIDER, GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const {
     getSearchProvider,
     getSuggestionsProvider,
 } = require('@address-service/domains/common/utils/services/providerDetectors')
-const { DADATA_PROVIDER, GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const {
+    DadataSearchProvider,
+} = require('@address-service/domains/common/utils/services/search/providers')
 const {
     DadataSuggestionProvider,
     GoogleSuggestionProvider,

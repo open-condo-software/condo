@@ -1,7 +1,8 @@
-import React from 'react'
-import { colors } from '@condo/domains/common/constants/style'
 import { Tag as DefaultTag, Typography } from 'antd'
 import get from 'lodash/get'
+import React from 'react'
+
+import { colors } from '@condo/domains/common/constants/style'
 
 export type TagType = 'red' | 'orange' | 'green' | 'gray'
 

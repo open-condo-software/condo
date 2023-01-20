@@ -1,7 +1,8 @@
+const { default: axios } = require('axios')
+const faker = require('faker')
+const jwtDecode = require('jwt-decode')
 const fetch = require('node-fetch')
 const { Issuer, generators } = require('openid-client')
-const { default: axios } = require('axios')
-const jwtDecode = require('jwt-decode')
 
 const {
     createAxiosClientWithCookie, getRandomString, makeLoggedInAdminClient,
@@ -13,7 +14,7 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 const { createAdapterClass } = require('../oidc/adapter')
-const faker = require('faker')
+
 
 async function getAccessToken (accessToken, context = null) {
     const AdapterClass = createAdapterClass(context)

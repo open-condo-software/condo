@@ -3,9 +3,7 @@
  */
 
 const faker = require('faker')
-const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
-const { updateTestTicket } = require('../utils/testSchema')
+
 
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -13,14 +11,16 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
-
-const { createTestTicket } = require('../utils/testSchema')
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 
+const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketChange, TicketStatus, TicketSource, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
+const { createTestTicket } = require('../utils/testSchema')
+const { updateTestTicket } = require('../utils/testSchema')
 
 describe('TicketChange', () => {
 
