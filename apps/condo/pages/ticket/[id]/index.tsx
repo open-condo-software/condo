@@ -31,6 +31,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import { TicketAssigneeField } from '@condo/domains/ticket/components/TicketId/TicketAssigneeField'
@@ -64,6 +65,7 @@ import {
 } from '@condo/domains/ticket/utils/helpers'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { RESIDENT } from '@condo/domains/user/constants/common'
+
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 60]
@@ -405,6 +407,14 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                             </Col>
                         )
                     }
+                    <Col span={24}>
+                        <IncidentHints
+                            organizationId={organization.id}
+                            propertyId={ticketPropertyId}
+                            dateISO={ticket.createdAd}
+                            classifier={ticket.classifier}
+                        />
+                    </Col>
                     <ActionBar>
                         <Link href={`/ticket/${ticket.id}/update`}>
                             <Button
