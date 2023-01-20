@@ -234,13 +234,13 @@ describe('AddressInjection', () => {
             const injectionsBothStreets = await getTestInjections(adminClient, street.name)
             const injectionsStreet1 = await getTestInjections(adminClient, street1.name)
 
-            expect(injectionsBothStreets.length).toEqual(2)
+            expect(injectionsBothStreets).toHaveLength(2)
             expect(injectionsBothStreets).toEqual(expect.arrayContaining([
                 expect.objectContaining({ street: street1 }),
                 expect.objectContaining({ street: street2 }),
             ]))
 
-            expect(injectionsStreet1.length).toEqual(1)
+            expect(injectionsStreet1).toHaveLength(1)
             expect(injectionsStreet1).toEqual(expect.arrayContaining([
                 expect.objectContaining({ street: street1 }),
             ]))

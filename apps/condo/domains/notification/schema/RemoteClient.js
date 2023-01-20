@@ -82,11 +82,52 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
         },
 
         pushType: {
-            schemaDoc:  'Represents the type of push to be sent to the remote client like default/silent-data/etc. ' +
-                        'Remote client can control structure of data sent via push to the device using this field.' +
-                        'Some remote clients are able to show own notifications instead system ones. ' +
-                        'To do so they have to receive push, containing no notification part, which is sent if ' +
-                        'this field is equal to PUSH_TYPE_SILENT_DATA.',
+            schemaDoc:
+                'Represents the type of push to be sent to the remote client like default/silent-data/etc. ' +
+                'Remote client can control structure of data sent via push to the device using this field.' +
+                'Some remote clients are able to show own notifications instead system ones. ' +
+                'To do so they have to receive push, containing no notification part, which is sent if ' +
+                'this field is equal to PUSH_TYPE_SILENT_DATA.',
+            type: Select,
+            options: PUSH_TYPES,
+            defaultValue: PUSH_TYPE_DEFAULT,
+            isRequired: false,
+            knexOptions: { isNotNullable: true },
+            kmigratorOptions: { null: false },
+        },
+
+        pushTokenVoIP: {
+            schemaDoc: 'Used by transport services (FireBase, Apple, Huawei, etc.) to transfer VoIP push notifications to devices.',
+            type: Text,
+            required: false,
+            kmigratorOptions: { unique: true, null: true },
+            hooks: {
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                    // NOTE(akarjakin): pushTransportVoIP is required when pushToken is present in request
+                    if (resolvedData['pushTokenVoIP']) {
+                        if (!resolvedData['pushTransportVoIP']) addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}pushTransportVoIP] Value is required`)
+                        if (!resolvedData['devicePlatform']) addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}devicePlatform] Value is required`)
+                    }
+                },
+            },
+        },
+
+        pushTransportVoIP: {
+            schemaDoc: 'Transport service, that delivers VoIP push notifications to client device. Type of device requires specific transport service, e.g. Huawei devices can not receive notifications through FireBase.',
+            type: Select,
+            options: PUSH_TRANSPORT_TYPES,
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true },
+        },
+
+        pushTypeVoIP: {
+            schemaDoc:
+                'Represents the type of VoIP push to be sent to the remote client like default/silent-data/etc. ' +
+                'Remote client can control structure of data sent via push to the device using this field.' +
+                'Some remote clients are able to show own notifications instead system ones. ' +
+                'To do so they have to receive push, containing no notification part, which is sent if ' +
+                'this field is equal to PUSH_TYPE_SILENT_DATA.',
             type: Select,
             options: PUSH_TYPES,
             defaultValue: PUSH_TYPE_DEFAULT,
@@ -109,6 +150,7 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
             type: Json,
             isRequired: false,
         },
+
     },
     kmigratorOptions: {
         constraints: [

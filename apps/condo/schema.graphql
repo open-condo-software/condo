@@ -28181,6 +28181,9 @@ type RemoteClientHistoryRecord {
   pushTransport: String
   devicePlatform: String
   pushType: String
+  pushTokenVoIP: String
+  pushTransportVoIP: String
+  pushTypeVoIP: String
   owner: String
   meta: JSON
   id: ID!
@@ -28309,6 +28312,60 @@ input RemoteClientHistoryRecordWhereInput {
   pushType_not_ends_with_i: String
   pushType_in: [String]
   pushType_not_in: [String]
+  pushTokenVoIP: String
+  pushTokenVoIP_not: String
+  pushTokenVoIP_contains: String
+  pushTokenVoIP_not_contains: String
+  pushTokenVoIP_starts_with: String
+  pushTokenVoIP_not_starts_with: String
+  pushTokenVoIP_ends_with: String
+  pushTokenVoIP_not_ends_with: String
+  pushTokenVoIP_i: String
+  pushTokenVoIP_not_i: String
+  pushTokenVoIP_contains_i: String
+  pushTokenVoIP_not_contains_i: String
+  pushTokenVoIP_starts_with_i: String
+  pushTokenVoIP_not_starts_with_i: String
+  pushTokenVoIP_ends_with_i: String
+  pushTokenVoIP_not_ends_with_i: String
+  pushTokenVoIP_in: [String]
+  pushTokenVoIP_not_in: [String]
+  pushTransportVoIP: String
+  pushTransportVoIP_not: String
+  pushTransportVoIP_contains: String
+  pushTransportVoIP_not_contains: String
+  pushTransportVoIP_starts_with: String
+  pushTransportVoIP_not_starts_with: String
+  pushTransportVoIP_ends_with: String
+  pushTransportVoIP_not_ends_with: String
+  pushTransportVoIP_i: String
+  pushTransportVoIP_not_i: String
+  pushTransportVoIP_contains_i: String
+  pushTransportVoIP_not_contains_i: String
+  pushTransportVoIP_starts_with_i: String
+  pushTransportVoIP_not_starts_with_i: String
+  pushTransportVoIP_ends_with_i: String
+  pushTransportVoIP_not_ends_with_i: String
+  pushTransportVoIP_in: [String]
+  pushTransportVoIP_not_in: [String]
+  pushTypeVoIP: String
+  pushTypeVoIP_not: String
+  pushTypeVoIP_contains: String
+  pushTypeVoIP_not_contains: String
+  pushTypeVoIP_starts_with: String
+  pushTypeVoIP_not_starts_with: String
+  pushTypeVoIP_ends_with: String
+  pushTypeVoIP_not_ends_with: String
+  pushTypeVoIP_i: String
+  pushTypeVoIP_not_i: String
+  pushTypeVoIP_contains_i: String
+  pushTypeVoIP_not_contains_i: String
+  pushTypeVoIP_starts_with_i: String
+  pushTypeVoIP_not_starts_with_i: String
+  pushTypeVoIP_ends_with_i: String
+  pushTypeVoIP_not_ends_with_i: String
+  pushTypeVoIP_in: [String]
+  pushTypeVoIP_not_in: [String]
   owner: String
   owner_not: String
   owner_in: [String]
@@ -28412,6 +28469,12 @@ enum SortRemoteClientHistoryRecordsBy {
   devicePlatform_DESC
   pushType_ASC
   pushType_DESC
+  pushTokenVoIP_ASC
+  pushTokenVoIP_DESC
+  pushTransportVoIP_ASC
+  pushTransportVoIP_DESC
+  pushTypeVoIP_ASC
+  pushTypeVoIP_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -28437,6 +28500,9 @@ input RemoteClientHistoryRecordUpdateInput {
   pushTransport: String
   devicePlatform: String
   pushType: String
+  pushTokenVoIP: String
+  pushTransportVoIP: String
+  pushTypeVoIP: String
   owner: String
   meta: JSON
   v: Int
@@ -28465,6 +28531,9 @@ input RemoteClientHistoryRecordCreateInput {
   pushTransport: String
   devicePlatform: String
   pushType: String
+  pushTokenVoIP: String
+  pushTransportVoIP: String
+  pushTypeVoIP: String
   owner: String
   meta: JSON
   v: Int
@@ -28498,6 +28567,17 @@ enum RemoteClientDevicePlatformType {
 }
 
 enum RemoteClientPushTypeType {
+  default
+  silent_data
+}
+
+enum RemoteClientPushTransportVoIPType {
+  firebase
+  apple
+  huawei
+}
+
+enum RemoteClientPushTypeVoIPType {
   default
   silent_data
 }
@@ -28537,6 +28617,18 @@ type RemoteClient {
   """ Represents the type of push to be sent to the remote client like default/silent-data/etc. Remote client can control structure of data sent via push to the device using this field.Some remote clients are able to show own notifications instead system ones. To do so they have to receive push, containing no notification part, which is sent if this field is equal to PUSH_TYPE_SILENT_DATA. 
   """
   pushType: RemoteClientPushTypeType
+
+  """ Used by transport services (FireBase, Apple, Huawei, etc.) to transfer VoIP push notifications to devices. 
+  """
+  pushTokenVoIP: String
+
+  """ Transport service, that delivers VoIP push notifications to client device. Type of device requires specific transport service, e.g. Huawei devices can not receive notifications through FireBase. 
+  """
+  pushTransportVoIP: RemoteClientPushTransportVoIPType
+
+  """ Represents the type of VoIP push to be sent to the remote client like default/silent-data/etc. Remote client can control structure of data sent via push to the device using this field.Some remote clients are able to show own notifications instead system ones. To do so they have to receive push, containing no notification part, which is sent if this field is equal to PUSH_TYPE_SILENT_DATA. 
+  """
+  pushTypeVoIP: RemoteClientPushTypeVoIPType
 
   """ Owner user of a device and a push token. User, which is logged in on the device. Push token can be created by anonymous user and connected to authorized user later on. 
   """
@@ -28636,6 +28728,32 @@ input RemoteClientWhereInput {
   pushType_not: RemoteClientPushTypeType
   pushType_in: [RemoteClientPushTypeType]
   pushType_not_in: [RemoteClientPushTypeType]
+  pushTokenVoIP: String
+  pushTokenVoIP_not: String
+  pushTokenVoIP_contains: String
+  pushTokenVoIP_not_contains: String
+  pushTokenVoIP_starts_with: String
+  pushTokenVoIP_not_starts_with: String
+  pushTokenVoIP_ends_with: String
+  pushTokenVoIP_not_ends_with: String
+  pushTokenVoIP_i: String
+  pushTokenVoIP_not_i: String
+  pushTokenVoIP_contains_i: String
+  pushTokenVoIP_not_contains_i: String
+  pushTokenVoIP_starts_with_i: String
+  pushTokenVoIP_not_starts_with_i: String
+  pushTokenVoIP_ends_with_i: String
+  pushTokenVoIP_not_ends_with_i: String
+  pushTokenVoIP_in: [String]
+  pushTokenVoIP_not_in: [String]
+  pushTransportVoIP: RemoteClientPushTransportVoIPType
+  pushTransportVoIP_not: RemoteClientPushTransportVoIPType
+  pushTransportVoIP_in: [RemoteClientPushTransportVoIPType]
+  pushTransportVoIP_not_in: [RemoteClientPushTransportVoIPType]
+  pushTypeVoIP: RemoteClientPushTypeVoIPType
+  pushTypeVoIP_not: RemoteClientPushTypeVoIPType
+  pushTypeVoIP_in: [RemoteClientPushTypeVoIPType]
+  pushTypeVoIP_not_in: [RemoteClientPushTypeVoIPType]
   owner: UserWhereInput
   owner_is_null: Boolean
   meta: JSON
@@ -28717,6 +28835,12 @@ enum SortRemoteClientsBy {
   devicePlatform_DESC
   pushType_ASC
   pushType_DESC
+  pushTokenVoIP_ASC
+  pushTokenVoIP_DESC
+  pushTransportVoIP_ASC
+  pushTransportVoIP_DESC
+  pushTypeVoIP_ASC
+  pushTypeVoIP_DESC
   owner_ASC
   owner_DESC
   id_ASC
@@ -28744,6 +28868,9 @@ input RemoteClientUpdateInput {
   pushTransport: RemoteClientPushTransportType
   devicePlatform: RemoteClientDevicePlatformType
   pushType: RemoteClientPushTypeType
+  pushTokenVoIP: String
+  pushTransportVoIP: RemoteClientPushTransportVoIPType
+  pushTypeVoIP: RemoteClientPushTypeVoIPType
   owner: UserRelateToOneInput
   meta: JSON
   v: Int
@@ -28769,6 +28896,9 @@ input RemoteClientCreateInput {
   pushTransport: RemoteClientPushTransportType
   devicePlatform: RemoteClientDevicePlatformType
   pushType: RemoteClientPushTypeType
+  pushTokenVoIP: String
+  pushTransportVoIP: RemoteClientPushTransportVoIPType
+  pushTypeVoIP: RemoteClientPushTypeVoIPType
   owner: UserRelateToOneInput
   meta: JSON
   v: Int
@@ -48996,6 +49126,7 @@ enum SendMessageType {
   CUSTOM_CONTENT_MESSAGE_PUSH
   CUSTOM_CONTENT_MESSAGE_EMAIL
   CUSTOM_CONTENT_MESSAGE_SMS
+  VOIP_INCOMING_CALL_MESSAGE
 }
 
 input SendMessageInput {
@@ -49054,6 +49185,9 @@ input SyncRemoteClientInput {
   devicePlatform: DevicePlatformType
   pushType: PushType
   meta: JSON
+  pushTokenVoIP: String
+  pushTransportVoIP: PushTransportType
+  pushTypeVoIP: PushType
 }
 
 input DisconnectUserFromRemoteClientInput {
@@ -56467,6 +56601,25 @@ type Mutation {
   			},
   			"messageBatchId": {
   				"required": false
+  			}
+  		}
+  	},
+  	"VOIP_INCOMING_CALL_MESSAGE": {
+  		"dv": {
+  			"required": true
+  		},
+  		"title": {
+  			"required": false
+  		},
+  		"body": {
+  			"required": true
+  		},
+  		"data": {
+  			"B2CAppId": {
+  				"required": true
+  			},
+  			"callId": {
+  				"required": true
   			}
   		}
   	}

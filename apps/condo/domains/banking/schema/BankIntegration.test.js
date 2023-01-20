@@ -113,7 +113,7 @@ describe('BankIntegration', () => {
     test('table should have only two records', async () => {
         const objs = await BankIntegration.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
 
-        expect(objs.length).toEqual(2)
+        expect(objs).toHaveLength(2)
         expect(map(objs, 'id').includes(BANK_INTEGRATION_IDS.SBBOL)).toBeTruthy()
         expect(map(objs, 'id').includes(BANK_INTEGRATION_IDS['1CClientBankExchange'])).toBeTruthy()
     })
