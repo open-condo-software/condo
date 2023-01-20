@@ -2,8 +2,8 @@ const { get, isString, isEmpty } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { md5 } = require('@condo/domains/common/utils/crypto')
 
+const { md5 } = require('@condo/domains/common/utils/crypto')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
 const {

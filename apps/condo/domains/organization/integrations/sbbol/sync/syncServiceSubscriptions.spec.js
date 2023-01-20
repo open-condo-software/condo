@@ -4,15 +4,17 @@
 
 const mockWarn = jest.fn()
 
+const index = require('@app/condo/index')
 const dayjs = require('dayjs')
-const { ServiceSubscription, createTestServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
+
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_TYPE, SUBSCRIPTION_SBBOL_PERIOD_DAYS } = require('@condo/domains/subscription/constants')
+const { ServiceSubscription, createTestServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
 
 const { syncServiceSubscriptions } = require('./syncServiceSubscriptions')
 
-const index = require('@app/condo/index')
 
 jest.mock('@open-condo/keystone/logging', () => {
     const originalModule = jest.requireActual('@open-condo/keystone/logging')

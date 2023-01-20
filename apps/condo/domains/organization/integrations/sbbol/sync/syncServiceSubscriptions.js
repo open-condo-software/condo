@@ -1,13 +1,13 @@
 const dayjs = require('dayjs')
-
 const { filter, map } = require('lodash')
 
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
-const { SUBSCRIPTION_SBBOL_PERIOD_DAYS, SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { SUBSCRIPTION_SBBOL_PERIOD_DAYS, SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
+const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
+
 const { dvSenderFields } = require('../constants')
 
 const logger = getLogger('sbbol/syncSubscriptions')

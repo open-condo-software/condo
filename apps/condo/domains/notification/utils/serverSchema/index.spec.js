@@ -2,12 +2,14 @@
  * @jest-environment node
  */
 
+const index = require('@app/condo/index')
+
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
-const { sendMessage, Message } = require('./index')
 const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('../../constants/constants')
 
-const index = require('@app/condo/index')
+const { sendMessage, Message } = require('./index')
+
 const { keystone } = index
 
 describe('notification', () => {

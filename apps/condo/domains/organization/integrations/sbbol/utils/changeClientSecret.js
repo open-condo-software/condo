@@ -1,12 +1,17 @@
 const querystring = require('querystring')
+
 const dayjs = require('dayjs')
+const get = require('lodash/get')
+
 const conf = require('@open-condo/config')
-const { SbbolRequestApi } = require('../SbbolRequestApi')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+
+const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+
 const { getAccessTokenForUser } = require('./getAccessTokenForUser')
 const { getSbbolSecretStorage } = require('./getSbbolSecretStorage')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const get = require('lodash/get')
+
+const { SbbolRequestApi } = require('../SbbolRequestApi')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}

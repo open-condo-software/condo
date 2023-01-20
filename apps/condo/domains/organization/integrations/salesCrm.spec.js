@@ -4,15 +4,18 @@
 
 const mockPushOrganizationToSalesCRM = jest.fn()
 
+const index = require('@app/condo/index')
+
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
+
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
-const { syncOrganization } = require('./sbbol/sync/syncOrganization')
-const { MockSbbolResponses } = require('./sbbol/sync/MockSbbolResponses')
 const { SBBOL_FINGERPRINT_NAME } = require('./sbbol/constants')
+const { MockSbbolResponses } = require('./sbbol/sync/MockSbbolResponses')
+const { syncOrganization } = require('./sbbol/sync/syncOrganization')
 
-const index = require('@app/condo/index')
+const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
+
 const { keystone } = index
 
 jest.mock('../utils/serverSchema/Organization')

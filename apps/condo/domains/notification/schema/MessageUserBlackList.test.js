@@ -18,7 +18,6 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
-
 const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_BLACKLISTED_STATUS } = require('@condo/domains/notification/constants/constants')
 const { EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR, MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
 const {
@@ -27,10 +26,8 @@ const {
     createTestMessageUserBlackList,
     updateTestMessageUserBlackList,
 } = require('@condo/domains/notification/utils/testSchema')
-
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization, inviteNewOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema/Organization')
-
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,

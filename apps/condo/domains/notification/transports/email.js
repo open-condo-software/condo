@@ -1,8 +1,9 @@
+const http = require('http')
+const https = require('https')
+
+const FormData = require('form-data')
 const { get } = require('lodash')
 const fetch = require('node-fetch')
-const FormData = require('form-data')
-const https = require('https')
-const http = require('http')
 
 const conf = require('@open-condo/config')
 

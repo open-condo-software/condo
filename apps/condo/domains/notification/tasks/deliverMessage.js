@@ -1,16 +1,13 @@
 const { isEmpty, get } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { createTask } = require('@open-condo/keystone/tasks')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { getLogger } = require('@open-condo/keystone/logging')
 const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { createTask } = require('@open-condo/keystone/tasks')
 
 const { Message, checkMessageTypeInBlackList } = require('@condo/domains/notification/utils/serverSchema')
 
-const smsAdapter = require('../transports/sms')
-const emailAdapter = require('../transports/email')
-const pushAdapter = require('../transports/push')
 const {
     SMS_TRANSPORT,
     EMAIL_TRANSPORT,
@@ -25,6 +22,9 @@ const {
     MESSAGE_DELIVERY_OPTIONS,
     DEFAULT_MESSAGE_DELIVERY_OPTIONS,
 } = require('../constants/constants')
+const emailAdapter = require('../transports/email')
+const pushAdapter = require('../transports/push')
+const smsAdapter = require('../transports/sms')
 
 const SEND_TO_CONSOLE = `${conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE}`.toLowerCase() === 'true' || false
 const DISABLE_LOGGING = `${conf.NOTIFICATION__DISABLE_LOGGING}`.toLowerCase() === 'true' || false
