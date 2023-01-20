@@ -1,24 +1,29 @@
-const axios = require('axios').default
-const axiosCookieJarSupport = require('axios-cookiejar-support').default
-const { gql } = require('graphql-tag')
-const { CookieJar, Cookie } = require('tough-cookie')
-const urlParse = require('url').parse
 const crypto = require('crypto')
-const express = require('express')
-const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
-const { createUploadLink } = require('apollo-upload-client')
-const FormData = require('form-data')
-const fetch = require('node-fetch')
+const fs = require('fs')
 const http = require('http')
 const https = require('https')
-const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template } = require('lodash')
-const fs = require('fs')
+const urlLib = require('url')
+
+const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
+const { createUploadLink } = require('apollo-upload-client')
+const axiosLib = require('axios')
+const axiosCookieJarSupportLib = require('axios-cookiejar-support')
+const express = require('express')
 const falsey = require('falsey')
+const FormData = require('form-data')
+const { gql } = require('graphql-tag')
+const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template } = require('lodash')
+const fetch = require('node-fetch')
+const { CookieJar, Cookie } = require('tough-cookie')
+
+const conf = require('@open-condo/config')
 const { getTranslations } = require('@open-condo/locales/loader')
 
 const EXTRA_LOGGING = falsey(get(process, 'env.DISABLE_LOGGING'))
 
-const conf = require('@open-condo/config')
+const urlParse = urlLib.parse
+const axios = axiosLib.default
+const axiosCookieJarSupport = axiosCookieJarSupportLib.default
 
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
 
