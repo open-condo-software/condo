@@ -2,7 +2,7 @@ const path = require('path')
 
 const { program } = require('commander')
 const uniq = require('lodash/uniq')
-const StyleDictionary = require('style-dictionary').extend(config)
+const StyleDictionaryLib = require('style-dictionary')
 
 const { allTransformers, webVarsTransformersChain } = require('./transformers')
 
@@ -18,6 +18,8 @@ const config = {
     source: [SOURCE_PATH],
     platforms: {},
 }
+
+const StyleDictionary = StyleDictionaryLib.extend(config)
 
 program.option('-w, --web <types...>', 'specify web variable types')
 program.parse()
