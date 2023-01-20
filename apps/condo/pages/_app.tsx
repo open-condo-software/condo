@@ -242,11 +242,11 @@ const MyApp = ({ Component, pageProps }) => {
                     <FeatureFlagsProvider>
                         <GlobalStyle/>
                         <FocusContextProvider>
-                            <PostMessageProvider>
-                                <TrackingProvider>
-                                    <OnBoardingProvider>
-                                        <SubscriptionProvider>
-                                            <TasksProvider>
+                            <TasksProvider>
+                                <PostMessageProvider>
+                                    <TrackingProvider>
+                                        <OnBoardingProvider>
+                                            <SubscriptionProvider>
                                                 <GlobalAppsFeaturesProvider>
                                                     <GlobalAppsContainer/>
                                                     <LayoutContextProvider>
@@ -264,11 +264,11 @@ const MyApp = ({ Component, pageProps }) => {
                                                         </TicketVisibilityContextProvider>
                                                     </LayoutContextProvider>
                                                 </GlobalAppsFeaturesProvider>
-                                            </TasksProvider>
-                                        </SubscriptionProvider>
-                                    </OnBoardingProvider>
-                                </TrackingProvider>
-                            </PostMessageProvider>
+                                            </SubscriptionProvider>
+                                        </OnBoardingProvider>
+                                    </TrackingProvider>
+                                </PostMessageProvider>
+                            </TasksProvider>
                         </FocusContextProvider>
                         <GoogleAnalytics/>
                         <YandexMetrika/>

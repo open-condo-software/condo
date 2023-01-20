@@ -4,35 +4,29 @@ import type {
     RequestParams as BridgeRequestParams,
     ResultResponseData as BridgeResponseData,
     ResponseEventNamesMap as BridgeEventNamesMap,
+    AnyRequestMethodName as BridgeRequestMethodsName,
+    AnyResponseMethodName as BridgeResponseMethodsName,
 } from '@open-condo/bridge'
 import type { AnalyticsParams } from '@open-condo/ui/src/components/_utils/analytics'
 
 export const COMMON_ERROR_PREFIX = 'CondoWebAppCommonError' as const
 
 export type RequestParamsMap = {
-    // Analytics
+    [Method in BridgeRequestMethodsName]: BridgeRequestParams<Method>
+} & {
     CondoWebSendAnalyticsEvent: AnalyticsParams
-    // Bridge
-    CondoWebAppGetLaunchParams: BridgeRequestParams<'CondoWebAppGetLaunchParams'>,
-    CondoWebAppResizeWindow: BridgeRequestParams<'CondoWebAppResizeWindow'>
-    CondoWebAppShowNotification: BridgeRequestParams<'CondoWebAppShowNotification'>
-    CondoWebAppShowProgressBar: BridgeRequestParams<'CondoWebAppShowProgressBar'>
 }
 
 export type HandlerResultsMap = {
-    // Analytics
+    [Method in BridgeResponseMethodsName]: BridgeResponseData<Method>
+} & {
     CondoWebSendAnalyticsEvent: { sent: boolean }
-    // Bridge
-    CondoWebAppGetLaunchParams: BridgeResponseData<'CondoWebAppGetLaunchParams'>,
-    CondoWebAppResizeWindow: BridgeResponseData<'CondoWebAppResizeWindow'>
-    CondoWebAppShowNotification: BridgeResponseData<'CondoWebAppShowNotification'>
-    CondoWebAppShowProgressBar: BridgeResponseData<'CondoWebAppShowProgressBar'>
 }
 
 export type AllRequestMethods = keyof RequestParamsMap
 export type RequestParams<Method extends AllRequestMethods> = RequestParamsMap[Method]
 export type HandlerResult<Method extends AllRequestMethods> = HandlerResultsMap[Method]
-export type RequestHandler<Method extends AllRequestMethods> = (params: RequestParams<Method>) => HandlerResult<Method>
+export type RequestHandler<Method extends AllRequestMethods> = (params: RequestParams<Method>, origin: string) => HandlerResult<Method>
 export type RequestParamValidator<Method extends AllRequestMethods> = ValidateFunction<RequestParams<Method>>
 export type RequestIdType = string | number
 export type RequestId = { requestId?: RequestIdType }

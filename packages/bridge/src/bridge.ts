@@ -14,10 +14,12 @@ export const IS_CLIENT_SIDE = typeof window !== 'undefined'
 export const IS_BROWSER_CLIENT = IS_CLIENT_SIDE
 
 const WEB_SPECIFIC_METHODS: Array<AnyRequestMethodName> = [
+    'CondoWebAppGetActiveProgressBars',
     'CondoWebAppGetLaunchParams',
     'CondoWebAppResizeWindow',
     'CondoWebAppShowNotification',
     'CondoWebAppShowProgressBar',
+    'CondoWebAppUpdateProgressBar',
 ]
 
 const ALL_METHODS = [
