@@ -6,7 +6,7 @@ import type {
     ResponseEventNamesMap as BridgeEventNamesMap,
     AnyRequestMethodName as BridgeRequestMethodsName,
     AnyResponseMethodName as BridgeResponseMethodsName,
-} from '@open-condo/bridge'
+} from '@open-condo/bridge/src'
 import type { AnalyticsParams } from '@open-condo/ui/src/components/_utils/analytics'
 
 export const COMMON_ERROR_PREFIX = 'CondoWebAppCommonError' as const
