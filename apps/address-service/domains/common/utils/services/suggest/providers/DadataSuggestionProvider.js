@@ -5,6 +5,7 @@ const fetch = require('node-fetch')
 const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 
+const DEFAULT_CACHE_TTL = 3600
 const ORGANIZATION_TIN_CACHE_TTL = 84600 // in seconds
 const ADDRESS_TIN_CACHE_TTL = 84600 // in seconds
 
@@ -228,7 +229,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * @param {number} ttl
      * @returns {Promise<*|null>}
      */
-    async callToDadataCached ({ cacheClient, searchKey, apiUrl, ttl = 3600 }) {
+    async callToDadataCached ({ cacheClient, searchKey, apiUrl, ttl = DEFAULT_CACHE_TTL }) {
         const cached = await cacheClient.get(searchKey)
 
         if (cached) {
