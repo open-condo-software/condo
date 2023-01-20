@@ -1,14 +1,17 @@
+import styled from '@emotion/styled'
+import { notification, Select, SelectProps } from 'antd'
+import get from 'lodash/get'
+import React, { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
 import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
 import { TSelectedAddressSuggestion } from '@condo/domains/property/components/BasePropertyForm/types'
 import { validHouseTypes } from '@condo/domains/property/constants/property'
-import styled from '@emotion/styled'
-import { useIntl } from '@open-condo/next/intl'
-import { notification, Select, SelectProps } from 'antd'
-import get from 'lodash/get'
-import React, { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
+
 
 const SELECT_OPTION_STYLES: CSSProperties = { direction: 'rtl', textAlign: 'left' }
 /*

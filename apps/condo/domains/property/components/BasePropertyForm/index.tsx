@@ -1,3 +1,13 @@
+import { Col, Form, FormInstance, notification, Row, RowProps } from 'antd'
+import dayjs from 'dayjs'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import React, { useCallback, useState } from 'react'
+
+import { omitRecursively } from '@open-condo/keystone/fields/Json/utils/cleaner'
+import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
+
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -8,14 +18,7 @@ import { AddressSuggestionsSearchInput } from '@condo/domains/property/component
 import { TSelectedAddressSuggestion } from '@condo/domains/property/components/BasePropertyForm/types'
 import { usePropertyValidations } from '@condo/domains/property/hooks/usePropertyValidations'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
-import { omitRecursively } from '@open-condo/keystone/fields/Json/utils/cleaner'
-import { useIntl } from '@open-condo/next/intl'
-import { Typography } from '@open-condo/ui'
-import { Col, Form, FormInstance, notification, Row, RowProps } from 'antd'
-import dayjs from 'dayjs'
-import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
-import React, { useCallback, useState } from 'react'
+
 
 interface IOrganization {
     id: string

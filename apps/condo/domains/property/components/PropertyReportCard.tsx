@@ -1,18 +1,21 @@
 /** @jsx jsx */
-import React, { useState, useCallback } from 'react'
-import { Space, Image, notification } from 'antd'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
+import { Space, Image, notification } from 'antd'
 import cookie from 'js-cookie'
 import get from 'lodash/get'
+import React, { useState, useCallback } from 'react'
+
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Typography, Modal } from '@open-condo/ui'
-import { useMutation } from '@open-condo/next/apollo'
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
-import { PROPERTY_BANK_ACCOUNT } from '@condo/domains/common/constants/featureflags'
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
+
 import { CREATE_BANK_ACCOUNT_REQUEST_MUTATION } from '@condo/domains/banking/gql'
+import { PROPERTY_BANK_ACCOUNT } from '@condo/domains/common/constants/featureflags'
+import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
+
 import type { Property } from '@app/condo/schema'
 
 const PROPERTY_CARD_WIDTH_THRESHOLD = 400
