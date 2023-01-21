@@ -8,6 +8,7 @@ const {
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
     MESSAGE_SENT_STATUS,
     EMAIL_TRANSPORT,
+    SMS_TRANSPORT,
 } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/testSchema')
@@ -23,11 +24,16 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
 
 describe('InviteNewOrganizationEmployeeService', () => {
+    let admin
+
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+    })
+
     describe('inviteNewOrganizationEmployee', () => {
         describe('called by organization owner', () => {
             describe('for not registered User', () => {
                 it('returns new employee with specified contacts and specializations', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const [categoryClassifier1] = await createTestTicketCategoryClassifier(admin)
                     const [categoryClassifier2] = await createTestTicketCategoryClassifier(admin)
 
@@ -71,8 +77,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     })
                 })
 
-                it('tries to find employee first by phone first', async () => {
-                    const admin = await makeLoggedInAdminClient()
+                it('tries to find employee by phone first', async () => {
                     const [categoryClassifier1] = await createTestTicketCategoryClassifier(admin)
                     const client = await makeClientWithRegisteredOrganization()
                     const client1 = await makeClientWithRegisteredOrganization()
@@ -100,7 +105,6 @@ describe('InviteNewOrganizationEmployeeService', () => {
             describe('for already registered User', () => {
                 test('creates OrganizationEmployee record for registered User and returns it', async () => {
                     const client = await makeClientWithRegisteredOrganization()
-                    const admin = await makeLoggedInAdminClient()
                     const [obj, userAttrs] = await createTestUser(admin)
                     const employeeUserAttrs = {
                         ...userAttrs,
@@ -120,7 +124,6 @@ describe('InviteNewOrganizationEmployeeService', () => {
             describe('for already registered employee User by email', () => {
                 it('finds it by email and returns', async () => {
                     const client = await makeClientWithRegisteredOrganization()
-                    const admin = await makeLoggedInAdminClient()
                     const [obj, userAttrs] = await createTestUser(admin)
                     const employeeUserAttrs = {
                         ...userAttrs,
@@ -205,7 +208,6 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
             describe('for Employee with duplicated User', () => {
                 it('throws error with type ALREADY_INVITED', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const [categoryClassifier1] = await createTestTicketCategoryClassifier(admin)
                     const client = await makeClientWithRegisteredOrganization()
                     const inviteClient = await makeClientWithRegisteredOrganization()
@@ -241,7 +243,6 @@ describe('InviteNewOrganizationEmployeeService', () => {
             it('returns Authentication error', async () => {
                 const anonymousClient = await makeClient()
                 const client = await makeClientWithRegisteredOrganization()
-                const admin = await makeLoggedInAdminClient()
                 const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
                 const [userAttrs] = await createTestUser(admin)
                 const employeeUserAttrs = {
@@ -257,7 +258,6 @@ describe('InviteNewOrganizationEmployeeService', () => {
         })
         describe('user: create invite employee', () => {
             it('can with granted "canInviteNewOrganizationEmployees" permission', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const inviteClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
@@ -276,7 +276,6 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 await inviteNewOrganizationEmployee(client, employee.organization, employeeUserAttrs, role)
             })
             it('cannot without granted "canInviteNewOrganizationEmployees" permission', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const inviteClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
@@ -296,13 +295,65 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 })
             })
         })
+
+        describe('notifications', () => {
+            it('sends sms if emails is not provided in invitation, even if it is exists within User', async () => {
+                const [categoryClassifier1] = await createTestTicketCategoryClassifier(admin)
+                const [categoryClassifier2] = await createTestTicketCategoryClassifier(admin)
+
+                const userAttrs = {
+                    name: faker.name.firstName(),
+                    email: createTestEmail(),
+                    phone: createTestPhone(),
+                }
+                const extraAttrs = {
+                    specializations: [{ id: categoryClassifier1.id }, { id: categoryClassifier2.id }],
+                    email: undefined,
+                }
+                const client = await makeClientWithRegisteredOrganization()
+                const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role, extraAttrs)
+
+                expect(employee.phone).toEqual(userAttrs.phone)
+                expect(employee.name).toEqual(userAttrs.name)
+
+                const organizationEmployeeSpecializations = await OrganizationEmployeeSpecialization.getAll(admin, {
+                    employee: { id: employee.id },
+                }, {
+                    sortBy: 'createdAt_ASC',
+                })
+                expect(organizationEmployeeSpecializations).toHaveLength(2)
+                expect(organizationEmployeeSpecializations[0].specialization.id).toEqual(categoryClassifier1.id)
+                expect(organizationEmployeeSpecializations[1].specialization.id).toEqual(categoryClassifier2.id)
+
+                /**
+                 * Check that notification about invitation as employee was sent
+                 */
+                const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
+
+                await waitFor(async () => {
+                    const message1 = await Message.getOne(admin, messageWhere)
+                    const { transportsMeta } = message1.processingMeta
+
+                    expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportsMeta).toEqual(
+                        expect.arrayContaining([
+                            expect.objectContaining({
+                                transport: SMS_TRANSPORT,
+                                status: MESSAGE_SENT_STATUS,
+                            }),
+                        ])
+                    )
+                    expect(message1.organization.id).toEqual(client.organization.id)
+                })
+            })
+        })
     })
 
     describe('reInviteOrganizationEmployee', () => {
         describe('called by organization owner', () => {
             describe('for not registered User', () => {
                 test('returns employee, already created after invitation', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const userAttrs = {
                         name: faker.name.firstName(),
                         email: createTestEmail(),
@@ -334,7 +385,6 @@ describe('InviteNewOrganizationEmployeeService', () => {
             describe('for already registered User', () => {
                 test('returns employee, already created after invitation', async () => {
                     const client = await makeClientWithRegisteredOrganization()
-                    const admin = await makeLoggedInAdminClient()
                     const [, userAttrs] = await createTestUser(admin)
                     const employeeUserAttrs = {
                         ...userAttrs,
@@ -351,7 +401,6 @@ describe('InviteNewOrganizationEmployeeService', () => {
             describe('for already registered employee User by email', () => {
                 it('finds it and returns', async () => {
                     const client = await makeClientWithRegisteredOrganization()
-                    const admin = await makeLoggedInAdminClient()
                     const [, userAttrs] = await createTestUser(admin)
                     const employeeUserAttrs = {
                         ...userAttrs,

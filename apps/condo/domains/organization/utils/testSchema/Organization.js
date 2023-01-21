@@ -53,6 +53,15 @@ async function registerNewOrganization (client, extraAttrs = {}) {
     return [data.obj, attrs]
 }
 
+/**
+ * Runs mutation for invitation of employee to organization
+ * @param client
+ * @param organization
+ * @param user
+ * @param role
+ * @param extraAttrs
+ * @returns {Promise<(*|{dv: number, role: {id}, sender: {dv: number, fingerprint: *}, phone, organization: {id}, name, email})[]>}
+ */
 async function inviteNewOrganizationEmployee (client, organization, user, role, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')

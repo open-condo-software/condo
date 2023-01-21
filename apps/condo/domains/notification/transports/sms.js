@@ -2,12 +2,13 @@ const { get } = require('lodash')
 
 const { SMSAdapter } = require('@condo/domains/notification/adapters/smsAdapter')
 
-const { SMS_TRANSPORT } = require('../constants/constants')
+const { SMS_TRANSPORT, MESSAGE_USE_ALL_CONTACTS } = require('../constants/constants')
 const { renderTemplate } = require('../templates')
 
 
-async function prepareMessageToSend (message) {
-    const phone = get(message, 'phone') || get(message, ['user', 'phone']) || null
+async function prepareMessageToSend (message, useContactsStrategy) {
+    const useAllContacts = useContactsStrategy === MESSAGE_USE_ALL_CONTACTS
+    const phone = get(message, 'phone') || useAllContacts && get(message, ['user', 'phone']) || null
 
     if (!phone) throw new Error('no phone to send SMS')
 
@@ -28,6 +29,7 @@ async function prepareMessageToSend (message) {
 async function send ({ phone, message } = {}) {
     const Adapter = new SMSAdapter()
     const result = await Adapter.send({ phone, message })
+
     return result
 }
 

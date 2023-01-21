@@ -23,7 +23,7 @@ const ADAPTERS = {
  * Request push tokens for user. Able to detect FireBase/Huawei and different appId versions.
  * @param ownerId
  * @param id
- * @returns {Promise<{tokensByTransport: {[p: string]: [], '[PUSH_TRANSPORT_HUAWEI]': *[], '[PUSH_TRANSPORT_APPLE]': *[], '[PUSH_TRANSPORT_FIREBASE]': *[]}, appIds: {}, pushTypes: {}, count}|*[]>}
+ * @returns {Promise<{tokensByTransport: {[p: string]: [], '[PUSH_TRANSPORT_HUAWEI]': *[], '[PUSH_TRANSPORT_APPLE]': *[], '[PUSH_TRANSPORT_FIREBASE]': *[]}, appIds: {}, pushTypes: {}, count}>}
  */
 async function getTokens (ownerId, id) {
     if (!ownerId && !id) return []

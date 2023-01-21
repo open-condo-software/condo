@@ -399,6 +399,8 @@ const MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS = 'allTransports'
 const MESSAGE_DELIVERY_DEFAULT_PRIORITY = 'default'
 const MESSAGE_DELIVERY_SLOW_PRIORITY = 'slow'
 const MESSAGE_DELIVERY_FAST_PRIORITY = 'fast'
+const MESSAGE_USE_ALL_CONTACTS = 'allContacts'
+const MESSAGE_USE_ONLY_NOTIFICATION_CONTACTS = 'onlyNotificationContacts'
 
 /**
  * NOTE: Please never change these default options.
@@ -411,6 +413,7 @@ const DEFAULT_MESSAGE_DELIVERY_OPTIONS = {
     allowedTransports: [PUSH_TRANSPORT, EMAIL_TRANSPORT],
     defaultTransports: [PUSH_TRANSPORT],
     isAllowedToChangeDefaultTransport: true,
+    useContactsStrategy: MESSAGE_USE_ALL_CONTACTS,
 }
 
 /**
@@ -433,6 +436,7 @@ const MESSAGE_DELIVERY_OPTIONS = {
         allowedTransports: [EMAIL_TRANSPORT, SMS_TRANSPORT],
         defaultTransports: [EMAIL_TRANSPORT, SMS_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
+        useContactsStrategy: MESSAGE_USE_ONLY_NOTIFICATION_CONTACTS,
     },
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
         allowedTransports: [EMAIL_TRANSPORT],
@@ -649,4 +653,6 @@ module.exports = {
     MESSAGE_DELIVERY_DEFAULT_PRIORITY,
     MESSAGE_DELIVERY_SLOW_PRIORITY,
     MESSAGE_DELIVERY_FAST_PRIORITY,
+    MESSAGE_USE_ALL_CONTACTS,
+    MESSAGE_USE_ONLY_NOTIFICATION_CONTACTS,
 }

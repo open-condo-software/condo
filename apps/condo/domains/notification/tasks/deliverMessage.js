@@ -60,13 +60,13 @@ async function _sendMessageByAdapter (transport, adapter, messageContext) {
  * @returns {{transports: *, strategy: *}}
  */
 function getMessageTransportsAndStrategy (type) {
-    const { strategy, defaultTransports } =
+    const { strategy, defaultTransports, useContactsStrategy } =
         {
             ...DEFAULT_MESSAGE_DELIVERY_OPTIONS,
             ...get(MESSAGE_DELIVERY_OPTIONS, type, {}),
         }
 
-    return { strategy, transports: defaultTransports }
+    return { strategy, transports: defaultTransports, useContactsStrategy }
 }
 
 /**
@@ -115,7 +115,7 @@ async function deliverMessage (messageId) {
 
     await Message.update(context, message.id, messageInitData)
 
-    const { strategy, transports } = getMessageTransportsAndStrategy(message.type)
+    const { strategy, transports, useContactsStrategy } = getMessageTransportsAndStrategy(message.type)
     const sendByOneTransport = strategy === MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT
 
     processingMeta.defaultTransports = transports
@@ -132,7 +132,7 @@ async function deliverMessage (messageId) {
         try {
             const adapter = TRANSPORT_ADAPTERS[transport]
             // NOTE: Renderer will throw here, if it doesn't have template/support for required transport type.
-            const messageContext = await adapter.prepareMessageToSend(message)
+            const messageContext = await adapter.prepareMessageToSend(message, useContactsStrategy)
 
             processingMeta.messageContext = messageContext
             transportMeta.messageContext = messageContext

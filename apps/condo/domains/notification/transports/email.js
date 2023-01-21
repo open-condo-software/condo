@@ -7,15 +7,15 @@ const fetch = require('node-fetch')
 
 const conf = require('@open-condo/config')
 
-const { EMAIL_TRANSPORT } = require('../constants/constants')
+const { EMAIL_TRANSPORT, MESSAGE_USE_ALL_CONTACTS } = require('../constants/constants')
 const { renderTemplate } = require('../templates')
 
 const EMAIL_API_CONFIG = (conf.EMAIL_API_CONFIG) ? JSON.parse(conf.EMAIL_API_CONFIG) : null
-
 const HTTPX_REGEXP = /^http:/
 
-async function prepareMessageToSend (message) {
-    const email = get(message, 'email') || get(message, ['user', 'email']) || null
+async function prepareMessageToSend (message, useContactsStrategy) {
+    const useAllContacts = useContactsStrategy === MESSAGE_USE_ALL_CONTACTS
+    const email = get(message, 'email') || useAllContacts && get(message, ['user', 'email']) || null
 
     if (!email) throw new Error('no email to send message')
 
@@ -44,14 +44,17 @@ async function send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta 
     if (!to || !to.includes('@')) throw new Error('unsupported to argument format')
     if (!subject) throw new Error('no subject argument')
     if (!text && !html) throw new Error('no text or html argument')
+
     const { api_url, token, from } = EMAIL_API_CONFIG
     const form = new FormData()
+
     form.append('from', from)
-    if (emailFrom) {
-        form.append('h:Reply-To', emailFrom)
-    }
+
+    if (emailFrom) form.append('h:Reply-To', emailFrom)
+
     form.append('to', to)
     form.append('subject', subject)
+
     if (text) form.append('text', text)
     if (cc) form.append('cc', cc)
     if (bcc) form.append('bcc', bcc)
@@ -60,16 +63,21 @@ async function send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta 
     if (meta && meta.attachments) {
         const streamsPromises = meta.attachments.map((attachment) => {
             const { publicUrl, mimetype, originalFilename } = attachment
+
             return new Promise((resolve) => {
                 const httpx = HTTPX_REGEXP.test(publicUrl) ? http : https
+
                 httpx.get(publicUrl, (stream) => {
                     resolve({ originalFilename, mimetype, stream })
                 })
             })
         })
+
         const streamsData = await Promise.all(streamsPromises)
+
         streamsData.forEach((streamData) => {
             const { originalFilename, mimetype, stream } = streamData
+
             form.append(
                 'attachment',
                 stream,
@@ -92,16 +100,18 @@ async function send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta 
             },
         })
     const status = result.status
-
     let context, isSent
+
     if (status === 200) {
         isSent = true
         context = await result.json()
     } else {
         const text = await result.text()
+
         isSent = false
         context = { text, status }
     }
+
     return [isSent, context]
 }
 
