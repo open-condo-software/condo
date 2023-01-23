@@ -1,5 +1,5 @@
 // todo(DOMA-2567) add translates
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import Head from 'next/head'
 
 import { Typography, Checkbox, Button } from '@open-condo/ui'
@@ -16,7 +16,7 @@ import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBoole
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import get from 'lodash/get'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-import { Incident, IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
+import { Incident, IncidentProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IncidentWhereInput, SortIncidentsBy, Incident as IIncident } from '@app/condo/schema'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -28,6 +28,8 @@ import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
 import uniq from 'lodash/uniq'
+import EmptyListView from '@condo/domains/common/components/EmptyListView'
+import { Loader } from '@condo/domains/common/components/Loader'
 
 
 interface IIncidentIndexPage extends React.FC {
@@ -285,6 +287,40 @@ const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
     const { filterMetas, useTableColumns, organizationId } = props
 
     const PageTitle = 'Журнал отключений'
+    const EmptyListLabel = 'Пока в журнале нет записей'
+    const CreateTicketLabel = 'Добавить'
+
+    const {
+        count: incidentTotal,
+        loading: incidentTotalLoading,
+    } = Incident.useCount({ where: { organization: { id: organizationId } } })
+
+    const PageContet = useMemo(() => {
+        if (incidentTotalLoading) {
+            return <Loader fill size='large'/>
+        }
+
+        if (!incidentTotal) {
+            return (
+                <EmptyListView
+                    label={EmptyListLabel}
+                    createRoute='/incident/create'
+                    createLabel={CreateTicketLabel}
+                />
+            )
+        }
+
+        return (
+            <Row gutter={ROW_GUTTER} align='middle' justify='center'>
+                <FilterContainer filterMetas={filterMetas} />
+                <TableContainer
+                    useTableColumns={useTableColumns}
+                    filterMetas={filterMetas}
+                    organizationId={organizationId}
+                />
+            </Row>
+        )
+    }, [filterMetas, incidentTotal, incidentTotalLoading, organizationId, useTableColumns])
 
     return (
         <>
@@ -294,14 +330,7 @@ const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
                 <TablePageContent>
-                    <Row gutter={ROW_GUTTER} align='middle' justify='center'>
-                        <FilterContainer filterMetas={filterMetas} />
-                        <TableContainer
-                            useTableColumns={useTableColumns}
-                            filterMetas={filterMetas}
-                            organizationId={organizationId}
-                        />
-                    </Row>
+                    {PageContet}
                 </TablePageContent>
             </PageWrapper>
         </>
