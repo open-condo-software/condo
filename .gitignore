@@ -53,3 +53,6 @@ ignore.*
 
 # Condo UI-kit static
 apps/condo/public/ui
+
+# Turborepo local cache
+.turbo
