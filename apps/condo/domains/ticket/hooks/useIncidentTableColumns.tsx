@@ -47,21 +47,22 @@ const COLUMNS_WIDTH = {
 }
 
 
-// todo(DOMA-2567) add translations
 export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
-    const { incidents, filterMetas } = props
-
     const intl = useIntl()
-    const NumberLabel = '№'
-    const PropertiesLabel = 'Адреса'
-    const ClassifiersLabel = 'Классификатор'
-    const DetailsLabel = 'Описание'
-    const StatusLabel = 'Статус'
-    const WorkStartLabel = 'Начало работ'
-    const WorkFinishLabel = 'Завершение работ'
-    const AllPropertiesMessage = 'Все дома'
-    const ActualMessage = 'ActualMessage'
-    const NotActualMessage = 'NotActualMessage'
+    const NumberLabel = intl.formatMessage({ id: 'incident.index.tableColumns.number.label' })
+    const PropertiesLabel = intl.formatMessage({ id: 'incident.index.tableColumns.properties.label' })
+    const ClassifiersLabel = intl.formatMessage({ id: 'incident.index.tableColumns.classifiers.label' })
+    const DetailsLabel = intl.formatMessage({ id: 'incident.index.tableColumns.details.label' })
+    const StatusLabel = intl.formatMessage({ id: 'incident.index.tableColumns.status.label' })
+    const WorkStartLabel = intl.formatMessage({ id: 'incident.index.tableColumns.workStart.label' })
+    const WorkFinishLabel = intl.formatMessage({ id: 'incident.index.tableColumns.workFinish.label' })
+    const AllPropertiesMessage = intl.formatMessage({ id: 'incident.fields.properties.allSelected' })
+    const ActualMessage = intl.formatMessage({ id: 'incident.status.actual' })
+    const NotActualMessage = intl.formatMessage({ id: 'incident.status.notActual' })
+    const OverdueMessage = intl.formatMessage({ id: 'incident.fields.workDate.overdue' }).toLowerCase()
+    const TimeLeftMessage = intl.formatMessage({ id: 'incident.fields.workDate.timeLeft' }).toLowerCase()
+
+    const { incidents, filterMetas } = props
 
     const incidentIds = useMemo(() => incidents.map(incident => incident.id), [incidents])
 
@@ -137,7 +138,7 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
                 {isActual ? ActualMessage : NotActualMessage}
             </Tag>
         )
-    }, [])
+    }, [ActualMessage, NotActualMessage])
 
     const renderWorkStart = useMemo(() => getDateRender(intl), [intl])
     const renderWorkFinish = useCallback((stringDate: string, incident) => {
@@ -155,6 +156,8 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
             show: isActual,
             deadline: incident.workFinish,
             startWithDate: currentDate,
+            OverdueMessage,
+            TimeLeftMessage,
         })
 
         return (
@@ -165,7 +168,7 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
                 </Typography.Text>
             </>
         )
-    }, [intl])
+    }, [OverdueMessage, TimeLeftMessage, intl])
 
     const renderProperties: ColumnType<IIncident>['render'] = useCallback((_, incident) => {
         if (get(incident, 'hasAllProperties')) {
@@ -178,7 +181,7 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
 
         // todo(DOMA-2567) fix function name
         return geOneAddressAndPropertiesCountRender(search)(intl, properties)
-    }, [incidentProperties, intl, search])
+    }, [AllPropertiesMessage, incidentProperties, intl, search])
 
     const renderClassifiers: ColumnType<IIncident>['render'] = useCallback((_, incident) => {
         const classifiers = incidentClassifiers
@@ -263,5 +266,5 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
                 render: renderWorkFinish,
             },
         ],
-    }), [filterMetas, filters, loading, renderClassifiers, renderDetails, renderNumber, renderProperties, renderStatus, renderWorkFinish, renderWorkStart, sorterMap])
+    }), [ClassifiersLabel, DetailsLabel, NumberLabel, PropertiesLabel, StatusLabel, WorkFinishLabel, WorkStartLabel, filterMetas, filters, loading, renderClassifiers, renderDetails, renderNumber, renderProperties, renderStatus, renderWorkFinish, renderWorkStart, sorterMap])
 }
