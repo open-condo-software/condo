@@ -40,12 +40,12 @@ import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
+import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 
 
 //#region Constants, types and styles
