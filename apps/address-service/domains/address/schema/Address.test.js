@@ -17,6 +17,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { Address, AddressSource, createTestAddress, updateTestAddress } = require('@address-service/domains/address/utils/testSchema')
+const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
