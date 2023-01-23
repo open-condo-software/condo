@@ -38,6 +38,7 @@ jobs:
 
       - name: install packages
         run: |
+          npm i -g turbo
           yarn install --immutable
           pip3 install django
           pip3 install psycopg2-binary
