@@ -41,11 +41,12 @@ type BuildingTableProps = {
     sortBy: SortPropertiesBy[]
     onSearch?: (properties: PropertyType[]) => void
     loading?: boolean
+    canDownloadProperties?: boolean
 }
 
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
 const ROW_SMALL_HORIZONTAL_GUTTERS: [Gutter, Gutter] = [10, 0]
-const ROW_BIG_HORIZONTAL_GUTTERS: [Gutter, Gutter] = [40, 0]
+const ROW_BIG_HORIZONTAL_GUTTERS: [Gutter, Gutter] = [40, 12]
 
 export default function BuildingsTable (props: BuildingTableProps) {
     const intl = useIntl()
@@ -60,7 +61,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
     const CreateProperty = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
 
-    const { role, searchPropertiesQuery, tableColumns, sortBy, loading } = props
+    const { role, searchPropertiesQuery, tableColumns, sortBy, loading, canDownloadProperties } = props
 
     const { isSmall } = useLayoutContext()
     const router = useRouter()
@@ -106,6 +107,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const isNoBuildingsData = isEmpty(properties) && isEmpty(filters) && !propertiesLoading && !loading
 
     const canManageProperties = get(role, 'canManageProperties', false)
+    const isDownloadButtonHidden = !get(role, 'canManageProperties', canDownloadProperties === true)
     const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoBuildingsData ? 'flex' : 'none', paddingTop : canManageProperties ? 'inherit' : '5%' }
 
     function onExportToExcelButtonClicked () {
@@ -163,7 +165,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                             allowClear={true}
                                         />
                                     </Col>
-                                    <Col lg={12} hidden={isSmall || !canManageProperties}>
+                                    <Col lg={12} hidden={isDownloadButtonHidden}>
                                         {
                                             downloadLink
                                                 ? (
