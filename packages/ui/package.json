@@ -28,7 +28,7 @@
     "not IE 10"
   ],
   "scripts": {
-    "build:deps": "yarn workspace @open-condo/icons build",
+    "build:deps": "turbo build --filter=ui^...",
     "build:styles": "find src/tokens -mindepth 1 -not -name 'tokens.json' -delete && node bin/prepare-tokens.js && node bin/buildStyleVars/runner.js --web less",
     "build:colors": "find src/colors -mindepth 1 -not -name 'index.ts' -delete && node bin/generate-colors.js",
     "build:tokens": "yarn build:styles && yarn build:colors",

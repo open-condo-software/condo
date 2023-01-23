@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "test": "jest",
-    "dev": "keystone dev --port 3001",
+    "dev": "yarn build:deps && keystone dev --port 3001",
     "debug": "node inspect node_modules/.bin/keystone dev --port 3001",
-    "build:deps": "yarn workspace @open-condo/bridge build",
+    "build:deps": "turbo build --filter=miniapp^... --filter=!condo",
     "build": "yarn build:deps && keystone build",
     "start": "keystone start",
     "kmigrator": "./../../bin/kmigrator.py",
