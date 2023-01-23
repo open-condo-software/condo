@@ -1,17 +1,27 @@
-const passwordGenerator = require('generate-password')
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
-const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/serverSchema')
-const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
-const access = require('@condo/domains/organization/access/InviteNewOrganizationEmployeeService')
-const guards = require('../utils/serverSchema/guards')
 const get = require('lodash/get')
-const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const passwordGenerator = require('generate-password')
+
 const { getById } = require('@open-condo/keystone/schema')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+
 const { WRONG_FORMAT, NOT_FOUND, WRONG_PHONE_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const {
+    DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
+    DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
+} = require('@condo/domains/notification/constants/constants')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+
+const access = require('@condo/domains/organization/access/InviteNewOrganizationEmployeeService')
+const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/serverSchema')
+
+const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
+
+const guards = require('../utils/serverSchema/guards')
+
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+
 const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED, UNABLE_TO_REGISTER_USER } = require('../constants/errors')
 
 const ERRORS = {
@@ -175,17 +185,16 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const organizationCountry = get(userOrganization, 'country', 'en')
                 const organizationName = get(userOrganization, 'name')
                 const organizationId = get(userOrganization, 'id')
+                const type = !email ? DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE : DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE
 
                 await sendMessage(context, {
                     lang: organizationCountry,
                     to: {
-                        user: {
-                            id: user.id,
-                        },
+                        user: { id: user.id },
                         phone: !email ? phone : undefined,
                         email,
                     },
-                    type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                    type,
                     meta: {
                         organizationName,
                         dv: 1,
@@ -236,17 +245,16 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const organizationCountry = get(employeeOrganization, 'country', 'en')
                 const organizationName = get(employeeOrganization, 'name')
                 const organizationId = get(employeeOrganization, 'id')
+                const type = !email ? DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE : DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE
 
                 await sendMessage(context, {
                     lang: organizationCountry,
                     to: {
-                        user: {
-                            id: existedUser.id,
-                        },
+                        user: { id: existedUser.id },
                         phone: !email ? phone : undefined,
                         email,
                     },
-                    type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                    type,
                     meta: {
                         organizationName,
                         dv: 1,

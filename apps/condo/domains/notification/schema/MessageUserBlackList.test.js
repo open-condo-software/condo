@@ -19,8 +19,15 @@ const {
 
 const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 
-const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_BLACKLISTED_STATUS } = require('@condo/domains/notification/constants/constants')
-const { EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR, MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
+const {
+    DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
+    DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
+    MESSAGE_BLACKLISTED_STATUS,
+} = require('@condo/domains/notification/constants/constants')
+const {
+    EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR,
+    MESSAGE_TYPE_IN_USER_BLACK_LIST,
+} = require('@condo/domains/notification/constants/errors')
 const {
     Message,
     MessageUserBlackList,
@@ -39,6 +46,12 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 describe('MessageUserBlackList', () => {
+    let admin
+
+    beforeEach( async () => {
+        admin = await makeLoggedInAdminClient()
+    })
+
     describe('accesses', () => {
         describe('create', () => {
             it('support can create MessageUserBlackList', async () => {
@@ -157,7 +170,6 @@ describe('MessageUserBlackList', () => {
 
     describe('logic', () => {
         it('dont send invite notification if message type and email added in MessageUserBlackList', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userAttrs = {
                 name: faker.name.firstName(),
                 email: createTestEmail(),
@@ -166,7 +178,7 @@ describe('MessageUserBlackList', () => {
             const client = await makeClientWithRegisteredOrganization()
 
             await createTestMessageUserBlackList(admin, {
-                type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
                 email: userAttrs.email,
             })
 
@@ -174,7 +186,7 @@ describe('MessageUserBlackList', () => {
             const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role)
 
             await waitFor(async () => {
-                const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
+                const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE }
                 const messages = await Message.getAll(admin, messageWhere)
 
                 expect(messages[0].status).toEqual(MESSAGE_BLACKLISTED_STATUS)
@@ -183,7 +195,6 @@ describe('MessageUserBlackList', () => {
         })
 
         it('dont send any notifications to phone if MessageUserBlackList rule type is empty', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userAttrs = {
                 name: faker.name.firstName(),
                 email: createTestEmail(),
@@ -199,7 +210,7 @@ describe('MessageUserBlackList', () => {
             const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role)
 
             await waitFor(async () => {
-                const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
+                const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE }
                 const messages = await Message.getAll(admin, messageWhere)
 
                 expect(messages[0].status).toEqual(MESSAGE_BLACKLISTED_STATUS)
@@ -210,51 +221,48 @@ describe('MessageUserBlackList', () => {
 
     describe('constraints', () => {
         it('unique user and type', async () => {
-            const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithRegisteredOrganization()
 
             await createTestMessageUserBlackList(admin, {
-                type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
                 user: { connect: { id: client.user.id } },
             })
 
             await expectToThrowInternalError(async () => {
                 await createTestMessageUserBlackList(admin, {
-                    type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                    type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
                     user: { connect: { id: client.user.id } },
                 })
             }, `${UNIQUE_CONSTRAINT_ERROR} "message_user_black_list_unique_user_and_type"`)
         })
 
         it('unique phone and type', async () => {
-            const admin = await makeLoggedInAdminClient()
             const phone = createTestPhone()
 
             await createTestMessageUserBlackList(admin, {
-                type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                type: DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
                 phone,
             })
 
             await expectToThrowInternalError(async () => {
                 await createTestMessageUserBlackList(admin, {
-                    type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                    type: DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
                     phone,
                 })
             }, `${UNIQUE_CONSTRAINT_ERROR} "message_user_black_list_unique_phone_and_type"`)
         })
 
         it('unique email and type', async () => {
-            const admin = await makeLoggedInAdminClient()
             const email = createTestEmail()
 
             await createTestMessageUserBlackList(admin, {
-                type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
                 email,
             })
 
             await expectToThrowInternalError(async () => {
                 await createTestMessageUserBlackList(admin, {
-                    type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                    type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
                     email,
                 })
             }, `${UNIQUE_CONSTRAINT_ERROR} "message_user_black_list_unique_email_and_type"`)
@@ -266,7 +274,7 @@ describe('MessageUserBlackList', () => {
             const supportClient = await makeClientWithSupportUser()
 
             await expectToThrowValidationFailureError(async () => {
-                const [obj, attrs] = await createTestMessageUserBlackList(supportClient)
+                await createTestMessageUserBlackList(supportClient)
 
             }, EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR)
         })

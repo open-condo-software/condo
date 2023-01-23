@@ -25587,7 +25587,17 @@ export type Mutation = {
    * 			"required": true
    * 		}
    * 	},
-   * 	"DIRTY_INVITE_NEW_EMPLOYEE": {
+   * 	"DIRTY_INVITE_NEW_EMPLOYEE_SMS": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"organizationName": {
+   * 			"defaultValue": "ORGANIZATION",
+   * 			"required": false
+   * 		}
+   * 	},
+   * 	"DIRTY_INVITE_NEW_EMPLOYEE_EMAIL": {
    * 		"dv": {
    * 			"defaultValue": "",
    * 			"required": true
@@ -45951,7 +45961,8 @@ export type SendMessageToSupportOutput = {
 
 export enum SendMessageType {
   InviteNewEmployee = 'INVITE_NEW_EMPLOYEE',
-  DirtyInviteNewEmployee = 'DIRTY_INVITE_NEW_EMPLOYEE',
+  DirtyInviteNewEmployeeSms = 'DIRTY_INVITE_NEW_EMPLOYEE_SMS',
+  DirtyInviteNewEmployeeEmail = 'DIRTY_INVITE_NEW_EMPLOYEE_EMAIL',
   RegisterNewUser = 'REGISTER_NEW_USER',
   ResetPassword = 'RESET_PASSWORD',
   SmsVerify = 'SMS_VERIFY',

@@ -49590,7 +49590,8 @@ input SendMessageToInput {
 
 enum SendMessageType {
   INVITE_NEW_EMPLOYEE
-  DIRTY_INVITE_NEW_EMPLOYEE
+  DIRTY_INVITE_NEW_EMPLOYEE_SMS
+  DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
   REGISTER_NEW_USER
   RESET_PASSWORD
   SMS_VERIFY
@@ -56443,7 +56444,17 @@ type Mutation {
   			"required": true
   		}
   	},
-  	"DIRTY_INVITE_NEW_EMPLOYEE": {
+  	"DIRTY_INVITE_NEW_EMPLOYEE_SMS": {
+  		"dv": {
+  			"defaultValue": "",
+  			"required": true
+  		},
+  		"organizationName": {
+  			"defaultValue": "ORGANIZATION",
+  			"required": false
+  		}
+  	},
+  	"DIRTY_INVITE_NEW_EMPLOYEE_EMAIL": {
   		"dv": {
   			"defaultValue": "",
   			"required": true
