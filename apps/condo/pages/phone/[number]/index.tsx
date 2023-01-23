@@ -321,22 +321,25 @@ const ClientCardTabContent = ({
     const { logEvent } = useTracking()
 
     const handleShowAllPropertyTicketsMessage = useCallback(async () => {
-        logEvent({ eventName: 'ClientCardShowAllPropertyTicketsClick' })
-        const newParameters = getFiltersQueryData({ property: [get(property, 'id', null)] })
-        await updateQuery(router, { newParameters, newRoute: '/ticket' })
-    }, [logEvent, property, router])
+        if (typeof window !== 'undefined') {
+            logEvent({ eventName: 'ClientCardShowAllPropertyTicketsClick' })
+            window.open(`/ticket?filters={"property":"${property.id}"}`, '_blank')
+        }
+    }, [logEvent, property])
 
     const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
-                logEvent({
-                    eventName: 'ClientCardTicketIndexClick',
-                    eventProperties: { ticketId: record.id } }
-                )
-                await router.push(`/ticket/${record.id}/`)
+                if (typeof window !== 'undefined') {
+                    logEvent({
+                        eventName: 'ClientCardTicketIndexClick',
+                        eventProperties: { ticketId: record.id } }
+                    )
+                    window.open(`/ticket/${record.id}/`, '_blank')
+                }
             },
         }
-    }, [logEvent, router])
+    }, [logEvent])
 
     const handleCreateTicket = useCallback(() => handleTicketCreateClick(lastCreatedTicket),
         [handleTicketCreateClick, lastCreatedTicket])
