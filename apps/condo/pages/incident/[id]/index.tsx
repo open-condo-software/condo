@@ -385,6 +385,8 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
 
     const router = useRouter()
 
+    console.log(incident)
+
     const isActual = incident.status === IncidentStatusType.Actual
 
     const {
@@ -496,7 +498,7 @@ const IncidentIdPage: IIncidentIdPage = () => {
         refetch,
     } = Incident.useObject({ where: { id } })
 
-    if (incidentLoading && !incident) {
+    if (incidentLoading || !incident) {
 
         return (
             <LoadingOrErrorPage
