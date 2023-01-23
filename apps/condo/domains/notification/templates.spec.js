@@ -23,7 +23,7 @@ const {
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     DEFAULT_TEMPLATE_FILE_NAME,
     PUSH_TRANSPORT,
-    DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+    DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
     RESET_PASSWORD_MESSAGE_TYPE,
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
@@ -232,7 +232,7 @@ describe('Templates', () => {
     it('Employee inviting rendered SMS message does not contain forbidden symbols (value is normalized)', async () => {
         const admin = await makeLoggedInAdminClient()
         const [message] = await createTestMessage(admin, {
-            type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+            type: DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
             lang: RU_LOCALE,
             phone: '+79999999999',
             meta: {
