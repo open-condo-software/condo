@@ -7,15 +7,19 @@ const { getItem, updateItem } = require('@keystonejs/server-side-graphql-client'
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
 
-const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, User } = require('@condo/domains/user/utils/testSchema')
 
 const { MockSbbolResponses } = require('./MockSbbolResponses')
 const { syncOrganization } = require('./syncOrganization')
 const { syncUser } = require('./syncUser')
+
 
 const { keystone } = index
 
@@ -27,27 +31,26 @@ describe('syncOrganization from SBBOL', () => {
         it('should update existed organization with a same tin', async () => {
             const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
-            const client = await makeClientWithRegisteredOrganization()
+            const adminClient = await makeLoggedInAdminClient()
+            const [organization] = await registerNewOrganization(adminClient)
             const context = {
                 keystone,
                 context: adminContext,
             }
-            const user = await getItem({
-                keystone,
-                itemId: client.user.id,
-                listKey: 'User',
-                returnFields: 'id name phone',
-            })
+            const [user] = await User.getAll(adminClient, {
+                id: adminClient.user.id,
+            }, { first: 1 })
             userData.phone = user.phone
-            organizationData.meta.inn = client.organization.tin
-            await syncOrganization({
+            organizationData.meta.inn = organization.tin
+            const updOrg = await syncOrganization({
                 context,
                 user: user,
                 userData,
                 dvSenderFields,
                 organizationInfo: organizationData,
             })
-            const [ updatedOrganization ] = await OrganizationApi.getAll(adminContext, { id: client.organization.id })
+            expect(updOrg.id).toEqual(organization.id)
+            const [ updatedOrganization ] = await OrganizationApi.getAll(adminContext, { id: organization.id })
             expect(updatedOrganization.importId).toEqual(organizationData.importId)
             expect(updatedOrganization.importRemoteSystem).toEqual(organizationData.importRemoteSystem)
         })
@@ -60,28 +63,35 @@ describe('syncOrganization from SBBOL', () => {
                 context: adminContext,
             }
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
-            const user = await getItem({
-                keystone,
-                itemId: client.user.id,
-                listKey: 'User',
-                returnFields: 'id name phone',
+            const [organization] = await registerNewOrganization(client)
+
+            userData.phone = client.user.phone
+            organizationData.meta.inn = organization.tin
+
+            await OrganizationApi.softDelete(adminContext, organization.id, { ...dvSenderFields })
+
+            const [connectedEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
+                user: { id: client.user.id },
             })
-            userData.phone = user.phone
+            await OrganizationEmployeeApi.softDelete(adminContext, connectedEmployee.id, { ...dvSenderFields })
+
             await syncOrganization({
                 context,
-                user: user,
+                user: client.user,
                 userData,
                 dvSenderFields,
                 organizationInfo: organizationData,
             })
+
             const [ newOrganization ] = await OrganizationApi.getAll(adminContext, {
                 importId: organizationData.importId,
                 importRemoteSystem: organizationData.importRemoteSystem,
-            })
+            }, { sortBy: ['createdAt_DESC'], first: 1 })
             expect(newOrganization).toBeDefined()
-            const [ existedEmployee ] = await OrganizationEmployeeApi.getAll(adminContext, {
+
+            const [existedEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
                 organization: { id: newOrganization.id },
-                user: { id: user.id },
+                user: { id: client.user.id },
             })
             expect(existedEmployee).toBeDefined()
             expect(existedEmployee.isAccepted).toBeTruthy()
@@ -97,6 +107,7 @@ describe('syncOrganization from SBBOL', () => {
                 context: adminContext,
             }
             const user = await syncUser({ context, userInfo: userData, identityId })
+
             await syncOrganization({
                 context,
                 user,
@@ -104,11 +115,13 @@ describe('syncOrganization from SBBOL', () => {
                 dvSenderFields,
                 organizationInfo: organizationData,
             })
+
             const [ newOrganization ] = await OrganizationApi.getAll(adminContext, {
                 importId: organizationData.importId,
                 importRemoteSystem: organizationData.importRemoteSystem,
             })
             expect(newOrganization).toBeDefined()
+
             const [ existedEmployee ] = await OrganizationEmployeeApi.getAll(adminContext, {
                 organization: { id: newOrganization.id },
                 user: { id: user.id },
@@ -128,64 +141,46 @@ describe('syncOrganization from SBBOL', () => {
                 context: adminContext,
             }
             const existedOrganizationClient = await makeClientWithRegisteredOrganization()
-            await updateItem({
-                keystone,
-                context: adminContext,
-                listKey: 'Organization',
-                item: {
-                    id: existedOrganizationClient.organization.id,
-                    data: {
-                        importId: organizationData.importId,
-                        importRemoteSystem: organizationData.importRemoteSystem,
-                        ...dvSenderFields,
-                    },
+            organizationData.meta.inn = existedOrganizationClient.organization.tin
+            await OrganizationApi.update(adminContext, existedOrganizationClient.organization.id, {
+                importId: organizationData.importId,
+                importRemoteSystem: organizationData.importRemoteSystem,
+                ...dvSenderFields,
+                meta: {
+                    ...organizationData.meta,
                 },
             })
-            const newUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
-            const user = await getItem({
-                keystone,
-                itemId: newUserClient.user.id,
-                listKey: 'User',
-                returnFields: 'id name phone',
-            })
+
+            const newUserClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
             await syncOrganization({
                 context,
-                user,
+                user: newUserClient1.user,
                 userData,
                 dvSenderFields,
                 organizationInfo: organizationData,
             })
+
             const [ existedEmployee ] = await OrganizationEmployeeApi.getAll(adminContext, {
                 organization: { id: existedOrganizationClient.organization.id },
-                user: { id: user.id },
+                user: { id: newUserClient1.user.id },
             })
             expect(existedEmployee).toBeDefined()
             expect(existedEmployee.isAccepted).toBeTruthy()
             expect(existedEmployee.role.canManageEmployees).toBeTruthy()
 
             const newUserClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
-            const user2 = await getItem({
-                keystone,
-                itemId: newUserClient2.user.id,
-                listKey: 'User',
-                returnFields: 'id name phone',
-            })
-            const userData2 = {
-                ...userData,
-                importId: faker.datatype.uuid(),
-                email: faker.internet.email(),
-                phone: faker.phone.phoneNumber('+79#########'),
-            }
+
             await syncOrganization({
                 context,
-                user: user2,
-                userData: userData2,
+                user: newUserClient2.user,
+                userData,
                 dvSenderFields,
                 organizationInfo: organizationData,
             })
+
             const [ existedEmployee2 ] = await OrganizationEmployeeApi.getAll(adminContext, {
                 organization: { id: existedOrganizationClient.organization.id },
-                user: { id: user2.id },
+                user: { id: newUserClient2.user.id },
             })
             expect(existedEmployee2).toBeDefined()
             expect(existedEmployee2.isAccepted).toBeTruthy()
