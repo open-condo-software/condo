@@ -241,10 +241,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const handleClickOnMinusButton = useCallback(() => {
         setDisplayEditableContactFields(false)
         if (!selectedContact) {
-            setSelectedContact(get(fetchedContacts, 0, null))
+            triggerOnChange(get(fetchedContacts, 0, null), false)
         }
         setEditableFieldsChecked(false)
-    }, [fetchedContacts, selectedContact])
+    }, [fetchedContacts, selectedContact, triggerOnChange])
 
     const handleSelectContact = useCallback((contact) => {
         setSelectedContact(contact)
