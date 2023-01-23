@@ -1,8 +1,8 @@
-// todo(DOMA-2567) add translates
 import React from 'react'
 import Head from 'next/head'
 
 import { Typography } from '@open-condo/ui'
+import { useIntl } from '@open-condo/next/intl'
 
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
@@ -16,7 +16,8 @@ interface IUpdateIncidentPage extends React.FC {
 }
 
 const UpdateIncidentPageContent: React.FC = () => {
-    const PageTitle = 'Редактировать запись'
+    const intl = useIntl()
+    const PageTitle = intl.formatMessage({ id: 'incident.update.title' })
 
     const router = useRouter()
 

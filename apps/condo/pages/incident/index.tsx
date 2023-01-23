@@ -1,4 +1,3 @@
-// todo(DOMA-2567) add translates
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import Head from 'next/head'
 
@@ -30,6 +29,7 @@ import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domai
 import uniq from 'lodash/uniq'
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { useIntl } from '@open-condo/next/intl'
 
 
 interface IIncidentIndexPage extends React.FC {
@@ -68,11 +68,12 @@ const INCIDENTS_DEFAULT_SORT_BY = ['status_ASC', 'workFinish_ASC', 'createdAt_DE
 const SORTABLE_PROPERTIES = ['number', 'status', 'details', 'createdAt', 'workStart', 'workFinish']
 
 const FilterContainer: React.FC<FilterContainerProps> = (props) => {
-    const { filterMetas } = props
+    const intl = useIntl()
+    const SearchPlaceholderMessage = intl.formatMessage({ id: 'incident.index.filter.searchByAddress.placeholder' })
+    const ActualLabel = intl.formatMessage({ id: 'incident.index.filter.attributes.actual.label' })
+    const NotActualLabel = intl.formatMessage({ id: 'incident.index.filter.attributes.notActual.label' })
 
-    const SearchPlaceholderMessage = 'Поиск по адресу'
-    const ActualLabel = 'Актуальные'
-    const NotActualLabel = 'Неактуальные'
+    const { filterMetas } = props
 
     const [search, changeSearch] = useSearch()
     const [attributes, handleChangeAttribute] = useBooleanAttributesSearch(ATTRIBUTE_NAMES_TO_FILTERS)
@@ -227,7 +228,8 @@ const useIncidentsSearch = ({ organizationId, filterMetas }) => {
 }
 
 const TableContainer: React.FC<TableContainerProps> = (props) => {
-    const AddNewIncidentLabel = 'AddNewIncidentLabel'
+    const intl = useIntl()
+    const AddNewIncidentLabel = intl.formatMessage({ id: 'incident.index.addNewIncident.label' })
 
     const { useTableColumns, filterMetas, organizationId } = props
 
@@ -273,22 +275,26 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
                     children={AddNewIncidentLabel}
                     onClick={handleAddNewIncident}
                 />
-                {Boolean(count) && <Button
-                    type='secondary'
-                    children='Export'
-                    onClick={handleAddNewIncident}
-                />}
+                {/* todo(DOMA-2567) add export incidents */}
+                {Boolean(count) && (
+                    <Button
+                        type='secondary'
+                        children='Export'
+                        onClick={() => console.warn('todo(DOMA-2567) add export incidents')}
+                    />
+                )}
             </ActionBar>}
         </>
     )
 }
 
 const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
-    const { filterMetas, useTableColumns, organizationId } = props
+    const intl = useIntl()
+    const PageTitle = intl.formatMessage({  id: 'incident.index.title' })
+    const EmptyListLabel = intl.formatMessage({  id: 'incident.index.emptyList.label' })
+    const CreateIncidentLabel = intl.formatMessage({  id: 'incident.index.createIncident.label' })
 
-    const PageTitle = 'Журнал отключений'
-    const EmptyListLabel = 'Пока в журнале нет записей'
-    const CreateTicketLabel = 'Добавить'
+    const { filterMetas, useTableColumns, organizationId } = props
 
     const {
         count: incidentTotal,
@@ -297,7 +303,7 @@ const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
 
     const PageContet = useMemo(() => {
         if (incidentTotalLoading) {
-            return <Loader fill size='large'/>
+            return <Loader fill size='large' />
         }
 
         if (!incidentTotal) {
@@ -305,7 +311,7 @@ const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
                 <EmptyListView
                     label={EmptyListLabel}
                     createRoute='/incident/create'
-                    createLabel={CreateTicketLabel}
+                    createLabel={CreateIncidentLabel}
                 />
             )
         }
@@ -320,7 +326,7 @@ const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
                 />
             </Row>
         )
-    }, [filterMetas, incidentTotal, incidentTotalLoading, organizationId, useTableColumns])
+    }, [CreateIncidentLabel, EmptyListLabel, filterMetas, incidentTotal, incidentTotalLoading, organizationId, useTableColumns])
 
     return (
         <>
@@ -344,11 +350,13 @@ const IncidentsPage: IIncidentIndexPage = () => {
 
     const filterMetas = useIncidentTableFilters()
 
-    return <IncidentsPageContent
-        organizationId={organizationId}
-        filterMetas={filterMetas}
-        useTableColumns={useIncidentTableColumns}
-    />
+    return (
+        <IncidentsPageContent
+            organizationId={organizationId}
+            filterMetas={filterMetas}
+            useTableColumns={useIncidentTableColumns}
+        />
+    )
 }
 
 IncidentsPage.requiredAccess = OrganizationRequired

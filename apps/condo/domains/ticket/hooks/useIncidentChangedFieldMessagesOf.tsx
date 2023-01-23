@@ -8,6 +8,7 @@ import { Tooltip } from '../../common/components/Tooltip'
 import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '../constants/restrictions'
 import { INCIDENT_STATUS_COLORS } from '../constants/incident'
 import dayjs from 'dayjs'
+import { SafeUserMention } from '../../common/components/ChangeHistory/SafeUserMention'
 
 enum IncidentChangeFieldMessageType {
     From,
@@ -26,16 +27,20 @@ type UseIncidentChangedFieldMessagesOfType =
 
 const DETAILS_TOOLTIP_STYLE: React.CSSProperties = { maxWidth: '80%' }
 
-// TODO(DOMA-2567) add translates
 export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesOfType = (incidentChange) => {
     const intl = useIntl()
-    const DetailsMessage = 'DetailsMessage'
-    const StatusMessage = 'StatusMessage'
-    const TextForResidentMessage = 'TextForResidentMessage'
-    const WorkStartMessage = 'WorkStartMessage'
-    const WorkFinishMessage = 'WorkFinishMessage'
-    const IsScheduledMessage = 'IsScheduledMessage'
-    const IsEmergencyMessage = 'IsEmergencyMessage'
+    const DetailsMessage = intl.formatMessage({ id: 'incident.changeHistory.details' })
+    const StatusMessage = intl.formatMessage({ id: 'incident.changeHistory.status' })
+    const TextForResidentMessage = intl.formatMessage({ id: 'incident.changeHistory.textForResident' })
+    const WorkStartMessage = intl.formatMessage({ id: 'incident.changeHistory.workStart' })
+    const WorkFinishMessage = intl.formatMessage({ id: 'incident.changeHistory.workFinish' })
+    const WorkTypeMessage = intl.formatMessage({ id: 'incident.changeHistory.workType' })
+    const WorkTypeIsScheduledMessage = intl.formatMessage({ id: 'incident.changeHistory.workType.scheduled' })
+    const WorkTypeIsNotScheduledMessage = intl.formatMessage({ id: 'incident.changeHistory.workType.notScheduled' })
+    const WorkTypeIsEmergencyMessage = intl.formatMessage({ id: 'incident.changeHistory.workType.emergency' })
+    const WorkTypeIsNotEmergencyMessage = intl.formatMessage({ id: 'incident.changeHistory.workType.notEmergency' })
+    const ActualMessage = intl.formatMessage({ id: 'incident.status.actual' }).toLowerCase()
+    const NotActualMessage = intl.formatMessage({ id: 'incident.status.notActual' }).toLowerCase()
 
     const fields: Array<{ fieldName: string, message: string, changeMessage?: IIncidentChangeFieldMessages }> = [
         { fieldName: 'details', message: DetailsMessage },
@@ -43,18 +48,18 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
         { fieldName: 'textForResident', message: TextForResidentMessage },
         { fieldName: 'workStart', message: WorkStartMessage },
         { fieldName: 'workFinish', message: WorkFinishMessage },
-        { fieldName: 'isScheduled', message: IsScheduledMessage },
-        { fieldName: 'isEmergency', message: IsEmergencyMessage },
+        { fieldName: 'isScheduled', message: WorkTypeMessage },
+        { fieldName: 'isEmergency', message: WorkTypeMessage },
     ]
 
     const BooleanToString = {
         isScheduled: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident.false' }),
+            'true': WorkTypeIsScheduledMessage,
+            'false': WorkTypeIsNotScheduledMessage,
         },
         isEmergency: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
+            'true': WorkTypeIsEmergencyMessage,
+            'false': WorkTypeIsNotEmergencyMessage,
         },
     }
 
@@ -87,7 +92,7 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
             status: (field, value, type) => {
                 const isActual = value === IncidentStatusType.Actual
                 const style = { color: INCIDENT_STATUS_COLORS[isActual ? IncidentStatusType.Actual : IncidentStatusType.NotActual].background }
-                const formattedValue = <Typography.Text style={style}>{value}</Typography.Text>
+                const formattedValue = <Typography.Text style={style}>{isActual ? ActualMessage : NotActualMessage}</Typography.Text>
                 return <Typography.Text>«{formattedValue}»</Typography.Text>
             },
             workStart: (field, value, type) => {
@@ -116,7 +121,11 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
                 <>
                     <SafeUserMention changeValue={incidentChange}/>
                     &nbsp;
-                    {intl.formatMessage({ id: customMessages.change || 'pages.condo.ticket.TicketChanges.boolean.change' }, values)}
+                    {/*
+                        NOTE: We can't declare these translations at the beginning of the component,
+                        because dynamic data is used for replace in templates
+                     */}
+                    {intl.formatMessage({ id: customMessages.change || 'incident.changeHistory.booleanChange' }, values)}
                 </>
             )
         }
@@ -138,7 +147,7 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
                 <>
                     <SafeUserMention changeValue={incidentChange}/>
                     &nbsp;
-                    {intl.formatMessage({ id: customMessages.change || 'pages.condo.ticket.TicketChanges.change' }, values)}
+                    {intl.formatMessage({ id: customMessages.change || 'incident.changeHistory.change' }, values)}
                 </>
             )
         } else if (isValueToNotEmpty) { // only "to" part
@@ -146,7 +155,7 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
                 <>
                     <SafeUserMention changeValue={incidentChange}/>
                     &nbsp;
-                    {intl.formatMessage({ id: customMessages.add || 'pages.condo.ticket.TicketChanges.add' }, values)}
+                    {intl.formatMessage({ id: customMessages.add || 'incident.changeHistory.add' }, values)}
                 </>
             )
         } else if (isValueFromNotEmpty) {
@@ -154,7 +163,7 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
                 <>
                     <SafeUserMention changeValue={incidentChange}/>
                     &nbsp;
-                    {intl.formatMessage({ id: customMessages.remove || 'pages.condo.ticket.TicketChanges.remove' }, values)}
+                    {intl.formatMessage({ id: customMessages.remove || 'incident.changeHistory.remove' }, values)}
                 </>
             )
         }
@@ -170,23 +179,4 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
             field: fieldName,
             message: formatDiffMessage(fieldName, message, incidentChange, changeMessage),
         }))
-}
-
-// TODO(DOMA-2567) duplicate from useChangedFieldMessagesOf for TicketChange
-const SafeUserMention = ({ changeValue }) => {
-    const intl = useIntl()
-    const DeletedCreatedAtNoticeTitle = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title' })
-    const DeletedCreatedAtNoticeDescription = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description' })
-
-    return (
-        changeValue.createdBy ? (
-            <>
-                {changeValue.changedByRole} {changeValue.createdBy.name}
-            </>
-        ) : (
-            <Tooltip placement='top' title={DeletedCreatedAtNoticeDescription}>
-                <span>{DeletedCreatedAtNoticeTitle}</span>
-            </Tooltip>
-        )
-    )
 }

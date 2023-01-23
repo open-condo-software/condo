@@ -397,23 +397,25 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                         }
                     </Row>
                     <TicketContent ticket={ticket}/>
-                    {
-                        ticketVisibilityType !== ASSIGNED_TICKET_VISIBILITY && (
-                            <Col span={24}>
-                                <TicketPropertyHintCard
-                                    propertyId={ticketPropertyId}
-                                    hintContentStyle={HINT_CARD_STYLE}
-                                />
-                            </Col>
-                        )
-                    }
                     <Col span={24}>
-                        <IncidentHints
-                            organizationId={organization.id}
-                            propertyId={ticketPropertyId}
-                            dateISO={ticket.createdAd}
-                            classifier={ticket.classifier}
-                        />
+                        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+                            {
+                                ticketVisibilityType !== ASSIGNED_TICKET_VISIBILITY && (
+                                    <Col span={24}>
+                                        <TicketPropertyHintCard
+                                            propertyId={ticketPropertyId}
+                                            hintContentStyle={HINT_CARD_STYLE}
+                                        />
+                                    </Col>
+                                )
+                            }
+                            <IncidentHints
+                                organizationId={organization.id}
+                                propertyId={ticketPropertyId}
+                                dateISO={ticket.createdAd}
+                                classifier={ticket.classifier}
+                            />
+                        </Row>
                     </Col>
                     <ActionBar>
                         <Link href={`/ticket/${ticket.id}/update`}>

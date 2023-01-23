@@ -14,6 +14,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import { Typography } from '@open-condo/ui'
 import dayjs from 'dayjs'
+import { useIntl } from '@open-condo/next/intl'
 
 const StyledAlert = styled(Alert)`
   // background-color: ${colors.black};
@@ -51,6 +52,11 @@ const formatDate = (date?: string) => {
 }
 
 export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
+    const intl = useIntl()
+    const MoreLabel = intl.formatMessage({ id: 'incident.hints.more.label' })
+
+    console.log({ props })
+
     const { propertyId, dateISO, classifier, organizationId } = props
 
     // 1 - search IncidentProperties by propertyId
@@ -191,7 +197,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
                                     <Col span={24}>
                                         <Row>
                                             <Col span={24}>
-                                                <Typography.Text strong>{`${String(incident.details).substring(0, 100)}...`}</Typography.Text>
+                                                <Typography.Text strong>{`${String(incident.details).substring(0, 100)}…`}</Typography.Text>
                                             </Col>
                                             <Col span={24}>
                                                 <Typography.Text>{formatDate(incident.workStart)} — {formatDate(incident.workFinish)}</Typography.Text>
@@ -199,7 +205,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
                                         </Row>
                                     </Col>
                                     <Col span={24}>
-                                        <Typography.Link href={`/incident/${incident.id}`} size='large' target='_blank'>Подробнее</Typography.Link>
+                                        <Typography.Link href={`/incident/${incident.id}`} size='large' target='_blank'>{MoreLabel}</Typography.Link>
                                     </Col>
                                 </Row>
                             }

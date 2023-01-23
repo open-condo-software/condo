@@ -6,6 +6,7 @@ import { Incident } from '@condo/domains/ticket/utils/clientSchema'
 import DatePicker from '../../common/components/Pickers/DatePicker'
 import { Col, Form, Row } from 'antd'
 import isFunction from 'lodash/isFunction'
+import { useIntl } from '@open-condo/next/intl'
 
 
 const DATE_PICKER_STYLE: React.CSSProperties = { width: '100%' }
@@ -19,15 +20,14 @@ type UseIncidentUpdateStatusModalType = (props: {
 }
 
 export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({ incident, afterUpdate }) => {
-    const WorkFinishFieldMessage = 'Завершение работ'
-    const SaveLabel = 'Все верно'
-    const IncidentUpdateToActualStatusModalTitle = 'Запись актуальна?'
-    const IncidentUpdateToNotActualStatusModalTitle = 'Запись больше не актуальна?'
-    // до указанного срока
-    const ToNotActualBeforeWorkFinishMessage = 'Если работы выполнены до указанного срока, мы изменим статус записи. А также дату и время завершения работ. Запись можно отредактировать позже.'
-    // после указанного срока
-    const ToNotActualAfterWorkFinishMessage = 'Работы выполнены позже указанного срока. Мы изменим статус записи, а также дату и время завершения работ. Запись можно отредактировать в любое время.'
-    const ToActualMessage = 'Если вы хотите изменить статус отключения, не забудьте исправить дату завершения работ на актуальную'
+    const intl = useIntl()
+    const WorkFinishFieldMessage = intl.formatMessage({ id: 'incident.fields.workFinish.label' })
+    const SaveLabel = intl.formatMessage({ id: 'incident.modalChangeStatus.save' })
+    const ToActualStatusTitle = intl.formatMessage({ id: 'incident.modalChangeStatus.toActualStatus.title' })
+    const ToNotActualStatusTitle = intl.formatMessage({ id: 'incident.modalChangeStatus.toNotActualStatus.title' })
+    const ToNotActualBeforeWorkFinishMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toActualStatus.beforeWorkFinish.descriptions' })
+    const ToNotActualAfterWorkFinishMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toActualStatus.afterWorkFinish.descriptions' })
+    const ToActualMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toNotActualStatus.descriptions' })
 
     const [open, setOpen] = useState<boolean>(false)
     const [date, setDate] = useState<Dayjs>(null)
@@ -83,7 +83,7 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
         }
 
         return ToNotActualBeforeWorkFinishMessage
-    }, [isActual, isOverdue])
+    }, [ToActualMessage, ToNotActualAfterWorkFinishMessage, ToNotActualBeforeWorkFinishMessage, isActual, isOverdue])
 
     const IncidentUpdateStatusModal = useMemo(() => {
         return (
@@ -92,8 +92,8 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                 open={open}
                 title={
                     isActual
-                        ? IncidentUpdateToNotActualStatusModalTitle
-                        : IncidentUpdateToActualStatusModalTitle
+                        ? ToNotActualStatusTitle
+                        : ToActualStatusTitle
                 }
                 footer={(
                     <Button
@@ -130,7 +130,7 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                 </Row>
             </Modal>
         )
-    }, [date, descriptionText, handleClose, handleDisabledDate, handleUpdate, isActual, isLoading, open])
+    }, [SaveLabel, ToActualStatusTitle, ToNotActualStatusTitle, WorkFinishFieldMessage, date, descriptionText, handleClose, handleDisabledDate, handleUpdate, isActual, isLoading, open])
 
     return {
         handleOpen,

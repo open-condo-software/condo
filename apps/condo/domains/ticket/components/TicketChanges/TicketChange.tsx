@@ -9,6 +9,7 @@ import React  from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { SafeUserMention } from '@condo/domains/common/components/ChangeHistory/SafeUserMention'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
@@ -311,7 +312,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
             return (
                 <>
-                    <SafeUserMention ticketChange={ticketChange}/>
+                    <SafeUserMention changeValue={ticketChange}/>
                     &nbsp;
                     {intl.formatMessage({ id: customMessages.change || 'pages.condo.ticket.TicketChanges.boolean.change' }, values)}
                 </>
@@ -337,7 +338,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         if (isValueFromNotEmpty && isValueToNotEmpty) {
             return (
                 <>
-                    <SafeUserMention ticketChange={ticketChange}/>
+                    <SafeUserMention changeValue={ticketChange}/>
                     &nbsp;
                     {intl.formatMessage({ id: customMessages.change || 'pages.condo.ticket.TicketChanges.change' }, values)}
                 </>
@@ -345,7 +346,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         } else if (isValueToNotEmpty) { // only "to" part
             return (
                 <>
-                    <SafeUserMention ticketChange={ticketChange}/>
+                    <SafeUserMention changeValue={ticketChange}/>
                     &nbsp;
                     {intl.formatMessage({ id: customMessages.add || 'pages.condo.ticket.TicketChanges.add' }, values)}
                 </>
@@ -353,7 +354,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         } else if (isValueFromNotEmpty) {
             return (
                 <>
-                    <SafeUserMention ticketChange={ticketChange}/>
+                    <SafeUserMention changeValue={ticketChange}/>
                     &nbsp;
                     {intl.formatMessage({ id: customMessages.remove || 'pages.condo.ticket.TicketChanges.remove' }, values)}
                 </>
@@ -453,24 +454,6 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             field,
             message: formatDiffMessage(field, message, ticketChange, changeMessage),
         }))
-}
-
-const SafeUserMention = ({ ticketChange }) => {
-    const intl = useIntl()
-    const DeletedCreatedAtNoticeTitle = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title' })
-    const DeletedCreatedAtNoticeDescription = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description' })
-
-    return (
-        ticketChange.createdBy ? (
-            <>
-                {ticketChange.changedByRole} {ticketChange.createdBy.name}
-            </>
-        ) : (
-            <Tooltip placement='top' title={DeletedCreatedAtNoticeDescription}>
-                <span>{DeletedCreatedAtNoticeTitle}</span>
-            </Tooltip>
-        )
-    )
 }
 
 const Diff = styled.p`

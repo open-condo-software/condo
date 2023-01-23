@@ -20,25 +20,21 @@ const filterWorkStartRange = getDayRangeFilter('workStart')
 const filterWorkFinishRange = getDayRangeFilter('workFinish')
 
 type UseIncidentTableFiltersReturnType = Array<FiltersMeta<IncidentWhereInput>>
-// todo(DOMA-2567) add translations
+
 export const useIncidentTableFilters = (): UseIncidentTableFiltersReturnType => {
     const intl = useIntl()
-    const NumberMessage = 'NumberMessage'
-    const DetailsMessage = 'DetailsMessage'
-    const StatusMessage = 'StatusMessage'
-    const WorkStartMessage = 'WorkStartMessage'
-    const WorkFinishMessage = 'WorkFinishMessage'
-    const ActualLabel = 'Актуальные'
-    const NotActualLabel = 'Неактуальные'
-    const SelectMessage = intl.formatMessage({ id: 'Select' })
-    // todo(DOMA-2587) change translates
-    const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
-    const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
+    const NumberMessage = intl.formatMessage({ id: 'incident.index.filter.number.placeholder' })
+    const DetailsMessage = intl.formatMessage({ id: 'incident.index.filter.details.placeholder' })
+    const StatusMessage = intl.formatMessage({ id: 'incident.index.filter.status.placeholder' })
+    const ActualLabel = intl.formatMessage({ id: 'incident.index.filter.attributes.actual.label' })
+    const NotActualLabel = intl.formatMessage({ id: 'incident.index.filter.attributes.notActual.label' })
+    const StartDateMessage = intl.formatMessage({ id: 'global.filters.dateRange.start' })
+    const EndDateMessage = intl.formatMessage({ id: 'global.filters.dateRange.end' })
 
     const statusOptions = useMemo(() => [
         { label: ActualLabel, value: INCIDENT_STATUS_ACTUAL },
         { label: NotActualLabel, value: INCIDENT_STATUS_NOT_ACTUAL },
-    ], [])
+    ], [ActualLabel, NotActualLabel])
 
     return useMemo((): UseIncidentTableFiltersReturnType => [
         {
@@ -59,8 +55,7 @@ export const useIncidentTableFilters = (): UseIncidentTableFiltersReturnType => 
             keyword: 'details',
             filters: [filterDetails],
             component: {
-                type: ComponentType.Select,
-                options: statusOptions,
+                type: ComponentType.Input,
                 props: {
                     placeholder: DetailsMessage,
                 },
@@ -101,5 +96,5 @@ export const useIncidentTableFilters = (): UseIncidentTableFiltersReturnType => 
                 },
             },
         },
-    ], [EndDateMessage, StartDateMessage, statusOptions])
+    ], [DetailsMessage, EndDateMessage, NumberMessage, StartDateMessage, StatusMessage, statusOptions])
 }

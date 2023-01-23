@@ -67,6 +67,7 @@ export type BaseIncidentFormProps = {
     }
     organizationId: string
     action: (values: IIncidentCreateInput | IIncidentUpdateInput) => ReturnType<ReturnType<IncidentClientUtilsType['useCreate' | 'useUpdate']>>
+    afterAction?: (values: IIncidentCreateInput | IIncidentUpdateInput) => void
 }
 
 type FormLayoutProps = Pick<FormProps, 'labelCol' | 'wrapperCol' | 'layout' | 'labelAlign'>
@@ -121,17 +122,16 @@ const convertToSelectOptions: (items: Options[]) => OptionType[] = (items) => it
 const withoutEmpty: (items: OptionType[]) => OptionType[] = (items) => items.filter(item => item.value)
 
 const Classifiers: React.FC<ClassifiersProps> = (props) => {
-    const { form, initialClassifierIds, rules } = props
-
     const intl = useIntl()
     const SelectMessage = intl.formatMessage({ id: 'Select' })
-    const LoadingMessage = intl.formatMessage({ id: 'LoadingInProgress' })
-    const PlaceClassifierLabel = 'Место'
-    const CategoryClassifierLabel = 'Катеогия'
-    const ProblemClassifierLabel = 'Проблема'
-    const LoadingLabel = 'Загрузка'
-    const SelectPlaceMessage = 'Выберите место'
-    const SelectCategoryMessage = 'Выберите катеорию'
+    const PlaceClassifierLabel = intl.formatMessage({ id: 'incident.fields.placeClassifier.label' })
+    const CategoryClassifierLabel = intl.formatMessage({ id: 'incident.fields.categoryClassifier.label' })
+    const ProblemClassifierLabel = intl.formatMessage({ id: 'incident.fields.problemClassifier.label' })
+    const LoadingLabel = intl.formatMessage({ id: 'Loading' })
+    const SelectPlaceMessage = intl.formatMessage({ id: 'incident.fields.placeClassifier.placeholder' })
+    const SelectCategoryMessage = intl.formatMessage({ id: 'incident.fields.categoryClassifier.placeholder' })
+
+    const { form, initialClassifierIds, rules } = props
 
     const client = useApolloClient()
     const ClassifierLoader = useMemo(() => new ClassifiersQueryLocal(client), [client])
@@ -226,9 +226,6 @@ const Classifiers: React.FC<ClassifiersProps> = (props) => {
         })
     }, [ClassifierLoader, form, initialClassifierIds])
 
-    // console.log({ places, categories, problems, classifiers })
-    // console.log({ selectedProblems, selectedPlace, selectedCategories })
-
     return (
         <>
             <Col span={24}>
@@ -246,7 +243,7 @@ const Classifiers: React.FC<ClassifiersProps> = (props) => {
                     <Select<OptionType>
                         options={places}
                         disabled={loading}
-                        placeholder={loading ? LoadingLabel : PlaceClassifierLabel}
+                        placeholder={loading ? LoadingLabel : SelectMessage}
                         filterOption
                         optionFilterProp='label'
                         value={selectedPlace as any} // todo(DOMA-2567) fix types for select
@@ -274,7 +271,7 @@ const Classifiers: React.FC<ClassifiersProps> = (props) => {
                                 ? LoadingLabel
                                 : !selectedPlace
                                     ? SelectPlaceMessage
-                                    : CategoryClassifierLabel
+                                    : SelectMessage
                         }
                         filterOption
                         optionFilterProp='label'
@@ -302,7 +299,7 @@ const Classifiers: React.FC<ClassifiersProps> = (props) => {
                                 ? LoadingLabel
                                 : selectedCategories.length < 1
                                     ? SelectCategoryMessage
-                                    : ProblemClassifierLabel
+                                    : SelectMessage
                         }
                         filterOption
                         optionFilterProp='label'
@@ -319,28 +316,30 @@ const Classifiers: React.FC<ClassifiersProps> = (props) => {
 const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
 
 export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
+    const intl = useIntl()
+    const CheckAllLabel = intl.formatMessage({ id: 'incident.fields.properties.checkAll.label' })
+    const PropertiesLabel = intl.formatMessage({ id: 'incident.fields.properties.label' })
+    const WorkStartLabel = intl.formatMessage({ id: 'incident.fields.workStart.label' })
+    const WorkFinishLabel = intl.formatMessage({ id: 'incident.fields.workFinish.label' })
+    const WorkTypeLabel = intl.formatMessage({ id: 'incident.fields.workType.label' })
+    const EmergencyTypeLabel = intl.formatMessage({ id: 'incident.workType.emergency' })
+    const ScheduledTypeLabel = intl.formatMessage({ id: 'incident.workType.scheduled' })
+    const DetailsLabel = intl.formatMessage({ id: 'incident.fields.details.label' })
+    const DetailsPlaceholderMessage = intl.formatMessage({ id: 'incident.fields.details.placeholder' })
+    const DetailsErrorMessage = intl.formatMessage({ id: 'incident.fields.details.error.length' })
+    const TextForResidentLabel = intl.formatMessage({ id: 'incident.fields.textForResident.label' })
+    const TextForResidentPlaceholderMessage = intl.formatMessage({ id: 'incident.fields.textForResident.placeholder' })
+    const NotActualWorkFinishAlertTitle = intl.formatMessage({ id: 'incident.form.alert.notActualWorkFinish.title' })
+    const NotActualWorkFinishAlertMessage = intl.formatMessage({ id: 'incident.form.alert.notActualWorkFinish.description' })
+
     const {
         action: createOrUpdateIncident,
         ActionBar,
         initialValues = {} as BaseIncidentFormProps['initialValues'],
         organizationId,
         loading,
+        afterAction,
     } = props
-
-    const CheckAllLabel = 'CheckAllLabel'
-    const PropertiesLabel = 'PropertiesLabel'
-    const WorkStartLabel = 'WorkStartLabel'
-    const WorkFinishLabel = 'WorkFinishLabel'
-    const WorkTypeLabel = 'WorkTypeLabel'
-    const EmergencyTypeLabel = 'EmergencyTypeLabel'
-    const ScheduledTypeLabel = 'ScheduledTypeLabel'
-    const DetailsLabel = 'DetailsLabel'
-    const DetailsPlaceholder = 'DetailsPlaceholder'
-    const TextForResidentLabel = 'TextForResidentLabel'
-    const TextForResidentPlaceholder = 'TextForResidentPlaceholder'
-    const IncidentDetailsErrorMessage = 'Пожалуйста, опишите проблему подробнее'
-    const NotActualWorkFinishAlertTitle = 'Дата завершения работ неактуальна'
-    const NotActualWorkFinishAlertMessage = 'Срок выполнения работ по этому отключению истек. Обновите дату или уберите, если она неизвестна.'
 
     const router = useRouter()
 
@@ -408,8 +407,12 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
             await softDeleteIncidentTicketClassifier(incidentClassifier)
         }
 
-        await router.push('/incident')
-    }, [createIncidentProperty, createIncidentTicketClassifier, createOrUpdateIncident, initialClassifierIds, initialIncidentClassifiers, initialIncidentProperties, initialPropertyIds, router, softDeleteIncidentProperty, softDeleteIncidentTicketClassifier])
+        if (isFunction(afterAction)) {
+            await afterAction(incidentValues)
+        } else {
+            await router.push('/incident')
+        }
+    }, [afterAction, createIncidentProperty, createIncidentTicketClassifier, createOrUpdateIncident, initialClassifierIds, initialIncidentClassifiers, initialIncidentProperties, initialPropertyIds, router, softDeleteIncidentProperty, softDeleteIncidentTicketClassifier])
 
     const propertySelectProps: InputWithCheckAllProps['selectProps'] = useMemo(() => ({
         showArrow: false,
@@ -439,7 +442,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         whitespace: true,
         required: true,
         min: MIN_DESCRIPTION_LENGTH,
-        message: IncidentDetailsErrorMessage,
+        message: DetailsErrorMessage,
     }], [])
 
     const initialWorkFinish = useMemo(() => get(initialValues, 'workFinish'), [initialValues])
@@ -566,7 +569,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                     required
                                     rules={detailsRules}
                                 >
-                                    <TextArea maxLength={500} placeholder={DetailsPlaceholder}/>
+                                    <TextArea maxLength={500} placeholder={DetailsPlaceholderMessage}/>
                                 </Form.Item>
                             </Col>
                             <Col span={24}>
@@ -574,7 +577,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                     label={TextForResidentLabel}
                                     name='textForResident'
                                 >
-                                    <TextArea maxLength={500} placeholder={TextForResidentPlaceholder} />
+                                    <TextArea maxLength={500} placeholder={TextForResidentPlaceholderMessage} />
                                 </Form.Item>
                             </Col>
                             {
