@@ -1,5 +1,5 @@
 import React, { ComponentProps, useCallback, useMemo } from 'react'
-import { BaseIncidentForm, BaseIncidentFormProps } from '../BaseIncidentForm'
+import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 import { useOrganization } from '@open-condo/next/organization'
 import get from 'lodash/get'
 import ActionBar from '../../../common/components/ActionBar'

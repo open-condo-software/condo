@@ -1,5 +1,5 @@
 import React, { ComponentProps, useCallback, useMemo } from 'react'
-import { BaseIncidentForm, BaseIncidentFormProps } from '../BaseIncidentForm'
+import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 import get from 'lodash/get'
 import { Incident, IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
 import { useOrganization } from '@open-condo/next/organization'
@@ -78,8 +78,6 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = ({ id }) => {
         workFinish: workFinish ? dayjs(workFinish) : null,
         placeClassifier: placeClassifier,
     }), [incident, incidentClassifiers, incidentProperties, placeClassifier, workFinish, workStart]) as any
-
-    console.log({initialValues, incidentClassifiers})
 
     const error = useMemo(
         () => incidentError || incidentPropertyError || incidentClassifiersError,
