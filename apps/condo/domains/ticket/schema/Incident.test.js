@@ -18,6 +18,7 @@ const {
 } = require('../../organization/utils/testSchema')
 const dayjs = require('dayjs')
 const { INCIDENT_ERRORS } = require('../constants/errors')
+const { INCIDENT_STATUS_ACTUAL } = require('../constants/incident')
 
 
 const INCIDENT_PAYLOAD = {
@@ -62,6 +63,7 @@ describe('Incident', () => {
                 expect(incidentByAdmin).toHaveProperty('organization.id', organization.id)
                 expect(incidentByAdmin).toHaveProperty('details', INCIDENT_PAYLOAD.details)
                 expect(incidentByAdmin).toHaveProperty('workStart', INCIDENT_PAYLOAD.workStart)
+                expect(incidentByAdmin).toHaveProperty('status', INCIDENT_STATUS_ACTUAL)
             })
             test('can read', async () => {
                 const incident = await Incident.getOne(admin, { id: incidentByAdmin.id }, { sortBy: ['updatedAt_DESC'] })
@@ -87,6 +89,7 @@ describe('Incident', () => {
                 expect(incident).toHaveProperty('organization.id', organization.id)
                 expect(incident).toHaveProperty('details', INCIDENT_PAYLOAD.details)
                 expect(incident).toHaveProperty('workStart', INCIDENT_PAYLOAD.workStart)
+                expect(incident).toHaveProperty('status', INCIDENT_STATUS_ACTUAL)
             })
             test('can read', async () => {
                 const incident = await Incident.getOne(support, { id: incidentByAdmin.id }, { sortBy: ['updatedAt_DESC'] })
@@ -111,6 +114,7 @@ describe('Incident', () => {
                 expect(incident).toBeDefined()
                 expect(incident).toHaveProperty('organization.id', organization.id)
                 expect(incident).toHaveProperty('details', INCIDENT_PAYLOAD.details)
+                expect(incident).toHaveProperty('status', INCIDENT_STATUS_ACTUAL)
                 expect(incident).toHaveProperty('workStart', INCIDENT_PAYLOAD.workStart)
                 expect(incident).toHaveProperty('workFinish', null)
                 expect(incident).toHaveProperty('isScheduled', false)
