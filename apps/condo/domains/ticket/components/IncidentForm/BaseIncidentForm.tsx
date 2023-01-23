@@ -1,4 +1,3 @@
-import { css } from '@emotion/react'
 import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
 import { Col, Form, Row, Typography } from 'antd'
 import { FormWithAction } from '../../../common/components/containers/FormList'
@@ -40,6 +39,8 @@ import { Rule } from 'rc-field-form/lib/interface'
 import dayjs from 'dayjs'
 import { Loader } from '../../../common/components/Loader'
 import { MIN_DESCRIPTION_LENGTH } from '../../constants/restrictions'
+import { Alert } from '@open-condo/ui'
+import isEmpty from 'lodash/isEmpty'
 
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
@@ -216,7 +217,7 @@ const Classifiers: React.FC<ClassifiersProps> = (props) => {
             setSelectedCategories(initialCategoryIds)
             setSelectedProblems(initialProblemIds)
             form.setFieldsValue({
-                'allClassifiers': classifiers,
+                allClassifiers: classifiers,
                 placeClassifier: initialPlaceId,
                 categoryClassifiers: initialCategoryIds,
                 problemClassifiers: initialProblemIds,
@@ -338,6 +339,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const TextForResidentLabel = 'TextForResidentLabel'
     const TextForResidentPlaceholder = 'TextForResidentPlaceholder'
     const IncidentDetailsErrorMessage = 'Пожалуйста, опишите проблему подробнее'
+    const NotActualWorkFinishAlertTitle = 'Дата завершения работ неактуальна'
+    const NotActualWorkFinishAlertMessage = 'Срок выполнения работ по этому отключению истек. Обновите дату или уберите, если она неизвестна.'
 
     const router = useRouter()
 
@@ -439,6 +442,9 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         message: IncidentDetailsErrorMessage,
     }], [])
 
+    const initialWorkFinish = useMemo(() => get(initialValues, 'workFinish'), [initialValues])
+    const showNotActualWorkFinishAlert = !isEmpty(initialValues) && initialWorkFinish && dayjs(initialWorkFinish).diff(dayjs()) < 0
+
     if (loading) {
         return (
             <Loader fill size='large'/>
@@ -456,6 +462,16 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                     {...FORM_LAYOUT_PROPS}
                     children={({ handleSave, isLoading, form }) => (
                         <Row gutter={[0, 40]}>
+                            { showNotActualWorkFinishAlert && (
+                                <Col span={24} lg={20} xl={16}>
+                                    {/*todo(alllex202) add icons for alerts in ui kit*/}
+                                    <Alert
+                                        type='warning'
+                                        message={NotActualWorkFinishAlertTitle}
+                                        description={NotActualWorkFinishAlertMessage}
+                                    />
+                                </Col>
+                            )}
                             <Col span={24}>
                                 <GraphQlSearchInputWithCheckAll
                                     checkAllFieldName='hasAllProperties'
