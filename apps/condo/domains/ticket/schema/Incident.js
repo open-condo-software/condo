@@ -40,7 +40,6 @@ const Incident = new GQLListSchema('Incident', {
             },
         },
 
-        // todo(DOMA-2567) add tests
         status: {
             schemaDoc: 'Incident status.',
             type: 'Select',

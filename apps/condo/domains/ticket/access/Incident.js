@@ -11,7 +11,6 @@ const { get } = require('lodash')
 const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
 
-// TODO(DOMA-2567) add roles
 async function canReadIncidents ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false

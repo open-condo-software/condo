@@ -29,7 +29,6 @@ const getTranslation = (translations, key) => {
 
 const keysOfLocalizedTextFields = new Map()
 
-// todo(doma-2567) add tests
 const IncidentChange = new GQLListSchema('IncidentChange', {
     schemaDoc: 'Incremental changes of Incident',
     fields: {
