@@ -3,15 +3,13 @@ import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { gql } from 'graphql-tag'
 import { get } from 'lodash'
-import { router } from 'next/client'
-import { NextRouter, useRouter } from 'next/router'
+import { NextRouter } from 'next/router'
 import qs from 'qs'
 import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import Select from '@condo/domains/common/components/antd/Select'
-import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { TICKET_PROPERTY_FIELDS } from '@condo/domains/ticket/gql'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
@@ -136,12 +134,18 @@ const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, 
     const prefix = unitType === BuildingUnitSubType.Parking ? ParkingMessage : ShortFlatMessage
     const unitNameMessage = unitName && ` ${prefix} ${unitName}`
 
-    const router = useRouter()
     const { isSmall } = useLayoutContext()
 
     const handleClick = useCallback(
-        () => router.push(`/phone/${phone}?tab=${getClientCardTabKey(get(property, 'id'), type, unitName, unitType)}`),
-        [phone, property, router, type, unitName, unitType])
+        () => {
+            if (typeof window !== 'undefined') {
+                window.open(
+                    `/phone/${phone}?tab=${getClientCardTabKey(get(property, 'id'), type, unitName, unitType)}`,
+                    '_blank'
+                )
+            }
+        },
+        [phone, property, type, unitName, unitType])
 
     return (
         <Row justify='space-between' style={OPTION_STYLES} onClick={handleClick}>
