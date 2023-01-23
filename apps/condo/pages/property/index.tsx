@@ -42,6 +42,7 @@ type PropertiesContentProps = {
     propertiesTableColumns: ColumnsType
     sortPropertiesBy: SortPropertiesBy[]
     loading?: boolean
+    canDownloadProperties?: boolean
 }
 
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
@@ -57,7 +58,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
     const [viewMode, changeViewMode] = useState('list')
     const { isSmall } = useLayoutContext()
 
-    const { role, searchPropertiesQuery, propertiesTableColumns, sortPropertiesBy, loading } = props
+    const { role, searchPropertiesQuery, propertiesTableColumns, sortPropertiesBy, loading, canDownloadProperties } = props
 
     const handleViewModeChange = useCallback((e) => changeViewMode(e.target.value), [])
 
@@ -98,6 +99,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                                         sortBy={sortPropertiesBy}
                                         onSearch={(properties) => setShownProperties(properties)}
                                         loading={loading}
+                                        canDownloadProperties={canDownloadProperties}
                                     />
                                 </Col>
                             )
