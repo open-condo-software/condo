@@ -18,6 +18,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 } = generateReactHooks<Incident, IncidentCreateInput, IncidentUpdateInput, QueryAllIncidentsArgs>(IncidentGQL)
 
 export {
@@ -26,4 +27,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 }

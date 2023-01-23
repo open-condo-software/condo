@@ -9,7 +9,7 @@ import { EmptyIcon } from './EmptyIcon'
 
 export interface IEmptyListProps {
     label: string | React.ReactElement
-    message: string | React.ReactElement
+    message?: string | React.ReactElement
     button?: React.ReactElement
     createRoute: string
     createLabel: string
@@ -77,9 +77,11 @@ export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
             {
                 (accessCheck || isUndefined(accessCheck)) &&
                 <>
-                    <Typography.Text type='secondary'>
-                        {message}
-                    </Typography.Text>
+                    {message && (
+                        <Typography.Text type='secondary'>
+                            {message}
+                        </Typography.Text>
+                    )}
                     <Row gutter={ROW_GUTTER} align='middle' justify='center' style={ROW_STYLE}>
                         {
                             button ? (
