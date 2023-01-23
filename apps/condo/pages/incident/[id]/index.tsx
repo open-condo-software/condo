@@ -1,4 +1,3 @@
-// todo(DOMA-2567) add translates
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import Head from 'next/head'
 
@@ -17,7 +16,7 @@ import {
 } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import dayjs, { Dayjs } from 'dayjs'
+import dayjs  from 'dayjs'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { get } from 'lodash'
 import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
@@ -49,10 +48,11 @@ type IncidentFieldProps = {
 }
 
 const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => {
-    const AddressLabel = 'AddressLabel'
-    const AllPropertiesMessage = 'AllPropertiesMessage'
-    const DeletedMessage = 'DeletedMessage'
-    const LoadingMessage = 'LoadingMessage'
+    const intl = useIntl()
+    const AddressLabel = intl.formatMessage({ id: 'incident.fields.properties.label' })
+    const AllPropertiesMessage = intl.formatMessage({ id: 'incident.fields.properties.allSelected' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
     const { objs: incidentProperties, loading } = IncidentProperty.useAllObjects({
         where: {
@@ -95,7 +95,7 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
                 </div>
             )
         })
-    }, [incident.hasAllProperties, incidentProperties, loading])
+    }, [AllPropertiesMessage, DeletedMessage, LoadingMessage, incident.hasAllProperties, incidentProperties, loading])
 
     return (
         <Row>
@@ -109,7 +109,7 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
 /**
  *
  * @param deadline Date in ISO format
- * @param isDefault
+ * @param isDefault return default type
  * @param startWithDate Date in ISO format
  */
 export const getTimeLeftMessageType: (props: {
@@ -136,10 +136,9 @@ export const getTimeLeftMessage: (props: {
     show: boolean,
     deadline?: string,
     startWithDate?: string
-}) => string = ({ show, deadline, startWithDate }) => {
-    const TimeLeftMessage = 'time left'
-    const OverdueMessage = 'overdue'
-
+    TimeLeftMessage: string
+    OverdueMessage: string
+}) => string = ({ show, deadline, startWithDate, TimeLeftMessage, OverdueMessage }) => {
     if (!show || !deadline) return null
 
     const startWith = startWithDate ? dayjs(startWithDate) : dayjs()
@@ -156,9 +155,12 @@ export const getTimeLeftMessage: (props: {
 const WORK_DATE_UPDATING_INTERVAL_IN_SECONDS = 1000 * 5 // every 10 seconds
 
 const IncidentWorkDateField: React.FC<IncidentFieldProps> = ({ incident }) => {
-    const WorkDateLabel = 'workDateLabel'
-    const DateFromMessage = 'from'
-    const DateToMessage = 'to'
+    const intl = useIntl()
+    const WorkDateLabel = intl.formatMessage({ id: 'incident.fields.workDate.label' })
+    const DateFromMessage = intl.formatMessage({ id: 'incident.fields.workDate.from' }).toLowerCase()
+    const DateToMessage = intl.formatMessage({ id: 'incident.fields.workDate.to' }).toLowerCase()
+    const OverdueMessage = intl.formatMessage({ id: 'incident.fields.workDate.overdue' }).toLowerCase()
+    const TimeLeftMessage = intl.formatMessage({ id: 'incident.fields.workDate.timeLeft' }).toLowerCase()
 
     const [currentDate, setCurrentDate] = useState<string>(dayjs().toISOString())
 
@@ -176,7 +178,9 @@ const IncidentWorkDateField: React.FC<IncidentFieldProps> = ({ incident }) => {
         show: isActual,
         deadline: incident.workFinish,
         startWithDate: currentDate,
-    }), [currentDate, incident.workFinish, isActual])
+        OverdueMessage,
+        TimeLeftMessage,
+    }), [OverdueMessage, TimeLeftMessage, currentDate, incident.workFinish, isActual])
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -219,8 +223,10 @@ const IncidentWorkDateField: React.FC<IncidentFieldProps> = ({ incident }) => {
 }
 
 const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) => {
-    const ClassifierLabel = 'ClassifierLabel'
-    const LoadingMessage = 'LoadingMessage'
+    const intl = useIntl()
+    const ClassifierLabel = intl.formatMessage({ id: 'incident.fields.classifier.label' })
+    const HaveNotMessage = intl.formatMessage({ id: 'incident.fields.classifier.empty' })
+    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
     const { loading, objs: incidentClassifiers } = IncidentTicketClassifier.useAllObjects({
         where: {
@@ -250,7 +256,7 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
         }
 
         if (incidentClassifiers.length < 0) {
-            return '-'
+            return HaveNotMessage
         }
 
         return (
@@ -266,7 +272,7 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
                 </Typography.Text>}
             </Typography.Text>
         )
-    }, [categories, incidentClassifiers.length, loading, place, problems])
+    }, [HaveNotMessage, LoadingMessage, categories, incidentClassifiers.length, loading, place, problems])
 
     return (
         <Row>
@@ -278,27 +284,29 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
 }
 
 const IncidentWorkTypeField: React.FC<IncidentFieldProps> = ({ incident }) => {
-    const WorkTypeLabel = 'WorkTypeLabel'
-    const WorkTypeEmergencyMessage = 'WorkTypeEmergencyMessage'
-    const WorkTypeScheduledMessage = 'WorkTypeScheduledMessage'
+    const intl = useIntl()
+    const WorkTypeLabel = intl.formatMessage({ id: 'incident.fields.workType.label' })
+    const WorkTypeEmergencyLabel = intl.formatMessage({ id: 'incident.workType.emergency' })
+    const WorkTypeScheduledLabel = intl.formatMessage({ id: 'incident.workType.scheduled' })
+    const HaveNotMessage = intl.formatMessage({ id: 'incident.fields.workType.empty' })
 
     const workTypes = useMemo(() => {
         const types = []
         if (incident.isEmergency) {
-            types.push(WorkTypeEmergencyMessage)
+            types.push(WorkTypeEmergencyLabel)
         }
         if (incident.isScheduled) {
-            types.push(WorkTypeScheduledMessage)
+            types.push(WorkTypeScheduledLabel)
         }
 
         return types.join(', ')
-    }, [incident.isEmergency, incident.isScheduled])
+    }, [WorkTypeEmergencyLabel, WorkTypeScheduledLabel, incident.isEmergency, incident.isScheduled])
 
     return (
         <Row>
             <PageFieldRow title={WorkTypeLabel} ellipsis labelSpan={5}>
-                <Typography.Text >
-                    {workTypes}
+                <Typography.Text>
+                    {workTypes || HaveNotMessage}
                 </Typography.Text>
             </PageFieldRow>
         </Row>
@@ -306,7 +314,8 @@ const IncidentWorkTypeField: React.FC<IncidentFieldProps> = ({ incident }) => {
 }
 
 const IncidentDetailsField: React.FC<IncidentFieldProps> = ({ incident }) => {
-    const DetailsLabel = 'DetailsLabel'
+    const intl = useIntl()
+    const DetailsLabel = intl.formatMessage({ id: 'incident.fields.details.label' })
 
     return (
         <Row>
@@ -318,8 +327,9 @@ const IncidentDetailsField: React.FC<IncidentFieldProps> = ({ incident }) => {
 }
 
 const IncidentTextForResidentField: React.FC<IncidentFieldProps> = ({ incident }) => {
-    const TextForResidentLabel = 'TextForResidentLabel'
-    const HaveNotMessage = 'HaveNotMessage'
+    const intl = useIntl()
+    const TextForResidentLabel = intl.formatMessage({ id: 'incident.fields.textForResident.label' })
+    const HaveNotMessage = intl.formatMessage({ id: 'incident.fields.textForResident.isEmpty' })
 
     return (
         <Row>
@@ -360,18 +370,18 @@ const IncidentContent: React.FC<IncidentContentProps> = (props) => {
 }
 
 const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
-    const { incident, refetchIncident, incidentLoading } = props
-
     const intl = useIntl()
-    const PageTitle = 'Отключение №' + incident.number
-    const DateMessage = 'Дата создания ' + dayjs(incident.createdAt).format('DD.MM.YYYY, HH:mm')
-    const AuthorMessage = 'автор'
-    const ActualMessage = 'ActualMessage'
-    const NotActualMessage = 'NotActualMessage'
-    const EditLabel = 'EditLabel'
-    const MakeNotActualLabel = 'MakeNotActualLabel'
-    const MakeActualLabel = 'MakeActualLabel'
-    const ChangeHistoryTitle = 'История изменений'
+    const PageTitle = intl.formatMessage({ id: 'incident.id.title' })
+    const DateMessage = intl.formatMessage({ id: 'incident.id.createdAt' })
+    const AuthorMessage = intl.formatMessage({ id: 'incident.id.author' }).toLowerCase()
+    const ActualLabel = intl.formatMessage({ id: 'incident.status.actual' })
+    const NotActualLabel = intl.formatMessage({ id: 'incident.status.notActual' })
+    const EditLabel = intl.formatMessage({ id: 'incident.id.edit.label' })
+    const MakeActualLabel = intl.formatMessage({ id: 'incident.id.makeActual.label' })
+    const MakeNotActualLabel = intl.formatMessage({ id: 'incident.id.makeNotActual.label' })
+    const ChangeHistoryTitle = intl.formatMessage({ id: 'incident.id.changeHistory.title' })
+
+    const { incident, refetchIncident, incidentLoading } = props
 
     const router = useRouter()
 
@@ -400,20 +410,22 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
         await router.push(`/incident/${incident.id}/update`)
     }, [incident.id, router])
 
+    const createdAt = useMemo(() => dayjs(incident.createdAt).format('DD.MM.YYYY, HH:mm'), [incident.createdAt])
+
     return (
         <>
             <Head>
-                <title>{PageTitle}</title>
+                <title>{PageTitle}{incident.number}</title>
             </Head>
             <PageWrapper>
-                <PageHeader style={{ paddingBottom: 20 }} title={<Typography.Title>{PageTitle}</Typography.Title>} />
+                <PageHeader style={{ paddingBottom: 20 }} title={<Typography.Title>{PageTitle}{incident.number}</Typography.Title>} />
                 <PageContent>
                     {IncidentUpdateStatusModal}
                     <Row gutter={[0, 60]}>
                         <Col span={24} lg={24} xl={22}>
                             <Row gutter={[0, 24]}>
                                 <Col span={24}>
-                                    <Typography.Text type='secondary' size='small'>{DateMessage}, {AuthorMessage} </Typography.Text>
+                                    <Typography.Text type='secondary' size='small'>{DateMessage} {createdAt}, {AuthorMessage} </Typography.Text>
                                     <UserNameField user={get(incident, ['createdBy'])}>
                                         {({ name, postfix }) => (
                                             <Typography.Text size='small'>
@@ -428,7 +440,7 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
                                         bgColor={INCIDENT_STATUS_COLORS[incident.status].background}
                                         textColor={INCIDENT_STATUS_COLORS[incident.status].text}
                                     >
-                                        {isActual ? ActualMessage : NotActualMessage}
+                                        {isActual ? ActualLabel : NotActualLabel}
                                     </Tag>
                                 </Col>
                             </Row>
@@ -440,7 +452,7 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
                             <Button
                                 disabled={incidentLoading}
                                 type='primary'
-                                children={isActual ? MakeActualLabel : MakeNotActualLabel}
+                                children={isActual ? MakeNotActualLabel : MakeActualLabel}
                                 onClick={handleOpen}
                             />
                             <Button
@@ -471,6 +483,7 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
 const IncidentIdPage: IIncidentIdPage = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const ErrorPageTitle = intl.formatMessage({ id: 'incident.id.error.title' })
 
     const router = useRouter()
 
@@ -484,11 +497,10 @@ const IncidentIdPage: IIncidentIdPage = () => {
     } = Incident.useObject({ where: { id } })
 
     if (incidentLoading && !incident) {
-        const PageTitle = 'Отключение'
 
         return (
             <LoadingOrErrorPage
-                title={PageTitle}
+                title={ErrorPageTitle}
                 loading={incidentLoading}
                 error={error && ServerErrorMessage}
             />
