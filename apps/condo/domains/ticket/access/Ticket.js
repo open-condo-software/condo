@@ -11,6 +11,7 @@ const { getById, find } = require('@open-condo/keystone/schema')
 
 const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+const { CANCELED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadTickets ({ authentication: { item: user }, context }) {
@@ -64,11 +65,20 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
         } else if (operation === 'update') {
             if (!itemId) return false
 
-            const inaccessibleUpdatedFields = omit(originalInput, ['dv', 'sender', 'reviewValue', 'reviewComment'])
+            const inaccessibleUpdatedFields = omit(originalInput, ['dv', 'status', 'sender', 'reviewValue', 'reviewComment'])
             if (!isEmpty(inaccessibleUpdatedFields)) return false
 
             const ticket = await getById('Ticket', itemId)
             if (!ticket) return false
+
+            const updatedStatusId = get(originalInput, 'status.connect.id')
+            if (updatedStatusId) {
+                const ticketStatus = await getById('TicketStatus', updatedStatusId)
+
+                if (!ticketStatus) return false
+                if (ticketStatus.organization && ticketStatus.organization !== ticket.organization) return false
+                if (ticketStatus.type !== CANCELED_STATUS_TYPE) return false
+            }
 
             return ticket.client === user.id
         }
