@@ -1,7 +1,7 @@
 const get = require('lodash/get')
 
-const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
+const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 
 const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
