@@ -72,7 +72,7 @@ const {
     DEFERRED_STATUS_TYPE,
     CANCELED_STATUS_TYPE,
     NEW_OR_REOPENED_STATUS_TYPE,
-    DEFAULT_DEFERRED_DAYS,
+    DEFAULT_DEFERRED_DAYS, CLOSED_STATUS_TYPE,
 } = require('@condo/domains/ticket/constants')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const {
@@ -82,7 +82,7 @@ const {
     createTestTicket,
     updateTestTicket,
     createTestTicketComment,
-    createTestTicketClassifier,
+    createTestTicketClassifier, TicketStatus,
 } = require('@condo/domains/ticket/utils/testSchema')
 const {
     makeClientWithResidentUser,
@@ -314,6 +314,51 @@ describe('Ticket', () => {
                 await updateTestTicket(userClient, ticket.id, {
                     details: newDetails,
                     unitName: unitName2,
+                })
+            })
+        })
+
+        test('resident: can update his Ticket status to a "canceled" status', async () => {
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, userClient.user, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [canceledStatus] = await TicketStatus.getAll(userClient, {
+                type: CANCELED_STATUS_TYPE,
+            })
+
+            const [canceledTicket] = await updateTestTicket(userClient, ticket.id, {
+                status: { connect: { id: canceledStatus.id } },
+            })
+
+            expect(canceledTicket.id).toEqual(ticket.id)
+            expect(canceledTicket.status.type).toEqual(CANCELED_STATUS_TYPE)
+        })
+
+        test('resident: cannot update his Ticket status to a status other than "cancelled"', async () => {
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, userClient.user, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [closedStatus] = await TicketStatus.getAll(userClient, {
+                type: CLOSED_STATUS_TYPE,
+            })
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestTicket(userClient, ticket.id, {
+                    status: { connect: { id: closedStatus.id } },
                 })
             })
         })
