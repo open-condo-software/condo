@@ -7,7 +7,7 @@
     "dev": "yarn build:deps && keystone dev",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build:static": "yarn workspace @open-condo/ui build:sb -o ../../apps/condo/public/ui && mv -f public/ui/ui/* public/ui",
-    "build:deps": "turbo run build --filter=condo^...",
+    "build:deps": "turbo build --filter=condo^...",
     "build": "yarn build:deps && cross-env PHASE=build keystone build",
     "start": "keystone start",
     "worker": "cross-env PHASE=worker node worker.js",

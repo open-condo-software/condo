@@ -30,7 +30,9 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install deps
-        run: yarn --immutable
+        run: |
+          npm i -g turbo
+          yarn --immutable
 
       - name: Publish packages
         run: node bin/publish-packages.js

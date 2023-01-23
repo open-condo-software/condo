@@ -52,6 +52,7 @@ jobs:
       - name: install packages
         working-directory: ./apps/address-service
         run: |
+          npm i -g turbo
           yarn install --immutable
           pip3 install django
           pip3 install psycopg2-binary

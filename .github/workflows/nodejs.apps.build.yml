@@ -27,13 +27,21 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
 
-      - name: install packages
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+          cache-dependency-path: yarn.lock
+
+      - name: Install packages
         run: |
+          npm i -g turbo
           yarn install --immutable
           pip3 install django
           pip3 install psycopg2-binary
 
-      - name: test front build
+      - name: Init .env
         run: |
           set -x
           echo '# Build time .env config!' > .env
@@ -44,35 +52,15 @@ jobs:
           echo 'FILE_FIELD_ADAPTER=local' >> .env
           echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> .env
 
-      - name: test app/condo
-        run: |
-          yarn workspace @app/condo build
-          test "./apps/condo/dist" && echo "keystone build successful" || exit 1
+      - name: Test apps build
+        run: turbo build --filter="./apps/*"
 
-      - name: test app/callcenter
+      - name: Test artifacts existence
         run: |
-          yarn workspace @app/callcenter build
-
-      - name: test app/condorb
-        run: |
-          yarn workspace @app/condorb build
-          test "./apps/condorb/dist" && echo "keystone build successful" || exit 1
-
-      - name: test app/eps
-        run: |
-          yarn workspace @app/eps build
-          test "./apps/eps/dist" && echo "keystone build successful" || exit 1
-
-      - name: test app/miniapp
-        run: |
-          yarn workspace @app/miniapp build
-
-      - name: test app/property-importer
-        run: |
-          yarn workspace @app/property-importer build
-          test ".apps/property-importer/dist" && echo "keystone build successful" || exit 1
-
-      - name: test app/registry
-        run: |
-          yarn workspace @app/registry build
-          test ".apps/registry/dist" && echo "keystone build successful" || exit 1
+          test "./apps/condo/dist" && echo "keystone build successful (condo)" || exit 1
+          test "./apps/condorb/dist" && echo "keystone build successful (condorb)" || exit 1
+          test "./apps/eps/dist" && echo "keystone build successful (eps)" || exit 1
+          test "./apps/property-importer/dist" && echo "keystone build successful (property-importer)" || exit 1
+          test "./apps/registry/dist" && echo "keystone build successful (registry)" || exit 1
+          test "./apps/insurance/dist" && echo "keystone build successful (insurance)" || exit 1
+          test "./apps/miniapp/dist" && echo "keystone build successful (miniapp)" || exit 1

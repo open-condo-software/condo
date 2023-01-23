@@ -18,7 +18,9 @@ jobs:
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
 
       - name: Install packages
-        run: yarn install --immutable
+        run: |
+          npm i -g turbo
+          yarn install --immutable
 
       - name: Build lib
         run: yarn workspace @open-condo/bridge build
