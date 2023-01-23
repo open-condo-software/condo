@@ -5,12 +5,14 @@ import get from 'lodash/get'
 import ActionBar from '../../../common/components/ActionBar'
 import { Button } from '@open-condo/ui'
 import { Incident } from '@condo/domains/ticket/utils/clientSchema'
+import { useIntl } from '@open-condo/next/intl'
 
 
 const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormProps['ActionBar']>> = (props) => {
-    const { handleSave, isLoading, form } = props
+    const intl = useIntl()
+    const SaveLabel = intl.formatMessage({ id: 'incident.form.save.label' })
 
-    const SaveLabel = 'SaveLabel'
+    const { handleSave, isLoading, form } = props
 
     return (
         <ActionBar>

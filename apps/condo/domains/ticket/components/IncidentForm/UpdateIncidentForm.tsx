@@ -8,15 +8,17 @@ import { Button } from '@open-condo/ui'
 import LoadingOrErrorPage from '../../../common/components/containers/LoadingOrErrorPage'
 import { useIntl } from '@open-condo/next/intl'
 import dayjs from 'dayjs'
+import { useRouter } from 'next/router'
 
 interface IUpdateIncidentForm {
     id: string
 }
 
 const UpdateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormProps['ActionBar']>> = (props) => {
-    const { handleSave, isLoading, form } = props
+    const intl = useIntl()
+    const UpdateLabel = intl.formatMessage({ id: 'incident.form.save.label' })
 
-    const UpdateLabel = 'UpdateLabel'
+    const { handleSave, isLoading, form } = props
 
     return (
         <ActionBar>
@@ -33,7 +35,9 @@ const UpdateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormProps['Ac
 export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = ({ id }) => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const PageTitle = intl.formatMessage({ id: 'incident.update.title' })
 
+    const router = useRouter()
     const { organization } = useOrganization()
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
 
@@ -65,6 +69,9 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = ({ id }) => {
     const action: BaseIncidentFormProps['action'] = useCallback(
         async (values) => await updateIncident(values, incident),
         [incident, updateIncident])
+    const afterAction: BaseIncidentFormProps['afterAction'] = useCallback(
+        async () => await router.push(`/incident/${id}`),
+        [id, router])
 
     const workStart = useMemo(() => get(incident, 'workStart', null), [incident])
     const workFinish = useMemo(() => get(incident, 'workFinish', null), [incident])
@@ -86,7 +93,6 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = ({ id }) => {
     const loading = incidentLoading || incidentPropertyLoading || incidentClassifiersLoading
 
     if (loading && !incident) {
-        const PageTitle = 'Отключение'
 
         return (
             <LoadingOrErrorPage
@@ -104,6 +110,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = ({ id }) => {
             ActionBar={UpdateIncidentActionBar}
             initialValues={initialValues}
             loading={loading}
+            afterAction={afterAction}
         />
     )
 }
