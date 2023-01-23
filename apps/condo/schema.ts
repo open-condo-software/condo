@@ -25642,6 +25642,18 @@ export type Mutation = {
   deleteIncident?: Maybe<Incident>;
   /**  Delete multiple Incident items by ID.  */
   deleteIncidents?: Maybe<Array<Maybe<Incident>>>;
+  /**  Create a single IncidentChange item.  */
+  createIncidentChange?: Maybe<IncidentChange>;
+  /**  Create multiple IncidentChange items.  */
+  createIncidentChanges?: Maybe<Array<Maybe<IncidentChange>>>;
+  /**  Update a single IncidentChange item by ID.  */
+  updateIncidentChange?: Maybe<IncidentChange>;
+  /**  Update multiple IncidentChange items by ID.  */
+  updateIncidentChanges?: Maybe<Array<Maybe<IncidentChange>>>;
+  /**  Delete a single IncidentChange item by ID.  */
+  deleteIncidentChange?: Maybe<IncidentChange>;
+  /**  Delete multiple IncidentChange items by ID.  */
+  deleteIncidentChanges?: Maybe<Array<Maybe<IncidentChange>>>;
   /**  Create a single IncidentPropertyHistoryRecord item.  */
   createIncidentPropertyHistoryRecord?: Maybe<IncidentPropertyHistoryRecord>;
   /**  Create multiple IncidentPropertyHistoryRecord items.  */
@@ -25690,18 +25702,6 @@ export type Mutation = {
   deleteIncidentTicketClassifier?: Maybe<IncidentTicketClassifier>;
   /**  Delete multiple IncidentTicketClassifier items by ID.  */
   deleteIncidentTicketClassifiers?: Maybe<Array<Maybe<IncidentTicketClassifier>>>;
-  /**  Create a single IncidentChange item.  */
-  createIncidentChange?: Maybe<IncidentChange>;
-  /**  Create multiple IncidentChange items.  */
-  createIncidentChanges?: Maybe<Array<Maybe<IncidentChange>>>;
-  /**  Update a single IncidentChange item by ID.  */
-  updateIncidentChange?: Maybe<IncidentChange>;
-  /**  Update multiple IncidentChange items by ID.  */
-  updateIncidentChanges?: Maybe<Array<Maybe<IncidentChange>>>;
-  /**  Delete a single IncidentChange item by ID.  */
-  deleteIncidentChange?: Maybe<IncidentChange>;
-  /**  Delete multiple IncidentChange items by ID.  */
-  deleteIncidentChanges?: Maybe<Array<Maybe<IncidentChange>>>;
   /**  Create a single MessageHistoryRecord item.  */
   createMessageHistoryRecord?: Maybe<MessageHistoryRecord>;
   /**  Create multiple MessageHistoryRecord items.  */
@@ -31248,6 +31248,37 @@ export type MutationDeleteIncidentsArgs = {
 };
 
 
+export type MutationCreateIncidentChangeArgs = {
+  data?: Maybe<IncidentChangeCreateInput>;
+};
+
+
+export type MutationCreateIncidentChangesArgs = {
+  data?: Maybe<Array<Maybe<IncidentChangesCreateInput>>>;
+};
+
+
+export type MutationUpdateIncidentChangeArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<IncidentChangeUpdateInput>;
+};
+
+
+export type MutationUpdateIncidentChangesArgs = {
+  data?: Maybe<Array<Maybe<IncidentChangesUpdateInput>>>;
+};
+
+
+export type MutationDeleteIncidentChangeArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteIncidentChangesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
 export type MutationCreateIncidentPropertyHistoryRecordArgs = {
   data?: Maybe<IncidentPropertyHistoryRecordCreateInput>;
 };
@@ -31368,37 +31399,6 @@ export type MutationDeleteIncidentTicketClassifierArgs = {
 
 
 export type MutationDeleteIncidentTicketClassifiersArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateIncidentChangeArgs = {
-  data?: Maybe<IncidentChangeCreateInput>;
-};
-
-
-export type MutationCreateIncidentChangesArgs = {
-  data?: Maybe<Array<Maybe<IncidentChangesCreateInput>>>;
-};
-
-
-export type MutationUpdateIncidentChangeArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<IncidentChangeUpdateInput>;
-};
-
-
-export type MutationUpdateIncidentChangesArgs = {
-  data?: Maybe<Array<Maybe<IncidentChangesUpdateInput>>>;
-};
-
-
-export type MutationDeleteIncidentChangeArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteIncidentChangesArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -41463,6 +41463,14 @@ export type Query = {
   _allIncidentsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the Incident list.  */
   _IncidentsMeta?: Maybe<_ListMeta>;
+  /**  Search for all IncidentChange items which match the where clause.  */
+  allIncidentChanges?: Maybe<Array<Maybe<IncidentChange>>>;
+  /**  Search for the IncidentChange item with the matching ID.  */
+  IncidentChange?: Maybe<IncidentChange>;
+  /**  Perform a meta-query on all IncidentChange items which match the where clause.  */
+  _allIncidentChangesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the IncidentChange list.  */
+  _IncidentChangesMeta?: Maybe<_ListMeta>;
   /**  Search for all IncidentPropertyHistoryRecord items which match the where clause.  */
   allIncidentPropertyHistoryRecords?: Maybe<Array<Maybe<IncidentPropertyHistoryRecord>>>;
   /**  Search for the IncidentPropertyHistoryRecord item with the matching ID.  */
@@ -41495,14 +41503,6 @@ export type Query = {
   _allIncidentTicketClassifiersMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the IncidentTicketClassifier list.  */
   _IncidentTicketClassifiersMeta?: Maybe<_ListMeta>;
-  /**  Search for all IncidentChange items which match the where clause.  */
-  allIncidentChanges?: Maybe<Array<Maybe<IncidentChange>>>;
-  /**  Search for the IncidentChange item with the matching ID.  */
-  IncidentChange?: Maybe<IncidentChange>;
-  /**  Perform a meta-query on all IncidentChange items which match the where clause.  */
-  _allIncidentChangesMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the IncidentChange list.  */
-  _IncidentChangesMeta?: Maybe<_ListMeta>;
   /**  Search for all MessageHistoryRecord items which match the where clause.  */
   allMessageHistoryRecords?: Maybe<Array<Maybe<MessageHistoryRecord>>>;
   /**  Search for the MessageHistoryRecord item with the matching ID.  */
@@ -44653,6 +44653,31 @@ export type Query_AllIncidentsMetaArgs = {
 };
 
 
+export type QueryAllIncidentChangesArgs = {
+  where?: Maybe<IncidentChangeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortIncidentChangesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryIncidentChangeArgs = {
+  where: IncidentChangeWhereUniqueInput;
+};
+
+
+export type Query_AllIncidentChangesMetaArgs = {
+  where?: Maybe<IncidentChangeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortIncidentChangesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type QueryAllIncidentPropertyHistoryRecordsArgs = {
   where?: Maybe<IncidentPropertyHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
@@ -44747,31 +44772,6 @@ export type Query_AllIncidentTicketClassifiersMetaArgs = {
   where?: Maybe<IncidentTicketClassifierWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortIncidentTicketClassifiersBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllIncidentChangesArgs = {
-  where?: Maybe<IncidentChangeWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortIncidentChangesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryIncidentChangeArgs = {
-  where: IncidentChangeWhereUniqueInput;
-};
-
-
-export type Query_AllIncidentChangesMetaArgs = {
-  where?: Maybe<IncidentChangeWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortIncidentChangesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
