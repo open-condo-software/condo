@@ -260,7 +260,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         const { tin = null } = helpers
 
         const body = {
-            query,
+            query: `${query.trim()} `,
             ...this.getContext(context),
             ...(isNaN(count) ? {} : { count }),
         }
