@@ -6,6 +6,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
@@ -17,9 +18,19 @@ import {
 } from './GlobalAppsFeaturesContext'
 
 const REQUEST_FEATURE_MESSAGE_NAME = 'CondoWebAppFeatureRequest'
+const ORGANIZATION_CHANGE_MESSAGE_NAME = 'CondoWebAppOrganizationChange'
 
 export const GlobalAppsContainer: React.FC = () => {
+    // TODO(DOMA-5194): Clean this mess:
+    //  1. refs are using only for sending messages...It should be part of PostMessageProvider
+    //  (Provider addOrigin must be changed to addFrame or something like that)
+    //  2. Move constants like REQUEST_FEATURE_MESSAGE_NAME, ORGANIZATION_CHANGE_MESSAGE_NAME to incoming bridge events
+    //  so miniapps can use bridge.subscribe with Type safety on them!
     const { user } = useAuth()
+    const { organization } = useOrganization()
+    const organizationId = get(organization, 'id', null)
+
+
     const { objs, refetch, loading } = B2BApp.useObjects({
         where: {
             isGlobal: true,
@@ -89,13 +100,33 @@ export const GlobalAppsContainer: React.FC = () => {
     ])
 
     useEffect(() => {
+        if (organizationId) {
+            for (const iframe of iframeRefs.current) {
+                if (iframe) {
+                    const iframeWindow = get(iframe, 'contentWindow', null)
+                    const iframeOrigin = extractOrigin(iframe.src)
+                    if (iframeOrigin && iframeWindow) {
+                        iframeWindow.postMessage({
+                            type: ORGANIZATION_CHANGE_MESSAGE_NAME,
+                            data: {
+                                // TODO(DOMA-5194): May be condoOrganizationId to be consistent with query-params?
+                                organizationId,
+                            },
+                        }, iframeOrigin)
+                    }
+                }
+            }
+        }
+    }, [organizationId])
+
+    useEffect(() => {
         if (!isGlobalAppsFetched.current && !loading && !isNull(user)) {
             refetch()
             isGlobalAppsFetched.current = true
         }
     }, [user, loading])
 
-    // Global miniapps allowed only for authenticated users
+    // // Global miniapps allowed only for authenticated users
     if (!user) {
         return null
     }
