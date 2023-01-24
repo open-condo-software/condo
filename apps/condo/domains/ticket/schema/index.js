@@ -4,6 +4,7 @@
  */
 
 
+const { ExportIncidentsToExcelService } = require('./ExportIncidentsToExcelService')
 const { Incident } = require('./Incident')
 const { IncidentChange } = require('./IncidentChange')
 const { IncidentProperty } = require('./IncidentProperty')
@@ -55,5 +56,6 @@ module.exports = {
     IncidentChange,
     IncidentProperty,
     IncidentTicketClassifier,
+    ExportIncidentsToExcelService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
