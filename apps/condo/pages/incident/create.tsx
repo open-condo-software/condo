@@ -1,11 +1,11 @@
-import React from 'react'
 import Head from 'next/head'
+import React from 'react'
 
-import { Typography } from '@open-condo/ui'
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { IncidentForm } from '@condo/domains/ticket/components/IncidentForm'
 
 

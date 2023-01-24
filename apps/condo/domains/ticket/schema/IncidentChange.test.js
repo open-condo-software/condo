@@ -6,10 +6,10 @@ const faker = require('faker')
 const { makeLoggedInAdminClient, makeClient, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
 
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { IncidentChange, createTestIncidentChange, updateTestIncidentChange, updateTestIncident, createTestIncident } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { INCIDENT_CHANGE_DATA_FIELDS } = require('@condo/domains/ticket/gql')
+const { IncidentChange, createTestIncidentChange, updateTestIncidentChange, updateTestIncident, createTestIncident } = require('@condo/domains/ticket/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 
 const expectToThrowAccessDeniedErrorToDeleteObj = async (testFunction) => {

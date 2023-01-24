@@ -1,6 +1,7 @@
 import React from 'react'
-import { UpdateIncidentForm } from './UpdateIncidentForm'
+
 import { CreateIncidentForm } from './CreateIncidentForm'
+import { UpdateIncidentForm } from './UpdateIncidentForm'
 
 
 interface IIncidentFormProps {
