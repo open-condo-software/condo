@@ -1,5 +1,7 @@
-const { getById } = require('@open-condo/keystone/schema')
 const { get } = require('lodash')
+
+const { getById } = require('@open-condo/keystone/schema')
+
 const { IncidentChange } = require('./index')
 
 

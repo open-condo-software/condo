@@ -1,15 +1,17 @@
-import { ComponentType, FiltersMeta } from '../../common/utils/filters.utils'
-import { IncidentWhereInput } from '../../../schema'
 import { useMemo } from 'react'
-import { getIncidentAttributesFilter } from '../utils/tables.utils'
-import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '../constants/incident'
+
 import { useIntl } from '@open-condo/next/intl'
+
+import { IncidentWhereInput } from '../../../schema'
+import { ComponentType, FiltersMeta } from '../../common/utils/filters.utils'
 import {
     getDayRangeFilter,
     getFilter,
     getNumberFilter,
     getStringContainsFilter,
 } from '../../common/utils/tables.utils'
+import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '../constants/incident'
+import { getIncidentAttributesFilter } from '../utils/tables.utils'
 
 
 const filterAttribute = getIncidentAttributesFilter([INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL])

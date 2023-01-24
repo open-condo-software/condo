@@ -1,10 +1,13 @@
-import React, { ComponentProps, ReactElement, useCallback, useMemo, useState } from 'react'
-import { Col, Row, Skeleton, Button } from 'antd'
-import { fontSizes } from '../../constants/style'
 import { green } from '@ant-design/colors'
+import { Col, Row, Skeleton, Button } from 'antd'
+import React, { ComponentProps, ReactElement, useCallback, useMemo, useState } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
+
 import { BaseChangesType, HistoricalChange } from './HistoricalChange'
+
+import { fontSizes } from '../../constants/style'
 
 
 type ChangeHistoryInputType<ChangesType> = {

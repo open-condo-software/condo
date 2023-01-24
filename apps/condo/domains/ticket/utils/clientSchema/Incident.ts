@@ -8,7 +8,9 @@ import {
     IncidentUpdateInput,
     QueryAllIncidentsArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { Incident as IncidentGQL } from '@condo/domains/ticket/gql'
 
 

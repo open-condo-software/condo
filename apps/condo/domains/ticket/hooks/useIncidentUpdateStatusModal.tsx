@@ -1,12 +1,15 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import dayjs, { Dayjs } from 'dayjs'
 import { Incident as IIncident, IncidentStatusType } from '@app/condo/schema'
-import { Button, Modal, Typography } from '@open-condo/ui'
-import { Incident } from '@condo/domains/ticket/utils/clientSchema'
-import DatePicker from '../../common/components/Pickers/DatePicker'
 import { Col, Form, Row } from 'antd'
+import dayjs, { Dayjs } from 'dayjs'
 import isFunction from 'lodash/isFunction'
+import React, { useCallback, useMemo, useState } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
+import { Button, Modal, Typography } from '@open-condo/ui'
+
+import { Incident } from '@condo/domains/ticket/utils/clientSchema'
+
+import DatePicker from '../../common/components/Pickers/DatePicker'
 
 
 const DATE_PICKER_STYLE: React.CSSProperties = { width: '100%' }
