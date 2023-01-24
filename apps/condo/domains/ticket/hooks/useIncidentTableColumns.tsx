@@ -1,27 +1,28 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-
-import { useIntl } from '@open-condo/next/intl'
-
 import {
     Incident as IIncident, IncidentStatusType,
 } from '@app/condo/schema'
+import { ColumnsType } from 'antd/es/table/interface'
+import dayjs from 'dayjs'
+import get from 'lodash/get'
+import { useRouter } from 'next/router'
+import { ColumnType } from 'rc-table/lib/interface'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { Tag, Typography } from '@open-condo/ui'
 
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { useRouter } from 'next/router'
-import { getSorterMap, parseQuery } from '../../common/utils/tables.utils'
-import get from 'lodash/get'
-import { getFilteredValue } from '../../common/utils/helpers'
-import { ColumnsType } from 'antd/es/table/interface'
-import { getFilterIcon } from '../../common/components/TableFilter'
-import { getDateRender, getTableCellRenderer } from '../../common/components/Table/Renders'
 import { IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
-import { ColumnType } from 'rc-table/lib/interface'
-import { geOneAddressAndPropertiesCountRender } from '../../property/utils/clientSchema/Renders'
-import { getManyClassifiersGroupByPlaceRender } from '../utils/clientSchema/Renders'
-import { Tag, Typography } from '@open-condo/ui'
-import { INCIDENT_STATUS_COLORS } from '../constants/incident'
+
 import { getTimeLeftMessage, getTimeLeftMessageType } from '../../../pages/incident/[id]'
-import dayjs from 'dayjs'
+import { getDateRender, getTableCellRenderer } from '../../common/components/Table/Renders'
+import { getFilterIcon } from '../../common/components/TableFilter'
+import { getFilteredValue } from '../../common/utils/helpers'
+import { getSorterMap, parseQuery } from '../../common/utils/tables.utils'
+import { geOneAddressAndPropertiesCountRender } from '../../property/utils/clientSchema/Renders'
+import { INCIDENT_STATUS_COLORS } from '../constants/incident'
+import { getManyClassifiersGroupByPlaceRender } from '../utils/clientSchema/Renders'
+
 
 
 type UseTableColumnsPropsType <T = any> = {

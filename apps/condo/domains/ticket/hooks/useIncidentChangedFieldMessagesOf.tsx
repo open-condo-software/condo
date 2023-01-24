@@ -1,14 +1,17 @@
 import { IncidentChange as IIncidentChange, IncidentStatusType } from '@app/condo/schema'
-import React, { ComponentProps } from 'react'
-import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
-import { useIntl } from '@open-condo/next/intl'
-import { has, isNil } from 'lodash'
 import { Typography } from 'antd'
-import { Tooltip } from '../../common/components/Tooltip'
-import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '../constants/restrictions'
-import { INCIDENT_STATUS_COLORS } from '../constants/incident'
 import dayjs from 'dayjs'
+import { has, isNil } from 'lodash'
+import React, { ComponentProps } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
+
 import { SafeUserMention } from '../../common/components/ChangeHistory/SafeUserMention'
+import { Tooltip } from '../../common/components/Tooltip'
+import { INCIDENT_STATUS_COLORS } from '../constants/incident'
+import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '../constants/restrictions'
 
 enum IncidentChangeFieldMessageType {
     From,

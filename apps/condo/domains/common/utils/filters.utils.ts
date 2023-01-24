@@ -1,6 +1,7 @@
 import { DatePickerProps, FormInstance, InputProps, SelectProps } from 'antd'
 import { FormItemProps } from 'antd/es'
 import { CheckboxGroupProps } from 'antd/es/checkbox'
+import { RangePickerProps } from 'antd/lib/date-picker/generatePicker'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -20,7 +21,6 @@ import {
     getTextFilterDropdown,
 } from '../components/Table/Filters'
 import { FILTERS_POPUP_CONTAINER_ID } from '../constants/filters'
-import { RangePickerProps } from 'antd/lib/date-picker/generatePicker'
 
 export enum FilterComponentSize {
     Small = 8,
