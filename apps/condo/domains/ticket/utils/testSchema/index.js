@@ -39,6 +39,7 @@ const { Incident: IncidentGQL } = require('@condo/domains/ticket/gql')
 const { IncidentProperty: IncidentPropertyGQL } = require('@condo/domains/ticket/gql')
 const { IncidentTicketClassifier: IncidentTicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { IncidentChange: IncidentChangeGQL } = require('@condo/domains/ticket/gql')
+const { EXPORT_INCIDENTS_TO_EXCEL_QUERY } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -773,6 +774,19 @@ async function updateTestIncidentChange (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function exportIncidentsToExcelByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(EXPORT_INCIDENTS_TO_EXCEL_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -821,5 +835,6 @@ module.exports = {
     IncidentProperty, createTestIncidentProperty, updateTestIncidentProperty,
     IncidentTicketClassifier, createTestIncidentTicketClassifier, updateTestIncidentTicketClassifier,
     IncidentChange, createTestIncidentChange, updateTestIncidentChange,
+    exportIncidentsToExcelByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

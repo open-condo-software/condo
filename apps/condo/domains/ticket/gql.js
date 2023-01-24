@@ -217,6 +217,12 @@ const INCIDENT_CHANGE_DATA_FIELDS = [
 const INCIDENT_CHANGE_FIELDS = `{ incident { id } ${COMMON_CHANGE_HISTORY_FIELDS} ${INCIDENT_CHANGE_DATA_FIELDS.join(' ')} }`
 const IncidentChange = generateGqlQueries('IncidentChange', INCIDENT_CHANGE_FIELDS)
 
+const EXPORT_INCIDENTS_TO_EXCEL_QUERY = gql`
+    query exportIncidentsToExcel($data: ExportIncidentsToExcelInput!) {
+        result: exportIncidentsToExcel(data: $data) { status, linkToFile }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -248,5 +254,6 @@ module.exports = {
     IncidentTicketClassifier,
     INCIDENT_CHANGE_DATA_FIELDS,
     IncidentChange,
+    EXPORT_INCIDENTS_TO_EXCEL_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
