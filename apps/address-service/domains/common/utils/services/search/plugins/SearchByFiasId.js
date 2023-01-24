@@ -1,5 +1,6 @@
 const get = require('lodash/get')
 
+const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
@@ -61,7 +62,7 @@ class SearchByFiasId extends AbstractSearchPlugin {
             },
         }
 
-        return await createOrUpdateAddressWithSource(godContext, addressData, s, dvSender)
+        return await createOrUpdateAddressWithSource(godContext, Address, AddressSource, addressData, s, dvSender)
     }
 }
 
