@@ -12,7 +12,8 @@ type CondoRadioProps = {
     labelProps?: TypographyTextProps
 }
 
-export type RadioProps = Pick<DefaultRadioProps, 'autoFocus' | 'defaultChecked' | 'disabled' | 'onChange' | 'checked'> & CondoRadioProps
+export type RadioProps = Pick<DefaultRadioProps, 'autoFocus' | 'defaultChecked' | 'disabled' | 'onChange' | 'checked' | 'value'>
+& CondoRadioProps
 
 const Radio: React.FC<RadioProps> = (props) => {
     const { label, labelProps, disabled, ...rest } = props
