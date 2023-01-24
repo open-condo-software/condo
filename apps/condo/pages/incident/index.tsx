@@ -1,36 +1,37 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import Head from 'next/head'
-
-import { Typography, Checkbox, Button } from '@open-condo/ui'
-import { useOrganization } from '@open-condo/next/organization'
-
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { IncidentWhereInput, SortIncidentsBy, Incident as IIncident } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
-import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import Input from '@condo/domains/common/components/antd/Input'
-import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import get from 'lodash/get'
-import { Property } from '@condo/domains/property/utils/clientSchema'
-import { Incident, IncidentProperty } from '@condo/domains/ticket/utils/clientSchema'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { IncidentWhereInput, SortIncidentsBy, Incident as IIncident } from '@app/condo/schema'
-import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { useRouter } from 'next/router'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
-import { useIncidentTableColumns, UseTableColumnsType } from '@condo/domains/ticket/hooks/useIncidentTableColumns'
-import { useIncidentTableFilters } from '@condo/domains/ticket/hooks/useIncidentTableFilters'
-import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
 import uniq from 'lodash/uniq'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { Typography, Checkbox, Button } from '@open-condo/ui'
+
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import Input from '@condo/domains/common/components/antd/Input'
+import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { useIntl } from '@open-condo/next/intl'
-
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { useExportToExcel } from '@condo/domains/common/hooks/useExportToExcel'
+import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { Property } from '@condo/domains/property/utils/clientSchema'
+import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
+import { EXPORT_INCIDENTS_TO_EXCEL_QUERY } from '@condo/domains/ticket/gql'
+import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
+import { useIncidentTableColumns, UseTableColumnsType } from '@condo/domains/ticket/hooks/useIncidentTableColumns'
+import { useIncidentTableFilters } from '@condo/domains/ticket/hooks/useIncidentTableFilters'
+import { Incident, IncidentProperty } from '@condo/domains/ticket/utils/clientSchema'
 
 interface IIncidentIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -141,6 +142,7 @@ const useIncidentsSearch = ({ organizationId, filterMetas }) => {
     const [incidentsLoading, setIncidentsLoading] = useState(true)
     const [incidents, setIncidents] = useState<IIncident[]>([])
     const [count, setCount] = useState<number>(0)
+    const [where, setWhere] = useState<IncidentWhereInput>({})
 
     const properties = Property.useAllObjects({}, { skip: true })
     const incidentProperties = IncidentProperty.useAllObjects({}, { skip: true, fetchPolicy: 'network-only' })
@@ -203,14 +205,17 @@ const useIncidentsSearch = ({ organizationId, filterMetas }) => {
         const { where: whereByAddress } = await getWhereByAddress(search)
         let count = 0
         let incidents = []
+        let where: IncidentWhereInput = {}
         if (whereByAddress) {
-            const response = await getIncidents({
+            where = {
                 ...incidentWhere,
                 ...whereByAddress,
-            }, sortBy, currentPageIndex)
+            }
+            const response = await getIncidents(where, sortBy, currentPageIndex)
             count = response.count
             incidents = response.incidents
         }
+        setWhere(where)
         setCount(count)
         setIncidents(incidents)
         setIncidentsLoading(false)
@@ -224,18 +229,29 @@ const useIncidentsSearch = ({ organizationId, filterMetas }) => {
         incidentsLoading,
         incidents,
         count,
-    }), [count, incidents, incidentsLoading])
+        sortBy,
+        where,
+    }), [count, incidents, incidentsLoading, sortBy, where])
 }
 
 const TableContainer: React.FC<TableContainerProps> = (props) => {
     const intl = useIntl()
     const AddNewIncidentLabel = intl.formatMessage({ id: 'incident.index.addNewIncident.label' })
+    const ExportLabel = intl.formatMessage({ id: 'incident.task.exportToExcel' })
 
     const { useTableColumns, filterMetas, organizationId } = props
 
     const router = useRouter()
 
-    const { incidentsLoading, incidents, count } = useIncidentsSearch({ organizationId, filterMetas })
+    const { incidentsLoading, incidents, count, sortBy, where } = useIncidentsSearch({ organizationId, filterMetas })
+
+    const { ExportButton } = useExportToExcel({
+        searchObjectsQuery: where,
+        sortBy,
+        exportToExcelQuery: EXPORT_INCIDENTS_TO_EXCEL_QUERY,
+        useTimeZone: true,
+        label: ExportLabel,
+    })
 
     const { loading: columnsLoading, columns } = useTableColumns({ filterMetas, incidents })
 
@@ -275,13 +291,8 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
                     children={AddNewIncidentLabel}
                     onClick={handleAddNewIncident}
                 />
-                {/* todo(DOMA-2567) add export incidents */}
                 {Boolean(count) && (
-                    <Button
-                        type='secondary'
-                        children='Export'
-                        onClick={() => console.warn('todo(DOMA-2567) add export incidents')}
-                    />
+                    <ExportButton />
                 )}
             </ActionBar>}
         </>
