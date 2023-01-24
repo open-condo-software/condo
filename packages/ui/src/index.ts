@@ -42,3 +42,6 @@ export type {
 
 export { Radio } from './components/Radio'
 export type { RadioProps } from './components/Radio'
+
+export { RadioGroup } from './components/RadioGroup'
+export type { RadioGroupProps } from './components/RadioGroup'
