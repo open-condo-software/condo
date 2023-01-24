@@ -32,13 +32,14 @@ describe('syncOrganization from SBBOL', () => {
             const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const adminClient = await makeLoggedInAdminClient()
-            const [organization] = await registerNewOrganization(adminClient)
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await registerNewOrganization(client)
             const context = {
                 keystone,
                 context: adminContext,
             }
             const [user] = await User.getAll(adminClient, {
-                id: adminClient.user.id,
+                id: client.user.id,
             }, { first: 1 })
             userData.phone = user.phone
             organizationData.meta.inn = organization.tin
