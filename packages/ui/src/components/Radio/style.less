@@ -1,0 +1,88 @@
+@import "antd/lib/radio/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import "./mixins";
+
+@radio-border-width: @condo-global-border-width-default;
+@radio-size: (@condo-global-spacing-24);
+@radio-top: 0;
+
+@condo-radio-inner-after-size: ((@radio-size / 2));
+
+.condo-radio-wrapper {
+  align-items: center;
+
+  .condo-radio {
+    &-input {
+      margin: 0;
+
+      &:focus {
+        & + .condo-radio-inner {
+          .condo-radio-gradient-border(linear-gradient(white, white), @condo-global-color-brand-gradient-5);
+        }
+      }
+    }
+
+    &-inner {
+      box-sizing: content-box;
+      border-color: @condo-global-color-gray-5;
+      transition: none;
+
+      &::after {
+        transition: none;
+      }
+    }
+
+    &-checked {
+       & > .condo-radio-inner {
+        background: @condo-global-color-brand-gradient-1;
+
+        &::after {
+          width: @condo-radio-inner-after-size;
+          height: @condo-radio-inner-after-size;
+          margin-top:initial;
+          margin-left: initial;
+          border-radius: 100%;
+          transform: translate(-50%, -50%);
+          background: @condo-global-color-brand-gradient-5;
+        }
+       }
+
+      & > .condo-radio-input {
+        &:focus {
+          & + .condo-radio-inner {
+            .condo-radio-gradient-border(@condo-global-color-brand-gradient-1, @condo-global-color-brand-gradient-7);
+          }
+        }
+      }
+    }
+
+    &-disabled {
+      & > .condo-radio-inner {
+        background-color: @condo-global-color-gray-1;
+        border-color: @condo-global-color-gray-3;
+      }
+    }
+  }
+
+  &:hover {
+    & > .condo-radio {
+      & > .condo-radio-inner {
+        border-color: @condo-global-color-gray-7;
+      }
+    }
+
+    & > .condo-radio-checked {
+      & > .condo-radio-inner {
+        .condo-radio-gradient-border(@condo-global-color-brand-gradient-1, @condo-global-color-brand-gradient-7);
+      }
+    }
+
+    & > .condo-radio-disabled {
+      & > .condo-radio-inner {
+        background: @condo-global-color-gray-1 border-box;
+        border-color: @condo-global-color-gray-5;
+      }
+    }
+  }
+}
