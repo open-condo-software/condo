@@ -69,10 +69,10 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
     const organizationId = get(organization, 'id', null)
     const srcWithMeta = useMemo(() => {
         const url = new URL(src)
-        if (userId) {
+        if (userId && (reloadScope === 'user' || reloadScope === 'organization')) {
             url.searchParams.set('condoUserId', userId)
         }
-        if (organizationId) {
+        if (organizationId && reloadScope === 'organization') {
             /**
              * @deprecated
              * TODO(DOMA-5142): notify developers about change, then remove organizationId
@@ -86,7 +86,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         }
 
         return url.toString()
-    }, [src, userId, organizationId])
+    }, [src, userId, organizationId, reloadScope])
 
     const rerenderKey = useMemo(() => {
         const params: { [key: string]: string } = { src }
