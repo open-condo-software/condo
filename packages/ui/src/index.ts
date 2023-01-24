@@ -39,3 +39,6 @@ export type {
     TypographyLinkProps,
     TypographyParagraphProps,
 } from './components/Typography'
+
+export { Radio } from './components/Radio'
+export type { RadioProps } from './components/Radio'
