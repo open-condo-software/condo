@@ -1685,7 +1685,7 @@
   "incident.fields.properties.label": "Адреса",
   "incident.fields.properties.checkAll.label": "Выбрать все",
   "incident.fields.properties.allSelected": "Все дома",
-  "incident.fields.workDate.label": "Начало работ",
+  "incident.fields.workDate.label": "Дата проведения работ",
   "incident.fields.workDate.from": "С",
   "incident.fields.workDate.to": "До",
   "incident.fields.workDate.overdue": "Просрочено",
@@ -1702,7 +1702,7 @@
   "incident.fields.textForResident.empty": "—",
   "incident.modalChangeStatus.save": "Все верно",
   "incident.modalChangeStatus.toActualStatus.title": "Запись актуальна?",
-  "incident.modalChangeStatus.toActualStatus.beforeWorkFinish.descriptions": "Если работы выполнены до указанного срока, мы изменим статус записи. А также дату и время завершения работ. Запись можно отредактировать позже.?",
+  "incident.modalChangeStatus.toActualStatus.beforeWorkFinish.descriptions": "Если работы выполнены до указанного срока, мы изменим статус записи. А также дату и время завершения работ. Запись можно отредактировать позже.",
   "incident.modalChangeStatus.toActualStatus.afterWorkFinish.descriptions": "Работы выполнены позже указанного срока. Мы изменим статус записи, а также дату и время завершения работ. Запись можно отредактировать в любое время.",
   "incident.modalChangeStatus.toNotActualStatus.title": "Запись больше не актуальна?",
   "incident.modalChangeStatus.toNotActualStatus.descriptions": "Если вы хотите изменить статус отключения, не забудьте исправить дату завершения работ на актуальную.",
@@ -1719,6 +1719,6 @@
   "incident.changeHistory.workType.emergency": "«аварийные»",
   "incident.changeHistory.workType.notEmergency": "«не аварийные»",
   "incident.changeHistory.workType.scheduled": "«плановые»",
-  "incident.changeHistory.workType.notScheduled": "«не плановые",
+  "incident.changeHistory.workType.notScheduled": "«не плановые»",
   "incident.hints.more.label": "Подробнее"
 }
