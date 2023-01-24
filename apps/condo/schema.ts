@@ -16568,6 +16568,20 @@ export type ExportContactsToExcelOutput = {
   linkToFile: Scalars['String'];
 };
 
+export type ExportIncidentsToExcelInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  where: IncidentWhereInput;
+  sortBy?: Maybe<Array<SortIncidentsBy>>;
+  timeZone: Scalars['String'];
+};
+
+export type ExportIncidentsToExcelOutput = {
+  __typename?: 'ExportIncidentsToExcelOutput';
+  status: Scalars['String'];
+  linkToFile: Scalars['String'];
+};
+
 export type ExportMeterReadingsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -42236,6 +42250,7 @@ export type Query = {
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   predictTicketClassification?: Maybe<TicketClassifier>;
+  exportIncidentsToExcel?: Maybe<ExportIncidentsToExcelOutput>;
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
@@ -46813,6 +46828,11 @@ export type QueryAllResidentBillingReceiptsArgs = {
 
 export type QueryPredictTicketClassificationArgs = {
   data: PredictTicketClassificationInput;
+};
+
+
+export type QueryExportIncidentsToExcelArgs = {
+  data: ExportIncidentsToExcelInput;
 };
 
 

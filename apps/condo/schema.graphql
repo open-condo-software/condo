@@ -51998,6 +51998,19 @@ input PredictTicketClassificationInput {
   details: String!
 }
 
+input ExportIncidentsToExcelInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  where: IncidentWhereInput!
+  sortBy: [SortIncidentsBy!]
+  timeZone: String!
+}
+
+type ExportIncidentsToExcelOutput {
+  status: String!
+  linkToFile: String!
+}
+
 enum SendMessageLang {
   ru
   en
@@ -55143,6 +55156,7 @@ type Query {
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
+  exportIncidentsToExcel(data: ExportIncidentsToExcelInput!): ExportIncidentsToExcelOutput
   exportContactsToExcel(data: ExportContactsToExcelInput!): ExportContactsToExcelOutput
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
