@@ -1,12 +1,3 @@
-import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
-import { Col, Form, Row, Typography } from 'antd'
-import { FormWithAction } from '../../../common/components/containers/FormList'
-import { useRouter } from 'next/router'
-import {
-    GraphQlSearchInputWithCheckAll,
-    InputWithCheckAllProps,
-} from '../../../common/components/GraphQlSearchInputWithCheckAll'
-import isFunction from 'lodash/isFunction'
 import {
     Incident as IIncident,
     IncidentProperty as IIncidentProperty,
@@ -16,31 +7,43 @@ import {
     QueryAllIncidentsArgs as IQueryAllIncidentsArgs,
     TicketClassifier as ITicketClassifier,
 } from '@app/condo/schema'
-import { searchOrganizationProperty } from '../../utils/clientSchema/search'
-import get from 'lodash/get'
-import { useLayoutContext } from '../../../common/components/LayoutContext'
-import DatePicker from '../../../common/components/Pickers/DatePicker'
-import Select from '../../../common/components/antd/Select'
-import { FormProps } from 'antd/lib/form/Form'
-import Input from '../../../common/components/antd/Input'
 import styled from '@emotion/styled'
-import Checkbox from '../../../common/components/antd/Checkbox'
-import { colors } from '@condo/domains/common/constants/style'
-import { ClassifiersQueryLocal, Options } from '../../utils/clientSchema/classifierSearch'
+import { Col, Form, Row, Typography } from 'antd'
+import { FormProps } from 'antd/lib/form/Form'
+import dayjs from 'dayjs'
+import { difference } from 'lodash'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import isFunction from 'lodash/isFunction'
+import { useRouter } from 'next/router'
+import { Rule } from 'rc-field-form/lib/interface'
+import { DefaultOptionType } from 'rc-select/lib/Select'
+import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
+import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
+
+import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { DefaultOptionType } from 'rc-select/lib/Select'
-import { difference } from 'lodash'
-import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
-import { IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
-import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
-import { useValidations } from '../../../common/hooks/useValidations'
-import { Rule } from 'rc-field-form/lib/interface'
-import dayjs from 'dayjs'
-import { Loader } from '../../../common/components/Loader'
-import { MIN_DESCRIPTION_LENGTH } from '../../constants/restrictions'
 import { Alert } from '@open-condo/ui'
-import isEmpty from 'lodash/isEmpty'
+
+import { colors } from '@condo/domains/common/constants/style'
+import { IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
+
+import Checkbox from '../../../common/components/antd/Checkbox'
+import Input from '../../../common/components/antd/Input'
+import Select from '../../../common/components/antd/Select'
+import { FormWithAction } from '../../../common/components/containers/FormList'
+import {
+    GraphQlSearchInputWithCheckAll,
+    InputWithCheckAllProps,
+} from '../../../common/components/GraphQlSearchInputWithCheckAll'
+import { useLayoutContext } from '../../../common/components/LayoutContext'
+import { Loader } from '../../../common/components/Loader'
+import DatePicker from '../../../common/components/Pickers/DatePicker'
+import { useValidations } from '../../../common/hooks/useValidations'
+import { MIN_DESCRIPTION_LENGTH } from '../../constants/restrictions'
+import { ClassifiersQueryLocal, Options } from '../../utils/clientSchema/classifierSearch'
+import { searchOrganizationProperty } from '../../utils/clientSchema/search'
 
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>

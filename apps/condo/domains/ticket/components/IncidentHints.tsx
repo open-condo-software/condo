@@ -1,5 +1,16 @@
+import { InfoCircleOutlined } from '@ant-design/icons'
+import styled from '@emotion/styled'
+import { Alert, Col, Row } from 'antd'
+import dayjs from 'dayjs'
+import get from 'lodash/get'
 import React, { useCallback, useEffect, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
+
 import { IncidentProperty, IncidentTicketClassifier, Incident } from '@condo/domains/ticket/utils/clientSchema'
+
 import {
     IncidentWhereInput,
     Incident as IIncident,
@@ -7,14 +18,7 @@ import {
     IncidentStatusType,
     TicketClassifier as ITicketClassifier, TicketClassifierWhereInput,
 } from '../../../schema'
-import get from 'lodash/get'
-import { Alert, Col, Row } from 'antd'
-import styled from '@emotion/styled'
-import { colors } from '@open-condo/ui/dist/colors'
-import { InfoCircleOutlined } from '@ant-design/icons'
-import { Typography } from '@open-condo/ui'
-import dayjs from 'dayjs'
-import { useIntl } from '@open-condo/next/intl'
+
 
 const StyledAlert = styled(Alert)`
   // background-color: ${colors.black};

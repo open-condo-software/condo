@@ -1,6 +1,8 @@
-import React from 'react'
-import { useIntl } from '@open-condo/next/intl'
 import { User } from '@app/condo/schema'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { Tooltip } from '../Tooltip'
 
 

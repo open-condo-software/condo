@@ -8,7 +8,9 @@ import {
     IncidentTicketClassifierUpdateInput,
     QueryAllIncidentTicketClassifiersArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { IncidentTicketClassifier as IncidentTicketClassifierGQL } from '@condo/domains/ticket/gql'
 
 

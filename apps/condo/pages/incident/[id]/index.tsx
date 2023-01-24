@@ -1,13 +1,3 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import Head from 'next/head'
-
-import { Button, Tag, Typography } from '@open-condo/ui'
-import { useIntl } from '@open-condo/next/intl'
-
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
-import { useRouter } from 'next/router'
-import { Incident, IncidentProperty, IncidentTicketClassifier, IncidentChange } from '@condo/domains/ticket/utils/clientSchema'
 import {
     Incident as IIncident,
     IncidentStatusType,
@@ -15,17 +5,27 @@ import {
     IncidentChange as IIncidentChange,
 } from '@app/condo/schema'
 import { Col, Row } from 'antd'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import dayjs  from 'dayjs'
-import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { get } from 'lodash'
-import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
-import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { Button, Tag, Typography } from '@open-condo/ui'
+
 import ActionBar from '@condo/domains/common/components/ActionBar'
-import { useIncidentUpdateStatusModal } from '@condo/domains/ticket/hooks/useIncidentUpdateStatusModal'
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
+import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
 import { useIncidentChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useIncidentChangedFieldMessagesOf'
+import { useIncidentUpdateStatusModal } from '@condo/domains/ticket/hooks/useIncidentUpdateStatusModal'
+import { Incident, IncidentProperty, IncidentTicketClassifier, IncidentChange } from '@condo/domains/ticket/utils/clientSchema'
+import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
+import { UserNameField } from '@condo/domains/user/components/UserNameField'
 
 
 interface IIncidentIdPage extends React.FC {

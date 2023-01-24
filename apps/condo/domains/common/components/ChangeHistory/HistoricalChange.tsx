@@ -1,9 +1,11 @@
-import React, { ReactElement, useMemo } from 'react'
-import { useLayoutContext } from '../LayoutContext'
-import dayjs from 'dayjs'
-import { Col, Row } from 'antd'
-import { Typography } from '@open-condo/ui'
 import { Maybe } from '@app/condo/schema'
+import { Col, Row } from 'antd'
+import dayjs from 'dayjs'
+import React, { ReactElement, useMemo } from 'react'
+
+import { Typography } from '@open-condo/ui'
+
+import { useLayoutContext } from '../LayoutContext'
 
 
 export type BaseChangesType = {
