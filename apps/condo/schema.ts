@@ -17561,6 +17561,8 @@ export type Message = {
   phone?: Maybe<Scalars['String']>;
   /**  to Email  */
   email?: Maybe<Scalars['String']>;
+  /**  to Remote client  */
+  remoteClient?: Maybe<RemoteClient>;
   /**  from Email  */
   emailFrom?: Maybe<Scalars['String']>;
   /**  Message status  */
@@ -18111,6 +18113,7 @@ export type MessageCreateInput = {
   user?: Maybe<UserRelateToOneInput>;
   phone?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
+  remoteClient?: Maybe<RemoteClientRelateToOneInput>;
   emailFrom?: Maybe<Scalars['String']>;
   lang?: Maybe<MessageLangType>;
   type?: Maybe<Scalars['String']>;
@@ -18147,6 +18150,7 @@ export type MessageHistoryRecord = {
   user?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
+  remoteClient?: Maybe<Scalars['String']>;
   emailFrom?: Maybe<Scalars['String']>;
   lang?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
@@ -18177,6 +18181,7 @@ export type MessageHistoryRecordCreateInput = {
   user?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
+  remoteClient?: Maybe<Scalars['String']>;
   emailFrom?: Maybe<Scalars['String']>;
   lang?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
@@ -18212,6 +18217,7 @@ export type MessageHistoryRecordUpdateInput = {
   user?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
+  remoteClient?: Maybe<Scalars['String']>;
   emailFrom?: Maybe<Scalars['String']>;
   lang?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
@@ -18283,6 +18289,10 @@ export type MessageHistoryRecordWhereInput = {
   email_not_ends_with_i?: Maybe<Scalars['String']>;
   email_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   email_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  remoteClient?: Maybe<Scalars['String']>;
+  remoteClient_not?: Maybe<Scalars['String']>;
+  remoteClient_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  remoteClient_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   emailFrom?: Maybe<Scalars['String']>;
   emailFrom_not?: Maybe<Scalars['String']>;
   emailFrom_contains?: Maybe<Scalars['String']>;
@@ -18872,6 +18882,7 @@ export enum MessageStatusType {
   Resending = 'resending',
   Processing = 'processing',
   Error = 'error',
+  Blacklisted = 'blacklisted',
   Sent = 'sent',
   Delivered = 'delivered',
   Read = 'read',
@@ -18883,6 +18894,7 @@ export type MessageUpdateInput = {
   user?: Maybe<UserRelateToOneInput>;
   phone?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
+  remoteClient?: Maybe<RemoteClientRelateToOneInput>;
   emailFrom?: Maybe<Scalars['String']>;
   lang?: Maybe<MessageLangType>;
   type?: Maybe<Scalars['String']>;
@@ -19399,6 +19411,8 @@ export type MessageWhereInput = {
   email_not_ends_with_i?: Maybe<Scalars['String']>;
   email_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   email_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  remoteClient?: Maybe<RemoteClientWhereInput>;
+  remoteClient_is_null?: Maybe<Scalars['Boolean']>;
   emailFrom?: Maybe<Scalars['String']>;
   emailFrom_not?: Maybe<Scalars['String']>;
   emailFrom_contains?: Maybe<Scalars['String']>;
@@ -25607,7 +25621,17 @@ export type Mutation = {
    * 			"required": true
    * 		}
    * 	},
-   * 	"DIRTY_INVITE_NEW_EMPLOYEE": {
+   * 	"DIRTY_INVITE_NEW_EMPLOYEE_SMS": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"organizationName": {
+   * 			"defaultValue": "ORGANIZATION",
+   * 			"required": false
+   * 		}
+   * 	},
+   * 	"DIRTY_INVITE_NEW_EMPLOYEE_EMAIL": {
    * 		"dv": {
    * 			"defaultValue": "",
    * 			"required": true
@@ -26227,7 +26251,33 @@ export type Mutation = {
    * 			}
    * 		}
    * 	},
-   * 	"CUSTOM_CONTENT_MESSAGE": {
+   * 	"CUSTOM_CONTENT_MESSAGE_PUSH": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"title": {
+   * 			"required": false
+   * 		},
+   * 		"body": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"userId": {
+   * 				"required": false
+   * 			},
+   * 			"remoteClient": {
+   * 				"required": false
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": false
+   * 			},
+   * 			"messageBatchId": {
+   * 				"required": false
+   * 			}
+   * 		}
+   * 	},
+   * 	"CUSTOM_CONTENT_MESSAGE_EMAIL": {
    * 		"dv": {
    * 			"required": true
    * 		},
@@ -26241,11 +26291,26 @@ export type Mutation = {
    * 			"required": true
    * 		},
    * 		"data": {
-   * 			"userId": {
+   * 			"email": {
    * 				"required": false
    * 			},
-   * 			"url": {
-   * 				"defaultValue": "",
+   * 			"messageBatchId": {
+   * 				"required": false
+   * 			}
+   * 		}
+   * 	},
+   * 	"CUSTOM_CONTENT_MESSAGE_SMS": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"title": {
+   * 			"required": false
+   * 		},
+   * 		"body": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"phone": {
    * 				"required": false
    * 			},
    * 			"messageBatchId": {
@@ -26278,7 +26343,7 @@ export type Mutation = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "REQUIRED",
-   *   "message": "You should provide either \"user\" or \"email\" or \"phone\" attribute"
+   *   "message": "You should provide either \"user\", \"email\", \"phone\" or \"remoteClient\" attribute"
    * }`
    *
    * `{
@@ -45013,6 +45078,13 @@ export enum RemoteClientPushTypeType {
   SilentData = 'silent_data'
 }
 
+export type RemoteClientRelateToOneInput = {
+  create?: Maybe<RemoteClientCreateInput>;
+  connect?: Maybe<RemoteClientWhereUniqueInput>;
+  disconnect?: Maybe<RemoteClientWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export type RemoteClientUpdateInput = {
   deviceId?: Maybe<Scalars['String']>;
   appId?: Maybe<Scalars['String']>;
@@ -45919,6 +45991,7 @@ export type SendMessageToInput = {
   user?: Maybe<UserWhereUniqueInput>;
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
+  remoteClient?: Maybe<RemoteClientWhereInput>;
 };
 
 export type SendMessageToSupportInput = {
@@ -45946,7 +46019,8 @@ export type SendMessageToSupportOutput = {
 
 export enum SendMessageType {
   InviteNewEmployee = 'INVITE_NEW_EMPLOYEE',
-  DirtyInviteNewEmployee = 'DIRTY_INVITE_NEW_EMPLOYEE',
+  DirtyInviteNewEmployeeSms = 'DIRTY_INVITE_NEW_EMPLOYEE_SMS',
+  DirtyInviteNewEmployeeEmail = 'DIRTY_INVITE_NEW_EMPLOYEE_EMAIL',
   RegisterNewUser = 'REGISTER_NEW_USER',
   ResetPassword = 'RESET_PASSWORD',
   SmsVerify = 'SMS_VERIFY',
@@ -45975,7 +46049,9 @@ export enum SendMessageType {
   ResidentUpgradeApp = 'RESIDENT_UPGRADE_APP',
   StaffUpgradeApp = 'STAFF_UPGRADE_APP',
   BankAccountCreationRequest = 'BANK_ACCOUNT_CREATION_REQUEST',
-  CustomContentMessage = 'CUSTOM_CONTENT_MESSAGE'
+  CustomContentMessagePush = 'CUSTOM_CONTENT_MESSAGE_PUSH',
+  CustomContentMessageEmail = 'CUSTOM_CONTENT_MESSAGE_EMAIL',
+  CustomContentMessageSms = 'CUSTOM_CONTENT_MESSAGE_SMS'
 }
 
 export type SenderField = {
@@ -49785,6 +49861,8 @@ export enum SortMessagesBy {
   PhoneDesc = 'phone_DESC',
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
+  RemoteClientAsc = 'remoteClient_ASC',
+  RemoteClientDesc = 'remoteClient_DESC',
   EmailFromAsc = 'emailFrom_ASC',
   EmailFromDesc = 'emailFrom_DESC',
   LangAsc = 'lang_ASC',

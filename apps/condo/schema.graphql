@@ -27356,6 +27356,7 @@ type MessageHistoryRecord {
   user: String
   phone: String
   email: String
+  remoteClient: String
   emailFrom: String
   lang: String
   type: String
@@ -27428,6 +27429,10 @@ input MessageHistoryRecordWhereInput {
   email_not_ends_with_i: String
   email_in: [String]
   email_not_in: [String]
+  remoteClient: String
+  remoteClient_not: String
+  remoteClient_in: [String]
+  remoteClient_not_in: [String]
   emailFrom: String
   emailFrom_not: String
   emailFrom_contains: String
@@ -27676,6 +27681,7 @@ input MessageHistoryRecordUpdateInput {
   user: String
   phone: String
   email: String
+  remoteClient: String
   emailFrom: String
   lang: String
   type: String
@@ -27710,6 +27716,7 @@ input MessageHistoryRecordCreateInput {
   user: String
   phone: String
   email: String
+  remoteClient: String
   emailFrom: String
   lang: String
   type: String
@@ -27738,6 +27745,13 @@ input MessageHistoryRecordsCreateInput {
   data: MessageHistoryRecordCreateInput
 }
 
+input RemoteClientRelateToOneInput {
+  create: RemoteClientCreateInput
+  connect: RemoteClientWhereUniqueInput
+  disconnect: RemoteClientWhereUniqueInput
+  disconnectAll: Boolean
+}
+
 enum MessageLangType {
   ru
   en
@@ -27748,6 +27762,7 @@ enum MessageStatusType {
   resending
   processing
   error
+  blacklisted
   sent
   delivered
   read
@@ -27777,6 +27792,9 @@ type Message {
 
   """ to Email """
   email: String
+
+  """ to Remote client """
+  remoteClient: RemoteClient
 
   """ from Email """
   emailFrom: String
@@ -27875,6 +27893,8 @@ input MessageWhereInput {
   email_not_ends_with_i: String
   email_in: [String]
   email_not_in: [String]
+  remoteClient: RemoteClientWhereInput
+  remoteClient_is_null: Boolean
   emailFrom: String
   emailFrom_not: String
   emailFrom_contains: String
@@ -28040,6 +28060,8 @@ enum SortMessagesBy {
   phone_DESC
   email_ASC
   email_DESC
+  remoteClient_ASC
+  remoteClient_DESC
   emailFrom_ASC
   emailFrom_DESC
   lang_ASC
@@ -28079,6 +28101,7 @@ input MessageUpdateInput {
   user: UserRelateToOneInput
   phone: String
   email: String
+  remoteClient: RemoteClientRelateToOneInput
   emailFrom: String
   lang: MessageLangType
   type: String
@@ -28110,6 +28133,7 @@ input MessageCreateInput {
   user: UserRelateToOneInput
   phone: String
   email: String
+  remoteClient: RemoteClientRelateToOneInput
   emailFrom: String
   lang: MessageLangType
   type: String
@@ -49597,11 +49621,13 @@ input SendMessageToInput {
   user: UserWhereUniqueInput
   email: String
   phone: String
+  remoteClient: RemoteClientWhereInput
 }
 
 enum SendMessageType {
   INVITE_NEW_EMPLOYEE
-  DIRTY_INVITE_NEW_EMPLOYEE
+  DIRTY_INVITE_NEW_EMPLOYEE_SMS
+  DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
   REGISTER_NEW_USER
   RESET_PASSWORD
   SMS_VERIFY
@@ -49630,7 +49656,9 @@ enum SendMessageType {
   RESIDENT_UPGRADE_APP
   STAFF_UPGRADE_APP
   BANK_ACCOUNT_CREATION_REQUEST
-  CUSTOM_CONTENT_MESSAGE
+  CUSTOM_CONTENT_MESSAGE_PUSH
+  CUSTOM_CONTENT_MESSAGE_EMAIL
+  CUSTOM_CONTENT_MESSAGE_SMS
 }
 
 input SendMessageInput {
@@ -56474,7 +56502,17 @@ type Mutation {
   			"required": true
   		}
   	},
-  	"DIRTY_INVITE_NEW_EMPLOYEE": {
+  	"DIRTY_INVITE_NEW_EMPLOYEE_SMS": {
+  		"dv": {
+  			"defaultValue": "",
+  			"required": true
+  		},
+  		"organizationName": {
+  			"defaultValue": "ORGANIZATION",
+  			"required": false
+  		}
+  	},
+  	"DIRTY_INVITE_NEW_EMPLOYEE_EMAIL": {
   		"dv": {
   			"defaultValue": "",
   			"required": true
@@ -57094,7 +57132,33 @@ type Mutation {
   			}
   		}
   	},
-  	"CUSTOM_CONTENT_MESSAGE": {
+  	"CUSTOM_CONTENT_MESSAGE_PUSH": {
+  		"dv": {
+  			"required": true
+  		},
+  		"title": {
+  			"required": false
+  		},
+  		"body": {
+  			"required": true
+  		},
+  		"data": {
+  			"userId": {
+  				"required": false
+  			},
+  			"remoteClient": {
+  				"required": false
+  			},
+  			"url": {
+  				"defaultValue": "",
+  				"required": false
+  			},
+  			"messageBatchId": {
+  				"required": false
+  			}
+  		}
+  	},
+  	"CUSTOM_CONTENT_MESSAGE_EMAIL": {
   		"dv": {
   			"required": true
   		},
@@ -57108,11 +57172,26 @@ type Mutation {
   			"required": true
   		},
   		"data": {
-  			"userId": {
+  			"email": {
   				"required": false
   			},
-  			"url": {
-  				"defaultValue": "",
+  			"messageBatchId": {
+  				"required": false
+  			}
+  		}
+  	},
+  	"CUSTOM_CONTENT_MESSAGE_SMS": {
+  		"dv": {
+  			"required": true
+  		},
+  		"title": {
+  			"required": false
+  		},
+  		"body": {
+  			"required": true
+  		},
+  		"data": {
+  			"phone": {
   				"required": false
   			},
   			"messageBatchId": {
@@ -57145,7 +57224,7 @@ type Mutation {
     ],
     "code": "BAD_USER_INPUT",
     "type": "REQUIRED",
-    "message": "You should provide either \"user\" or \"email\" or \"phone\" attribute"
+    "message": "You should provide either \"user\", \"email\", \"phone\" or \"remoteClient\" attribute"
   }`
   
   `{
