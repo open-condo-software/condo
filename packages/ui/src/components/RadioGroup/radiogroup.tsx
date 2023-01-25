@@ -15,6 +15,7 @@ type RadioGroupOptionType = Pick<RadioProps, 'value' | 'label'> & {
 
 type RadioGroupType = {
     name: string
+    icon: React.ReactElement
     options: Array<RadioGroupOptionType>
 }
 
@@ -23,24 +24,24 @@ export type RadioGroupProps = {
     groups: Array<RadioGroupType>
 } & Pick<DefaultRadioGroupProps, 'value' | 'onChange' | 'disabled'>
 
-const GroupWithIcon: React.FC<RadioGroupType> = ({ name, options, children }) => {
+const GroupWithIcon: React.FC<RadioGroupType> = ({ name, options, icon }) => {
     const [open, setOpen] = useState(false)
 
     const onGroupClick = () => {
         setOpen(!open)
     }
 
-    const rootClassName = classNames(RADIO_GROUP_CLASS_PREFIX + '-group-container', {
+    const rootClassName = classNames(`${RADIO_GROUP_CLASS_PREFIX}-group-container`, {
         open,
     })
 
     return (
         <div key={name} className={rootClassName}>
             <div
-                className={RADIO_GROUP_CLASS_PREFIX + '-group-title'}
+                className={`${RADIO_GROUP_CLASS_PREFIX}-group-title`}
                 onClick={onGroupClick}
             >
-                {children}
+                <span className={`${RADIO_GROUP_CLASS_PREFIX}-group-icon`}>{icon}</span>
                 <Typography.Text>{name}</Typography.Text>
             </div>
             <Space
@@ -64,9 +65,7 @@ const RadioGroup: React.FC<RadioGroupProps> = (props) => {
             prefixCls={RADIO_GROUP_CLASS_PREFIX}
         >
             {groups.map(group => (
-                <GroupWithIcon name={group.name} options={group.options} key={group.name}>
-                    {icon}
-                </GroupWithIcon>
+                <GroupWithIcon name={group.name} options={group.options} key={group.name} icon={icon} />
             ))}
         </DefaultRadio.Group>
     )
