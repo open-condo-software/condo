@@ -1,4 +1,4 @@
-import { IncidentWhereInput, SortIncidentsBy, Incident as IIncident } from '@app/condo/schema'
+import { IncidentWhereInput, SortIncidentsBy, Incident as IIncident, OrganizationWhereInput } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import get from 'lodash/get'
@@ -33,17 +33,19 @@ import { useIncidentTableColumns, UseTableColumnsType } from '@condo/domains/tic
 import { useIncidentTableFilters } from '@condo/domains/ticket/hooks/useIncidentTableFilters'
 import { Incident, IncidentProperty } from '@condo/domains/ticket/utils/clientSchema'
 
-interface IIncidentIndexPage extends React.FC {
+export interface IIncidentIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
 }
 
 type FilterMetasType = Array<FiltersMeta<IncidentWhereInput>>
+export type BaseQueryType = { organization: OrganizationWhereInput }
 
 type IncidentsPageContentProps = {
     filterMetas: FilterMetasType
     useTableColumns: UseTableColumnsType
-    organizationId: string
+    baseQuery: BaseQueryType
+    baseQueryLoading?: boolean
 }
 
 type FilterContainerProps = {
@@ -53,7 +55,7 @@ type FilterContainerProps = {
 type TableContainerProps = {
     filterMetas: FilterMetasType
     useTableColumns: UseTableColumnsType
-    organizationId: string
+    baseQuery: BaseQueryType
 }
 
 
@@ -129,7 +131,7 @@ const FilterContainer: React.FC<FilterContainerProps> = (props) => {
     )
 }
 
-const useIncidentsSearch = ({ organizationId, filterMetas }) => {
+const useIncidentsSearch = ({ baseQuery, filterMetas }) => {
     const router = useRouter()
     const { filters, offset, sorters } = useMemo(() => parseQuery(router.query), [router.query])
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
@@ -149,11 +151,11 @@ const useIncidentsSearch = ({ organizationId, filterMetas }) => {
     const incident = Incident.useObjects({}, { fetchPolicy: 'network-only', skip: true })
 
     const incidentWhere = useMemo(() => ({
+        ...baseQuery,
         ...filtersToWhere(filters),
         deletedAt: null,
-        organization: { id: organizationId },
     }),
-    [filters, filtersToWhere, organizationId])
+    [filters, filtersToWhere, baseQuery])
 
     const getWhereByAddress = useCallback(async (search?: string) => {
         if (!search) {
@@ -162,7 +164,7 @@ const useIncidentsSearch = ({ organizationId, filterMetas }) => {
 
         const { data: { objs: foundedProperties, meta: { count: countProperties } } } = await properties.refetch({
             where: {
-                organization: { id: organizationId },
+                ...baseQuery,
                 address_contains_i: search,
                 deletedAt: null,
             },
@@ -188,7 +190,7 @@ const useIncidentsSearch = ({ organizationId, filterMetas }) => {
 
         return { where: { OR: where } }
 
-    }, [organizationId])
+    }, [baseQuery])
 
     const getIncidents = useCallback(async (incidentWhere, sortBy, currentPageIndex) => {
         const { data: { objs: incidents, meta: { count } } } = await incident.refetch({
@@ -239,11 +241,11 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
     const AddNewIncidentLabel = intl.formatMessage({ id: 'incident.index.addNewIncident.label' })
     const ExportLabel = intl.formatMessage({ id: 'incident.task.exportToExcel' })
 
-    const { useTableColumns, filterMetas, organizationId } = props
+    const { useTableColumns, filterMetas, baseQuery } = props
 
     const router = useRouter()
 
-    const { incidentsLoading, incidents, count, sortBy, where } = useIncidentsSearch({ organizationId, filterMetas })
+    const { incidentsLoading, incidents, count, sortBy, where } = useIncidentsSearch({ baseQuery, filterMetas })
 
     const { ExportButton } = useExportToExcel({
         searchObjectsQuery: where,
@@ -299,21 +301,21 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
     )
 }
 
-const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
+export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({  id: 'incident.index.title' })
     const EmptyListLabel = intl.formatMessage({  id: 'incident.index.emptyList.label' })
     const CreateIncidentLabel = intl.formatMessage({  id: 'incident.index.createIncident.label' })
 
-    const { filterMetas, useTableColumns, organizationId } = props
+    const { filterMetas, useTableColumns, baseQuery, baseQueryLoading = false } = props
 
     const {
         count: incidentTotal,
         loading: incidentTotalLoading,
-    } = Incident.useCount({ where: { organization: { id: organizationId } } })
+    } = Incident.useCount({ where: { ...baseQuery } })
 
     const PageContet = useMemo(() => {
-        if (incidentTotalLoading) {
+        if (baseQueryLoading || incidentTotalLoading) {
             return <Loader fill size='large' />
         }
 
@@ -333,11 +335,11 @@ const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
                 <TableContainer
                     useTableColumns={useTableColumns}
                     filterMetas={filterMetas}
-                    organizationId={organizationId}
+                    baseQuery={baseQuery}
                 />
             </Row>
         )
-    }, [CreateIncidentLabel, EmptyListLabel, filterMetas, incidentTotal, incidentTotalLoading, organizationId, useTableColumns])
+    }, [baseQueryLoading, incidentTotalLoading, incidentTotal, filterMetas, useTableColumns, baseQuery, EmptyListLabel, CreateIncidentLabel])
 
     return (
         <>
@@ -355,15 +357,14 @@ const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
 }
 
 const IncidentsPage: IIncidentIndexPage = () => {
-
+    const filterMetas = useIncidentTableFilters()
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id')
-
-    const filterMetas = useIncidentTableFilters()
+    const baseQuery: BaseQueryType = useMemo(() => ({ organization: { id: organizationId } }), [organizationId])
 
     return (
         <IncidentsPageContent
-            organizationId={organizationId}
+            baseQuery={baseQuery}
             filterMetas={filterMetas}
             useTableColumns={useIncidentTableColumns}
         />
