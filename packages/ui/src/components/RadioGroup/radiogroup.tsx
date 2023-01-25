@@ -2,7 +2,6 @@ import { Radio as DefaultRadio, Space } from 'antd'
 import classNames from 'classnames'
 import React, { useState } from 'react'
 
-import { ChevronDown } from '@open-condo/icons'
 import { Radio, Typography } from '@open-condo/ui/src'
 import type { RadioProps } from '@open-condo/ui/src'
 
@@ -20,10 +19,11 @@ type RadioGroupType = {
 }
 
 export type RadioGroupProps = {
+    icon: React.ReactElement
     groups: Array<RadioGroupType>
 } & Pick<DefaultRadioGroupProps, 'value' | 'onChange' | 'disabled'>
 
-const GroupWithIcon: React.FC<RadioGroupType> = ({ name, options }) => {
+const GroupWithIcon: React.FC<RadioGroupType> = ({ name, options, children }) => {
     const [open, setOpen] = useState(false)
 
     const onGroupClick = () => {
@@ -40,7 +40,7 @@ const GroupWithIcon: React.FC<RadioGroupType> = ({ name, options }) => {
                 className={RADIO_GROUP_CLASS_PREFIX + '-group-title'}
                 onClick={onGroupClick}
             >
-                <ChevronDown size='small' />
+                {children}
                 <Typography.Text>{name}</Typography.Text>
             </div>
             <Space
@@ -57,7 +57,7 @@ const GroupWithIcon: React.FC<RadioGroupType> = ({ name, options }) => {
 }
 
 const RadioGroup: React.FC<RadioGroupProps> = (props) => {
-    const { groups, ...rest } = props
+    const { groups, icon, ...rest } = props
 
     return (
         <DefaultRadio.Group
@@ -65,7 +65,9 @@ const RadioGroup: React.FC<RadioGroupProps> = (props) => {
             prefixCls={RADIO_GROUP_CLASS_PREFIX}
         >
             {groups.map(group => (
-                <GroupWithIcon name={group.name} options={group.options} key={group.name} />
+                <GroupWithIcon name={group.name} options={group.options} key={group.name}>
+                    {icon}
+                </GroupWithIcon>
             ))}
         </DefaultRadio.Group>
     )
