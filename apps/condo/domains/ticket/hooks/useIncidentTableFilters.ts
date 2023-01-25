@@ -21,7 +21,7 @@ const filterStatus = getFilter(['status'], 'array', 'string', 'in')
 const filterWorkStartRange = getDayRangeFilter('workStart')
 const filterWorkFinishRange = getDayRangeFilter('workFinish')
 
-type UseIncidentTableFiltersReturnType = Array<FiltersMeta<IncidentWhereInput>>
+export type UseIncidentTableFiltersReturnType = Array<FiltersMeta<IncidentWhereInput>>
 
 export const useIncidentTableFilters = (): UseIncidentTableFiltersReturnType => {
     const intl = useIntl()
