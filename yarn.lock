@@ -654,7 +654,7 @@ __metadata:
     react-hotkeys-hook: 3.4.6
     react-indiana-drag-scroll: ^2.0.1
     react-infinite-scroller: 1.2.6
-    react-intl: ^5.7.1
+    react-intl: 5.25.1
     react-phone-input-2: ^2.14.0
     react-progressive-image: ^0.6.0
     react-test-renderer: ^16.13.1
@@ -8764,7 +8764,7 @@ __metadata:
     lodash: ^4.17.21
     next: ^9.5.5
     next-cookies: ^2.0.3
-    react-intl: ^5.7.1
+    react-intl: 5.25.1
   peerDependencies:
     react: ^16.13.1
     react-dom: ^16.13.1
@@ -11789,17 +11789,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:16 || 17 || 18":
-  version: 18.0.27
-  resolution: "@types/react@npm:18.0.27"
-  dependencies:
-    "@types/prop-types": "*"
-    "@types/scheduler": "*"
-    csstype: ^3.0.2
-  checksum: 600fdbc39a92ea4a77047db3e12f05f67776a710f5918248c0189a59ac2a38900c9db5a5d2e433a16df528a3ecab1aa114b322cacea573bb1ca2fc0b094c52d1
-  languageName: node
-  linkType: hard
-
 "@types/react@npm:16.9.17":
   version: 16.9.17
   resolution: "@types/react@npm:16.9.17"
@@ -11818,17 +11807,6 @@ __metadata:
     "@types/scheduler": "*"
     csstype: ^3.0.2
   checksum: ed9c551a7d50d073a5fb0295c1d939536c66c3286d42b6c94c20749464492ed95a408e6d3694bf49df0012da69e22202065c8c2fac0406356972a7fcb4960dd3
-  languageName: node
-  linkType: hard
-
-"@types/react@npm:^17.0.6":
-  version: 17.0.53
-  resolution: "@types/react@npm:17.0.53"
-  dependencies:
-    "@types/prop-types": "*"
-    "@types/scheduler": "*"
-    csstype: ^3.0.2
-  checksum: dacfde02c260fd98bed2eb775ed0c7ce1397be4c0844f907a50763b081a4008f81f57071889a16eb1350ddcf0927f3cf1a6541702c8ad03de3c70383ef931e3f
   languageName: node
   linkType: hard
 
@@ -36258,7 +36236,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-intl@npm:^5.7.1":
+"react-intl@npm:5.25.1":
   version: 5.25.1
   resolution: "react-intl@npm:5.25.1"
   dependencies:
