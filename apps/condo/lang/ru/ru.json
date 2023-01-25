@@ -181,6 +181,8 @@
   "global.section.miniapps": "Сервисы",
   "global.available": "Есть",
   "global.notAvailable": "Отсутствует",
+  "global.select.deletedEmployee": "Удаленный сотрудник",
+  "global.select.deletedOption": "Удалено",
   "miniapps.catalog.banner.more": "Подробнее",
   "miniapps.catalog.noServicesInCategory": "Сервисов в этой категории пока нет",
   "miniapps.catalog.noServicesFound": "Такого сервиса нет",

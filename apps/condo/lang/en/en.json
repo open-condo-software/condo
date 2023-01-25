@@ -181,6 +181,8 @@
   "global.section.miniapps": "Services",
   "global.available": "Available",
   "global.notAvailable": "Not available",
+  "global.select.deletedEmployee": "Deleted employee",
+  "global.select.deletedOption": "Deleted",
   "miniapps.catalog.banner.more": "More",
   "miniapps.catalog.noServicesInCategory": "There are no services in this category yet",
   "miniapps.catalog.noServicesFound": "There is no such service",
