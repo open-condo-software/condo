@@ -24,7 +24,9 @@ import {
 
 
 
-const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = { position: 'absolute', left: '-50px', top: '35%' }
+const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = {
+    position: 'absolute', left: '-102px', top: '50%', transform: 'translateY(-50%)', zIndex: 999,
+}
 const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { padding: '24px' }
 const NEW_COMMENTS_INDICATOR_STYLES: CSSProperties = { backgroundColor: 'red', borderRadius: '100px', width: '8px', height: '8px' }
 const ADDRESS_RENDER_POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
