@@ -8,7 +8,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { GraphQlSearchInput, renderDeletedOption } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import {
     OrganizationEmployee,
@@ -41,6 +41,10 @@ type TicketAssignmentsProps = {
     form: FormInstance
 }
 
+const isDeletedInitialEmployee = (initialValue, employees) => {
+    return initialValue && !employees.some((item) => get(item, 'user.id'))
+}
+
 const TicketAssignments = ({
     validations,
     organizationId,
@@ -58,8 +62,11 @@ const TicketAssignments = ({
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
     const EmployeesOnPropertyMessage = intl.formatMessage({ id: 'pages.condo.ticket.select.group.employeesOnProperty' })
     const OtherMessage = intl.formatMessage({ id: 'pages.condo.ticket.select.group.other' })
+    const DeletedEmployeeMessage = intl.formatMessage({ id: 'global.select.deletedEmployee' })
 
     const { isSmall } = useLayoutContext()
+
+    const { assignee: initialAssignee, executor: initialExecutor } = form.getFieldsValue(['assignee', 'executor'])
 
     const { objs: employees, allDataLoaded: allEmployeesLoaded } = OrganizationEmployee.useAllObjects({
         where: { organization: { id: organizationId }, isBlocked: false, isRejected: false },
@@ -101,9 +108,24 @@ const TicketAssignments = ({
 
     const renderOptionGroups = useCallback((employeeOptions, renderOption) => {
         const result = []
+
         const employees = employeeOptions
             .map(option => option.employee)
             .filter(employee => employee)
+
+        if (isDeletedInitialEmployee(initialAssignee, employees)) {
+            result.push(renderDeletedOption(intl, {
+                value: initialAssignee,
+                text: DeletedEmployeeMessage,
+            }))
+        }
+        if (isDeletedInitialEmployee(initialExecutor, employees)) {
+            result.push(renderDeletedOption(intl, {
+                value: initialExecutor,
+                text: DeletedEmployeeMessage,
+            }))
+        }
+
         const employeesWithMatchesPropertyAndSpecializationScope = employees.filter(
             isEmployeeSpecializationAndPropertyMatchesToScope(
                 {
@@ -170,8 +192,8 @@ const TicketAssignments = ({
 
         return result
     }, [
-        categoryClassifier, filteredEmployeeSpecializations, propertyScopes, filteredPropertyScopeEmployees,
-        EmployeesOnPropertyMessage, intl, OtherMessage,
+        initialAssignee, initialExecutor, categoryClassifier, filteredEmployeeSpecializations, propertyScopes,
+        filteredPropertyScopeEmployees, intl, DeletedEmployeeMessage, EmployeesOnPropertyMessage, OtherMessage,
     ])
 
     const search = useMemo(() => searchEmployeeUserWithSpecializations(intl, organizationId, null),
