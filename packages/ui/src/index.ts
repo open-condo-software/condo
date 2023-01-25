@@ -45,3 +45,6 @@ export type { RadioProps } from './components/Radio'
 
 export { RadioGroup } from './components/RadioGroup'
 export type { RadioGroupProps } from './components/RadioGroup'
+
+export { Space } from './components/Space'
+export type { SpaceProps } from './components/Space'
