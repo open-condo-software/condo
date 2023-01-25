@@ -1,16 +1,12 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { styled } from '@storybook/theming'
-import { Space } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
 
+import { Space } from '@open-condo/ui/src'
 import { Typography } from '@open-condo/ui/src'
 import type { TypographyTextProps } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
-
-
-// TODO(DOMA-4682): Move to UI-kit
-import 'antd/lib/space/style/index.less'
 
 const getArticle = (str?: string) => {
     if (!str) return 'a'
@@ -60,7 +56,7 @@ export default {
 const Template: ComponentStory<typeof Typography.Text> = (args) => {
 
     return (
-        <Space direction='vertical' size={20} prefixCls='condo-space'>
+        <Space direction='vertical' size={20}>
             {AVAILABLE_TYPES.map(type => {
                 const text = get(args, 'children') || `This is an example of ${getArticle(type)} ${type || 'default'} text.`
                 const props = {

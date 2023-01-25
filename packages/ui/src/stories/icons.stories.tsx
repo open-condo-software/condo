@@ -1,13 +1,10 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { Space } from 'antd'
 import React from 'react'
 
 import type { IconProps } from '@open-condo/icons'
 import * as AllIcons from '@open-condo/icons'
+import { Space } from '@open-condo/ui/src'
 import { Typography } from '@open-condo/ui/src'
-
-// TODO(DOMA-4682): Move to UI-kit
-import 'antd/lib/space/style/index.less'
 
 type IconBlockProps = {
     name: string
@@ -19,7 +16,7 @@ const IconBlock: React.FC<IconBlockProps> = ({ name, icon, iconProps }) => {
     const Icon = icon
 
     return (
-        <Space prefixCls='condo-space' direction='vertical' size={8} style={{ width: 120 }} align='center'>
+        <Space direction='vertical' size={8} width={120} align='center'>
             <div style={{ fontSize: 32 }}>
                 <Icon {...iconProps}/>
             </div>
@@ -32,7 +29,7 @@ const IconBlock: React.FC<IconBlockProps> = ({ name, icon, iconProps }) => {
 
 const IconsStory: React.FC<IconProps> = (props) => {
     return (
-        <Space prefixCls='condo-space' direction='horizontal' wrap size={[20, 40]}>
+        <Space direction='horizontal' wrap size={[20, 40]}>
             {Object.entries(AllIcons).map(([key, value]) => (
                 <IconBlock key={key} name={key} icon={value} iconProps={props}/>
             ))}

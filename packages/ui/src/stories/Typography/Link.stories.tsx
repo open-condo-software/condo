@@ -1,11 +1,8 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { Space } from 'antd'
 import React from 'react'
 
+import { Space } from '@open-condo/ui/src'
 import { Typography } from '@open-condo/ui/src'
-
-// TODO(DOMA-4682): Move to UI-kit
-import 'antd/lib/space/style/index.less'
 
 export default {
     title: 'Components/Typography',
@@ -25,7 +22,7 @@ export default {
 
 const Template: ComponentStory<typeof Typography.Link> = (args) => {
     return (
-        <Space direction='vertical' size={20} prefixCls='condo-space'>
+        <Space direction='vertical' size={20}>
             <Typography.Link {...args}/>
             <Typography.Text>
                 <Typography.Link {...args}/>
