@@ -85,4 +85,5 @@ const syncBankAccounts = async (userId, bankIntegrationContextId, organization) 
 
 module.exports = {
     syncBankAccounts,
+    _syncBankAccounts,
 }
