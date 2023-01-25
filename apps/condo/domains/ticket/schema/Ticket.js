@@ -55,6 +55,9 @@ const {
 } = require('@condo/domains/ticket/utils/serverSchema/TicketChange')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
+const { classifyTicket } = require('../utils/serverSchema/resolveHelpers')
+
+
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
         'It has fields `clientName`, `clientPhone`, `clientEmail`, which stores contact information at the moment of creating or updating. ' +
@@ -391,14 +394,16 @@ const Ticket = new GQLListSchema('Ticket', {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
+            const isCreateOperation = operation === 'create'
+            const isUpdateOperation = operation === 'update'
 
-            if (operation === 'create' && !resolvedData.status) {
+            if (isCreateOperation && !resolvedData.status) {
                 resolvedData.status = STATUS_IDS.OPEN
             }
 
             if (
                 userType === RESIDENT
-                && operation === 'update'
+                && isUpdateOperation
                 && resolvedData.reviewValue
                 && existingItem.status === STATUS_IDS.COMPLETED
             ) {
@@ -408,6 +413,13 @@ const Ticket = new GQLListSchema('Ticket', {
             const newItem = { ...existingItem, ...resolvedData }
             const resolvedStatusId = get(newItem, 'status', null)
             const resolvedClient = get(newItem, 'client', null)
+
+            // Predict ticket classification if create ticket without classifier (ex: from mobile app)
+            if (isCreateOperation && resolvedData.details && !resolvedData.classifier) {
+                const classifierResult = await classifyTicket(context, resolvedData.details)
+
+                resolvedData.classifier = get(classifierResult, 'id')
+            }
 
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
@@ -427,13 +439,11 @@ const Ticket = new GQLListSchema('Ticket', {
                 calculateDefaultDeferredUntil(newItem, resolvedData, resolvedStatusId)
             }
 
-            if (userType === RESIDENT) {
-                if (operation === 'create') {
-                    overrideTicketFieldsForResidentUserType(context, resolvedData)
-                    await setSectionAndFloorFieldsByDataFromPropertyMap(context, resolvedData)
-                    setClientNamePhoneEmailFieldsByDataFromUser(get(context, ['req', 'user']), resolvedData)
-                    await setDeadline(resolvedData)
-                }
+            if (userType === RESIDENT && isCreateOperation) {
+                overrideTicketFieldsForResidentUserType(context, resolvedData)
+                await setSectionAndFloorFieldsByDataFromPropertyMap(context, resolvedData)
+                setClientNamePhoneEmailFieldsByDataFromUser(get(context, ['req', 'user']), resolvedData)
+                await setDeadline(resolvedData)
             }
 
             await connectContactToTicket(context, resolvedData, existingItem)

@@ -59,6 +59,7 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
             initialValues: {
                 clientPhone: phone,
             },
+            target: '_blank',
         })
         onSelect()
     }, [onSelect, phone, router])
@@ -70,6 +71,7 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
             initialValues: {
                 phone,
             },
+            target: '_blank',
         })
         onSelect()
     }, [onSelect, phone, router])
