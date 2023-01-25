@@ -1717,6 +1717,8 @@
   "incident.fields.textForResident.label": "Что сказать жителю",
   "incident.fields.textForResident.placeholder": "Напишите, что скажет жителю сотрудник",
   "incident.fields.textForResident.empty": "—",
+  "incident.fields.organization.label": "Организация",
+  "incident.fields.organization.empty": "—",
   "incident.modalChangeStatus.save": "Все верно",
   "incident.modalChangeStatus.toActualStatus.title": "Запись актуальна?",
   "incident.modalChangeStatus.toActualStatus.beforeWorkFinish.descriptions": "Если работы выполнены до указанного срока, мы изменим статус записи. А также дату и время завершения работ. Запись можно отредактировать позже.",
