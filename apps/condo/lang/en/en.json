@@ -1717,6 +1717,8 @@
   "incident.fields.textForResident.label": "What to say to a resident",
   "incident.fields.textForResident.placeholder": "Write what the employee will tell the resident",
   "incident.fields.textForResident.empty": "—",
+  "incident.fields.organization.label": "Organization",
+  "incident.fields.organization.empty": "—",
   "incident.modalChangeStatus.save": "That's right",
   "incident.modalChangeStatus.toActualStatus.title": "Is the entry up to date?",
   "incident.modalChangeStatus.toActualStatus.beforeWorkFinish.descriptions": "If the work is completed before the specified deadline, we will change the status of the entry. As well as the date and time the work was completed. The entry can be edited later.",

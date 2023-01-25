@@ -28,19 +28,21 @@ import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Rende
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 
 
-interface IIncidentIdPage extends React.FC {
+export interface IIncidentIdPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
+}
+
+type IncidentContentProps = {
+    incident: IIncident
+    withOrganization?: boolean
 }
 
 type IncidentIdPageContentProps = {
     incident: IIncident
     refetchIncident
     incidentLoading: boolean
-}
-
-type IncidentContentProps = {
-    incident: IIncident
+    withOrganization?: boolean
 }
 
 type IncidentFieldProps = {
@@ -329,7 +331,7 @@ const IncidentDetailsField: React.FC<IncidentFieldProps> = ({ incident }) => {
 const IncidentTextForResidentField: React.FC<IncidentFieldProps> = ({ incident }) => {
     const intl = useIntl()
     const TextForResidentLabel = intl.formatMessage({ id: 'incident.fields.textForResident.label' })
-    const HaveNotMessage = intl.formatMessage({ id: 'incident.fields.textForResident.isEmpty' })
+    const HaveNotMessage = intl.formatMessage({ id: 'incident.fields.textForResident.empty' })
 
     return (
         <Row>
@@ -342,11 +344,32 @@ const IncidentTextForResidentField: React.FC<IncidentFieldProps> = ({ incident }
     )
 }
 
+const IncidentOrganizationField: React.FC<IncidentFieldProps> = ({ incident }) => {
+    const intl = useIntl()
+    const OrganizationLabel = intl.formatMessage({ id: 'incident.fields.organization.label' })
+    const HaveNotMessage = intl.formatMessage({ id: 'incident.fields.organization.empty' })
+
+    return (
+        <Row>
+            <PageFieldRow title={OrganizationLabel} ellipsis labelSpan={5}>
+                <Typography.Text type={!incident.textForResident ? 'secondary' : null}>
+                    {get(incident, 'organization.name') || HaveNotMessage}
+                </Typography.Text>
+            </PageFieldRow>
+        </Row>
+    )
+}
+
 const IncidentContent: React.FC<IncidentContentProps> = (props) => {
-    const { incident } = props
+    const { incident, withOrganization = false } = props
 
     return (
         <Row gutter={[0, 24]}>
+            {withOrganization && (
+                <Col span={24}>
+                    <IncidentOrganizationField incident={incident}/>
+                </Col>
+            )}
             <Col span={24}>
                 <IncidentPropertiesField incident={incident} />
             </Col>
@@ -369,7 +392,7 @@ const IncidentContent: React.FC<IncidentContentProps> = (props) => {
     )
 }
 
-const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
+export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'incident.id.title' })
     const DateMessage = intl.formatMessage({ id: 'incident.id.createdAt' })
@@ -381,11 +404,9 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
     const MakeNotActualLabel = intl.formatMessage({ id: 'incident.id.makeNotActual.label' })
     const ChangeHistoryTitle = intl.formatMessage({ id: 'incident.id.changeHistory.title' })
 
-    const { incident, refetchIncident, incidentLoading } = props
+    const { incident, refetchIncident, incidentLoading, withOrganization } = props
 
     const router = useRouter()
-
-    console.log(incident)
 
     const isActual = incident.status === IncidentStatusType.Actual
 
@@ -448,7 +469,7 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
                             </Row>
                         </Col>
                         <Col span={24} lg={24} xl={22}>
-                            <IncidentContent incident={incident} />
+                            <IncidentContent incident={incident} withOrganization={withOrganization} />
                         </Col>
                         <ActionBar>
                             <Button
