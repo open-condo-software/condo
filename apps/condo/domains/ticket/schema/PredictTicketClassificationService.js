@@ -53,6 +53,10 @@ const PredictTicketClassificationService = new GQLCustomSchema('PredictTicketCla
             schema: 'predictTicketClassification (data: PredictTicketClassificationInput!): TicketClassifier',
             resolver: async (parent, args, context) => {
                 const { data: { details } } = args
+                if (conf.NODE_ENV === 'test' || !ML_SPACE_TICKET_CLASSIFIER) {
+                    return null
+                }
+
                 const { endpoint, authKey, workspace } = ML_SPACE_TICKET_CLASSIFIER
                 if (!endpoint || !authKey || !workspace) {
                     throw new GQLError(ERRORS.ML_SPACE_NOT_CONFIGURED, context)

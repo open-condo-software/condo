@@ -189,6 +189,7 @@ type RedirectToFormArgsType = {
     router: NextRouter,
     formRoute: string,
     initialValues?: Record<string, unknown>,
+    target?: '_self' | '_blank'
 }
 type RedirectToFormType = (args: RedirectToFormArgsType) => Promise<void>
 
@@ -196,6 +197,7 @@ export const redirectToForm: RedirectToFormType = async ({
     router,
     formRoute,
     initialValues,
+    target = '_self',
 }) => {
     const query = qs.stringify(
         {
@@ -205,5 +207,12 @@ export const redirectToForm: RedirectToFormType = async ({
         { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
     )
 
-    await router.push(`${formRoute}${query}`)
+    const newUrl = `${formRoute}${query}`
+    if (target === '_blank') {
+        if (typeof window !== 'undefined') {
+            window.open(newUrl, '_blank')
+        }
+    } else {
+        await router.push(newUrl)
+    }
 }
