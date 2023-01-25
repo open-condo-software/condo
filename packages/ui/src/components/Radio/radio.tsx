@@ -1,8 +1,9 @@
 import { Radio as DefaultRadio } from 'antd'
 import React from 'react'
 
-import { TypographyTextProps, Typography } from '../Typography'
+import { Typography } from '../Typography'
 
+import type { TypographyTextProps } from '../Typography'
 import type { RadioProps as DefaultRadioProps } from 'antd'
 
 const RADIO_CLASS_PREFIX = 'condo-radio'
@@ -23,13 +24,13 @@ const Radio: React.FC<RadioProps> = (props) => {
             prefixCls={RADIO_CLASS_PREFIX}
             disabled={disabled}
         >
-            <Typography.Text
+            {label && (<Typography.Text
                 size='medium'
                 disabled={disabled}
                 {...labelProps}
             >
                 {label}
-            </Typography.Text>
+            </Typography.Text>)}
         </DefaultRadio>
     )
 }
