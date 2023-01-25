@@ -8831,7 +8831,6 @@ __metadata:
     webpack: ^5.74.0
     webpack-cli: ^4.10.0
     webpack-merge: ^5.8.0
-    webpack-node-externals: ^3.0.0
   peerDependencies:
     react: ">=16"
     react-dom: ">=16"
@@ -43692,13 +43691,6 @@ __metadata:
     clone-deep: ^4.0.1
     wildcard: ^2.0.0
   checksum: 88786ab91013f1bd2a683834ff381be81c245a4b0f63304a5103e90f6653f44dab496a0768287f8531761f8ad957d1f9f3ccb2cb55df0de1bd9ee343e079da26
-  languageName: node
-  linkType: hard
-
-"webpack-node-externals@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "webpack-node-externals@npm:3.0.0"
-  checksum: 355080c35c821115b97dda8c93d9d0565a90a6012a532324eb0d6a64f8f0d609431fd29504fc7ce414755841ac14f601f3eef99472c2c5dc00233b504ebe73f2
   languageName: node
   linkType: hard
 
