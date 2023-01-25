@@ -1,17 +1,13 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { styled } from '@storybook/theming'
-import { Space } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
 
+import { Space } from '@open-condo/ui/src'
 import { Typography } from '@open-condo/ui/src'
 import type { TypographyTitleProps } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
-
-
-// TODO(DOMA-4682): Move to UI-kit
-import 'antd/lib/space/style/index.less'
 
 const StoryDecorator = styled.div<{ bg: 'light' | 'dark' }>`
   background: ${(props) => props.bg === 'light' ? colors.white : colors.black};
@@ -42,7 +38,7 @@ const Template: ComponentStory<typeof Typography.Title> = (args) => {
     const levels: Array<TypographyTitleProps['level']> = [1, 2, 3, 4, 5, 6]
 
     return (
-        <Space direction='vertical' size={20} prefixCls='condo-space'>
+        <Space direction='vertical' size={20}>
             {levels.map(level => {
                 const text = get(args, 'children') || `H${level}: This is an example of a level ${level} title.`
                 return (

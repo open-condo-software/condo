@@ -1,8 +1,8 @@
-import { Radio as DefaultRadio, Space } from 'antd'
+import { Radio as DefaultRadio } from 'antd'
 import classNames from 'classnames'
 import React, { useState } from 'react'
 
-import { Radio, Typography } from '@open-condo/ui/src'
+import { Radio, Typography, Space } from '@open-condo/ui/src'
 import type { RadioProps } from '@open-condo/ui/src'
 
 import type { RadioGroupProps as DefaultRadioGroupProps } from 'antd'
@@ -45,8 +45,7 @@ const GroupWithIcon: React.FC<RadioGroupType> = ({ name, options, children }) =>
             </div>
             <Space
                 direction='vertical'
-                size={14}
-                prefixCls='condo-space'
+                size={12}
             >
                 {options.map(({ value, label, radioProps }) => (
                     <Radio key={value} label={label} value={value} {...radioProps} />

@@ -1,17 +1,13 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { styled } from '@storybook/theming'
-import { Space } from 'antd'
 import { identity } from 'lodash'
 import get from 'lodash/get'
 import React from 'react'
 
+import { Space } from '@open-condo/ui/src'
 import { Typography, Card } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 import tokens from '@open-condo/ui/src/tokens/tokens.json'
-
-
-// TODO(DOMA-4682): Move to UI-kit
-import 'antd/lib/space/style/index.less'
 
 type SwatchColors = { [key: string]: string }
 type SwatchColorsWithDescription = { [key: string]: { value: string, description?: string } }
@@ -81,7 +77,7 @@ const ColorItem: React.FC<ColorItemProps> = ({ name, value, description }) => {
             titlePadding={0}
             bodyPadding={12}
         >
-            <Space direction='vertical' size={12} prefixCls='condo-space'>
+            <Space direction='vertical' size={12}>
                 <Typography.Paragraph>
                     <Typography.Text strong>{name}&nbsp;</Typography.Text>
                     <Typography.Text type='secondary'>{value}</Typography.Text>
