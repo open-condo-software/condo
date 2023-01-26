@@ -171,9 +171,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     const triggerOnChange = useCallback((contact: ContactValue, isNew: boolean) => {
         form.setFieldsValue({
-            [fields.id]: !isNew && contact.id,
-            [fields.name]: contact.name,
-            [fields.phone]: contact.phone,
+            [fields.id]: !isNew && get(contact, 'id', null),
+            [fields.name]: get(contact, 'name', null),
+            [fields.phone]: get(contact, 'phone', null),
         })
 
         setValue(contact)
@@ -308,11 +308,11 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     )), [handleSelectContact, initialContacts, isContactSelected])
 
     const handleTabChange = useCallback((tab) => {
-        setSelectedContact(null)
+        triggerOnChange(null, false)
         setEditableFieldsChecked(false)
 
         setActiveTab(tab)
-    }, [])
+    }, [triggerOnChange])
 
     const className = props.disabled ? 'disabled' : ''
 
