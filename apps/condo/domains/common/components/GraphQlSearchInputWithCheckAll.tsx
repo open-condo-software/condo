@@ -21,6 +21,7 @@ export type InputWithCheckAllProps = {
     checkBoxOffset?: number
     form: FormInstance
     checkBoxEventName?: string
+    disabled?: boolean
 }
 
 const CheckAllCheckboxFormItem = styled(Form.Item)`
@@ -40,6 +41,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         form,
         checkBoxOffset,
         checkBoxEventName,
+        disabled,
     }
 ) => {
     const intl = useIntl()
@@ -99,7 +101,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
                         {...selectProps}
                         mode='multiple'
                         placeholder={isAllChecked && CheckedAllMessage || selectProps.placeholder}
-                        disabled={selectProps.disabled || isAllChecked}
+                        disabled={disabled || selectProps.disabled || isAllChecked}
                         onChange={handleOnChange}
                         onAllDataLoading={handleOnDataLoaded}
                     />
@@ -113,6 +115,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
                     <Checkbox
                         onChange={handleCheckboxChange}
                         eventName={checkBoxEventName}
+                        disabled={disabled}
                     >
                         {CheckAllMessage}
                     </Checkbox>
