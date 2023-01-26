@@ -52003,7 +52003,7 @@ input ExportIncidentsToExcelInput {
   sender: SenderFieldInput!
   where: IncidentWhereInput!
   sortBy: [SortIncidentsBy!]
-  timeZone: String!
+  timeZone: String
 }
 
 type ExportIncidentsToExcelOutput {
