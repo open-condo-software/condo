@@ -11,6 +11,7 @@ import {
     useShowProgressBarHandler,
     useGetActiveProgressBarsHandler,
     useUpdateProgressBarHandler,
+    useRedirectHandler,
 } from './globalHandlers'
 import { validators } from './validators'
 
@@ -29,6 +30,7 @@ import type { ValidateFunction } from 'ajv'
 const {
     publicRuntimeConfig: {
         serverUrl,
+        frontendUrl,
     },
 } = getConfig()
 
@@ -122,7 +124,7 @@ const initialHandlers: Record<HandlerOrigin, OriginHandlers> = {
  * 3. Handling errors thrown by individual handlers and converting it to corresponding postMessage response
  */
 export const PostMessageProvider: React.FC = ({ children }) => {
-    const [allowedOrigins, setAllowedOrigins] = useState<Array<string>>([serverUrl])
+    const [allowedOrigins, setAllowedOrigins] = useState<Array<string>>([frontendUrl || serverUrl])
     const [registeredHandlers, setRegisteredHandlers] = useState<Record<HandlerOrigin, OriginHandlers>>(initialHandlers)
     const isOnClient = typeof window !== 'undefined'
 
@@ -142,6 +144,8 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     const showProgressBarHandler = useShowProgressBarHandler()
     const getActiveProgressBarsHandler = useGetActiveProgressBarsHandler()
     const updateProgressBarHandler = useUpdateProgressBarHandler()
+    const redirectHandler = useRedirectHandler()
+
     useEffect(() => {
         addEventHandler('CondoWebAppGetLaunchParams', '*', launchParamsHandler)
     }, [addEventHandler, launchParamsHandler])
@@ -157,6 +161,10 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     useEffect(() => {
         addEventHandler('CondoWebAppUpdateProgressBar', '*', updateProgressBarHandler)
     }, [addEventHandler, updateProgressBarHandler])
+
+    useEffect(() => {
+        addEventHandler('CondoWebAppRedirect', '*', redirectHandler)
+    }, [addEventHandler, redirectHandler])
 
     const addOrigin = useCallback((origin: string) => {
         setAllowedOrigins((prev) => prev.includes(origin) ? prev : [...prev, origin])

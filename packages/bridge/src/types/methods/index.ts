@@ -1,6 +1,7 @@
 // Imports for usage here
 import type { GetActiveProgressBarsParams, GetActiveProgressBarsData } from './GetActiveProgressBars'
 import type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
+import type { RedirectData, RedirectParams } from './Redirect'
 import type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
 import type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
 import type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
@@ -8,6 +9,7 @@ import type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdatePro
 // Reexports for accessibility from outside
 export type { GetActiveProgressBarsParams, GetActiveProgressBarData, GetActiveProgressBarsData } from './GetActiveProgressBars'
 export type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
+export type { RedirectData, RedirectParams } from './Redirect'
 export type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
 export type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
 export type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
@@ -20,6 +22,7 @@ export type RequestMethodsParamsMap = {
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsParams
 
     CondoWebAppGetLaunchParams: GetLaunchParamsParams
+    CondoWebAppRedirect: RedirectParams
     CondoWebAppResizeWindow: ResizeWindowParams
     CondoWebAppShowNotification: ShowNotificationParams
     CondoWebAppShowProgressBar: ShowProgressBarParams
@@ -32,6 +35,7 @@ export type RequestMethodsParamsMap = {
 export type ResultResponseDataMap = {
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsData
     CondoWebAppGetLaunchParams: GetLaunchParamsData
+    CondoWebAppRedirect: RedirectData
     CondoWebAppResizeWindow: ResizeWindowData
     CondoWebAppShowNotification: ShowNotificationData
     CondoWebAppShowProgressBar: ShowProgressBarData
