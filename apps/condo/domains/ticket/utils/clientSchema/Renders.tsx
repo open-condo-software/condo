@@ -174,7 +174,7 @@ export const getClassifierRender = (intl, search?: FilterValue) => {
     }
 }
 
-export const getManyClassifiersGroupByPlaceRender = () => {
+export const getManyClassifiersGroupByPlaceRender = (ellipsis?) => {
     return (classifiers: TicketClassifier[]): React.ReactElement => {
         const place = get(classifiers, ['0', 'place'])
         const placeId = get(place, 'id')
@@ -201,7 +201,7 @@ export const getManyClassifiersGroupByPlaceRender = () => {
 
         const text = `${placePart}${categoriesPart}${problemsPart}`
 
-        return getTableCellRenderer()(text)
+        return getTableCellRenderer(null, ellipsis)(text)
     }
 }
 
