@@ -33,7 +33,7 @@ export const getManyPropertiesAddressRender = (search: FilterValue) => {
     }
 }
 
-export const geOneAddressAndPropertiesCountRender = (search: FilterValue) => {
+export const getOneAddressAndPropertiesCountRender = (search: FilterValue) => {
     return function render (intl, properties) {
         const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
         const MoreAddressesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.propertiesCount' })
