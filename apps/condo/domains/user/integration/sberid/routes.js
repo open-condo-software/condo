@@ -65,8 +65,7 @@ class SberIdRoutes {
 
             // getting current user
             // for linking checks case (user.phone != sberId.phoneNumber)
-            const item = await context._sessionManager._getAuthedItem(req, context)
-            if (item && !hasSamePhone(item, userInfo)) {
+            if (req.user && !hasSamePhone(req.user, userInfo)) {
                 return res.status(400).json({
                     code: 'AUTH_ERROR_DIFFERENT_PHONE_NUMBERS',
                 })
