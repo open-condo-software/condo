@@ -2,6 +2,7 @@ import { notification } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
+import { useRouter } from 'next/router'
 import { useCallback, useContext } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
@@ -11,6 +12,8 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { TASK_STATUS, TasksContext } from '@condo/domains/common/components/tasks'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
+import { extractOrigin } from '@condo/domains/common/utils/url.utils'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { STAFF } from '@condo/domains/user/constants/common'
 
 import type { RequestHandler } from './types'
@@ -138,4 +141,30 @@ export const useUpdateProgressBarHandler: () => RequestHandler<'CondoWebAppUpdat
         return { updated: true }
         // TODO(DOMA-5171): Adding miniAppTaskUIInterface in deps causing rerender hell!
     }, [userId])
+}
+
+export const useRedirectHandler: () => RequestHandler<'CondoWebAppRedirect'> = () => {
+    const router = useRouter()
+
+    return useCallback(({ url, target = '_self' }) => {
+        if (!isSafeUrl(url)) {
+            throw new Error('Forbidden url. Your url is probably injected')
+        }
+        if (typeof window === 'undefined') {
+            throw new Error('Window was undefined. This is probably a bug, so please contact us')
+        }
+
+        if (target === '_blank') {
+            window.open(url, target)
+        } else {
+            const urlOrigin = extractOrigin(url)
+            if (window.origin !== urlOrigin) {
+                throw new Error('The redirect url must have the same origin as parent window, if target is not _blank')
+            }
+
+            router.push(url)
+        }
+
+        return { success: true }
+    }, [router])
 }

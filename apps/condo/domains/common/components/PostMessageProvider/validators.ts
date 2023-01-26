@@ -11,6 +11,16 @@ const NoParamsSchema = {
 }
 const NoParamsValidator = ajv.compile(NoParamsSchema)
 
+const CondoWebAppRedirectParamsSchema = {
+    type: 'object',
+    properties: {
+        url: { type: 'string' },
+        target: { type: 'string', enum: ['_self', '_blank'] },
+    },
+    required: ['url'],
+    additionalProperties: false,
+}
+
 const CondoWebAppResizeWindowParamsSchema = {
     type: 'object',
     properties: {
@@ -29,15 +39,6 @@ const CondoWebSendAnalyticsEventParamsSchema = {
     },
     required: ['event', 'location', 'component'],
     additionalProperties: true,
-}
-
-const CondoWebAppCallEventParamsSchema = {
-    type: 'object',
-    properties: {
-        phone: { type: 'string' },
-    },
-    required: ['phone'],
-    additionalProperties: false,
 }
 
 const CondoWebAppShowNotificationParamsSchema = {
@@ -87,9 +88,9 @@ export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValida
 
 export const validators: ValidatorsType = {
     CondoWebSendAnalyticsEvent: ajv.compile(CondoWebSendAnalyticsEventParamsSchema),
-    CondoWebAppCallEvent: ajv.compile(CondoWebAppCallEventParamsSchema),
     CondoWebAppGetActiveProgressBars: NoParamsValidator,
     CondoWebAppGetLaunchParams: NoParamsValidator,
+    CondoWebAppRedirect: ajv.compile(CondoWebAppRedirectParamsSchema),
     CondoWebAppResizeWindow: ajv.compile(CondoWebAppResizeWindowParamsSchema),
     CondoWebAppShowNotification: ajv.compile(CondoWebAppShowNotificationParamsSchema),
     CondoWebAppShowProgressBar: ajv.compile(CondoWebAppShowProgressBarParamsSchema),
