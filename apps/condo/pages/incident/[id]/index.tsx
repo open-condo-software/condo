@@ -336,8 +336,8 @@ const IncidentTextForResidentField: React.FC<IncidentFieldProps> = ({ incident }
     return (
         <Row>
             <PageFieldRow title={TextForResidentLabel} ellipsis labelSpan={5}>
-                <Typography.Text type={!incident.textForResident ? 'secondary' : null}>
-                    {incident.textForResident || HaveNotMessage}
+                <Typography.Text type={!get(incident, 'textForResident') ? 'secondary' : null}>
+                    {get(incident, 'textForResident') || HaveNotMessage}
                 </Typography.Text>
             </PageFieldRow>
         </Row>
@@ -352,7 +352,7 @@ const IncidentOrganizationField: React.FC<IncidentFieldProps> = ({ incident }) =
     return (
         <Row>
             <PageFieldRow title={OrganizationLabel} ellipsis labelSpan={5}>
-                <Typography.Text type={!incident.textForResident ? 'secondary' : null}>
+                <Typography.Text type={!get(incident, 'organization.name') ? 'secondary' : null}>
                     {get(incident, 'organization.name') || HaveNotMessage}
                 </Typography.Text>
             </PageFieldRow>
