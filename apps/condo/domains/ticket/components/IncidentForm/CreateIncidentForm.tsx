@@ -5,14 +5,13 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button } from '@open-condo/ui'
 
+import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Incident } from '@condo/domains/ticket/utils/clientSchema'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
-import ActionBar from '../../../common/components/ActionBar'
 
-
-const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormProps['ActionBar']>> = (props) => {
+export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormProps['ActionBar']>> = (props) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'incident.form.save.label' })
 
