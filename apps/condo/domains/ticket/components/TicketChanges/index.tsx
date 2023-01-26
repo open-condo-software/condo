@@ -20,6 +20,7 @@ interface ITicketChangesProps {
 
 const CHANGES_PER_CHUNK = 5
 
+// todo(alllex202) refactor to ChangeHistory
 export const TicketChanges: React.FC<ITicketChangesProps> = ({ items, total, loading }) => {
     const intl = useIntl()
     const [displayCount, setDisplayCount] = useState(CHANGES_PER_CHUNK)
