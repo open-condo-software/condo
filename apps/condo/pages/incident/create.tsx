@@ -9,7 +9,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { IncidentForm } from '@condo/domains/ticket/components/IncidentForm'
 
 
-interface ICreateIncidentPage extends React.FC {
+export interface ICreateIncidentPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
 }
