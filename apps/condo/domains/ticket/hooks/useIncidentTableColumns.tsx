@@ -1,6 +1,5 @@
-import {
-    Incident as IIncident, IncidentStatusType,
-} from '@app/condo/schema'
+import { getTimeLeftMessage, getTimeLeftMessageType } from '@app/condo/pages/incident/[id]'
+import { Incident as IIncident, IncidentStatusType } from '@app/condo/schema'
 import { ColumnsType } from 'antd/es/table/interface'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -11,18 +10,15 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Tag, Typography } from '@open-condo/ui'
 
+import { getDateRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getOneAddressAndPropertiesCountRender } from '@condo/domains/property/utils/clientSchema/Renders'
+import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
 import { IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
-
-import { getTimeLeftMessage, getTimeLeftMessageType } from '../../../pages/incident/[id]'
-import { getDateRender, getTableCellRenderer } from '../../common/components/Table/Renders'
-import { getFilterIcon } from '../../common/components/TableFilter'
-import { getFilteredValue } from '../../common/utils/helpers'
-import { getSorterMap, parseQuery } from '../../common/utils/tables.utils'
-import { geOneAddressAndPropertiesCountRender } from '../../property/utils/clientSchema/Renders'
-import { INCIDENT_STATUS_COLORS } from '../constants/incident'
-import { getManyClassifiersGroupByPlaceRender } from '../utils/clientSchema/Renders'
-
+import { getManyClassifiersGroupByPlaceRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
 
 type UseTableColumnsPropsType <T = any> = {
@@ -180,8 +176,7 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
             .filter(item => get(item, 'incident.id') === incident.id)
             .map(item => item.property)
 
-        // todo(DOMA-2567) fix function name
-        return geOneAddressAndPropertiesCountRender(search)(intl, properties)
+        return getOneAddressAndPropertiesCountRender(search)(intl, properties)
     }, [AllPropertiesMessage, incidentProperties, intl, search])
 
     const renderClassifiers: ColumnType<IIncident>['render'] = useCallback((_, incident) => {
