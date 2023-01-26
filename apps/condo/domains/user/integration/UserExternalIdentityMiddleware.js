@@ -1,6 +1,6 @@
 const express = require('express')
-const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 
+const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const { SberIdRoutes } = require('@condo/domains/user/integration/sberid/routes')
 

@@ -31,7 +31,7 @@ const { expressErrorHandler } = require('@condo/domains/common/utils/expressErro
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { SbbolMiddleware } = require('@condo/domains/organization/integrations/sbbol/routes')
+const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
 
@@ -171,7 +171,7 @@ module.exports = {
             },
         }),
         FileAdapter.makeFileAdapterMiddleware(),
-        new SbbolMiddleware(),
+        new UserExternalIdentityMiddleware(),
         new AdminUIApp({
             adminPath: '/admin',
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),

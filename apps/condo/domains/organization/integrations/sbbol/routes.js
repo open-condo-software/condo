@@ -1,4 +1,3 @@
-const express = require('express')
 const { isObject, get } = require('lodash')
 const { generators } = require('openid-client') // certified openid client will all checks
 
@@ -6,7 +5,6 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 
-const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 const { isSafeUrl } = require('@condo/domains/common/utils/url.utils')
 
 const { SBBOL_SESSION_KEY } = require('./constants')
@@ -98,18 +96,6 @@ class SbbolRoutes {
     }
 }
 
-class SbbolMiddleware {
-    async prepareMiddleware () {
-        const Auth = new SbbolRoutes()
-        const app = express()
-        // TODO(zuch): find a way to remove bind
-        app.get('/api/sbbol/auth', Auth.startAuth.bind(Auth))
-        app.get('/api/sbbol/auth/callback', Auth.completeAuth.bind(Auth))
-        app.use(expressErrorHandler)
-        return app
-    }
-}
-
 module.exports = {
-    SbbolMiddleware,
+    SbbolRoutes,
 }
