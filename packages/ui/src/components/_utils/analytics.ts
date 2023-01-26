@@ -4,21 +4,34 @@ import React from 'react'
 
 import { version } from '@open-condo/ui/package.json'
 
+interface IAnalyticsProps<K> {
+    location: string
+    component: K
+}
+
 type ComponentSpecificClickEventProps = {
     Banner: { title: string }
     Button: { value: string, type: string }
     'Typography.Link': { value: string, href?: string }
 }
 
-type CommonAnalyticsProps<K> = {
-    event: 'click',
-    location: string,
-    component: K
+type ComponentSpecificCheckEventProps = {
+    Radio: { value: string }
+    Checkbox: { value: string }
 }
 
-type AnalyticsClickData<K extends keyof ComponentSpecificClickEventProps> = CommonAnalyticsProps<K> & ComponentSpecificClickEventProps[K]
+interface CommonAnalyticsClickProps<K> extends IAnalyticsProps<K> {
+    event: 'click'
+}
 
-export type AnalyticsParams = AnalyticsClickData<keyof ComponentSpecificClickEventProps>
+interface CommonAnalyticsCheckboxProps<K> extends IAnalyticsProps<K> {
+    event: 'checkbox' | 'radio'
+}
+
+type AnalyticsClickData<K extends keyof ComponentSpecificClickEventProps> = CommonAnalyticsClickProps<K> & ComponentSpecificClickEventProps[K]
+type AnalyticsRadioData<K extends keyof ComponentSpecificCheckEventProps> = CommonAnalyticsCheckboxProps<K> & ComponentSpecificCheckEventProps[K]
+
+export type AnalyticsParams = AnalyticsClickData<keyof ComponentSpecificClickEventProps> | AnalyticsRadioData<keyof ComponentSpecificCheckEventProps>
 
 const ANALYTICS_HANDLER_NAME = 'CondoWebSendAnalyticsEvent'
 
@@ -44,6 +57,25 @@ export function sendAnalyticsClickEvent<K extends keyof ComponentSpecificClickEv
             component,
             ...data,
         }
+        parent.postMessage({
+            handler: ANALYTICS_HANDLER_NAME,
+            params,
+            type: 'condo-ui',
+            version,
+        }, '*')
+    }
+}
+
+export function sendAnalyticsCheckEvent<K extends keyof ComponentSpecificCheckEventProps> (component: K, data: ComponentSpecificCheckEventProps[K]): void {
+    if (typeof window !== 'undefined') {
+        const location = window.location.href
+        const params: AnalyticsRadioData<K> = {
+            event: component === 'Checkbox' ? 'checkbox' : 'radio',
+            location,
+            component,
+            ...data,
+        }
+
         parent.postMessage({
             handler: ANALYTICS_HANDLER_NAME,
             params,

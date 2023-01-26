@@ -9,7 +9,7 @@ const icons = {
 }
 
 export default {
-    title: 'Components/RadioGroup',
+    title: 'Components/Radio',
     component: Component,
     args: {
         icon: <ChevronDown size='small' />,
@@ -54,5 +54,5 @@ export default {
 
 const Template: ComponentStory<typeof Component> = (props) => <Component {...props} />
 
-export const Default = Template.bind({})
-Default.args = {}
+export const RadioGroup = Template.bind({})
+RadioGroup.args = {}
