@@ -4,7 +4,6 @@ import { useRouter } from 'next/router'
 import React, { ComponentProps, useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Button } from '@open-condo/ui'
 
 import { Incident, IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
@@ -15,11 +14,12 @@ import ActionBar from '../../../common/components/ActionBar'
 import LoadingOrErrorPage from '../../../common/components/containers/LoadingOrErrorPage'
 
 
-interface IUpdateIncidentForm {
+export interface IUpdateIncidentForm {
     id: string
+    showOrganization?: boolean
 }
 
-const UpdateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormProps['ActionBar']>> = (props) => {
+export const UpdateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormProps['ActionBar']>> = (props) => {
     const intl = useIntl()
     const UpdateLabel = intl.formatMessage({ id: 'incident.form.save.label' })
 
@@ -37,14 +37,14 @@ const UpdateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormProps['Ac
     )
 }
 
-export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = ({ id }) => {
+export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const PageTitle = intl.formatMessage({ id: 'incident.update.title' })
 
+    const { id, showOrganization } = props
+
     const router = useRouter()
-    const { organization } = useOrganization()
-    const organizationId = useMemo(() => get(organization, 'id'), [organization])
 
     const {
         loading: incidentLoading,
@@ -69,6 +69,8 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = ({ id }) => {
     } = IncidentTicketClassifier.useAllObjects({
         where: { incident: { id } },
     })
+
+    const organizationId = useMemo(() => get(incident, 'organization.id', null), [incident])
 
     const updateIncident = Incident.useUpdate({})
     const action: BaseIncidentFormProps['action'] = useCallback(
@@ -116,6 +118,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = ({ id }) => {
             initialValues={initialValues}
             loading={loading}
             afterAction={afterAction}
+            showOrganization={showOrganization}
         />
     )
 }

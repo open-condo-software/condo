@@ -71,6 +71,7 @@ export type BaseIncidentFormProps = {
     organizationId: string
     action: (values: IIncidentCreateInput | IIncidentUpdateInput) => ReturnType<ReturnType<IncidentClientUtilsType['useCreate' | 'useUpdate']>>
     afterAction?: (values: IIncidentCreateInput | IIncidentUpdateInput) => void
+    showOrganization?: boolean
 }
 
 type FormLayoutProps = Pick<FormProps, 'labelCol' | 'wrapperCol' | 'layout' | 'labelAlign'>
@@ -321,6 +322,7 @@ const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block:
 export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const intl = useIntl()
     const CheckAllLabel = intl.formatMessage({ id: 'incident.fields.properties.checkAll.label' })
+    const OrganizationLabel = intl.formatMessage({ id: 'incident.fields.organization.label' })
     const PropertiesLabel = intl.formatMessage({ id: 'incident.fields.properties.label' })
     const WorkStartLabel = intl.formatMessage({ id: 'incident.fields.workStart.label' })
     const WorkFinishLabel = intl.formatMessage({ id: 'incident.fields.workFinish.label' })
@@ -338,10 +340,11 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const {
         action: createOrUpdateIncident,
         ActionBar,
-        initialValues = {} as BaseIncidentFormProps['initialValues'],
-        organizationId,
-        loading,
         afterAction,
+        initialValues = {} as BaseIncidentFormProps['initialValues'],
+        loading,
+        organizationId,
+        showOrganization = false,
     } = props
 
     const router = useRouter()
@@ -356,6 +359,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const createIncidentTicketClassifier = IncidentTicketClassifier.useCreate({})
     const softDeleteIncidentTicketClassifier = IncidentTicketClassifier.useSoftDelete()
 
+    const initialIncidentOrganization = useMemo(() => get(initialValues, 'organization.name'), [initialValues])
     const initialIncidentProperties = useMemo(() => get(initialValues, 'incidentProperties', []), [initialValues]) as IIncidentProperty[]
     const initialIncidentClassifiers = useMemo(() => get(initialValues, 'incidentClassifiers', []), [initialValues]) as IIncidentTicketClassifier[]
     console.log(initialIncidentProperties, initialIncidentClassifiers)
@@ -478,6 +482,17 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                     />
                                 </Col>
                             )}
+                            {
+                                showOrganization && initialIncidentOrganization && (
+                                    <Col span={24}>
+                                        <Form.Item
+                                            label={OrganizationLabel}
+                                        >
+                                            {initialIncidentOrganization}
+                                        </Form.Item>
+                                    </Col>
+                                )
+                            }
                             <Col span={24}>
                                 <GraphQlSearchInputWithCheckAll
                                     checkAllFieldName='hasAllProperties'
