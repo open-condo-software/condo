@@ -417,6 +417,7 @@ const ClientCardTabContent = ({
                                             <IncidentHints
                                                 organizationId={organizationId}
                                                 propertyId={propertyId}
+                                                onlyActual
                                             />
                                         </Col>
                                     )
