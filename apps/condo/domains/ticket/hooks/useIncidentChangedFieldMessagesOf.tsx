@@ -81,7 +81,7 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
                 return <Typography.Text>«{formattedValue}»</Typography.Text>
             },
             textForResident: (field, value, type) => {
-                const formattedValue = value.length > MAX_DESCRIPTION_DISPLAY_LENGTH ? (
+                const formattedValue = value && value.length > MAX_DESCRIPTION_DISPLAY_LENGTH ? (
                     <Tooltip
                         title={value}
                         placement='top'
