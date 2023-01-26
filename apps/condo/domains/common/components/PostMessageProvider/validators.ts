@@ -31,6 +31,15 @@ const CondoWebSendAnalyticsEventParamsSchema = {
     additionalProperties: true,
 }
 
+const CondoWebAppCallEventParamsSchema = {
+    type: 'object',
+    properties: {
+        phone: { type: 'string' },
+    },
+    required: ['phone'],
+    additionalProperties: false,
+}
+
 const CondoWebAppShowNotificationParamsSchema = {
     type: 'object',
     properties: {
@@ -78,6 +87,7 @@ export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValida
 
 export const validators: ValidatorsType = {
     CondoWebSendAnalyticsEvent: ajv.compile(CondoWebSendAnalyticsEventParamsSchema),
+    CondoWebAppCallEvent: ajv.compile(CondoWebAppCallEventParamsSchema),
     CondoWebAppGetActiveProgressBars: NoParamsValidator,
     CondoWebAppGetLaunchParams: NoParamsValidator,
     CondoWebAppResizeWindow: ajv.compile(CondoWebAppResizeWindowParamsSchema),
