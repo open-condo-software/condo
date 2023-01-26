@@ -1,8 +1,11 @@
-const { customAlphabet } = require('nanoid')
-const { isNil } = require('lodash')
-const jwtDecode = require('jwt-decode')
 const axios = require('axios').default
+
+// eslint-disable-next-line import/order
 const https = require('https')
+const jwtDecode = require('jwt-decode')
+const { isNil } = require('lodash')
+const { customAlphabet } = require('nanoid')
+
 
 const conf = require('@open-condo/config')
 
@@ -35,13 +38,13 @@ const httpsAgent = new https.Agent({
 const nanoid = customAlphabet('1234567890abcdef', 32)
 
 class SberIdIdentityIntegration {
-    async generateLoginFormParams (checks) {
+    async generateLoginFormParams (checks, redirectUrl) {
         const { nonce, state } = checks
         const link = new URL(authorizeUrl)
 
         // generate params
         const responseType = 'code'
-        const redirectUri = callbackUri
+        const redirectUri = isNil(redirectUrl) ? callbackUri : redirectUrl
 
         // set params to link
         link.searchParams.set('scope', scope)
@@ -54,12 +57,13 @@ class SberIdIdentityIntegration {
         return link
     }
 
-    async issueExternalIdentityToken ({ code }) {
+    async issueExternalIdentityToken (code, redirectUrl) {
+        const redirectUri = isNil(redirectUrl) ? callbackUri : redirectUrl
         // set issue token request parameters
         const request = {
             grant_type: 'authorization_code',
             code,
-            redirect_uri: callbackUri,
+            redirect_uri: redirectUri,
             client_id: clientId,
             client_secret: clientSecret,
         }
