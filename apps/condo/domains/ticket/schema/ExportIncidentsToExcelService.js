@@ -66,7 +66,7 @@ const ExportIncidentsToExcelService = new GQLCustomSchema('ExportIncidentsToExce
     types: [
         {
             access: true,
-            type: 'input ExportIncidentsToExcelInput { dv: Int!, sender: SenderFieldInput!, where: IncidentWhereInput!, sortBy: [SortIncidentsBy!], timeZone: String! }',
+            type: 'input ExportIncidentsToExcelInput { dv: Int!, sender: SenderFieldInput!, where: IncidentWhereInput!, sortBy: [SortIncidentsBy!], timeZone: String }',
         },
         {
             access: true,
