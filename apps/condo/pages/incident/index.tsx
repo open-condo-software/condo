@@ -33,6 +33,7 @@ import { useIncidentTableColumns, UseTableColumnsType } from '@condo/domains/tic
 import { useIncidentTableFilters } from '@condo/domains/ticket/hooks/useIncidentTableFilters'
 import { Incident, IncidentProperty } from '@condo/domains/ticket/utils/clientSchema'
 
+
 export interface IIncidentIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
@@ -135,7 +136,7 @@ const useIncidentsSearch = ({ baseQuery, filterMetas }) => {
     const router = useRouter()
     const { filters, offset, sorters } = useMemo(() => parseQuery(router.query), [router.query])
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
-    const sortBy = sortersToSortBy(sorters, INCIDENTS_DEFAULT_SORT_BY) as SortIncidentsBy[]
+    const sortBy = useMemo(() => sortersToSortBy(sorters, INCIDENTS_DEFAULT_SORT_BY) as SortIncidentsBy[], [sorters, sortersToSortBy])
 
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 

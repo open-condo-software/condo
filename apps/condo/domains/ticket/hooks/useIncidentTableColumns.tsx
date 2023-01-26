@@ -43,6 +43,7 @@ const COLUMNS_WIDTH = {
     workFinish: '10%',
 }
 
+const DETAILS_ELLIPSIS_SETTINGS = { rows: 4, expandable: false }
 
 export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
     const intl = useIntl()
@@ -123,7 +124,7 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
 
     const renderNumber = useMemo(() => getTableCellRenderer(), [])
 
-    const renderDetails = useMemo(() => getTableCellRenderer(), [])
+    const renderDetails = useMemo(() => getTableCellRenderer('', DETAILS_ELLIPSIS_SETTINGS), [])
 
     const renderStatus = useCallback((status, incident) => {
         const isActual = status === IncidentStatusType.Actual
@@ -184,7 +185,7 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
             .filter(item => get(item, 'incident.id') === incident.id)
             .map(item => item.classifier)
 
-        return getManyClassifiersGroupByPlaceRender()(classifiers)
+        return getManyClassifiersGroupByPlaceRender(DETAILS_ELLIPSIS_SETTINGS)(classifiers)
     }, [incidentClassifiers])
 
     return useMemo(() => ({
@@ -248,6 +249,7 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'workStart'),
                 filterIcon: getFilterIcon,
                 render: renderWorkStart,
+                ellipsis: true,
             },
             {
                 title: WorkFinishLabel,
@@ -260,6 +262,7 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'workFinish'),
                 filterIcon: getFilterIcon,
                 render: renderWorkFinish,
+                ellipsis: true,
             },
         ],
     }), [ClassifiersLabel, DetailsLabel, NumberLabel, PropertiesLabel, StatusLabel, WorkFinishLabel, WorkStartLabel, filterMetas, filters, loading, renderClassifiers, renderDetails, renderNumber, renderProperties, renderStatus, renderWorkFinish, renderWorkStart, sorterMap])
