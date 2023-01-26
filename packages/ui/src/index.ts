@@ -40,11 +40,8 @@ export type {
     TypographyParagraphProps,
 } from './components/Typography'
 
-export { Radio } from './components/Radio'
-export type { RadioProps } from './components/Radio'
-
-export { RadioGroup } from './components/RadioGroup'
-export type { RadioGroupProps } from './components/RadioGroup'
+export { Radio, RadioGroup } from './components/Radio'
+export type { RadioProps, RadioGroupProps } from './components/Radio'
 
 export { Space } from './components/Space'
 export type { SpaceProps } from './components/Space'

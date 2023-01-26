@@ -1,6 +1,7 @@
 import { Radio as DefaultRadio } from 'antd'
-import React from 'react'
+import React, { useCallback } from 'react'
 
+import { sendAnalyticsCheckEvent, extractChildrenContent } from '../_utils/analytics'
 import { Typography } from '../Typography'
 
 import type { TypographyTextProps } from '../Typography'
@@ -17,12 +18,25 @@ export type RadioProps = Pick<DefaultRadioProps, 'autoFocus' | 'defaultChecked' 
 & CondoRadioProps
 
 const Radio: React.FC<RadioProps> = (props) => {
-    const { label, labelProps, disabled, ...rest } = props
+    const { label, labelProps, disabled, onChange, children, ...rest } = props
+
+    const handleChange = useCallback((event) => {
+        const stringContent = label ? label : extractChildrenContent(children)
+        if (stringContent) {
+            sendAnalyticsCheckEvent('Radio', { value: stringContent })
+        }
+
+        if (onChange) {
+            onChange(event)
+        }
+    }, [onChange, children, label])
+
     return (
         <DefaultRadio
             {...rest}
             prefixCls={RADIO_CLASS_PREFIX}
             disabled={disabled}
+            onChange={handleChange}
         >
             {label && (<Typography.Text
                 size='medium'

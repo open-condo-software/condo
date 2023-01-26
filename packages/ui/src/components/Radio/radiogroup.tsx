@@ -15,7 +15,7 @@ type RadioGroupOptionType = Pick<RadioProps, 'value' | 'label'> & {
 
 type RadioGroupType = {
     name: string
-    icon: React.ReactElement
+    icon?: React.ReactElement
     options: Array<RadioGroupOptionType>
 }
 
