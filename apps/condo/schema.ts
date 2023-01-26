@@ -16499,7 +16499,7 @@ export type ExportIncidentsToExcelInput = {
   sender: SenderFieldInput;
   where: IncidentWhereInput;
   sortBy?: Maybe<Array<SortIncidentsBy>>;
-  timeZone: Scalars['String'];
+  timeZone?: Maybe<Scalars['String']>;
 };
 
 export type ExportIncidentsToExcelOutput = {
