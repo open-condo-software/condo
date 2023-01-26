@@ -70,7 +70,17 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
+let admin, client
 describe('MultiPayment', () => {
+    beforeAll(async () => {
+        // Create&save cached clients to use them at the end of each test
+        ({ admin, client } = await makePayer())
+    })
+
+    afterEach(async () => {
+        await admin.runDeferredActionsAndClean()
+        await client.runDeferredActionsAndClean()
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
@@ -125,8 +135,8 @@ describe('MultiPayment', () => {
             })
             describe('user', () => {
                 test('user can see only it\'s own multipayments', async () => {
-                    const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient } = await makePayerAndPayments()
-                    const { payments: secondPayments, client: secondClient, acquiringIntegration: secondAcquiringIntegration } = await makePayerAndPayments()
+                    const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient } = await makePayerAndPayments(1, false)
+                    const { payments: secondPayments, client: secondClient, acquiringIntegration: secondAcquiringIntegration } = await makePayerAndPayments(1, false)
                     const [firstMultiPayment] = await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)
                     const [secondMultiPayment] = await createTestMultiPayment(admin, secondPayments, secondClient.user, secondAcquiringIntegration)
                     let { data: { objs: firstMultiPayments } } = await MultiPayment.getAll(firstClient, {}, { raw:true })
@@ -853,7 +863,7 @@ describe('MultiPayment', () => {
             })
         })
         test('mobile resident can\'t see his sensitive data in his own MultiPayments', async () => {
-            const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
+            const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments(1, false)
             const [createdMultiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
             // We use raw: true because when using field access, all fields that are not permitted result in error which stops the test
             let { data: { objs: multiPayments } } = await MultiPayment.getAll(client, {}, { raw: true })
