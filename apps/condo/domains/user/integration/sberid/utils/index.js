@@ -6,6 +6,7 @@ const {
 const {
     validateState,
     validateNonce,
+    hasSamePhone,
 } = require('./validations')
 
 module.exports = {
@@ -14,4 +15,5 @@ module.exports = {
     getSessionParam,
     validateState,
     validateNonce,
+    hasSamePhone,
 }

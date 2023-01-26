@@ -2,13 +2,11 @@ const { v4: uuid } = require('uuid')
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-
+const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
 const {
     User,
     UserExternalIdentity,
 } = require('@condo/domains/user/utils/serverSchema')
-
-const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
 
 const dv = 1
 const sender = { dv, fingerprint: 'user-external-identity-router' }

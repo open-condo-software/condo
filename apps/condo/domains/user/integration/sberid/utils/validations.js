@@ -1,6 +1,10 @@
-const { get, isNil } = require('lodash')
 const jwtDecode = require('jwt-decode')
+const { get, isNil } = require('lodash')
+
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
+
 const { getSessionParam } = require('./params')
+
 
 function validateState (req) {
     const state = getSessionParam(req, 'checks.state')
@@ -13,13 +17,19 @@ function validateState (req) {
 
 function validateNonce (req, tokenSet) {
     const { idToken } = tokenSet
-    const {  nonce } = jwtDecode(idToken)
+    const { nonce } = jwtDecode(idToken)
     const nonceOriginal = getSessionParam(req, 'checks.nonce') || get(req, 'query.nonce')
 
-    if (nonceOriginal !== nonce) throw new Error('nonce is incorrect')
+    if (!isNil(nonceOriginal) && nonceOriginal !== nonce) throw new Error('nonce is incorrect')
+}
+
+function hasSamePhone (user, userInfo) {
+    const userInfoPhone = normalizePhone(userInfo.phoneNumber)
+    return userInfoPhone === user.phone
 }
 
 module.exports = {
     validateState,
     validateNonce,
+    hasSamePhone,
 }

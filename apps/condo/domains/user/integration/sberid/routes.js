@@ -1,20 +1,10 @@
-const { isObject, get, isNil } = require('lodash')
-const jwtDecode = require('jwt-decode')
+const { isNil } = require('lodash')
 const { generators } = require('openid-client')
-const { v4: uuid } = require('uuid')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { getOnBoardingStatus } = require('@condo/domains/organization/integrations/sbbol/sync/getOnBoadringStatus')
-const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
-
-const {
-    User,
-    UserExternalIdentity,
-} = require('@condo/domains/user/utils/serverSchema')
-const { RESIDENT, SBER_ID_SESSION_KEY, SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
-
+const { RESIDENT, SBER_ID_SESSION_KEY } = require('@condo/domains/user/constants/common')
 const { SberIdIdentityIntegration } = require('@condo/domains/user/integration/sberid/SberIdIdentityIntegration')
 const { syncUser } = require('@condo/domains/user/integration/sberid/sync/syncUser')
 const {
@@ -22,12 +12,14 @@ const {
     getUserType,
     validateState,
     validateNonce,
+    hasSamePhone,
 } = require('@condo/domains/user/integration/sberid/utils')
+const {
+    User,
+} = require('@condo/domains/user/utils/serverSchema')
 
 
 // init constants
-const dv = 1
-const sender = { dv, fingerprint: 'user-external-identity-router' }
 const integration = new SberIdIdentityIntegration()
 
 class SberIdRoutes {
@@ -46,7 +38,7 @@ class SberIdRoutes {
             req.session[SBER_ID_SESSION_KEY] = { checks, redirectUrl, userType }
             await req.session.save()
 
-            const authFormUrl = await integration.generateLoginFormParams(checks)
+            const authFormUrl = await integration.generateLoginFormParams(checks, redirectUrl)
             return res.redirect(authFormUrl)
         } catch (error) {
             return next(error)
@@ -56,19 +48,29 @@ class SberIdRoutes {
     async completeAuth (req, res, next) {
         try {
             const { keystone: context } = await getSchemaCtx('User')
+            const redirectUrl = getRedirectUrl(req)
             const userType = getUserType(req)
 
             // validate state parameter
             validateState(req)
 
             // getting tokenSet from user external provider
-            const tokenSet = await integration.issueExternalIdentityToken(req.query)
+            const tokenSet = await integration.issueExternalIdentityToken(req.query.code, redirectUrl)
 
             // validate nonce
             validateNonce(req, tokenSet)
 
             // getting user info
             const userInfo = await integration.getUserInfo(tokenSet)
+
+            // getting current user
+            // for linking checks case (user.phone != sberId.phoneNumber)
+            const item = await context._sessionManager._getAuthedItem(req, context)
+            if (item && !hasSamePhone(item, userInfo)) {
+                return res.status(400).json({
+                    code: 'AUTH_ERROR_DIFFERENT_PHONE_NUMBERS',
+                })
+            }
 
             // sync user
             const { id } = await syncUser({ context, userInfo, userType })
