@@ -26,24 +26,23 @@ import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert } from '@open-condo/ui'
 
-import { colors } from '@condo/domains/common/constants/style'
-import { IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
-
-import Checkbox from '../../../common/components/antd/Checkbox'
-import Input from '../../../common/components/antd/Input'
-import Select from '../../../common/components/antd/Select'
-import { FormWithAction } from '../../../common/components/containers/FormList'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
+import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import {
     GraphQlSearchInputWithCheckAll,
     InputWithCheckAllProps,
-} from '../../../common/components/GraphQlSearchInputWithCheckAll'
-import { useLayoutContext } from '../../../common/components/LayoutContext'
-import { Loader } from '../../../common/components/Loader'
-import DatePicker from '../../../common/components/Pickers/DatePicker'
-import { useValidations } from '../../../common/hooks/useValidations'
-import { MIN_DESCRIPTION_LENGTH } from '../../constants/restrictions'
-import { ClassifiersQueryLocal, Options } from '../../utils/clientSchema/classifierSearch'
-import { searchOrganizationProperty } from '../../utils/clientSchema/search'
+} from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
+import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
+import { colors } from '@condo/domains/common/constants/style'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
+import { IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
+import { ClassifiersQueryLocal, Options } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
@@ -81,7 +80,7 @@ type ClassifiersProps = {
     rules: Rule[]
 } & Pick<FormWithActionChildrenProps, 'form'>
 
-const FORM_LAYOUT_PROPS: FormLayoutProps = {
+export const FORM_LAYOUT_PROPS: FormLayoutProps = {
     labelCol: {
         md: 6,
         span: 24,
@@ -94,13 +93,13 @@ const FORM_LAYOUT_PROPS: FormLayoutProps = {
     labelAlign: 'left',
 }
 
-const TextArea = styled(Input.TextArea)`
+export const TextArea = styled(Input.TextArea)`
   &.ant-input {
     min-height: 120px;
   }
 `
 
-const CheckboxFormItem = styled(Form.Item)`  
+export const CheckboxFormItem = styled(Form.Item)`  
   & .ant-form-item-label {
     display: flex;
     align-items: center;
@@ -111,7 +110,7 @@ const CheckboxFormItem = styled(Form.Item)`
   }
 `
 
-const Label = styled(Typography.Text)`
+export const Label = styled(Typography.Text)`
   color: ${colors.textSecondary};
 `
 
@@ -125,7 +124,7 @@ type FilterAvailableItemsType = (props: {
 const convertToSelectOptions: (items: Options[]) => OptionType[] = (items) => items.map(item => ({ label: item.name, value: item.id }))
 const withoutEmpty: (items: OptionType[]) => OptionType[] = (items) => items.filter(item => item.value)
 
-const Classifiers: React.FC<ClassifiersProps> = (props) => {
+export const Classifiers: React.FC<ClassifiersProps> = (props) => {
     const intl = useIntl()
     const SelectMessage = intl.formatMessage({ id: 'Select' })
     const PlaceClassifierLabel = intl.formatMessage({ id: 'incident.fields.placeClassifier.label' })
@@ -317,7 +316,7 @@ const Classifiers: React.FC<ClassifiersProps> = (props) => {
     )
 }
 
-const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
+export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
 
 export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const intl = useIntl()
@@ -435,7 +434,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         required: true,
         name: 'properties',
         validateFirst: true,
-    }), [])
+    }), [PropertiesLabel])
 
     const initialFormValues = useMemo(() => ({
         ...initialValues,
@@ -450,7 +449,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         required: true,
         min: MIN_DESCRIPTION_LENGTH,
         message: DetailsErrorMessage,
-    }], [])
+    }], [DetailsErrorMessage])
 
     const initialWorkFinish = useMemo(() => get(initialValues, 'workFinish'), [initialValues])
     const showNotActualWorkFinishAlert = !isEmpty(initialValues) && initialWorkFinish && dayjs(initialWorkFinish).diff(dayjs()) < 0
