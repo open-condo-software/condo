@@ -95,23 +95,54 @@ function generateGQLTestUtils (gql) {
         return data.meta.count
     }
 
-    async function create (client, attrs = {}, { raw = false } = {}) {
+    async function create (client, attrs = {}, { raw = false, deleteAfterTest = true } = {}) {
         _checkClient(client)
         const { data, errors } = await client.mutate(gql.CREATE_OBJ_MUTATION, {
             data: { ...attrs },
         })
         if (raw) return { data, errors }
         throwIfError(data, errors, { query: gql.CREATE_OBJ_MUTATION, variables: { data: { ...attrs } } })
+
+        if (deleteAfterTest) {
+            client.addDeferredAction(async () => {
+                const variables = { id: data.obj.id, sender: { dv: 1, fingerprint: 'delete-after-test' } }
+                const { delData, errors } = await client.mutate(gql.DELETE_OBJ_MUTATION, variables)
+                try {
+                    throwIfError(delData, errors, { query: gql.DELETE_OBJ_MUTATION, variables })
+                } catch (e) {
+                    // Sometimes, we can't delete the model due to relations (Ticket -> TicketChange)
+                    // So be it
+                    console.warn(e.message)
+                }
+            })
+        }
+
         return data.obj
     }
 
-    async function createMany (client, attrsArray = [], { raw = false } = {}) {
+    async function createMany (client, attrsArray = [], { raw = false, deleteAfterTest = true } = {}) {
         _checkClient(client)
-        const { data, errors } = await  client.mutate(gql.CREATE_OBJS_MUTATION, {
+        const { data, errors } = await client.mutate(gql.CREATE_OBJS_MUTATION, {
             data: [...attrsArray],
         })
         if (raw) return { data, errors }
         throwIfError(data, errors, { query: gql.CREATE_OBJS_MUTATION, variables: { data: [...attrsArray] } })
+
+        if (deleteAfterTest) {
+            client.addDeferredAction(async () => {
+                const variables = {
+                    ids: data.objs.map(({ id }) => id),
+                    sender: { dv: 1, fingerprint: 'delete-after-test' },
+                }
+                const { delData, errors } = await client.mutate(gql.DELETE_OBJS_MUTATION, variables)
+                try {
+                    throwIfError(delData, errors, { query: gql.DELETE_OBJS_MUTATION, variables })
+                } catch (e) {
+                    console.warn(e.message)
+                }
+            })
+        }
+
         return data.objs
     }
 
@@ -128,7 +159,7 @@ function generateGQLTestUtils (gql) {
     async function updateMany (client, attrsArray = [], { raw = false } = {}) {
         _checkClient(client)
         const { data, errors } = await client.mutate(gql.UPDATE_OBJS_MUTATION, {
-            data: [ ...attrsArray ],
+            data: [...attrsArray],
         })
         if (raw) return { data, errors }
         throwIfError(data, errors, { query: gql.UPDATE_OBJS_MUTATION, variables: { data: [...attrsArray] } })
