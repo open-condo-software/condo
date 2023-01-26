@@ -70,6 +70,7 @@ export const IncidentHintsBlock = ({ organizationId, propertyId }) => {
                             propertyId={propertyId}
                             organizationId={organizationId}
                             classifier={classifier}
+                            onlyActual
                         />
                     </Col>
                 )

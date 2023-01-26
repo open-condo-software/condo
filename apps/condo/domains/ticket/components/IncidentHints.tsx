@@ -48,6 +48,7 @@ type IncidentHintsProps = {
     organizationId: string
     classifier?: ITicketClassifier
     dateISO?: string
+    onlyActual?: boolean
 }
 
 const formatDate = (date?: string) => {
@@ -59,9 +60,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     const intl = useIntl()
     const MoreLabel = intl.formatMessage({ id: 'incident.hints.more.label' })
 
-    console.log({ props })
-
-    const { propertyId, dateISO, classifier, organizationId } = props
+    const { propertyId, dateISO, classifier, organizationId, onlyActual = false } = props
 
     // 1 - search IncidentProperties by propertyId
     //
@@ -106,26 +105,35 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         if (dateISO) {
             whereAND.push({
                 OR: [
-                    { workFinish_lte: dateISO },
-                    { workFinish_lte: null },
+                    {
+                        AND: [
+                            { workStart_lte: dateISO },
+                            { workFinish_gte: undefined },
+                        ],
+                    },
+                    {
+                        AND: [
+                            { workStart_lte: dateISO },
+                            { workFinish_gte: dateISO },
+                        ],
+                    },
                 ],
             })
         }
 
         const where: IncidentWhereInput = {
             organization: { id: organizationId },
-            status: IncidentStatusType.Actual,
             AND: whereAND,
         }
 
-        if (dateISO) {
-            where.workStart_gte = dateISO
+        if (onlyActual) {
+            where.status = IncidentStatusType.Actual
         }
 
         const res = await refetchIncidents({ where })
 
         return get(res, 'data.objs', [])
-    }, [])
+    }, [onlyActual])
 
     const fetchIncidentTicketClassifiers = useCallback(async (incidentIds: string[], classifier?: ITicketClassifier) => {
         if (incidentIds.length < 1) {
