@@ -1,34 +1,26 @@
-import { InfoCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import { Alert, Col, Typography } from 'antd'
+import { Col, Typography } from 'antd'
 import { get } from 'lodash'
 import React, { CSSProperties, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Alert } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
-import { colors } from '@condo/domains/common/constants/style'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 
 import { TicketPropertyHintContent } from './TicketPropertyHintContent'
 
 const StyledAlert = styled(Alert)`
-  background-color: ${colors.successBG};
-  border: none;
+   background-color: ${colors.green[1]} !important;
   
-  .ant-alert-description > div {
-    overflow: hidden;
-    position: relative;
-  }
+   .condo-alert-description > div {
+     overflow: hidden;
+     position: relative;
+   }
   
   & svg {
-    font-size: 21px;
-    color: ${colors.successText};
-  }
-  
-  & > .ant-alert-content > .ant-alert-message {
-    font-size: 16px;
-    line-height: 21px;
-    color: ${colors.successText}};
+    color: ${colors.green[5]} !important;
   }
 `
 
@@ -55,31 +47,11 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
         },
     })
 
-    const AlertMessage = <Typography.Text strong>{PropertyHintMessage}</Typography.Text>
     const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
 
-    if (!ticketPropertyHintProperty || !ticketPropertyHint) {
-        return <></>
-    }
-    
-    return withCol ? (
-        <Col span={24}>
-            <StyledAlert
-                message={AlertMessage}
-                description={
-                    <TicketPropertyHintContent
-                        html={htmlContent}
-                        style={hintContentStyle}
-                        linkToHint={`/property/${propertyId}/hint`}
-                    />
-                }
-                showIcon
-                icon={<InfoCircleOutlined/>}
-            />
-        </Col>
-    ) : (
+    const Hint = useMemo(() => (
         <StyledAlert
-            message={AlertMessage}
+            message={<Typography.Text strong>{PropertyHintMessage}</Typography.Text>}
             description={
                 <TicketPropertyHintContent
                     html={htmlContent}
@@ -88,7 +60,13 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
                 />
             }
             showIcon
-            icon={<InfoCircleOutlined/>}
+            type='warning'
         />
-    )
+    ), [PropertyHintMessage, hintContentStyle, htmlContent, propertyId])
+
+    if (!ticketPropertyHintProperty || !ticketPropertyHint) {
+        return null
+    }
+    
+    return withCol ? (<Col span={24}>{Hint}</Col>) : Hint
 }
