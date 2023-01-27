@@ -353,6 +353,7 @@ export const TicketSourceSelect: React.FC = () => {
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em', maxWidth: '250px' }
+const HINTS_WRAPPER_STYLE: CSSProperties = { overflow: 'auto', maxHeight: 'calc(100vh - 128px)', paddingRight: 8 }
 
 export interface ITicketFormProps {
     organization?: Organization
@@ -723,7 +724,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                     {
                                         selectedPropertyId && breakpoints.xl && (
                                             <Affix offsetTop={60}>
-                                                <div style={{ overflow: 'auto', maxHeight: 'calc(100vh - 120px)' }}>
+                                                <div style={HINTS_WRAPPER_STYLE}>
                                                     <Row gutter={[0, 24]}>
                                                         <Col span={24}>
                                                             <TicketPropertyHintCard
