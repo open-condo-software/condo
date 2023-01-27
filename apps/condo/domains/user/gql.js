@@ -14,7 +14,7 @@ const USER_FIELDS = `{ type name avatar { publicUrl } meta isPhoneVerified isEma
 const User = generateGqlQueries('User', USER_FIELDS)
 const UserAdmin = generateGqlQueries('User', '{ id type name isAdmin isSupport email isEmailVerified phone isPhoneVerified updatedBy { id } createdBy { id } }')
 
-const USER_EXTERNAL_IDENTITY_FIELDS = '{ id user { id } identityId identityType meta }'
+const USER_EXTERNAL_IDENTITY_FIELDS = '{ id user { id } identityId identityType meta deletedAt }'
 const UserExternalIdentity = generateGqlQueries('UserExternalIdentity', USER_EXTERNAL_IDENTITY_FIELDS)
 
 const REGISTER_NEW_USER_MUTATION = gql`

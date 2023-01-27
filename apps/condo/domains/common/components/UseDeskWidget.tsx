@@ -28,24 +28,29 @@ const UseDeskWidget: React.FC = () => {
     const userIdentify = getUserIdentify()
 
     useEffect(() => {
-        if (UseDeskWidgetId && isFunction(userIdentify)) userIdentify(
-            {
-                name: get(link, 'name', undefined),
-                email: get(user, 'email', undefined),
-                phone: get(user, 'phone', '').slice(1),
-                additional_fields:
-                    [
-                        {
-                            id: useDeskFieldsIdsMap.tin, value: get(link, ['organization', 'tin'], null),
-                        },
-                        {
-                            id: useDeskFieldsIdsMap.organizationName, value: get(link, ['organization', 'name'], null),
-                        },
-                        {
-                            id: useDeskFieldsIdsMap.role, value: get(link, ['role', 'name'], null),
-                        },
-                    ],
-            })
+        if (UseDeskWidgetId && isFunction(userIdentify)) {
+            const name = get(link, 'name')
+            const email = get(user, 'email')
+            const phone = get(user, 'phone')
+            userIdentify(
+                {
+                    name,
+                    email,
+                    phone: typeof phone === 'string' ? phone.slice(1) : phone,
+                    additional_fields:
+                        [
+                            {
+                                id: useDeskFieldsIdsMap.tin, value: get(link, ['organization', 'tin'], null),
+                            },
+                            {
+                                id: useDeskFieldsIdsMap.organizationName, value: get(link, ['organization', 'name'], null),
+                            },
+                            {
+                                id: useDeskFieldsIdsMap.role, value: get(link, ['role', 'name'], null),
+                            },
+                        ],
+                })
+        }
     }, [link, userIdentify, user])
 
     return UseDeskWidgetId ?

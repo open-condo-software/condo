@@ -74,6 +74,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
     const identityWhereStatement = {
         identityId,
         identityType: SBBOL_IDP_TYPE,
+        deletedAt: null,
     }
     const userWhereStatement = {
         type: STAFF,
