@@ -386,12 +386,14 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                                 </Col>
                                             )
                                         }
-                                        <IncidentHints
-                                            organizationId={organization.id}
-                                            propertyId={ticketPropertyId}
-                                            dateISO={ticket.createdAt}
-                                            classifier={ticket.classifier}
-                                        />
+                                        <Col span={24}>
+                                            <IncidentHints
+                                                organizationId={organization.id}
+                                                propertyId={ticketPropertyId}
+                                                dateISO={ticket.createdAt}
+                                                classifier={ticket.classifier}
+                                            />
+                                        </Col>
                                     </Row>
                                 </Col>
                                 <ActionBar>
