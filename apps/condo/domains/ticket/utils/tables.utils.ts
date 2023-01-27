@@ -1,3 +1,4 @@
+import { TicketWhereInput } from '@app/condo/schema'
 import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
 import uniq from 'lodash/uniq'
@@ -69,6 +70,28 @@ export const getPropertyScopeFilter = () => {
             }
         } catch (e) {
             console.error(e)
+        }
+    }
+}
+
+export const getClientNameFilter = () => {
+    return function getWhereQuery (search): TicketWhereInput {
+        if (isEmpty(search)) return
+
+        return {
+            OR: [
+                {
+                    AND: [
+                        {
+                            contact_is_null: true,
+                            clientName_contains_i: search,
+                        },
+                    ],
+                },
+                {
+                    contact: { name_contains_i: search },
+                },
+            ],
         }
     }
 }
