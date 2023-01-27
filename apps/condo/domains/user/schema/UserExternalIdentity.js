@@ -46,6 +46,7 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
             {
                 type: 'models.UniqueConstraint',
                 fields: ['identityId', 'identityType'],
+                condition: 'Q(deletedAt__isnull=True)',
                 name: 'userExternalIdentity_unique_identityid_and_identitytype',
             },
         ],

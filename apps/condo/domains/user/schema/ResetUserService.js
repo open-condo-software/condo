@@ -27,6 +27,7 @@ const { User } = require('@condo/domains/user/utils/serverSchema')
 
 
 const { USER_NOT_FOUND, CANNOT_RESET_ADMIN_USER } = require('../constants/errors')
+const { UserExternalIdentity } = require('../utils/serverSchema')
 
 
 const ERRORS = {
@@ -107,6 +108,16 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                 const employees = await OrganizationEmployee.getAll(context, { user: { id: user.id } })
                 for (const employee of employees) {
                     await OrganizationEmployee.softDelete(context, employee.id, { dv: 1, sender })
+                }
+
+                const accordingUserExternalIdentity = await UserExternalIdentity.getAll(context, {
+                    user: {
+                        id: user.id,
+                    },
+                })
+
+                for (const externalIdentity of accordingUserExternalIdentity) {
+                    await UserExternalIdentity.softDelete(context, externalIdentity.id, { dv: 1, sender })
                 }
 
                 return { status: 'ok' }
