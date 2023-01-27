@@ -42,6 +42,7 @@ import {
     searchOrganizationProperty,
 } from '../utils/clientSchema/search'
 import {
+    getClientNameFilter,
     getFilterAddressForSearch,
     getIsResidentContactFilter,
     getPropertyScopeFilter,
@@ -59,7 +60,7 @@ const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
 const filterAddress = getStringContainsFilter(['property', 'address'])
 const filterAddressForSearch = getFilterAddressForSearch()
-const filterClientName = getStringContainsFilter('clientName')
+const filterClientName = getClientNameFilter()
 const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
 const filterExecutorName = getStringContainsFilter(['executor', 'name'])
