@@ -8,5 +8,8 @@
   "include": [
     "bin",
     "src"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

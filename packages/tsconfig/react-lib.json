@@ -13,8 +13,5 @@
     "noUnusedParameters": true,
     "sourceMap": true,
     "target": "ES2015"
-  },
-  "include": [
-    "src"
-  ]
+  }
 }
