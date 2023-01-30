@@ -14,10 +14,14 @@ type CondoRadioProps = {
     labelProps?: TypographyTextProps
 }
 
-export type RadioProps = Pick<DefaultRadioProps, 'autoFocus' | 'defaultChecked' | 'disabled' | 'onChange' | 'checked' | 'value'>
+export type RadioProps = Pick<DefaultRadioProps, 'autoFocus' | 'defaultChecked' | 'disabled' | 'onChange' | 'checked' | 'value' | 'children'>
 & CondoRadioProps
 
-const Radio: React.FC<RadioProps> = (props) => {
+interface IRadio {
+    (props: RadioProps): React.ReactElement
+}
+
+const Radio: IRadio = (props) => {
     const { label, labelProps, disabled, onChange, children, ...rest } = props
 
     const handleChange = useCallback((event) => {
@@ -38,13 +42,11 @@ const Radio: React.FC<RadioProps> = (props) => {
             disabled={disabled}
             onChange={handleChange}
         >
-            {label && (<Typography.Text
-                size='medium'
-                disabled={disabled}
-                {...labelProps}
-            >
-                {label}
-            </Typography.Text>)}
+            {
+                label
+                    ? <Typography.Text size='medium' disabled={disabled} {...labelProps}>{label}</Typography.Text>
+                    : children
+            }
         </DefaultRadio>
     )
 }

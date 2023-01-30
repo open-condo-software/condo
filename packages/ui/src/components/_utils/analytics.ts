@@ -4,8 +4,11 @@ import React from 'react'
 
 import { version } from '@open-condo/ui/package.json'
 
-interface IAnalyticsProps<K> {
-    location: string
+type AnalyticsEvent = 'click' | 'check'
+
+type CommonAnalyticsProps<Event extends AnalyticsEvent, K> = {
+    event: Event,
+    location: string,
     component: K
 }
 
@@ -20,18 +23,12 @@ type ComponentSpecificCheckEventProps = {
     Checkbox: { value: string }
 }
 
-interface CommonAnalyticsClickProps<K> extends IAnalyticsProps<K> {
-    event: 'click'
-}
 
-interface CommonAnalyticsCheckboxProps<K> extends IAnalyticsProps<K> {
-    event: 'checkbox' | 'radio'
-}
 
-type AnalyticsClickData<K extends keyof ComponentSpecificClickEventProps> = CommonAnalyticsClickProps<K> & ComponentSpecificClickEventProps[K]
-type AnalyticsRadioData<K extends keyof ComponentSpecificCheckEventProps> = CommonAnalyticsCheckboxProps<K> & ComponentSpecificCheckEventProps[K]
+type AnalyticsClickData<K extends keyof ComponentSpecificClickEventProps> = CommonAnalyticsProps<'click', K> & ComponentSpecificClickEventProps[K]
+type AnalyticsCheckData<K extends keyof ComponentSpecificCheckEventProps> = CommonAnalyticsProps<'check', K> & ComponentSpecificCheckEventProps[K]
 
-export type AnalyticsParams = AnalyticsClickData<keyof ComponentSpecificClickEventProps> | AnalyticsRadioData<keyof ComponentSpecificCheckEventProps>
+export type AnalyticsParams = AnalyticsClickData<keyof ComponentSpecificClickEventProps> | AnalyticsCheckData<keyof ComponentSpecificCheckEventProps>
 
 const ANALYTICS_HANDLER_NAME = 'CondoWebSendAnalyticsEvent'
 
@@ -69,8 +66,8 @@ export function sendAnalyticsClickEvent<K extends keyof ComponentSpecificClickEv
 export function sendAnalyticsCheckEvent<K extends keyof ComponentSpecificCheckEventProps> (component: K, data: ComponentSpecificCheckEventProps[K]): void {
     if (typeof window !== 'undefined') {
         const location = window.location.href
-        const params: AnalyticsRadioData<K> = {
-            event: component === 'Checkbox' ? 'checkbox' : 'radio',
+        const params: AnalyticsCheckData<K> = {
+            event: 'check',
             location,
             component,
             ...data,
