@@ -1,7 +1,4 @@
-import { notification } from 'antd'
 import { useCallback } from 'react'
-
-import { useIntl } from '@open-condo/next/intl'
 
 
 type FileType = {
@@ -67,21 +64,20 @@ const tryDownloadFile = async (file: FileType) => {
 }
 
 export const useDownloadFileFromServer: UseDownloadFileFromServerType = () => {
-    const intl = useIntl()
-    const DownloadFileErrorMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketFileList.downloadFileError' })
-
     const downloadFile: DownloadFileType = useCallback(async (file: FileType) => {
         if (DIRECT_DOWNLOAD_FILE_TYPES_REGEX.test(file.name)) {
             try {
                 await tryDownloadFile(file)
             } catch (error) {
-                console.error('Failed to download file', error)
-                notification.error({ message: DownloadFileErrorMessage })
+                // NOTE: If it was not possible to automatically download the file,
+                // then open the file in a new tab
+                console.error('Failed to auto download file', error)
+                window.open(file.url, '_blank')
             }
         } else {
             window.open(file.url, '_blank')
         }
-    }, [DownloadFileErrorMessage])
+    }, [])
 
     return { downloadFile }
 }

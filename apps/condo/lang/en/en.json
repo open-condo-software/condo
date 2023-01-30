@@ -675,7 +675,6 @@
   "pages.condo.ticket.TicketChanges.autoReopenTicket.resetExecutor": "Was reset automatically executor ({executor})",
   "pages.condo.ticket.TicketChanges.autoReopenTicket.status": "Ticket status changed to {status}",
   "pages.condo.ticket.TicketChanges.fetchMore": "Show more {count}",
-  "pages.condo.ticket.TicketFileList.downloadFileError": "Failed to download file",
   "pages.condo.ticket.MobileAppInstalled": "Mob. resident app installed",
   "pages.condo.ticket.MobileAppNotInstalled": "Mob. resident app not installed",
   "pages.condo.ticket.PaymentsAvailable": "Payments are available in the resident's mobile app",
