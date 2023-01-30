@@ -1,6 +1,6 @@
 import { Radio as DefaultRadio } from 'antd'
 import classNames from 'classnames'
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 
 import { Radio, Typography, Space } from '@open-condo/ui/src'
 import type { RadioProps } from '@open-condo/ui/src'
@@ -27,9 +27,9 @@ export type RadioGroupProps = {
 const GroupWithIcon: React.FC<RadioGroupType> = ({ name, options, icon }) => {
     const [open, setOpen] = useState(false)
 
-    const onGroupClick = () => {
+    const onGroupClick = useCallback(() => {
         setOpen(!open)
-    }
+    }, [open])
 
     const rootClassName = classNames(`${RADIO_GROUP_CLASS_PREFIX}-group-container`, {
         open,
