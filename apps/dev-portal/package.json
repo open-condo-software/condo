@@ -4,6 +4,11 @@
   "installConfig": {
     "hoistingLimits": "workspaces"
   },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
   "dependencies": {
     "@open-condo/tsconfig": "workspace:^",
     "@types/react": "18.0.27",
