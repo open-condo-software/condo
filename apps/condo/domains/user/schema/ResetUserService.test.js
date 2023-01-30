@@ -16,8 +16,11 @@ const {
     registerNewUser,
     resetUserByTestClient,
     makeClientWithSupportUser,
-    UserAdmin,
+    UserAdmin, UserExternalIdentity,
 } = require('@condo/domains/user/utils/testSchema')
+
+const { SBER_ID_IDP_TYPE } = require('../constants/common')
+const { createTestUserExternalIdentity } = require('../utils/testSchema')
 
 
 describe('ResetUserService', () => {
@@ -171,5 +174,24 @@ describe('ResetUserService', () => {
 
         const canAccessObjs = await OrganizationEmployee.getAll(client)
         expect(canAccessObjs).toHaveLength(0)
+    })
+
+    test('all associated UserExternalEdentity will be removed after reset', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+
+        const [identity] = await createTestUserExternalIdentity(admin, {
+            user: { connect: { id: client.user.id } },
+            identityId: faker.random.alphaNumeric(8),
+            identityType: SBER_ID_IDP_TYPE,
+            meta: {
+                dv: 1, city: faker.address.city(), county: faker.address.county(),
+            },
+        })
+
+        await resetUserByTestClient(support, { user: { id: client.user.id } })
+
+        const foundIdentity = await UserExternalIdentity.getAll(admin, { id: identity.id })
+
+        expect(foundIdentity).toHaveLength(0)
     })
 })
