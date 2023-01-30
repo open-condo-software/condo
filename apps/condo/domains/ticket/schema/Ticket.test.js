@@ -92,15 +92,25 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 describe('Ticket', () => {
-    let admin
+    let admin, client, clientResidentWithProperty, clientWithProperty
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+        client = await makeClient()
+        clientResidentWithProperty = await makeClientWithResidentAccessAndProperty()
+        clientWithProperty = await makeClientWithProperty()
+    })
+
+    afterEach(async () => {
+        await admin.runDeferredActionsAndClean()
+        await client.runDeferredActionsAndClean()
+        await clientResidentWithProperty.runDeferredActionsAndClean()
+        await clientWithProperty.runDeferredActionsAndClean()
     })
 
     describe('CRUD', () => {
         test('user: create Ticket', async () => {
-            const client = await makeClientWithProperty()
+            const client = clientWithProperty
             const [contact] = await createTestContact(client, client.organization, client.property)
             const fields = {
                 contact: { connect: { id: contact.id } },
@@ -142,7 +152,7 @@ describe('Ticket', () => {
         })
 
         test('user with resident type without resident: cannot create Ticket', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             await createTestResident(admin, userClient.user, userClient.property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -151,7 +161,7 @@ describe('Ticket', () => {
         })
 
         test('resident: can create ticket without deadline and set default deadline', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             const unitName = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
                 unitName,
@@ -169,7 +179,7 @@ describe('Ticket', () => {
         })
 
         test('resident: can create Ticket and client info save in new ticket', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             const unitName = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
                 unitName,
@@ -189,7 +199,7 @@ describe('Ticket', () => {
         })
 
         test('user with 2 residents: can create Ticket for each resident', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const unitName1 = faker.random.alphaNumeric(5)
@@ -213,7 +223,7 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot create Ticket without unitName', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             const unitName = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
                 unitName,
@@ -225,7 +235,7 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot create Ticket in other unitName', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             const unitName1 = faker.random.alphaNumeric(5)
             const unitName2 = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
@@ -240,7 +250,7 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot create Ticket in other property', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             const [property] = await createTestProperty(admin, userClient.organization)
             const unitName = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
@@ -255,7 +265,7 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot update his Ticket details', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             const unitName = faker.random.alphaNumeric(5)
             const newDetails = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
@@ -298,7 +308,7 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot update his Ticket fields other than accessibleUpdatedFields', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             const unitName = faker.random.alphaNumeric(5)
             const unitName2 = faker.random.alphaNumeric(5)
             const newDetails = faker.random.alphaNumeric(5)
@@ -319,7 +329,7 @@ describe('Ticket', () => {
         })
 
         test('resident: can update his Ticket status to a "canceled" status', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             const unitName = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
                 unitName,
@@ -342,7 +352,7 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot update his Ticket status to a status other than "cancelled"', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             const unitName = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
                 unitName,
@@ -364,8 +374,8 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot update not his Ticket', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
-            const userClient2 = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
+            const userClient2 = clientResidentWithProperty
             const unitName = faker.random.alphaNumeric(5)
             const unitName2 = faker.random.alphaNumeric(5)
             const newDetails = faker.random.alphaNumeric(5)
@@ -389,7 +399,7 @@ describe('Ticket', () => {
         })
 
         test('resident: can read his Tickets', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             const unitName = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
                 unitName,
@@ -755,7 +765,7 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot read not his Tickets', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             const userInOtherProperty = await makeClientWithResidentAccessAndProperty()
             const userInOtherUnit = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
@@ -782,7 +792,7 @@ describe('Ticket', () => {
         })
 
         test('anonymous: create Ticket', async () => {
-            const client1 = await makeClientWithProperty()
+            const client1 = clientWithProperty
             const client = await makeClient()
             await expectToThrowAuthenticationErrorToObj(async () => {
                 await createTestTicket(client, client1.organization, client1.property)
@@ -934,7 +944,7 @@ describe('Ticket', () => {
         })
 
         test('should auto generating statusUpdatedAt when update status', async () => {
-            const userClient = await makeClientWithResidentAccessAndProperty()
+            const userClient = clientResidentWithProperty
             const [openTicket] = await createTestTicket(admin, userClient.organization, userClient.property, {
                 status: { connect: { id: STATUS_IDS.OPEN } },
             })
@@ -957,8 +967,8 @@ describe('Ticket', () => {
 
     describe('Permissions', () => {
         test('user: create Ticket', async () => {
-            const client = await makeClientWithProperty()
-            const client2 = await makeClientWithProperty()
+            const client = clientWithProperty
+            const client2 = clientWithProperty
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestTicket(client, client.organization, client2.property)
             })
@@ -966,7 +976,7 @@ describe('Ticket', () => {
 
         test('user: update Ticket', async () => {
             const client = await makeClientWithProperty()
-            const client2 = await makeClientWithProperty()
+            const client2 = clientWithProperty
             const [obj] = await createTestTicket(client, client.organization, client.property)
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestTicket(client, obj.id, { property: { connect: { id: client2.property.id } } })
@@ -1062,7 +1072,7 @@ describe('Ticket', () => {
                 role: { connect: { id: role.id } },
             })
 
-            const randomUser = await makeClientWithProperty()
+            const randomUser = clientWithProperty
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestTicket(randomUser, organizationFrom, propertyFrom)
             })
@@ -1521,7 +1531,7 @@ describe('Ticket', () => {
 
         describe('change status after resident review', () => {
             test('status changed to CLOSED after resident left GOOD review value', async () => {
-                const userClient = await makeClientWithResidentAccessAndProperty()
+                const userClient = clientResidentWithProperty
                 const unitName = faker.random.alphaNumeric(5)
                 const reviewComment = faker.random.alphaNumeric(5)
                 await createTestResident(admin, userClient.user, userClient.property, {
@@ -1545,7 +1555,7 @@ describe('Ticket', () => {
             })
 
             test('status changed to OPEN after resident return ticket to work', async () => {
-                const userClient = await makeClientWithResidentAccessAndProperty()
+                const userClient = clientResidentWithProperty
                 const unitName = faker.random.alphaNumeric(5)
                 await createTestResident(admin, userClient.user, userClient.property, {
                     unitName,
@@ -1585,7 +1595,7 @@ describe('Ticket', () => {
             })
             test('Should be changed after address of linked property changed', async () => {
                 const client = await makeClientWithProperty()
-                const client2 = await makeClientWithProperty()
+                const client2 = clientWithProperty
                 const [ticket] = await createTestTicket(client, client.organization, client.property)
                 await updateTestProperty(client, client.property.id, {
                     address: client2.property.address,
@@ -2026,7 +2036,7 @@ describe('Ticket', () => {
         describe('deferredUntil and status', () => {
             // todo (DOMA-4092) delete skip test
             test.skip('deferredUntil is null should not be with status "deferred"', async () => {
-                const client = await makeClientWithProperty()
+                const client = clientWithProperty
 
                 await expectToThrowValidationFailureError(async () => {
                     await createTestTicket(client, client.organization, client.property, {
@@ -2369,7 +2379,7 @@ describe('Ticket', () => {
 
         describe('Ticket status changed to TICKET_STATUS_IN_PROGRESS', () => {
             it('send push to resident if created Ticket with status == TICKET_STATUS_IN_PROGRESS', async () => {
-                const userClient = await makeClientWithResidentAccessAndProperty()
+                const userClient = clientResidentWithProperty
                 const unitName = faker.random.alphaNumeric(5)
                 const payload = {
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
@@ -2528,7 +2538,7 @@ describe('Ticket', () => {
 
         describe('Ticket status changed to TICKET_STATUS_RETURNED', () => {
             it('send push to resident', async () => {
-                const userClient = await makeClientWithResidentAccessAndProperty()
+                const userClient = clientResidentWithProperty
                 const unitName = faker.random.alphaNumeric(5)
                 const payload = {
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
