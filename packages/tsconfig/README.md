@@ -28,7 +28,13 @@ To use a config, simply add it to the `extends` field of your `tsconfig.json`.
 ```json
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "@open-condo/tsconfig/react-lib.json"
+  "extends": "@open-condo/tsconfig/react-lib.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }
 ```
 
@@ -36,7 +42,15 @@ To use a config, simply add it to the `extends` field of your `tsconfig.json`.
 
 ```json
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "@open-condo/tsconfig/next-app.json"
+  "schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@open-condo/tsconfig/next-app.json",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts"],
+  "exclude": ["node_modules"]
 }
 ```
+
+> Make sure to override `exclude`, `include`, `rootDir`, `outDir` and `baseUrl` properties
+> since it's calculation is relative to extendable tsconfig path
