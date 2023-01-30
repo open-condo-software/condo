@@ -23,7 +23,7 @@ const CondoWebAppResizeWindowParamsSchema = {
 const CondoWebSendAnalyticsEventParamsSchema = {
     type: 'object',
     properties: {
-        event: { type: 'string', enum: ['click'] },
+        event: { type: 'string', enum: ['click', 'check'] },
         location: { type: 'string' },
         component: { type: 'string' },
     },
