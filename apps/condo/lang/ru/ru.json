@@ -674,6 +674,7 @@
   "pages.condo.ticket.TicketChanges.autoReopenTicket.resetAssignee": "Автоматически сбросился ответственный ({assignee})",
   "pages.condo.ticket.TicketChanges.autoReopenTicket.resetExecutor": "Автоматически сбросился исполнитель ({executor})",
   "pages.condo.ticket.TicketChanges.autoReopenTicket.status": "Статус заявки стал {status}",
+  "pages.condo.ticket.TicketChanges.declineTicketByResident.status": "Отменил заявку через МП Жителя",
   "pages.condo.ticket.TicketChanges.fetchMore": "Показать ещё {count}",
   "pages.condo.ticket.MobileAppInstalled": "Моб. приложение жителя установлено",
   "pages.condo.ticket.MobileAppNotInstalled": "Моб. приложение жителя не установлено",
