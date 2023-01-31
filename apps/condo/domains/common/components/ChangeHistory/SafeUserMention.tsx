@@ -3,7 +3,7 @@ import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { Tooltip } from '../Tooltip'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 
 
 type SafeUserMentionBaseProps = {

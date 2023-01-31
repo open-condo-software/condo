@@ -5,9 +5,9 @@ import React, { ComponentProps, ReactElement, useCallback, useMemo, useState } f
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { BaseChangesType, HistoricalChange } from './HistoricalChange'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
-import { fontSizes } from '../../constants/style'
+import { BaseChangesType, HistoricalChange } from './HistoricalChange'
 
 
 type ChangeHistoryInputType<ChangesType> = {
@@ -22,6 +22,14 @@ type ChangeHistoryInputType<ChangesType> = {
 type ChangeHistoryReturnType = ReactElement | null
 
 const CHANGES_PER_CHUNK = 5
+const TEXT_BUTTON_STYLE: React.CSSProperties = {
+    fontSize: fontSizes.content,
+    padding: 0,
+    color: green[6],
+}
+const CHANGE_HISTORY_COL_STYLE: React.CSSProperties = { marginTop: '20px' }
+const CHANGE_HISTORY_VERTICAL_GUTTER: ComponentProps<typeof Row>['gutter'] = [0, 24]
+
 
 export const ChangeHistory = <ChangesType extends BaseChangesType> (props: ChangeHistoryInputType<ChangesType>): ChangeHistoryReturnType => {
     const { items, total, loading, title, useChangedFieldMessagesOf, Diff } = props
@@ -44,8 +52,8 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
     }
 
     return items.length > 0 && (
-        <Col span={24} style={{ marginTop: '20px' }}>
-            <Row gutter={[0, 24]}>
+        <Col span={24} style={CHANGE_HISTORY_COL_STYLE}>
+            <Row gutter={CHANGE_HISTORY_VERTICAL_GUTTER}>
                 <Col span={24}>
                     <Typography.Title level={4}>{title}</Typography.Title>
                 </Col>
@@ -62,11 +70,7 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
                         <Button
                             type='text'
                             onClick={handleFetchMore}
-                            style={{
-                                fontSize: fontSizes.content,
-                                padding: 0,
-                                color: green[6],
-                            }}
+                            style={TEXT_BUTTON_STYLE}
                         >
                             ↓&nbsp;{FetchMoreLabel}
                         </Button>

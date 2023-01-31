@@ -1,11 +1,11 @@
 import { Maybe } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
-import React, { ReactElement, useMemo } from 'react'
+import React, { ComponentProps, ReactElement, useMemo } from 'react'
 
 import { Typography } from '@open-condo/ui'
 
-import { useLayoutContext } from '../LayoutContext'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 
 export type BaseChangesType = {
@@ -26,6 +26,8 @@ type HistoricalChangeInputType<ChangesType> = {
 
 type HistoricalChangeReturnType = ReactElement
 
+const HISTORICAL_CHANGE_GUTTER: ComponentProps<typeof Row>['gutter'] = [12, 12]
+
 export const HistoricalChange = <ChangesType extends BaseChangesType> (props: HistoricalChangeInputType<ChangesType>): HistoricalChangeReturnType => {
     const { changesValue, useChangedFieldMessagesOf, Diff } = props
 
@@ -36,7 +38,7 @@ export const HistoricalChange = <ChangesType extends BaseChangesType> (props: Hi
     const formattedTime = useMemo(() => dayjs(changesValue.createdAt).format('HH:mm'), [changesValue.createdAt])
 
     return (
-        <Row gutter={[12, 12]}>
+        <Row gutter={HISTORICAL_CHANGE_GUTTER}>
             <Col xs={24} lg={6}>
                 <Typography.Text disabled={isSmall}>
                     {formattedDate}
