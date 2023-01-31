@@ -533,8 +533,6 @@ const parseCardDataFromQuery = (stringCard) => {
     try {
         return JSON.parse(stringCard)
     } catch (e) {
-        console.error(e)
-
         return {}
     }
 }
@@ -661,7 +659,7 @@ const ClientCardPageContent = ({
     const handleAddAddressClick = useCallback(() => handleTabChange(ADD_ADDRESS_TAB_KEY), [handleTabChange])
 
     const renderedCards = useMemo(() => {
-        const addAddressTab = canManageContacts && <AddAddressCard onClick={handleAddAddressClick}/>
+        const addAddressTab = canManageContacts && <AddAddressCard key='addAddress' onClick={handleAddAddressClick}/>
         const addressTabs = tabsData.map(({ type, property, unitName, unitType, isEmployee }, index) => {
             const key = getClientCardTabKey(get(property, 'id', null), type, unitName, unitType)
             const isActive = activeTab && activeTab === key
