@@ -1,6 +1,7 @@
 const { isNil } = require('lodash')
 const { generators } = require('openid-client')
 
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { getOnBoardingStatus } = require('@condo/domains/organization/integrations/sbbol/sync/getOnBoadringStatus')
@@ -18,9 +19,9 @@ const {
     User,
 } = require('@condo/domains/user/utils/serverSchema')
 
-
 // init constants
 const integration = new SberIdIdentityIntegration()
+const logger = getLogger('sberid/routes')
 
 class SberIdRoutes {
     async startAuth (req, res, next) {
@@ -46,6 +47,7 @@ class SberIdRoutes {
     }
 
     async completeAuth (req, res, next) {
+        const reqId = req.id
         try {
             const { keystone: context } = await getSchemaCtx('User')
             const redirectUrl = getRedirectUrl(req)
@@ -55,13 +57,24 @@ class SberIdRoutes {
             validateState(req)
 
             // getting tokenSet from user external provider
-            const tokenSet = await integration.issueExternalIdentityToken(req.query.code, redirectUrl)
+            let tokenSet, userInfo
+            try {
+                tokenSet = await integration.issueExternalIdentityToken(req.query.code, redirectUrl)
+            } catch (err) {
+                logger.error({ msg: 'SberId completeAuth error', err, reqId })
+                throw err
+            }
 
             // validate nonce
             validateNonce(req, tokenSet)
 
             // getting user info
-            const userInfo = await integration.getUserInfo(tokenSet)
+            try {
+                userInfo = await integration.getUserInfo(tokenSet)
+            } catch (err) {
+                logger.error({ msg: 'SberId completeAuth error', err, reqId })
+                throw err
+            }
 
             // getting current user
             // for linking checks case (user.phone != sberId.phoneNumber)
@@ -77,6 +90,7 @@ class SberIdRoutes {
             // authorize user
             return await this.authorizeUser(req, res, context, id)
         } catch (error) {
+            logger.error({ msg: 'SberId auth-callback error', err: error, reqId })
             return next(error)
         }
     }
