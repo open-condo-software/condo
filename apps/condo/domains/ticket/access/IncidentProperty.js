@@ -11,7 +11,7 @@ const { getById, getByCondition } = require('@open-condo/keystone/schema')
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
-} = require('../../organization/utils/accessSchema')
+} = require('@condo/domains/organization/utils/accessSchema')
 
 
 async function canReadIncidentProperties ({ authentication: { item: user } }) {

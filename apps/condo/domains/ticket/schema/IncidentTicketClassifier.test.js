@@ -10,14 +10,13 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { createTestIncident, IncidentTicketClassifier, createTestIncidentTicketClassifier, updateTestIncidentTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
-} = require('../../organization/utils/testSchema')
+} = require('@condo/domains/organization/utils/testSchema')
+const { createTestIncident, IncidentTicketClassifier, createTestIncidentTicketClassifier, updateTestIncidentTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 
 const DELETED_PAYLOAD = { deletedAt: 'true' }

@@ -11,15 +11,15 @@ const { GQLListSchema, getById, find } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { getTranslations } = require('@open-condo/locales/loader')
 
-const access = require('@condo/domains/ticket/access/IncidentChange')
-
-const { Incident } = require('./Incident')
-
 const {
     generateChangeTrackableFieldsFrom,
     buildSetOfFieldsToTrackFrom,
-} = require('../../common/utils/serverSchema/changeTrackable')
-const { RESIDENT } = require('../../user/constants/common')
+} = require('@condo/domains/common/utils/serverSchema/changeTrackable')
+const access = require('@condo/domains/ticket/access/IncidentChange')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
+
+const { Incident } = require('./Incident')
+
 const { OMIT_INCIDENT_CHANGE_TRACKABLE_FIELDS } = require('../constants')
 const {
     incidentChangeDisplayNameResolversForSingleRelations,

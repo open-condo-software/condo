@@ -15,7 +15,7 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'incident.form.save.label' })
 
-    const { handleSave, isLoading, form } = props
+    const { handleSave, isLoading } = props
 
     return (
         <ActionBar>
