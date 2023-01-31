@@ -6,12 +6,12 @@ import React, { ComponentProps, useCallback, useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { Incident, IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
-import ActionBar from '../../../common/components/ActionBar'
-import LoadingOrErrorPage from '../../../common/components/containers/LoadingOrErrorPage'
 
 
 export interface IUpdateIncidentForm {
@@ -23,7 +23,7 @@ export const UpdateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
     const intl = useIntl()
     const UpdateLabel = intl.formatMessage({ id: 'incident.form.save.label' })
 
-    const { handleSave, isLoading, form } = props
+    const { handleSave, isLoading } = props
 
     return (
         <ActionBar>

@@ -7,9 +7,9 @@ import React, { ComponentProps } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
+import { SafeUserMention } from '@condo/domains/common/components/ChangeHistory/SafeUserMention'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 
-import { SafeUserMention } from '../../common/components/ChangeHistory/SafeUserMention'
-import { Tooltip } from '../../common/components/Tooltip'
 import { INCIDENT_STATUS_COLORS } from '../constants/incident'
 import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '../constants/restrictions'
 

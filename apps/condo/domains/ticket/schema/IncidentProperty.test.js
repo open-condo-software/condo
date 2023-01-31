@@ -11,15 +11,15 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { IncidentProperty, createTestIncidentProperty, updateTestIncidentProperty, createTestIncident } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
-} = require('../../organization/utils/testSchema')
-const { createTestProperty } = require('../../property/utils/testSchema')
+} = require('@condo/domains/organization/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { IncidentProperty, createTestIncidentProperty, updateTestIncidentProperty, createTestIncident } = require('@condo/domains/ticket/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+
 const { INCIDENT_PROPERTY_ERRORS } = require('../constants/errors')
 
 
