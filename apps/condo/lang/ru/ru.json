@@ -1695,7 +1695,7 @@
   "incident.fields.classifier.label": "Классификатор",
   "incident.fields.classifier.empty": "—",
   "incident.fields.placeClassifier.label": "Место",
-  "incident.fields.categoryClassifier.label": "Катеогия",
+  "incident.fields.categoryClassifier.label": "Категория",
   "incident.fields.problemClassifier.label": "Проблема",
   "incident.fields.placeClassifier.placeholder": "Выберите место",
   "incident.fields.categoryClassifier.placeholder": "Выберите катеорию",
