@@ -5,11 +5,12 @@ import {
     IncidentCreateInput as IIncidentCreateInput,
     IncidentUpdateInput as IIncidentUpdateInput,
     QueryAllIncidentsArgs as IQueryAllIncidentsArgs,
-    TicketClassifier as ITicketClassifier,
+    TicketClassifier as ITicketClassifier, IncidentStatusType,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Form, Row, Typography } from 'antd'
 import { FormProps } from 'antd/lib/form/Form'
+import { ColProps } from 'antd/lib/grid/col'
 import dayjs from 'dayjs'
 import { difference } from 'lodash'
 import get from 'lodash/get'
@@ -73,6 +74,8 @@ export type BaseIncidentFormProps = {
     showOrganization?: boolean
 }
 
+type Gutters = ComponentProps<typeof Row>['gutter']
+
 type FormLayoutProps = Pick<FormProps, 'labelCol' | 'wrapperCol' | 'layout' | 'labelAlign'>
 
 type ClassifiersProps = {
@@ -91,6 +94,11 @@ export const FORM_LAYOUT_PROPS: FormLayoutProps = {
     },
     layout: 'horizontal',
     labelAlign: 'left',
+}
+
+export const FORM_ITEM_WRAPPER_COL: ColProps = {
+    lg: 8,
+    xl: 7,
 }
 
 export const TextArea = styled(Input.TextArea)`
@@ -123,6 +131,8 @@ type FilterAvailableItemsType = (props: {
 
 const convertToSelectOptions: (items: Options[]) => OptionType[] = (items) => items.map(item => ({ label: item.name, value: item.id }))
 const withoutEmpty: (items: OptionType[]) => OptionType[] = (items) => items.filter(item => item.value)
+
+const DISPLAY_NONE_STYLE: React.CSSProperties = { display: 'none' }
 
 export const Classifiers: React.FC<ClassifiersProps> = (props) => {
     const intl = useIntl()
@@ -232,14 +242,11 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
     return (
         <>
             <Col span={24}>
-                <Form.Item name='allClassifiers' style={{ display: 'none' }} />
+                <Form.Item name='allClassifiers' style={DISPLAY_NONE_STYLE} />
                 <Form.Item
                     label={PlaceClassifierLabel}
                     required
-                    wrapperCol={{
-                        lg: 8,
-                        xl: 7,
-                    }}
+                    wrapperCol={FORM_ITEM_WRAPPER_COL}
                     name='placeClassifier'
                     rules={rules}
                 >
@@ -258,10 +265,7 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
                 <Form.Item
                     label={CategoryClassifierLabel}
                     required
-                    wrapperCol={{
-                        lg: 8,
-                        xl: 7,
-                    }}
+                    wrapperCol={FORM_ITEM_WRAPPER_COL}
                     name='categoryClassifiers'
                     rules={rules}
                 >
@@ -287,10 +291,7 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
             <Col span={24}>
                 <Form.Item
                     label={ProblemClassifierLabel}
-                    wrapperCol={{
-                        lg: 8,
-                        xl: 7,
-                    }}
+                    wrapperCol={FORM_ITEM_WRAPPER_COL}
                     name='problemClassifiers'
                 >
                     <Select<OptionType>
@@ -316,7 +317,12 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
     )
 }
 
+
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
+const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00', 'HH:mm:ss') }
+const CHECKBOXES_GUTTER: Gutters = [24, 0]
+const VERTICAL_GUTTER: Gutters = [0, 40]
+const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
 
 export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const intl = useIntl()
@@ -361,13 +367,11 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const initialIncidentOrganization = useMemo(() => get(initialValues, 'organization.name'), [initialValues])
     const initialIncidentProperties = useMemo(() => get(initialValues, 'incidentProperties', []), [initialValues]) as IIncidentProperty[]
     const initialIncidentClassifiers = useMemo(() => get(initialValues, 'incidentClassifiers', []), [initialValues]) as IIncidentTicketClassifier[]
-    console.log(initialIncidentProperties, initialIncidentClassifiers)
 
     const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => item.property.id), [initialIncidentProperties])
     const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => item.classifier.id), [initialIncidentClassifiers])
 
     const handleFormSubmit = useCallback(async (values) => {
-        console.log(values)
         const { properties, allClassifiers, placeClassifier, categoryClassifiers, problemClassifiers, ...incidentValues } = values
 
         const incident = await createOrUpdateIncident(incidentValues)
@@ -441,7 +445,6 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         properties: initialPropertyIds,
         classifiers: initialIncidentClassifiers,
     }), [initialIncidentClassifiers, initialPropertyIds, initialValues])
-    console.log({ initialFormValues, propertySelectProps })
 
     const commonRules = useMemo(() => [requiredValidator], [requiredValidator])
     const detailsRules = useMemo(() => [{
@@ -452,7 +455,18 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     }], [DetailsErrorMessage])
 
     const initialWorkFinish = useMemo(() => get(initialValues, 'workFinish'), [initialValues])
-    const showNotActualWorkFinishAlert = !isEmpty(initialValues) && initialWorkFinish && dayjs(initialWorkFinish).diff(dayjs()) < 0
+    const status = useMemo(() => get(initialValues, 'status'), [initialValues])
+    const showNotActualWorkFinishAlert = !isEmpty(initialValues)
+        && !isEmpty(status)
+        && status === IncidentStatusType.Actual
+        && initialWorkFinish
+        && dayjs(initialWorkFinish).diff(dayjs()) < 0
+
+    const disabledDate = useCallback((form, fieldName) => (currentDate) => {
+        const value = form.getFieldValue(fieldName)
+        if (!value) return false
+        return dayjs(value).diff(currentDate) <= 0
+    }, [])
 
     if (loading) {
         return (
@@ -461,7 +475,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     }
 
     return (
-        <Row gutter={[0, 40]}>
+        <Row gutter={VERTICAL_GUTTER}>
             <Col span={24} lg={24} xl={22}>
                 <FormWithAction
                     initialValues={initialFormValues}
@@ -470,14 +484,14 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                     scrollToFirstError={SCROLL_TO_FIRST_ERROR_CONFIG}
                     {...FORM_LAYOUT_PROPS}
                     children={({ handleSave, isLoading, form }) => (
-                        <Row gutter={[0, 40]}>
+                        <Row gutter={VERTICAL_GUTTER}>
                             { showNotActualWorkFinishAlert && (
                                 <Col span={24} lg={20} xl={16}>
-                                    {/*todo(alllex202) add icons for alerts in ui kit*/}
                                     <Alert
                                         type='warning'
                                         message={NotActualWorkFinishAlertTitle}
                                         description={NotActualWorkFinishAlertMessage}
+                                        showIcon
                                     />
                                 </Col>
                             )}
@@ -508,21 +522,14 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                     label={WorkStartLabel}
                                     name='workStart'
                                     required
-                                    wrapperCol={{
-                                        lg: 8,
-                                        xl: 7,
-                                    }}
+                                    wrapperCol={FORM_ITEM_WRAPPER_COL}
                                     rules={commonRules}
                                 >
                                     <DatePicker
-                                        style={{ width: '100%' }}
+                                        style={FULL_WIDTH_STYLE}
                                         format='DD MMMM YYYY HH:mm'
-                                        disabledDate={(currentDate) => {
-                                            const workFinish = form.getFieldValue('workFinish')
-                                            if (!workFinish) return false
-                                            return dayjs(workFinish).diff(currentDate) <= 0
-                                        }}
-                                        showTime
+                                        disabledDate={disabledDate(form, 'workFinish')}
+                                        showTime={SHOW_TIME_CONFIG}
                                     />
                                 </Form.Item>
                             </Col>
@@ -530,20 +537,13 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                 <Form.Item
                                     label={WorkFinishLabel}
                                     name='workFinish'
-                                    wrapperCol={{
-                                        lg: 8,
-                                        xl: 7,
-                                    }}
+                                    wrapperCol={FORM_ITEM_WRAPPER_COL}
                                 >
                                     <DatePicker
-                                        style={{ width: '100%' }}
+                                        style={FULL_WIDTH_STYLE}
                                         format='DD MMMM YYYY HH:mm'
-                                        disabledDate={(currentDate) => {
-                                            const workStart = form.getFieldValue('workStart')
-                                            if (!workStart) return false
-                                            return dayjs(workStart).diff(currentDate) >= 0
-                                        }}
-                                        showTime
+                                        disabledDate={disabledDate(form, 'workStart')}
+                                        showTime={SHOW_TIME_CONFIG}
                                     />
                                 </Form.Item>
                             </Col>
@@ -558,7 +558,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                         <Label>{WorkTypeLabel}</Label>
                                     </Col>
                                     <Col>
-                                        <Row gutter={[24, 0]} align='middle'>
+                                        <Row gutter={CHECKBOXES_GUTTER} align='middle'>
                                             <Col>
                                                 <CheckboxFormItem
                                                     name='isEmergency'
