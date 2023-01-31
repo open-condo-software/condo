@@ -19,6 +19,7 @@ import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
 import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
+import { RESIDENT } from '@condo/domains/user/constants/common'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -85,6 +86,10 @@ const getAddressChangePostfix = (sectionName, sectionType, floorName, unitName, 
     return addressChangePostfix
 }
 
+const isDeclinedByResident = (ticketChange) =>
+    get(ticketChange, 'createdBy.type') === RESIDENT
+    && ticketChange['statusIdTo'] === STATUS_IDS.DECLINED
+
 const isAutoReopenTicketChanges = (ticketChange) =>
     isNull(ticketChange.createdBy)
     && ticketChange['statusIdTo'] === STATUS_IDS.OPEN
@@ -143,6 +148,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const DeferredUntilMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deferredUntil' })
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.source' })
     const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident' })
+    const DeclineTicketByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.declineTicketByResident.status' }).toLowerCase()
 
     const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
@@ -409,6 +415,28 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
     if (isAutoReopenTicketChanges(ticketChange)) {
         return getAutoReopenTicketChanges(ticketChange)
+    }
+
+    if (isDeclinedByResident(ticketChange)) {
+        const fields = [
+            ['statusDisplayName'],
+        ]
+
+        const changedFields = fields.filter(([field]) => (
+            ticketChange[`${field}From`] !== null || ticketChange[`${field}To`] !== null
+        ))
+
+        return changedFields
+            .map(([field]) => ({
+                field,
+                message: (
+                    <>
+                        <SafeUserMention ticketChange={ticketChange}/>
+                        &nbsp;
+                        {DeclineTicketByResidentMessage}
+                    </>
+                ),
+            }))
     }
 
     // If we have several changed fields in one changedField object and should display one message.
