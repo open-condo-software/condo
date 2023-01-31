@@ -1,8 +1,12 @@
 import Head from 'next/head'
+import { useIntl } from 'react-intl'
 
 import type { ReactNode } from 'react'
 
 export default function IndexPage (): ReactNode {
+    const intl = useIntl()
+    const HelloMessage = intl.formatMessage({ id: 'hello' })
+
     return (
         <>
             <Head>
@@ -11,7 +15,7 @@ export default function IndexPage (): ReactNode {
                 <meta name='viewport' content='width=device-width, initial-scale=1' />
             </Head>
             <main>
-                Hello, world!
+                {HelloMessage}
             </main>
         </>
     )
