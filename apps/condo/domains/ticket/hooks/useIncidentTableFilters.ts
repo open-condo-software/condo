@@ -1,15 +1,16 @@
+import { IncidentWhereInput } from '@app/condo/schema'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { IncidentWhereInput } from '../../../schema'
-import { ComponentType, FiltersMeta } from '../../common/utils/filters.utils'
+import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import {
     getDayRangeFilter,
     getFilter,
     getNumberFilter,
     getStringContainsFilter,
-} from '../../common/utils/tables.utils'
+} from '@condo/domains/common/utils/tables.utils'
+
 import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '../constants/incident'
 import { getIncidentAttributesFilter } from '../utils/tables.utils'
 

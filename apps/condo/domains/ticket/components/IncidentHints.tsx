@@ -40,6 +40,8 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
 
     const { propertyId, dateISO, classifier, organizationId, onlyActual = false } = props
 
+    // Logic:
+    //
     // 1 - search IncidentProperties by propertyId
     //
     // 2 - search Incidents by IncidentProperties and date
