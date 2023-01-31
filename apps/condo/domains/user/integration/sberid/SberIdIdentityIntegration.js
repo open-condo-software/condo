@@ -3,11 +3,14 @@ const axios = require('axios').default
 // eslint-disable-next-line import/order
 const https = require('https')
 const jwtDecode = require('jwt-decode')
-const { isNil } = require('lodash')
+const { capitalize, isNil } = require('lodash')
 const { customAlphabet } = require('nanoid')
 
 
 const conf = require('@open-condo/config')
+
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 // get sber id configuration params
 const SBER_ID_CONFIG = process.env.SBER_ID_CONFIG ? JSON.parse(process.env.SBER_ID_CONFIG) : {}
@@ -73,7 +76,7 @@ class SberIdIdentityIntegration {
             timeout: axiosTimeout,
             headers: {
                 'x-ibm-client-id': clientId,
-                'rquid': this.generateRequestId(),
+                'rquid': nanoid(),
             },
             validateStatus: () => true,
             httpsAgent,
@@ -108,7 +111,7 @@ class SberIdIdentityIntegration {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'x-ibm-client-id': clientId,
-                'x-introspect-rquid': this.generateRequestId(),
+                'x-introspect-rquid': nanoid(),
             },
             validateStatus: () => true,
             httpsAgent,
@@ -131,10 +134,10 @@ class SberIdIdentityIntegration {
         return {
             id: sub,
             issuer: iss,
-            email: this.cleanString(email),
-            phoneNumber: this.cleanPhone(phoneNumber),
-            familyName: this.cleanName(familyName),
-            givenName: this.cleanName(givenName),
+            email: normalizeEmail(email),
+            phoneNumber: normalizePhone(phoneNumber),
+            familyName: this.capitalizeName(familyName),
+            givenName: this.capitalizeName(givenName),
         }
     }
 
@@ -143,28 +146,14 @@ class SberIdIdentityIntegration {
         return decodedToken.sub
     }
 
-    generateRequestId () {
-        return nanoid()
-    }
-
-    cleanString (value) {
-        return !isNil(value) ? value.toLowerCase() : null
-    }
-
-    cleanPhone (value) {
-        return !isNil(value)
-            ? value.replaceAll(' ', '').replaceAll('(', '').replaceAll(')', '')
-            : null
-    }
-
-    cleanName (value) {
+    capitalizeName (value) {
         if (isNil(value)) {
             return value
         } else {
-            return value.split(' ').map(part => {
-                const capitalized = part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-                return capitalized
-            }).join(' ')
+            return value.replace(/\s+/g, ' ') // get rid of space sequences - replace them with single space
+                .split(' ') // split name part into separate words (DE, SANTOS)
+                .map(capitalize) // capitalize names: DE -> De, SANTOS -> Santos
+                .join(' ') // join them into single capitalized name without extra spaces
         }
     }
 }
