@@ -1,18 +1,20 @@
 import { Incident as IIncident, IncidentStatusType } from '@app/condo/schema'
-import { Col, Form, Row } from 'antd'
+import { Col, ColProps, Form, Row } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import isFunction from 'lodash/isFunction'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Typography } from '@open-condo/ui'
 
+import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { Incident } from '@condo/domains/ticket/utils/clientSchema'
-
-import DatePicker from '../../common/components/Pickers/DatePicker'
 
 
 const DATE_PICKER_STYLE: React.CSSProperties = { width: '100%' }
+const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00', 'HH:mm:ss') }
+const ITEM_LABEL_COL: ColProps = { span: 24 }
+const MODAL_GUTTER: ComponentProps<typeof Row>['gutter'] = [0, 16]
 
 type UseIncidentUpdateStatusModalType = (props: {
     incident: IIncident
@@ -43,18 +45,20 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
 
     const handleOpen = useCallback(() => {
         setOpen(true)
-        setDate(incident.workFinish ? dayjs(incident.workFinish) : dayjs())
-    }, [incident.workFinish])
+        const beforeWorkStart = incident.workStart && dayjs().diff(incident.workStart) < 0
+        const date = incident.workFinish
+            ? dayjs(incident.workFinish)
+            : beforeWorkStart
+                ? dayjs(incident.workStart).add(1, 'minute') // NOTE: work finish must be later than work start
+                : dayjs()
+        setDate(date)
+    }, [incident.workFinish, incident.workStart])
 
     const handleClose = useCallback(() => {
         setOpen(false)
     }, [])
 
     const handleUpdate = useCallback(async () => {
-        console.log({
-            finish: date?.toISOString() || null,
-            start: incident.workStart,
-        })
         setIsLoading(true)
         try {
             await update({
@@ -107,7 +111,7 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                     />
                 )}
             >
-                <Row gutter={[0, 16]}>
+                <Row gutter={MODAL_GUTTER}>
                     <Col span={24}>
                         <Typography.Text type='secondary'>
                             {descriptionText}
@@ -116,16 +120,16 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                     <Col span={24}>
                         <Form.Item
                             label={WorkFinishFieldMessage}
-                            labelCol={{ span: 24 }}
+                            labelCol={ITEM_LABEL_COL}
                         >
                             <DatePicker
                                 value={date}
                                 onChange={setDate}
-                                showTime
+                                showTime={SHOW_TIME_CONFIG}
                                 format='DD.MM.YYYY HH:mm'
                                 disabledDate={handleDisabledDate}
                                 style={DATE_PICKER_STYLE}
-                                allowClear={!isActual}
+                                allowClear
                                 disabled={isLoading}
                             />
                         </Form.Item>
