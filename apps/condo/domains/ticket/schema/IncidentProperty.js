@@ -8,9 +8,9 @@ const { GQLError } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
 
+const { ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/IncidentProperty')
 
-const { ADDRESS_META_FIELD } = require('../../common/schema/fields')
 const { INCIDENT_PROPERTY_ERRORS } = require('../constants/errors')
 
 
