@@ -19,6 +19,12 @@ const {
     User,
 } = require('@condo/domains/user/utils/serverSchema')
 
+// get sber id configuration params
+const SBER_ID_CONFIG = process.env.SBER_ID_CONFIG ? JSON.parse(process.env.SBER_ID_CONFIG) : {}
+const {
+    residentRedirectUri,
+} = SBER_ID_CONFIG
+
 // init constants
 const integration = new SberIdIdentityIntegration()
 const logger = getLogger('sberid/routes')
@@ -114,7 +120,7 @@ class SberIdRoutes {
         // redirect
         if (isNil(redirectUrl) && RESIDENT === user.type) {
             // resident entry page
-            return res.redirect('https://doma.ai/app_landing')
+            return res.redirect(residentRedirectUri)
         } else if (isNil(redirectUrl)) {
             // staff entry page
             return res.redirect(finished ? '/' : '/onboarding')
