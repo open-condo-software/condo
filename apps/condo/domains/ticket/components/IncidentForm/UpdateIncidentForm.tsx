@@ -100,7 +100,6 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
     const loading = incidentLoading || incidentPropertyLoading || incidentClassifiersLoading
 
     if (loading && !incident) {
-
         return (
             <LoadingOrErrorPage
                 title={PageTitle}

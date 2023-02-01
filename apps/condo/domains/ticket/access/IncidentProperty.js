@@ -27,7 +27,6 @@ async function canReadIncidentProperties ({ authentication: { item: user } }) {
                     queryOrganizationEmployeeFor(user.id),
                     queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
                 ],
-                deletedAt: null,
             },
         },
     }
