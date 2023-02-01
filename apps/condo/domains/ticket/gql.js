@@ -225,6 +225,9 @@ const EXPORT_INCIDENTS_TO_EXCEL_QUERY = gql`
     }
 `
 
+const INCIDENT_CLASSIFIER_FIELDS = `{ organization { id name } category { id name } problem { id name } ${COMMON_FIELDS} }`
+const IncidentClassifier = generateGqlQueries('IncidentClassifier', INCIDENT_CLASSIFIER_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -257,5 +260,6 @@ module.exports = {
     INCIDENT_CHANGE_DATA_FIELDS,
     IncidentChange,
     EXPORT_INCIDENTS_TO_EXCEL_QUERY,
+    IncidentClassifier,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
