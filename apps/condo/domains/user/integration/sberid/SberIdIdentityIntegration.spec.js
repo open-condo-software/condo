@@ -21,7 +21,7 @@ describe('SberIdIdentityIntegration', () => {
     it('Generate login form params using redirectUrl', async () => {
         const nonce = 'nonce'
         const state = 'state'
-        const redirectUrl = 'ai.doma.client.service://auth/sberid'
+        const redirectUrl = 'https://example.com/callback'
         const url = await integration.generateLoginFormParams({ nonce, state }, redirectUrl)
 
         expect(url.searchParams.get('nonce')).toEqual(nonce)
