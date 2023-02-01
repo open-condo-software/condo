@@ -1309,6 +1309,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/telephony-integration@workspace:apps/telephony-integration":
+  version: 0.0.0-use.local
+  resolution: "@app/telephony-integration@workspace:apps/telephony-integration"
+  dependencies:
+    concurrently: ^7.6.0
+    dotenv: ^16.0.3
+    express: ^4.18.2
+    jsonwebtoken: ^9.0.0
+    socket.io: ^4.5.4
+    uuid: ^9.0.0
+    yana: ^1.2.3
+  languageName: unknown
+  linkType: soft
+
 "@app/telephony@workspace:apps/telephony":
   version: 0.0.0-use.local
   resolution: "@app/telephony@workspace:apps/telephony"
@@ -41860,20 +41874,6 @@ __metadata:
   checksum: 7411a5e78a35720bd0654a544409d3ce467b1dbb2073c73f36476b4c0905d97dbf539d6cbae737bb1fd8c872c2058f2a5450163a15117ed3fa031b2a2b8b33f6
   languageName: node
   linkType: hard
-
-"telephony@workspace:apps/telephony-integration":
-  version: 0.0.0-use.local
-  resolution: "telephony@workspace:apps/telephony-integration"
-  dependencies:
-    concurrently: ^7.6.0
-    dotenv: ^16.0.3
-    express: ^4.18.2
-    jsonwebtoken: ^9.0.0
-    socket.io: ^4.5.4
-    uuid: ^9.0.0
-    yana: ^1.2.3
-  languageName: unknown
-  linkType: soft
 
 "temp-dir@npm:^1.0.0":
   version: 1.0.0
