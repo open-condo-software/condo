@@ -120,7 +120,7 @@ class SberIdRoutes {
         // redirect
         if (isNil(redirectUrl) && RESIDENT === user.type) {
             // resident entry page
-            return res.redirect(residentRedirectUri)
+            return res.redirect(residentRedirectUri || '/')
         } else if (isNil(redirectUrl)) {
             // staff entry page
             return res.redirect(finished ? '/' : '/onboarding')
