@@ -35952,6 +35952,7 @@ export type OrganizationEmployeeRole = {
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageIncidents?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -35994,6 +35995,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageIncidents?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -36042,6 +36044,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageIncidents?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -36084,6 +36087,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageIncidents?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -36131,6 +36135,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageIncidents?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -36254,6 +36259,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageBankContractorAccounts_not?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions_not?: Maybe<Scalars['Boolean']>;
+  canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canManageIncidents_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -36368,6 +36375,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageIncidents?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -36468,6 +36476,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageBankContractorAccounts_not?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions_not?: Maybe<Scalars['Boolean']>;
+  canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canManageIncidents_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -53556,6 +53566,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageBankContractorAccountsDesc = 'canManageBankContractorAccounts_DESC',
   CanManageBankTransactionsAsc = 'canManageBankTransactions_ASC',
   CanManageBankTransactionsDesc = 'canManageBankTransactions_DESC',
+  CanManageIncidentsAsc = 'canManageIncidents_ASC',
+  CanManageIncidentsDesc = 'canManageIncidents_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -53627,6 +53639,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageBankContractorAccountsDesc = 'canManageBankContractorAccounts_DESC',
   CanManageBankTransactionsAsc = 'canManageBankTransactions_ASC',
   CanManageBankTransactionsDesc = 'canManageBankTransactions_DESC',
+  CanManageIncidentsAsc = 'canManageIncidents_ASC',
+  CanManageIncidentsDesc = 'canManageIncidents_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
