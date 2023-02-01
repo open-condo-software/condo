@@ -3976,6 +3976,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
+  canManageIncidents: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4100,6 +4101,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageBankContractorAccounts_not: Boolean
   canManageBankTransactions: Boolean
   canManageBankTransactions_not: Boolean
+  canManageIncidents: Boolean
+  canManageIncidents_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4223,6 +4226,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageBankContractorAccounts_DESC
   canManageBankTransactions_ASC
   canManageBankTransactions_DESC
+  canManageIncidents_ASC
+  canManageIncidents_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4268,6 +4273,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
+  canManageIncidents: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4314,6 +4320,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
+  canManageIncidents: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4389,6 +4396,7 @@ type OrganizationEmployeeRole {
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
+  canManageIncidents: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4501,6 +4509,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageBankContractorAccounts_not: Boolean
   canManageBankTransactions: Boolean
   canManageBankTransactions_not: Boolean
+  canManageIncidents: Boolean
+  canManageIncidents_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4606,6 +4616,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageBankContractorAccounts_DESC
   canManageBankTransactions_ASC
   canManageBankTransactions_DESC
+  canManageIncidents_ASC
+  canManageIncidents_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4650,6 +4662,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
+  canManageIncidents: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4692,6 +4705,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
+  canManageIncidents: Boolean
   v: Int
   createdAt: String
   updatedAt: String
