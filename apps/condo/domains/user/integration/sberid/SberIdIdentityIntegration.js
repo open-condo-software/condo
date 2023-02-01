@@ -105,6 +105,8 @@ class SberIdIdentityIntegration {
     }
 
     async getUserInfo ({ accessToken }) {
+        if (!accessToken) throw new Error('call getUserInfo without required accessToken')
+
         // send a request
         const response = await axios.create({
             timeout: axiosTimeout,
@@ -150,7 +152,8 @@ class SberIdIdentityIntegration {
         if (isNil(value)) {
             return value
         } else {
-            return value.replace(/\s+/g, ' ') // get rid of space sequences - replace them with single space
+            return value.trim()
+                .replace(/\s+/g, ' ') // get rid of space sequences - replace them with single space
                 .split(' ') // split name part into separate words (DE, SANTOS)
                 .map(capitalize) // capitalize names: DE -> De, SANTOS -> Santos
                 .join(' ') // join them into single capitalized name without extra spaces

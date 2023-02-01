@@ -16,11 +16,12 @@ function getUserType (req) {
     const userTypeQP = get(req, 'query.userType')
     const userTypeSessionParam = getSessionParam(req, 'userType')
     if (!isNil(userTypeQP)) {
-        if (!USER_TYPES.includes(userTypeQP)) throw new Error('userType is incorrect')
         userType = userTypeQP
     } else if (!isNil(userTypeSessionParam)) {
         userType = userTypeSessionParam
     }
+
+    if (!USER_TYPES.includes(userType)) throw new Error('userType is incorrect')
 
     return userType
 }
