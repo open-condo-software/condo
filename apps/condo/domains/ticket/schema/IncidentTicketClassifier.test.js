@@ -46,7 +46,9 @@ describe('IncidentTicketClassifier', () => {
         const [testOrganization] = await createTestOrganization(admin)
         organization = testOrganization
 
-        const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canManageIncidents: true,
+        })
 
         await createTestOrganizationEmployee(admin, organization, employeeUser.user, role)
 

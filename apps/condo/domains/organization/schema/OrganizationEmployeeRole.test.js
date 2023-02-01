@@ -42,6 +42,7 @@ describe('OrganizationEmployeeRole', () => {
             expect(obj.canManageBankContractorAccounts).toBeFalsy()
             expect(obj.canManageBankIntegrationContexts).toBeFalsy()
             expect(obj.canManageBankTransactions).toBeFalsy()
+            expect(obj.canManageIncidents).toBeFalsy()
             expect(obj.nameNonLocalized).toEqual(obj.name)
             expect(obj.descriptionNonLocalized).toEqual(obj.description)
             expect(obj.ticketVisibilityType).toEqual(ORGANIZATION_TICKET_VISIBILITY)
