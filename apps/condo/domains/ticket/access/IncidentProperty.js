@@ -6,11 +6,12 @@ const { get } = require('lodash')
 
 const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById, getByCondition } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 
@@ -52,19 +53,7 @@ async function canManageIncidentProperties ({ authentication: { item: user }, or
     const organizationId = get(incident, 'organization', null)
     if (!organizationId) return false
 
-    const employeeFromOrganization = await getByCondition('OrganizationEmployee', {
-        organization: { id: organizationId },
-        user: { id: user.id },
-        deletedAt: null,
-        isBlocked: false,
-    })
-
-    const employeeFromOrganizationLink = await getByCondition('OrganizationLink', {
-        from: queryOrganizationEmployeeFor(user.id),
-        to: { id: organizationId },
-    })
-
-    return Boolean(employeeFromOrganization) || Boolean(employeeFromOrganizationLink)
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageIncidents')
 }
 
 /*

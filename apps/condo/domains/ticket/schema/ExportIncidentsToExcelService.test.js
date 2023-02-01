@@ -40,13 +40,17 @@ describe('ExportIncidentsToExcelService', () => {
         const [testOrganization] = await createTestOrganization(admin)
         organization = testOrganization
 
-        const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canManageIncidents: true,
+        })
 
         await createTestOrganizationEmployee(admin, organization, employeeUser.user, role)
 
         notEmployeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
         const [secondTestOrganization] = await createTestOrganization(admin)
-        const [secondRole] = await createTestOrganizationEmployeeRole(admin, secondTestOrganization)
+        const [secondRole] = await createTestOrganizationEmployeeRole(admin, secondTestOrganization, {
+            canManageIncidents: true,
+        })
         await createTestOrganizationEmployee(admin, secondTestOrganization, notEmployeeUser.user, secondRole)
 
         await createTestIncident(employeeUser, organization, INCIDENT_PAYLOAD)
