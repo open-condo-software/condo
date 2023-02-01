@@ -26,7 +26,7 @@ async function changeClientSecret ({ clientId, currentClientSecret, newClientSec
     })
 
     if (!user) {
-        throw new Error('Could not fetch User from SBBOL service organization')
+        throw new Error(`Not found service User with id=${get(SBBOL_AUTH_CONFIG, 'serviceUserId')} to change Client Secret for SBBOL integration with clientId=${clientId }`)
     }
     const accessToken = await getAccessTokenForUser(user.id)
 
