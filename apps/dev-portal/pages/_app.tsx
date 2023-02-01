@@ -4,7 +4,6 @@ import ru from 'lang/ru.json'
 import get from 'lodash/get'
 import { IntlProvider } from 'react-intl'
 
-
 import type { AppProps } from 'next/app'
 import type { ReactNode } from 'react'
 

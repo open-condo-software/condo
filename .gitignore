@@ -56,3 +56,6 @@ apps/condo/public/ui
 
 # Turborepo local cache
 .turbo
+
+# TMP delete this later
+/apps/dev-portal/docs/
