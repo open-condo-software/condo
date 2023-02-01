@@ -31,13 +31,15 @@ const registerUser = async (context, userInfo, userType) => {
     const password = uuid()
 
     // validate that email is not picked up
-    const existed = await User.getOne(context, { email: normalizedEmail, type: userType })
-    if (existed) {
-        throw new Error(`User with email ${normalizedEmail} already exists`)
+    if (normalizedEmail) {
+        const existed = await User.getOne(context, { email: normalizedEmail, type: userType })
+        if (existed) {
+            throw new Error(`User with email ${normalizedEmail} already exists`)
+        }
     }
 
     // use email to prefil name
-    const name = normalizedEmail.split('@')[0]
+    const name = normalizedEmail ? normalizedEmail.split('@')[0] : ''
 
     // prepare userData
     const userData = {
@@ -45,8 +47,8 @@ const registerUser = async (context, userInfo, userType) => {
         password,
         email: normalizedEmail,
         phone: normalizedPhone,
-        isPhoneVerified: true,
-        isEmailVerified: true,
+        isPhoneVerified: Boolean(normalizedPhone),
+        isEmailVerified: Boolean(normalizedEmail),
         type: userType,
         sender,
         dv,
