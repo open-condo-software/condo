@@ -43,7 +43,7 @@ const nanoid = customAlphabet('1234567890abcdef', 32)
 class SberIdIdentityIntegration {
     async generateLoginFormParams (checks, redirectUrl) {
         const { nonce, state } = checks
-        const link = new URL(authorizeUrl)
+        const link = new URL(authorizeUrl || conf.SERVER_URL)
 
         // generate params
         const responseType = 'code'
