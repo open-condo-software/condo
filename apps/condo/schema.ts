@@ -18022,6 +18022,326 @@ export type IncidentChangesUpdateInput = {
   data?: Maybe<IncidentChangeUpdateInput>;
 };
 
+/**  Rules for all possible valid combinations of classifiers for incidents  */
+export type IncidentClassifier = {
+  __typename?: 'IncidentClassifier';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the IncidentClassifier List config, or
+   *  2. As an alias to the field set on 'labelField' in the IncidentClassifier List config, or
+   *  3. As an alias to a 'name' field on the IncidentClassifier List (if one exists), or
+   *  4. As an alias to the 'id' field on the IncidentClassifier List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Ref to the organization. If this ref is null the object is common for all organizations  */
+  organization?: Maybe<Organization>;
+  /**  Type of work to fix incident  */
+  category?: Maybe<TicketCategoryClassifier>;
+  /**  What needs to be done  */
+  problem?: Maybe<TicketProblemClassifier>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type IncidentClassifierCreateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  category?: Maybe<TicketCategoryClassifierRelateToOneInput>;
+  problem?: Maybe<TicketProblemClassifierRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type IncidentClassifierHistoryRecord = {
+  __typename?: 'IncidentClassifierHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the IncidentClassifierHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the IncidentClassifierHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the IncidentClassifierHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the IncidentClassifierHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  problem?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<IncidentClassifierHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type IncidentClassifierHistoryRecordCreateInput = {
+  organization?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  problem?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<IncidentClassifierHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum IncidentClassifierHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type IncidentClassifierHistoryRecordUpdateInput = {
+  organization?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  problem?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<IncidentClassifierHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type IncidentClassifierHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<IncidentClassifierHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<IncidentClassifierHistoryRecordWhereInput>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category?: Maybe<Scalars['String']>;
+  category_not?: Maybe<Scalars['String']>;
+  category_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  problem?: Maybe<Scalars['String']>;
+  problem_not?: Maybe<Scalars['String']>;
+  problem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  problem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<IncidentClassifierHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<IncidentClassifierHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<IncidentClassifierHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<IncidentClassifierHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type IncidentClassifierHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type IncidentClassifierHistoryRecordsCreateInput = {
+  data?: Maybe<IncidentClassifierHistoryRecordCreateInput>;
+};
+
+export type IncidentClassifierHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<IncidentClassifierHistoryRecordUpdateInput>;
+};
+
+export type IncidentClassifierUpdateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  category?: Maybe<TicketCategoryClassifierRelateToOneInput>;
+  problem?: Maybe<TicketProblemClassifierRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type IncidentClassifierWhereInput = {
+  AND?: Maybe<Array<Maybe<IncidentClassifierWhereInput>>>;
+  OR?: Maybe<Array<Maybe<IncidentClassifierWhereInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  category?: Maybe<TicketCategoryClassifierWhereInput>;
+  category_is_null?: Maybe<Scalars['Boolean']>;
+  problem?: Maybe<TicketProblemClassifierWhereInput>;
+  problem_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type IncidentClassifierWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type IncidentClassifiersCreateInput = {
+  data?: Maybe<IncidentClassifierCreateInput>;
+};
+
+export type IncidentClassifiersUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<IncidentClassifierUpdateInput>;
+};
+
 export type IncidentCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   number?: Maybe<Scalars['Int']>;
@@ -25716,6 +26036,30 @@ export type Mutation = {
   deleteIncidentTicketClassifier?: Maybe<IncidentTicketClassifier>;
   /**  Delete multiple IncidentTicketClassifier items by ID.  */
   deleteIncidentTicketClassifiers?: Maybe<Array<Maybe<IncidentTicketClassifier>>>;
+  /**  Create a single IncidentClassifierHistoryRecord item.  */
+  createIncidentClassifierHistoryRecord?: Maybe<IncidentClassifierHistoryRecord>;
+  /**  Create multiple IncidentClassifierHistoryRecord items.  */
+  createIncidentClassifierHistoryRecords?: Maybe<Array<Maybe<IncidentClassifierHistoryRecord>>>;
+  /**  Update a single IncidentClassifierHistoryRecord item by ID.  */
+  updateIncidentClassifierHistoryRecord?: Maybe<IncidentClassifierHistoryRecord>;
+  /**  Update multiple IncidentClassifierHistoryRecord items by ID.  */
+  updateIncidentClassifierHistoryRecords?: Maybe<Array<Maybe<IncidentClassifierHistoryRecord>>>;
+  /**  Delete a single IncidentClassifierHistoryRecord item by ID.  */
+  deleteIncidentClassifierHistoryRecord?: Maybe<IncidentClassifierHistoryRecord>;
+  /**  Delete multiple IncidentClassifierHistoryRecord items by ID.  */
+  deleteIncidentClassifierHistoryRecords?: Maybe<Array<Maybe<IncidentClassifierHistoryRecord>>>;
+  /**  Create a single IncidentClassifier item.  */
+  createIncidentClassifier?: Maybe<IncidentClassifier>;
+  /**  Create multiple IncidentClassifier items.  */
+  createIncidentClassifiers?: Maybe<Array<Maybe<IncidentClassifier>>>;
+  /**  Update a single IncidentClassifier item by ID.  */
+  updateIncidentClassifier?: Maybe<IncidentClassifier>;
+  /**  Update multiple IncidentClassifier items by ID.  */
+  updateIncidentClassifiers?: Maybe<Array<Maybe<IncidentClassifier>>>;
+  /**  Delete a single IncidentClassifier item by ID.  */
+  deleteIncidentClassifier?: Maybe<IncidentClassifier>;
+  /**  Delete multiple IncidentClassifier items by ID.  */
+  deleteIncidentClassifiers?: Maybe<Array<Maybe<IncidentClassifier>>>;
   /**  Create a single MessageHistoryRecord item.  */
   createMessageHistoryRecord?: Maybe<MessageHistoryRecord>;
   /**  Create multiple MessageHistoryRecord items.  */
@@ -31413,6 +31757,68 @@ export type MutationDeleteIncidentTicketClassifierArgs = {
 
 
 export type MutationDeleteIncidentTicketClassifiersArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateIncidentClassifierHistoryRecordArgs = {
+  data?: Maybe<IncidentClassifierHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateIncidentClassifierHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<IncidentClassifierHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateIncidentClassifierHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<IncidentClassifierHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateIncidentClassifierHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<IncidentClassifierHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteIncidentClassifierHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteIncidentClassifierHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateIncidentClassifierArgs = {
+  data?: Maybe<IncidentClassifierCreateInput>;
+};
+
+
+export type MutationCreateIncidentClassifiersArgs = {
+  data?: Maybe<Array<Maybe<IncidentClassifiersCreateInput>>>;
+};
+
+
+export type MutationUpdateIncidentClassifierArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<IncidentClassifierUpdateInput>;
+};
+
+
+export type MutationUpdateIncidentClassifiersArgs = {
+  data?: Maybe<Array<Maybe<IncidentClassifiersUpdateInput>>>;
+};
+
+
+export type MutationDeleteIncidentClassifierArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteIncidentClassifiersArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -41527,6 +41933,22 @@ export type Query = {
   _allIncidentTicketClassifiersMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the IncidentTicketClassifier list.  */
   _IncidentTicketClassifiersMeta?: Maybe<_ListMeta>;
+  /**  Search for all IncidentClassifierHistoryRecord items which match the where clause.  */
+  allIncidentClassifierHistoryRecords?: Maybe<Array<Maybe<IncidentClassifierHistoryRecord>>>;
+  /**  Search for the IncidentClassifierHistoryRecord item with the matching ID.  */
+  IncidentClassifierHistoryRecord?: Maybe<IncidentClassifierHistoryRecord>;
+  /**  Perform a meta-query on all IncidentClassifierHistoryRecord items which match the where clause.  */
+  _allIncidentClassifierHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the IncidentClassifierHistoryRecord list.  */
+  _IncidentClassifierHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all IncidentClassifier items which match the where clause.  */
+  allIncidentClassifiers?: Maybe<Array<Maybe<IncidentClassifier>>>;
+  /**  Search for the IncidentClassifier item with the matching ID.  */
+  IncidentClassifier?: Maybe<IncidentClassifier>;
+  /**  Perform a meta-query on all IncidentClassifier items which match the where clause.  */
+  _allIncidentClassifiersMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the IncidentClassifier list.  */
+  _IncidentClassifiersMeta?: Maybe<_ListMeta>;
   /**  Search for all MessageHistoryRecord items which match the where clause.  */
   allMessageHistoryRecords?: Maybe<Array<Maybe<MessageHistoryRecord>>>;
   /**  Search for the MessageHistoryRecord item with the matching ID.  */
@@ -44797,6 +45219,56 @@ export type Query_AllIncidentTicketClassifiersMetaArgs = {
   where?: Maybe<IncidentTicketClassifierWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortIncidentTicketClassifiersBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllIncidentClassifierHistoryRecordsArgs = {
+  where?: Maybe<IncidentClassifierHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortIncidentClassifierHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryIncidentClassifierHistoryRecordArgs = {
+  where: IncidentClassifierHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllIncidentClassifierHistoryRecordsMetaArgs = {
+  where?: Maybe<IncidentClassifierHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortIncidentClassifierHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllIncidentClassifiersArgs = {
+  where?: Maybe<IncidentClassifierWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortIncidentClassifiersBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryIncidentClassifierArgs = {
+  where: IncidentClassifierWhereUniqueInput;
+};
+
+
+export type Query_AllIncidentClassifiersMetaArgs = {
+  where?: Maybe<IncidentClassifierWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortIncidentClassifiersBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -52476,6 +52948,50 @@ export enum SortIncidentChangesBy {
   CreatedByDesc = 'createdBy_DESC',
   UpdatedByAsc = 'updatedBy_ASC',
   UpdatedByDesc = 'updatedBy_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortIncidentClassifierHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortIncidentClassifiersBy {
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  CategoryAsc = 'category_ASC',
+  CategoryDesc = 'category_DESC',
+  ProblemAsc = 'problem_ASC',
+  ProblemDesc = 'problem_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC'
 }
