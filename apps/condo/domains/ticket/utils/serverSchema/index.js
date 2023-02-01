@@ -34,6 +34,7 @@ const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@
 const { TicketOrganizationSetting: TicketOrganizationSettingGQL } = require('@condo/domains/ticket/gql')
 const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
 const { EXPORT_INCIDENTS_TO_EXCEL_QUERY } = require('@condo/domains/ticket/gql')
+const { IncidentClassifier: IncidentClassifierGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -91,6 +92,7 @@ async function exportIncidentsToExcel (context, data) {
     })
 }
 
+const IncidentClassifier = generateServerUtils(IncidentClassifierGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -298,5 +300,6 @@ module.exports = {
     loadIncidentsForExcelExport,
     loadIncidentPropertiesForExcelExport,
     loadIncidentClassifiersForExcelExport,
+    IncidentClassifier,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
