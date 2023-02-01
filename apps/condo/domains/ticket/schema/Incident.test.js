@@ -193,11 +193,6 @@ describe('Incident', () => {
     describe('Validations', () => {
         describe('fields', () => {
             test('workFinish should be late then workStart', async () => {
-                console.log('INCIDENT_PAYLOAD.workStart', INCIDENT_PAYLOAD.workStart)
-                console.log('incidentByAdmin.workStart', incidentByAdmin.workStart)
-                console.log('dayjs ', dayjs(incidentByAdmin.workStart))
-                console.log('dayjs add 1 minute', dayjs(incidentByAdmin.workStart).add(1, 'minute'))
-                console.log('dayjs add 1 minute to string', dayjs(incidentByAdmin.workStart).add(1, 'minute').toISOString())
                 const [incident, attrs] = await updateTestIncident(admin, incidentByAdmin.id, {
                     workFinish: dayjs(incidentByAdmin.workStart).add(1, 'minute').toISOString(),
                 })

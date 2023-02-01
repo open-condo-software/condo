@@ -27,7 +27,6 @@ async function canReadIncidentTicketClassifiers ({ authentication: { item: user 
                     queryOrganizationEmployeeFor(user.id),
                     queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
                 ],
-                deletedAt: null,
             },
         },
     }
