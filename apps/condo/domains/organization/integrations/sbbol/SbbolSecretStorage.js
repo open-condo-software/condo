@@ -90,15 +90,18 @@ class SbbolSecretStorage {
     async getRawKeyValues (userId) {
         if (!userId) throw new Error('userId is required for getRawKeyValues')
 
+        const organization = this.#scopedKey('organization')
         const clientSecretScopedKey = this.#scopedKey('clientSecret')
         const accessTokenScopedKey = this.#scopedKey(`user:${userId}:accessToken`)
         const refreshTokenScopedKey = this.#scopedKey(`user:${userId}:refreshToken`)
 
+        const organizationValue = await this.#getValue('organization')
         const clientSecretValue = await this.#getValue('clientSecret')
         const accessTokenValue = await this.#getValue(`user:${userId}:accessToken`)
         const refreshTokenValue = await this.#getValue(`user:${userId}:refreshToken`)
 
         return {
+            [organization]: organizationValue,
             [clientSecretScopedKey]: clientSecretValue,
             [accessTokenScopedKey]: accessTokenValue,
             [refreshTokenScopedKey]: refreshTokenValue,

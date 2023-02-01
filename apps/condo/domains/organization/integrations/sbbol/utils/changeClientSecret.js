@@ -6,7 +6,7 @@ const get = require('lodash/get')
 const conf = require('@open-condo/config')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { User } = require('@condo/domains/user/utils/serverSchema')
 
 const { getAccessTokenForUser } = require('./getAccessTokenForUser')
 const { getSbbolSecretStorage } = require('./getSbbolSecretStorage')
@@ -14,26 +14,16 @@ const { getSbbolSecretStorage } = require('./getSbbolSecretStorage')
 const { SbbolRequestApi } = require('../SbbolRequestApi')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
+const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 
 async function changeClientSecret ({ clientId, currentClientSecret, newClientSecret }) {
     const sbbolSecretStorage = getSbbolSecretStorage()
-    const { keystone: userContext } = await getSchemaCtx('User')
+    const { keystone: context } = await getSchemaCtx('User')
 
-    const organization = await Organization.getOne(userContext, { importId: SBBOL_FINTECH_CONFIG.service_organization_hashOrgId } )
-    if (!organization) {
-        throw new Error('Could not fetch SBBOL service organization by importId with corresponds to SBBOL_FINTECH_CONFIG.service_organization_hashOrgId')
-    }
-
-    const employee = await OrganizationEmployee.getAll(userContext,
-        {
-            organization: { id: organization.id },
-            deletedAt: null,
-            isRejected: false,
-            isBlocked: false,
-        },
-        { sortBy: ['createdAt_ASC'], first: 1 })
-    const user = get(employee[0], 'user')
+    const user = await User.getOne(context, {
+        id: get(SBBOL_AUTH_CONFIG, 'serviceUserId'),
+    })
 
     if (!user) {
         throw new Error('Could not fetch User from SBBOL service organization')

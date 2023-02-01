@@ -98,7 +98,7 @@ const sync = async ({ keystone, userInfo, tokenSet  }) => {
     const user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid })
     const organization = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
     const sbbolSecretStorage = getSbbolSecretStorage()
-    await sbbolSecretStorage.setOrganization(organization.id, user.id)
+    await sbbolSecretStorage.setOrganization(organization.id)
     await syncTokens(tokenSet, user.id)
     await syncServiceSubscriptions(userInfo.inn)
 
