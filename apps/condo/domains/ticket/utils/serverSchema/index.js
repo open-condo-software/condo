@@ -12,7 +12,6 @@ const { AddressMetaDataFields } = require('@condo/domains/property/schema/fields
 const { Incident: IncidentGQL } = require('@condo/domains/ticket/gql')
 const { IncidentChange: IncidentChangeGQL } = require('@condo/domains/ticket/gql')
 const { IncidentProperty: IncidentPropertyGQL } = require('@condo/domains/ticket/gql')
-const { IncidentTicketClassifier: IncidentTicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketStatus: TicketStatusGQL } = require('@condo/domains/ticket/gql')
 const { TicketChange: TicketChangeGQL } = require('@condo/domains/ticket/gql')
@@ -35,6 +34,7 @@ const { TicketOrganizationSetting: TicketOrganizationSettingGQL } = require('@co
 const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
 const { EXPORT_INCIDENTS_TO_EXCEL_QUERY } = require('@condo/domains/ticket/gql')
 const { IncidentClassifier: IncidentClassifierGQL } = require('@condo/domains/ticket/gql')
+const { IncidentClassifierIncident: IncidentClassifierIncidentGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -76,7 +76,6 @@ const TicketOrganizationSetting = generateServerUtils(TicketOrganizationSettingG
 const TicketExportTask = generateServerUtils(TicketExportTaskGQL)
 const Incident = generateServerUtils(IncidentGQL)
 const IncidentProperty = generateServerUtils(IncidentPropertyGQL)
-const IncidentTicketClassifier = generateServerUtils(IncidentTicketClassifierGQL)
 const IncidentChange = generateServerUtils(IncidentChangeGQL)
 
 async function exportIncidentsToExcel (context, data) {
@@ -93,6 +92,7 @@ async function exportIncidentsToExcel (context, data) {
 }
 
 const IncidentClassifier = generateServerUtils(IncidentClassifierGQL)
+const IncidentClassifierIncident = generateServerUtils(IncidentClassifierIncidentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -254,7 +254,7 @@ const loadIncidentPropertiesForExcelExport = async ({ where = {}, sortBy = ['cre
 
 const loadIncidentClassifiersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const propertyScopesLoader = new GqlWithKnexLoadList({
-        listKey: 'IncidentTicketClassifier',
+        listKey: 'IncidentClassifierIncident',
         fields: 'id',
         singleRelations: [
             ['TicketClassifier', 'classifier', 'id'],
@@ -294,12 +294,12 @@ module.exports = {
     TicketExportTask,
     Incident,
     IncidentProperty,
-    IncidentTicketClassifier,
     IncidentChange,
     exportIncidentsToExcel,
     loadIncidentsForExcelExport,
     loadIncidentPropertiesForExcelExport,
     loadIncidentClassifiersForExcelExport,
     IncidentClassifier,
+    IncidentClassifierIncident,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

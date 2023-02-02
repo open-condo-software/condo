@@ -23,7 +23,7 @@ export * as TicketExportTask from './TicketExportTask'
 export * as TicketOrganizationSetting from './TicketOrganizationSetting'
 export * as Incident from './Incident'
 export * as IncidentProperty from './IncidentProperty'
-export * as IncidentTicketClassifier from './IncidentTicketClassifier'
 export * as IncidentChange from './IncidentChange'
 export * as IncidentClassifier from './IncidentClassifier'
+export * as IncidentClassifierIncident from './IncidentClassifierIncident'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
