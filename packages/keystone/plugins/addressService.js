@@ -1,12 +1,10 @@
 const { Text } = require('@keystonejs/fields')
 const get = require('lodash/get')
 
-const conf = require('@open-condo/config')
 const { Json } = require('@open-condo/keystone/fields')
 const { composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const {
     createInstance: createAddressServiceClientInstance,
-    createTestInstance: createTestAddressServiceClientInstance,
 } = require('@open-condo/keystone/plugins/utils/address-service-client')
 const { ADDRESS_META_FIELD } = require('@open-condo/keystone/plugins/utils/addressMetaDefinition')
 const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
@@ -104,10 +102,7 @@ const addressService = ({ fieldsHooks = {}, resolveAddressFields = ({ addressFie
                 )
             )
         ) {
-            // todo(AleX83Xpert) maybe create separated client for `conf.NODE_ENV === 'development'` mode
-            const client = conf.NODE_ENV === 'test' || get(conf, 'ADDRESS_SERVICE_CLIENT_MODE') === 'fake'
-                ? createTestAddressServiceClientInstance({ ...existingItem, ...resolvedData })
-                : createAddressServiceClientInstance(get(conf, 'ADDRESS_SERVICE_URL'))
+            const client = createAddressServiceClientInstance({ ...existingItem, ...resolvedData })
 
             const result = await client.search(get({ ...existingItem, ...resolvedData }, 'address'))
 

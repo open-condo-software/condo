@@ -1,3 +1,6 @@
+const get = require('lodash/get')
+
+const conf = require('@open-condo/config')
 const { AddressServiceClient } = require('@open-condo/keystone/plugins/utils/address-service-client/AddressServiceClient')
 const { MockedAddressServiceClient } = require('@open-condo/keystone/plugins/utils/address-service-client/MockedAddressServiceClient')
 
@@ -8,7 +11,8 @@ let instance
  * @param {string} url The URL of the address service
  * @returns {AddressServiceClient}
  */
-function createInstance (url) {
+
+function createRealInstance (url) {
     if (!instance) {
         instance = new AddressServiceClient(url)
     }
@@ -21,4 +25,14 @@ function createTestInstance (existingItem = null) {
     return new MockedAddressServiceClient(existingItem)
 }
 
-module.exports = { createInstance, createTestInstance }
+/**
+ * @param {Object} testItem
+ * @returns {MockedAddressServiceClient|AddressServiceClient}
+ */
+function createInstance (testItem) {
+    return conf.NODE_ENV === 'test' || get(conf, 'ADDRESS_SERVICE_CLIENT_MODE') === 'fake'
+        ? createTestInstance(testItem)
+        : createRealInstance(get(conf, 'ADDRESS_SERVICE_URL'))
+}
+
+module.exports = { createInstance }
