@@ -1,56 +1,44 @@
-import fs from 'fs'
-import path from 'path'
-
 import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
-import uniq from 'lodash/uniq'
+import { getNavTree, getAllRoutes } from 'domains/docs/utils/routing'
 import React from 'react'
 
+import type { NavGroup, NavItem } from 'domains/docs/utils/routing'
 import type { GetStaticPaths, GetStaticProps } from 'next'
 
-// TODO(DOMA-5233): Change path?
-const DOC_ROOT_PATH = path.join('docs')
-const DEFAULT_LOCALE_REGEXP = getFileNameRegex(DEFAULT_LOCALE)
+const DOCS_ROOT = 'docs'
 
-const ArticlePage: React.FC = () => {
+type DocPageProps = {
+    navigation: Array<NavGroup | NavItem>
+}
+
+const DocPage: React.FC<DocPageProps> = ({ navigation }) => {
     return (
         <>
-            Found!
+            <pre>
+                {JSON.stringify(navigation, null, 4)}
+            </pre>
         </>
     )
 }
 
-function getFileNameRegex (locale: string) {
-    return new RegExp(`.${locale}.mdx?$`, 'gi')
-}
-
-function *scanDirSync (dir: string): IterableIterator<string> {
-    const files = fs.readdirSync(dir, { withFileTypes: true })
-    for (const file of files) {
-        if (file.isDirectory()) {
-            yield *scanDirSync(path.join(dir, file.name))
-        } else (
-            yield path.join(dir, file.name)
-        )
-    }
-}
+export default DocPage
 
 export const getStaticPaths: GetStaticPaths = ({ locales = [] }) => {
-    const allFilePaths = Array.from(scanDirSync(DOC_ROOT_PATH), (route) => path.relative(DOC_ROOT_PATH, route))
     return {
-        paths: locales.flatMap((locale) => {
-            const localeSpecificRegex = getFileNameRegex(locale)
-            // NOTE: Default locale as base + some optional locale-specific pages
-            const allRoutesForLocale = uniq(allFilePaths
-                .filter(route => DEFAULT_LOCALE_REGEXP.test(route) || localeSpecificRegex.test(route))
-                .map(route => route.split('.')[0]))
-            return allRoutesForLocale.map(route => ({ params: { path: route.split('/') }, locale }))
+        paths: locales.flatMap(locale => {
+            return Array.from(getAllRoutes(DOCS_ROOT, locale, DOCS_ROOT), (route) => ({
+                params: { path: route.split('/') },
+                locale,
+            }))
         }),
         fallback: false,
     }
 }
 
-export const getStaticProps: GetStaticProps = () => {
-    return { props: {} }
+export const getStaticProps: GetStaticProps<DocPageProps> = ({ locale = DEFAULT_LOCALE }) => {
+    return {
+        props: {
+            navigation: getNavTree(DOCS_ROOT, locale, DOCS_ROOT),
+        },
+    }
 }
-
-export default ArticlePage
