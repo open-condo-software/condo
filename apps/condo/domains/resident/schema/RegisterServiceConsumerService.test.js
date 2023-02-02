@@ -49,7 +49,7 @@ describe('RegisterServiceConsumerService', () => {
         expect(out2.id).toEqual(out.id)
     })
 
-    it('allows to create same service consumers, that are linked to different organizations', async () => {
+    it('allows to create service consumers with same resident and accountNumber for multiple organizations', async () => {
 
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
