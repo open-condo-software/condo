@@ -71,6 +71,7 @@ const registerIdentity = async ({ context, user, identityId }) => {
  * @return {Promise<{user}|*>}
  */
 const syncUser = async ({ context: { context, keystone }, userInfo, identityId }) => {
+    // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
     const identityWhereStatement = {
         identityId,
         identityType: SBBOL_IDP_TYPE,
