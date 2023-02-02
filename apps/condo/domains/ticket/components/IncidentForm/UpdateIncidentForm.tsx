@@ -8,7 +8,7 @@ import { Button } from '@open-condo/ui'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { Incident, IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
+import { Incident, IncidentProperty, IncidentClassifierIncident } from '@condo/domains/ticket/utils/clientSchema'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
@@ -66,7 +66,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
         objs: incidentClassifiers,
         error: incidentClassifiersError,
         loading: incidentClassifiersLoading,
-    } = IncidentTicketClassifier.useAllObjects({
+    } = IncidentClassifierIncident.useAllObjects({
         where: { incident: { id } },
     })
 

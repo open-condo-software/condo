@@ -8,8 +8,8 @@ const { ExportIncidentsToExcelService } = require('./ExportIncidentsToExcelServi
 const { Incident } = require('./Incident')
 const { IncidentChange } = require('./IncidentChange')
 const { IncidentClassifier } = require('./IncidentClassifier')
+const { IncidentClassifierIncident } = require('./IncidentClassifierIncident')
 const { IncidentProperty } = require('./IncidentProperty')
-const { IncidentTicketClassifier } = require('./IncidentTicketClassifier')
 const { PredictTicketClassificationService } = require('./PredictTicketClassificationService')
 const { ShareTicketService } = require('./ShareTicketService')
 const { Ticket } = require('./Ticket')
@@ -56,8 +56,8 @@ module.exports = {
     Incident,
     IncidentChange,
     IncidentProperty,
-    IncidentTicketClassifier,
     ExportIncidentsToExcelService,
     IncidentClassifier,
+    IncidentClassifierIncident,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

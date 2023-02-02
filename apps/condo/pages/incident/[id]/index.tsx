@@ -23,7 +23,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
 import { useIncidentChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useIncidentChangedFieldMessagesOf'
 import { useIncidentUpdateStatusModal } from '@condo/domains/ticket/hooks/useIncidentUpdateStatusModal'
-import { Incident, IncidentProperty, IncidentTicketClassifier, IncidentChange } from '@condo/domains/ticket/utils/clientSchema'
+import { Incident, IncidentProperty, IncidentClassifierIncident, IncidentChange } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 
@@ -230,7 +230,7 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
     const HaveNotMessage = intl.formatMessage({ id: 'incident.fields.classifier.empty' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
-    const { loading, objs: incidentClassifiers } = IncidentTicketClassifier.useAllObjects({
+    const { loading, objs: incidentClassifiers } = IncidentClassifierIncident.useAllObjects({
         where: {
             incident: { id: incident.id },
             deletedAt: null,
