@@ -189,9 +189,6 @@ const Incident = generateGqlQueries('Incident', INCIDENT_FIELDS)
 const INCIDENT_PROPERTY_FIELDS = `{ incident { id } property { id address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} }  } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } ${COMMON_FIELDS} }`
 const IncidentProperty = generateGqlQueries('IncidentProperty', INCIDENT_PROPERTY_FIELDS)
 
-const INCIDENT_TICKET_CLASSIFIER_FIELDS = `{ incident { id } classifier { id place { id name } problem { id name } category { id name } } ${COMMON_FIELDS} }`
-const IncidentTicketClassifier = generateGqlQueries('IncidentTicketClassifier', INCIDENT_TICKET_CLASSIFIER_FIELDS)
-
 const INCIDENT_CHANGE_DATA_FIELDS = [
     'numberFrom',
     'numberTo',
@@ -228,6 +225,9 @@ const EXPORT_INCIDENTS_TO_EXCEL_QUERY = gql`
 const INCIDENT_CLASSIFIER_FIELDS = `{ organization { id name } category { id name } problem { id name } ${COMMON_FIELDS} }`
 const IncidentClassifier = generateGqlQueries('IncidentClassifier', INCIDENT_CLASSIFIER_FIELDS)
 
+const INCIDENT_CLASSIFIER_INCIDENT_FIELDS = `{ incident { id } classifier { id problem { id name } category { id name } } ${COMMON_FIELDS} }`
+const IncidentClassifierIncident = generateGqlQueries('IncidentClassifierIncident', INCIDENT_CLASSIFIER_INCIDENT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -256,10 +256,10 @@ module.exports = {
     TICKET_PROPERTY_FIELDS,
     Incident,
     IncidentProperty,
-    IncidentTicketClassifier,
     INCIDENT_CHANGE_DATA_FIELDS,
     IncidentChange,
     EXPORT_INCIDENTS_TO_EXCEL_QUERY,
     IncidentClassifier,
+    IncidentClassifierIncident,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

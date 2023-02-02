@@ -1,7 +1,7 @@
 import {
     IncidentWhereInput,
     Incident as IIncident,
-    IncidentTicketClassifierWhereInput,
+    IncidentClassifierIncidentWhereInput,
     IncidentStatusType,
     TicketClassifier as ITicketClassifier, TicketClassifierWhereInput,
 } from '@app/condo/schema'
@@ -13,7 +13,11 @@ import React, { ComponentProps, useCallback, useEffect, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Alert } from '@open-condo/ui'
 
-import { IncidentProperty, IncidentTicketClassifier, Incident } from '@condo/domains/ticket/utils/clientSchema'
+import {
+    IncidentProperty,
+    Incident,
+    IncidentClassifierIncident,
+} from '@condo/domains/ticket/utils/clientSchema'
 
 
 type Gutters = ComponentProps<typeof Row>['gutter']
@@ -48,15 +52,15 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     //
     // 3.1 - show Incidents
     //
-    // 3.2.1 - search IncidentTicketClassifiers by classifierIds and incidentIds
-    // 3.2.2 - filter Incidents by IncidentTicketClassifiers
+    // 3.2.1 - search IncidentClassifierIncident by classifierIds and incidentIds
+    // 3.2.2 - filter Incidents by IncidentClassifierIncident
     // 3.2.2 - show Incidents
 
     const [incidents, setIncidents] = useState<IIncident[]>([])
 
     const { refetch: refetchAllIncidentProperties } = IncidentProperty.useAllObjects({}, { skip: true })
     const { refetch: refetchIncidents } = Incident.useObjects({}, { skip: true })
-    const { refetch: refetchAllIncidentTicketClassifiers } = IncidentTicketClassifier.useAllObjects({}, { skip: true })
+    const { refetch: refetchAllIncidentClassifierIncidents } = IncidentClassifierIncident.useAllObjects({}, { skip: true })
 
     const fetchIncidentProperties = useCallback(async (propertyId: string) => {
         const res = await refetchAllIncidentProperties({
@@ -115,12 +119,12 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         return get(res, 'data.objs', [])
     }, [onlyActual])
 
-    const fetchIncidentTicketClassifiers = useCallback(async (incidentIds: string[], classifier?: ITicketClassifier) => {
+    const fetchIncidentClassifierIncidents = useCallback(async (incidentIds: string[], classifier?: ITicketClassifier) => {
         if (incidentIds.length < 1) {
             return []
         }
 
-        const where: IncidentTicketClassifierWhereInput = {
+        const where: IncidentClassifierIncidentWhereInput = {
             incident: { id_in: incidentIds },
             deletedAt: null,
         }
@@ -142,7 +146,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             where.classifier = classifierWhere
         }
 
-        const res = await refetchAllIncidentTicketClassifiers({
+        const res = await refetchAllIncidentClassifierIncidents({
             where,
         })
 
@@ -152,11 +156,11 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     const getIncidents = useCallback(async (propertyId: string, organizationId: string, classifier?: ITicketClassifier, dateISO?: string) => {
         const incidentProperties = await fetchIncidentProperties(propertyId)
         const incidents = await fetchIncidents(incidentProperties.map(item => item.incident.id), organizationId, dateISO)
-        const incidentTicketClassifiers = await fetchIncidentTicketClassifiers(incidents.map(item => item.id), classifier)
-        const incidentIdsFormIncidentClassifiers = incidentTicketClassifiers.map(item => item.incident.id)
+        const incidentClassifierIncidents = await fetchIncidentClassifierIncidents(incidents.map(item => item.id), classifier)
+        const incidentIdsFormIncidentClassifiers = incidentClassifierIncidents.map(item => item.incident.id)
         const filteredIncidents = incidents.filter((incident) => incidentIdsFormIncidentClassifiers.includes(incident.id))
         setIncidents(filteredIncidents)
-    }, [fetchIncidentProperties, fetchIncidentTicketClassifiers, fetchIncidents])
+    }, [fetchIncidentProperties, fetchIncidentClassifierIncidents, fetchIncidents])
 
     useEffect(() => {
         getIncidents(propertyId, organizationId, classifier, dateISO)
