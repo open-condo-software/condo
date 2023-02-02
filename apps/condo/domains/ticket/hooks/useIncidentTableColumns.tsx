@@ -17,7 +17,7 @@ import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getOneAddressAndPropertiesCountRender } from '@condo/domains/property/utils/clientSchema/Renders'
 import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
-import { IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
+import { IncidentProperty, IncidentClassifierIncident } from '@condo/domains/ticket/utils/clientSchema'
 import { getManyClassifiersGroupByPlaceRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
 
@@ -73,8 +73,8 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
     } = IncidentProperty.useAllObjects({}, { skip: true })
 
     const {
-        refetch: refetchIncidentTicketClassifier,
-    } = IncidentTicketClassifier.useAllObjects({}, { skip: true })
+        refetch: refetchIncidentClassifierIncident,
+    } = IncidentClassifierIncident.useAllObjects({}, { skip: true })
 
     const getIncidentProperties = useCallback(async (incidentIds: string[]) => {
         if (incidentIds.length < 1) {
@@ -90,12 +90,12 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
         return { incidentProperties: response.data.objs }
     }, [])
 
-    const getIncidentTicketClassifiers = useCallback(async (incidentIds: string[]) => {
+    const getIncidentClassifierIncidents = useCallback(async (incidentIds: string[]) => {
         if (incidentIds.length < 1) {
             return { incidentClassifiers: [] }
         }
 
-        const response = await refetchIncidentTicketClassifier({
+        const response = await refetchIncidentClassifierIncident({
             where: {
                 incident: { id_in: incidentIds, deletedAt: null },
                 deletedAt: null,
@@ -107,11 +107,11 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
     const getPropertiesAndClassifiers = useCallback(async (incidentIds: string[]) => {
         setLoading(true)
         const { incidentProperties } = await getIncidentProperties(incidentIds)
-        const { incidentClassifiers } = await getIncidentTicketClassifiers(incidentIds)
+        const { incidentClassifiers } = await getIncidentClassifierIncidents(incidentIds)
         setIncidentProperties(incidentProperties)
         setIncidentClassifiers(incidentClassifiers)
         setLoading(false)
-    }, [getIncidentProperties, getIncidentTicketClassifiers])
+    }, [getIncidentProperties, getIncidentClassifierIncidents])
 
     useEffect(() => {
         getPropertiesAndClassifiers(incidentIds)

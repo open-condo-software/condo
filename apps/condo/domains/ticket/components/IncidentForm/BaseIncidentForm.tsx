@@ -1,11 +1,12 @@
 import {
     Incident as IIncident,
     IncidentProperty as IIncidentProperty,
-    IncidentTicketClassifier as IIncidentTicketClassifier,
+    IncidentClassifierIncident as IIncidentClassifierIncident,
     IncidentCreateInput as IIncidentCreateInput,
     IncidentUpdateInput as IIncidentUpdateInput,
     QueryAllIncidentsArgs as IQueryAllIncidentsArgs,
-    TicketClassifier as ITicketClassifier, IncidentStatusType,
+    IncidentStatusType,
+    IncidentClassifier as IIncidentClassifier,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Form, Row, Typography } from 'antd'
@@ -41,8 +42,11 @@ import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
-import { IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
-import { ClassifiersQueryLocal, Options } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import {
+    IncidentClassifierIncident,
+    IncidentProperty,
+} from '@condo/domains/ticket/utils/clientSchema'
+import { IncidentClassifiersQueryLocal, Option } from '@condo/domains/ticket/utils/clientSchema/incidentClassifierSearch'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
@@ -66,7 +70,7 @@ export type BaseIncidentFormProps = {
     | 'hasAllProperties'
     > & {
         incidentProperties: IIncidentProperty[],
-        incidentClassifiers: IIncidentTicketClassifier[],
+        incidentClassifiers: IIncidentClassifierIncident[],
     }
     organizationId: string
     action: (values: IIncidentCreateInput | IIncidentUpdateInput) => ReturnType<ReturnType<IncidentClientUtilsType['useCreate' | 'useUpdate']>>
@@ -124,12 +128,12 @@ export const Label = styled(Typography.Text)`
 
 type OptionType = Required<Pick<DefaultOptionType, 'label' | 'value'>>
 type FilterAvailableItemsType = (props: {
-    availableClassifiers: ITicketClassifier[],
-    type: 'category' | 'problem' | 'place',
+    availableClassifiers: IIncidentClassifier[],
+    type: 'category' | 'problem',
     selectedItems: string[],
 }) => string[]
 
-const convertToSelectOptions: (items: Options[]) => OptionType[] = (items) => items.map(item => ({ label: item.name, value: item.id }))
+const convertToSelectOptions: (items: Option[]) => OptionType[] = (items) => items.map(item => ({ label: item.name, value: item.id }))
 const withoutEmpty: (items: OptionType[]) => OptionType[] = (items) => items.filter(item => item.value)
 
 const DISPLAY_NONE_STYLE: React.CSSProperties = { display: 'none' }
@@ -137,21 +141,17 @@ const DISPLAY_NONE_STYLE: React.CSSProperties = { display: 'none' }
 export const Classifiers: React.FC<ClassifiersProps> = (props) => {
     const intl = useIntl()
     const SelectMessage = intl.formatMessage({ id: 'Select' })
-    const PlaceClassifierLabel = intl.formatMessage({ id: 'incident.fields.placeClassifier.label' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'incident.fields.categoryClassifier.label' })
     const ProblemClassifierLabel = intl.formatMessage({ id: 'incident.fields.problemClassifier.label' })
     const LoadingLabel = intl.formatMessage({ id: 'Loading' })
-    const SelectPlaceMessage = intl.formatMessage({ id: 'incident.fields.placeClassifier.placeholder' })
     const SelectCategoryMessage = intl.formatMessage({ id: 'incident.fields.categoryClassifier.placeholder' })
 
     const { form, initialClassifierIds, rules } = props
 
     const client = useApolloClient()
-    const ClassifierLoader = useMemo(() => new ClassifiersQueryLocal(client), [client])
+    const ClassifierLoader = useMemo(() => new IncidentClassifiersQueryLocal(client), [client])
 
-    const [classifiers, setClassifiers] = useState<ITicketClassifier[]>([])
-    const [places, setPlaces] = useState<OptionType[]>([])
-    const [selectedPlace, setSelectedPlace] = useState<string>(null)
+    const [classifiers, setClassifiers] = useState<IIncidentClassifier[]>([])
     const [selectedCategories, setSelectedCategories] = useState<string[]>([])
     const [selectedProblems, setSelectedProblems] = useState<string[]>([])
     const [loading, setLoading] = useState(true)
@@ -163,53 +163,29 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
     }, [ClassifierLoader])
 
     const renderCategories = useMemo(() => {
-        const filteredClassifiers = classifiers.filter(classifier => (
-            selectedPlace ? classifier.place.id === selectedPlace : true
-        ))
-        return convertToSelectOptions(ClassifierLoader.rulesToOptions(filteredClassifiers, 'category'))
-    }, [ClassifierLoader, classifiers, selectedPlace])
+        return convertToSelectOptions(ClassifierLoader.rulesToOptions(classifiers, 'category'))
+    }, [ClassifierLoader, classifiers])
 
     const renderProblems = useMemo(() => {
         const filteredClassifiers = classifiers.filter(classifier => (
-            selectedPlace ? classifier.place.id === selectedPlace : true
-        ) && (
             selectedCategories.length > 0
                 ? selectedCategories.includes(get(classifier, 'category.id'))
                 : true
         ))
         return withoutEmpty(convertToSelectOptions(ClassifierLoader.rulesToOptions(filteredClassifiers, 'problem')))
-    }, [ClassifierLoader, classifiers, selectedCategories, selectedPlace])
-
-    const handleChangePlace = useCallback((id) => {
-        setSelectedPlace(id)
-        if (selectedCategories.length > 0 || selectedProblems.length > 0) {
-            const availableClassifiers = classifiers.filter(classifier => id ? id.includes(get(classifier, 'place.id')) : true)
-            if (selectedCategories.length > 0) {
-                const intersection = intersectionClassifiers({ availableClassifiers: availableClassifiers, selectedItems: selectedCategories, type: 'category' })
-                setSelectedCategories(intersection)
-                form.setFieldValue('categoryClassifiers', intersection)
-            }
-            if (selectedProblems.length > 0) {
-                const intersection = intersectionClassifiers({ availableClassifiers: availableClassifiers, selectedItems: selectedProblems, type: 'problem' })
-                setSelectedProblems(intersection)
-                form.setFieldValue('problemClassifiers', intersection)
-            }
-        }
-    }, [form, intersectionClassifiers, classifiers, selectedCategories, selectedProblems])
+    }, [ClassifierLoader, classifiers, selectedCategories])
 
     const handleChangeCategories = useCallback((ids) => {
         setSelectedCategories(ids)
         if (selectedProblems.length > 0) {
             const availableClassifiers = classifiers.filter(classifier => (
                 ids.includes(get(classifier, 'category.id'))
-            ) && (
-                selectedPlace === get(classifier, 'place.id')
             ))
             const intersection = intersectionClassifiers({ availableClassifiers: availableClassifiers, selectedItems: selectedProblems, type: 'problem' })
             setSelectedProblems(intersection)
             form.setFieldValue('problemClassifiers', intersection)
         }
-    }, [form, intersectionClassifiers, classifiers, selectedPlace, selectedProblems])
+    }, [form, intersectionClassifiers, classifiers, selectedProblems])
 
     const handleChangeProblems = useCallback((ids) => {
         setSelectedProblems(ids)
@@ -218,20 +194,15 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
     useEffect(() => {
         setLoading(true)
         ClassifierLoader.init().then(async () => {
-            const classifiers = await ClassifierLoader.search('', 'rules', null, 500) as ITicketClassifier[]
-            const places = ClassifierLoader.rulesToOptions(classifiers, 'place')
+            const classifiers = await ClassifierLoader.search('', 'rules', null, 500) as IIncidentClassifier[]
             const initialClassifiers = classifiers.filter(classifier => initialClassifierIds.includes(classifier.id))
-            const initialPlaceId = get(initialClassifiers, [0, 'place', 'id'], null)
             const initialCategoryIds = initialClassifiers.map(classifier => get(classifier, 'category.id'))
             const initialProblemIds = initialClassifiers.map(classifier => get(classifier, 'problem.id', null)).filter(Boolean)
             setClassifiers(classifiers)
-            setPlaces(convertToSelectOptions(places))
-            setSelectedPlace(initialPlaceId)
             setSelectedCategories(initialCategoryIds)
             setSelectedProblems(initialProblemIds)
             form.setFieldsValue({
                 allClassifiers: classifiers,
-                placeClassifier: initialPlaceId,
                 categoryClassifiers: initialCategoryIds,
                 problemClassifiers: initialProblemIds,
             })
@@ -243,23 +214,6 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
         <>
             <Col span={24}>
                 <Form.Item name='allClassifiers' style={DISPLAY_NONE_STYLE} />
-                <Form.Item
-                    label={PlaceClassifierLabel}
-                    required
-                    wrapperCol={FORM_ITEM_WRAPPER_COL}
-                    name='placeClassifier'
-                    rules={rules}
-                >
-                    <Select<OptionType>
-                        options={places}
-                        disabled={loading}
-                        placeholder={loading ? LoadingLabel : SelectMessage}
-                        filterOption
-                        optionFilterProp='label'
-                        value={selectedPlace as any} // todo(DOMA-2567) fix types for select
-                        onChange={handleChangePlace}
-                    />
-                </Form.Item>
             </Col>
             <Col span={24}>
                 <Form.Item
@@ -272,13 +226,11 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
                     <Select<OptionType>
                         options={renderCategories}
                         mode='multiple'
-                        disabled={loading || !selectedPlace}
+                        disabled={loading}
                         placeholder={
                             loading
                                 ? LoadingLabel
-                                : !selectedPlace
-                                    ? SelectPlaceMessage
-                                    : SelectMessage
+                                : SelectMessage
                         }
                         filterOption
                         optionFilterProp='label'
@@ -297,7 +249,7 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
                     <Select<OptionType>
                         options={renderProblems}
                         mode='multiple'
-                        disabled={loading || !selectedPlace || selectedCategories.length < 1}
+                        disabled={loading || selectedCategories.length < 1}
                         placeholder={
                             loading
                                 ? LoadingLabel
@@ -361,18 +313,18 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const createIncidentProperty = IncidentProperty.useCreate({})
     const softDeleteIncidentProperty = IncidentProperty.useSoftDelete()
 
-    const createIncidentTicketClassifier = IncidentTicketClassifier.useCreate({})
-    const softDeleteIncidentTicketClassifier = IncidentTicketClassifier.useSoftDelete()
+    const createIncidentClassifierIncident = IncidentClassifierIncident.useCreate({})
+    const softDeleteIncidentClassifierIncident = IncidentClassifierIncident.useSoftDelete()
 
     const initialIncidentOrganization = useMemo(() => get(initialValues, 'organization.name'), [initialValues])
     const initialIncidentProperties = useMemo(() => get(initialValues, 'incidentProperties', []), [initialValues]) as IIncidentProperty[]
-    const initialIncidentClassifiers = useMemo(() => get(initialValues, 'incidentClassifiers', []), [initialValues]) as IIncidentTicketClassifier[]
+    const initialIncidentClassifiers = useMemo(() => get(initialValues, 'incidentClassifiers', []), [initialValues]) as IIncidentClassifierIncident[]
 
     const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => item.property.id), [initialIncidentProperties])
     const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => item.classifier.id), [initialIncidentClassifiers])
 
     const handleFormSubmit = useCallback(async (values) => {
-        const { properties, allClassifiers, placeClassifier, categoryClassifiers, problemClassifiers, ...incidentValues } = values
+        const { properties, allClassifiers, categoryClassifiers, problemClassifiers, ...incidentValues } = values
 
         const incident = await createOrUpdateIncident(incidentValues)
 
@@ -393,8 +345,6 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
 
         const selectedClassifierIds = allClassifiers
             .filter(classifier => (
-                get(classifier, 'place.id') === placeClassifier
-            ) && (
                 categoryClassifiers.includes(get(classifier, 'category.id'))
             ) && (
                 (problemClassifiers.length < 1 && !get(classifier, 'problem.id'))
@@ -404,17 +354,17 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
 
         const addedClassifierIds = difference(selectedClassifierIds, initialClassifierIds)
         for (const classifierId of addedClassifierIds) {
-            await createIncidentTicketClassifier({
+            await createIncidentClassifierIncident({
                 classifier: { connect: { id: classifierId } },
                 incident: { connect: { id: incident.id } },
             })
         }
 
         const deletedClassifierIds = difference(initialClassifierIds, selectedClassifierIds)
-        const incidentTicketClassifiersToDelete = initialIncidentClassifiers
+        const incidentClassifierIncidentToDelete = initialIncidentClassifiers
             .filter(incidentClassifier => deletedClassifierIds.includes(incidentClassifier.classifier.id))
-        for (const incidentClassifier of incidentTicketClassifiersToDelete) {
-            await softDeleteIncidentTicketClassifier(incidentClassifier)
+        for (const incidentClassifier of incidentClassifierIncidentToDelete) {
+            await softDeleteIncidentClassifierIncident(incidentClassifier)
         }
 
         if (isFunction(afterAction)) {
@@ -422,7 +372,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         } else {
             await router.push('/incident')
         }
-    }, [afterAction, createIncidentProperty, createIncidentTicketClassifier, createOrUpdateIncident, initialClassifierIds, initialIncidentClassifiers, initialIncidentProperties, initialPropertyIds, router, softDeleteIncidentProperty, softDeleteIncidentTicketClassifier])
+    }, [afterAction, createIncidentProperty, createIncidentClassifierIncident, createOrUpdateIncident, initialClassifierIds, initialIncidentClassifiers, initialIncidentProperties, initialPropertyIds, router, softDeleteIncidentProperty, softDeleteIncidentClassifierIncident])
 
     const propertySelectProps: InputWithCheckAllProps['selectProps'] = useMemo(() => ({
         showArrow: false,
