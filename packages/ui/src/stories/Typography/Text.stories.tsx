@@ -3,14 +3,13 @@ import { styled } from '@storybook/theming'
 import get from 'lodash/get'
 import React from 'react'
 
-import { Space } from '@open-condo/ui/src'
-import { Typography } from '@open-condo/ui/src'
+import { Typography, Space } from '@open-condo/ui/src'
 import type { TypographyTextProps } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
 const getArticle = (str?: string) => {
     if (!str) return 'a'
-    const firstChar = str.at(0)
+    const firstChar = str[0]
     if (!firstChar) return 'a'
     return firstChar.match('a|e|i|o|u/i') ? 'an' : 'a'
 }
