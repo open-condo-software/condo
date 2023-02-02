@@ -49,6 +49,66 @@ describe('RegisterServiceConsumerService', () => {
         expect(out2.id).toEqual(out.id)
     })
 
+    it('allows to create same service consumers, that are linked to different organizations', async () => {
+
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+
+        const USER_UNIT_NAME = String(faker.datatype.number())
+        const USER_ACCOUNT_NUMBER = String(faker.datatype.number())
+
+        // Org 1 = management company organization
+
+        const organization1 = userClient.organization
+
+        const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
+        const [integration] = await createTestBillingIntegration(adminClient)
+
+        await createTestMeter(adminClient, organization1, userClient.property, resource, {
+            unitName: USER_UNIT_NAME,
+            accountNumber: USER_ACCOUNT_NUMBER,
+        })
+        await createTestBillingIntegrationOrganizationContext(adminClient, organization1, integration)
+
+        // Org 2 = just some other org, which provides some services for this resident (like intercom service)
+
+        const [organization2] = await createTestOrganization(adminClient)
+
+        const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization2, integration)
+        const [billingProperty] = await createTestBillingProperty(adminClient, context)
+        const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty, {
+            number: USER_ACCOUNT_NUMBER,
+            unitName: USER_UNIT_NAME,
+        })
+
+        // Prepare resident and create serviceConsumers
+
+        await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
+            unitName: billingAccountAttrs.unitName,
+        })
+
+        const payload = {
+            residentId: resident.id,
+            accountNumber: billingAccountAttrs.number,
+            organizationId: organization2.id,
+        }
+
+        const [out] = await registerServiceConsumerByTestClient(userClient, payload)
+        expect(out.id).toBeDefined()
+
+        const payload2 = {
+            residentId: resident.id,
+            accountNumber: billingAccountAttrs.number,
+            organizationId: organization1.id,
+        }
+
+        const [out2] = await registerServiceConsumerByTestClient(userClient, payload2)
+        expect(out2.id).toBeDefined()
+
+        expect(out.id === out2.id).toBeFalsy()
+    })
+
     it('can create, delete and create service consumer', async () => {
 
         const userClient = await makeClientWithProperty()

@@ -122,6 +122,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 const [existingServiceConsumer] = await ServiceConsumer.getAll(context, {
                     resident: { id: residentId },
                     accountNumber: accountNumber,
+                    organization: { id: organizationId },
                 })
 
                 let id
