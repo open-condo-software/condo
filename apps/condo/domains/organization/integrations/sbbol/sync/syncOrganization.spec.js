@@ -7,6 +7,7 @@ const { getItem, updateItem } = require('@keystonejs/server-side-graphql-client'
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
 
+const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
@@ -14,6 +15,7 @@ const { Organization } = require('@condo/domains/organization/utils/serverSchema
 const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { UserAdmin } = require('@condo/domains/user/gql')
 const { makeClientWithNewRegisteredAndLoggedInUser, User } = require('@condo/domains/user/utils/testSchema')
 
 const { MockSbbolResponses } = require('./MockSbbolResponses')
@@ -65,20 +67,26 @@ describe('syncOrganization from SBBOL', () => {
             }
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await registerNewOrganization(client)
+            const [user] = await execGqlWithoutAccess(adminContext, {
+                query: UserAdmin.GET_ALL_OBJS_QUERY,
+                variables: { where: { id: client.user.id } },
+                errorMessage: '[error] cannot query user',
+                dataPath: 'objs',
+            })
 
-            userData.phone = client.user.phone
+            userData.phone = user.phone
             organizationData.meta.inn = organization.tin
 
             await OrganizationApi.softDelete(adminContext, organization.id, { ...dvSenderFields })
 
             const [connectedEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
-                user: { id: client.user.id },
+                user: { id: user.id },
             })
             await OrganizationEmployeeApi.softDelete(adminContext, connectedEmployee.id, { ...dvSenderFields })
 
             await syncOrganization({
                 context,
-                user: client.user,
+                user,
                 userData,
                 dvSenderFields,
                 organizationInfo: organizationData,
@@ -92,11 +100,12 @@ describe('syncOrganization from SBBOL', () => {
 
             const [existedEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
                 organization: { id: newOrganization.id },
-                user: { id: client.user.id },
+                user: { id: user.id },
             })
             expect(existedEmployee).toBeDefined()
             expect(existedEmployee.isAccepted).toBeTruthy()
             expect(existedEmployee.role.canManageEmployees).toBeTruthy()
+            expect(existedEmployee.phone).toEqual(user.phone)
         })
 
         it('should create new organization and create new user', async () => {

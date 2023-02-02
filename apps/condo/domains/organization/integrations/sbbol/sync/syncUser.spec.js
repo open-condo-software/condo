@@ -44,6 +44,7 @@ describe('syncUser from SBBOL', () => {
                 identityType: SBBOL_IDP_TYPE,
             })
             expect(checkedIdentity).toBeDefined()
+            expect(newUser.phone).toEqual(userData.phone)
         })
         it('should create onboarding', async () => {
             const identityId = uuid()
