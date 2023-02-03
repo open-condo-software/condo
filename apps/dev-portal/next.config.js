@@ -11,9 +11,9 @@ const nextConfig = {
         locales: LOCALES,
         defaultLocale: DEFAULT_LOCALE,
     },
-    compiler: {
-        emotion: true,
-    },
+    transpilePackages: [
+        'antd',
+    ],
 }
 
 module.exports = nextConfig

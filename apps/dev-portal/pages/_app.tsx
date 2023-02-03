@@ -1,6 +1,7 @@
 import createCache from '@emotion/cache'
 import { CacheProvider } from '@emotion/react'
 import { ConfigProvider, Layout } from 'antd'
+import { Header } from 'domains/common/components/Header'
 import { theme } from 'domains/common/constants/antd'
 import { LOCALES, DEFAULT_LOCALE } from 'domains/common/constants/locales'
 import en from 'lang/en.json'
@@ -44,9 +45,7 @@ export default function App ({ Component, pageProps, router }: AppProps): ReactN
             <ConfigProvider theme={theme}>
                 <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
                     <Layout>
-                        <Layout.Header>
-                            1234
-                        </Layout.Header>
+                        <Header/>
                         <Layout>
                             <Component {...pageProps}/>
                         </Layout>
