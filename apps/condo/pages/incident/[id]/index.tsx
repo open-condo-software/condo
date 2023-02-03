@@ -9,7 +9,7 @@ import dayjs  from 'dayjs'
 import { get } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Tag, Typography } from '@open-condo/ui'
@@ -353,11 +353,13 @@ const IncidentOrganizationField: React.FC<IncidentFieldProps> = ({ incident }) =
     )
 }
 
+const INCIDENT_CONTENT_GUTTER: ComponentProps<typeof Row>['gutter'] = [0, 24]
+
 const IncidentContent: React.FC<IncidentContentProps> = (props) => {
     const { incident, withOrganization = false } = props
 
     return (
-        <Row gutter={[0, 24]}>
+        <Row gutter={INCIDENT_CONTENT_GUTTER}>
             {withOrganization && (
                 <Col span={24}>
                     <IncidentOrganizationField incident={incident}/>
@@ -384,6 +386,10 @@ const IncidentContent: React.FC<IncidentContentProps> = (props) => {
         </Row>
     )
 }
+
+const HEADER_CONTENT_GUTTER: ComponentProps<typeof Row>['gutter'] = [0, 24]
+const PAGE_CONTENT_GUTTER: ComponentProps<typeof Row>['gutter'] = [0, 60]
+const PAGE_HEADER_STYLE: React.CSSProperties = { paddingBottom: 20 }
 
 export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
     const intl = useIntl()
@@ -427,6 +433,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     }, [incident.id, router])
 
     const createdAt = useMemo(() => dayjs(incident.createdAt).format('DD.MM.YYYY, HH:mm'), [incident.createdAt])
+    const createdBy = useMemo(() => get(incident, ['createdBy']), [incident])
 
     return (
         <>
@@ -434,15 +441,15 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                 <title>{PageTitle}{incident.number}</title>
             </Head>
             <PageWrapper>
-                <PageHeader style={{ paddingBottom: 20 }} title={<Typography.Title>{PageTitle}{incident.number}</Typography.Title>} />
+                <PageHeader style={PAGE_HEADER_STYLE} title={<Typography.Title>{PageTitle}{incident.number}</Typography.Title>} />
                 <PageContent>
                     {IncidentUpdateStatusModal}
-                    <Row gutter={[0, 60]}>
+                    <Row gutter={PAGE_CONTENT_GUTTER}>
                         <Col span={24} lg={24} xl={22}>
-                            <Row gutter={[0, 24]}>
+                            <Row gutter={HEADER_CONTENT_GUTTER}>
                                 <Col span={24}>
                                     <Typography.Text type='secondary' size='small'>{DateMessage} {createdAt}, {AuthorMessage} </Typography.Text>
-                                    <UserNameField user={get(incident, ['createdBy'])}>
+                                    <UserNameField user={createdBy}>
                                         {({ name, postfix }) => (
                                             <Typography.Text size='small'>
                                                 {name}
