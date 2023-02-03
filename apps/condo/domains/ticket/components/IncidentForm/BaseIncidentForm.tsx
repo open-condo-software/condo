@@ -9,7 +9,7 @@ import {
     IncidentClassifier as IIncidentClassifier,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Form, Row, Typography } from 'antd'
+import { Col, Form, FormInstance, Row, Typography } from 'antd'
 import { FormProps } from 'antd/lib/form/Form'
 import { ColProps } from 'antd/lib/grid/col'
 import dayjs from 'dayjs'
@@ -17,6 +17,7 @@ import { difference } from 'lodash'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
+import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
 import { DefaultOptionType } from 'rc-select/lib/Select'
@@ -271,10 +272,15 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
 
 
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
-const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00', 'HH:mm:ss') }
-const CHECKBOXES_GUTTER: Gutters = [24, 0]
-const VERTICAL_GUTTER: Gutters = [0, 40]
-const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
+export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00', 'HH:mm:ss') }
+export const CHECKBOXES_GUTTER: Gutters = [24, 0]
+export const VERTICAL_GUTTER: Gutters = [0, 40]
+export const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
+export const disabledDate = (form: FormInstance, fieldName: string): ComponentProps<typeof DatePicker>['disabledDate'] => (currentDate) => {
+    const value = form.getFieldValue(fieldName)
+    if (!value) return false
+    return dayjs(value).diff(currentDate) <= 0
+}
 
 export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const intl = useIntl()
@@ -343,13 +349,17 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
             await softDeleteIncidentProperty(incidentProperty)
         }
 
-        const selectedClassifierIds = allClassifiers
-            .filter(classifier => (
-                categoryClassifiers.includes(get(classifier, 'category.id'))
-            ) && (
-                (problemClassifiers.length < 1 && !get(classifier, 'problem.id'))
-                || problemClassifiers.includes(get(classifier, 'problem.id'))
-            ))
+        const selectedClassifiersByCategoryAndProblem = allClassifiers
+            .filter(classifier => categoryClassifiers.includes(get(classifier, 'category.id'))
+                && problemClassifiers.includes(get(classifier, 'problem.id')))
+        const selectedCategoryWithoutSelectedProblemIds = difference(
+            categoryClassifiers,
+            uniq(selectedClassifiersByCategoryAndProblem.map(classifier => get(classifier, 'category.id')))
+        )
+        const selectedClassifiersWithoutProblem = allClassifiers
+            .filter(classifier => !get(classifier, 'problem.id') &&
+                selectedCategoryWithoutSelectedProblemIds.includes(get(classifier, 'category.id')))
+        const selectedClassifierIds = [...selectedClassifiersByCategoryAndProblem, ...selectedClassifiersWithoutProblem]
             .map(classifier => classifier.id)
 
         const addedClassifierIds = difference(selectedClassifierIds, initialClassifierIds)
@@ -411,12 +421,6 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         && status === IncidentStatusType.Actual
         && initialWorkFinish
         && dayjs(initialWorkFinish).diff(dayjs()) < 0
-
-    const disabledDate = useCallback((form, fieldName) => (currentDate) => {
-        const value = form.getFieldValue(fieldName)
-        if (!value) return false
-        return dayjs(value).diff(currentDate) <= 0
-    }, [])
 
     if (loading) {
         return (
