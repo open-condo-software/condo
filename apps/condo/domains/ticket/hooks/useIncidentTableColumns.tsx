@@ -1,6 +1,12 @@
 import { getTimeLeftMessage, getTimeLeftMessageType } from '@app/condo/pages/incident/[id]'
-import { Incident as IIncident, IncidentStatusType } from '@app/condo/schema'
+import {
+    Incident as IIncident,
+    IncidentStatusType,
+    IncidentProperty as IIncidentProperty,
+    IncidentClassifierIncident as IIncidentClassifierIncident,
+} from '@app/condo/schema'
 import { ColumnsType } from 'antd/es/table/interface'
+import { EllipsisConfig } from 'antd/es/typography/Base'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -18,7 +24,7 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 import { getOneAddressAndPropertiesCountRender } from '@condo/domains/property/utils/clientSchema/Renders'
 import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
 import { IncidentProperty, IncidentClassifierIncident } from '@condo/domains/ticket/utils/clientSchema'
-import { getManyClassifiersGroupByPlaceRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
+import { getManyIncidentClassifiersGroupByPlaceRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
 
 type UseTableColumnsPropsType <T = any> = {
@@ -43,7 +49,7 @@ const COLUMNS_WIDTH = {
     workFinish: '10%',
 }
 
-const DETAILS_ELLIPSIS_SETTINGS = { rows: 4, expandable: false }
+const DETAILS_ELLIPSIS_SETTINGS: EllipsisConfig = { rows: 4, expandable: false }
 
 export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
     const intl = useIntl()
@@ -64,8 +70,8 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
 
     const incidentIds = useMemo(() => incidents.map(incident => incident.id), [incidents])
 
-    const [incidentProperties, setIncidentProperties] = useState([])
-    const [incidentClassifiers, setIncidentClassifiers] = useState([])
+    const [incidentProperties, setIncidentProperties] = useState<IIncidentProperty[]>([])
+    const [incidentClassifiers, setIncidentClassifiers] = useState<IIncidentClassifierIncident[]>([])
     const [loading, setLoading] = useState<boolean>(true)
 
     const {
@@ -185,7 +191,7 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
             .filter(item => get(item, 'incident.id') === incident.id)
             .map(item => item.classifier)
 
-        return getManyClassifiersGroupByPlaceRender(DETAILS_ELLIPSIS_SETTINGS)(classifiers)
+        return getManyIncidentClassifiersGroupByPlaceRender(DETAILS_ELLIPSIS_SETTINGS)(classifiers)
     }, [incidentClassifiers])
 
     return useMemo(() => ({
