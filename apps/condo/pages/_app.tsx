@@ -59,6 +59,7 @@ import { SubscriptionProvider, useServiceSubscriptionContext } from '@condo/doma
 import { useEndTrialSubscriptionReminderPopup } from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
+import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 import { USER_QUERY } from '@condo/domains/user/gql'
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
@@ -239,6 +240,7 @@ const MyApp = ({ Component, pageProps }) => {
                 <CacheProvider value={cache}>
                     <FeatureFlagsProvider>
                         <GlobalStyle/>
+                        <CookieAgreement/>
                         <FocusContextProvider>
                             <TasksProvider>
                                 <PostMessageProvider>
