@@ -17,7 +17,7 @@ type CondoRadioProps = {
 export type RadioProps = Pick<DefaultRadioProps, 'autoFocus' | 'defaultChecked' | 'disabled' | 'onChange' | 'checked' | 'value' | 'children'>
 & CondoRadioProps
 
-interface IRadio {
+export interface IRadio {
     (props: RadioProps): React.ReactElement
 }
 

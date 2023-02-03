@@ -103,6 +103,7 @@
     "quicktype-core": "^6.0.71",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "source-map-loader": "^4.0.1",
     "style-dictionary": "^3.7.1",
     "style-loader": "^3.3.1",
     "token-transformer": "^0.0.27",

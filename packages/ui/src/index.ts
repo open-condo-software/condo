@@ -27,6 +27,9 @@ export type { MarkdownProps } from './components/Markdown'
 export { Modal } from './components/Modal'
 export type { ModalProps } from './components/Modal'
 
+export { Select, Option, OptGroup } from './components/Select'
+export type { SelectProps } from './components/Select'
+
 export { Tag } from './components/Tag'
 export type { TagProps } from './components/Tag'
 
