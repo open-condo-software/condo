@@ -844,6 +844,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/dev-portal@workspace:apps/dev-portal"
   dependencies:
+    "@ant-design/cssinjs": ^1.5.6
     "@babel/core": 7.20.12
     "@babel/preset-env": 7.20.2
     "@babel/preset-typescript": ^7.18.6
@@ -858,6 +859,7 @@ __metadata:
     "@types/react-dom": 18.0.10
     "@types/title": 3.4.1
     antd: 5.1.7
+    cookies-next: ^2.1.1
     lodash: 4.17.21
     next: 13.1.6
     react: 18.2.0
@@ -12343,6 +12345,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:^16.10.2":
+  version: 16.18.11
+  resolution: "@types/node@npm:16.18.11"
+  checksum: 2a3b1da13063debe6e26f732defb5f03ef4ef732c3e08daba838d8850433bd00e537ce1a97ce9bcfc4b15db5218d701d1265fae94e0d6926906bec157e6b46e0
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:^16.3.2":
   version: 16.11.52
   resolution: "@types/node@npm:16.11.52"
@@ -18414,6 +18423,17 @@ __metadata:
   version: 2.1.3
   resolution: "cookiejar@npm:2.1.3"
   checksum: 88259983ebc52ceb23cdacfa48762b6a518a57872eff1c7ed01d214fff5cf492e2660d7d5c04700a28f1787a76811df39e8639f8e17670b3cf94ecd86e161f07
+  languageName: node
+  linkType: hard
+
+"cookies-next@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "cookies-next@npm:2.1.1"
+  dependencies:
+    "@types/cookie": ^0.4.1
+    "@types/node": ^16.10.2
+    cookie: ^0.4.0
+  checksum: c5fc2c72cf2d46d6fa804e5690b5038bab3d5c7e741a8472079bfbd6920010802962f7512d999ea430ebcbfc7c89c38e16f423479e4df7cb0bb782cc1a7f9004
   languageName: node
   linkType: hard
 

@@ -1,3 +1,4 @@
 {
-  "hello": "Привет, мир!"
+  "global.lang.ru": "Русский",
+  "global.lang.en": "English"
 }
