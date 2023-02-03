@@ -11,6 +11,7 @@ import type { AppProps } from 'next/app'
 import type { ReactNode } from 'react'
 
 import 'antd/dist/reset.css'
+import '@open-condo/ui/dist/styles.min.css'
 import './globals.css'
 
 type AvailableLocales = typeof LOCALES[number]
@@ -42,9 +43,7 @@ export default function App ({ Component, pageProps, router }: AppProps): ReactN
             <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
                 <Layout>
                     <Header/>
-                    <Layout>
-                        <Component {...pageProps}/>
-                    </Layout>
+                    <Component {...pageProps}/>
                 </Layout>
             </IntlProvider>
         </ConfigProvider>
