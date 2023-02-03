@@ -236,10 +236,6 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
             deletedAt: null,
         },
     })
-
-    const place = useMemo(
-        () => incidentClassifiers.length > 0 && get(incidentClassifiers, ['0', 'classifier', 'place', 'name']),
-        [incidentClassifiers])
     const categories = useMemo(
         () => incidentClassifiers
             .map(item => get(item, 'classifier.category.name'))
@@ -263,18 +259,15 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
 
         return (
             <Typography.Text>
-                <Typography.Text strong>
-                    {place}
-                </Typography.Text>
                 {categories && <Typography.Text strong>
-                    &nbsp;» {categories}
+                    {categories}
                 </Typography.Text>}
                 {problems && <Typography.Text strong type='secondary'>
                     &nbsp;» {problems}
                 </Typography.Text>}
             </Typography.Text>
         )
-    }, [HaveNotMessage, LoadingMessage, categories, incidentClassifiers.length, loading, place, problems])
+    }, [HaveNotMessage, LoadingMessage, categories, incidentClassifiers.length, loading, problems])
 
     return (
         <Row>
