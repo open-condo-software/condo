@@ -3,7 +3,8 @@ import {
     Incident as IIncident,
     IncidentClassifierIncidentWhereInput,
     IncidentStatusType,
-    TicketClassifier as ITicketClassifier, TicketClassifierWhereInput,
+    IncidentClassifier as IIncidentClassifier,
+    IncidentClassifierWhereInput,
 } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
@@ -25,10 +26,12 @@ type Gutters = ComponentProps<typeof Row>['gutter']
 const INCIDENTS_GUTTER: Gutters = [0, 24]
 const DESCRIPTION_GUTTER: Gutters = [0, 14]
 
+type classifierDataType = Pick<IIncidentClassifier, 'category' | 'problem'>
+
 type IncidentHintsProps = {
     propertyId: string
     organizationId: string
-    classifier?: ITicketClassifier
+    classifier?: classifierDataType
     dateISO?: string
     onlyActual?: boolean
 }
@@ -52,9 +55,9 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     //
     // 3.1 - show Incidents
     //
-    // 3.2.1 - search IncidentClassifierIncident by classifierIds and incidentIds
+    // 3.2.1 - search IncidentClassifierIncident by ( TicketCategoryClassifier and TicketProblemClassifier ) and Incidents
     // 3.2.2 - filter Incidents by IncidentClassifierIncident
-    // 3.2.2 - show Incidents
+    // 3.2.2 - show filtered Incidents
 
     const [incidents, setIncidents] = useState<IIncident[]>([])
 
@@ -119,7 +122,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         return get(res, 'data.objs', [])
     }, [onlyActual])
 
-    const fetchIncidentClassifierIncidents = useCallback(async (incidentIds: string[], classifier?: ITicketClassifier) => {
+    const fetchIncidentClassifierIncidents = useCallback(async (incidentIds: string[], classifier?: classifierDataType) => {
         if (incidentIds.length < 1) {
             return []
         }
@@ -130,20 +133,26 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         }
 
         if (classifier) {
-            const placeId = get(classifier, 'place.id')
             const categoryId = get(classifier, 'category.id')
             const problemId = get(classifier, 'problem.id')
-            const classifierWhere: TicketClassifierWhereInput = {}
-            if (placeId) {
-                classifierWhere.place = { id: placeId }
-            }
+
+            const AND: IncidentClassifierWhereInput['AND'] = []
             if (categoryId) {
-                classifierWhere.category = { id: categoryId }
+                AND.push({
+                    category: { id: categoryId },
+                })
             }
             if (problemId) {
-                classifierWhere.problem = { id: problemId }
+                AND.push({
+                    OR: [
+                        { problem_is_null: true },
+                        { problem: { id: problemId } },
+                    ],
+                })
             }
-            where.classifier = classifierWhere
+            where.classifier = {
+                AND,
+            }
         }
 
         const res = await refetchAllIncidentClassifierIncidents({
@@ -153,7 +162,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         return get(res, 'data.objs', [])
     }, [])
 
-    const getIncidents = useCallback(async (propertyId: string, organizationId: string, classifier?: ITicketClassifier, dateISO?: string) => {
+    const getIncidents = useCallback(async (propertyId: string, organizationId: string, classifier?: classifierDataType, dateISO?: string) => {
         const incidentProperties = await fetchIncidentProperties(propertyId)
         const incidents = await fetchIncidents(incidentProperties.map(item => item.incident.id), organizationId, dateISO)
         const incidentClassifierIncidents = await fetchIncidentClassifierIncidents(incidents.map(item => item.id), classifier)
