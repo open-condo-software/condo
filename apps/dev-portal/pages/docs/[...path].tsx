@@ -1,3 +1,5 @@
+import styled from '@emotion/styled'
+import { Button } from 'antd'
 import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
 import { getNavTree, getAllRoutes } from 'domains/docs/utils/routing'
 import React from 'react'
@@ -11,9 +13,15 @@ type DocPageProps = {
     navigation: Array<NavGroup | NavItem>
 }
 
+const Dem = styled.div`
+  background: red;
+`
+
 const DocPage: React.FC<DocPageProps> = ({ navigation }) => {
     return (
         <>
+            <Dem>123123</Dem>
+            <Button>123445</Button>
             <pre>
                 {JSON.stringify(navigation, null, 4)}
             </pre>
