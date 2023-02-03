@@ -1,6 +1,7 @@
-import { Property, Ticket, TicketClassifier } from '@app/condo/schema'
+import { IncidentClassifier, Property, Ticket } from '@app/condo/schema'
 import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
+import { EllipsisConfig } from 'antd/es/typography/Base'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import { isEmpty } from 'lodash'
@@ -174,32 +175,26 @@ export const getClassifierRender = (intl, search?: FilterValue) => {
     }
 }
 
-export const getManyClassifiersGroupByPlaceRender = (ellipsis?) => {
-    return (classifiers: TicketClassifier[]): React.ReactElement => {
-        const place = get(classifiers, ['0', 'place'])
-        const placeId = get(place, 'id')
-
+export const getManyIncidentClassifiersGroupByPlaceRender = (ellipsis?: boolean | EllipsisConfig) => {
+    return (classifiers: IncidentClassifier[]): React.ReactElement => {
         const categoryNames = uniqBy(classifiers
-            .filter(item => get(item, 'place.id') === placeId)
             .map(item => item.category)
             .filter(Boolean), (item) => item.id)
             .map(item => item.name)
 
         const problemNames = uniqBy(classifiers
-            .filter(item => get(item, 'place.id') === placeId)
             .map(item => item.problem)
             .filter(Boolean), (item) => item.id)
             .map(item => item.name)
 
-        if (!place || isEmpty(categoryNames)) {
+        if (isEmpty(categoryNames)) {
             return null
         }
 
-        const placePart = get(place, 'name')
-        const categoriesPart = ` » ${categoryNames.join(', ')}`
+        const categoriesPart = `${categoryNames.join(', ')}`
         const problemsPart = !isEmpty(problemNames) ? ` » ${problemNames.join(', ')}` : ''
 
-        const text = `${placePart}${categoriesPart}${problemsPart}`
+        const text = `${categoriesPart}${problemsPart}`
 
         return getTableCellRenderer(null, ellipsis)(text)
     }
