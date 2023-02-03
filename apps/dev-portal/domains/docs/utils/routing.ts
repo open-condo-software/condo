@@ -11,13 +11,9 @@ function getFileNameRegexp (locale: string): RegExp {
 }
 
 export type NavItem = {
-    title: string
-    link: string
-}
-
-export type NavGroup = {
-    title: string
-    children: Array<NavItem | NavGroup>
+    label: string
+    key: string
+    children?: Array<NavItem>
 }
 
 type FileInfo = {
@@ -35,7 +31,7 @@ function _fileComparer (lhs: FileInfo, rhs: FileInfo) {
     }
 }
 
-export function getNavTree (dir: string, locale: string, rootDir: string): Array<NavItem | NavGroup> {
+export function getNavTree (dir: string, locale: string, rootDir: string): Array<NavItem> {
     const fileRegexp = getFileNameRegexp(locale)
     // Extract all files in dir
     const filePaths = fs.readdirSync(dir, { withFileTypes: true })
@@ -54,15 +50,15 @@ export function getNavTree (dir: string, locale: string, rootDir: string): Array
     const meta: Record<string, string> = fs.existsSync(metaPath)
         ? JSON.parse(fs.readFileSync(metaPath, 'utf-8'))
         : {}
-    const result: Array<NavItem | NavGroup> = []
+    const result: Array<NavItem> = []
 
     // Process meta
     for (const [key, value] of Object.entries(meta)) {
         if (files.includes(key)) {
             files.splice(files.indexOf(key), 1)
             result.push({
-                title: value,
-                link: path.relative(rootDir, path.join(dir, key)),
+                label: value,
+                key: path.relative(rootDir, path.join(dir, key)),
             })
 
         } else if (dirs.includes(key)) {
@@ -70,7 +66,8 @@ export function getNavTree (dir: string, locale: string, rootDir: string): Array
             const children = getNavTree(path.join(dir, key), locale, rootDir)
             if (children.length) {
                 result.push({
-                    title: value,
+                    label: value,
+                    key: path.relative(rootDir, path.join(dir, key)),
                     children,
                 })
             }
@@ -86,15 +83,16 @@ export function getNavTree (dir: string, locale: string, rootDir: string): Array
 
     // Process rest of the files using title pkg for generation titles
     for (const fileInfo of restFiles) {
-        const title = getTitle(fileInfo.name)
+        const label = getTitle(fileInfo.name)
+        const key = path.relative(rootDir, path.join(dir, fileInfo.name))
 
         if (fileInfo.isDir) {
             const children = getNavTree(path.join(dir, fileInfo.name), locale, rootDir)
             if (children.length) {
-                result.push({ title, children })
+                result.push({ label, key, children })
             }
         } else {
-            result.push({ title, link: path.relative(rootDir, path.join(dir, fileInfo.name)) })
+            result.push({ label, key })
         }
     }
 

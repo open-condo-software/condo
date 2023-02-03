@@ -6,5 +6,20 @@ export const theme: ThemeConfig = {
     token: {
         colorPrimary: colors.green['5'],
         colorBgContainer: colors.white,
+        // colorFillSecondary: colors.gray['1'], // Select menu
+        // colorFillTertiary: colors.gray['1'], // selects language
+
+
+    },
+    components: {
+        Menu: {
+            colorPrimaryBg: colors.gray['1'],
+            colorSubItemBg: colors.white,
+            colorItemBgHover: colors.gray['1'],
+            colorItemBgSelected: colors.gray['1'],
+            colorItemTextSelected: colors.gray['7'], // Override icon color, use Typography for
+            colorItemTextHover: colors.gray['7'],
+            colorActiveBarBorderSize: 0,
+        },
     },
 }
