@@ -1692,6 +1692,8 @@
   "incident.form.save.label": "Save",
   "incident.form.alert.notActualWorkFinish.title": "Completion date not up to date",
   "incident.form.alert.notActualWorkFinish.description": "The deadline for completing this shutdown has expired. Update the date or remove if unknown.",
+  "incident.form.prompt.exit.title": "",
+  "incident.form.prompt.exit.message": "",
   "incident.fields.classifier.label": "Classifier",
   "incident.fields.classifier.empty": "—",
   "incident.fields.placeClassifier.label": "Place",

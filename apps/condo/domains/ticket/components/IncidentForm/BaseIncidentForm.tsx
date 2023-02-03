@@ -40,6 +40,7 @@ import {
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
+import Prompt from '@condo/domains/common/components/Prompt'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
@@ -299,6 +300,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const TextForResidentPlaceholderMessage = intl.formatMessage({ id: 'incident.fields.textForResident.placeholder' })
     const NotActualWorkFinishAlertTitle = intl.formatMessage({ id: 'incident.form.alert.notActualWorkFinish.title' })
     const NotActualWorkFinishAlertMessage = intl.formatMessage({ id: 'incident.form.alert.notActualWorkFinish.description' })
+    const PromptTitle = intl.formatMessage({ id: 'incident.form.prompt.exit.title' })
+    const PromptHelpMessage = intl.formatMessage({ id: 'incident.form.prompt.exit.message' })
 
     const {
         action: createOrUpdateIncident,
@@ -438,130 +441,141 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                     scrollToFirstError={SCROLL_TO_FIRST_ERROR_CONFIG}
                     {...FORM_LAYOUT_PROPS}
                     children={({ handleSave, isLoading, form }) => (
-                        <Row gutter={VERTICAL_GUTTER}>
-                            { showNotActualWorkFinishAlert && (
-                                <Col span={24} lg={20} xl={16}>
-                                    <Alert
-                                        type='warning'
-                                        message={NotActualWorkFinishAlertTitle}
-                                        description={NotActualWorkFinishAlertMessage}
-                                        showIcon
-                                    />
-                                </Col>
-                            )}
-                            {
-                                showOrganization && initialIncidentOrganization && (
-                                    <Col span={24}>
-                                        <Form.Item
-                                            label={OrganizationLabel}
-                                        >
-                                            {initialIncidentOrganization}
-                                        </Form.Item>
-                                    </Col>
-                                )
-                            }
-                            <Col span={24}>
-                                <GraphQlSearchInputWithCheckAll
-                                    checkAllFieldName='hasAllProperties'
-                                    checkAllInitialValue={initialValues.hasAllProperties}
-                                    selectFormItemProps={propertySelectFormItemProps}
-                                    selectProps={propertySelectProps}
-                                    checkBoxOffset={isSmallWindow ? 0 : 6}
-                                    CheckAllMessage={CheckAllLabel}
-                                    form={form}
-                                />
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item
-                                    label={WorkStartLabel}
-                                    name='workStart'
-                                    required
-                                    wrapperCol={FORM_ITEM_WRAPPER_COL}
-                                    rules={commonRules}
-                                >
-                                    <DatePicker
-                                        style={FULL_WIDTH_STYLE}
-                                        format='DD MMMM YYYY HH:mm'
-                                        disabledDate={disabledDate(form, 'workFinish')}
-                                        showTime={SHOW_TIME_CONFIG}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item
-                                    label={WorkFinishLabel}
-                                    name='workFinish'
-                                    wrapperCol={FORM_ITEM_WRAPPER_COL}
-                                >
-                                    <DatePicker
-                                        style={FULL_WIDTH_STYLE}
-                                        format='DD MMMM YYYY HH:mm'
-                                        disabledDate={disabledDate(form, 'workStart')}
-                                        showTime={SHOW_TIME_CONFIG}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Classifiers
+                        <>
+                            <Prompt
+                                title={PromptTitle}
                                 form={form}
-                                initialClassifierIds={initialClassifierIds}
-                                rules={commonRules}
-                            />
-                            <Col span={24}>
-                                <Row align='middle'>
-                                    <Col {...FORM_LAYOUT_PROPS.labelCol}>
-                                        <Label>{WorkTypeLabel}</Label>
+                                handleSave={handleSave}
+                            >
+                                <Typography.Paragraph>
+                                    {PromptHelpMessage}
+                                </Typography.Paragraph>
+                            </Prompt>
+                            <Row gutter={VERTICAL_GUTTER}>
+                                { showNotActualWorkFinishAlert && (
+                                    <Col span={24} lg={20} xl={16}>
+                                        <Alert
+                                            type='warning'
+                                            message={NotActualWorkFinishAlertTitle}
+                                            description={NotActualWorkFinishAlertMessage}
+                                            showIcon
+                                        />
                                     </Col>
-                                    <Col>
-                                        <Row gutter={CHECKBOXES_GUTTER} align='middle'>
-                                            <Col>
-                                                <CheckboxFormItem
-                                                    name='isEmergency'
-                                                    valuePropName='checked'
-                                                >
-                                                    <Checkbox children={EmergencyTypeLabel}/>
-                                                </CheckboxFormItem>
-                                            </Col>
-                                            <Col>
-                                                <CheckboxFormItem
-                                                    name='isScheduled'
-                                                    valuePropName='checked'
-                                                >
-                                                    <Checkbox children={ScheduledTypeLabel}/>
-                                                </CheckboxFormItem>
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item
-                                    label={DetailsLabel}
-                                    name='details'
-                                    required
-                                    rules={detailsRules}
-                                >
-                                    <TextArea maxLength={500} placeholder={DetailsPlaceholderMessage}/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item
-                                    label={TextForResidentLabel}
-                                    name='textForResident'
-                                >
-                                    <TextArea maxLength={500} placeholder={TextForResidentPlaceholderMessage} />
-                                </Form.Item>
-                            </Col>
-                            {
-                                isFunction(ActionBar)
-                                && (
-                                    <ActionBar
-                                        handleSave={handleSave}
-                                        isLoading={isLoading}
+                                )}
+                                {
+                                    showOrganization && initialIncidentOrganization && (
+                                        <Col span={24}>
+                                            <Form.Item
+                                                label={OrganizationLabel}
+                                            >
+                                                {initialIncidentOrganization}
+                                            </Form.Item>
+                                        </Col>
+                                    )
+                                }
+                                <Col span={24}>
+                                    <GraphQlSearchInputWithCheckAll
+                                        checkAllFieldName='hasAllProperties'
+                                        checkAllInitialValue={initialValues.hasAllProperties}
+                                        selectFormItemProps={propertySelectFormItemProps}
+                                        selectProps={propertySelectProps}
+                                        checkBoxOffset={isSmallWindow ? 0 : 6}
+                                        CheckAllMessage={CheckAllLabel}
                                         form={form}
                                     />
-                                )
-                            }
-                        </Row>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item
+                                        label={WorkStartLabel}
+                                        name='workStart'
+                                        required
+                                        wrapperCol={FORM_ITEM_WRAPPER_COL}
+                                        rules={commonRules}
+                                    >
+                                        <DatePicker
+                                            style={FULL_WIDTH_STYLE}
+                                            format='DD MMMM YYYY HH:mm'
+                                            disabledDate={disabledDate(form, 'workFinish')}
+                                            showTime={SHOW_TIME_CONFIG}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item
+                                        label={WorkFinishLabel}
+                                        name='workFinish'
+                                        wrapperCol={FORM_ITEM_WRAPPER_COL}
+                                    >
+                                        <DatePicker
+                                            style={FULL_WIDTH_STYLE}
+                                            format='DD MMMM YYYY HH:mm'
+                                            disabledDate={disabledDate(form, 'workStart')}
+                                            showTime={SHOW_TIME_CONFIG}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Classifiers
+                                    form={form}
+                                    initialClassifierIds={initialClassifierIds}
+                                    rules={commonRules}
+                                />
+                                <Col span={24}>
+                                    <Row align='middle'>
+                                        <Col {...FORM_LAYOUT_PROPS.labelCol}>
+                                            <Label>{WorkTypeLabel}</Label>
+                                        </Col>
+                                        <Col>
+                                            <Row gutter={CHECKBOXES_GUTTER} align='middle'>
+                                                <Col>
+                                                    <CheckboxFormItem
+                                                        name='isEmergency'
+                                                        valuePropName='checked'
+                                                    >
+                                                        <Checkbox children={EmergencyTypeLabel}/>
+                                                    </CheckboxFormItem>
+                                                </Col>
+                                                <Col>
+                                                    <CheckboxFormItem
+                                                        name='isScheduled'
+                                                        valuePropName='checked'
+                                                    >
+                                                        <Checkbox children={ScheduledTypeLabel}/>
+                                                    </CheckboxFormItem>
+                                                </Col>
+                                            </Row>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item
+                                        label={DetailsLabel}
+                                        name='details'
+                                        required
+                                        rules={detailsRules}
+                                    >
+                                        <TextArea maxLength={500} placeholder={DetailsPlaceholderMessage}/>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item
+                                        label={TextForResidentLabel}
+                                        name='textForResident'
+                                    >
+                                        <TextArea maxLength={500} placeholder={TextForResidentPlaceholderMessage} />
+                                    </Form.Item>
+                                </Col>
+                                {
+                                    isFunction(ActionBar)
+                                    && (
+                                        <ActionBar
+                                            handleSave={handleSave}
+                                            isLoading={isLoading}
+                                            form={form}
+                                        />
+                                    )
+                                }
+                            </Row>
+                        </>
                     )}
                 />
             </Col>

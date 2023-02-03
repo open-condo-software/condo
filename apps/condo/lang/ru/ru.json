@@ -1692,6 +1692,8 @@
   "incident.form.save.label": "Сохранить",
   "incident.form.alert.notActualWorkFinish.title": "Дата завершения работ неактуальна",
   "incident.form.alert.notActualWorkFinish.description": "Срок выполнения работ по этому отключению истек. Обновите дату или уберите, если она неизвестна.",
+  "incident.form.prompt.exit.title": "Не сохранять запись?",
+  "incident.form.prompt.exit.message": "Запись не сохранится, если вы уйдете со страницы",
   "incident.fields.classifier.label": "Классификатор",
   "incident.fields.classifier.empty": "—",
   "incident.fields.placeClassifier.label": "Место",
