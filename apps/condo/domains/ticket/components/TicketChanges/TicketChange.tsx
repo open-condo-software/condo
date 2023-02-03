@@ -432,7 +432,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 field,
                 message: (
                     <>
-                        <SafeUserMention ticketChange={ticketChange}/>
+                        <SafeUserMention changeValue={ticketChange}/>
                         &nbsp;
                         {DeclineTicketByResidentMessage}
                     </>
