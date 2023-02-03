@@ -11,6 +11,9 @@ const nextConfig = {
         locales: LOCALES,
         defaultLocale: DEFAULT_LOCALE,
     },
+    compiler: {
+        emotion: true,
+    },
 }
 
 module.exports = nextConfig
