@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import { Layout, theme, Dropdown } from 'antd'
 import { setCookie } from 'cookies-next'
 import { LOCALES } from 'domains/common/constants/locales'
@@ -12,9 +11,9 @@ import { Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 const STATIC_HEADER_STYLES: CSSProperties = {
-    padding: '12px 32px',
+    padding: 'auto 32px',
     boxSizing: 'border-box',
-    height: 'auto',
+    height: 72,
     borderBottom: `1px solid ${colors.gray['3']}`,
     lineHeight: 'inherit',
     display: 'flex',
@@ -28,15 +27,9 @@ const LOGO_IMAGE_STYLES: CSSProperties = {
     objectPosition: 'left',
 }
 
-const LogoContainer = styled.div`
-  position: relative;
-  width: 304px;
-  height: 28px;
-`
-
-const DropoutIconWrapper = styled.span`
-  cursor: pointer;
-`
+// const DropoutIconWrapper = styled.span`
+//   cursor: pointer;
+// `
 
 export const Header: React.FC = () => {
     const intl = useIntl()
@@ -45,23 +38,16 @@ export const Header: React.FC = () => {
     const { token: { colorBgContainer } } = theme.useToken()
 
     const handleLocaleChange = useCallback(({ key }: { key: string }) => {
-        setCookie('NEXT_LOCALE', key)
+        setCookie('NEXT_LOCALE', key, { path: '/' })
         router.push(router.asPath,  router.asPath, { locale: key })
     }, [router])
 
     return (
         <Layout.Header style={{ ...STATIC_HEADER_STYLES, background: colorBgContainer }}>
-            <div style={{
-                position: 'relative',
-                width: 304,
-                height: 28,
-            }}>
+            <div className='relative w-[304px] h-7'>
                 <Image src='/logo.svg' alt='Logo' fill style={LOGO_IMAGE_STYLES} priority/>
             </div>
-            {/*<LogoContainer>*/}
-            {/*    */}
-            {/*</LogoContainer>*/}
-            <Space direction='horizontal' align='end' size={24}>
+            <Space direction='horizontal' align='center' size={24}>
                 <Dropdown
                     menu={{
                         items: LOCALES.map(locale => ({
@@ -74,9 +60,9 @@ export const Header: React.FC = () => {
                     }}
                     placement='bottom'
                 >
-                    <DropoutIconWrapper>
+                    <span className='cursor-pointer'>
                         <Globe size='large' color={colors.gray['7']}/>
-                    </DropoutIconWrapper>
+                    </span>
                 </Dropdown>
             </Space>
         </Layout.Header>

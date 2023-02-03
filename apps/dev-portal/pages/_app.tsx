@@ -1,5 +1,3 @@
-import createCache from '@emotion/cache'
-import { CacheProvider } from '@emotion/react'
 import { ConfigProvider, Layout } from 'antd'
 import { Header } from 'domains/common/components/Header'
 import { theme } from 'domains/common/constants/antd'
@@ -13,6 +11,7 @@ import type { AppProps } from 'next/app'
 import type { ReactNode } from 'react'
 
 import 'antd/dist/reset.css'
+import './globals.css'
 
 type AvailableLocales = typeof LOCALES[number]
 // NOTE: Combine all keys together
@@ -24,8 +23,6 @@ const MESSAGES: MessagesType = {
     ru,
     en,
 }
-
-const EMOTION_CACHE = createCache({ key: 'dev' })
 
 // NOTE: Override global interface allows us to use autocomplete in intl
 declare global {
@@ -41,17 +38,15 @@ export default function App ({ Component, pageProps, router }: AppProps): ReactN
     const { locale = DEFAULT_LOCALE } = router
 
     return (
-        <CacheProvider value={EMOTION_CACHE}>
-            <ConfigProvider theme={theme}>
-                <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
+        <ConfigProvider theme={theme}>
+            <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
+                <Layout>
+                    <Header/>
                     <Layout>
-                        <Header/>
-                        <Layout>
-                            <Component {...pageProps}/>
-                        </Layout>
+                        <Component {...pageProps}/>
                     </Layout>
-                </IntlProvider>
-            </ConfigProvider>
-        </CacheProvider>
+                </Layout>
+            </IntlProvider>
+        </ConfigProvider>
     )
 }
