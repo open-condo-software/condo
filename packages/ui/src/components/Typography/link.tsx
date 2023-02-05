@@ -25,7 +25,7 @@ const Link = React.forwardRef<HTMLElement, TypographyLinkProps>((props, ref) => 
     // NOTE: Used wrapper destructuring to explicitly pass component props, which is marked as internal in antd
     const componentProps = { component: 'a' }
 
-    const handleClick = useCallback((event) => {
+    const handleClick = useCallback<React.MouseEventHandler<HTMLAnchorElement>>((event) => {
         const stringContent = extractChildrenContent(children)
         if (stringContent) {
             sendAnalyticsClickEvent('Typography.Link', { value: stringContent, href, id })

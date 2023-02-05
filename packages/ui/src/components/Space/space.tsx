@@ -7,7 +7,7 @@ export declare const SpaceSize: [8, 12, 16, 20, 24, 40, 52, 60]
 
 export type SpaceProps = {
     size: typeof SpaceSize[number] | [typeof SpaceSize[number], typeof SpaceSize[number]]
-} & Pick<DefaultSpaceProps, 'direction' | 'align' | 'wrap'>
+} & Pick<DefaultSpaceProps, 'direction' | 'align' | 'wrap' | 'children'>
 
 const SPACE_CLASS_PREFIX = 'condo-space'
 

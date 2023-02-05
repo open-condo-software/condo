@@ -18,7 +18,7 @@ type CondoButtonProps = {
 export type ButtonProps = Omit<DefaultButtonProps, 'shape' | 'size' | 'style' | 'ghost' | 'type' | 'prefix' | 'prefixCls'>
 & CondoButtonProps
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
+const Button: React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<HTMLButtonElement>> = React.forwardRef((props, ref) => {
     const { type, className, icon, children, onClick, stateless, id, ...rest } = props
     const classes = classNames(
         {
@@ -32,7 +32,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => 
         ? <span className={`${BUTTON_CLASS_PREFIX}-icon`}>{icon}</span>
         : null
 
-    const handleClick = useCallback((event) => {
+    const handleClick = useCallback<React.MouseEventHandler<HTMLElement>>((event) => {
         const stringContent = extractChildrenContent(children)
         if (stringContent) {
             sendAnalyticsClickEvent('Button', { value: stringContent, type, id })
