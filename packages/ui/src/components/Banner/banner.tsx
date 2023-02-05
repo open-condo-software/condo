@@ -65,7 +65,7 @@ export const Banner: React.FC<BannerProps> = ({
     const titleLevel = (width >= LG_BARRIER || (width < MD_BARRIER && width >= SM_BARRIER)) ? 2 : 3
     const textSize = (width >= LG_BARRIER || width < MD_BARRIER) ? 'large' : 'medium'
 
-    const handleClick = useCallback((event) => {
+    const handleClick = useCallback<React.MouseEventHandler<HTMLDivElement>>((event) => {
         sendAnalyticsClickEvent('Banner', { title, id })
 
         if (onClick) {

@@ -5,7 +5,7 @@ import { sendAnalyticsCheckEvent, extractChildrenContent } from '../_utils/analy
 import { Typography } from '../Typography'
 
 import type { TypographyTextProps } from '../Typography'
-import type { RadioProps as DefaultRadioProps } from 'antd'
+import type { RadioProps as DefaultRadioProps, RadioChangeEvent } from 'antd'
 
 const RADIO_CLASS_PREFIX = 'condo-radio'
 
@@ -24,7 +24,7 @@ export interface IRadio {
 const Radio: IRadio = (props) => {
     const { label, labelProps, disabled, onChange, children, id, ...rest } = props
 
-    const handleChange = useCallback((event) => {
+    const handleChange = useCallback((event: RadioChangeEvent) => {
         const stringContent = label ? label : extractChildrenContent(children)
         if (stringContent) {
             sendAnalyticsCheckEvent('Radio', { value: stringContent, id })
