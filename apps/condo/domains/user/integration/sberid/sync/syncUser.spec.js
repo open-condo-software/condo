@@ -48,10 +48,10 @@ describe('syncUser from SBBOL', () => {
             returnFields: 'id name email phone type isPhoneVerified isEmailVerified',
         })
         expect(checkUser).toBeDefined()
-        expect(checkUser.id).toBeDefined()
-        expect(checkUser.name).toBeDefined()
-        expect(checkUser.email).toBeDefined()
-        expect(checkUser.phone).toBeDefined()
+        expect(checkUser).toHaveProperty('id')
+        expect(checkUser).toHaveProperty('name')
+        expect(checkUser).toHaveProperty('email')
+        expect(checkUser).toHaveProperty('phone')
         expect(checkUser.type).toEqual(RESIDENT)
         expect(checkUser.isPhoneVerified).toBeTruthy()
         expect(checkUser.isEmailVerified).toBeTruthy()
@@ -62,7 +62,7 @@ describe('syncUser from SBBOL', () => {
             identityType: SBER_ID_IDP_TYPE,
         })
         expect(checkedIdentity).toBeDefined()
-        expect(checkedIdentity.user).toBeDefined()
+        expect(checkedIdentity).toHaveProperty('user')
         expect(checkedIdentity.user.id).toEqual(checkUser.id)
         expect(checkedIdentity.identityId).toEqual(identityId)
         expect(checkedIdentity.identityType).toEqual(SBER_ID_IDP_TYPE)
@@ -88,7 +88,7 @@ describe('syncUser from SBBOL', () => {
             identityType: SBER_ID_IDP_TYPE,
         })
         expect(checkedIdentity).toBeDefined()
-        expect(checkedIdentity.user).toBeDefined()
+        expect(checkedIdentity).toHaveProperty('user')
         expect(checkedIdentity.user.id).toEqual(id)
         expect(checkedIdentity.identityId).toEqual(identityId)
         expect(checkedIdentity.identityType).toEqual(SBER_ID_IDP_TYPE)
@@ -123,6 +123,6 @@ describe('syncUser from SBBOL', () => {
             identityType: SBER_ID_IDP_TYPE,
         })
 
-        expect(identities.length).toEqual(1)
+        expect(identities).toHaveLength(1)
     })
 })
