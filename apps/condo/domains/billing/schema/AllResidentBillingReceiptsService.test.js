@@ -1016,4 +1016,68 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(receiptForHousing.account.id).toEqual(receiptForWater.account.id)
         })
     })
+
+    describe('sortBy', () => {
+        it('sortBy period field works for receipts with old receipts', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+
+            const [integration] = await createTestBillingIntegration(adminClient)
+            const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+            const [billingProperty] = await createTestBillingProperty(adminClient, context)
+            const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+            const [billingAccount2, billingAccountAttrs2] = await createTestBillingAccount(adminClient, context, billingProperty)
+
+            await addResidentAccess(userClient.user)
+
+            const [resident] = await createTestResident(adminClient,
+                userClient.user, userClient.property,
+                { unitName: billingAccountAttrs.unitName })
+
+            const payload = {
+                residentId: resident.id,
+                accountNumber: billingAccountAttrs.number,
+                organizationId: userClient.organization.id,
+            }
+            await registerServiceConsumerByTestClient(userClient, payload)
+
+            const payload2 = {
+                residentId: resident.id,
+                accountNumber: billingAccountAttrs2.number,
+                organizationId: userClient.organization.id,
+            }
+            await registerServiceConsumerByTestClient(userClient, payload2)
+
+            // Receipts for billing account 1
+
+            const [receipt1] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
+                period: '2022-03-01',
+            })
+
+            const [receipt2] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
+                period: '2022-05-01',
+            })
+
+            // Receipts for billing account 2
+
+            const [receipt3] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount2, {
+                period: '2022-04-01',
+            })
+
+            const [receipt4] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount2, {
+                period: '2022-06-01',
+            })
+
+            const objs = await ResidentBillingReceipt.getAll(userClient, {}, { sortBy: 'period_ASC' })
+            expect(objs).toHaveLength(4)
+            expect(objs[0].raw).toEqual(undefined)
+            expect(objs[0].id).toEqual(receipt1.id)
+            expect(objs[1].raw).toEqual(undefined)
+            expect(objs[1].id).toEqual(receipt3.id)
+            expect(objs[2].raw).toEqual(undefined)
+            expect(objs[2].id).toEqual(receipt2.id)
+            expect(objs[3].raw).toEqual(undefined)
+            expect(objs[3].id).toEqual(receipt4.id)
+        })
+    })
 })
