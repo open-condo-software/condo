@@ -22,7 +22,6 @@ const {
     createTestBankIntegrationContext,
 } = require('@condo/domains/banking/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
@@ -44,9 +43,8 @@ describe('BankTransaction', () => {
         describe('create', () => {
             test('admin can', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(support, organization)
@@ -76,9 +74,8 @@ describe('BankTransaction', () => {
 
             test('support can\'t', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(support, organization)
@@ -91,13 +88,12 @@ describe('BankTransaction', () => {
             test('user can if it is an employee of organization with "canManageBankTransactions" permission', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                     canManageBankTransactions: true,
                 })
                 await createTestOrganizationEmployee(admin, organization, userClient.user, role)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -113,13 +109,12 @@ describe('BankTransaction', () => {
             test('user cannot if it is an employee of organization without "canManageBankTransactions" permission', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                     canManageBankTransactions: false,
                 })
                 await createTestOrganizationEmployee(admin, organization, userClient.user, role)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -133,13 +128,12 @@ describe('BankTransaction', () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
                 const [anotherOrganization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [role] = await createTestOrganizationEmployeeRole(admin, anotherOrganization, {
                     canManageBankTransactions: true,
                 })
                 await createTestOrganizationEmployee(admin, anotherOrganization, userClient.user, role)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -152,7 +146,6 @@ describe('BankTransaction', () => {
             test('user can if it is an employee of linked organization with "canManageBankTransactions" permission', async () => {
                 const [parentOrganization] = await createTestOrganization(admin)
                 const [childOrganization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, childOrganization)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(admin, parentOrganization, childOrganization)
                 const [role] = await createTestOrganizationEmployeeRole(admin, parentOrganization, {
@@ -160,7 +153,7 @@ describe('BankTransaction', () => {
                 })
                 await createTestOrganizationEmployee(admin, parentOrganization, userClient.user, role, {})
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, childOrganization)
-                const [account] = await createTestBankAccount(admin, childOrganization, property, {
+                const [account] = await createTestBankAccount(admin, childOrganization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, childOrganization)
@@ -176,7 +169,6 @@ describe('BankTransaction', () => {
             test('user cannot if it is an employee of linked organization without "canManageBankTransactions" permission', async () => {
                 const [parentOrganization] = await createTestOrganization(admin)
                 const [childOrganization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, childOrganization)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(admin, parentOrganization, childOrganization)
                 const [role] = await createTestOrganizationEmployeeRole(admin, parentOrganization, {
@@ -185,7 +177,7 @@ describe('BankTransaction', () => {
                 await createTestOrganizationEmployee(admin, parentOrganization, userClient.user, role, {})
 
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, childOrganization)
-                const [account] = await createTestBankAccount(admin, childOrganization, property, {
+                const [account] = await createTestBankAccount(admin, childOrganization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, childOrganization)
@@ -197,9 +189,8 @@ describe('BankTransaction', () => {
 
             test('anonymous can\'t', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -214,9 +205,8 @@ describe('BankTransaction', () => {
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -232,9 +222,8 @@ describe('BankTransaction', () => {
             test('support can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -248,13 +237,12 @@ describe('BankTransaction', () => {
             test('user can if it is an employee of organization with "canManageBankTransactions" permission', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                     canManageBankTransactions: true,
                 })
                 await createTestOrganizationEmployee(admin, organization, userClient.user, role)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -270,13 +258,12 @@ describe('BankTransaction', () => {
             test('user cannot if it is an employee of organization without "canManageBankTransactions" permission', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                     canManageBankTransactions: false,
                 })
                 await createTestOrganizationEmployee(admin, organization, userClient.user, role)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -291,13 +278,12 @@ describe('BankTransaction', () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
                 const [anotherOrganization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [role] = await createTestOrganizationEmployeeRole(admin, anotherOrganization, {
                     canManageBankTransactions: true,
                 })
                 await createTestOrganizationEmployee(admin, anotherOrganization, userClient.user, role)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -311,7 +297,6 @@ describe('BankTransaction', () => {
             test('user can if it is an employee of linked organization with "canManageBankTransactions" permission', async () => {
                 const [parentOrganization] = await createTestOrganization(admin)
                 const [childOrganization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, childOrganization)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(admin, parentOrganization, childOrganization)
                 const [role] = await createTestOrganizationEmployeeRole(admin, parentOrganization, {
@@ -319,7 +304,7 @@ describe('BankTransaction', () => {
                 })
                 await createTestOrganizationEmployee(admin, parentOrganization, userClient.user, role, {})
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, childOrganization)
-                const [account] = await createTestBankAccount(admin, childOrganization, property, {
+                const [account] = await createTestBankAccount(admin, childOrganization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, childOrganization)
@@ -335,7 +320,6 @@ describe('BankTransaction', () => {
             test('user cannot if it is an employee of linked organization without "canManageBankTransactions" permission', async () => {
                 const [parentOrganization] = await createTestOrganization(admin)
                 const [childOrganization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, childOrganization)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(admin, parentOrganization, childOrganization)
                 const [role] = await createTestOrganizationEmployeeRole(admin, parentOrganization, {
@@ -343,7 +327,7 @@ describe('BankTransaction', () => {
                 })
                 await createTestOrganizationEmployee(admin, parentOrganization, userClient.user, role, {})
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, childOrganization)
-                const [account] = await createTestBankAccount(admin, childOrganization, property, {
+                const [account] = await createTestBankAccount(admin, childOrganization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, childOrganization)
@@ -356,9 +340,8 @@ describe('BankTransaction', () => {
 
             test('anonymous can\'t', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -373,9 +356,8 @@ describe('BankTransaction', () => {
         describe('hard delete', () => {
             test('admin can\'t', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -389,9 +371,8 @@ describe('BankTransaction', () => {
             test('user can\'t', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -404,9 +385,8 @@ describe('BankTransaction', () => {
 
             test('anonymous can\'t', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -421,9 +401,8 @@ describe('BankTransaction', () => {
         describe('read', () => {
             test('admin can', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -436,12 +415,11 @@ describe('BankTransaction', () => {
 
             test('user can if it is an employee of organization', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization)
                 await createTestOrganizationEmployee(admin, organization, userClient.user, role)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -455,14 +433,13 @@ describe('BankTransaction', () => {
             test('user cannot if it is an employee of another organization', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [anotherOrganization] = await createTestOrganization(admin)
                 const [role] = await createTestOrganizationEmployeeRole(admin, anotherOrganization, {
                     canManageBankTransactions: true,
                 })
                 await createTestOrganizationEmployee(admin, anotherOrganization, userClient.user, role)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -475,7 +452,6 @@ describe('BankTransaction', () => {
             test('user can if it is an employee of linked organization', async () => {
                 const [parentOrganization] = await createTestOrganization(admin)
                 const [childOrganization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, childOrganization)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(admin, parentOrganization, childOrganization)
                 const [role] = await createTestOrganizationEmployeeRole(admin, parentOrganization, {
@@ -483,7 +459,7 @@ describe('BankTransaction', () => {
                 })
                 await createTestOrganizationEmployee(admin, parentOrganization, userClient.user, role, {})
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, childOrganization)
-                const [account] = await createTestBankAccount(admin, childOrganization, property, {
+                const [account] = await createTestBankAccount(admin, childOrganization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, childOrganization)
@@ -496,9 +472,8 @@ describe('BankTransaction', () => {
 
             test('anonymous can\'t', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
                 const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-                const [account] = await createTestBankAccount(admin, organization, property, {
+                const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
@@ -514,9 +489,8 @@ describe('BankTransaction', () => {
     describe('Validation tests', () => {
         test('Should have correct dv field (=== 1)', async () => {
             const [organization] = await createTestOrganization(admin)
-            const [property] = await createTestProperty(admin, organization)
             const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-            const [account] = await createTestBankAccount(admin, organization, property, {
+            const [account] = await createTestBankAccount(admin, organization, {
                 integrationContext: { connect: { id: integrationContext.id } },
             })
             const [contractorAccount] = await createTestBankContractorAccount(support, organization)
@@ -528,9 +502,8 @@ describe('BankTransaction', () => {
 
         it('cannot have both "dateWithdrawed" and "dateReceived" filled fields', async () => {
             const [organization] = await createTestOrganization(admin)
-            const [property] = await createTestProperty(admin, organization)
             const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-            const [account] = await createTestBankAccount(admin, organization, property, {
+            const [account] = await createTestBankAccount(admin, organization, {
                 integrationContext: { connect: { id: integrationContext.id } },
             })
             const [contractorAccount] = await createTestBankContractorAccount(support, organization)
@@ -545,9 +518,8 @@ describe('BankTransaction', () => {
 
         it('cannot have both blank fields "dateWithdrawed" and "dateReceived"', async () => {
             const [organization] = await createTestOrganization(admin)
-            const [property] = await createTestProperty(admin, organization)
             const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
-            const [account] = await createTestBankAccount(admin, organization, property, {
+            const [account] = await createTestBankAccount(admin, organization, {
                 integrationContext: { connect: { id: integrationContext.id } },
             })
             const [contractorAccount] = await createTestBankContractorAccount(support, organization)
