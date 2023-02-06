@@ -55,9 +55,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
             schemaDoc: 'Property to which this bank account is connected',
             type: Relationship,
             ref: 'Property',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
         tin: {

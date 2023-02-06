@@ -88,10 +88,9 @@ async function updateTestBankCostItem (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBankAccount (client, organization, property, extraAttrs = {}) {
+async function createTestBankAccount (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization')
-    if (!property || !property.id) throw new Error('no property')
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const bankAccount = createValidRuBankAccount()
@@ -99,7 +98,6 @@ async function createTestBankAccount (client, organization, property, extraAttrs
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
-        property: { connect: { id: property.id } },
         importId: faker.datatype.uuid(),
         ...bankAccount,
         ...extraAttrs,
