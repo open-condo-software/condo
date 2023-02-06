@@ -1,8 +1,8 @@
 import { Incident as IIncident, IncidentStatusType } from '@app/condo/schema'
-import { Col, ColProps, Form, Row } from 'antd'
+import { Col, ColProps, Form, Row, RowProps } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import isFunction from 'lodash/isFunction'
-import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Typography } from '@open-condo/ui'
@@ -14,7 +14,7 @@ import { Incident } from '@condo/domains/ticket/utils/clientSchema'
 const DATE_PICKER_STYLE: React.CSSProperties = { width: '100%' }
 const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00', 'HH:mm:ss') }
 const ITEM_LABEL_COL: ColProps = { span: 24 }
-const MODAL_GUTTER: ComponentProps<typeof Row>['gutter'] = [0, 16]
+const MODAL_GUTTER: RowProps['gutter'] = [0, 16]
 
 type UseIncidentUpdateStatusModalType = (props: {
     incident: IIncident

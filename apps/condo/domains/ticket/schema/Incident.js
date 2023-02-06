@@ -5,19 +5,32 @@
 const dayjs = require('dayjs')
 
 const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { storeChangesIfUpdated, buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/Incident')
+const { OMIT_INCIDENT_CHANGE_TRACKABLE_FIELDS } = require('@condo/domains/ticket/constants')
+const { INCIDENT_STATUSES, INCIDENT_STATUS_ACTUAL } = require('@condo/domains/ticket/constants/incident')
+const {
+    createIncidentChange,
+    incidentRelatedManyToManyResolvers,
+    incidentChangeDisplayNameResolversForSingleRelations,
+} = require('@condo/domains/ticket/utils/serverSchema/IncidentChange')
 
-const { OMIT_INCIDENT_CHANGE_TRACKABLE_FIELDS } = require('../constants')
-const { INCIDENT_ERRORS } = require('../constants/errors')
-const { INCIDENT_STATUSES, INCIDENT_STATUS_ACTUAL } = require('../constants/incident')
-const { createIncidentChange, incidentRelatedManyToManyResolvers, incidentChangeDisplayNameResolversForSingleRelations } = require('../utils/serverSchema/IncidentChange')
 
+const ERRORS = {
+    WORK_FINISH_EARLY_THAN_WORK_START: {
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'The value of the "workFinish" field must be greater than the "workStart" field',
+        messageForUser: 'api.incident.WORK_FINISH_EARLY_THAN_WORK_START',
+    },
+}
 
 const Incident = new GQLListSchema('Incident', {
     schemaDoc: 'Entries of scheduled and emergency incidents of water, electricity, etc.',
@@ -82,7 +95,7 @@ const Incident = new GQLListSchema('Incident', {
                     const isValidFinishDate = workFinish.diff(workStart) > 0
 
                     if (workFinish && workStart && !isValidFinishDate) {
-                        throw new GQLError(INCIDENT_ERRORS.WORK_FINISH_EARLY_THAN_WORK_START, context)
+                        throw new GQLError(ERRORS.WORK_FINISH_EARLY_THAN_WORK_START, context)
                     }
                 },
             },
@@ -135,4 +148,5 @@ const Incident = new GQLListSchema('Incident', {
 
 module.exports = {
     Incident,
+    ERRORS,
 }

@@ -18,7 +18,7 @@ const {
 } = require('@condo/domains/organization/utils/testSchema')
 const { exportIncidentsToExcelByTestClient } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestIncident } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 
 const INCIDENT_PAYLOAD = {
@@ -27,18 +27,16 @@ const INCIDENT_PAYLOAD = {
 }
 
 describe('ExportIncidentsToExcelService', () => {
-    let employeeUser
-    let notEmployeeUser
-    let anonymous
-    let organization
-    let where
+    let admin, support, employeeUser, notEmployeeUser, anonymous, where
+
     beforeAll(async () => {
-        const admin = await makeLoggedInAdminClient()
+        admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
         employeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymous = await makeClient()
 
         const [testOrganization] = await createTestOrganization(admin)
-        organization = testOrganization
+        const organization = testOrganization
 
         const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
             canManageIncidents: true,
@@ -61,6 +59,20 @@ describe('ExportIncidentsToExcelService', () => {
         }
     })
     describe('Accesses', () => {
+        describe('Admin', () => {
+            test('can get incidents export from selected organization', async () => {
+                const [{ status, linkToFile }] = await exportIncidentsToExcelByTestClient(admin, where)
+                expect(status).toBe('ok')
+                expect(linkToFile).not.toHaveLength(0)
+            })
+        })
+        describe('Support', () => {
+            test('can get incidents export from selected organization', async () => {
+                const [{ status, linkToFile }] = await exportIncidentsToExcelByTestClient(support, where)
+                expect(status).toBe('ok')
+                expect(linkToFile).not.toHaveLength(0)
+            })
+        })
         describe('Employee', () => {
             test('can get incidents export from selected organization', async () => {
                 const [{ status, linkToFile }] = await exportIncidentsToExcelByTestClient(employeeUser, where)
