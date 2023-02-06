@@ -1,14 +1,18 @@
+const dayjs = require('dayjs')
+const { get, isEmpty } = require('lodash')
+const { validate: uuidValidate } = require('uuid')
+
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+
 const { BankAccount, BankTransaction } = require('@condo/domains/banking/utils/serverSchema')
+const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { initSbbolFintechApi } = require('@condo/domains/organization/integrations/sbbol/SbbolFintechApi')
-const { getLogger } = require('@open-condo/keystone/logging')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { get, isEmpty } = require('lodash')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
-const { v4: uuid } = require('uuid')
-const dayjs = require('dayjs')
+const { UserAdmin } = require('@condo/domains/user/utils/serverSchema')
+
 
 const logger = getLogger('sbbol/SbbolSyncTransactions')
 const INVALID_DATE_RECEIVED_MESSAGE = 'An invalid date was received. It is possible to request transactions only for the past date'
@@ -106,14 +110,12 @@ async function _requestTransactions (userId, bankAccounts, context, statementDat
  * @param {String} userId
  * @returns {Promise<Transaction[]>}
  */
-async function requestTransactions (date, userId) {
-    if (uuid.validate(userId)) return logger.error(`passed userId is not a valid uuid. userId: ${userId}`)
+async function requestTransactions (date, userId, organizationId) {
+    if (!uuidValidate(userId)) return logger.error(`passed userId is not a valid uuid. userId: ${userId}`)
     if (!date) return logger.error('date is required')
 
     const { keystone: context } = await getSchemaCtx('Organization')
-    const employee = await OrganizationEmployee.getOne(context, { user: { id: userId }, deletedAt: null })
-    const bankAccounts = await BankAccount.getAll(context, { tin: employee.organization.tin })
-    const organizationId = employee.organization.id
+    const bankAccounts = await BankAccount.getAll(context, { tin: organizationId })
     const today = dayjs().format('YYYY-MM-DD')
 
     if (typeof date === 'string') {

@@ -13,9 +13,9 @@ const logger = getLogger('sbbol/CronTaskSyncTransactions')
  * Synchronizes SBBOL transaction data with data in the system
  * @returns {Promise<void>}
  */
-async function syncSbbolTransactions (date, userId = '') {
+async function syncSbbolTransactions (date, userId = '', organizationTin = '') {
     // if userId is passed, receive transactions only for it. Case when it's not a cron task
-    if (userId) return await requestTransactions(date, userId)
+    if (userId) return await requestTransactions(date, userId, organizationTin)
 
     const { keystone: userContext } = await getSchemaCtx('User')
     const users = await User.getAll(userContext, { importRemoteSystem: SBBOL_IMPORT_NAME, deletedAt: null })
