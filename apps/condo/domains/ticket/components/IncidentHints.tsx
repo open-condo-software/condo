@@ -6,14 +6,15 @@ import {
     IncidentClassifier as IIncidentClassifier,
     IncidentClassifierWhereInput,
 } from '@app/condo/schema'
-import { Col, Row } from 'antd'
-import dayjs from 'dayjs'
+import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
-import React, { ComponentProps, useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { IntlShape } from 'react-intl/src/types'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Alert } from '@open-condo/ui'
 
+import { shortenText } from '@condo/domains/common/utils/text'
 import {
     IncidentProperty,
     Incident,
@@ -21,10 +22,8 @@ import {
 } from '@condo/domains/ticket/utils/clientSchema'
 
 
-type Gutters = ComponentProps<typeof Row>['gutter']
-
-const INCIDENTS_GUTTER: Gutters = [0, 24]
-const DESCRIPTION_GUTTER: Gutters = [0, 14]
+const INCIDENTS_GUTTER: RowProps['gutter'] = [0, 24]
+const DESCRIPTION_GUTTER: RowProps['gutter'] = [0, 14]
 
 type classifierDataType = Pick<IIncidentClassifier, 'category' | 'problem'>
 
@@ -36,28 +35,74 @@ type IncidentHintsProps = {
     onlyActual?: boolean
 }
 
-const formatDate = (date?: string) => {
-    if (!date) return '…'
-    return dayjs(date).format('DD.MM.YYYY HH.mm')
+type IncidentHintProps = {
+    incident: IIncident
 }
 
-export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
+const formatDate = (intl: IntlShape, date?: string) => {
+    if (!date) return '…'
+    return intl.formatDate(date, { format: 'DD.MM.YYYY HH.mm' })
+}
+
+const IncidentHint: React.FC<IncidentHintProps> = (props) => {
     const intl = useIntl()
     const MoreLabel = intl.formatMessage({ id: 'incident.hints.more.label' })
 
-    const { propertyId, dateISO, classifier, organizationId, onlyActual = false } = props
+    const { incident } = props
 
-    // Logic:
-    //
-    // 1 - search IncidentProperties by propertyId
-    //
-    // 2 - search Incidents by IncidentProperties and date
-    //
-    // 3.1 - show Incidents
-    //
-    // 3.2.1 - search IncidentClassifierIncident by ( TicketCategoryClassifier and TicketProblemClassifier ) and Incidents
-    // 3.2.2 - filter Incidents by IncidentClassifierIncident
-    // 3.2.2 - show filtered Incidents
+    return (
+        <Alert
+            showIcon
+            type='warning'
+            description={
+                <Row gutter={DESCRIPTION_GUTTER}>
+                    <Col span={24}>
+                        <Row>
+                            <Col span={24}>
+                                <Typography.Text strong>
+                                    {shortenText(get(incident, 'details', ''), 100)}
+                                </Typography.Text>
+                            </Col>
+                            <Col span={24}>
+                                <Typography.Text>
+                                    {formatDate(intl, incident.workStart)} — {formatDate(intl, incident.workFinish)}
+                                </Typography.Text>
+                            </Col>
+                        </Row>
+                    </Col>
+                    <Col span={24}>
+                        <Typography.Link
+                            href={`/incident/${incident.id}`}
+                            size='large'
+                            target='_blank'
+                        >
+                            {MoreLabel}
+                        </Typography.Link>
+                    </Col>
+                </Row>
+            }
+        />
+    )
+}
+
+/**
+ *
+ * logic getting incident hints:
+ *
+ * 1 - search IncidentProperties by propertyId
+ *
+ * 2 - search Incidents by IncidentProperties and date
+ *
+ * 3.1 - show Incidents
+ *
+ * 3.2.1 - search IncidentClassifierIncident by ( TicketCategoryClassifier and TicketProblemClassifier ) and Incidents
+ *
+ * 3.2.2 - filter Incidents by IncidentClassifierIncident
+ *
+ * 3.2.2 - show filtered Incidents
+ */
+export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
+    const { propertyId, dateISO, classifier, organizationId, onlyActual = false } = props
 
     const [incidents, setIncidents] = useState<IIncident[]>([])
 
@@ -180,37 +225,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             {
                 incidents.map(incident => (
                     <Col span={24} key={incident.id}>
-                        <Alert
-                            showIcon
-                            type='warning'
-                            description={
-                                <Row gutter={DESCRIPTION_GUTTER}>
-                                    <Col span={24}>
-                                        <Row>
-                                            <Col span={24}>
-                                                <Typography.Text strong>
-                                                    {`${String(incident.details).substring(0, 100)}…`}
-                                                </Typography.Text>
-                                            </Col>
-                                            <Col span={24}>
-                                                <Typography.Text>
-                                                    {formatDate(incident.workStart)} — {formatDate(incident.workFinish)}
-                                                </Typography.Text>
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Typography.Link
-                                            href={`/incident/${incident.id}`}
-                                            size='large'
-                                            target='_blank'
-                                        >
-                                            {MoreLabel}
-                                        </Typography.Link>
-                                    </Col>
-                                </Row>
-                            }
-                        />
+                        <IncidentHint incident={incident} />
                     </Col>
                 ))
             }

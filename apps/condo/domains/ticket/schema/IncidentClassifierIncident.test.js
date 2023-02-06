@@ -35,14 +35,8 @@ const CLASSIFIER = {
 }
 
 describe('IncidentClassifierIncident', () => {
-    let admin
-    let support
-    let employeeUser
-    let notEmployeeUser
-    let anonymous
-    let organization
-    let incidentByAdmin
-    let incidentClassifierByAdmin
+    let admin, support, employeeUser, notEmployeeUser, anonymous, organization, incidentByAdmin, incidentClassifierByAdmin
+
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()

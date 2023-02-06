@@ -53,6 +53,19 @@ function normalizeText (text) {
         .join('\n')
 }
 
+/**
+ *
+ * @param {string} text
+ * @param {number} length
+ */
+function shortenText (text, length) {
+    if (text.length <= length) {
+        return text
+    }
+    return `${text.substring(0, length)}…`
+}
+
 module.exports = {
     normalizeText,
+    shortenText,
 }
