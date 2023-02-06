@@ -45,7 +45,7 @@ export const Header: React.FC = () => {
     return (
         <Layout.Header style={{ ...STATIC_HEADER_STYLES, background: colorBgContainer }}>
             <div className='relative w-[304px] h-7'>
-                <Image src='/logo.svg' alt='Logo' fill style={LOGO_IMAGE_STYLES} priority/>
+                <Image src='/logo.svg' alt='Logo' fill style={LOGO_IMAGE_STYLES} priority draggable={false}/>
             </div>
             <Space direction='horizontal' align='center' size={24}>
                 <Dropdown

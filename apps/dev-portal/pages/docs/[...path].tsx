@@ -1,19 +1,22 @@
 import { Layout, Menu } from 'antd'
 import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
 import { useMenuItems } from 'domains/docs/hooks/useMenuItems'
-import { getNavTree, getAllRoutes } from 'domains/docs/utils/routing'
+import { getNavTree, getAllRoutes, getFlatArticles } from 'domains/docs/utils/routing'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useMemo } from 'react'
 
-
-import type { NavItem } from 'domains/docs/utils/routing'
+import type { NavItem, ArticleInfo } from 'domains/docs/utils/routing'
 import type { GetStaticPaths, GetStaticProps } from 'next'
 
-const DOCS_ROOT = 'docs'
+const DOCS_ROOT_FOLDER = 'docs'
+const DOCS_ROOT_ENDPOINT = '/docs'
 const SIDER_WIDTH = 336
 
 type DocPageProps = {
     navigation: Array<NavItem>
+    nextPage: ArticleInfo | null
+    prevPage: ArticleInfo | null
 }
 
 const STATIC_SIDER_STYLES: CSSProperties = {
@@ -24,7 +27,7 @@ const STATIC_SIDER_STYLES: CSSProperties = {
 const DocPage: React.FC<DocPageProps> = ({ navigation }) => {
     const router = useRouter()
     const currentRoute = router.asPath.split('?')[0]
-    const menuItems = useMenuItems(navigation)
+    const menuItems = useMenuItems(navigation, DOCS_ROOT_ENDPOINT)
 
     // /path/subpath/page -> ['/path', '/path/subpath']
     const openPaths = useMemo(() => {
@@ -60,10 +63,14 @@ const DocPage: React.FC<DocPageProps> = ({ navigation }) => {
 
 export default DocPage
 
-export const getStaticPaths: GetStaticPaths = ({ locales = [] }) => {
+type GetStaticPathParams = {
+    path: Array<string>
+}
+
+export const getStaticPaths: GetStaticPaths<GetStaticPathParams> = ({ locales = [] }) => {
     return {
         paths: locales.flatMap(locale => {
-            return Array.from(getAllRoutes(DOCS_ROOT, locale, DOCS_ROOT), (route) => ({
+            return Array.from(getAllRoutes(DOCS_ROOT_FOLDER, locale, DOCS_ROOT_FOLDER), (route) => ({
                 params: { path: route.split('/') },
                 locale,
             }))
@@ -72,10 +79,21 @@ export const getStaticPaths: GetStaticPaths = ({ locales = [] }) => {
     }
 }
 
-export const getStaticProps: GetStaticProps<DocPageProps> = ({ locale = DEFAULT_LOCALE }) => {
+export const getStaticProps: GetStaticProps<DocPageProps, GetStaticPathParams> = ({ locale = DEFAULT_LOCALE, params }) => {
+    const navTree = getNavTree(DOCS_ROOT_FOLDER, locale, DOCS_ROOT_FOLDER)
+
+    const articles = Array.from(getFlatArticles(navTree))
+    const route = get(params, 'path', []).join('/')
+    const pageIndex = articles.findIndex((item) => item.route === route)
+
+    const prevPage = pageIndex > 0 ? articles[pageIndex - 1] : null
+    const nextPage = (pageIndex < articles.length - 1 && pageIndex != -1) ? articles[pageIndex + 1] : null
+
     return {
         props: {
-            navigation: getNavTree(DOCS_ROOT, locale, DOCS_ROOT),
+            navigation: navTree,
+            prevPage,
+            nextPage,
         },
     }
 }

@@ -70,7 +70,7 @@ function getMenuItems (
 
 export function useMenuItems (
     nav: Array<NavItem>,
-    entryEndPoint = '/docs',
+    entryEndPoint: string,
     startTitleLevel: TitleLevel = 4,
     maxTitleLevel: TitleLevel = 5
 ): Array<MenuItem> {
