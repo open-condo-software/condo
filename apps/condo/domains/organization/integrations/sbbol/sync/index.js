@@ -2,14 +2,17 @@ const faker = require('faker')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { syncSbbolTransactions } = require('@condo/domains/organization/tasks/syncSbbolTransactions')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { getOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/OrganizationEmployee')
 
 const { syncBankAccounts } = require('./syncBankAccounts')
 const { syncOrganization } = require('./syncOrganization')
-const { syncSbbolTransactions } = require('@condo/domains/organization/tasks/syncSbbolTransactions')
 const { syncServiceSubscriptions } = require('./syncServiceSubscriptions')
 const { syncTokens } = require('./syncTokens')
 const { syncUser } = require('./syncUser')
@@ -17,6 +20,8 @@ const { syncUser } = require('./syncUser')
 const { dvSenderFields } = require('../constants')
 const { SBBOL_IMPORT_NAME } = require('../constants')
 const { getSbbolSecretStorage } = require('../utils')
+const dayjs = require('dayjs')
+
 
 const SYNC_BANK_ACCOUNTS_FROM_SBBOL = 'sync-bank-accounts-from-sbbol'
 
@@ -108,7 +113,6 @@ const sync = async ({ keystone, userInfo, tokenSet  }) => {
     await sbbolSecretStorage.setOrganization(organization.id)
     await syncTokens(tokenSet, user.id)
     await syncServiceSubscriptions(userInfo.inn)
-    await syncSbbolTransactions.delay(date, user.id)
 
     const { keystone: organizationContext } = await getSchemaCtx('Organization')
     const organizationEmployee = await OrganizationEmployee.getOne(organizationContext, {
@@ -120,6 +124,8 @@ const sync = async ({ keystone, userInfo, tokenSet  }) => {
     if (!organizationEmployee) {
         throw new Error('Failed to bind user to organization')
     }
+
+    await syncSbbolTransactions.delay(date, user.id, organization.id)
 
     return {
         user,

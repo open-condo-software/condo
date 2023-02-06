@@ -62,6 +62,28 @@ const logger = getLogger('sbbol/SbbolFintechApi')
  */
 
 /**
+ * SBBOL format response parser
+ *
+ * @param {{data: Object, statusCode: Number}} response SBBOL formatted response
+ * @param {Number} statusCode successful response code
+ * @param {String} msg successful response code
+ * @return {{{error: any, statusCode: Number}}|{data: any}}
+ */
+function parseSbbolResponse (response, statusCode, msg) {
+    try {
+        const jsonData = JSON.parse(get(response, 'data'))
+
+        if (response.statusCode === statusCode) {
+            return { data: jsonData }
+        } else {
+            return { error: jsonData, statusCode: response.statusCode }
+        }
+    } catch (error) {
+        return logger.error({ msg, error })
+    }
+}
+
+/**
  * Signature information, used to sign some requests to Fintech API
  *
  * @typedef Signature
