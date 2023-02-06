@@ -10,16 +10,16 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const USER_FIELDS = `{ type name avatar { publicUrl } meta isPhoneVerified isEmailVerified isAdmin isSupport ${COMMON_FIELDS} }`
-const User = generateGqlQueries('User', USER_FIELDS)
-const UserAdmin = generateGqlQueries('User', '{ id type name isAdmin isSupport email isEmailVerified phone isPhoneVerified updatedBy { id } createdBy { id } }')
+const USER_FIELDS = `type name avatar { publicUrl } meta isPhoneVerified isEmailVerified isAdmin isSupport ${COMMON_FIELDS}`
+const User = generateGqlQueries('User', `{ ${USER_FIELDS} }`)
+const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} email phone }`)
 
 const USER_EXTERNAL_IDENTITY_FIELDS = '{ id user { id } identityId identityType meta deletedAt }'
 const UserExternalIdentity = generateGqlQueries('UserExternalIdentity', USER_EXTERNAL_IDENTITY_FIELDS)
 
 const REGISTER_NEW_USER_MUTATION = gql`
     mutation registerNewUser($data: RegisterNewUserInput!) {
-        user: registerNewUser(data: $data) ${USER_FIELDS}
+        user: registerNewUser(data: $data) { ${USER_FIELDS} }
     }
 `
 
@@ -33,7 +33,7 @@ const USER_QUERY = gql`
 
 const GET_MY_USERINFO = gql`
     query getUser {
-        user: authenticatedUser ${USER_FIELDS}
+        user: authenticatedUser { ${USER_FIELDS} }
     }
 `
 
