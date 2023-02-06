@@ -30,7 +30,6 @@ describe('syncUser from SBBOL', () => {
     setFakeClientMode(index)
 
     it('should create user', async () => {
-        // assemble
         const identityId = uuid()
         const userInfo = mockUserInfo(identityId)
         const context = await keystone.createContext({ skipAccessControl: true })
@@ -69,7 +68,6 @@ describe('syncUser from SBBOL', () => {
     })
 
     it('should create user external identity', async () => {
-        // assemble
         const identityId = uuid()
         const { userAttrs: { phone: existingUserPhone }, user: existingUser } = await makeClientWithRegisteredOrganization()
         const userInfo = mockUserInfo(identityId, existingUserPhone)
@@ -95,7 +93,6 @@ describe('syncUser from SBBOL', () => {
     })
 
     it('should return user id', async () => {
-        // assemble
         const identityId = uuid()
         const { userAttrs: { phone: existingUserPhone }, user: existingUser } = await makeClientWithRegisteredOrganization()
         const userInfo = mockUserInfo(identityId, existingUserPhone)
