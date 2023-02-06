@@ -17,11 +17,10 @@ const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
+const { INCIDENT_STATUS_ACTUAL } = require('@condo/domains/ticket/constants/incident')
+const { ERRORS: INCIDENT_ERRORS } = require('@condo/domains/ticket/schema/Incident')
 const { Incident, createTestIncident, updateTestIncident } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
-const { INCIDENT_ERRORS } = require('../constants/errors')
-const { INCIDENT_STATUS_ACTUAL } = require('../constants/incident')
 
 
 const INCIDENT_PAYLOAD = {
@@ -30,13 +29,8 @@ const INCIDENT_PAYLOAD = {
 }
 
 describe('Incident', () => {
-    let admin
-    let support
-    let employeeUser
-    let notEmployeeUser
-    let anonymous
-    let organization
-    let incidentByAdmin
+    let admin, support, employeeUser, notEmployeeUser, anonymous, organization, incidentByAdmin
+
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()

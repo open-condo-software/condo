@@ -4,12 +4,12 @@ import {
     SortIncidentChangesBy,
     IncidentChange as IIncidentChange,
 } from '@app/condo/schema'
-import { Col, Row } from 'antd'
+import { Col, Row, RowProps } from 'antd'
 import dayjs  from 'dayjs'
 import { get } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Tag, Typography } from '@open-condo/ui'
@@ -167,8 +167,8 @@ const IncidentWorkDateField: React.FC<IncidentFieldProps> = ({ incident }) => {
     const [currentDate, setCurrentDate] = useState<string>(dayjs().toISOString())
 
     const isActual = incident.status === IncidentStatusType.Actual
-    const workStart = useMemo(() => dayjs(incident.workStart).format('D.MM.YYYY HH:mm'), [incident.workStart])
-    const workFinish = useMemo(() => incident.workFinish ? dayjs(incident.workFinish).format('D.MM.YYYY HH:mm') : null, [incident.workFinish])
+    const workStart = useMemo(() => intl.formatDate(incident.workStart, { format: 'D.MM.YYYY HH:mm' }), [incident.workStart])
+    const workFinish = useMemo(() => incident.workFinish ? intl.formatDate(incident.workFinish, { format: 'D.MM.YYYY HH:mm' }) : null, [incident.workFinish])
 
     const timeLeftMessageType = useMemo(() => getTimeLeftMessageType({
         deadline: incident.workFinish,
@@ -353,7 +353,7 @@ const IncidentOrganizationField: React.FC<IncidentFieldProps> = ({ incident }) =
     )
 }
 
-const INCIDENT_CONTENT_GUTTER: ComponentProps<typeof Row>['gutter'] = [0, 24]
+const INCIDENT_CONTENT_GUTTER: RowProps['gutter'] = [0, 24]
 
 const IncidentContent: React.FC<IncidentContentProps> = (props) => {
     const { incident, withOrganization = false } = props
@@ -387,8 +387,8 @@ const IncidentContent: React.FC<IncidentContentProps> = (props) => {
     )
 }
 
-const HEADER_CONTENT_GUTTER: ComponentProps<typeof Row>['gutter'] = [0, 24]
-const PAGE_CONTENT_GUTTER: ComponentProps<typeof Row>['gutter'] = [0, 60]
+const HEADER_CONTENT_GUTTER: RowProps['gutter'] = [0, 24]
+const PAGE_CONTENT_GUTTER: RowProps['gutter'] = [0, 60]
 const PAGE_HEADER_STYLE: React.CSSProperties = { paddingBottom: 20 }
 
 export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
@@ -432,7 +432,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
         await router.push(`/incident/${incident.id}/update`)
     }, [incident.id, router])
 
-    const createdAt = useMemo(() => dayjs(incident.createdAt).format('DD.MM.YYYY, HH:mm'), [incident.createdAt])
+    const createdAt = useMemo(() => intl.formatDate(incident.createdAt, { format: 'DD.MM.YYYY, HH:mm' }), [incident.createdAt])
     const createdBy = useMemo(() => get(incident, ['createdBy']), [incident])
 
     return (
