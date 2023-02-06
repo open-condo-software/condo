@@ -220,6 +220,12 @@ const Ticket = new GQLListSchema('Ticket', {
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
         },
+        isAutoClassified: {
+            schemaDoc: 'Indicates that ticket has been classified automatically without human confirmation',
+            type: Checkbox,
+            defaultValue: false,
+            isRequired: true,
+        },
         // description / title
         details: {
             schemaDoc: 'Text description of the issue. Maybe written by a user or an operator',
@@ -419,6 +425,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 const classifierResult = await classifyTicket(context, resolvedData.details)
 
                 resolvedData.classifier = get(classifierResult, 'id')
+                resolvedData.isAutoClassified = true
             }
 
             if (resolvedStatusId) {
