@@ -571,6 +571,7 @@
   "pages.condo.ticket.filters.EnterPhone": "Enter phone",
   "pages.condo.ticket.filters.EnterFullName": "Enter full name",
   "pages.condo.ticket.filters.EnterOrganization": "Enter full name",
+  "pages.condo.ticket.filters.SelectOrganization": "Choose an organization",
   "pages.condo.ticket.filters.Organization": "Organization",
   "pages.condo.ticket.filters.isResidentContact": "Resident/Not resident",
   "pages.condo.ticket.filters.isResidentContact.true": "resident",
