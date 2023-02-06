@@ -57,7 +57,7 @@ const registerUser = async (context, userInfo, userType) => {
     // create user
     const user = await User.create(context, userData)
 
-    // proceed link & auth
+    // proceed link
     return await linkUser(context, user, userInfo)
 }
 
@@ -66,6 +66,7 @@ const syncUser = async ({ context, userInfo, userType }) => {
     const userIdentities = await UserExternalIdentity.getAll(context, {
         identityType: SBER_ID_IDP_TYPE,
         identityId: userInfo.id,
+        deletedAt: null,
     })
 
     // now we have the following cases:
