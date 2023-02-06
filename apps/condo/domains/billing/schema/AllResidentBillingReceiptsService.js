@@ -76,41 +76,51 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     return []
                 }
 
-                //
-                // Get basic receipts representation
-                //
                 const processedReceipts = []
+                const receiptsQuery = []
                 for (const serviceConsumer of serviceConsumers) {
-
-                    const receiptsQuery = {
+                    const receiptsQueryForConsumer = {
                         ...receiptsWhere,
-                        account: { number: serviceConsumer.accountNumber, deletedAt: null },
-                        context: { organization: { id: serviceConsumer.organization }, deletedAt: null },
+                        account: {
+                            number: serviceConsumer.accountNumber,
+                            deletedAt: null,
+                        },
+                        context: {
+                            organization: { id: serviceConsumer.organization },
+                            deletedAt: null,
+                        },
                         deletedAt: null,
                     }
-                    const receiptsForConsumer = await BillingReceipt.getAll(
-                        context,
-                        receiptsQuery,
-                        {
-                            sortBy, first, skip,
-                        }
-                    )
-                    receiptsForConsumer.forEach(receipt => processedReceipts.push({
-                        id: receipt.id,
-                        dv: receipt.dv,
-                        category: receipt.category,
-                        recipient: receipt.recipient,
-                        receiver: receipt.receiver,
-                        account: receipt.account,
-                        period: receipt.period,
-                        toPay: receipt.toPay,
-                        toPayDetails: receipt.toPayDetails,
-                        services: receipt.services,
-                        printableNumber: receipt.printableNumber,
-                        serviceConsumer: serviceConsumer,
-                        currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
-                    }))
+                    receiptsQuery.push({ 'AND': [receiptsQueryForConsumer] })
                 }
+
+                const joinedReceiptsQuery = {
+                    'OR': receiptsQuery,
+                }
+
+                const receiptsForConsumer = await BillingReceipt.getAll(
+                    context,
+                    joinedReceiptsQuery,
+                    {
+                        sortBy, first, skip,
+                    }
+                )
+
+                receiptsForConsumer.forEach(receipt => processedReceipts.push({
+                    id: receipt.id,
+                    dv: receipt.dv,
+                    category: receipt.category,
+                    recipient: receipt.recipient,
+                    receiver: receipt.receiver,
+                    account: receipt.account,
+                    period: receipt.period,
+                    toPay: receipt.toPay,
+                    toPayDetails: receipt.toPayDetails,
+                    services: receipt.services,
+                    printableNumber: receipt.printableNumber,
+                    serviceConsumer: serviceConsumers.find(x => get(receipt, ['account', 'number']) === x.accountNumber),
+                    currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
+                }))
 
                 //
                 // Set receipt.isPayable field
