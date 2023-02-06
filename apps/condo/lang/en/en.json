@@ -107,7 +107,7 @@
   "field.ShortFlatNumber": "fl.",
   "field.sectionType.section": "Section",
   "field.sectionType.parking": "Parking",
-  "field.floorName": "Этаж",
+  "field.floorName": "Floor",
   "field.FullName": "Full name",
   "field.FullName.short": "Full name",
   "field.FullName.invalidChar": "You entered invalid characters - correct. You can only enter letters, spaces, and hyphens",
