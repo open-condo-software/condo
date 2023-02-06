@@ -16,7 +16,6 @@ const {
 } = require('@condo/domains/user/utils/serverSchema')
 
 const { syncUser } = require('./syncUser')
-const { makeClientWithSupportUser } = require("../../../utils/testSchema");
 
 const { keystone } = index
 
