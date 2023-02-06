@@ -7,7 +7,7 @@ const { getItems } = require('@keystonejs/server-side-graphql-client')
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
 
-const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { SBER_ID_IDP_TYPE, RESIDENT } = require('@condo/domains/user/constants/common')
@@ -16,6 +16,7 @@ const {
 } = require('@condo/domains/user/utils/serverSchema')
 
 const { syncUser } = require('./syncUser')
+const { makeClientWithSupportUser } = require("../../../utils/testSchema");
 
 const { keystone } = index
 
@@ -27,12 +28,16 @@ const mockUserInfo = (identityId, phone) => ({
 })
 
 describe('syncUser from SBBOL', () => {
+    let context
     setFakeClientMode(index)
+
+    beforeAll(async () => {
+        context = await keystone.createContext({ skipAccessControl: true })
+    })
 
     it('should create user', async () => {
         const identityId = uuid()
         const userInfo = mockUserInfo(identityId)
-        const context = await keystone.createContext({ skipAccessControl: true })
 
         // act
         const { id } = await syncUser({ context, userInfo, userType: RESIDENT })
@@ -71,7 +76,6 @@ describe('syncUser from SBBOL', () => {
         const identityId = uuid()
         const { userAttrs: { phone: existingUserPhone }, user: existingUser } = await makeClientWithRegisteredOrganization()
         const userInfo = mockUserInfo(identityId, existingUserPhone)
-        const context = await keystone.createContext({ skipAccessControl: true })
 
         // act
         const { id } = await syncUser({ context, userInfo, userType: existingUser.type })
@@ -96,7 +100,6 @@ describe('syncUser from SBBOL', () => {
         const identityId = uuid()
         const { userAttrs: { phone: existingUserPhone }, user: existingUser } = await makeClientWithRegisteredOrganization()
         const userInfo = mockUserInfo(identityId, existingUserPhone)
-        const context = await keystone.createContext({ skipAccessControl: true })
 
         await UserExternalIdentityApi.create(context, {
             dv: 1,

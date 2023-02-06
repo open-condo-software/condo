@@ -66,7 +66,7 @@ const syncUser = async ({ context, userInfo, userType }) => {
     const userIdentities = await UserExternalIdentity.getAll(context, {
         identityType: SBER_ID_IDP_TYPE,
         identityId: userInfo.id,
-        // TODO remove this parameter. We should by default have only not deleted objects
+        // TODO DOMA-5239 remove this parameter. We should by default have only not deleted objects
         deletedAt: null,
     })
 
