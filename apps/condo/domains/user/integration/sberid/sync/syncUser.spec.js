@@ -3,15 +3,15 @@
  */
 
 const index = require('@app/condo/index')
-const { getItems } = require('@keystonejs/server-side-graphql-client')
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { SBER_ID_IDP_TYPE, RESIDENT } = require('@condo/domains/user/constants/common')
 const {
+    UserAdmin,
     UserExternalIdentity: UserExternalIdentityApi,
 } = require('@condo/domains/user/utils/serverSchema')
 
@@ -26,7 +26,7 @@ const mockUserInfo = (identityId, phone) => ({
     phoneNumber: phone || faker.phone.phoneNumber('+792########'),
 })
 
-describe('syncUser from SBBOL', () => {
+describe('syncUser from SberId', () => {
     let context
     setFakeClientMode(index)
 
@@ -44,12 +44,7 @@ describe('syncUser from SBBOL', () => {
         // assertions
         // assert created user
         expect(id).toBeDefined()
-        const [ checkUser ] = await getItems({
-            keystone,
-            listKey: 'User',
-            where: { id },
-            returnFields: 'id name email phone type isPhoneVerified isEmailVerified',
-        })
+        const [ checkUser ] = await UserAdmin.getAll(context, { id })
         expect(checkUser).toBeDefined()
         expect(checkUser).toHaveProperty('id')
         expect(checkUser).toHaveProperty('name')
