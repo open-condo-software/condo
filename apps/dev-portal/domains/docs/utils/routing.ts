@@ -17,7 +17,7 @@ export type NavItem = {
     children?: Array<NavItem>
 }
 
-type FileInfo = {
+type FileMetaInfo = {
     name: string
     isDir: boolean
 }
@@ -26,7 +26,12 @@ type ItemDescription =
     string | // File name mapping
     { href: string, title: string } // External resource
 
-function _fileComparer (lhs: FileInfo, rhs: FileInfo) {
+export type ArticleInfo = {
+    label: string
+    route: string
+}
+
+function _fileComparer (lhs: FileMetaInfo, rhs: FileMetaInfo) {
     if (lhs.name < rhs.name) {
         return -1
     } else if (lhs.name === rhs.name) {
@@ -86,7 +91,7 @@ export function getNavTree (dir: string, locale: string, rootDir: string): Array
     }
 
     // Sort rest of the files (was not in meta) alphabetically
-    const restFiles: Array<FileInfo> = [
+    const restFiles: Array<FileMetaInfo> = [
         ...files.map(name => ({ name, isDir: false })),
         ...dirs.map(name => ({ name, isDir: true })),
     ]
@@ -108,6 +113,16 @@ export function getNavTree (dir: string, locale: string, rootDir: string): Array
     }
 
     return result
+}
+
+export function *getFlatArticles (navTree: Array<NavItem>): IterableIterator<ArticleInfo> {
+    for (const item of navTree) {
+        if (item.children) {
+            yield *getFlatArticles(item.children)
+        } else if (!item.external) {
+            yield { label: item.label, route: item.route }
+        }
+    }
 }
 
 export function *getAllRoutes (dir: string, locale: string, rootDir: string): IterableIterator<string> {
