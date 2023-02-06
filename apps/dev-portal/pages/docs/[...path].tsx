@@ -1,14 +1,11 @@
 import { Layout, Menu } from 'antd'
 import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
+import { useMenuItems } from 'domains/docs/hooks/useMenuItems'
 import { getNavTree, getAllRoutes } from 'domains/docs/utils/routing'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useMemo } from 'react'
 
-import { Typography } from '@open-condo/ui'
-import type { TypographyTitleProps } from '@open-condo/ui'
 
-import type { MenuProps } from 'antd/lib/menu'
 import type { NavItem } from 'domains/docs/utils/routing'
 import type { GetStaticPaths, GetStaticProps } from 'next'
 
@@ -24,46 +21,10 @@ const STATIC_SIDER_STYLES: CSSProperties = {
     padding: 20,
 }
 
-type MenuItem = Required<MenuProps>['items'][number]
-
-const getMenuItemsFromNav = (
-    nav: Array<NavItem>,
-    locale: string | undefined,
-    currentRoute: string,
-    currentLevel: TypographyTitleProps['level'] = 4,
-    maxLevel: TypographyTitleProps['level'] = 5): Array<MenuItem> => {
-    const nextLevel = currentLevel < maxLevel
-        ? currentLevel + 1 as TypographyTitleProps['level']
-        : maxLevel
-
-    return nav.map(item => {
-        const route = `/docs/${item.key}`
-        const textType = route === currentRoute ? 'success' : 'secondary'
-
-        return {
-            key: route,
-            label: (
-                <Link href={route} locale={locale}>
-                    <Typography.Title
-                        type={textType}
-                        level={currentLevel}
-                        ellipsis
-                    >
-                        {item.label}
-                    </Typography.Title>
-                </Link>
-            ),
-            children: item.children ? getMenuItemsFromNav(item.children, locale, currentRoute, nextLevel, maxLevel) : undefined,
-        }
-    })
-}
-
 const DocPage: React.FC<DocPageProps> = ({ navigation }) => {
     const router = useRouter()
     const currentRoute = router.asPath.split('?')[0]
-    const menuItems = useMemo(() => {
-        return getMenuItemsFromNav(navigation, router.locale, currentRoute)
-    }, [navigation, currentRoute, router])
+    const menuItems = useMenuItems(navigation)
 
     // /path/subpath/page -> ['/path', '/path/subpath']
     const openPaths = useMemo(() => {
@@ -85,6 +46,7 @@ const DocPage: React.FC<DocPageProps> = ({ navigation }) => {
                     items={menuItems}
                     defaultOpenKeys={openPaths}
                     defaultSelectedKeys={[currentRoute]}
+                    selectedKeys={[currentRoute]}
                 />
             </Layout.Sider>
             <Layout.Content>
