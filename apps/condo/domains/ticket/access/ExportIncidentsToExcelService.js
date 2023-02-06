@@ -16,7 +16,7 @@ const {
 async function canExportIncidentsToExcel ({ args: { data: { where } }, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
 
     const organizationId = get(where, ['organization', 'id'])
     const organizationIdIn = get(where, ['organization', 'id_in'], [])

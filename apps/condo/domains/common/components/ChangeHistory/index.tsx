@@ -1,9 +1,9 @@
-import { green } from '@ant-design/colors'
-import { Col, Row, Skeleton, Button } from 'antd'
+import { Col, Row, Skeleton, Button, RowProps } from 'antd'
 import React, { ComponentProps, ReactElement, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors/'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 
@@ -25,17 +25,17 @@ const CHANGES_PER_CHUNK = 5
 const TEXT_BUTTON_STYLE: React.CSSProperties = {
     fontSize: fontSizes.content,
     padding: 0,
-    color: green[6],
+    color: colors.green[7],
 }
 const CHANGE_HISTORY_COL_STYLE: React.CSSProperties = { marginTop: '20px' }
-const CHANGE_HISTORY_VERTICAL_GUTTER: ComponentProps<typeof Row>['gutter'] = [0, 24]
+const CHANGE_HISTORY_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
 
 
 export const ChangeHistory = <ChangesType extends BaseChangesType> (props: ChangeHistoryInputType<ChangesType>): ChangeHistoryReturnType => {
-    const { items, total, loading, title, useChangedFieldMessagesOf, Diff } = props
-
     const intl = useIntl()
     const FetchMoreTemplate = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.fetchMore' })
+
+    const { items, total, loading, title, useChangedFieldMessagesOf, Diff } = props
 
     const [displayCount, setDisplayCount] = useState(CHANGES_PER_CHUNK)
 

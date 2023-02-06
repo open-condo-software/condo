@@ -1,4 +1,6 @@
 import { IncidentWhereInput } from '@app/condo/schema'
+import { RangePickerProps } from 'antd/lib/date-picker/generatePicker'
+import { Dayjs } from 'dayjs'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -10,9 +12,8 @@ import {
     getNumberFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
-
-import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '../constants/incident'
-import { getIncidentAttributesFilter } from '../utils/tables.utils'
+import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
+import { getIncidentAttributesFilter } from '@condo/domains/ticket/utils/tables.utils'
 
 
 const filterAttribute = getIncidentAttributesFilter([INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL])
@@ -23,6 +24,8 @@ const filterWorkStartRange = getDayRangeFilter('workStart')
 const filterWorkFinishRange = getDayRangeFilter('workFinish')
 
 export type UseIncidentTableFiltersReturnType = Array<FiltersMeta<IncidentWhereInput>>
+
+export const disabledDate: RangePickerProps<Dayjs>['disabledDate'] = () => false
 
 export const useIncidentTableFilters = (): UseIncidentTableFiltersReturnType => {
     const intl = useIntl()
@@ -84,7 +87,7 @@ export const useIncidentTableFilters = (): UseIncidentTableFiltersReturnType => 
                 type: ComponentType.DateRange,
                 props: {
                     placeholder: [StartDateMessage, EndDateMessage],
-                    disabledDate: (date) => false,
+                    disabledDate,
                 },
             },
         },
@@ -95,7 +98,7 @@ export const useIncidentTableFilters = (): UseIncidentTableFiltersReturnType => 
                 type: ComponentType.DateRange,
                 props: {
                     placeholder: [StartDateMessage, EndDateMessage],
-                    disabledDate: (date) => false,
+                    disabledDate,
                 },
             },
         },

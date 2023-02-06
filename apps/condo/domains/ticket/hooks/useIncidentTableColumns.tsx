@@ -18,17 +18,18 @@ import { Tag, Typography } from '@open-condo/ui'
 
 import { getDateRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getOneAddressAndPropertiesCountRender } from '@condo/domains/property/utils/clientSchema/Renders'
 import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
+import { UseIncidentTableFiltersReturnType } from '@condo/domains/ticket/hooks/useIncidentTableFilters'
 import { IncidentProperty, IncidentClassifierIncident } from '@condo/domains/ticket/utils/clientSchema'
 import { getManyIncidentClassifiersGroupByPlaceRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
 
-type UseTableColumnsPropsType <T = any> = {
-    filterMetas: Array<FiltersMeta<T>>
+type UseTableColumnsPropsType = {
+    filterMetas: UseIncidentTableFiltersReturnType
     incidents: IIncident[]
 }
 

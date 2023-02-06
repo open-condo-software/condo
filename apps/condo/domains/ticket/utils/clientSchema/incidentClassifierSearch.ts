@@ -3,7 +3,7 @@ import {
     IncidentClassifierWhereInput,
     QueryAllIncidentClassifiersArgs,
 } from '@app/condo/schema'
-import { filter, isEmpty, sortBy } from 'lodash'
+import { isEmpty, sortBy } from 'lodash'
 
 import { ApolloClient } from '@open-condo/next/apollo'
 
@@ -20,7 +20,6 @@ export type IncidentClassifierWhereInputType = Pick<IncidentClassifierWhereInput
 export interface IClassifiersSearch {
     init: () => Promise<void>
     rulesToOptions: (rules: IncidentClassifier[], type: string) => Option[]
-    findRules: (query: IncidentClassifierWhereInputType) => Promise<IncidentClassifier[]>
     search: (input: string, type: string, variables: QueryAllIncidentClassifiersArgs) => Promise<Option[]>
 }
 
@@ -43,7 +42,7 @@ async function loadClassifierRules (client: ApolloClient, variables: ILoadClassi
 
 export class IncidentClassifiersQueryLocal implements IClassifiersSearch {
 
-    constructor (private client: ApolloClient, private rules = [], private category = [], private problem = []) {}
+    constructor (private client: ApolloClient, private rules: IncidentClassifier[] = [], private category: Option[] = [], private problem: Option[] = []) {}
 
     public async init (): Promise<void> {
         if (this.rules && this.rules.length) {
@@ -78,63 +77,6 @@ export class IncidentClassifiersQueryLocal implements IClassifiersSearch {
         }
     }
 
-    public async findRules (query: IncidentClassifierWhereInputType): Promise<IncidentClassifier[]> {
-        return filter<IncidentClassifier>(this.rules, query)
-    }
-
-    // public findRulesBySelectedClassifiers (type, place, category, problem): IncidentClassifier[] {
-    //     const placeIsEmpty = isEmpty(place)
-    //     const categoryIsEmpty = isEmpty(category)
-    //     const problemIsEmpty = isEmpty(problem)
-    //
-    //     if (placeIsEmpty && categoryIsEmpty && problemIsEmpty) {
-    //         return this.rules
-    //     }
-    //
-    //     switch (type) {
-    //         case 'place': {
-    //             if (!placeIsEmpty && categoryIsEmpty && problemIsEmpty) {
-    //                 return this.rules
-    //             }
-    //             break
-    //         }
-    //
-    //         case 'category': {
-    //             if (placeIsEmpty && !categoryIsEmpty && problemIsEmpty) {
-    //                 return this.rules
-    //             }
-    //             break
-    //         }
-    //
-    //         case 'problem': {
-    //             if (placeIsEmpty && categoryIsEmpty && !problemIsEmpty) {
-    //                 return this.rules
-    //             }
-    //
-    //             if (!categoryIsEmpty) {
-    //                 return this.rules.filter(rule => category.includes(rule.category.id))
-    //             }
-    //             break
-    //         }
-    //     }
-    //
-    //     return this.rules.filter(rule => {
-    //         if (!placeIsEmpty && place.includes(rule.place.id)) {
-    //             return true
-    //         }
-    //
-    //         if (!categoryIsEmpty && category.includes(rule.category.id)) {
-    //             return true
-    //         }
-    //
-    //         if (!problemIsEmpty && rule.problem && problem.includes(rule.problem.id)) {
-    //             return true
-    //         }
-    //
-    //         return false
-    //     })
-    // }
-
     public async search (input: string, type: string, variables?: QueryAllIncidentClassifiersArgs, limit?: number): Promise<Option[]> {
         const maxSearchCount = limit ? limit : MAX_SEARCH_COUNT
 
@@ -154,11 +96,5 @@ export class IncidentClassifiersQueryLocal implements IClassifiersSearch {
 
             return result
         }
-    }
-
-    public clear (): void {
-        this.rules = []
-        this.problem = []
-        this.category = []
     }
 }

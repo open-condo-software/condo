@@ -33,13 +33,7 @@ const UPDATED_INCIDENT_PAYLOAD = {
 }
 
 describe('IncidentChange', () => {
-    let admin
-    let support
-    let employeeUser
-    let notEmployeeUser
-    let anonymous
-    let organization
-    let incidentByAdmin
+    let admin, support, employeeUser, notEmployeeUser, anonymous, organization, incidentByAdmin
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()

@@ -9,7 +9,7 @@ import {
     IncidentClassifier as IIncidentClassifier,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Form, FormInstance, Row, Typography } from 'antd'
+import { Col, Form, FormInstance, Row, RowProps, Typography } from 'antd'
 import { FormProps } from 'antd/lib/form/Form'
 import { ColProps } from 'antd/lib/grid/col'
 import dayjs from 'dayjs'
@@ -79,8 +79,6 @@ export type BaseIncidentFormProps = {
     afterAction?: (values: IIncidentCreateInput | IIncidentUpdateInput) => void
     showOrganization?: boolean
 }
-
-type Gutters = ComponentProps<typeof Row>['gutter']
 
 type FormLayoutProps = Pick<FormProps, 'labelCol' | 'wrapperCol' | 'layout' | 'labelAlign'>
 
@@ -274,8 +272,8 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
 
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
 export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00', 'HH:mm:ss') }
-export const CHECKBOXES_GUTTER: Gutters = [24, 0]
-export const VERTICAL_GUTTER: Gutters = [0, 40]
+export const CHECKBOXES_GUTTER: RowProps['gutter'] = [24, 0]
+export const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 export const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
 export const disabledDate = (form: FormInstance, fieldName: string): ComponentProps<typeof DatePicker>['disabledDate'] => (currentDate) => {
     const value = form.getFieldValue(fieldName)

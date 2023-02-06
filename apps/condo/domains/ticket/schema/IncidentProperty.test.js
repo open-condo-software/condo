@@ -17,10 +17,9 @@ const {
     createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { ERRORS: INCIDENT_PROPERTY_ERRORS } = require('@condo/domains/ticket/schema/IncidentProperty')
 const { IncidentProperty, createTestIncidentProperty, updateTestIncidentProperty, createTestIncident } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
-const { INCIDENT_PROPERTY_ERRORS } = require('../constants/errors')
 
 
 const DELETED_PAYLOAD = { deletedAt: 'true' }
@@ -30,15 +29,8 @@ const INCIDENT_PAYLOAD = {
 }
 
 describe('IncidentProperty', () => {
-    let admin
-    let support
-    let employeeUser
-    let notEmployeeUser
-    let anonymous
-    let organization
-    let property
-    let incidentByAdmin
-    let incidentPropertyByAdmin
+    let admin, support, employeeUser, notEmployeeUser, anonymous, organization, property, incidentByAdmin, incidentPropertyByAdmin
+
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()

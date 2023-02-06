@@ -5,14 +5,22 @@
 const { get } = require('lodash')
 
 const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
 
+const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/IncidentProperty')
 
-const { INCIDENT_PROPERTY_ERRORS } = require('../constants/errors')
 
+const ERRORS = {
+    DIFFERENT_ORGANIZATIONS: {
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'Incident and property belong to different organizations',
+    },
+}
 
 const IncidentProperty = new GQLListSchema('IncidentProperty', {
     schemaDoc: 'Many-to-many relationship between Incident and Property',
@@ -94,7 +102,7 @@ const IncidentProperty = new GQLListSchema('IncidentProperty', {
                 const propertyOrganizationId = get(property, 'organization')
                 const incidentOrganizationId = get(incident, 'organization')
                 if (property && incident && propertyOrganizationId !== incidentOrganizationId) {
-                    throw new GQLError(INCIDENT_PROPERTY_ERRORS.DIFFERENT_ORGANIZATIONS, context)
+                    throw new GQLError(ERRORS.DIFFERENT_ORGANIZATIONS, context)
                 }
             }
         },
@@ -121,4 +129,5 @@ const IncidentProperty = new GQLListSchema('IncidentProperty', {
 
 module.exports = {
     IncidentProperty,
+    ERRORS,
 }
