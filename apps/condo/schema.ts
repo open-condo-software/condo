@@ -51489,6 +51489,8 @@ export enum SortTicketHistoryRecordsBy {
   ClientEmailDesc = 'clientEmail_DESC',
   ClientPhoneAsc = 'clientPhone_ASC',
   ClientPhoneDesc = 'clientPhone_DESC',
+  IsAutoClassifiedAsc = 'isAutoClassified_ASC',
+  IsAutoClassifiedDesc = 'isAutoClassified_DESC',
   DetailsAsc = 'details_ASC',
   DetailsDesc = 'details_DESC',
   IsPaidAsc = 'isPaid_ASC',
@@ -51906,6 +51908,8 @@ export enum SortTicketsBy {
   ProblemClassifierDesc = 'problemClassifier_DESC',
   ClassifierAsc = 'classifier_ASC',
   ClassifierDesc = 'classifier_DESC',
+  IsAutoClassifiedAsc = 'isAutoClassified_ASC',
+  IsAutoClassifiedDesc = 'isAutoClassified_DESC',
   DetailsAsc = 'details_ASC',
   DetailsDesc = 'details_DESC',
   RelatedAsc = 'related_ASC',
@@ -52343,6 +52347,8 @@ export type Ticket = {
   problemClassifier?: Maybe<TicketProblemClassifier>;
   /**  Valid combination of 3 classifiers  */
   classifier?: Maybe<TicketClassifier>;
+  /**  Indicates that ticket has been classified automatically without human confirmation  */
+  isAutoClassified?: Maybe<Scalars['Boolean']>;
   /**  Text description of the issue. Maybe written by a user or an operator  */
   details?: Maybe<Scalars['String']>;
   /**  Sometimes, it is important for us to show related issues. For example, to show related issues  */
@@ -55656,6 +55662,7 @@ export type TicketCreateInput = {
   placeClassifier?: Maybe<TicketPlaceClassifierRelateToOneInput>;
   problemClassifier?: Maybe<TicketProblemClassifierRelateToOneInput>;
   classifier?: Maybe<TicketClassifierRelateToOneInput>;
+  isAutoClassified?: Maybe<Scalars['Boolean']>;
   details?: Maybe<Scalars['String']>;
   related?: Maybe<TicketRelateToOneInput>;
   isPaid?: Maybe<Scalars['Boolean']>;
@@ -57027,6 +57034,7 @@ export type TicketHistoryRecord = {
   placeClassifier?: Maybe<Scalars['String']>;
   problemClassifier?: Maybe<Scalars['String']>;
   classifier?: Maybe<Scalars['String']>;
+  isAutoClassified?: Maybe<Scalars['Boolean']>;
   details?: Maybe<Scalars['String']>;
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
@@ -57086,6 +57094,7 @@ export type TicketHistoryRecordCreateInput = {
   placeClassifier?: Maybe<Scalars['String']>;
   problemClassifier?: Maybe<Scalars['String']>;
   classifier?: Maybe<Scalars['String']>;
+  isAutoClassified?: Maybe<Scalars['Boolean']>;
   details?: Maybe<Scalars['String']>;
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
@@ -57150,6 +57159,7 @@ export type TicketHistoryRecordUpdateInput = {
   placeClassifier?: Maybe<Scalars['String']>;
   problemClassifier?: Maybe<Scalars['String']>;
   classifier?: Maybe<Scalars['String']>;
+  isAutoClassified?: Maybe<Scalars['Boolean']>;
   details?: Maybe<Scalars['String']>;
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
@@ -57394,6 +57404,8 @@ export type TicketHistoryRecordWhereInput = {
   classifier_not?: Maybe<Scalars['String']>;
   classifier_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   classifier_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isAutoClassified?: Maybe<Scalars['Boolean']>;
+  isAutoClassified_not?: Maybe<Scalars['Boolean']>;
   details?: Maybe<Scalars['String']>;
   details_not?: Maybe<Scalars['String']>;
   details_contains?: Maybe<Scalars['String']>;
@@ -60317,6 +60329,7 @@ export type TicketUpdateInput = {
   placeClassifier?: Maybe<TicketPlaceClassifierRelateToOneInput>;
   problemClassifier?: Maybe<TicketProblemClassifierRelateToOneInput>;
   classifier?: Maybe<TicketClassifierRelateToOneInput>;
+  isAutoClassified?: Maybe<Scalars['Boolean']>;
   details?: Maybe<Scalars['String']>;
   related?: Maybe<TicketRelateToOneInput>;
   isPaid?: Maybe<Scalars['Boolean']>;
@@ -60528,6 +60541,8 @@ export type TicketWhereInput = {
   problemClassifier_is_null?: Maybe<Scalars['Boolean']>;
   classifier?: Maybe<TicketClassifierWhereInput>;
   classifier_is_null?: Maybe<Scalars['Boolean']>;
+  isAutoClassified?: Maybe<Scalars['Boolean']>;
+  isAutoClassified_not?: Maybe<Scalars['Boolean']>;
   details?: Maybe<Scalars['String']>;
   details_not?: Maybe<Scalars['String']>;
   details_contains?: Maybe<Scalars['String']>;

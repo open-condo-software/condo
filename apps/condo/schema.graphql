@@ -17135,6 +17135,7 @@ type TicketHistoryRecord {
   placeClassifier: String
   problemClassifier: String
   classifier: String
+  isAutoClassified: Boolean
   details: String
   related: String
   isPaid: Boolean
@@ -17380,6 +17381,8 @@ input TicketHistoryRecordWhereInput {
   classifier_not: String
   classifier_in: [String]
   classifier_not_in: [String]
+  isAutoClassified: Boolean
+  isAutoClassified_not: Boolean
   details: String
   details_not: String
   details_contains: String
@@ -17657,6 +17660,8 @@ enum SortTicketHistoryRecordsBy {
   clientEmail_DESC
   clientPhone_ASC
   clientPhone_DESC
+  isAutoClassified_ASC
+  isAutoClassified_DESC
   details_ASC
   details_DESC
   isPaid_ASC
@@ -17726,6 +17731,7 @@ input TicketHistoryRecordUpdateInput {
   placeClassifier: String
   problemClassifier: String
   classifier: String
+  isAutoClassified: Boolean
   details: String
   related: String
   isPaid: Boolean
@@ -17789,6 +17795,7 @@ input TicketHistoryRecordCreateInput {
   placeClassifier: String
   problemClassifier: String
   classifier: String
+  isAutoClassified: Boolean
   details: String
   related: String
   isPaid: Boolean
@@ -17973,6 +17980,10 @@ type Ticket {
 
   """ Valid combination of 3 classifiers """
   classifier: TicketClassifier
+
+  """ Indicates that ticket has been classified automatically without human confirmation 
+  """
+  isAutoClassified: Boolean
 
   """ Text description of the issue. Maybe written by a user or an operator 
   """
@@ -18244,6 +18255,8 @@ input TicketWhereInput {
   problemClassifier_is_null: Boolean
   classifier: TicketClassifierWhereInput
   classifier_is_null: Boolean
+  isAutoClassified: Boolean
+  isAutoClassified_not: Boolean
   details: String
   details_not: String
   details_contains: String
@@ -18489,6 +18502,8 @@ enum SortTicketsBy {
   problemClassifier_DESC
   classifier_ASC
   classifier_DESC
+  isAutoClassified_ASC
+  isAutoClassified_DESC
   details_ASC
   details_DESC
   related_ASC
@@ -18564,6 +18579,7 @@ input TicketUpdateInput {
   placeClassifier: TicketPlaceClassifierRelateToOneInput
   problemClassifier: TicketProblemClassifierRelateToOneInput
   classifier: TicketClassifierRelateToOneInput
+  isAutoClassified: Boolean
   details: String
   related: TicketRelateToOneInput
   isPaid: Boolean
@@ -18624,6 +18640,7 @@ input TicketCreateInput {
   placeClassifier: TicketPlaceClassifierRelateToOneInput
   problemClassifier: TicketProblemClassifierRelateToOneInput
   classifier: TicketClassifierRelateToOneInput
+  isAutoClassified: Boolean
   details: String
   related: TicketRelateToOneInput
   isPaid: Boolean

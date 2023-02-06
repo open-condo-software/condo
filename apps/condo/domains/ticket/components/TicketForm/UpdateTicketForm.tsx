@@ -102,7 +102,10 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
 
     // no redirect after mutation as we need to wait for ticket files to save
     const action = Ticket.useUpdate({})
-    const updateAction = async (value) => action(Ticket.formValuesProcessor(value), obj)
+    const updateAction = async (value) => action({
+        ...Ticket.formValuesProcessor(value),
+        isAutoClassified: obj.isAutoClassified ? false : undefined,
+    }, obj)
 
     useEffect(() => {
         refetch()

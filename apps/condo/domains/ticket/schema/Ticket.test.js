@@ -2100,6 +2100,24 @@ describe('Ticket', () => {
                 }, `${WRONG_VALUE} the value of the "deferredUntil" field must be greater than the current date`)
             })
         })
+
+        describe('isAutoClassified', () => {
+            test('Set to true if the ticket was classified on the server side when the ticket was created', async () => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+                expect(ticket.isAutoClassified).toEqual(true)
+            })
+            test('Set to false if the ticket was classified manually', async () => {
+                const client = await makeClientWithProperty()
+                const [classifier] = await createTestTicketClassifier(admin)
+                const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                    classifier: { connect: { id: classifier.id } },
+                })
+
+                expect(ticket.isAutoClassified).toEqual(false)
+            })
+        })
     })
 
     describe('deferred tickets', () => {
