@@ -15,7 +15,7 @@ const StyledFixedPanel = styled.div`
   position: fixed;
   bottom: 0;
   left: 0;
-  z-index: 2;
+  z-index: 11;
   width: 100%;
   box-shadow: ${shadows.big};
   background: white;
