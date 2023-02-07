@@ -212,8 +212,8 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
 
     return (
         <>
-            <Col span={24}>
-                <Form.Item name='allClassifiers' style={DISPLAY_NONE_STYLE} />
+            <Col span={24} style={DISPLAY_NONE_STYLE}>
+                <Form.Item name='allClassifiers' />
             </Col>
             <Col span={24}>
                 <Form.Item
@@ -275,10 +275,25 @@ export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00', 'HH:mm:ss') }
 export const CHECKBOXES_GUTTER: RowProps['gutter'] = [24, 0]
 export const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 export const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
-export const disabledDate = (form: FormInstance, fieldName: string): ComponentProps<typeof DatePicker>['disabledDate'] => (currentDate) => {
-    const value = form.getFieldValue(fieldName)
-    if (!value) return false
-    return dayjs(value).diff(currentDate) <= 0
+export const getFinishWorkRules: (error: string) => Rule[] = (error) => [(form) => {
+    return {
+        type: 'date',
+        message: error,
+        validator: () => {
+            const { workStart, workFinish } = form.getFieldsValue(['workStart', 'workFinish'])
+            if (workStart && workFinish) {
+                const diff = dayjs(workFinish).diff(workStart)
+                if (diff <= 0) return Promise.reject()
+            }
+            return Promise.resolve()
+        },
+    }
+}]
+
+type handleChangeDateType = (form: FormInstance, fieldName: string) => ComponentProps<typeof DatePicker>['onChange']
+export const handleChangeDate: handleChangeDateType = (form, fieldName) => (value) => {
+    if (!value) return
+    form.setFieldValue(fieldName, value.set('seconds', 0))
 }
 
 export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
@@ -288,6 +303,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const PropertiesLabel = intl.formatMessage({ id: 'incident.fields.properties.label' })
     const WorkStartLabel = intl.formatMessage({ id: 'incident.fields.workStart.label' })
     const WorkFinishLabel = intl.formatMessage({ id: 'incident.fields.workFinish.label' })
+    const WorkFinishErrorMessage = intl.formatMessage({ id: 'incident.fields.workFinish.error.lessThenWorkStart' })
     const WorkTypeLabel = intl.formatMessage({ id: 'incident.fields.workType.label' })
     const EmergencyTypeLabel = intl.formatMessage({ id: 'incident.workType.emergency' })
     const ScheduledTypeLabel = intl.formatMessage({ id: 'incident.workType.scheduled' })
@@ -414,6 +430,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         min: MIN_DESCRIPTION_LENGTH,
         message: DetailsErrorMessage,
     }], [DetailsErrorMessage])
+    const finishWorkRules: Rule[] = useMemo(() => getFinishWorkRules(WorkFinishErrorMessage), [WorkFinishErrorMessage])
 
     const initialWorkFinish = useMemo(() => get(initialValues, 'workFinish'), [initialValues])
     const status = useMemo(() => get(initialValues, 'status'), [initialValues])
@@ -493,8 +510,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                         <DatePicker
                                             style={FULL_WIDTH_STYLE}
                                             format='DD MMMM YYYY HH:mm'
-                                            disabledDate={disabledDate(form, 'workFinish')}
                                             showTime={SHOW_TIME_CONFIG}
+                                            onChange={handleChangeDate(form, 'workStart')}
                                         />
                                     </Form.Item>
                                 </Col>
@@ -503,12 +520,13 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                         label={WorkFinishLabel}
                                         name='workFinish'
                                         wrapperCol={FORM_ITEM_WRAPPER_COL}
+                                        rules={finishWorkRules}
                                     >
                                         <DatePicker
                                             style={FULL_WIDTH_STYLE}
                                             format='DD MMMM YYYY HH:mm'
-                                            disabledDate={disabledDate(form, 'workStart')}
                                             showTime={SHOW_TIME_CONFIG}
+                                            onChange={handleChangeDate(form, 'workFinish')}
                                         />
                                     </Form.Item>
                                 </Col>
