@@ -167,8 +167,8 @@ const IncidentWorkDateField: React.FC<IncidentFieldProps> = ({ incident }) => {
     const [currentDate, setCurrentDate] = useState<string>(dayjs().toISOString())
 
     const isActual = incident.status === IncidentStatusType.Actual
-    const workStart = useMemo(() => intl.formatDate(incident.workStart, { format: 'D.MM.YYYY HH:mm' }), [incident.workStart])
-    const workFinish = useMemo(() => incident.workFinish ? intl.formatDate(incident.workFinish, { format: 'D.MM.YYYY HH:mm' }) : null, [incident.workFinish])
+    const workStart = useMemo(() => dayjs(incident.workStart).format('D.MM.YYYY HH:mm'), [incident.workStart])
+    const workFinish = useMemo(() => incident.workFinish ? dayjs(incident.workFinish).format('D.MM.YYYY HH:mm') : null, [incident.workFinish])
 
     const timeLeftMessageType = useMemo(() => getTimeLeftMessageType({
         deadline: incident.workFinish,
@@ -432,7 +432,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
         await router.push(`/incident/${incident.id}/update`)
     }, [incident.id, router])
 
-    const createdAt = useMemo(() => intl.formatDate(incident.createdAt, { format: 'DD.MM.YYYY, HH:mm' }), [incident.createdAt])
+    const createdAt = useMemo(() => dayjs(incident.createdAt).format('DD.MM.YYYY, HH:mm'), [incident.createdAt])
     const createdBy = useMemo(() => get(incident, ['createdBy']), [incident])
 
     return (

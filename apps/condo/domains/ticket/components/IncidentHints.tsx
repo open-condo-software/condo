@@ -7,6 +7,7 @@ import {
     IncidentClassifierWhereInput,
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
+import dayjs from 'dayjs'
 import get from 'lodash/get'
 import React, { useCallback, useEffect, useState } from 'react'
 import { IntlShape } from 'react-intl/src/types'
@@ -41,7 +42,7 @@ type IncidentHintProps = {
 
 const formatDate = (intl: IntlShape, date?: string) => {
     if (!date) return '…'
-    return intl.formatDate(date, { format: 'DD.MM.YYYY HH.mm' })
+    return dayjs(date).format('DD.MM.YYYY HH.mm')
 }
 
 const IncidentHint: React.FC<IncidentHintProps> = (props) => {
