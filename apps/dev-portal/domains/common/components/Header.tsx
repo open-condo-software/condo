@@ -13,7 +13,7 @@ import { colors } from '@open-condo/ui/colors'
 import styles from './Header.module.css'
 
 const STATIC_HEADER_STYLES: CSSProperties = {
-    padding: 'auto 32px',
+    padding: '0 48px',
     boxSizing: 'border-box',
     height: 72,
     borderBottom: `1px solid ${colors.gray['3']}`,
