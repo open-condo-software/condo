@@ -3,19 +3,14 @@
  */
 
 const index = require('@app/condo/index')
-const { getItem, updateItem } = require('@keystonejs/server-side-graphql-client')
-const faker = require('faker')
 const { v4: uuid } = require('uuid')
 
-const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { UserAdmin } = require('@condo/domains/user/gql')
+const { UserAdmin } = require('@condo/domains/user/utils/serverSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, User } = require('@condo/domains/user/utils/testSchema')
 
 const { MockSbbolResponses } = require('./MockSbbolResponses')
@@ -67,12 +62,7 @@ describe('syncOrganization from SBBOL', () => {
             }
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await registerNewOrganization(client)
-            const [user] = await execGqlWithoutAccess(adminContext, {
-                query: UserAdmin.GET_ALL_OBJS_QUERY,
-                variables: { where: { id: client.user.id } },
-                errorMessage: '[error] cannot query user',
-                dataPath: 'objs',
-            })
+            const user = await UserAdmin.getOne(adminContext, { id: client.user.id })
 
             userData.phone = user.phone
             organizationData.meta.inn = organization.tin

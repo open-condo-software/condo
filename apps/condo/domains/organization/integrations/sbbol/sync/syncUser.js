@@ -1,13 +1,11 @@
-const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
-
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js')
 const { SBBOL_IDP_TYPE, STAFF } = require('@condo/domains/user/constants/common')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
-const { UserAdmin } = require('@condo/domains/user/gql')
 const { User, UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
+const { UserAdmin } = require('@condo/domains/user/utils/serverSchema')
 
 const { dvSenderFields } = require('../constants')
 
@@ -109,12 +107,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
 
         // create a user
         const createdUser = await User.create(context, { ...userInfo, ...dvSenderFields })
-        const [user] = await execGqlWithoutAccess(context, {
-            query: UserAdmin.GET_ALL_OBJS_QUERY,
-            variables: { where: { id: createdUser.id } },
-            errorMessage: '[error] cannot query user',
-            dataPath: 'objs',
-        })
+        const user = await UserAdmin.getOne(context, { id: createdUser.id })
         
         // register a UserExternalIdentity
         await registerIdentity({
