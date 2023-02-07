@@ -209,6 +209,8 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
 
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
 
+    const manyRelationships = {}
+
     const relations = {}
     for (const listAdapter of listAdapters) {
         const listName = listAdapter.key
@@ -217,6 +219,9 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         for (const field of listAdapter.fieldAdapters) {
             if (field.fieldName === 'Relationship') {
                 relations[listName].push(field.refListKey)
+                if (field.field.many) {
+                    manyRelationships[listName] = field.refListKey
+                }
             }
         }
     }
@@ -227,6 +232,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
             if (relations[relationName].includes(listName)) {
                 connectedTables[listName] = relationName
                 connectedTables[relationName] = listName
+                console.log(`Added: ${relationName}, ${listName}`)
             }
         }
     }
@@ -234,6 +240,10 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
     // Todo @toplenboren remove this only for debug
     console.log('CONNECTED TABLES LIST:')
     console.log(connectedTables)
+
+    // Todo @toplenboren remove this only for debug
+    console.log('MANY=TRUE TABLES LIST:')
+    console.log(manyRelationships)
 
     for (const listAdapter of listAdapters) {
 
@@ -275,13 +285,13 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         // Patch mutations:
 
         const originalUpdate = listAdapter.update
-        listAdapter.update = patchAdapterFunction(listName, 'UPDATE', originalUpdate, listAdapter, middleware, connectedTables)
+        listAdapter.update = patchAdapterFunction(listName, 'UPDATE', originalUpdate, listAdapter, middleware, connectedTables, manyRelationships)
 
         const originalCreate = listAdapter.create
-        listAdapter.create = patchAdapterFunction(listName, 'CREATE', originalCreate, listAdapter, middleware, connectedTables)
+        listAdapter.create = patchAdapterFunction(listName, 'CREATE', originalCreate, listAdapter, middleware, connectedTables, manyRelationships)
 
         const originalDelete = listAdapter.delete
-        listAdapter.delete = patchAdapterFunction(listName, 'DELETE', originalDelete, listAdapter, middleware, connectedTables)
+        listAdapter.delete = patchAdapterFunction(listName, 'DELETE', originalDelete, listAdapter, middleware, connectedTables, manyRelationships)
     }
 }
 
@@ -294,7 +304,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
  * @param {AdapterCacheMiddleware} cache
  * @returns {function(...[*]): Promise<*>}
  */
-function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, connectedTables) {
+function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, connectedTables, manyRelTables) {
     return async ( ...args ) => {
 
         const functionResult = await f.apply(listAdapter, args)
@@ -302,6 +312,10 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
         await cache.setState(listName, functionResult[UPDATED_AT_FIELD])
         if (connectedTables[listName]) {
             await cache.setState(connectedTables[listName], functionResult[UPDATED_AT_FIELD])
+        }
+
+        if (manyRelTables[listName]) {
+            await cache.setState(manyRelTables[listName], functionResult[UPDATED_AT_FIELD])
         }
 
         if (cache.debugMode) {
