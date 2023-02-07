@@ -125,7 +125,7 @@ const sync = async ({ keystone, userInfo, tokenSet  }) => {
         throw new Error('Failed to bind user to organization')
     }
 
-    await syncSbbolTransactions.delay(date, user.id, organization.id)
+    await syncSbbolTransactions.delay(date, user.id, organization)
 
     return {
         user,
