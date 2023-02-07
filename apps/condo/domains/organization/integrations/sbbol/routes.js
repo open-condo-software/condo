@@ -39,7 +39,8 @@ class SbbolRoutes {
         const reqId = req.id
         const sbbolAuthApi = await initializeSbbolAuthApi()
         try {
-            if (!isObject(req.session[SBBOL_SESSION_KEY].checks)) {
+            const checks = get(req, ['session', SBBOL_SESSION_KEY, 'checks'])
+            if (!isObject(checks)) {
                 logger.info({ msg: 'SBBOL invalid nonce and state', reqId })
                 return res.status(400).send('ERROR: Invalid nonce and state')
             }
@@ -48,7 +49,7 @@ class SbbolRoutes {
             let tokenSet, userInfo
 
             try {
-                tokenSet = await sbbolAuthApi.completeAuth(req, req.session[SBBOL_SESSION_KEY].checks)
+                tokenSet = await sbbolAuthApi.completeAuth(req, checks)
             } catch (err) {
                 logger.error({ msg: 'SBBOL completeAuth error', err, reqId })
                 throw err
