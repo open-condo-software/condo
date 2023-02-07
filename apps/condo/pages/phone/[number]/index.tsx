@@ -11,6 +11,7 @@ import { CarouselRef } from 'antd/es/carousel'
 import { Gutter } from 'antd/es/grid/row'
 import { EllipsisConfig } from 'antd/es/typography/Base'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -31,8 +32,6 @@ import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table
 import { Tag } from '@condo/domains/common/components/Tag'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { colors, fontSizes, gradients, shadows, transitions } from '@condo/domains/common/constants/style'
-import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
-import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
@@ -682,6 +681,15 @@ const ClientCardPageContent = ({
 
         return [addAddressTab, ...addressTabs].filter(Boolean)
     }, [activeTab, canManageContacts, handleAddAddressClick, handleTabChange, initialActiveTab, tabsData])
+
+    useEffect(() => {
+        if (!activeTab && !isEmpty(tabsData)) {
+            const { type, property, unitName, unitType } = tabsData[0]
+            const key = getClientCardTabKey(get(property, 'id', null), type, unitName, unitType)
+
+            handleTabChange(key)
+        }
+    }, [activeTab, handleTabChange, tabsData])
 
     return (
         <>
