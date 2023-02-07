@@ -1,9 +1,13 @@
 const faker = require('faker')
+const get = require('lodash/get')
 
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { checkSbbolBankIntegrationContext } = require('@condo/domains/organization/integrations/sbbol/utils/checkSbbolBankIntegrationContext')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 
+const { syncBankAccounts } = require('./syncBankAccounts')
 const { syncOrganization } = require('./syncOrganization')
 const { syncServiceSubscriptions } = require('./syncServiceSubscriptions')
 const { syncTokens } = require('./syncTokens')
@@ -12,10 +16,7 @@ const { syncUser } = require('./syncUser')
 const { dvSenderFields } = require('../constants')
 const { SBBOL_IMPORT_NAME } = require('../constants')
 const { getSbbolSecretStorage } = require('../utils')
-const { syncBankAccounts } = require('./syncBankAccounts')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { checkSbbolBankIntegrationContext } = require('@condo/domains/organization/integrations/sbbol/utils/checkSbbolBankIntegrationContext')
-const get = require('lodash/get')
+
 
 /**
  * Params for direct execution of GraphQL queries and mutations using Keystone

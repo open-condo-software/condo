@@ -1,8 +1,8 @@
-const { dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
-const { BankIntegrationContext, BankIntegration } = require('@condo/domains/banking/utils/serverSchema')
-const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const isEmpty = require('lodash/isEmpty')
 const { getLogger } = require('@open-condo/keystone/logging')
+
+const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
+const { BankIntegrationContext, BankIntegration } = require('@condo/domains/banking/utils/serverSchema')
+const { dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
 
 const logger = getLogger('sbbol/checkSbbolBankIntegrationContext')
 
