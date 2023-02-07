@@ -228,6 +228,8 @@ const MyApp = ({ Component, pageProps }) => {
         isEndTrialSubscriptionReminderPopupVisible,
     } = useEndTrialSubscriptionReminderPopup()
 
+    const shouldDisplayCookieAgreement = router.pathname.match(/\/auth\/.*/)
+
     return (
         <>
             <Head>
@@ -240,7 +242,7 @@ const MyApp = ({ Component, pageProps }) => {
                 <CacheProvider value={cache}>
                     <FeatureFlagsProvider>
                         <GlobalStyle/>
-                        <CookieAgreement/>
+                        {shouldDisplayCookieAgreement && <CookieAgreement/>}
                         <FocusContextProvider>
                             <TasksProvider>
                                 <PostMessageProvider>
