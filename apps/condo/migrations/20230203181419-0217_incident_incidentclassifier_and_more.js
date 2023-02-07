@@ -4,6 +4,13 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+    
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+
+    SET statement_timeout = '1500s'; 
+
 --
 -- Create model incident
 --
@@ -115,7 +122,7 @@ CREATE INDEX "IncidentChange_incident_1d02e07e" ON "IncidentChange" ("incident")
 CREATE INDEX "IncidentChange_updatedBy_30fb156e" ON "IncidentChange" ("updatedBy");
 
 --
--- Add IncidentClassifier rules
+-- [CUSTOM] Add IncidentClassifier rules
 --
 
     INSERT INTO public."IncidentClassifier" ("dv", "sender", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "category", "problem", "createdBy", "organization", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'de707e0c-a847-4e10-8838-b6a914223a0a', 1, '2023-02-02 00:00:00.000000', null, null, null, '6beff4ec-7272-49f2-88ae-47959d4491e8', '7072bc51-aaa3-4509-8ddb-7165e468c711', null, null, null);
@@ -219,6 +226,25 @@ CREATE INDEX "IncidentChange_updatedBy_30fb156e" ON "IncidentChange" ("updatedBy
     INSERT INTO public."IncidentClassifier" ("dv", "sender", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "category", "problem", "createdBy", "organization", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'c40518fa-b35b-43b2-97e9-ea0321b7e8b3', 1, '2023-02-02 00:00:00.000000', null, null, null, '7b4fe4fb-ecc5-4754-971a-83dd4a8d03ed', '177d7dfd-ec36-487b-acc2-ea95a83289a8', null, null, null);
     INSERT INTO public."IncidentClassifier" ("dv", "sender", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "category", "problem", "createdBy", "organization", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', '39f28629-c3de-4fa2-88fc-38b6a2835f0e', 1, '2023-02-02 00:00:00.000000', null, null, null, '7b4fe4fb-ecc5-4754-971a-83dd4a8d03ed', '474e838a-eb4a-4c24-9baf-5fd81a6389be', null, null, null);
     INSERT INTO public."IncidentClassifier" ("dv", "sender", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "category", "problem", "createdBy", "organization", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'a1942a91-7707-4a63-9a8d-02160a14b7a2', 1, '2023-02-02 00:00:00.000000', null, null, null, '7b4fe4fb-ecc5-4754-971a-83dd4a8d03ed', null, null, null, null);
+
+---
+--- [CUSTOM] Set default values "canManageIncidents" to existed roles
+---
+
+    UPDATE "OrganizationEmployeeRole"
+    SET "canManageIncidents" = true
+    WHERE "name" = 'employee.role.Administrator.name' 
+        OR "name" = 'employee.role.Dispatcher.name' 
+        OR "name" = 'employee.role.Manager.name' 
+        OR "name" = 'employee.role.Foreman.name' 
+        OR "name" = 'employee.role.Technician.name' 
+        OR "name" = 'employee.role.Contractor.name';
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+
+    SET statement_timeout = '10s';
 
 COMMIT;
 
