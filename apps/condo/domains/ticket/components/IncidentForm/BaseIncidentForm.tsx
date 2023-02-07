@@ -271,7 +271,7 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
 
 
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
-export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00', 'HH:mm:ss') }
+export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
 export const CHECKBOXES_GUTTER: RowProps['gutter'] = [24, 0]
 export const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 export const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
@@ -293,6 +293,8 @@ export const getFinishWorkRules: (error: string) => Rule[] = (error) => [(form) 
 type handleChangeDateType = (form: FormInstance, fieldName: string) => ComponentProps<typeof DatePicker>['onChange']
 export const handleChangeDate: handleChangeDateType = (form, fieldName) => (value) => {
     if (!value) return
+
+    // NOTE: We do forced zeroing of seconds and milliseconds so that there are no problems with validation
     form.setFieldValue(fieldName, value.set('seconds', 0).set('milliseconds', 0))
 }
 
