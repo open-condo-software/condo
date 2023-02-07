@@ -6,10 +6,19 @@
 
  
 ## Table of contents
+[Workflow](#workflow)\
 [Installation](#installation)\
 [Usage](#usage)
 
+## Workflow
+
+Icons set is maintained in Figma by design team, — this is a primary source of changes.
+Developers should only pull and commit changes, made by design team.
+
+See [Import](./docs/IMPORT.md)
+
 ## Installation
+
 To install package simply run the following command if you're using npm as your package manager:
 ```bash
 npm i @open-condo/icons
