@@ -1711,6 +1711,7 @@
   "incident.fields.workDate.timeLeft": "Осталось",
   "incident.fields.workStart.label": "Начало работ",
   "incident.fields.workFinish.label": "Завершение работ",
+  "incident.fields.workFinish.error.lessThenWorkStart": "Окончание работ не может быть раньше начала",
   "incident.fields.workType.label": "Тип работ",
   "incident.fields.workType.empty": "—",
   "incident.fields.details.label": "Что случилось",
