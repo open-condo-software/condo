@@ -12,7 +12,6 @@ import type { ReactNode } from 'react'
 
 import 'antd/dist/reset.css'
 import '@open-condo/ui/dist/styles.min.css'
-import './globals.css'
 
 type AvailableLocales = typeof LOCALES[number]
 // NOTE: Combine all keys together
