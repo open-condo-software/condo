@@ -255,7 +255,7 @@
   "ClickToSeeMore": "Click to see more information",
   "ClearAllFilters": "Clear all filters",
   "component.CookieAgreement.title": "We use Cookie.",
-  "component.CookieAgreement.description": "Website doma.ai has Сookie for proper working, they provide analytics and safe for Your computer. To know more on Cookie, please read user agreement and Cookie policy. If you need to disable them, you can do it in browser settings",
+  "component.CookieAgreement.description": "DOMA LLC uses cookies to personalize services and user convenience. Cookies allow you to log in without re-entering your username and password. You can delete cookies or opt out of using them in your browser settings.",
   "component.CookieAgreement.action.accept": "Accept",
   "component.CookieAgreement.action.expand": "Read more",
   "component.uploadlist.AttachedFilesLabel": "Files list",

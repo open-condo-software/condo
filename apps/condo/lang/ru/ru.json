@@ -255,7 +255,7 @@
   "ClickToSeeMore": "Нажмите, чтобы посмотреть подробнее",
   "ClearAllFilters": "Сбросить все фильтры",
   "component.CookieAgreement.title": "Мы используем файлы Cookie.",
-  "component.CookieAgreement.description": "На сайте doma.ai есть Cookie. Они помогают ему работать, обеспечивают нас аналитикой и безопасны для вашего компьютера. Чтобы узнать больше о Cookie, прочитайте условия и принципы их обработки. Если надо отключить файлы — зайдите в настройки браузера",
+  "component.CookieAgreement.description": "ООО \"ДОМА\" использует cookie для персонализации сервисов и удобства пользователей. Cookie обеспечивают вход без повторного ввода логина и пароля. Вы можете удалить файлы cookie или отказаться от их использования в настройках браузера.",
   "component.CookieAgreement.action.accept": "Принять",
   "component.CookieAgreement.action.expand": "Подробнее",
   "component.uploadlist.AttachedFilesLabel": "Прикреплённые файлы",
