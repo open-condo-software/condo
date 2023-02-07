@@ -1711,6 +1711,7 @@
   "incident.fields.workDate.timeLeft": "Left",
   "incident.fields.workStart.label": "Work start",
   "incident.fields.workFinish.label": "Work finish",
+  "incident.fields.workFinish.error.lessThenWorkStart": "The end of the works cannot be earlier than the start",
   "incident.fields.workType.label": "Work type",
   "incident.fields.workType.empty": "—",
   "incident.fields.details.label": "What happened",
