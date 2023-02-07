@@ -75,16 +75,36 @@ const Incident = new GQLListSchema('Incident', {
         },
 
         workStart: {
-            schemaDoc: 'Date and time of works start',
+            schemaDoc: 'Date and time of works start (seconds and milliseconds are forced to zero)',
             type: 'DateTimeUtc',
             isRequired: true,
             kmigratorOptions: { null: false },
+            hooks: {
+                resolveInput: async (props) => {
+                    const { resolvedData, fieldPath } = props
+                    const workStart = resolvedData[fieldPath]
+                    if (workStart) {
+                        // NOTE: We do forced zeroing of seconds and milliseconds so that there are no problems
+                        return dayjs(workStart).set('seconds', 0).set('milliseconds', 0)
+                    }
+                    return workStart
+                },
+            },
         },
 
         workFinish: {
-            schemaDoc: 'Date and time of works finish',
+            schemaDoc: 'Date and time of works finish (seconds and milliseconds are forced to zero)',
             type: 'DateTimeUtc',
             hooks: {
+                resolveInput: async (props) => {
+                    const { resolvedData, fieldPath } = props
+                    const workFinish = resolvedData[fieldPath]
+                    if (workFinish) {
+                        // NOTE: We do forced zeroing of seconds and milliseconds so that there are no problems
+                        return dayjs(workFinish).set('seconds', 0).set('milliseconds', 0)
+                    }
+                    return workFinish
+                },
                 validateInput: async (props) => {
                     const { resolvedData, existingItem, fieldPath, context } = props
                     const newItem = { ...existingItem, ...resolvedData }
@@ -92,7 +112,7 @@ const Incident = new GQLListSchema('Incident', {
 
                     const workFinish = dayjs(newItem[fieldPath])
                     const workStart = dayjs(newItem.workStart)
-                    const isValidFinishDate = workFinish.diff(workStart) > 0
+                    const isValidFinishDate = workFinish.diff(workStart) >= 0
 
                     if (workFinish && workStart && !isValidFinishDate) {
                         throw new GQLError(ERRORS.WORK_FINISH_EARLY_THAN_WORK_START, context)
