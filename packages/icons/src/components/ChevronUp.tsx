@@ -16,11 +16,10 @@ export const ChevronUp: React.FC<IconProps> = ({ svgProps: props, ...restProps }
                     {...props}
                 >
                     <path
-                        d='m 6 15 L 12 9 L 18 15'
-                        stroke='currentColor'
-                        strokeWidth={2.1}
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
+                        fillRule='evenodd'
+                        clipRule='evenodd'
+                        d='M11.293 8.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1-1.414 1.414L12 10.414l-5.293 5.293a1 1 0 0 1-1.414-1.414l6-6Z'
+                        fill='currentColor'
                     />
                 </svg>
             }
