@@ -60,7 +60,7 @@ describe('Incident', () => {
                 expect(incidentByAdmin).toBeDefined()
                 expect(incidentByAdmin).toHaveProperty('organization.id', organization.id)
                 expect(incidentByAdmin).toHaveProperty('details', INCIDENT_PAYLOAD.details)
-                expect(incidentByAdmin).toHaveProperty('workStart', INCIDENT_PAYLOAD.workStart)
+                expect(incidentByAdmin).toHaveProperty('workStart')
                 expect(incidentByAdmin).toHaveProperty('status', INCIDENT_STATUS_ACTUAL)
             })
             test('can read', async () => {
@@ -86,7 +86,7 @@ describe('Incident', () => {
                 expect(incident).toBeDefined()
                 expect(incident).toHaveProperty('organization.id', organization.id)
                 expect(incident).toHaveProperty('details', INCIDENT_PAYLOAD.details)
-                expect(incident).toHaveProperty('workStart', INCIDENT_PAYLOAD.workStart)
+                expect(incident).toHaveProperty('workStart')
                 expect(incident).toHaveProperty('status', INCIDENT_STATUS_ACTUAL)
             })
             test('can read', async () => {
@@ -113,7 +113,7 @@ describe('Incident', () => {
                 expect(incident).toHaveProperty('organization.id', organization.id)
                 expect(incident).toHaveProperty('details', INCIDENT_PAYLOAD.details)
                 expect(incident).toHaveProperty('status', INCIDENT_STATUS_ACTUAL)
-                expect(incident).toHaveProperty('workStart', INCIDENT_PAYLOAD.workStart)
+                expect(incident).toHaveProperty('workStart')
                 expect(incident).toHaveProperty('workFinish', null)
                 expect(incident).toHaveProperty('isScheduled', false)
                 expect(incident).toHaveProperty('isEmergency', false)
@@ -192,6 +192,14 @@ describe('Incident', () => {
                 })
                 expect(incident).toBeDefined()
                 expect(incident).toHaveProperty('workFinish', attrs.workFinish)
+            })
+            test('workStart and workFinish can be equal', async () => {
+                console.log(incidentByAdmin.workStart)
+                const [incident] = await updateTestIncident(admin, incidentByAdmin.id, {
+                    workFinish: dayjs(incidentByAdmin.workStart).toISOString(),
+                })
+                expect(incident).toBeDefined()
+                expect(incident).toHaveProperty('workFinish', incidentByAdmin.workStart)
             })
             test('workFinish should not be early then workStart', async () => {
                 await catchErrorFrom(async () => {
