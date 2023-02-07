@@ -283,7 +283,7 @@ export const getFinishWorkRules: (error: string) => Rule[] = (error) => [(form) 
             const { workStart, workFinish } = form.getFieldsValue(['workStart', 'workFinish'])
             if (workStart && workFinish) {
                 const diff = dayjs(workFinish).diff(workStart)
-                if (diff <= 0) return Promise.reject()
+                if (diff < 0) return Promise.reject()
             }
             return Promise.resolve()
         },
@@ -293,7 +293,7 @@ export const getFinishWorkRules: (error: string) => Rule[] = (error) => [(form) 
 type handleChangeDateType = (form: FormInstance, fieldName: string) => ComponentProps<typeof DatePicker>['onChange']
 export const handleChangeDate: handleChangeDateType = (form, fieldName) => (value) => {
     if (!value) return
-    form.setFieldValue(fieldName, value.set('seconds', 0))
+    form.setFieldValue(fieldName, value.set('seconds', 0).set('milliseconds', 0))
 }
 
 export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
