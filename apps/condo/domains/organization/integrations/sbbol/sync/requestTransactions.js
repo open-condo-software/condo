@@ -108,14 +108,16 @@ async function _requestTransactions (userId, bankAccounts, context, statementDat
  * Synchronizes SBBOL transaction data with data in the system
  * @param {String[] | String} date
  * @param {String} userId
+ * @param {Organization} organization
  * @returns {Promise<Transaction[]>}
  */
-async function requestTransactions (date, userId, organizationId) {
+async function requestTransactions (date, userId, organization) {
     if (!uuidValidate(userId)) return logger.error(`passed userId is not a valid uuid. userId: ${userId}`)
     if (!date) return logger.error('date is required')
 
     const { keystone: context } = await getSchemaCtx('Organization')
-    const bankAccounts = await BankAccount.getAll(context, { tin: organizationId })
+    // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
+    const bankAccounts = await BankAccount.getAll(context, { tin: organization.tin, deletedAt: null })
     const today = dayjs().format('YYYY-MM-DD')
 
     if (typeof date === 'string') {
@@ -125,7 +127,7 @@ async function requestTransactions (date, userId, organizationId) {
         // you can't request a report by a date in the future
         if (today < date) return logger.error({ msg: INVALID_DATE_RECEIVED_MESSAGE })
 
-        return await _requestTransactions(userId, bankAccounts, context, date, organizationId)
+        return await _requestTransactions(userId, bankAccounts, context, date, organization.id)
     } else {
         const transactions = []
         for (const statementDate of date) {
@@ -140,7 +142,7 @@ async function requestTransactions (date, userId, organizationId) {
                 bankAccounts,
                 context,
                 statementDate,
-                organizationId,
+                organization.id,
             ))
         }
         return transactions
