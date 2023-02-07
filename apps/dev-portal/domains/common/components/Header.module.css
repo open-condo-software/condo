@@ -1,0 +1,9 @@
+.logo-container {
+  position: relative;
+  width: 304px;
+  height: 28px;
+}
+
+.dropout-wrapper {
+  cursor: pointer;
+}

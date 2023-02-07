@@ -10,6 +10,8 @@ import { Globe } from '@open-condo/icons'
 import { Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
+import styles from './Header.module.css'
+
 const STATIC_HEADER_STYLES: CSSProperties = {
     padding: 'auto 32px',
     boxSizing: 'border-box',
@@ -27,10 +29,6 @@ const LOGO_IMAGE_STYLES: CSSProperties = {
     objectPosition: 'left',
 }
 
-// const DropoutIconWrapper = styled.span`
-//   cursor: pointer;
-// `
-
 export const Header: React.FC = () => {
     const intl = useIntl()
     const router = useRouter()
@@ -44,7 +42,7 @@ export const Header: React.FC = () => {
 
     return (
         <Layout.Header style={{ ...STATIC_HEADER_STYLES, background: colorBgContainer }}>
-            <div className='relative w-[304px] h-7'>
+            <div className={styles.logoContainer}>
                 <Image src='/logo.svg' alt='Logo' fill style={LOGO_IMAGE_STYLES} priority draggable={false}/>
             </div>
             <Space direction='horizontal' align='center' size={24}>
@@ -60,7 +58,7 @@ export const Header: React.FC = () => {
                     }}
                     placement='bottom'
                 >
-                    <span className='cursor-pointer'>
+                    <span className={styles.dropoutWrapper}>
                         <Globe size='large' color={colors.gray['7']}/>
                     </span>
                 </Dropdown>
