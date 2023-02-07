@@ -1,12 +1,13 @@
-const { getLogger } = require('@open-condo/keystone/logging')
 const { get, isEmpty } = require('lodash')
 
-const { initSbbolFintechApi } = require('@condo/domains/organization/integrations/sbbol/SbbolFintechApi')
-const { dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+
 const { BankAccount } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES_FOR_SBBOL } = require('@condo/domains/common/constants/currencies')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
+const { initSbbolFintechApi } = require('@condo/domains/organization/integrations/sbbol/SbbolFintechApi')
 
 const logger = getLogger('sbbol/syncBankAccounts')
 

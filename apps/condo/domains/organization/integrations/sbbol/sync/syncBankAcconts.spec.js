@@ -2,19 +2,24 @@
  * @jest-environment node
  */
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-const { MockSbbolResponses } = require('./MockSbbolResponses')
-
 const index = require('@app/condo/index')
+const get = require('lodash/get')
+
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+
+const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
+const { BankIntegration, createTestBankIntegrationContext, BankAccount } = require('@condo/domains/banking/utils/testSchema')
+const { createValidRuRoutingNumber, createValidRuNumber } = require('@condo/domains/banking/utils/testSchema/bankAccount')
+const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { _syncBankAccounts } = require('@condo/domains/organization/integrations/sbbol/sync/syncBankAccounts')
 const { checkSbbolBankIntegrationContext } = require('@condo/domains/organization/integrations/sbbol/utils/checkSbbolBankIntegrationContext')
 const { createTestOrganization, Organization, generateTin } = require('@condo/domains/organization/utils/testSchema')
+
+const { MockSbbolResponses } = require('./MockSbbolResponses')
+
+
 const { dvSenderFields } = require('../constants')
-const { BankIntegration, createTestBankIntegrationContext, BankAccount } = require('@condo/domains/banking/utils/testSchema')
-const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { _syncBankAccounts } = require('@condo/domains/organization/integrations/sbbol/sync/syncBankAccounts')
-const get = require('lodash/get')
-const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { createValidRuRoutingNumber, createValidRuNumber } = require('@condo/domains/banking/utils/testSchema/bankAccount')
+
 const { keystone } = index
 
 let adminClient, adminContext, context, commonOrganization, bankIntegration, commonBankIntegrationContext, commonBankIntegrationContextAttrs
@@ -29,7 +34,7 @@ describe('syncBankAccount from SBBOL', () => {
             context: adminContext,
         }
         const [createdOrganization] = await createTestOrganization(adminClient)
-        commonOrganization = await Organization.update(adminClient, createdOrganization.id, { tin: generateTin(RUSSIA_COUNTRY).toString(), ...dvSenderFields})
+        commonOrganization = await Organization.update(adminClient, createdOrganization.id, { tin: generateTin(RUSSIA_COUNTRY).toString(), ...dvSenderFields })
         bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
         const [obj, attrs] = await createTestBankIntegrationContext(adminClient, bankIntegration, commonOrganization)
         commonBankIntegrationContext = obj
