@@ -17599,9 +17599,9 @@ export type Incident = {
   status?: Maybe<IncidentStatusType>;
   /**  Text that employees should say to residents  */
   textForResident?: Maybe<Scalars['String']>;
-  /**  Date and time of works start  */
+  /**  Date and time of works start (seconds and milliseconds are forced to zero)  */
   workStart?: Maybe<Scalars['String']>;
-  /**  Date and time of works finish  */
+  /**  Date and time of works finish (seconds and milliseconds are forced to zero)  */
   workFinish?: Maybe<Scalars['String']>;
   /**  Scheduled works  */
   isScheduled?: Maybe<Scalars['Boolean']>;
@@ -17654,13 +17654,13 @@ export type IncidentChange = {
   textForResidentFrom?: Maybe<Scalars['String']>;
   /**  Text that employees should say to residents  */
   textForResidentTo?: Maybe<Scalars['String']>;
-  /**  Date and time of works start  */
+  /**  Date and time of works start (seconds and milliseconds are forced to zero)  */
   workStartFrom?: Maybe<Scalars['String']>;
-  /**  Date and time of works start  */
+  /**  Date and time of works start (seconds and milliseconds are forced to zero)  */
   workStartTo?: Maybe<Scalars['String']>;
-  /**  Date and time of works finish  */
+  /**  Date and time of works finish (seconds and milliseconds are forced to zero)  */
   workFinishFrom?: Maybe<Scalars['String']>;
-  /**  Date and time of works finish  */
+  /**  Date and time of works finish (seconds and milliseconds are forced to zero)  */
   workFinishTo?: Maybe<Scalars['String']>;
   /**  Scheduled works  */
   isScheduledFrom?: Maybe<Scalars['Boolean']>;

@@ -27701,10 +27701,12 @@ type Incident {
   """ Text that employees should say to residents """
   textForResident: String
 
-  """ Date and time of works start """
+  """ Date and time of works start (seconds and milliseconds are forced to zero) 
+  """
   workStart: String
 
-  """ Date and time of works finish """
+  """ Date and time of works finish (seconds and milliseconds are forced to zero) 
+  """
   workFinish: String
 
   """ Scheduled works """
@@ -28022,16 +28024,20 @@ type IncidentChange {
   """ Text that employees should say to residents """
   textForResidentTo: String
 
-  """ Date and time of works start """
+  """ Date and time of works start (seconds and milliseconds are forced to zero) 
+  """
   workStartFrom: String
 
-  """ Date and time of works start """
+  """ Date and time of works start (seconds and milliseconds are forced to zero) 
+  """
   workStartTo: String
 
-  """ Date and time of works finish """
+  """ Date and time of works finish (seconds and milliseconds are forced to zero) 
+  """
   workFinishFrom: String
 
-  """ Date and time of works finish """
+  """ Date and time of works finish (seconds and milliseconds are forced to zero) 
+  """
   workFinishTo: String
 
   """ Scheduled works """
