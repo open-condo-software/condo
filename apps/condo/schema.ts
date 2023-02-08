@@ -17495,7 +17495,7 @@ export type GetPhoneByConfirmPhoneActionTokenOutput = {
   isPhoneVerified: Scalars['Boolean'];
 };
 
-/**  Entries of scheduled and emergency incidents of water, electricity, etc.  */
+/**  Entries of mass planned and emergency incidents with water, electricity, etc.  */
 export type Incident = {
   __typename?: 'Incident';
   /**
@@ -17516,9 +17516,9 @@ export type Incident = {
   status?: Maybe<IncidentStatusType>;
   /**  Text that employees should say to residents  */
   textForResident?: Maybe<Scalars['String']>;
-  /**  Date and time of works start (seconds and milliseconds are forced to zero)  */
+  /**  Start date of work related to the incident (seconds and milliseconds are forced to zero)  */
   workStart?: Maybe<Scalars['String']>;
-  /**  Date and time of works finish (seconds and milliseconds are forced to zero)  */
+  /**  Finish date of work related to the incident (seconds and milliseconds are forced to zero)  */
   workFinish?: Maybe<Scalars['String']>;
   /**  Scheduled works  */
   isScheduled?: Maybe<Scalars['Boolean']>;
@@ -17571,13 +17571,13 @@ export type IncidentChange = {
   textForResidentFrom?: Maybe<Scalars['String']>;
   /**  Text that employees should say to residents  */
   textForResidentTo?: Maybe<Scalars['String']>;
-  /**  Date and time of works start (seconds and milliseconds are forced to zero)  */
+  /**  Start date of work related to the incident (seconds and milliseconds are forced to zero)  */
   workStartFrom?: Maybe<Scalars['String']>;
-  /**  Date and time of works start (seconds and milliseconds are forced to zero)  */
+  /**  Start date of work related to the incident (seconds and milliseconds are forced to zero)  */
   workStartTo?: Maybe<Scalars['String']>;
-  /**  Date and time of works finish (seconds and milliseconds are forced to zero)  */
+  /**  Finish date of work related to the incident (seconds and milliseconds are forced to zero)  */
   workFinishFrom?: Maybe<Scalars['String']>;
-  /**  Date and time of works finish (seconds and milliseconds are forced to zero)  */
+  /**  Finish date of work related to the incident (seconds and milliseconds are forced to zero)  */
   workFinishTo?: Maybe<Scalars['String']>;
   /**  Scheduled works  */
   isScheduledFrom?: Maybe<Scalars['Boolean']>;
@@ -18179,6 +18179,8 @@ export type IncidentClassifierIncident = {
   incident?: Maybe<Incident>;
   /**  A classifier which is in the incident entry  */
   classifier?: Maybe<IncidentClassifier>;
+  /**  Ref to the organization. It is filled in on the server and is read-only  */
+  organization?: Maybe<Organization>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18198,6 +18200,7 @@ export type IncidentClassifierIncident = {
 export type IncidentClassifierIncidentCreateInput = {
   incident?: Maybe<IncidentRelateToOneInput>;
   classifier?: Maybe<IncidentClassifierRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18222,6 +18225,7 @@ export type IncidentClassifierIncidentHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   incident?: Maybe<Scalars['String']>;
   classifier?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18240,6 +18244,7 @@ export type IncidentClassifierIncidentHistoryRecord = {
 export type IncidentClassifierIncidentHistoryRecordCreateInput = {
   incident?: Maybe<Scalars['String']>;
   classifier?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18263,6 +18268,7 @@ export enum IncidentClassifierIncidentHistoryRecordHistoryActionType {
 export type IncidentClassifierIncidentHistoryRecordUpdateInput = {
   incident?: Maybe<Scalars['String']>;
   classifier?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18288,6 +18294,10 @@ export type IncidentClassifierIncidentHistoryRecordWhereInput = {
   classifier_not?: Maybe<Scalars['String']>;
   classifier_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   classifier_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -18382,6 +18392,7 @@ export type IncidentClassifierIncidentHistoryRecordsUpdateInput = {
 export type IncidentClassifierIncidentUpdateInput = {
   incident?: Maybe<IncidentRelateToOneInput>;
   classifier?: Maybe<IncidentClassifierRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18400,6 +18411,8 @@ export type IncidentClassifierIncidentWhereInput = {
   incident_is_null?: Maybe<Scalars['Boolean']>;
   classifier?: Maybe<IncidentClassifierWhereInput>;
   classifier_is_null?: Maybe<Scalars['Boolean']>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -18893,6 +18906,8 @@ export type IncidentProperty = {
   propertyAddress?: Maybe<Scalars['String']>;
   /**  Address meta of property, which synced with property and used to form view of address, if property is deleted  */
   propertyAddressMeta?: Maybe<AddressMetaField>;
+  /**  Ref to the organization. It is filled in on the server and is read-only  */
+  organization?: Maybe<Organization>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18914,6 +18929,7 @@ export type IncidentPropertyCreateInput = {
   property?: Maybe<PropertyRelateToOneInput>;
   propertyAddress?: Maybe<Scalars['String']>;
   propertyAddressMeta?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18940,6 +18956,7 @@ export type IncidentPropertyHistoryRecord = {
   property?: Maybe<Scalars['String']>;
   propertyAddress?: Maybe<Scalars['String']>;
   propertyAddressMeta?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -18960,6 +18977,7 @@ export type IncidentPropertyHistoryRecordCreateInput = {
   property?: Maybe<Scalars['String']>;
   propertyAddress?: Maybe<Scalars['String']>;
   propertyAddressMeta?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18985,6 +19003,7 @@ export type IncidentPropertyHistoryRecordUpdateInput = {
   property?: Maybe<Scalars['String']>;
   propertyAddress?: Maybe<Scalars['String']>;
   propertyAddressMeta?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -19032,6 +19051,10 @@ export type IncidentPropertyHistoryRecordWhereInput = {
   propertyAddressMeta_not?: Maybe<Scalars['JSON']>;
   propertyAddressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   propertyAddressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -19128,6 +19151,7 @@ export type IncidentPropertyUpdateInput = {
   property?: Maybe<PropertyRelateToOneInput>;
   propertyAddress?: Maybe<Scalars['String']>;
   propertyAddressMeta?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -19168,6 +19192,8 @@ export type IncidentPropertyWhereInput = {
   propertyAddressMeta_not?: Maybe<Scalars['JSON']>;
   propertyAddressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   propertyAddressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -51759,6 +51785,8 @@ export enum SortIncidentClassifierIncidentsBy {
   IncidentDesc = 'incident_DESC',
   ClassifierAsc = 'classifier_ASC',
   ClassifierDesc = 'classifier_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -51844,6 +51872,8 @@ export enum SortIncidentPropertiesBy {
   PropertyDesc = 'property_DESC',
   PropertyAddressAsc = 'propertyAddress_ASC',
   PropertyAddressDesc = 'propertyAddress_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
