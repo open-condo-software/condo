@@ -50,6 +50,7 @@ Default.args = {}
 
 export const CustomContent = Template.bind({})
 CustomContent.args = {
+    displayMode: 'fit-content',
     options: undefined,
     children: <>
         <Option key='1' value={1}>
@@ -71,13 +72,13 @@ GroupsContent.args = {
     options: undefined,
     children: <>
         <Option value={0}>Option without group</Option>
-        <OptGroup label='Group 1'>
-            <Option value={1}>Group 1 option 1</Option>
-            <Option value={11}>Group 1 option 2</Option>
+        <OptGroup key='group1' label='Group 1'>
+            <Option key={1} value={1}>Group 1 option 1</Option>
+            <Option key={11} value={11}>Group 1 option 2</Option>
         </OptGroup>
-        <OptGroup label='Group 2'>
-            <Option value={2}>Group 2 option 1</Option>
-            <Option value={22}>Group 2 option 2</Option>
+        <OptGroup key='group2' label='Group 2'>
+            <Option key={2} value={2}>Group 2 option 1</Option>
+            <Option key={22} value={22}>Group 2 option 2</Option>
         </OptGroup>
     </>,
 }

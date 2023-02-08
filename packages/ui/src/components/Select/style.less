@@ -1,9 +1,13 @@
 @import "antd/lib/select/style/index.less";
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import "./mixins";
 
 @select-border-color: @condo-global-color-gray-5;
 
 .condo-select {
+  align-items: center;
+
   // Display modes
   &-fit-content {
     display: inline-flex;
@@ -15,38 +19,43 @@
   }
 
   // Select types
-  &-danger:not(&-customize-input) &-selector {
-    background: @condo-global-color-red-5;
-  }
-  &-warning:not(&-customize-input) &-selector {
-    background-color: @condo-global-color-orange-5;
-  }
-  &-info:not(&-customize-input) &-selector {
-    background-color: @condo-global-color-blue-5;
-  }
-  &-secondary:not(&-customize-input) &-selector {
-    background-color: @condo-global-color-gray-7;
-  }
-  &-success:not(&-customize-input) &-selector {
-    background-color: @condo-global-color-green-5;
-  }
+  .condo-select-type("danger", @condo-global-color-red-5);
+  .condo-select-type("success", @condo-global-color-green-5);
+  .condo-select-type("warning", @condo-global-color-orange-5);
+  .condo-select-type("info", @condo-global-color-blue-5);
+  .condo-select-type("secondary", @condo-global-color-gray-7);
 
   &-danger > &-arrow, &-warning > &-arrow, &-info > &-arrow, &-secondary > &-arrow, &-success > &-arrow {
     color: @condo-global-color-white;
   }
 
-  &-danger &-selection-item > *, &-warning &-selection-item > *, &-info &-selection-item > *, &-secondary &-selection-item > *, &-success &-selection-item > * {
+  &-danger &-selection-item > *,
+  &-warning &-selection-item > *,
+  &-info &-selection-item > *,
+  &-secondary &-selection-item > *,
+  &-success &-selection-item > * {
     color: @condo-global-color-white;
   }
 
   &-arrow {
-    right: 12px;
+    position: relative;
+    margin-top: 0;
+    margin-left: -@condo-global-spacing-24;
+    top: 0;
+    right: 0;
+    color: @condo-global-color-black;
+  }
+  &-disabled:not(.condo-select-customize-input) &-arrow {
+    color: @condo-global-color-gray-3;
+  }
+  &-open &-arrow {
+    transform: rotate(180deg);
   }
 
   &:not(.condo-select-customize-input) .condo-select-selector {
     border-radius: @condo-global-border-radius-medium;
     height: 46px;
-    padding: 0 30px 0 12px;
+    padding: 0 30px 0 16px;
 
     .condo-select-selection-item, .condo-select-selection-placeholder {
       display: flex;
@@ -54,12 +63,23 @@
       justify-content: start;
       padding-right: 0;
       width: 100%;
+      color: @condo-global-color-black;
+      font-family: @condo-global-font-family-default;
+      font-size: @condo-global-font-size-text-m;
     }
 
   }
 
-  &:not(.condo-select-disabled):hover .condo-select-selector {
-    border-color: @condo-global-color-gray-7;
+  // Hover
+  &:not(.condo-select-disabled):hover {
+    .condo-select-selector {
+      border-color: transparent;
+    }
+
+    &:not(.condo-select-success, .condo-select-warning, .condo-select-secondary,
+    .condo-select-danger, .condo-select-info) .condo-select-selector {
+      border-color: @condo-global-color-gray-7;
+    }
   }
 }
 
@@ -68,25 +88,37 @@
   background: @condo-global-color-white;
   opacity: @condo-global-opacity-disabled;
 }
-.condo-select-danger.condo-select-disabled:not(.condo-select-customize-input) .condo-select-selector {
-  background-color: @condo-global-color-red-5;
-}
-.condo-select-warning.condo-select-disabled:not(.condo-select-customize-input) .condo-select-selector {
-  background-color: @condo-global-color-orange-5;
-}
-.condo-select-info.condo-select-disabled:not(.condo-select-customize-input) .condo-select-selector {
-  background-color: @condo-global-color-blue-5;
-}
-.condo-select-success.condo-select-disabled:not(.condo-select-customize-input) .condo-select-selector {
-  background-color: @condo-global-color-green-5;
-}
-.condo-select-secondary.condo-select-disabled:not(.condo-select-customize-input) .condo-select-selector {
-  background-color: @condo-global-color-gray-7;
+.condo-select-type-disabled("danger", @condo-global-color-red-5);
+.condo-select-type-disabled("success", @condo-global-color-green-5);
+.condo-select-type-disabled("warning", @condo-global-color-orange-5);
+.condo-select-type-disabled("info", @condo-global-color-blue-5);
+.condo-select-type-disabled("secondary", @condo-global-color-gray-7);
+
+// Focused
+.condo-select-focused.condo-select {
+  &:not(.condo-select-disabled) {
+    &:not(.condo-select-customize-input) {
+      .condo-select-selector {
+        border-color: @condo-global-color-black;
+        box-shadow: none;
+      }
+    }
+  }
 }
 
-.condo-select-focused.condo-select:not(.condo-select-disabled).condo-select:not(.condo-select-customize-input) .condo-select-selector {
-  border-color: @condo-global-color-black;
-  box-shadow: none;
+.condo-select-focused.condo-select-success,
+.condo-select-focused.condo-select-warning,
+.condo-select-focused.condo-select-info,
+.condo-select-focused.condo-select-danger,
+.condo-select-focused.condo-select-secondary {
+  &:not(.condo-select-disabled) {
+    &:not(.condo-select-customize-input) {
+      .condo-select-selector {
+        border-color: transparent;
+        box-shadow: none;
+      }
+    }
+  }
 }
 
 // Items and groups
@@ -103,6 +135,7 @@
   }
   .condo-select-item.condo-select-item-group {
     color: @condo-global-color-gray-7;
-    font-size: @condo-global-font-size-text-m;
+    font-size: @condo-global-font-size-text-s;
+    font-family: @condo-global-font-family-default;
   }
 }
