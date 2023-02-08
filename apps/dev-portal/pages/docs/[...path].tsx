@@ -1,9 +1,12 @@
 import { Layout, Menu, Row, Col } from 'antd'
 import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
 import { useMenuItems } from 'domains/docs/hooks/useMenuItems'
+import { extractMdx } from 'domains/docs/utils/mdx'
 import { getNavTree, getAllRoutes, getFlatArticles } from 'domains/docs/utils/routing'
 import get from 'lodash/get'
+import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
+import { MDXRemote } from 'next-mdx-remote'
 import React, { CSSProperties, useMemo } from 'react'
 
 import { Typography } from '@open-condo/ui'
@@ -12,8 +15,11 @@ import { colors } from '@open-condo/ui/colors'
 import styles from './path.module.css'
 
 import type { RowProps } from 'antd'
+import type { Heading } from 'domains/docs/utils/mdx'
 import type { NavItem, ArticleInfo } from 'domains/docs/utils/routing'
+import type { MDXComponents } from 'mdx/types'
 import type { GetStaticPaths, GetStaticProps } from 'next'
+import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
 
 const DOCS_ROOT_FOLDER = 'docs'
 const DOCS_ROOT_ENDPOINT = '/docs'
@@ -34,11 +40,24 @@ const CONTENT_STYLES: CSSProperties = {
 type DocPageProps = {
     navigation: Array<NavItem>
     pageTitle: string
+    serializedContent: MDXRemoteSerializeResult
+    headings: Array<Heading>
     nextPage: ArticleInfo | null
     prevPage: ArticleInfo | null
 }
 
-const DocPage: React.FC<DocPageProps> = ({ navigation, pageTitle }) => {
+const MDXMapping: MDXComponents = {
+    h1: (props) => <Typography.Title {...omit(props, 'ref')} level={1}/>,
+    h2: (props) => <Typography.Title {...omit(props, 'ref')} level={2}/>,
+    h3: (props) => <Typography.Title {...omit(props, 'ref')} level={3}/>,
+    h4: (props) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
+    h5: (props) => <Typography.Title {...omit(props, 'ref')} level={5}/>,
+    h6: (props) => <Typography.Title {...omit(props, 'ref')} level={6}/>,
+    p: (props) => <Typography.Paragraph {...omit(props, 'ref')} type='secondary'/>,
+    li: ({ children, ...restProps }) => <li {...restProps}><Typography.Text type='secondary'>{children}</Typography.Text></li>,
+}
+
+const DocPage: React.FC<DocPageProps> = ({ navigation, pageTitle, serializedContent }) => {
     const router = useRouter()
     const currentRoute = router.asPath.split('?')[0]
     const menuItems = useMenuItems(navigation, DOCS_ROOT_ENDPOINT)
@@ -74,7 +93,9 @@ const DocPage: React.FC<DocPageProps> = ({ navigation, pageTitle }) => {
                                 <Typography.Title>{pageTitle}</Typography.Title>
                             </Col>
                             <Col span={24}>
-                                <Typography.Text>123123</Typography.Text>
+                                <div className='condo-markdown'>
+                                    <MDXRemote {...serializedContent} components={MDXMapping} lazy/>
+                                </div>
                             </Col>
                         </Row>
                     </div>
@@ -103,23 +124,27 @@ export const getStaticPaths: GetStaticPaths<GetStaticPathParams> = ({ locales = 
     }
 }
 
-export const getStaticProps: GetStaticProps<DocPageProps, GetStaticPathParams> = ({ locale = DEFAULT_LOCALE, params }) => {
+export const getStaticProps: GetStaticProps<DocPageProps, GetStaticPathParams> = async ({ locale = DEFAULT_LOCALE, params }) => {
     const navTree = getNavTree(DOCS_ROOT_FOLDER, locale, DOCS_ROOT_FOLDER)
 
     const articles = Array.from(getFlatArticles(navTree))
     const route = get(params, 'path', []).join('/')
     const pageIndex = articles.findIndex((item) => item.route === route)
 
-    const pageTitle = articles[pageIndex].label
+    const currentPage = articles[pageIndex]
+    const { serializedContent, headings } = await extractMdx(DOCS_ROOT_FOLDER, currentPage.route, locale)
+
     const prevPage = pageIndex > 0 ? articles[pageIndex - 1] : null
     const nextPage = (pageIndex < articles.length - 1 && pageIndex != -1) ? articles[pageIndex + 1] : null
 
     return {
         props: {
             navigation: navTree,
+            serializedContent,
+            headings,
             prevPage,
             nextPage,
-            pageTitle,
+            pageTitle: currentPage.label,
         },
     }
 }
