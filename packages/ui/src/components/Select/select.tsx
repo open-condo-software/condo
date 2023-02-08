@@ -22,7 +22,8 @@ export type OptionType = {
     textType?: TypographyTextProps['type']
 }
 
-export type SelectProps = Pick<DefaultSelectProps, 'disabled' | 'value' | 'onChange' | 'loading' | 'placeholder' | 'children'> & {
+export type SelectProps = Pick<DefaultSelectProps, 'disabled' | 'value' | 'onChange' | 'loading' | 'children'> & {
+    placeholder: string
     options?: Array<OptionType>
     displayMode?: 'fill-parent' | 'fit-content'
     type?: typeof SELECT_TYPES[number]
