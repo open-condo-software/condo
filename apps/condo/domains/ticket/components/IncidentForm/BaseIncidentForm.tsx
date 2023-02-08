@@ -191,6 +191,13 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
         setSelectedProblems(ids)
     }, [])
 
+    const categoryPlaceholder = useMemo(() => loading ? LoadingLabel : SelectMessage, [LoadingLabel, SelectMessage, loading])
+    const problemPlaceholder = useMemo(() => {
+        if (loading) return LoadingLabel
+        if (selectedCategories.length < 1) return SelectCategoryMessage
+        return SelectMessage
+    }, [LoadingLabel, SelectCategoryMessage, SelectMessage, loading, selectedCategories.length])
+
     useEffect(() => {
         setLoading(true)
         ClassifierLoader.init().then(async () => {
@@ -227,11 +234,7 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
                         options={renderCategories}
                         mode='multiple'
                         disabled={loading}
-                        placeholder={
-                            loading
-                                ? LoadingLabel
-                                : SelectMessage
-                        }
+                        placeholder={categoryPlaceholder}
                         filterOption
                         optionFilterProp='label'
                         value={selectedCategories as any}
@@ -250,13 +253,7 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
                         options={renderProblems}
                         mode='multiple'
                         disabled={loading || selectedCategories.length < 1}
-                        placeholder={
-                            loading
-                                ? LoadingLabel
-                                : selectedCategories.length < 1
-                                    ? SelectCategoryMessage
-                                    : SelectMessage
-                        }
+                        placeholder={problemPlaceholder}
                         filterOption
                         optionFilterProp='label'
                         value={selectedProblems as any}
