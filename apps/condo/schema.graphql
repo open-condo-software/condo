@@ -11225,6 +11225,7 @@ type BillingReceiptHistoryRecord {
   services: JSON
   recipient: JSON
   receiver: String
+  invalidServicesError: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -11331,6 +11332,10 @@ input BillingReceiptHistoryRecordWhereInput {
   receiver_not: String
   receiver_in: [String]
   receiver_not_in: [String]
+  invalidServicesError: JSON
+  invalidServicesError_not: JSON
+  invalidServicesError_in: [JSON]
+  invalidServicesError_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -11454,6 +11459,7 @@ input BillingReceiptHistoryRecordUpdateInput {
   services: JSON
   recipient: JSON
   receiver: String
+  invalidServicesError: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -11487,6 +11493,7 @@ input BillingReceiptHistoryRecordCreateInput {
   services: JSON
   recipient: JSON
   receiver: String
+  invalidServicesError: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -11651,6 +11658,9 @@ type BillingReceipt {
   """ Relation to the BillingRecipient. Going to override recipient field, has the same meaning 
   """
   receiver: BillingRecipient
+
+  """ Indicates if services are valid and add up to total sum toPay. """
+  invalidServicesError: String
   id: ID!
   v: Int
   createdAt: String
@@ -50014,6 +50024,7 @@ type ResidentBillingReceiptOutput {
   currencyCode: String!
   category: BillingCategory!
   isPayable: Boolean!
+  invalidServicesError: String
 }
 
 input RegisterBillingReceiptInput {
