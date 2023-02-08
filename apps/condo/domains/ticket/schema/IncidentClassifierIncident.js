@@ -4,6 +4,7 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const access = require('@condo/domains/ticket/access/IncidentClassifierIncident')
 
 
@@ -40,7 +41,10 @@ const IncidentClassifierIncident = new GQLListSchema('IncidentClassifierIncident
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [
+        addOrganizationFieldPlugin({ fromField: 'incident', isRequired: true }),
+        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(),
+    ],
     access: {
         read: access.canReadIncidentClassifierIncidents,
         create: access.canManageIncidentClassifierIncidents,

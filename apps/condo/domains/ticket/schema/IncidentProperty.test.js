@@ -133,6 +133,7 @@ describe('IncidentProperty', () => {
                 expect(incidentProperty).toHaveProperty('incident.id', incident.id)
                 expect(incidentProperty).toHaveProperty('propertyAddress', property.address)
                 expect(incidentProperty).toHaveProperty('propertyAddressMeta', property.addressMeta)
+                expect(incidentProperty).toHaveProperty('organization.id', organization.id)
             })
             test('can read', async () => {
                 const incidentProperty = await IncidentProperty.getOne(employeeUser, { id: incidentPropertyByAdmin.id }, { sortBy: ['updatedAt_DESC'] })
