@@ -134,6 +134,7 @@ describe('IncidentClassifierIncident', () => {
                 expect(incidentClassifier).toBeDefined()
                 expect(incidentClassifier).toHaveProperty('classifier.id', CLASSIFIER.id)
                 expect(incidentClassifier).toHaveProperty('incident.id', incident.id)
+                expect(incidentClassifier).toHaveProperty('organization.id', organization.id)
             })
             test('can read', async () => {
                 const incidentClassifier = await IncidentClassifierIncident.getOne(employeeUser, { id: incidentClassifierByAdmin.id }, { sortBy: ['updatedAt_DESC'] })

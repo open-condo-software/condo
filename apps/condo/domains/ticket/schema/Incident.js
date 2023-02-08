@@ -33,7 +33,7 @@ const ERRORS = {
 }
 
 const Incident = new GQLListSchema('Incident', {
-    schemaDoc: 'Entries of scheduled and emergency incidents of water, electricity, etc.',
+    schemaDoc: 'Entries of mass planned and emergency incidents with water, electricity, etc.',
     fields: {
 
         organization: ORGANIZATION_OWNED_FIELD,
@@ -75,7 +75,7 @@ const Incident = new GQLListSchema('Incident', {
         },
 
         workStart: {
-            schemaDoc: 'Date and time of works start (seconds and milliseconds are forced to zero)',
+            schemaDoc: 'Start date of work related to the incident (seconds and milliseconds are forced to zero)',
             type: 'DateTimeUtc',
             isRequired: true,
             kmigratorOptions: { null: false },
@@ -93,7 +93,7 @@ const Incident = new GQLListSchema('Incident', {
         },
 
         workFinish: {
-            schemaDoc: 'Date and time of works finish (seconds and milliseconds are forced to zero)',
+            schemaDoc: 'Finish date of work related to the incident (seconds and milliseconds are forced to zero)',
             type: 'DateTimeUtc',
             hooks: {
                 resolveInput: async (props) => {
