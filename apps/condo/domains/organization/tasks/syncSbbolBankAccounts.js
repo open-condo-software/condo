@@ -1,13 +1,17 @@
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
+
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { syncBankAccounts } = require('@condo/domains/organization/integrations/sbbol/sync/syncBankAccounts')
-const { User } = require('@condo/domains/user/utils/serverSchema/index')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { getLogger } = require('@open-condo/keystone/logging')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { checkSbbolBankIntegrationContext } = require('@condo/domains/organization/integrations/sbbol/utils/checkSbbolBankIntegrationContext')
-const isEmpty = require('lodash/isEmpty')
-const get = require('lodash/get')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { User } = require('@condo/domains/user/utils/serverSchema/index')
+
+
 
 const logger = getLogger('sbbol/syncBankAccounts')
 

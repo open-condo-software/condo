@@ -1,8 +1,9 @@
+const get = require('lodash/get')
+
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { SbbolRequestApi } = require('./SbbolRequestApi')
-const get = require('lodash/get')
 const { getAccessTokenForUser } = require('./utils')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
