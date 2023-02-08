@@ -13625,6 +13625,8 @@ export type BillingReceipt = {
   recipient?: Maybe<BillingReceiptsRecipientField>;
   /**  Relation to the BillingRecipient. Going to override recipient field, has the same meaning  */
   receiver?: Maybe<BillingRecipient>;
+  /**  Indicates if services are valid and add up to total sum toPay.  */
+  invalidServicesError?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -13690,6 +13692,7 @@ export type BillingReceiptHistoryRecord = {
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
   receiver?: Maybe<Scalars['String']>;
+  invalidServicesError?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -13719,6 +13722,7 @@ export type BillingReceiptHistoryRecordCreateInput = {
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
   receiver?: Maybe<Scalars['String']>;
+  invalidServicesError?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -13753,6 +13757,7 @@ export type BillingReceiptHistoryRecordUpdateInput = {
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
   receiver?: Maybe<Scalars['String']>;
+  invalidServicesError?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -13858,6 +13863,10 @@ export type BillingReceiptHistoryRecordWhereInput = {
   receiver_not?: Maybe<Scalars['String']>;
   receiver_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   receiver_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  invalidServicesError?: Maybe<Scalars['JSON']>;
+  invalidServicesError_not?: Maybe<Scalars['JSON']>;
+  invalidServicesError_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  invalidServicesError_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -46445,6 +46454,7 @@ export type ResidentBillingReceiptOutput = {
   currencyCode: Scalars['String'];
   category: BillingCategory;
   isPayable: Scalars['Boolean'];
+  invalidServicesError?: Maybe<Scalars['String']>;
 };
 
 export type ResidentBillingReceiptWhereInput = {
