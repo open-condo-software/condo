@@ -1,13 +1,14 @@
-import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import React from 'react'
 
+import * as condoIcons from '@open-condo/icons'
 import { Button } from '@open-condo/ui/src'
 
-const icons = {
-    DeleteFilled: <DeleteFilled/>,
-    EditFilled: <EditFilled/>,
-}
+const icons = Object.assign({}, ...Object.entries(condoIcons).map(([key, Icon]) => ({
+    [`${key}-small`]: <Icon size='small'/>,
+    [`${key}-medium`]: <Icon size='medium'/>,
+    [`${key}-large`]: <Icon size='large'/>,
+})))
 
 export default {
     title: 'Components/Button',
@@ -26,10 +27,6 @@ export default {
             mapping: icons,
             control: {
                 type: 'select',
-                labels: {
-                    DeleteFilled: 'Delete',
-                    EditFilled: 'Edit',
-                },
             },
         },
         onClick: { control: false },
