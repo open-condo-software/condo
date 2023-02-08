@@ -81,6 +81,7 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
         purpose: {
             schemaDoc: 'Textual description of payment purpose in free form',
             type: Text,
+            defaultValue: true,
             isRequired: true,
         },
 
