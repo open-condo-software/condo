@@ -714,6 +714,49 @@ describe('RegisterMultiPaymentService', () => {
         })
     })
     describe('Real-life cases', () => {
+        test('Should correctly calculate commissions for different categories of payments', async () => {
+            const {
+                admin,
+                client,
+                acquiringIntegration,
+                acquiringContext,
+                billingReceipts,
+                serviceConsumer,
+            } = await makePayer(2)
+            const OVERHAUL_CATEGORY = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'
+            const HOUSING_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
+            const implicitFeeDistributionSchema = [
+                { 'recipient': 'organization', 'percent': '1.75', 'category': HOUSING_CATEGORY },
+                { 'recipient': 'service', 'percent': '0.95', 'category': HOUSING_CATEGORY },
+                { 'recipient': 'acquiring', 'percent': '0.8', 'category': HOUSING_CATEGORY },
+                { 'recipient': 'organization', 'percent': '0', 'category': OVERHAUL_CATEGORY },
+                { 'recipient': 'service', 'percent': '0.4', 'category': OVERHAUL_CATEGORY },
+                { 'recipient': 'acquiring', 'percent': '0.8', 'category': OVERHAUL_CATEGORY },
+            ]
+            await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
+                canGroupReceipts: true,
+            })
+            await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, {
+                implicitFeeDistributionSchema,
+            })
+            await updateTestBillingReceipt(admin, billingReceipts[0].id, {
+                toPay: '1000',
+                category: { connect: { id: HOUSING_CATEGORY } },
+            })
+            await updateTestBillingReceipt(admin, billingReceipts[1].id, {
+                toPay: '1000',
+                category: { connect: { id: OVERHAUL_CATEGORY } },
+            })
+            const payload = [
+                {
+                    serviceConsumer: { id: serviceConsumer.id },
+                    receipts: billingReceipts.map(({ id }) => ({ id })),
+                },
+            ]
+            const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(client, payload)
+            const [multiPayment] = await MultiPayment.getAll(admin, { id: multiPaymentId })
+            expect(Big(multiPayment.explicitServiceCharge).toFixed(2)).toEqual('12.10')
+        })
         test('Should have common billing account with ServiceConsumer if BillingIntegration is changed', async () => {
             /**
              * 1. Management company created a billing receipt. toPay = x
