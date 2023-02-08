@@ -286,6 +286,7 @@ const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, sho
 }
 
 const ClientCardTabContent = ({
+    phone,
     property,
     searchTicketsQuery,
     handleTicketCreateClick,
@@ -340,62 +341,71 @@ const ClientCardTabContent = ({
         }
     }, [logEvent])
 
-    const handleCreateTicket = useCallback(() => handleTicketCreateClick(lastCreatedTicket),
-        [handleTicketCreateClick, lastCreatedTicket])
+    const handleCreateTicket = useCallback(() => {
+        const dataForTicketForm = property ? lastCreatedTicket : { clientPhone: phone }
+        handleTicketCreateClick(dataForTicketForm)
+    },
+    [handleTicketCreateClick, lastCreatedTicket, property])
 
     return (
         <Row gutter={ROW_BIG_GUTTER}>
-            <Col span={24}>
-                <Row gutter={ROW_MEDIUM_GUTTER}>
-                    <Col span={24}>
-                        <Row>
-                            <StyledCol>
-                                <UITypography.Link onClick={handleShowAllPropertyTicketsMessage}>
-                                    <Row gutter={[12, 0]}>
-                                        <Col>
-                                            <BuildingIcon/>
-                                        </Col>
-                                        <Col>
-                                            {ShowAllPropertyTicketsMessage}
-                                        </Col>
+            {
+                property && (
+                    <>
+                        <Col span={24}>
+                            <Row gutter={ROW_MEDIUM_GUTTER}>
+                                <Col span={24}>
+                                    <Row>
+                                        <StyledCol>
+                                            <UITypography.Link onClick={handleShowAllPropertyTicketsMessage}>
+                                                <Row gutter={[12, 0]}>
+                                                    <Col>
+                                                        <BuildingIcon/>
+                                                    </Col>
+                                                    <Col>
+                                                        {ShowAllPropertyTicketsMessage}
+                                                    </Col>
+                                                </Row>
+                                            </UITypography.Link>
+                                        </StyledCol>
                                     </Row>
-                                </UITypography.Link>
-                            </StyledCol>
-                        </Row>
-                    </Col>
-                    <Col span={24}>
-                        <ClientContent
-                            lastTicket={lastCreatedTicket}
-                            contact={contact}
-                            showOrganizationMessage={showOrganizationMessage}
-                        />
-                    </Col>
-                    <TicketPropertyHintCard
-                        propertyId={get(property, 'id', null)}
-                        hintContentStyle={HINT_CARD_STYLE}
-                        withCol
-                    />
-                </Row>
-            </Col>
-            <Col span={24}>
-                <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
-                    <Col span={24}>
-                        <Typography.Title level={4}>
-                            {ContactTicketsMessage}
-                        </Typography.Title>
-                    </Col>
-                    <Col span={24}>
-                        <Table
-                            totalRows={total}
-                            loading={isTicketsFetching}
-                            dataSource={tickets}
-                            columns={columns}
-                            onRow={handleRowAction}
-                            data-cy='ticket__table'
-                        />
-                    </Col>
-                </Row>
-            </Col>
+                                </Col>
+                                <Col span={24}>
+                                    <ClientContent
+                                        lastTicket={lastCreatedTicket}
+                                        contact={contact}
+                                        showOrganizationMessage={showOrganizationMessage}
+                                    />
+                                </Col>
+                                <TicketPropertyHintCard
+                                    propertyId={get(property, 'id', null)}
+                                    hintContentStyle={HINT_CARD_STYLE}
+                                    withCol
+                                />
+                            </Row>
+                        </Col>
+                        <Col span={24}>
+                            <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
+                                <Col span={24}>
+                                    <Typography.Title level={4}>
+                                        {ContactTicketsMessage}
+                                    </Typography.Title>
+                                </Col>
+                                <Col span={24}>
+                                    <Table
+                                        totalRows={total}
+                                        loading={isTicketsFetching}
+                                        dataSource={tickets}
+                                        columns={columns}
+                                        onRow={handleRowAction}
+                                        data-cy='ticket__table'
+                                    />
+                                </Col>
+                            </Row>
+                        </Col>
+                    </>
+                )
+            }
             <ActionBar>
                 <Button
                     key='submit'
@@ -477,6 +487,7 @@ const ContactClientTabContent = ({
 
     return (
         <ClientCardTabContent
+            phone={phone}
             property={property}
             searchTicketsQuery={searchTicketsQuery}
             handleTicketCreateClick={handleTicketCreateClick}
@@ -519,6 +530,7 @@ const NotResidentClientTabContent = ({ property, unitName, unitType, phone, show
 
     return (
         <ClientCardTabContent
+            phone={phone}
             property={property}
             searchTicketsQuery={searchTicketsQuery}
             handleTicketCreateClick={handleTicketCreateClick}
