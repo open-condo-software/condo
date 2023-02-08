@@ -1,4 +1,4 @@
-import { Layout, Menu, Row, Col } from 'antd'
+import { Layout, Menu, Row, Col, Anchor } from 'antd'
 import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
 import { useMenuItems } from 'domains/docs/hooks/useMenuItems'
 import { extractMdx } from 'domains/docs/utils/mdx'
@@ -7,10 +7,9 @@ import get from 'lodash/get'
 import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
 import { MDXRemote } from 'next-mdx-remote'
-import React, { CSSProperties, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
-import { Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/colors'
+import { Typography, Card, Alert } from '@open-condo/ui'
 
 import styles from './path.module.css'
 
@@ -24,18 +23,9 @@ import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
 const DOCS_ROOT_FOLDER = 'docs'
 const DOCS_ROOT_ENDPOINT = '/docs'
 const SIDER_WIDTH = 336
+const CARD_WIDTH = 308
+const CARD_PADDING = '28px 24px 28px 0'
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
-
-const SIDER_STYLES: CSSProperties = {
-    minHeight: 'calc(100vh - 72px)',
-    padding: '28px 20px',
-}
-
-const CONTENT_STYLES: CSSProperties = {
-    minHeight: 'calc(100vh - 72px)',
-    padding: '40px 48px 0 20px',
-    background: colors.white,
-}
 
 type DocPageProps = {
     navigation: Array<NavItem>
@@ -55,11 +45,17 @@ const MDXMapping: MDXComponents = {
     h6: (props) => <Typography.Title {...omit(props, 'ref')} level={6}/>,
     p: (props) => <Typography.Paragraph {...omit(props, 'ref')} type='secondary'/>,
     li: ({ children, ...restProps }) => <li {...restProps}><Typography.Text type='secondary'>{children}</Typography.Text></li>,
+    Alert,
 }
 
-const DocPage: React.FC<DocPageProps> = ({ navigation, pageTitle, serializedContent }) => {
+const DocPage: React.FC<DocPageProps> = ({
+    navigation,
+    pageTitle,
+    serializedContent,
+    headings,
+}) => {
     const router = useRouter()
-    const currentRoute = router.asPath.split('?')[0]
+    const currentRoute = router.asPath.split(/[?#]/)[0]
     const menuItems = useMenuItems(navigation, DOCS_ROOT_ENDPOINT)
 
     // /path/subpath/page -> ['/path', '/path/subpath']
@@ -76,16 +72,17 @@ const DocPage: React.FC<DocPageProps> = ({ navigation, pageTitle, serializedCont
 
     return (
         <Layout hasSider>
-            <Layout.Sider width={SIDER_WIDTH} style={SIDER_STYLES} theme='light'>
+            <Layout.Sider width={SIDER_WIDTH} className={styles.sider} theme='light'>
                 <Menu
                     mode='inline'
                     items={menuItems}
                     defaultOpenKeys={openPaths}
                     defaultSelectedKeys={[currentRoute]}
                     selectedKeys={[currentRoute]}
+                    className={styles.menu}
                 />
             </Layout.Sider>
-            <Layout.Content style={CONTENT_STYLES}>
+            <Layout.Content className={styles.content}>
                 <div className={styles.pageContainer}>
                     <div className={styles.articleColumn}>
                         <Row gutter={TITLE_GUTTER}>
@@ -99,7 +96,18 @@ const DocPage: React.FC<DocPageProps> = ({ navigation, pageTitle, serializedCont
                             </Col>
                         </Row>
                     </div>
-                    <div className={styles.tableOfContentsColumn}></div>
+                    <div className={styles.tableOfContentsColumn}>
+                        <Card width={CARD_WIDTH} bodyPadding={CARD_PADDING}>
+                            <Anchor
+                                offsetTop={112}
+                                items={headings.map(heading => ({
+                                    key: heading.id,
+                                    href: `#${heading.id}`,
+                                    title: <Typography.Text type='secondary'>{heading.heading}</Typography.Text>,
+                                }))}
+                            />
+                        </Card>
+                    </div>
                 </div>
             </Layout.Content>
         </Layout>
