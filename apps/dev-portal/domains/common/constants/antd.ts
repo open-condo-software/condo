@@ -6,10 +6,6 @@ export const theme: ThemeConfig = {
     token: {
         colorPrimary: colors.green['5'],
         colorBgContainer: colors.white,
-        // colorFillSecondary: colors.gray['1'], // Select menu
-        // colorFillTertiary: colors.gray['1'], // selects language
-
-
     },
     components: {
         Menu: {

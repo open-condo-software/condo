@@ -7,3 +7,24 @@
 .dropout-wrapper {
   cursor: pointer;
 }
+
+.logo {
+  object-fit: contain;
+  object-position: left;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  height: 72px !important;
+  padding: 0 48px;
+  line-height: inherit !important;
+  background-color: var(--condo-global-color-white) !important;
+  border-bottom: 1px solid var(--condo-global-color-gray-3);
+}

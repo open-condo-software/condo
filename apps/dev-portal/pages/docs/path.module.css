@@ -7,10 +7,28 @@
 }
 
 .table-of-contents-column {
+  position: sticky;
+  top: 112px;
   flex: 0 0 308px;
-  width: 308px;
-  height: 50px;
-  background: mediumpurple;
+  align-self: flex-start;
+}
+
+.sider {
+  position: sticky !important;
+  top: 72px;
+  height: calc(100vh - 72px);
+  padding: 28px 20px 0;
+  overflow-y: scroll;
+}
+
+.content {
+  min-height: calc(100vh - 72px);
+  padding: 40px 48px 0 20px;
+  background: var(--condo-global-color-white)
+}
+
+.menu {
+  padding-bottom: 28px !important;
 }
 
 .article-column {

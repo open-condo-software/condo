@@ -47,11 +47,11 @@ export async function extractMdx (docsRoot: string, route: string, locale: strin
 }
 
 const SPACE_REGEX = /\s+/g
-const NON_WORD_REGEX = /[^\p{Alphabetic}\p{Decimal_Number}-]/gu
+const NON_WORD_REGEX = /[^\p{Alphabetic}\p{Decimal_Number}\s-]/gu
 
 export function generateId (heading: string): string {
-    const noSpace = heading.replace(SPACE_REGEX, '-')
-    return noSpace.replace(NON_WORD_REGEX, '').toLowerCase()
+    const cleared = heading.replace(NON_WORD_REGEX, ' ').trim()
+    return cleared.replace(SPACE_REGEX, '-').toLowerCase()
 }
 
 type PatchedContent = {

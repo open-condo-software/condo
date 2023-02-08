@@ -75,7 +75,7 @@ export function useMenuItems (
     maxTitleLevel: TitleLevel = 5
 ): Array<MenuItem> {
     const { locale, asPath } = useRouter()
-    const currentRoute = asPath.split('?')[0]
+    const currentRoute = asPath.split(/[?#]/)[0]
     return useMemo(() => getMenuItems(nav, locale, currentRoute, entryEndPoint, startTitleLevel, maxTitleLevel),
         [currentRoute, entryEndPoint, locale, nav, startTitleLevel, maxTitleLevel])
 }

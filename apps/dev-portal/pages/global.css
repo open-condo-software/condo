@@ -1,0 +1,12 @@
+.ant-anchor-link-title-active > .condo-typography {
+  color: var(--condo-global-color-black);
+}
+
+.ant-anchor-ink-ball {
+  width: 3px !important;
+  background-color: var(--condo-global-color-black) !important;
+}
+
+.ant-anchor-ink::before {
+  display: none !important;
+}
