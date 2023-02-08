@@ -8532,16 +8532,14 @@ export type BankTransaction = {
   number?: Maybe<Scalars['String']>;
   /**  When payment order was created  */
   date?: Maybe<Scalars['String']>;
-  /**  Amount of transaction in specified currency  */
+  /**  Amount of transaction in specified currency. Always positive number. Look at "isOutcome" field to determine whether this transaction commits negative or positive change to balance  */
   amount?: Maybe<Scalars['String']>;
+  /**  Indicator of outcome transaction which commits negative change to balance  */
+  isOutcome?: Maybe<Scalars['Boolean']>;
   /**  Code of currency in ISO-4217 format  */
   currencyCode?: Maybe<Scalars['String']>;
   /**  Textual description of payment purpose in free form  */
   purpose?: Maybe<Scalars['String']>;
-  /**  Date when this payment was withdrawed from BankAccount of Organization. If filled, then this payment is an outcome  */
-  dateWithdrawed?: Maybe<Scalars['String']>;
-  /**  Date when this payment was received by BankAccount of Organization. If filled, then this payment is an income  */
-  dateReceived?: Maybe<Scalars['String']>;
   /**  Stores data, obtained from external source  */
   meta?: Maybe<Scalars['JSON']>;
   /**  Identifier of corresponding record in external system, from that this record was copied  */
@@ -8573,10 +8571,9 @@ export type BankTransactionCreateInput = {
   number?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   amount?: Maybe<Scalars['String']>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
   currencyCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
-  dateWithdrawed?: Maybe<Scalars['String']>;
-  dateReceived?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   importId?: Maybe<Scalars['String']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
@@ -8610,10 +8607,9 @@ export type BankTransactionHistoryRecord = {
   number?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   amount?: Maybe<Scalars['String']>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
   currencyCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
-  dateWithdrawed?: Maybe<Scalars['String']>;
-  dateReceived?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   importId?: Maybe<Scalars['String']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
@@ -8641,10 +8637,9 @@ export type BankTransactionHistoryRecordCreateInput = {
   number?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   amount?: Maybe<Scalars['String']>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
   currencyCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
-  dateWithdrawed?: Maybe<Scalars['String']>;
-  dateReceived?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   importId?: Maybe<Scalars['String']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
@@ -8677,10 +8672,9 @@ export type BankTransactionHistoryRecordUpdateInput = {
   number?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   amount?: Maybe<Scalars['String']>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
   currencyCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
-  dateWithdrawed?: Maybe<Scalars['String']>;
-  dateReceived?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   importId?: Maybe<Scalars['String']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
@@ -8755,6 +8749,8 @@ export type BankTransactionHistoryRecordWhereInput = {
   amount_gte?: Maybe<Scalars['String']>;
   amount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   amount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
+  isOutcome_not?: Maybe<Scalars['Boolean']>;
   currencyCode?: Maybe<Scalars['String']>;
   currencyCode_not?: Maybe<Scalars['String']>;
   currencyCode_contains?: Maybe<Scalars['String']>;
@@ -8791,22 +8787,6 @@ export type BankTransactionHistoryRecordWhereInput = {
   purpose_not_ends_with_i?: Maybe<Scalars['String']>;
   purpose_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   purpose_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dateWithdrawed?: Maybe<Scalars['String']>;
-  dateWithdrawed_not?: Maybe<Scalars['String']>;
-  dateWithdrawed_lt?: Maybe<Scalars['String']>;
-  dateWithdrawed_lte?: Maybe<Scalars['String']>;
-  dateWithdrawed_gt?: Maybe<Scalars['String']>;
-  dateWithdrawed_gte?: Maybe<Scalars['String']>;
-  dateWithdrawed_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dateWithdrawed_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dateReceived?: Maybe<Scalars['String']>;
-  dateReceived_not?: Maybe<Scalars['String']>;
-  dateReceived_lt?: Maybe<Scalars['String']>;
-  dateReceived_lte?: Maybe<Scalars['String']>;
-  dateReceived_gt?: Maybe<Scalars['String']>;
-  dateReceived_gte?: Maybe<Scalars['String']>;
-  dateReceived_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dateReceived_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -8947,10 +8927,9 @@ export type BankTransactionUpdateInput = {
   number?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   amount?: Maybe<Scalars['String']>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
   currencyCode?: Maybe<Scalars['String']>;
   purpose?: Maybe<Scalars['String']>;
-  dateWithdrawed?: Maybe<Scalars['String']>;
-  dateReceived?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   importId?: Maybe<Scalars['String']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
@@ -9012,6 +8991,8 @@ export type BankTransactionWhereInput = {
   amount_gte?: Maybe<Scalars['String']>;
   amount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   amount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
+  isOutcome_not?: Maybe<Scalars['Boolean']>;
   currencyCode?: Maybe<Scalars['String']>;
   currencyCode_not?: Maybe<Scalars['String']>;
   currencyCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -9034,22 +9015,6 @@ export type BankTransactionWhereInput = {
   purpose_not_ends_with_i?: Maybe<Scalars['String']>;
   purpose_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   purpose_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dateWithdrawed?: Maybe<Scalars['String']>;
-  dateWithdrawed_not?: Maybe<Scalars['String']>;
-  dateWithdrawed_lt?: Maybe<Scalars['String']>;
-  dateWithdrawed_lte?: Maybe<Scalars['String']>;
-  dateWithdrawed_gt?: Maybe<Scalars['String']>;
-  dateWithdrawed_gte?: Maybe<Scalars['String']>;
-  dateWithdrawed_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dateWithdrawed_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dateReceived?: Maybe<Scalars['String']>;
-  dateReceived_not?: Maybe<Scalars['String']>;
-  dateReceived_lt?: Maybe<Scalars['String']>;
-  dateReceived_lte?: Maybe<Scalars['String']>;
-  dateReceived_gt?: Maybe<Scalars['String']>;
-  dateReceived_gte?: Maybe<Scalars['String']>;
-  dateReceived_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dateReceived_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -48000,14 +47965,12 @@ export enum SortBankTransactionHistoryRecordsBy {
   DateDesc = 'date_DESC',
   AmountAsc = 'amount_ASC',
   AmountDesc = 'amount_DESC',
+  IsOutcomeAsc = 'isOutcome_ASC',
+  IsOutcomeDesc = 'isOutcome_DESC',
   CurrencyCodeAsc = 'currencyCode_ASC',
   CurrencyCodeDesc = 'currencyCode_DESC',
   PurposeAsc = 'purpose_ASC',
   PurposeDesc = 'purpose_DESC',
-  DateWithdrawedAsc = 'dateWithdrawed_ASC',
-  DateWithdrawedDesc = 'dateWithdrawed_DESC',
-  DateReceivedAsc = 'dateReceived_ASC',
-  DateReceivedDesc = 'dateReceived_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
   ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
@@ -48047,14 +48010,12 @@ export enum SortBankTransactionsBy {
   DateDesc = 'date_DESC',
   AmountAsc = 'amount_ASC',
   AmountDesc = 'amount_DESC',
+  IsOutcomeAsc = 'isOutcome_ASC',
+  IsOutcomeDesc = 'isOutcome_DESC',
   CurrencyCodeAsc = 'currencyCode_ASC',
   CurrencyCodeDesc = 'currencyCode_DESC',
   PurposeAsc = 'purpose_ASC',
   PurposeDesc = 'purpose_DESC',
-  DateWithdrawedAsc = 'dateWithdrawed_ASC',
-  DateWithdrawedDesc = 'dateWithdrawed_DESC',
-  DateReceivedAsc = 'dateReceived_ASC',
-  DateReceivedDesc = 'dateReceived_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
   ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
