@@ -15,6 +15,8 @@
   .condo-typography-h4();
 
   position: relative;
+  display: inline-flex;
+  align-items: center;
   text-shadow: none;
   border-radius: @condo-button-border-radius;
   box-shadow: none;
@@ -301,5 +303,9 @@
         opacity: 0;
       }
     }
+  }
+
+  & > &-icon {
+    display: inline-flex;
   }
 }
