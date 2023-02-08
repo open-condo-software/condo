@@ -37,19 +37,16 @@ async function canManageIncidentClassifierIncidents ({ authentication: { item: u
     if (operation === 'update' && !isSoftDelete(originalInput)) return false
     if (user.isAdmin || user.isSupport) return true
 
-    let incidentId
+    let organizationId
     if (operation === 'create') {
-        incidentId = get(originalInput, 'incident.connect.id')
+        const incidentId = get(originalInput, 'incident.connect.id')
+        const incident = await getById('Incident', incidentId)
+        organizationId = get(incident, 'organization', null)
     } else if (operation === 'update') {
         if (!itemId) return false
-        const item = await getById('IncidentClassifierIncident', itemId)
-        incidentId = get(item, 'incident', null)
+        const incidentClassifierIncident = await getById('IncidentClassifierIncident', itemId)
+        organizationId = get(incidentClassifierIncident, 'organization', null)
     }
-    if (!incidentId) return false
-    const incident = await getById('Incident', incidentId)
-
-    const organizationId = get(incident, 'organization', null)
-    if (!organizationId) return false
 
     return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageIncidents')
 }
