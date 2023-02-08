@@ -16341,10 +16341,9 @@ type BankTransactionHistoryRecord {
   number: String
   date: String
   amount: String
+  isOutcome: Boolean
   currencyCode: String
   purpose: String
-  dateWithdrawed: String
-  dateReceived: String
   meta: JSON
   importId: String
   importRemoteSystem: String
@@ -16420,6 +16419,8 @@ input BankTransactionHistoryRecordWhereInput {
   amount_gte: String
   amount_in: [String]
   amount_not_in: [String]
+  isOutcome: Boolean
+  isOutcome_not: Boolean
   currencyCode: String
   currencyCode_not: String
   currencyCode_contains: String
@@ -16456,22 +16457,6 @@ input BankTransactionHistoryRecordWhereInput {
   purpose_not_ends_with_i: String
   purpose_in: [String]
   purpose_not_in: [String]
-  dateWithdrawed: String
-  dateWithdrawed_not: String
-  dateWithdrawed_lt: String
-  dateWithdrawed_lte: String
-  dateWithdrawed_gt: String
-  dateWithdrawed_gte: String
-  dateWithdrawed_in: [String]
-  dateWithdrawed_not_in: [String]
-  dateReceived: String
-  dateReceived_not: String
-  dateReceived_lt: String
-  dateReceived_lte: String
-  dateReceived_gt: String
-  dateReceived_gte: String
-  dateReceived_in: [String]
-  dateReceived_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -16601,14 +16586,12 @@ enum SortBankTransactionHistoryRecordsBy {
   date_DESC
   amount_ASC
   amount_DESC
+  isOutcome_ASC
+  isOutcome_DESC
   currencyCode_ASC
   currencyCode_DESC
   purpose_ASC
   purpose_DESC
-  dateWithdrawed_ASC
-  dateWithdrawed_DESC
-  dateReceived_ASC
-  dateReceived_DESC
   importId_ASC
   importId_DESC
   importRemoteSystem_ASC
@@ -16640,10 +16623,9 @@ input BankTransactionHistoryRecordUpdateInput {
   number: String
   date: String
   amount: String
+  isOutcome: Boolean
   currencyCode: String
   purpose: String
-  dateWithdrawed: String
-  dateReceived: String
   meta: JSON
   importId: String
   importRemoteSystem: String
@@ -16675,10 +16657,9 @@ input BankTransactionHistoryRecordCreateInput {
   number: String
   date: String
   amount: String
+  isOutcome: Boolean
   currencyCode: String
   purpose: String
-  dateWithdrawed: String
-  dateReceived: String
   meta: JSON
   importId: String
   importRemoteSystem: String
@@ -16749,22 +16730,19 @@ type BankTransaction {
   """ When payment order was created """
   date: String
 
-  """ Amount of transaction in specified currency """
+  """ Amount of transaction in specified currency. Always positive number. Look at "isOutcome" field to determine whether this transaction commits negative or positive change to balance 
+  """
   amount: String
+
+  """ Indicator of outcome transaction which commits negative change to balance 
+  """
+  isOutcome: Boolean
 
   """ Code of currency in ISO-4217 format """
   currencyCode: String
 
   """ Textual description of payment purpose in free form """
   purpose: String
-
-  """ Date when this payment was withdrawed from BankAccount of Organization. If filled, then this payment is an outcome 
-  """
-  dateWithdrawed: String
-
-  """ Date when this payment was received by BankAccount of Organization. If filled, then this payment is an income 
-  """
-  dateReceived: String
 
   """ Stores data, obtained from external source """
   meta: JSON
@@ -16845,6 +16823,8 @@ input BankTransactionWhereInput {
   amount_gte: String
   amount_in: [String]
   amount_not_in: [String]
+  isOutcome: Boolean
+  isOutcome_not: Boolean
   currencyCode: String
   currencyCode_not: String
   currencyCode_in: [String]
@@ -16867,22 +16847,6 @@ input BankTransactionWhereInput {
   purpose_not_ends_with_i: String
   purpose_in: [String]
   purpose_not_in: [String]
-  dateWithdrawed: String
-  dateWithdrawed_not: String
-  dateWithdrawed_lt: String
-  dateWithdrawed_lte: String
-  dateWithdrawed_gt: String
-  dateWithdrawed_gte: String
-  dateWithdrawed_in: [String]
-  dateWithdrawed_not_in: [String]
-  dateReceived: String
-  dateReceived_not: String
-  dateReceived_lt: String
-  dateReceived_lte: String
-  dateReceived_gt: String
-  dateReceived_gte: String
-  dateReceived_in: [String]
-  dateReceived_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -17002,14 +16966,12 @@ enum SortBankTransactionsBy {
   date_DESC
   amount_ASC
   amount_DESC
+  isOutcome_ASC
+  isOutcome_DESC
   currencyCode_ASC
   currencyCode_DESC
   purpose_ASC
   purpose_DESC
-  dateWithdrawed_ASC
-  dateWithdrawed_DESC
-  dateReceived_ASC
-  dateReceived_DESC
   importId_ASC
   importId_DESC
   importRemoteSystem_ASC
@@ -17041,10 +17003,9 @@ input BankTransactionUpdateInput {
   number: String
   date: String
   amount: String
+  isOutcome: Boolean
   currencyCode: String
   purpose: String
-  dateWithdrawed: String
-  dateReceived: String
   meta: JSON
   importId: String
   importRemoteSystem: String
@@ -17073,10 +17034,9 @@ input BankTransactionCreateInput {
   number: String
   date: String
   amount: String
+  isOutcome: Boolean
   currencyCode: String
   purpose: String
-  dateWithdrawed: String
-  dateReceived: String
   meta: JSON
   importId: String
   importRemoteSystem: String
