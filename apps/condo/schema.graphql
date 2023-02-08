@@ -27673,7 +27673,7 @@ enum IncidentStatusType {
   not_actual
 }
 
-""" Entries of scheduled and emergency incidents of water, electricity, etc. 
+""" Entries of mass planned and emergency incidents with water, electricity, etc. 
 """
 type Incident {
   """
@@ -27701,11 +27701,11 @@ type Incident {
   """ Text that employees should say to residents """
   textForResident: String
 
-  """ Date and time of works start (seconds and milliseconds are forced to zero) 
+  """ Start date of work related to the incident (seconds and milliseconds are forced to zero) 
   """
   workStart: String
 
-  """ Date and time of works finish (seconds and milliseconds are forced to zero) 
+  """ Finish date of work related to the incident (seconds and milliseconds are forced to zero) 
   """
   workFinish: String
 
@@ -28024,19 +28024,19 @@ type IncidentChange {
   """ Text that employees should say to residents """
   textForResidentTo: String
 
-  """ Date and time of works start (seconds and milliseconds are forced to zero) 
+  """ Start date of work related to the incident (seconds and milliseconds are forced to zero) 
   """
   workStartFrom: String
 
-  """ Date and time of works start (seconds and milliseconds are forced to zero) 
+  """ Start date of work related to the incident (seconds and milliseconds are forced to zero) 
   """
   workStartTo: String
 
-  """ Date and time of works finish (seconds and milliseconds are forced to zero) 
+  """ Finish date of work related to the incident (seconds and milliseconds are forced to zero) 
   """
   workFinishFrom: String
 
-  """ Date and time of works finish (seconds and milliseconds are forced to zero) 
+  """ Finish date of work related to the incident (seconds and milliseconds are forced to zero) 
   """
   workFinishTo: String
 
@@ -28495,6 +28495,7 @@ type IncidentPropertyHistoryRecord {
   property: String
   propertyAddress: String
   propertyAddressMeta: JSON
+  organization: String
   id: ID!
   v: Int
   createdAt: String
@@ -28543,6 +28544,10 @@ input IncidentPropertyHistoryRecordWhereInput {
   propertyAddressMeta_not: JSON
   propertyAddressMeta_in: [JSON]
   propertyAddressMeta_not_in: [JSON]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -28651,6 +28656,7 @@ input IncidentPropertyHistoryRecordUpdateInput {
   property: String
   propertyAddress: String
   propertyAddressMeta: JSON
+  organization: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -28675,6 +28681,7 @@ input IncidentPropertyHistoryRecordCreateInput {
   property: String
   propertyAddress: String
   propertyAddressMeta: JSON
+  organization: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -28717,6 +28724,10 @@ type IncidentProperty {
   """ Address meta of property, which synced with property and used to form view of address, if property is deleted 
   """
   propertyAddressMeta: AddressMetaField
+
+  """ Ref to the organization. It is filled in on the server and is read-only 
+  """
+  organization: Organization
   id: ID!
   v: Int
   createdAt: String
@@ -28769,6 +28780,8 @@ input IncidentPropertyWhereInput {
   propertyAddressMeta_not: JSON
   propertyAddressMeta_in: [JSON]
   propertyAddressMeta_not_in: [JSON]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -28838,6 +28851,8 @@ enum SortIncidentPropertiesBy {
   property_DESC
   propertyAddress_ASC
   propertyAddress_DESC
+  organization_ASC
+  organization_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -28861,6 +28876,7 @@ input IncidentPropertyUpdateInput {
   property: PropertyRelateToOneInput
   propertyAddress: String
   propertyAddressMeta: JSON
+  organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -28882,6 +28898,7 @@ input IncidentPropertyCreateInput {
   property: PropertyRelateToOneInput
   propertyAddress: String
   propertyAddressMeta: JSON
+  organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -29289,6 +29306,7 @@ type IncidentClassifierIncidentHistoryRecord {
   _label_: String
   incident: String
   classifier: String
+  organization: String
   id: ID!
   v: Int
   createdAt: String
@@ -29315,6 +29333,10 @@ input IncidentClassifierIncidentHistoryRecordWhereInput {
   classifier_not: String
   classifier_in: [String]
   classifier_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -29419,6 +29441,7 @@ enum SortIncidentClassifierIncidentHistoryRecordsBy {
 input IncidentClassifierIncidentHistoryRecordUpdateInput {
   incident: String
   classifier: String
+  organization: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -29441,6 +29464,7 @@ input IncidentClassifierIncidentHistoryRecordsUpdateInput {
 input IncidentClassifierIncidentHistoryRecordCreateInput {
   incident: String
   classifier: String
+  organization: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -29482,6 +29506,10 @@ type IncidentClassifierIncident {
 
   """ A classifier which is in the incident entry """
   classifier: IncidentClassifier
+
+  """ Ref to the organization. It is filled in on the server and is read-only 
+  """
+  organization: Organization
   id: ID!
   v: Int
   createdAt: String
@@ -29512,6 +29540,8 @@ input IncidentClassifierIncidentWhereInput {
   incident_is_null: Boolean
   classifier: IncidentClassifierWhereInput
   classifier_is_null: Boolean
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -29579,6 +29609,8 @@ enum SortIncidentClassifierIncidentsBy {
   incident_DESC
   classifier_ASC
   classifier_DESC
+  organization_ASC
+  organization_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -29600,6 +29632,7 @@ enum SortIncidentClassifierIncidentsBy {
 input IncidentClassifierIncidentUpdateInput {
   incident: IncidentRelateToOneInput
   classifier: IncidentClassifierRelateToOneInput
+  organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -29619,6 +29652,7 @@ input IncidentClassifierIncidentsUpdateInput {
 input IncidentClassifierIncidentCreateInput {
   incident: IncidentRelateToOneInput
   classifier: IncidentClassifierRelateToOneInput
+  organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
