@@ -1,19 +1,17 @@
-import { TicketChange as TicketChangeType } from '@app/condo/schema'
-import styled from '@emotion/styled'
-import { Row, Col, Typography } from 'antd'
+import { TicketChange as ITicketChange } from '@app/condo/schema'
+import { Typography } from 'antd'
 import { BaseType } from 'antd/lib/typography/Base'
 import dayjs from 'dayjs'
 import { get, has, isEmpty, isNil, isNull } from 'lodash'
 import Link from 'next/link'
-import React  from 'react'
+import React, { ComponentProps } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { SafeUserMention } from '@condo/domains/common/components/ChangeHistory/SafeUserMention'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
@@ -22,9 +20,6 @@ import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
-interface ITicketChangeProps {
-    ticketChange: TicketChangeType
-}
 
 interface ITicketChangeFieldMessages {
     add?: string,
@@ -37,36 +32,12 @@ enum TicketChangeFieldMessageType {
     To,
 }
 
+type UseTicketChangedFieldMessagesOfType =
+    (ticketChange: ITicketChange) => ReturnType<ComponentProps<typeof ChangeHistory>['useChangedFieldMessagesOf']>
+
+
 const LINK_STYLE: React.CSSProperties = { color: 'inherit' }
 const DETAILS_TOOLTIP_STYLE: React.CSSProperties = { maxWidth: '80%' }
-
-export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => {
-    const changedFieldMessages = useChangedFieldMessagesOf(ticketChange)
-    const { isSmall } = useLayoutContext()
-
-    const formattedDate = dayjs(ticketChange.createdAt).format('DD.MM.YYYY')
-    const formattedTime = dayjs(ticketChange.createdAt).format('HH:mm')
-
-    return (
-        <Row gutter={[12, 12]}>
-            <Col xs={24} lg={6}>
-                <Typography.Text style={isSmall && { fontSize: fontSizes.content }} disabled={isSmall}>
-                    {formattedDate}
-                    <Typography.Text type='secondary'>, {formattedTime}</Typography.Text>
-                </Typography.Text>
-            </Col>
-            <Col xs={24} lg={18}>
-                {changedFieldMessages.map(({ field, message }) => (
-                    <Typography.Text key={field} style={{ fontSize: fontSizes.content }}>
-                        <Diff className={field}>
-                            {message}
-                        </Diff>
-                    </Typography.Text>
-                ))}
-            </Col>
-        </Row>
-    )
-}
 
 const getAddressChangePostfix = (sectionName, sectionType, floorName, unitName, unitType, intl) => {
     const FloorMessage = intl.formatMessage({ id: 'field.floorName' }).toLowerCase()
@@ -135,7 +106,7 @@ const addLink = (ticketChange, fieldId, value, type: TicketChangeFieldMessageTyp
     )
 }
 
-const useChangedFieldMessagesOf = (ticketChange) => {
+export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfType = (ticketChange) => {
     const intl = useIntl()
     const ClientPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone' })
     const DetailsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details' })
@@ -455,23 +426,3 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             message: formatDiffMessage(field, message, ticketChange, changeMessage),
         }))
 }
-
-const Diff = styled.p`
-    &.statusDisplayName {
-        del, ins {
-            font-weight: bold;
-            color: black;
-        }
-    }
-    &.details, &.isEmergency, &.isPaid, &.isWarranty, &.classifierDisplayName {
-        del, ins {
-            color: black;
-            span {
-                color: black;
-            }
-        }
-    }
-    del, ins {
-        text-decoration: none;
-    }
-`
