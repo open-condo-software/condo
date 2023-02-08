@@ -6,6 +6,7 @@ import {
     SortTicketCommentsBy,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
+import styled from '@emotion/styled'
 import { Affix, Col, Row, Space, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
@@ -22,6 +23,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
+import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { Comments } from '@condo/domains/common/components/Comments'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -31,7 +33,6 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
-import { TicketChanges } from '@condo/domains/ticket/components/TicketChanges'
 import { TicketAssigneeField } from '@condo/domains/ticket/components/TicketId/TicketAssigneeField'
 import { TicketClassifierField } from '@condo/domains/ticket/components/TicketId/TicketClassifierField'
 import { TicketClientField } from '@condo/domains/ticket/components/TicketId/TicketClientField'
@@ -48,6 +49,7 @@ import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
+import { useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import {
     Ticket,
@@ -93,6 +95,26 @@ const TicketContent = ({ ticket }) => {
     )
 }
 
+const TicketChangeDiff = styled.p`
+    &.statusDisplayName {
+        del, ins {
+            font-weight: bold;
+            color: black;
+        }
+    }
+    &.details, &.isEmergency, &.isPaid, &.isWarranty, &.classifierDisplayName {
+        del, ins {
+            color: black;
+            span {
+                color: black;
+            }
+        }
+    }
+    del, ins {
+        text-decoration: none;
+    }
+`
+
 const TICKET_CREATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px' }
 const TICKET_UPDATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px', textAlign: 'end' }
 const TAGS_ROW_STYLE: CSSProperties = { marginTop: '1.6em ' }
@@ -115,6 +137,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     const MinutesShortMessage = intl.formatMessage({ id: 'MinutesShort' })
     const LessThanMinuteMessage = intl.formatMessage({ id: 'LessThanMinute' })
     const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ResidentCannotReadTicket' })
+    const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
 
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
@@ -428,10 +451,13 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                             : null
                                     }
                                 </ActionBar>
-                                <TicketChanges
-                                    loading={get(ticketChangesResult, 'loading')}
+                                <ChangeHistory
                                     items={get(ticketChangesResult, 'objs')}
                                     total={get(ticketChangesResult, 'count')}
+                                    loading={get(ticketChangesResult, 'loading')}
+                                    title={TicketChangesMessage}
+                                    useChangedFieldMessagesOf={useTicketChangedFieldMessagesOf}
+                                    Diff={TicketChangeDiff}
                                 />
                             </Row>
                         </Col>
