@@ -188,7 +188,6 @@ async function doGqlRequest (callable, { mutation, query, variables }, logReques
 const makeApolloClient = (serverUrl, logRequestResponse = false) => {
     let cookiesObj = {}
     let customHeaders = {}
-    const deferredActions = []
 
     /**
      * @returns {string}
@@ -271,15 +270,6 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
         },
         query: async (query, variables = {}) => {
             return doGqlRequest(client.query, { query, variables }, logRequestResponse)
-        },
-        addDeferredAction: (f) => {
-            deferredActions.push(f)
-        },
-        runDeferredActionsAndClean: async () => {
-            let f
-            while (typeof (f = deferredActions.pop()) !== 'undefined') {
-                await f()
-            }
         },
     }
 }
