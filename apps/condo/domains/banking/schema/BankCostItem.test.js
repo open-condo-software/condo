@@ -42,6 +42,7 @@ describe('BankCostItem', () => {
                 expect(obj.createdAt).toMatch(DATETIME_RE)
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
                 expect(obj.name).toEqual(attrs.name)
+                expect(obj.isOutcome).toEqual(attrs.isOutcome)
                 expect(obj.category).toMatchObject({
                     id: category.id,
                     name: category.name,
@@ -102,7 +103,6 @@ describe('BankCostItem', () => {
             test('user can\'t', async () => {
                 const [objCreated] = await createTestBankCostItem(admin, category)
 
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await BankCostItem.delete(user, objCreated.id)
                 })

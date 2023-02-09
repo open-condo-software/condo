@@ -4,7 +4,7 @@
 
 const { pick } = require('lodash')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowValidationFailureError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -24,6 +24,7 @@ const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOr
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
+const { createTestBankCategory, createTestBankCostItem } = require('../utils/testSchema')
 
 let admin
 let support
@@ -497,6 +498,50 @@ describe('BankTransaction', () => {
 
             expect(obj.id).toMatch(UUID_RE)
             expect(obj.dv).toEqual(1)
+        })
+
+        it('cannot be connected to BankCostItem with different values of "isOutcome" field', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+            const [account] = await createTestBankAccount(admin, organization, {
+                integrationContext: { connect: { id: integrationContext.id } },
+            })
+            const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
+            const [category] = await createTestBankCategory(admin)
+            const [costItem1] = await createTestBankCostItem(admin, category, {
+                isOutcome: false,
+            })
+
+            // Connect to cost item with different `isOutcome`
+            await expectToThrowValidationFailureError(async () => {
+                await createTestBankTransaction(admin, account, contractorAccount, integrationContext, organization, {
+                    costItem: { connect: { id: costItem1.id } },
+                    isOutcome: true,
+                })
+            }, `Mismatched value of "isOutcome" field of BankTransaction with BankCostItem(id="${costItem1.id}") during create operation`)
+
+            const [transaction] = await createTestBankTransaction(admin, account, contractorAccount, integrationContext, organization, {
+                costItem: { connect: { id: costItem1.id } },
+                isOutcome: false,
+            })
+
+            // Update `isOutcome` having existing connection
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBankTransaction(admin, transaction.id, {
+                    isOutcome: true,
+                })
+            }, `Mismatched value of "isOutcome" field of BankTransaction(id="${transaction.id}") with BankCostItem(id="${costItem1.id}") during update operation`)
+
+            const [costItem2] = await createTestBankCostItem(admin, category, {
+                isOutcome: true,
+            })
+
+            // Reconnect to cost item with different `isOutcome`
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBankTransaction(admin, transaction.id, {
+                    costItem: { disconnect: { id: costItem1.id }, connect: { id: costItem2.id } },
+                })
+            }, `Mismatched value of "isOutcome" field of BankTransaction(id="${transaction.id}") with BankCostItem(id="${costItem2.id}") during update operation`)
         })
     })
 })
