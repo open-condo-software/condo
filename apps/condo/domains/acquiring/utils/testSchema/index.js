@@ -442,11 +442,10 @@ async function sumPaymentsByTestClient(client, where = {}) {
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 
-let makePayerAdminClient, makePayerClient
-// Utils used to generate a bunch of entities for working with MultiPayments
-async function makePayer (receiptsAmount = 1, cachedClients = true) {
-    const client = (cachedClients && makePayerClient) || (makePayerClient = await makeClientWithResidentUser())
-    const admin = (cachedClients && makePayerAdminClient) || (makePayerAdminClient = await makeLoggedInAdminClient())
+// Utils used to generate bunch of entities for working with MultiPayments
+async function makePayer (receiptsAmount = 1) {
+    const client = await makeClientWithResidentUser()
+    const admin = await makeLoggedInAdminClient()
 
     const [organization] = await registerNewOrganization(admin)
     const [property] = await createTestProperty(admin, organization)
@@ -553,8 +552,8 @@ async function makePayerWithMultipleConsumers(consumersAmount = 1, receiptsAmoun
     }
 }
 
-async function makePayerAndPayments (receiptsAmount = 1, cachedClients = true) {
-    const data = await makePayer(receiptsAmount, cachedClients)
+async function makePayerAndPayments (receiptsAmount = 1) {
+    const data = await makePayer(receiptsAmount)
     const { admin, billingReceipts, acquiringContext, organization } = data
     const payments = []
     for (let i = 0; i < billingReceipts.length; i++) {
@@ -634,8 +633,8 @@ async function completeTestPayment(residentClient, integrationClient, serviceCon
     }
 }
 
-async function createPaymentsAndGetSum(paymentsAmount = 1, cachedClients = true) {
-    const { admin, billingReceipts, acquiringContext, organization } = await makePayer(paymentsAmount, cachedClients)
+async function createPaymentsAndGetSum(paymentsAmount = 1) {
+    const { admin, billingReceipts, acquiringContext, organization } = await makePayer(paymentsAmount)
     let totalSum = Big(0)
     for (let i = 0; i < paymentsAmount; i++){
         const [payment] = await createTestPayment(admin, organization, billingReceipts[i], acquiringContext)
