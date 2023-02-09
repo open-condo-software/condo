@@ -1,4 +1,8 @@
 {
+  "global.service.name": "Condo для разработчиков",
   "global.lang.ru": "Русский",
-  "global.lang.en": "English"
+  "global.lang.en": "English",
+  "docs.editPage": "Редактировать эту страницу на Github",
+  "docs.nextArticle": "Далее: {title}",
+  "docs.prevArticle": "Назад: {title}"
 }

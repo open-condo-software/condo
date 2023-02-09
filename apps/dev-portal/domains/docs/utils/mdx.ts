@@ -19,6 +19,7 @@ type MdxData = {
     fileMeta: { [key: string]: unknown }
     serializedContent: MDXRemoteSerializeResult
     headings: Array<Heading>
+    fileName: string
 }
 
 export async function extractMdx (docsRoot: string, route: string, locale: string): Promise<MdxData> {
@@ -43,6 +44,7 @@ export async function extractMdx (docsRoot: string, route: string, locale: strin
         fileMeta: data,
         serializedContent: serialized,
         headings,
+        fileName,
     }
 }
 
