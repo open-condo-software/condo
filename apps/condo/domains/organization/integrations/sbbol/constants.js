@@ -62,6 +62,9 @@ const SbbolUserInfoSchema = {
     additionalProperties: true,
 }
 
+const ERROR_PASSED_DATE_IN_THE_FUTURE = 'An invalid date was received. It is possible to request transactions only for the past date.'
+const INVALID_DATE_RECEIVED_MESSAGE = 'Passed date is not a valid date. date:'
+
 module.exports = {
     SBBOL_IMPORT_NAME,
     SBBOL_FINGERPRINT_NAME,
@@ -70,4 +73,6 @@ module.exports = {
     BANK_OPERATION_CODE,
     SBBOL_PAYMENT_STATUS_MAP,
     SbbolUserInfoSchema,
+    ERROR_PASSED_DATE_IN_THE_FUTURE,
+    INVALID_DATE_RECEIVED_MESSAGE,
 }
