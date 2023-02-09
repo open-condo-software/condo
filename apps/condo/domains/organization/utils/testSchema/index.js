@@ -237,7 +237,7 @@ async function createTestOrganizationWithAccessToAnotherOrganization () {
     return {
         clientFrom, propertyFrom, employeeFrom, organizationFrom,
         clientTo, propertyTo, employeeTo, organizationTo,
-        link, admin
+        link,
     }
 }
 
