@@ -13,9 +13,8 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Alert } from '@open-condo/ui'
+import { Typography, Alert, TypographyParagraphProps } from '@open-condo/ui'
 
-import { shortenText } from '@condo/domains/common/utils/text'
 import {
     IncidentProperty,
     Incident,
@@ -25,6 +24,7 @@ import {
 
 const INCIDENTS_GUTTER: RowProps['gutter'] = [0, 24]
 const DESCRIPTION_GUTTER: RowProps['gutter'] = [0, 14]
+const DETAILS_ELLIPSIS_CONFIG: TypographyParagraphProps['ellipsis'] = { rows: 7 }
 
 type classifierDataType = Pick<IIncidentClassifier, 'category' | 'problem'>
 
@@ -60,9 +60,9 @@ const IncidentHint: React.FC<IncidentHintProps> = (props) => {
                     <Col span={24}>
                         <Row>
                             <Col span={24}>
-                                <Typography.Text strong>
-                                    {shortenText(get(incident, 'details', ''), 100)}
-                                </Typography.Text>
+                                <Typography.Paragraph strong ellipsis={DETAILS_ELLIPSIS_CONFIG}>
+                                    {get(incident, 'details', '')}
+                                </Typography.Paragraph>
                             </Col>
                             <Col span={24}>
                                 <Typography.Text>
