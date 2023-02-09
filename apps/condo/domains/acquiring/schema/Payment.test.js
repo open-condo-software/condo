@@ -57,19 +57,14 @@ const {
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
-let admin, client
+
+
+
+
+
+const { updateTestAcquiringIntegration } = require('../utils/testSchema')
 
 describe('Payment', () => {
-    beforeAll(async () => {
-        // Create&save cached clients to use them at the end of each test
-        ({ admin, client } = await makePayer())
-    })
-
-    afterEach(async () => {
-        await admin.runDeferredActionsAndClean()
-        await client.runDeferredActionsAndClean()
-    })
-
     describe('CRUD tests', () => {
         describe('Create', () => {
             test('admin can', async () => {
@@ -132,7 +127,7 @@ describe('Payment', () => {
                     })
                     test('linked', async () => {
                         const { admin, payments: firstPayments, acquiringIntegration: firstAcquiringIntegration, client: firstClient, organization: firstOrganization } = await makePayerAndPayments()
-                        const { payments: secondPayments, acquiringIntegration: secondAcquiringIntegration, client: secondClient, organization: secondOrganization } = await makePayerAndPayments(1, false)
+                        const { payments: secondPayments, acquiringIntegration: secondAcquiringIntegration, client: secondClient, organization: secondOrganization } = await makePayerAndPayments()
                         const [firstMultiPayment] = await createTestMultiPayment(admin, firstPayments, firstClient.user, firstAcquiringIntegration)
                         const [secondMultiPayment] = await createTestMultiPayment(admin, secondPayments, secondClient.user, secondAcquiringIntegration)
 
