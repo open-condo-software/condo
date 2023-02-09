@@ -29,7 +29,7 @@
   ],
   "scripts": {
     "build:deps": "turbo build --filter=ui^...",
-    "build:styles": "find src/tokens -mindepth 1 -not -name 'tokens.json' -delete && node bin/prepare-tokens.js && node bin/buildStyleVars/runner.js --web less",
+    "build:styles": "find src/tokens -mindepth 1 -not -name 'tokens.json' -delete && node bin/prepare-tokens.js && node bin/buildStyleVars/runner.js --web less css",
     "build:colors": "find src/colors -mindepth 1 -not -name 'index.ts' -delete && node bin/generate-colors.js",
     "build:tokens": "yarn build:styles && yarn build:colors",
     "build:lib": "webpack --config webpack.prod.js && tsc --project tsconfig.prod.json",
@@ -50,7 +50,9 @@
     "./colors": "./dist/colors/index.js",
     "./src": "./src/index.ts",
     "./src/": "./src/",
-    "./dist/": "./dist/"
+    "./dist/": "./dist/",
+    "./style-vars/css": "./dist/style-vars/variables.css",
+    "./style-vars/less": "./dist/style-vars/variables.less"
   },
   "typesVersions": {
     "*": {
@@ -90,6 +92,7 @@
     "babel-loader": "^8.2.5",
     "chromatic": "^6.9.0",
     "commander": "^9.4.0",
+    "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.1",
     "css-minimizer-webpack-plugin": "^4.0.0",
     "less": "^4.1.3",

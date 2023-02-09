@@ -1,5 +1,6 @@
 const path = require('path')
 
+const CopyPlugin = require('copy-webpack-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
@@ -53,6 +54,11 @@ module.exports = {
     plugins: [
         new MiniCssExtractPlugin({ filename: 'styles.css' }),
         new MiniCssExtractPlugin({ filename: 'styles.min.css' }),
+        new CopyPlugin({
+            patterns: [
+                { from: 'src/tokens', to: 'style-vars', filter: (filepath) => filepath.includes('variables') },
+            ],
+        }),
     ],
     optimization: {
         minimizer: [

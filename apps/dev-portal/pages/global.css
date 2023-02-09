@@ -1,5 +1,6 @@
 .ant-anchor-link-title-active > .condo-typography {
   color: var(--condo-global-color-black);
+  transition: color 0.3s ease-in-out;
 }
 
 .ant-anchor-ink-ball {
