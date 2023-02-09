@@ -113,5 +113,10 @@ module.exports = function createConfiguration (context, conf) {
         pkce: {
             required: () => false,
         },
+        /**
+         * @link https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#jwks
+         * The key set may be generated with {@link https://mkjwk.org/}
+         */
+        jwks: JSON.parse(get(conf, 'JWKS', '{"keys":[]}')),
     }
 }
