@@ -4,12 +4,7 @@ const { get, isPlainObject } = require('lodash')
 const { composeResolveInputHook, evaluateKeystoneAccessResult } = require('./utils')
 const { plugin } = require('./utils/typing')
 
-const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}) => plugin(({
-    fields = {},
-    hooks = {},
-    access,
-    ...rest
-}, { schemaName }) => {
+const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}) => plugin(({ fields = {}, hooks = {}, access, ...rest }, { schemaName }) => {
     // TODO(pahaz):
     //  [x] 1) filter by default deletedAt = null (access.read), how-to change it?!
     //  [x] 2) allow update only for deletedAt = null (access.update)
@@ -75,10 +70,7 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
             const current = await evaluateKeystoneAccessResult(access, 'read', args)
             return applySoftDeletedFilters(current, deletedAtField, args)
         } else if (operation === 'delete') {
-            return (
-                process.env.NODE_ENV === 'test'
-                && get(args, ['context', 'req', 'body', 'variables', 'sender', 'fingerprint']) === 'delete-after-test'
-            )
+            return false
         } else {
             return await evaluateKeystoneAccessResult(access, operation, args)
         }
@@ -98,7 +90,8 @@ function getWhereVariables (args) {
     let variables = {}
     if (method === 'GET') {
         variables = get(args, ['context', 'req', 'query', 'variables'])
-    } else if (method === 'POST') {
+    }
+    else if (method === 'POST') {
         variables = get(args, ['context', 'req', 'body', 'variables'])
     }
     try {
@@ -147,8 +140,8 @@ function _queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
                 if (_queryHasSoftDeletedFieldDeep(innerQuery, deletedAtField))
                     return true
             }
-            // property: { deletedAt: null } case
-        } else if (isPlainObject(queryValue)) {
+        // property: { deletedAt: null } case
+        } else if (isPlainObject(queryValue)){
             if (_queryHasSoftDeletedFieldDeep(queryValue, deletedAtField)) {
                 return true
             }
