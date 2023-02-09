@@ -16,6 +16,7 @@ const { UserAdmin } = require('@condo/domains/user/utils/serverSchema')
 
 const logger = getLogger('sbbol/SbbolSyncTransactions')
 const INVALID_DATE_RECEIVED_MESSAGE = 'An invalid date was received. It is possible to request transactions only for the past date'
+const isTransactionsReceived = (response) => (get(response, 'error.cause', '') !== 'STATEMENT_RESPONSE_PROCESSING')
 
 /**
  * Connects new BankTransaction records for BankAccount according to transaction data from SBBOL.
@@ -24,8 +25,9 @@ const INVALID_DATE_RECEIVED_MESSAGE = 'An invalid date was received. It is possi
  *  @param {keystoneContext} context
  *  @param {String} statementDate
  *  @param {String} organizationId
+ *  @param {String} bankIntegrationContextId
  */
-async function _requestTransactions (userId, bankAccounts, context, statementDate, organizationId) {
+async function _requestTransactions ({ userId, bankAccounts, context, statementDate, organizationId, bankIntegrationContextId }) {
     const fintechApi = await initSbbolFintechApi(userId)
 
     if (!fintechApi) return
@@ -33,22 +35,30 @@ async function _requestTransactions (userId, bankAccounts, context, statementDat
     const transactions = []
 
     for (const bankAccount of bankAccounts) {
-        let page = 1
-        let doRequest = true
+        let page = 1,
+            doRequest = true,
+            timeout = 1000,
+            failedReq = 0
 
         do {
             let response = await fintechApi.getStatementTransactions(bankAccount.number, statementDate, page)
 
-            if (get(response, 'error.cause', '') === 'STATEMENT_RESPONSE_PROCESSING') {
-                do {
+            while (!isTransactionsReceived(response)) {
+                if (failedReq > 5) {
+                    break
+                }
+                await new Promise( (resolve) => {
                     setTimeout(async () => {
-                        response = get(await fintechApi.getStatementTransactions(
+                        response = await fintechApi.getStatementTransactions(
                             bankAccount.number,
                             statementDate,
                             page
-                        ), 'data.transactions')
-                    }, 2000)
-                } while (get(response, 'error.cause', '') === 'STATEMENT_RESPONSE_PROCESSING')
+                        )
+                        resolve()
+                    }, timeout)
+                })
+                failedReq++
+                timeout *= 2
             }
 
             get(response, 'data.transactions').map( transaction => transactions.push(transaction))
@@ -63,43 +73,44 @@ async function _requestTransactions (userId, bankAccounts, context, statementDat
             // if the report is requested in the future tense and
             // if the report page does not exist. For example, the total report contains 3 pages, query 4 will return WORKFLOW_FAULT.
             if (get(transactions, 'error.cause') === 'WORKFLOW_FAULT') doRequest = false
+        } while ( doRequest )
 
-            for (const transaction of transactions) {
-                // If SBBOL returned a transaction with an unsupported currency, do not process
-                if (!isEmpty(ISO_CODES.map( currencyName => get(transaction, 'amount.currencyName') === currencyName))) {
-                    const formatedOperationDate = dayjs(transaction.operationDate).format('YYYY-MM-DD')
-                    const whereConditions = {
-                        number: transaction.number,
-                        date:  formatedOperationDate,
-                        amount: transaction.amount.amount,
-                        currencyCode: transaction.amount.currencyName,
-                        purpose: transaction.paymentPurpose,
-                        dateWithdrawed: transaction.direction === 'CREDIT' ? formatedOperationDate : null,
-                        dateReceived: transaction.direction === 'DEBIT' ? formatedOperationDate : null,
-                        importId: transaction.uuid,
-                        importRemoteSystem: SBBOL_IMPORT_NAME,
-                    }
+        for (const transaction of transactions) {
+            // If SBBOL returned a transaction with an unsupported currency, do not process
+            if (!isEmpty(ISO_CODES.map( currencyName => get(transaction, 'amount.currencyName') === currencyName))) {
+                const formatedOperationDate = dayjs(transaction.operationDate).format('YYYY-MM-DD')
+                const whereConditions = {
+                    number: transaction.number,
+                    date:  formatedOperationDate,
+                    amount: transaction.amount.amount,
+                    currencyCode: transaction.amount.currencyName,
+                    purpose: transaction.paymentPurpose,
+                    dateWithdrawed: transaction.direction === 'CREDIT' ? formatedOperationDate : null,
+                    dateReceived: transaction.direction === 'DEBIT' ? formatedOperationDate : null,
+                    importId: transaction.uuid,
+                    importRemoteSystem: SBBOL_IMPORT_NAME,
+                }
 
-                    const foundTransaction = await BankTransaction.getOne(context, {
-                        organization: { id: organizationId },
-                        account: { id: bankAccount.id },
+                const foundTransaction = await BankTransaction.getOne(context, {
+                    organization: { id: organizationId },
+                    account: { id: bankAccount.id },
+                    integrationContext: { id: bankIntegrationContextId },
+                    ...whereConditions,
+                })
+
+                if (!foundTransaction) {
+                    const createdTransaction = await BankTransaction.create(context, {
+                        organization: { connect: { id: organizationId } },
+                        account: { connect: { id: bankAccount.id } },
+                        integrationContext: { connect: { id: bankIntegrationContextId } },
+                        meta: { sbbol: transaction },
                         ...whereConditions,
+                        ...dvSenderFields,
                     })
-
-                    if (!foundTransaction) {
-                        const createdTransaction = await BankTransaction.create(context, {
-                            organization: { connect: { id: organizationId } },
-                            account: { connect: { id: bankAccount.id } },
-                            meta: { sbbol: transaction },
-                            ...whereConditions,
-                            ...dvSenderFields,
-                        })
-                        logger.info(`BankTransaction instance created with id: ${createdTransaction.id}`)
-                    }
+                    logger.info(`BankTransaction instance created with id: ${createdTransaction.id}`)
                 }
             }
-
-        } while ( doRequest )
+        }
     }
     return transactions
 }
@@ -109,9 +120,10 @@ async function _requestTransactions (userId, bankAccounts, context, statementDat
  * @param {String[] | String} date
  * @param {String} userId
  * @param {Organization} organization
+ * @param {String} bankIntegrationContextId
  * @returns {Promise<Transaction[]>}
  */
-async function requestTransactions (date, userId, organization) {
+async function requestTransactions ({ date, userId, organization, bankIntegrationContextId }) {
     if (!uuidValidate(userId)) return logger.error(`passed userId is not a valid uuid. userId: ${userId}`)
     if (!date) return logger.error('date is required')
 
@@ -127,7 +139,14 @@ async function requestTransactions (date, userId, organization) {
         // you can't request a report by a date in the future
         if (today < date) return logger.error({ msg: INVALID_DATE_RECEIVED_MESSAGE })
 
-        return await _requestTransactions(userId, bankAccounts, context, date, organization.id)
+        return await _requestTransactions({
+            userId,
+            bankAccounts,
+            context,
+            date,
+            organizationId: organization.id,
+            bankIntegrationContextId,
+        })
     } else {
         const transactions = []
         for (const statementDate of date) {
@@ -137,13 +156,14 @@ async function requestTransactions (date, userId, organization) {
             // you can't request a report by a date in the future
             if (today < date) return logger.error({ msg: INVALID_DATE_RECEIVED_MESSAGE })
 
-            transactions.push(await _requestTransactions(
+            transactions.push(await _requestTransactions({
                 userId,
                 bankAccounts,
                 context,
                 statementDate,
-                organization.id,
-            ))
+                organizationId: organization.id,
+                bankIntegrationContextId,
+            }))
         }
         return transactions
     }
