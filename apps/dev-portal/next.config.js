@@ -7,6 +7,12 @@ const { requireTs } = require('./domains/common/utils/requireTs')
 const localesPath = path.resolve(__dirname, 'domains/common/constants/locales.ts')
 const { LOCALES, DEFAULT_LOCALE } = requireTs(localesPath)
 
+const docsRootPath = process.env.DOCS_ROOT_PATH || 'docs'
+const docsEntryEndpoint = process.env.DOCS_ENTRY_ENDPOINT || '/docs/index'
+const docsRepo = process.env.DOCS_REPO
+const docsRepoDocsRoot = process.env.DOCS_REPO_DOCS_ROOT || '/'
+const docsEditBranch = process.env.DOCS_EDIT_BRANCH || 'master'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
@@ -18,6 +24,22 @@ const nextConfig = {
     transpilePackages: [
         'antd',
     ],
+    publicRuntimeConfig: {
+        docsRootPath,
+        docsEntryEndpoint,
+        docsRepo,
+        docsRepoDocsRoot,
+        docsEditBranch,
+    },
+    async redirects () {
+        return [
+            {
+                source: '/',
+                destination: docsEntryEndpoint,
+                permanent: false,
+            },
+        ]
+    },
     webpack: (config) => {
         const rules = get(config, ['module', 'rules'], [])
 
