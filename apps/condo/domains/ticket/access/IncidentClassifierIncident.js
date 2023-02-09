@@ -20,13 +20,11 @@ async function canReadIncidentClassifierIncidents ({ authentication: { item: use
     if (user.isAdmin || user.isSupport) return {}
 
     return {
-        incident: {
-            organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(user.id),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                ],
-            },
+        organization: {
+            OR: [
+                queryOrganizationEmployeeFor(user.id),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+            ],
         },
     }
 }
