@@ -4,7 +4,6 @@
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 const get = require('lodash/get')
-const { v4: uuid, validate: uuidValidate } = require('uuid')
 
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
@@ -19,15 +18,20 @@ const { makeLoggedInClient, User } = require('@condo/domains/user/utils/testSche
 
 const { MockSbbolResponses } = require('./MockSbbolResponses')
 
-const { dvSenderFields } = require('../constants')
+const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE, ERROR_PASSED_DATE_IN_THE_FUTURE } = require('../constants')
 
 const { keystone } = index
 
 jest.mock('@condo/domains/organization/integrations/sbbol/SbbolFintechApi',  () => {
+    const dayjs = require('dayjs')
     class SbbolFintechApi {
         requestCount = 0
+        now = dayjs().format('YYYY-MM-DD')
 
         async getStatementTransactions (accountNumber, statementDate, page = 1) {
+            if ( (this.now < statementDate) || page === 2) {
+                return Promise.resolve({ error: { cause: 'WORKFLOW_FAULT' }, statusCode: 400 })
+            }
             if (this.requestCount === 0) {
                 setTimeout(() => {
                     this.requestCount++
@@ -35,7 +39,7 @@ jest.mock('@condo/domains/organization/integrations/sbbol/SbbolFintechApi',  () 
                 return Promise.resolve({ error: { cause: 'STATEMENT_RESPONSE_PROCESSING' }, statusCode: 202 })
             } else {
                 this.requestCount = 0
-                return Promise.resolve({ data: MockSbbolResponses.getStatementTransactions(), statusCode: 200 })
+                return Promise.resolve({ data: { transactions: MockSbbolResponses.getStatementTransactions() }, statusCode: 200 })
             }
         }
     }
@@ -69,14 +73,62 @@ describe('syncBankAccount from SBBOL', () => {
 
         commonBankIntegrationContext = obj
         commonBankIntegrationContextAttrs = attrs
+        const commonBankAccount = await BankAccount.create(adminClient, {
+            tin: commonOrganization.tin,
+            country: RUSSIA_COUNTRY,
+            number: '40702810638155352218',
+            currencyCode: 'RUB',
+            routingNumber: '044525225',
+            organization: { connect: { id: commonOrganization.id } },
+            ...dvSenderFields,
+        })
+
     })
 
     describe('requestTransactions', async () => {
         it('Request transactions from SBBOL ', async () => {
-            const transactions = await requestTransactions(dayjs().format('YYYY-MM-DD'), commonClient.user.id, commonOrganization)
+            const transactions = await requestTransactions({
+                date: dayjs().format('YYYY-MM-DD'),
+                userId: commonClient.user.id,
+                organization: commonOrganization,
+                bankIntegrationContextId: commonBankIntegrationContext.id,
+            })
 
+            expect(transactions).toHaveLength(10)
+        })
 
-            expect(transactions).toBeTruthy()
+        it('Expect an error if trying to get a statement for a future date', async () => {
+            let error
+
+            try {
+                await requestTransactions({
+                    date:  dayjs().add(7, 'day').format('YYYY-MM-DD'),
+                    userId: commonClient.user.id,
+                    organization: commonOrganization,
+                    bankIntegrationContextId: commonBankIntegrationContext.id,
+                })
+            } catch (e) {
+                error = e.message
+            }
+
+            expect(error).toEqual(ERROR_PASSED_DATE_IN_THE_FUTURE)
+        })
+
+        it('Expect an error if trying to pass an invalid date', async () => {
+            let error
+
+            try {
+                await requestTransactions({
+                    date:  'h3ge4jh32',
+                    userId: commonClient.user.id,
+                    organization: commonOrganization,
+                    bankIntegrationContextId: commonBankIntegrationContext.id,
+                })
+            } catch (e) {
+                error = e.message
+            }
+
+            expect(error).toMatch(INVALID_DATE_RECEIVED_MESSAGE)
         })
     })
 
