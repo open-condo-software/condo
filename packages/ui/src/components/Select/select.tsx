@@ -41,8 +41,7 @@ const Select: ISelect = (props) => {
     })
 
     const handleChange = useCallback((value, option) => {
-        const title = option.title ? option.title : extractChildrenContent(option.children)
-
+        const title = extractChildrenContent(option.children)
         if (title) {
             sendAnalyticsSelectEvent('Select', { label: title, value })
         }
@@ -62,7 +61,7 @@ const Select: ISelect = (props) => {
         >
             {options
                 ? options.map(({ label, value, textType, disabled }, optionIndex) => (
-                    <Option key={optionIndex} value={value} title={label} disabled={disabled}>
+                    <Option key={optionIndex} value={value} disabled={disabled}>
                         <Typography.Text size='medium' disabled={disabled} type={textType}>
                             {label}
                         </Typography.Text>
