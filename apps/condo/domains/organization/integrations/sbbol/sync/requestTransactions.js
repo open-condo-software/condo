@@ -7,15 +7,14 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { BankAccount, BankTransaction } = require('@condo/domains/banking/utils/serverSchema')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
-const { dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
+const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { initSbbolFintechApi } = require('@condo/domains/organization/integrations/sbbol/SbbolFintechApi')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { UserAdmin } = require('@condo/domains/user/utils/serverSchema')
+
+const { ERROR_PASSED_DATE_IN_THE_FUTURE } = require('../constants')
 
 
 const logger = getLogger('sbbol/SbbolSyncTransactions')
-const INVALID_DATE_RECEIVED_MESSAGE = 'An invalid date was received. It is possible to request transactions only for the past date'
 const isTransactionsReceived = (response) => (get(response, 'error.cause', '') !== 'STATEMENT_RESPONSE_PROCESSING')
 
 /**
@@ -133,11 +132,10 @@ async function requestTransactions ({ date, userId, organization, bankIntegratio
     const today = dayjs().format('YYYY-MM-DD')
 
     if (typeof date === 'string') {
-        if (dayjs(date).format('YYYY-MM-DD') === 'Invalid Date') {
-            return logger.error(`passed date is not a valid date. date: ${date}`)
-        }
+        if (dayjs(date).format('YYYY-MM-DD') === 'Invalid Date') throw new Error(`${INVALID_DATE_RECEIVED_MESSAGE} ${date}`)
+
         // you can't request a report by a date in the future
-        if (today < date) return logger.error({ msg: INVALID_DATE_RECEIVED_MESSAGE })
+        if (today < date) throw new Error(ERROR_PASSED_DATE_IN_THE_FUTURE)
 
         return await _requestTransactions({
             userId,
@@ -150,11 +148,9 @@ async function requestTransactions ({ date, userId, organization, bankIntegratio
     } else {
         const transactions = []
         for (const statementDate of date) {
-            if (dayjs(date).format('YYYY-MM-DD') === 'Invalid Date') {
-                return logger.error(`passed date is not a valid date. date: ${date}`)
-            }
-            // you can't request a report by a date in the future
-            if (today < date) return logger.error({ msg: INVALID_DATE_RECEIVED_MESSAGE })
+            if (dayjs(date).format('YYYY-MM-DD') === 'Invalid Date') throw new Error(`${INVALID_DATE_RECEIVED_MESSAGE} ${date}`)
+
+            if (today < date) throw new Error(ERROR_PASSED_DATE_IN_THE_FUTURE)
 
             transactions.push(await _requestTransactions({
                 userId,
