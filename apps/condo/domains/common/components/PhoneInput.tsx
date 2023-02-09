@@ -1,4 +1,4 @@
-import { ConfigProvider, InputProps } from 'antd'
+import { ConfigProvider } from 'antd'
 import { SizeType } from 'antd/es/config-provider/SizeContext'
 import get from 'lodash/get'
 import React, {
@@ -67,12 +67,11 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
     const userOrganizationCountry = showCountryPrefix && get(organization, 'country', 'ru')
     const inputRef = useRef<PhoneInputRef>()
 
-    // `AutoComplete` component needs `focus` method of it's direct child component (custom input)
-    useImperativeHandle(ref, () => ({
-        focus: () => {
-            inputRef.current.numberInputRef.focus()
-        },
-    }))
+    /*
+     * For custom inputs `AutoComplete` component needs that inputRef.current will be equal to event.target,
+     * otherwise in the onMouseDown event (in rc-select/Selector) the preventDefault will work
+     */
+    useImperativeHandle(ref, () => inputRef.current.numberInputRef)
 
     useEffect(() => {
         inputRef.current.numberInputRef.tabIndex = props.tabIndex
@@ -118,6 +117,7 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
             inputStyle={inputStyles}
             placeholder={placeholder}
             buttonStyle={BUTTON_INPUT_PHONE_STYLE}
+            copyNumbersOnly={false}
         />
     )
 })
