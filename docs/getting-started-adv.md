@@ -1,143 +1,5 @@
 # Some advanced topics # 
 
-## Update from 8iq repo
-
-```bash
-# 1) Add 8iq git remote origin for easy updates
-git remote add template git@github.com:8iq/nodejs-hackathon-boilerplate-starter-kit.git
-
-# 2) Pull changes
-git pull template master --allow-unrelated-histories
-
-# 3) Resolve conflicts if exists (check by git status) and create merge commit
-git commit
-```
-
-## Write Backend (Keystone.js) APP by hands
-
-```bash
-# Create Keystone.js new backend
-mkdir apps/_back01keystone
-
-# 1. create package.json, index.js and initial-data.js (check exampe)
-# 2. define your schema by following https://www.keystonejs.com/tutorials/add-lists
-# and use GQLListSchema wrappers for style checking and easy test writing
-
-# Link new package and Install dependencies
-yarn
-
-# create .env file (development mode)
-cat > .env << ENDOFFILE
-DATABASE_URL=mongodb://mongo:mongo@127.0.0.1/main?authSource=admin
-DISABLE_LOGGING=true
-NODE_ENV=development
-ENDOFFILE
-
-# Start dev server on http://localhost:3000
-yarn workspace @app/_back01keystone dev
-
-# Follow the Keystone.js tutorial: https://www.keystonejs.com/tutorials/add-lists
-# You can run `yarn <command>` inside new app workspace by
-# `yarn workspace @app/_back01keystone <command>`
-```
-
-## Write Frontend (Next.js) APP by hands
-
-```bash
-# Create Next.js new React APP folder
-mkdir apps/_example01app
-cat > apps/_example01app/package.json << ENDOFFILE
-{
-  "name": "@app/_example01app",
-  "version": "1.0.0",
-  "scripts": {
-    "dev": "next",
-    "build": "next build",
-    "start": "next start"
-  },
-  "dependencies": {
-    "isomorphic-unfetch": "^3.0.0",
-    "next": "^9.3.5",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
-  }
-}
-ENDOFFILE
-mkdir apps/_example01app/pages
-cat > apps/_example01app/pages/index.jsx << ENDOFFILE
-function HomePage() {
-  return <div>Welcome to Next.js!</div>
-}
-
-export default HomePage
-ENDOFFILE
-
-# Link new package and Install dependencies
-yarn
-
-# Start Next.js dev server on http://localhost:3000
-yarn workspace @app/_example01app dev
-
-# Follow the Next.js tutorial: https://nextjs.org/docs/getting-started#related
-# You can run `yarn <command>` inside new app workspace by
-# `yarn workspace @app/_example01app <command>`
-
-# You can also check `apps/_ex02front` and others examples
-```
-
-## Write mobile (Expo) APP by hands
-
-```bash
-cd apps
-expo init _mobile01
-cd ..
-# based on https://stackoverflow.com/questions/59920012/monorepo-expo-with-yarn-workspace-and-using-expo-install
-cat > apps/_mobile01/package.json << ENDOFFILE
-{
-  "name": "@app/_mobile01",
-  "version": "1.0.0",
-  "main": "__generated__/AppEntry.js",
-  "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
-    "eject": "expo eject",
-    "postinstall": "expo-yarn-workspaces postinstall"
-  },
-  "dependencies": {
-    "expo": "~38.0.8",
-    "expo-status-bar": "^1.0.2",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-38.0.2.tar.gz",
-    "react-native-web": "~0.11.7"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.8.6",
-    "babel-preset-expo": "~8.1.0",
-    "expo-yarn-workspaces": "^1.2.1"
-  }
-}
-ENDOFFILE
-cat > apps/_mobile01/metro.config.js << ENDOFFILE
-const { createMetroConfiguration } = require("expo-yarn-workspaces");
-
-module.exports = createMetroConfiguration(__dirname);
-ENDOFFILE
-yarn
-yarn workspace @app/_mobile01 postinstall
-
-yarn workspace @app/_mobile01 start --clear
-```
-
-## Add package to existing APP
-
-```bash
-# Add new package to APP
-yarn workspace @app/_example01app add antd
-```
-
 ## Use mongo
 
 You need to set `DATABASE_URL` like `mongodb://mongo:mongo@127.0.0.1/main?authSource=admin`.
@@ -159,34 +21,34 @@ yarn workspace @app/ex02back migrate
 
 ## Postgres migrations
 
-https://github.com/keystonejs/keystone/discussions/3067
+Migration process based on: https://github.com/keystonejs/keystone/discussions/3067
+
+Install dependencies:
 
 ```bash
-# download
-curl -o kmigrator https://raw.githubusercontent.com/8iq/nodejs-hackathon-boilerplate-starter-kit/master/bin/kmigrator.py
-chmod +x kmigrator
 # install dependencies
 python3 -m pip install django
 python3 -m pip install psycopg2-binary
-
-# create new migrations based on the changes you have made
-./kmigrator makemigrations
-
-# applying database migrations
-./kmigrator migrate
 ```
 
-Add to `package.json`:
+Probably you already have some kmigrator scripts inside the `package.json` like so:
 ```js
   ...
   "scripts": {
-    "makemigrations": "./kmigrator.py makemigrations",
+    "makemigrations": "../bin/kmigrator.py makemigrations",
     "migrate": "./kmigrator.py migrate",
     ...
   }
 ```
 
-Run by `yarn makemigrations` and `yarn migrate`
+And you just need to run:
+```bash
+# create new migrations based on the changes you have made
+yarn makemigrations
+
+# applying database migrations
+yarn migrate
+```
 
 ## Upgrade packages versions
 
@@ -221,17 +83,6 @@ For mongo you can set env `DEBUG_MONGOOSE=1`. Example:
 ```bash
 DEBUG_MONGOOSE=1 yarn workspace @app/ex02back dev
 ```
-
-## Run multiple apps at the same time
-
-You can use `bin/run-multiple-apps` to run more then one app.
-
-Example:
-```bash
-node ./bin/run-multiple-apps @app/ex02back @app/ex02front @app/ex03sockeio 
-```
-
-Every app should have `multi-app-support.js` file. Check `ex02back`, `ex02front` and `ex02sockio` examples.
 
 ## linter
 
