@@ -3,12 +3,14 @@
  */
 
 const { Text, Relationship, CalendarDay, Checkbox } = require('@keystonejs/fields')
+const { get, has } = require('lodash')
 
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/banking/access/BankTransaction')
+const { BankCostItem } = require('@condo/domains/banking/utils/serverSchema')
 const { POSITIVE_MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -110,6 +112,18 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
         update: access.canManageBankTransactions,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        validateInput: async ({ resolvedData, addValidationError, context, operation, existingItem }) => {
+            const isOutcome = has(resolvedData, 'isOutcome') ? resolvedData.isOutcome : existingItem.isOutcome
+            const costItemId = has(resolvedData, 'costItem') ? resolvedData.costItem : get(existingItem, 'costItem', null)
+            if (costItemId) {
+                const costItem = await BankCostItem.getOne(context, { id: costItemId })
+                if (costItem && costItem.isOutcome !== isOutcome) {
+                    addValidationError(`Mismatched value of "isOutcome" field of BankTransaction${operation === 'update' ? `(id="${existingItem.id}")` : ''} with BankCostItem(id="${costItemId}") during ${operation} operation`)
+                }
+            }
+        },
     },
 })
 
