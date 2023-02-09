@@ -66,6 +66,7 @@ async function createTestBankCostItem (client, category, extraAttrs = {}) {
         dv: 1,
         sender,
         category: { connect: { id: category.id } },
+        isOutcome: faker.random.boolean(),
         name: faker.lorem.word(),
         ...extraAttrs,
     }
