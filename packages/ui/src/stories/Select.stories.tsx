@@ -50,7 +50,6 @@ Default.args = {}
 
 export const CustomContent = Template.bind({})
 CustomContent.args = {
-    displayMode: 'fit-content',
     options: undefined,
     children: <>
         <Option key='1' value={1}>
