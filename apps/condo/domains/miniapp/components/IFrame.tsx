@@ -9,10 +9,6 @@ import { Typography } from '@open-condo/ui'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
-import {
-    parseMessage,
-    RESIZE_MESSAGE_TYPE,
-} from '@condo/domains/common/utils/iframe.utils'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 
 import type { IBasicEmptyListProps } from '@condo/domains/common/components/EmptyListView'
@@ -73,15 +69,6 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
             url.searchParams.set('condoUserId', userId)
         }
         if (organizationId && reloadScope === 'organization') {
-            /**
-             * @deprecated
-             * TODO(DOMA-5142): notify developers about change, then remove organizationId
-             * Why? We can pass sign some parameters and sign user info with key, similar to checksum
-             * So if you don't need condo backend, you can just compare this checksum by yourself and trust it (use as success auth)
-             * To compute checksum, you need to know which parameters to include, that's why it should be marked (with condo prefix)
-             * And parameters not included in sum are not marked
-             */
-            url.searchParams.set('organizationId', organizationId)
             url.searchParams.set('condoOrganizationId', organizationId)
         }
 
@@ -140,30 +127,6 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
             return () => removeOrigin(srcOrigin)
         }
     }, [src, withResize, addOrigin, removeOrigin, addEventHandler, resizeFrame])
-
-    /**
-     * @deprecated
-     * TODO(DOMA-5142): notify developers about change, then remove this legacy listener
-     */
-    const handleMessage = useCallback((event: MessageEvent) => {
-        if (event.origin !== extractOrigin(src)) return
-        if (event.data && typeof event.data !== 'object') return
-        const parsedMessage = parseMessage(event.data)
-        if (!parsedMessage) return
-        const { type, message } = parsedMessage
-        if (type === 'system' && message.type === RESIZE_MESSAGE_TYPE) {
-            setFrameHeight(message.height)
-        }
-
-    }, [src])
-
-    useEffect(() => {
-        if (withResize && isClientSide) {
-            window.addEventListener('message', handleMessage)
-            return () => window.removeEventListener('message', handleMessage)
-        }
-    }, [withResize, isClientSide, handleMessage])
-    // END OF DEPRECATED ZONE
 
     return (
         <>
