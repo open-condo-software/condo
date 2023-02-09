@@ -3,6 +3,7 @@ import { DocumentNode } from 'graphql'
 import { get } from 'lodash'
 import React, { useCallback } from 'react'
 
+import { Sheet } from '@open-condo/icons'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
@@ -76,7 +77,6 @@ export const useExportToExcel = (props: UseExportToExcelInputType): UseExportToE
         exportToExcel({ variables: { data: variablesData } })
     }, deps)
 
-    // todo(doma-2567): add icon
     const ExportButton: React.FC<ExportButtonInputType> = useCallback(({ disabled = false }) => (
         <Button
             type='secondary'
@@ -84,6 +84,7 @@ export const useExportToExcel = (props: UseExportToExcelInputType): UseExportToE
             onClick={handleExportToExcel}
             disabled={isXlsLoading || disabled}
             children={label || ExportAsExcelLabel}
+            icon={<Sheet size='small' />}
         />
     ), [ExportAsExcelLabel, handleExportToExcel, isXlsLoading, label])
 
