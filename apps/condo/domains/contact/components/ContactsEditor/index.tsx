@@ -340,7 +340,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 <NewContactFields
                                     onChange={handleChangeContact}
                                     contacts={fetchedContacts}
-                                    initialValue={isManuallyTypedContactEmpty ? initialValue : manuallyTypedContact}
                                     fields={fields}
                                     activeTab={activeTab}
                                     contactsLoading={contactsLoading}
@@ -361,7 +360,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                     contacts={fetchedContacts}
                                                     displayMinusButton={true}
                                                     onClickMinusButton={handleClickOnMinusButton}
-                                                    initialValue={isManuallyTypedContactEmpty ? initialValue : manuallyTypedContact}
                                                     fields={fields}
                                                     activeTab={activeTab}
                                                     contactsLoading={contactsLoading}

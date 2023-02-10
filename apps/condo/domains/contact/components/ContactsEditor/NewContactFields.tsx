@@ -46,7 +46,6 @@ const StyledPhoneInput = styled(PhoneInput)<{ error: boolean }>`
 export const NEW_CONTACT_PHONE_FORM_ITEM_NAME = 'IGNORE_FIELD_NEW_CONTACT_PHONE'
 
 const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
-    initialValue,
     onChange,
     onChecked,
     checked,
@@ -60,7 +59,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
     const ContactWithSamePhoneExistMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone.contactWithSamePhoneExists' })
 
-    const [value, setValue] = useState(initialValue)
+    const [value, setValue] = useState({})
     const [contactWithSamePhoneExistError, setContactWithSamePhoneExistError] = useState<boolean>(false)
 
     const handleChangeContact = (field) => (fieldValue) => {
@@ -119,13 +118,17 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                     initialValue={get(value, 'phone')}
                     wrapperCol={PHONE_FIELD_WRAPPER_COL}
                 >
-                    <StyledPhoneInput
-                        value={get(value, 'phone')}
-                        error={contactWithSamePhoneExistError}
+                    <AutoComplete
                         allowClear
+                        value={get(value, 'phone')}
                         onChange={handleChangeContact('phone')}
-                        block
-                    />
+                    >
+                        <StyledPhoneInput
+                            error={contactWithSamePhoneExistError}
+                            block
+                            compatibilityWithAntAutoComplete
+                        />
+                    </AutoComplete>
                 </Form.Item>
             </Col>
             <Col span={10}>
