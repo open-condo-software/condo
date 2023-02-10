@@ -13,6 +13,12 @@
   align-self: flex-start;
 }
 
+@media screen and (max-width: 1250px) {
+  .table-of-contents-column {
+    display: none;
+  }
+}
+
 .sider {
   position: sticky !important;
   top: 72px;
