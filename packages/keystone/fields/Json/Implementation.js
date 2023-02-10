@@ -6,7 +6,13 @@ const stringify = JSON.stringify
 
 class JsonImplementation extends Implementation {
     // NOTE: argument names are based no Virtual field
-    constructor (path, { isMultiline, graphQLInputType = 'JSON', graphQLReturnType = 'JSON', extendGraphQLTypes = [], graphQLAdminFragment = '' }) {
+    constructor (path, {
+        isMultiline,
+        graphQLInputType = 'JSON',
+        graphQLReturnType = 'JSON',
+        extendGraphQLTypes = [],
+        graphQLAdminFragment = '',
+    }) {
         super(...arguments)
         this.isMultiline = isMultiline
         this.isOrderable = false
@@ -56,6 +62,29 @@ class JsonImplementation extends Implementation {
     getGqlAuxTypes () {
         // NOTE: based on Virtual field source code
         return this.extendGraphQLTypes
+    }
+
+    gqlAuxFieldResolvers ({ schemaName }) {
+        if (this.listKey === 'Property' && this.path === 'map') {
+            return {
+                PropertyMap: {
+                    /**
+                     * Here we must resolve the type depending on the object
+                     * @link https://www.apollographql.com/docs/apollo-server/schema/unions-interfaces/#resolving-a-union
+                     * @param obj
+                     * @param contextValue
+                     * @param info
+                     * @returns {'BuildingMap' | 'VillageMap'}
+                     * @private
+                     */
+                    __resolveType (obj, contextValue, info) {
+                        // For now, we use only this one
+                        return 'BuildingMap'
+                    },
+                },
+            }
+        }
+        return super.gqlAuxFieldResolvers({ schemaName })
     }
 
     // Admin
