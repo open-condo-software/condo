@@ -7,6 +7,8 @@ const { createAdapterClass } = require('./adapter')
 const HTTPS_REGEXP = /^https:/
 
 module.exports = function createConfiguration (context, conf) {
+    const jwksStr = get(conf, 'JWKS')
+
     return {
         adapter: createAdapterClass(context),
         async findAccount (ctx, id) {
@@ -117,6 +119,6 @@ module.exports = function createConfiguration (context, conf) {
          * @link https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#jwks
          * The key set may be generated with {@link https://mkjwk.org/}
          */
-        jwks: JSON.parse(get(conf, 'JWKS', '{"keys":[]}')),
+        jwks: jwksStr ? JSON.parse(jwksStr) : undefined,
     }
 }
