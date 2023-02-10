@@ -2,6 +2,7 @@ import path from 'path'
 
 import { Layout, Menu, Row, Col, Anchor } from 'antd'
 import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
+import { useContainerSize } from 'domains/common/hooks/useContainerSize'
 import { useMenuItems } from 'domains/docs/hooks/useMenuItems'
 import { extractMdx } from 'domains/docs/utils/mdx'
 import { getNavTree, getAllRoutes, getFlatArticles, extractLocalizedTitleParts } from 'domains/docs/utils/routing'
@@ -17,6 +18,7 @@ import { useIntl } from 'react-intl'
 
 import { ChevronLeft, ChevronRight, Edit } from '@open-condo/icons'
 import { Typography, Card, Alert, Space } from '@open-condo/ui'
+
 
 import styles from './path.module.css'
 
@@ -42,6 +44,7 @@ const CARD_WIDTH = 308
 const CARD_PADDING = '28px 24px 28px 0'
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
 const FOOTER_GUTTER: RowProps['gutter'] = [40, 60]
+const ANCHOR_SHOW_CONTENT_BREAKPOINT = 850
 
 type DocPageProps = {
     navigation: Array<NavItem>
@@ -101,6 +104,10 @@ const DocPage: React.FC<DocPageProps> = ({
         return result
     }, [currentRoute])
 
+    const [{ width: contentWidth }, setContentRef] = useContainerSize()
+    const showAnchors = Boolean(contentWidth >= ANCHOR_SHOW_CONTENT_BREAKPOINT && headings.length)
+    console.log(contentWidth)
+
     return (
         <>
             <Head>
@@ -118,7 +125,7 @@ const DocPage: React.FC<DocPageProps> = ({
                     />
                 </Layout.Sider>
                 <Layout.Content className={styles.content}>
-                    <div className={styles.pageContainer}>
+                    <div className={styles.pageContainer} ref={setContentRef}>
                         <div className={styles.articleColumn}>
                             <Row gutter={FOOTER_GUTTER}>
                                 <Col span={24}>
@@ -173,18 +180,22 @@ const DocPage: React.FC<DocPageProps> = ({
                                 </Col>
                             </Row>
                         </div>
-                        <div className={styles.tableOfContentsColumn}>
-                            <Card width={CARD_WIDTH} bodyPadding={CARD_PADDING}>
-                                <Anchor
-                                    offsetTop={112}
-                                    items={headings.map(heading => ({
-                                        key: heading.id,
-                                        href: `#${heading.id}`,
-                                        title: <Typography.Text type='secondary'>{heading.heading}</Typography.Text>,
-                                    }))}
-                                />
-                            </Card>
-                        </div>
+                        {showAnchors && (
+                            <div className={styles.tableOfContentsColumn}>
+                                <Card width={CARD_WIDTH} bodyPadding={CARD_PADDING}>
+                                    <Anchor
+                                        affix={false}
+                                        showInkInFixed={true}
+                                        offsetTop={112}
+                                        items={headings.map(heading => ({
+                                            key: heading.id,
+                                            href: `#${heading.id}`,
+                                            title: <Typography.Text type='secondary'>{heading.heading}</Typography.Text>,
+                                        }))}
+                                    />
+                                </Card>
+                            </div>
+                        )}
                     </div>
                 </Layout.Content>
             </Layout>
