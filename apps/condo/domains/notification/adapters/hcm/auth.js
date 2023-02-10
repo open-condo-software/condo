@@ -3,9 +3,10 @@ const fetch = require('node-fetch')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
+const { getCurrSec } = require('@condo/domains/common/utils/date')
+
 const ENDPOINT = 'https://oauth-login.cloud.huawei.com/oauth2/v3/token'
 
-const getCurrSec = () => Math.floor(Date.now() / 1000)
 const logger = getLogger('HCMAuth')
 
 /**
