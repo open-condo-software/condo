@@ -36,7 +36,7 @@ const { getLogger } = require('./logging')
 const UPDATED_AT_FIELD = 'updatedAt'
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 
-const logger = getLogger('adapterCache')
+const logger = getLogger('🔴 adapterCache')
 
 
 class AdapterCacheMiddleware {
@@ -165,22 +165,29 @@ class AdapterCacheMiddleware {
         this.cacheHistory.lastTableUpdated = table
     }
 
-    getCacheEvent ({ type, key, table, result }) {
+    getCacheEvent ({ type, functionName, key, table, result }) {
         return ({
             type: type,
+            function: functionName,
             table: table,
+            key: key,
+            response: result,
+            meta: {
+                hits: this.cacheHits,
+                total: this.totalRequests,
+            },
             string: `
-            🔴 STAT: ${this.cacheHits}/${this.totalRequests}\r\n
-            🔴 RKEY: ${key}\r\n
-            🔴 TYPE: ${type}\r\n
-            🔴 RESP: ${result}\r\n
+            STAT: ${this.cacheHits}/${this.totalRequests}\r\n
+            RKEY: ${key}\r\n
+            TYPE: ${type}\r\n
+            RESP: ${result}\r\n
             `,
         })
     }
 
     logEvent ({ event }) {
         if (!this.logging) { return }
-        logger.info(event.string)
+        logger.info(event)
     }
 
     async prepareMiddleware ({ keystone, dev, distDir }) {
@@ -232,7 +239,6 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
             if (relations[relationName].includes(listName)) {
                 connectedTables[listName] = relationName
                 connectedTables[relationName] = listName
-                console.log(`Added: ${relationName}, ${listName}`)
             }
         }
     }
@@ -285,13 +291,13 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         // Patch mutations:
 
         const originalUpdate = listAdapter.update
-        listAdapter.update = patchAdapterFunction(listName, 'UPDATE', originalUpdate, listAdapter, middleware, connectedTables, manyRelationships)
+        listAdapter.update = patchAdapterFunction(listName, 'update', originalUpdate, listAdapter, middleware, connectedTables, manyRelationships)
 
         const originalCreate = listAdapter.create
-        listAdapter.create = patchAdapterFunction(listName, 'CREATE', originalCreate, listAdapter, middleware, connectedTables, manyRelationships)
+        listAdapter.create = patchAdapterFunction(listName, 'create', originalCreate, listAdapter, middleware, connectedTables, manyRelationships)
 
         const originalDelete = listAdapter.delete
-        listAdapter.delete = patchAdapterFunction(listName, 'DELETE', originalDelete, listAdapter, middleware, connectedTables, manyRelationships)
+        listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, middleware, connectedTables, manyRelationships)
     }
 }
 
@@ -318,12 +324,15 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
             await cache.setState(manyRelTables[listName], functionResult[UPDATED_AT_FIELD])
         }
 
-        if (cache.debugMode) {
-            const cacheEvent = cache.getCacheEvent({ type: listName, table: listName })
-            cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, table: listName })
-        }
-
-        if (cache.logging) { logger.info(`${functionName}: ${functionResult}`) }
+        const cacheEvent = cache.getCacheEvent({
+            type: 'DROP',
+            functionName,
+            table: listName,
+            key: listName,
+            result: functionResult,
+        })
+        cache.logEvent({ event: cacheEvent })
+        cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, table: listName })
 
         return functionResult
     }
@@ -347,7 +356,8 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
             if (cacheLastUpdate && cacheLastUpdate.getTime() === tableLastUpdate.getTime()) {
                 cache.cacheHits++
                 const cacheEvent = cache.getCacheEvent({
-                    type: `HIT: ${functionName}`,
+                    type: 'HIT',
+                    functionName,
                     table: listName,
                     key,
                     result: JSON.stringify(cached.response),
@@ -368,10 +378,11 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
         }
 
         const cacheEvent = cache.getCacheEvent({
-            type: `MISS: ${functionName}`,
+            type: 'MISS',
+            functionName,
             key,
             table: listName,
-            result: JSON.stringify(copiedResponse),
+            result: copiedResponse,
         })
         cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, table: listName } )
         cache.logEvent({ event: cacheEvent })
