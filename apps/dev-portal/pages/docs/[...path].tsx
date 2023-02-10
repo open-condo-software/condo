@@ -106,7 +106,6 @@ const DocPage: React.FC<DocPageProps> = ({
 
     const [{ width: contentWidth }, setContentRef] = useContainerSize()
     const showAnchors = Boolean(contentWidth >= ANCHOR_SHOW_CONTENT_BREAKPOINT && headings.length)
-    console.log(contentWidth)
 
     return (
         <>
