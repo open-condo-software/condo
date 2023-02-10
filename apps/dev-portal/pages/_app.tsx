@@ -1,3 +1,4 @@
+import { Open_Sans }  from '@next/font/google'
 import { ConfigProvider, Layout } from 'antd'
 import { Header } from 'domains/common/components/Header'
 import { theme } from 'domains/common/constants/antd'
@@ -6,6 +7,12 @@ import en from 'lang/en.json'
 import ru from 'lang/ru.json'
 import get from 'lodash/get'
 import { IntlProvider } from 'react-intl'
+
+const font = Open_Sans({
+    subsets: ['latin', 'cyrillic'],
+    variable: '--condo-font-fallback',
+    style: ['normal', 'italic'],
+})
 
 import type { AppProps } from 'next/app'
 import type { ReactNode } from 'react'
@@ -42,10 +49,12 @@ export default function App ({ Component, pageProps, router }: AppProps): ReactN
     return (
         <ConfigProvider theme={theme}>
             <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
-                <Layout>
-                    <Header/>
-                    <Component {...pageProps}/>
-                </Layout>
+                <main className={font.variable}>
+                    <Layout>
+                        <Header/>
+                        <Component {...pageProps}/>
+                    </Layout>
+                </main>
             </IntlProvider>
         </ConfigProvider>
     )
