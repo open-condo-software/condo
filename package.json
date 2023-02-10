@@ -58,10 +58,10 @@
   "packageManager": "yarn@3.2.2",
   "resolutions": {
     "npm": "latest-6",
-    "@keystonejs/app-admin-ui/@types/react": "16.9.17",
-    "react-intl/@types/react": "16.9.17",
-    "@types/react-transition-group@npm:2.9.2/@types/react": "16.9.17",
-    "@types/react-infinite-scroller@npm:1.2.3/@types/react": "16.9.17",
-    "@types/hoist-non-react-statics@npm:3.3.1/@types/react": "16.9.17"
+    "@keystonejs/app-admin-ui/@types/react": "16.14.35",
+    "react-intl/@types/react": "16.14.35",
+    "@types/react-transition-group@npm:2.9.2/@types/react": "16.14.35",
+    "@types/react-infinite-scroller@npm:1.2.3/@types/react": "16.14.35",
+    "@types/hoist-non-react-statics@npm:3.3.1/@types/react": "16.14.35"
   }
 }
