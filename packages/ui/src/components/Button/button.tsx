@@ -1,4 +1,4 @@
-import { 
+import {
     Button as DefaultButton,
     ButtonProps as DefaultButtonProps,
 } from 'antd'
@@ -13,18 +13,20 @@ type CondoButtonProps = {
     type: 'primary' | 'secondary',
     children?: string
     stateless?: boolean
+    textAlign?: 'left' | 'center' | 'right'
 }
 
 export type ButtonProps = Omit<DefaultButtonProps, 'shape' | 'size' | 'style' | 'ghost' | 'type' | 'prefix' | 'prefixCls'>
 & CondoButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
-    const { type, className, icon, children, onClick, stateless, ...rest } = props
+    const { type, className, icon, children, onClick, stateless, textAlign = 'center', ...rest } = props
     const classes = classNames(
         {
             [`${BUTTON_CLASS_PREFIX}-${type}`]: type,
             [`${BUTTON_CLASS_PREFIX}-stateless`]: stateless,
         },
+        `${BUTTON_CLASS_PREFIX}-${textAlign}-text`,
         className,
     )
 

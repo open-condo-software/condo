@@ -113,7 +113,6 @@ export const AppCard: React.FC<AppCardProps> = ({
                 <Button
                     type='secondary'
                     block
-                    className='condo-btn-center-text'
                 >
                     {ButtonLabel}
                 </Button>
