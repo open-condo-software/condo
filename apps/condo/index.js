@@ -34,9 +34,6 @@ const { hasValidJsonStructure } = require('@condo/domains/common/utils/validatio
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
-
-
-
 dayjs.extend(duration)
 
 const FINGERPRINT_FORMAT_REGEXP = /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/
