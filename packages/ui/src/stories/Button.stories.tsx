@@ -19,8 +19,10 @@ export default {
         disabled: false,
         danger: false,
         stateless: false,
+        block: true,
     },
     argTypes: {
+        block: { type: 'boolean', default: false },
         type: { control: 'select' },
         icon: {
             options: Object.keys(icons),
