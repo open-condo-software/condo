@@ -849,6 +849,7 @@ __metadata:
     "@babel/preset-env": 7.20.2
     "@babel/preset-typescript": 7.18.6
     "@dev-portal/domains": "link:./domains"
+    "@next/font": 13.1.6
     "@open-condo/icons": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@open-condo/ui": "workspace:^"
@@ -8698,6 +8699,13 @@ __metadata:
   version: 9.5.5
   resolution: "@next/env@npm:9.5.5"
   checksum: 6378b54e9fe01076b72c3a86bdf28886629a49cf53846935249830cc549ad92e29b7afb725e6f17100cf0cbf27d5ed3370282b22272f938c01c9f15343b0f188
+  languageName: node
+  linkType: hard
+
+"@next/font@npm:13.1.6":
+  version: 13.1.6
+  resolution: "@next/font@npm:13.1.6"
+  checksum: 06499c9361d8ecf1bca47f20dfb226b6e9f77668afe967809cd8a4eade1b8620f9d723032098b2a0a9df2d2e2df96ad17e8128fcb7f494c99951ee8a61027966
   languageName: node
   linkType: hard
 

@@ -50,21 +50,20 @@ const intToPxTransformer = {
 
 /**
  * Wraps specified single font in ""
- * and uses sans-serif as a fallback
+ * and uses CSS var for font-callback
+ * CSS var can be patched in app directly to remove flicker effects
  */
-const getDefaultFontTransformer = (defaultFont = 'sans-serif') => {
-    return {
-        name: `transformer/fonts/${defaultFont}`,
-        type: 'value',
-        matcher: (token) => {
-            const isFont = isMatchingType(token, 'fontFamily')
-            const isSingleFont = Boolean(typeof token.original.value === 'string' && !token.original.value.includes(','))
-            return isFont && isSingleFont
-        },
-        transformer: (token) => {
-            return `"${token.original.value}", ${defaultFont}`
-        },
-    }
+const fontFallbackTransformer = {
+    name: 'transformer/fonts/fallback',
+    type: 'value',
+    matcher: (token) => {
+        const isFont = isMatchingType(token, 'fontFamily')
+        const isSingleFont = Boolean(typeof token.original.value === 'string' && !token.original.value.includes(','))
+        return isFont && isSingleFont
+    },
+    transformer: (token) => {
+        return `"${token.original.value}", var(--condo-font-fallback)`
+    },
 }
 
 
@@ -181,7 +180,7 @@ const percentToEmTransformer = {
 }
 
 const allTransformers = [
-    getDefaultFontTransformer(),
+    fontFallbackTransformer,
     intToPxTransformer,
     weightToIntTransformer,
     boxShadowTransformer,
@@ -193,7 +192,7 @@ const allTransformers = [
 const webVarsTransformersChain = [
     'name/cti/kebab',
     'transformer/int-px',
-    'transformer/fonts/sans-serif',
+    'transformer/fonts/fallback',
     'transformer/fonts/int-weight',
     'transformer/shadow-css',
     'transformer/short-hex',
