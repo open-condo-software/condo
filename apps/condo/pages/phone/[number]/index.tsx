@@ -15,7 +15,7 @@ import isEmpty from 'lodash/isEmpty'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
@@ -47,10 +47,12 @@ import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 
 
 //#region Constants, types and styles
+const ADDRESS_STREET_ONE_ROW_HEIGHT = 25
+const ADDRESS_POSTFIX_ONE_ROW_HEIGHT = 22
+
 const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
-const STREET_PARAGRAPH_STYLE: CSSProperties = { margin: 0, fontSize: fontSizes.content }
-const ADDRESS_POSTFIX_ELLIPSIS: EllipsisConfig = { rows: 2 }
-const ADDRESS_POSTFIX_STYLE: CSSProperties = { margin: 0, fontSize: fontSizes.label }
+const STREET_PARAGRAPH_STYLE: CSSProperties = { margin: 0, fontSize: fontSizes.content, lineHeight: `${ADDRESS_STREET_ONE_ROW_HEIGHT}px` }
+const ADDRESS_POSTFIX_STYLE: CSSProperties = { margin: 0, fontSize: fontSizes.label, lineHeight: `${ADDRESS_POSTFIX_ONE_ROW_HEIGHT}px` }
 const ROW_BIG_GUTTER: [Gutter, Gutter] = [0, 60]
 const ROW_MEDIUM_GUTTER: [Gutter, Gutter] = [0, 40]
 const ROW_MEDIUM_SMALL_GUTTER: [Gutter, Gutter] = [0, 24]
@@ -204,6 +206,25 @@ const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType
     const FlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const ParkingMessage = intl.formatMessage({ id: 'field.UnitType.prefix.parking' })
 
+    const addressStreetRef = useRef<HTMLDivElement>()
+    const addressPostfixRef = useRef<HTMLDivElement>()
+
+    const [addressStreetEllipsis, setAddressStreetEllipsis] = useState<EllipsisConfig>({ rows: 2 })
+    const [addressPostfixEllipsis, setAddressPostfixEllipsis] = useState<EllipsisConfig>({ rows: 2 })
+
+    useLayoutEffect(() => {
+        const addressStreetTextHeight = addressStreetRef.current.clientHeight
+        const addressPostfixTextHeight =  addressPostfixRef.current.clientHeight
+
+        if (addressStreetTextHeight > ADDRESS_STREET_ONE_ROW_HEIGHT) {
+            setAddressStreetEllipsis({ rows: 2 })
+            setAddressPostfixEllipsis({ rows: 1 })
+        } else if (addressPostfixTextHeight > ADDRESS_POSTFIX_ONE_ROW_HEIGHT) {
+            setAddressStreetEllipsis({ rows: 1 })
+            setAddressPostfixEllipsis({ rows: 2 })
+        }
+    }, [])
+
     const typeToMessage = useMemo(() => ({
         [ClientType.Resident]: ContactMessage,
         [ClientType.NotResident]: isEmployee ? EmployeeMessage : NotResidentMessage,
@@ -223,7 +244,8 @@ const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType
                 </div>
                 <div>
                     <Typography.Paragraph
-                        ellipsis={ADDRESS_POSTFIX_ELLIPSIS}
+                        ref={addressStreetRef}
+                        ellipsis={addressStreetEllipsis}
                         title={streetAndFlatMessage}
                         strong
                         style={STREET_PARAGRAPH_STYLE}
@@ -231,7 +253,8 @@ const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType
                         {streetAndFlatMessage}
                     </Typography.Paragraph>
                     <Typography.Paragraph
-                        ellipsis={ADDRESS_POSTFIX_ELLIPSIS}
+                        ref={addressPostfixRef}
+                        ellipsis={addressPostfixEllipsis}
                         title={postfix}
                         type='secondary'
                         style={ADDRESS_POSTFIX_STYLE}
