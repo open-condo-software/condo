@@ -30,9 +30,16 @@ const getStartDates = (dateRaw) => {
     }
 }
 
+/**
+ * Returns current seconds count from Epoch start UTC
+ * @returns {number}
+ */
+const getCurrSec = () => Math.floor(Date.now() / 1000)
+
 module.exports = {
     getMonthStart,
     getStartDates,
+    getCurrSec,
     DATE_FORMAT,
     DATE_FORMAT_Z,
 }

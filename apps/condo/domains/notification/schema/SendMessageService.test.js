@@ -12,8 +12,11 @@ const {
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
     DEVICE_PLATFORM_ANDROID,
     APP_RESIDENT_ID_ANDROID,
+    APP_RESIDENT_ID_IOS,
+    DEVICE_PLATFORM_IOS,
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_HUAWEI,
+    PUSH_TRANSPORT_APPLE,
 } = require('@condo/domains/notification/constants/constants')
 const { syncRemoteClientWithPushTokenByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
@@ -161,7 +164,55 @@ describe('SendMessageService', () => {
                     expect(transportMeta.deliveryMetadata.pushContext.default.token).toEqual(payload.pushTokenVoIP)
                     expect(transportMeta.deliveryMetadata.pushContext.default.token).not.toEqual(payload.pushToken)
                 })
+
+                it('correctly detects VoIP message type and sends notification to proper Apple token', async () => {
+                    const userClient = await makeClientWithResidentAccessAndProperty()
+                    const payload = {
+                        devicePlatform: DEVICE_PLATFORM_IOS,
+                        appId: APP_RESIDENT_ID_IOS,
+                        pushTransport: PUSH_TRANSPORT_APPLE,
+                        pushTokenVoIP: getRandomFakeSuccessToken(),
+                    }
+
+                    await syncRemoteClientWithPushTokenByTestClient(userClient, payload)
+
+                    const messageAttrs = {
+                        to: { user: { id: userClient.user.id } },
+                        type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
+                        meta: {
+                            dv: 1,
+                            body: faker.random.alphaNumeric(8),
+                            title: faker.random.alphaNumeric(8),
+                            data: {
+                                B2CAppId: faker.datatype.uuid(),
+                                callId: faker.datatype.uuid(),
+                            },
+                        },
+                    }
+                    const [data] = await sendMessageByTestClient(admin, messageAttrs)
+
+                    let message
+
+                    await waitFor(async () => {
+                        message = await Message.getOne(admin, { id: data.id })
+
+                        expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                        expect(message.user.id).toEqual(userClient.user.id)
+                    })
+
+                    const transportMeta = message.processingMeta.transportsMeta[0]
+
+                    console.log(JSON.stringify(message, null, 2))
+
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                    expect(message.processingMeta.isVoIP).toBeTruthy()
+                    expect(transportMeta.deliveryMetadata.pushContext.default.token).toEqual(payload.pushTokenVoIP)
+                    expect(transportMeta.deliveryMetadata.pushContext.default.token).not.toEqual(payload.pushToken)
+                })
+
             })
+
 
             describe('with INVITE_NEW_EMPLOYEE message type', () => {
                 it('throws error when "inviteCode" is not specified in meta', async () => {
