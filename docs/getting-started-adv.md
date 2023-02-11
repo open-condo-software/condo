@@ -22,6 +22,7 @@ yarn workspace @app/ex02back migrate
 ## Postgres migrations
 
 Migration process based on: https://github.com/keystonejs/keystone/discussions/3067
+[Migrations guide](apps/condo/docs/migrations.md) with snippets, errors and solutions
 
 Install dependencies:
 
