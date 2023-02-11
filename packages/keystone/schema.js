@@ -1,4 +1,5 @@
 /** @type {import('ow').default} */
+const debug = require('debug')('@open-condo/keystone/schema')
 const Emittery = require('emittery')
 const { pickBy, identity, isFunction, isArray } = require('lodash')
 const ow = require('ow')
@@ -10,7 +11,6 @@ let SCHEMAS = new Map()
 const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
-const IS_DEV = process.env.NODE_ENV === 'development'
 
 /**
  * This function is Keystone v5 only compatible and will be removed soon!
@@ -124,12 +124,13 @@ function applyPlugins (schema, plugins, { schemaName, addSchema }) {
 
 function transformByPreprocessors (preprocessors, schemaType, name, schema) {
     if (!isArray(preprocessors)) throw new Error('wrong preprocessors type')
-    if (preprocessors.length > 0 && IS_DEV) console.info(`Transform ${name} ${schemaType} by preprocessors`)
+    debug('Transform %s %s by preprocessors', name, schemaType)
     return preprocessors.reduce((schema, fn) => {
         if (!isFunction(fn)) throw new Error('preprocessor is not a function! Check your global preprocessors')
+        const fnName = Object(fn).name
         const newSchema = fn(schemaType, name, schema)
-        if (!newSchema) throw new Error(`Preprocessor "${Object(fn).name}" should return a new schema object!`)
-        if (IS_DEV) console.info(`✔ ${Object(fn).name}`)
+        if (!newSchema) throw new Error(`Preprocessor "${fnName}" should return a new schema object!`)
+        debug('Processed by %s', fnName)
         return newSchema
     }, schema)
 }

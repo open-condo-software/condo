@@ -39,6 +39,7 @@
     "crypto": "^1.0.1",
     "cuid": "^2.1.8",
     "dayjs": "^1.10.6",
+    "debug": "^4.3.4",
     "emittery": "^0.7.1",
     "encoding": "^0.1.0",
     "ensure-error": "^3.0.1",
