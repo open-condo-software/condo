@@ -59,7 +59,7 @@ const classifiersToString = (classifiers = []) => {
 const formatDate = (date, timeZone, format = 'DD.MM.YYYY HH:mm') => {
     if (!date || !format) return EMPTY_SYMBOL
     if (!timeZone) return dayjs(date).format(format)
-    return dayjs.tz(date, timeZone).format(format)
+    return dayjs(date).tz(timeZone).format(format)
 }
 
 const ExportIncidentsToExcelService = new GQLCustomSchema('ExportIncidentsToExcelService', {
