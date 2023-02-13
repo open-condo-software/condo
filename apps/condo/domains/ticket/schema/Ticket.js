@@ -225,6 +225,11 @@ const Ticket = new GQLListSchema('Ticket', {
             type: Checkbox,
             defaultValue: false,
             isRequired: true,
+            access: {
+                read: true,
+                update: false,
+                create: false,
+            },
         },
         // description / title
         details: {
@@ -420,6 +425,10 @@ const Ticket = new GQLListSchema('Ticket', {
             const resolvedStatusId = get(newItem, 'status', null)
             const resolvedClient = get(newItem, 'client', null)
 
+            // Set isAutoClassified to false if classifier was passed
+            if ((isCreateOperation || newItem.isAutoClassified) && resolvedData.classifier) {
+                resolvedData.isAutoClassified = false
+            }
             // Predict ticket classification if create ticket without classifier (ex: from mobile app)
             if (isCreateOperation && resolvedData.details && !resolvedData.classifier) {
                 const classifierResult = await classifyTicket(context, resolvedData.details)
