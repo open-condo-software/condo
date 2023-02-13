@@ -22,7 +22,7 @@ export type OptionType = {
     textType?: TypographyTextProps['type']
 }
 
-export type SelectProps = Pick<DefaultSelectProps, 'disabled' | 'value' | 'onChange' | 'loading' | 'children'> & {
+export type SelectProps = Pick<DefaultSelectProps, 'disabled' | 'value' | 'onChange' | 'loading' | 'children' | 'id'> & {
     placeholder: string
     options?: Array<OptionType>
     displayMode?: 'fill-parent' | 'fit-content'
@@ -34,7 +34,7 @@ export interface ISelect {
 }
 
 const Select: ISelect = (props) => {
-    const { options, children, displayMode = 'fill-parent', type, onChange, ...rest } = props
+    const { options, children, displayMode = 'fill-parent', type, onChange, id, ...rest } = props
     const className = classNames({
         [`${SELECT_CLASS_PREFIX}-${displayMode}`]: displayMode,
         [`${SELECT_CLASS_PREFIX}-${type}`]: type,
@@ -43,17 +43,18 @@ const Select: ISelect = (props) => {
     const handleChange = useCallback((value, option) => {
         const title = extractChildrenContent(option.children)
         if (title) {
-            sendAnalyticsSelectEvent('Select', { label: title, value })
+            sendAnalyticsSelectEvent('Select', { label: title, value, id })
         }
 
         if (onChange) {
             onChange(value, option)
         }
-    }, [onChange])
+    }, [id, onChange])
 
     return (
         <DefaultSelect
             {...rest}
+            id={id}
             prefixCls={SELECT_CLASS_PREFIX}
             className={className}
             suffixIcon={<ChevronDown size='small' />}
