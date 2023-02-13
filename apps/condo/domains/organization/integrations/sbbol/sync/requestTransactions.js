@@ -141,16 +141,16 @@ async function requestTransactions ({ date, userId, organization, bankIntegratio
             userId,
             bankAccounts,
             context,
-            date,
+            statementDate: date,
             organizationId: organization.id,
             bankIntegrationContextId,
         })
     } else {
         const transactions = []
         for (const statementDate of date) {
-            if (dayjs(date).format('YYYY-MM-DD') === 'Invalid Date') throw new Error(`${INVALID_DATE_RECEIVED_MESSAGE} ${date}`)
+            if (dayjs(statementDate).format('YYYY-MM-DD') === 'Invalid Date') throw new Error(`${INVALID_DATE_RECEIVED_MESSAGE} ${date}`)
 
-            if (today < date) throw new Error(ERROR_PASSED_DATE_IN_THE_FUTURE)
+            if (today < statementDate) throw new Error(ERROR_PASSED_DATE_IN_THE_FUTURE)
 
             transactions.push(await _requestTransactions({
                 userId,
