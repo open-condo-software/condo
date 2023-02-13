@@ -47,11 +47,11 @@ class AdapterCacheMiddleware {
 
             this.enabled = !!get(parsedConfig, 'enable', false)
 
-            // Cache: tableName -> queryKey -> { response, lastUpdate }
+            // Cache: listName -> queryKey -> { response, lastUpdate }
             this.cache = {}
 
             // Redis is used as State:
-            // State: table_name -> lastUpdate
+            // State: listName -> lastUpdate
             this.redisClient = this.getStateRedisClient()
 
             // This mechanism allows to skip caching some lists.
@@ -92,9 +92,9 @@ class AdapterCacheMiddleware {
     /**
      * Sometimes we might get a situation when two instances try to update state with different timestamp values.
      * So, we might have two commands ordered to execute by internal redis queue:
-     * 1. SET some_key 18:00
-     * 2. SET some_key 17:59
-     * In result (GET some_key) will equal 17:59, but the correct value is 18:00!
+     * 1. SET some_key 1670000000010
+     * 2. SET some_key 1670000000009
+     * In result (GET some_key) will equal 1670000000009, but the correct value is 1670000000010!
      * So to counter this we write custom redis function that will update value only if it is bigger!
      */
     getStateRedisClient () {
@@ -117,24 +117,24 @@ class AdapterCacheMiddleware {
     }
 
     /**
-     * Sets last updated table time to Redis storage
-     * @param {string} key -- List name
+     * Sets last updated list time to Redis storage
+     * @param {string} listName -- List name
      * @param {Date} value -- Last updated time
      * @returns {Promise<void>}
      */
-    async setState (key, time) {
+    async setState (listName, time) {
         const serializedTime = time.valueOf()
-        const prefixedKey = `${STATE_REDIS_KEY_PREFIX}:${key}`
+        const prefixedKey = `${STATE_REDIS_KEY_PREFIX}:${listName}`
         await this.redisClient.cacheUpdateStateTimestamp(prefixedKey, serializedTime)
     }
 
     /**
-     * Returns last updated time by table from Redis
-     * @param {string} key -- List name
+     * Returns last updated time by list from Redis
+     * @param {string} listName -- List name
      * @returns {Promise<Date>}
      */
-    async getState (key) {
-        const serializedTime = await this.redisClient.get(`${STATE_REDIS_KEY_PREFIX}:${key}`)
+    async getState (listName) {
+        const serializedTime = await this.redisClient.get(`${STATE_REDIS_KEY_PREFIX}:${listName}`)
         if (serializedTime) {
             const parsedTime = parseInt(serializedTime)
             if (!isNaN(parsedTime)) { return new Date(parsedTime) }
@@ -142,34 +142,34 @@ class AdapterCacheMiddleware {
         return null
     }
 
-    writeChangeToHistory ({ cache, event, table }) {
+    writeChangeToHistory ({ cache, event, list }) {
         if (!this.debugMode) { return }
-        if (!this.cacheHistory[table]) {
-            this.cacheHistory[table] = []
+        if (!this.cacheHistory[list]) {
+            this.cacheHistory[list] = []
         }
         const copiedCache = cloneDeep(cache)
-        this.cacheHistory[table].push({
+        this.cacheHistory[list].push({
             cache: copiedCache,
-            cacheByTable: copiedCache[table],
+            cacheByList: copiedCache[list],
             type: event.type,
             event: event,
             dateTime: new Date().toLocaleString(),
             number: this.totalRequests,
         })
         this.cacheCallHistory.push({
-            name: table,
+            name: list,
             eventType: event.type,
             dateTime: new Date().toLocaleString(),
             number: cloneDeep(this.totalRequests),
         })
-        this.cacheHistory.lastTableUpdated = table
+        this.cacheHistory.lastListUpdated = list
     }
 
-    getCacheEvent ({ type, functionName, key, table, result }) {
+    getCacheEvent ({ type, functionName, key, list, result }) {
         return ({
             type: type,
             function: functionName,
-            table: table,
+            list: list,
             key: key,
             response: result,
             meta: {
@@ -301,7 +301,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
  * @param {string} listName
  * @param {string} functionName
  * @param {function} f
- * @param {{}} listAdapter
+ * @param {Object} listAdapter
  * @param {AdapterCacheMiddleware} cache
  * @returns {function(...[*]): Promise<*>}
  */
@@ -322,12 +322,12 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
         const cacheEvent = cache.getCacheEvent({
             type: 'DROP',
             functionName,
-            table: listName,
+            list: listName,
             key: listName,
             result: functionResult,
         })
         cache.logEvent({ event: cacheEvent })
-        cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, table: listName })
+        cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, list: listName })
 
         return functionResult
     }
@@ -344,20 +344,20 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
 
         let response = []
         const cached = key ? cache.cache[listName][key] : null
-        const tableLastUpdate = await cache.getState(listName)
+        const listLastUpdate = await cache.getState(listName)
 
         if (cached) {
             const cacheLastUpdate = cached.lastUpdate
-            if (cacheLastUpdate && cacheLastUpdate.getTime() === tableLastUpdate.getTime()) {
+            if (cacheLastUpdate && cacheLastUpdate.getTime() === listLastUpdate.getTime()) {
                 cache.cacheHits++
                 const cacheEvent = cache.getCacheEvent({
                     type: 'HIT',
                     functionName,
-                    table: listName,
+                    list: listName,
                     key,
                     result: JSON.stringify(cached.response),
                 })
-                cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, table: listName } )
+                cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, list: listName } )
                 cache.logEvent({ event: cacheEvent })
                 return cloneDeep(cached.response)
             }
@@ -368,7 +368,7 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
         let copiedResponse = cloneDeep(response)
 
         cache.cache[listName][key] = {
-            lastUpdate: tableLastUpdate,
+            lastUpdate: listLastUpdate,
             response: copiedResponse,
         }
 
@@ -376,10 +376,10 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
             type: 'MISS',
             functionName,
             key,
-            table: listName,
+            list: listName,
             result: copiedResponse,
         })
-        cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, table: listName } )
+        cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, list: listName } )
         cache.logEvent({ event: cacheEvent })
 
         return response
