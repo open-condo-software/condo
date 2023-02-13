@@ -2,11 +2,11 @@ import path from 'path'
 
 import { Layout, Menu, Row, Col, Anchor } from 'antd'
 import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
+import { MDXMapping } from 'domains/docs/components/mdx'
 import { useMenuItems } from 'domains/docs/hooks/useMenuItems'
 import { extractMdx } from 'domains/docs/utils/mdx'
 import { getNavTree, getAllRoutes, getFlatArticles, extractLocalizedTitleParts } from 'domains/docs/utils/routing'
 import get from 'lodash/get'
-import omit from 'lodash/omit'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -16,17 +16,16 @@ import React, { useMemo } from 'react'
 import { useIntl } from 'react-intl'
 
 import { ChevronLeft, ChevronRight, Edit } from '@open-condo/icons'
-import { Typography, Card, Alert, Space } from '@open-condo/ui'
-
+import { Typography, Card, Space } from '@open-condo/ui'
 
 import styles from './path.module.css'
 
 import type { RowProps } from 'antd'
 import type { Heading } from 'domains/docs/utils/mdx'
 import type { NavItem, ArticleInfo } from 'domains/docs/utils/routing'
-import type { MDXComponents } from 'mdx/types'
 import type { GetStaticPaths, GetStaticProps } from 'next'
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
+
 
 const {
     publicRuntimeConfig: {
@@ -53,18 +52,6 @@ type DocPageProps = {
     nextPage: ArticleInfo | null
     prevPage: ArticleInfo | null
     editUrl: string | null
-}
-
-const MDXMapping: MDXComponents = {
-    h1: (props) => <Typography.Title {...omit(props, 'ref')} level={1}/>,
-    h2: (props) => <Typography.Title {...omit(props, 'ref')} level={2}/>,
-    h3: (props) => <Typography.Title {...omit(props, 'ref')} level={3}/>,
-    h4: (props) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
-    h5: (props) => <Typography.Title {...omit(props, 'ref')} level={5}/>,
-    h6: (props) => <Typography.Title {...omit(props, 'ref')} level={6}/>,
-    p: (props) => <Typography.Paragraph {...omit(props, 'ref')} type='secondary'/>,
-    li: ({ children, ...restProps }) => <li {...restProps}><Typography.Text type='secondary'>{children}</Typography.Text></li>,
-    Alert,
 }
 
 const DocPage: React.FC<DocPageProps> = ({

@@ -21,6 +21,7 @@ import 'antd/dist/reset.css'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/style-vars/css'
 import './global.css'
+import './prism-code-highlight-theme.css'
 
 type AvailableLocales = typeof LOCALES[number]
 // NOTE: Combine all keys together

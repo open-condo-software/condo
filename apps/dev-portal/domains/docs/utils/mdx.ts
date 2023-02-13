@@ -5,6 +5,7 @@ import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
 import { sync as globSync } from 'glob'
 import matter from 'gray-matter'
 import { serialize } from 'next-mdx-remote/serialize'
+import rehypePrism from 'rehype-prism-plus'
 import { remarkHeadingId } from 'remark-custom-heading-id'
 import remarkGfm from 'remark-gfm'
 
@@ -37,6 +38,9 @@ export async function extractMdx (docsRoot: string, route: string, locale: strin
         parseFrontmatter: false,
         mdxOptions: {
             remarkPlugins: [remarkGfm, remarkHeadingId],
+            rehypePlugins: [
+                rehypePrism,
+            ],
         },
     })
 
