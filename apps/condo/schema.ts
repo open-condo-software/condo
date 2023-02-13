@@ -7519,6 +7519,8 @@ export type BankCostItem = {
   /**  Name of expenses item as key for i18n  */
   name?: Maybe<Scalars['String']>;
   nameNonLocalized?: Maybe<Scalars['String']>;
+  /**  Indicator of cost item, corresponding to outcome transactions. Outcome-related cost item cannot be assigned to income-transaction  */
+  isOutcome?: Maybe<Scalars['Boolean']>;
   /**  Used only for grouping to display in UI. Does not used in automatic classification feature  */
   category?: Maybe<BankCategory>;
   id: Scalars['ID'];
@@ -7539,6 +7541,7 @@ export type BankCostItem = {
 
 export type BankCostItemCreateInput = {
   name?: Maybe<Scalars['String']>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
   category?: Maybe<BankCategoryRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7563,6 +7566,7 @@ export type BankCostItemHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
   category?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -7581,6 +7585,7 @@ export type BankCostItemHistoryRecord = {
 
 export type BankCostItemHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
   category?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7604,6 +7609,7 @@ export enum BankCostItemHistoryRecordHistoryActionType {
 
 export type BankCostItemHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
   category?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7640,6 +7646,8 @@ export type BankCostItemHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
+  isOutcome_not?: Maybe<Scalars['Boolean']>;
   category?: Maybe<Scalars['String']>;
   category_not?: Maybe<Scalars['String']>;
   category_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -7744,6 +7752,7 @@ export type BankCostItemRelateToOneInput = {
 
 export type BankCostItemUpdateInput = {
   name?: Maybe<Scalars['String']>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
   category?: Maybe<BankCategoryRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7777,6 +7786,8 @@ export type BankCostItemWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isOutcome?: Maybe<Scalars['Boolean']>;
+  isOutcome_not?: Maybe<Scalars['Boolean']>;
   category?: Maybe<BankCategoryWhereInput>;
   category_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
@@ -47829,6 +47840,8 @@ export enum SortBankContractorAccountsBy {
 export enum SortBankCostItemHistoryRecordsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  IsOutcomeAsc = 'isOutcome_ASC',
+  IsOutcomeDesc = 'isOutcome_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -47850,6 +47863,8 @@ export enum SortBankCostItemHistoryRecordsBy {
 export enum SortBankCostItemsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  IsOutcomeAsc = 'isOutcome_ASC',
+  IsOutcomeDesc = 'isOutcome_DESC',
   CategoryAsc = 'category_ASC',
   CategoryDesc = 'category_DESC',
   IdAsc = 'id_ASC',
