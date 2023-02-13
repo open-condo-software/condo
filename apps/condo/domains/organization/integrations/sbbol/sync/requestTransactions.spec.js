@@ -3,18 +3,15 @@
  */
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
-const get = require('lodash/get')
 
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { BankIntegration, createTestBankIntegrationContext, BankAccount } = require('@condo/domains/banking/utils/testSchema')
-const { createValidRuRoutingNumber, createValidRuNumber } = require('@condo/domains/banking/utils/testSchema/bankAccount')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { initSbbolFintechApi } = require('@condo/domains/organization/integrations/sbbol/SbbolFintechApi')
 const { requestTransactions } = require('@condo/domains/organization/integrations/sbbol/sync/requestTransactions')
 const { createTestOrganization, Organization, generateTin } = require('@condo/domains/organization/utils/testSchema')
-const { makeLoggedInClient, User } = require('@condo/domains/user/utils/testSchema')
+const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 
 const { MockSbbolResponses } = require('./MockSbbolResponses')
 
@@ -33,9 +30,7 @@ jest.mock('@condo/domains/organization/integrations/sbbol/SbbolFintechApi',  () 
                 return Promise.resolve({ error: { cause: 'WORKFLOW_FAULT' }, statusCode: 400 })
             }
             if (this.requestCount === 0) {
-                setTimeout(() => {
-                    this.requestCount++
-                }, 3000)
+                this.requestCount++
                 return Promise.resolve({ error: { cause: 'STATEMENT_RESPONSE_PROCESSING' }, statusCode: 202 })
             } else {
                 this.requestCount = 0
@@ -86,7 +81,7 @@ describe('syncBankAccount from SBBOL', () => {
     })
 
     describe('requestTransactions', async () => {
-        it('Request transactions from SBBOL ', async () => {
+        it('Request transactions from SBBOL', async () => {
             const transactions = await requestTransactions({
                 date: dayjs().format('YYYY-MM-DD'),
                 userId: commonClient.user.id,
@@ -94,7 +89,7 @@ describe('syncBankAccount from SBBOL', () => {
                 bankIntegrationContextId: commonBankIntegrationContext.id,
             })
 
-            expect(transactions).toHaveLength(10)
+            expect(transactions).toHaveLength(5)
         })
 
         it('Expect an error if trying to get a statement for a future date', async () => {
@@ -129,6 +124,21 @@ describe('syncBankAccount from SBBOL', () => {
             }
 
             expect(error).toMatch(INVALID_DATE_RECEIVED_MESSAGE)
+        })
+
+        it('Request transactions from SBBOL for a period', async () => {
+            const dateEnd = dayjs().format('YYYY-MM-DD')
+            const date = [dateEnd]
+            for (let i = 1; i <= 3; i++) {
+                date.push(dayjs(date[date.length - 1]).subtract(1, 'day').format('YYYY-MM-DD'))
+            }
+            const transactions = await requestTransactions({
+                date: date,
+                userId: commonClient.user.id,
+                organization: commonOrganization,
+                bankIntegrationContextId: commonBankIntegrationContext.id,
+            })
+            expect(transactions).toHaveLength(4)
         })
     })
 
