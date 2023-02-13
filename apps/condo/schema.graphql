@@ -14378,6 +14378,7 @@ type BankCostItemHistoryRecord {
   """
   _label_: String
   name: String
+  isOutcome: Boolean
   category: String
   id: ID!
   v: Int
@@ -14415,6 +14416,8 @@ input BankCostItemHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  isOutcome: Boolean
+  isOutcome_not: Boolean
   category: String
   category_not: String
   category_in: [String]
@@ -14504,6 +14507,8 @@ input BankCostItemHistoryRecordWhereUniqueInput {
 enum SortBankCostItemHistoryRecordsBy {
   name_ASC
   name_DESC
+  isOutcome_ASC
+  isOutcome_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -14524,6 +14529,7 @@ enum SortBankCostItemHistoryRecordsBy {
 
 input BankCostItemHistoryRecordUpdateInput {
   name: String
+  isOutcome: Boolean
   category: String
   v: Int
   createdAt: String
@@ -14546,6 +14552,7 @@ input BankCostItemHistoryRecordsUpdateInput {
 
 input BankCostItemHistoryRecordCreateInput {
   name: String
+  isOutcome: Boolean
   category: String
   v: Int
   createdAt: String
@@ -14587,6 +14594,10 @@ type BankCostItem {
   """ Name of expenses item as key for i18n """
   name: String
   nameNonLocalized: String
+
+  """ Indicator of cost item, corresponding to outcome transactions. Outcome-related cost item cannot be assigned to income-transaction 
+  """
+  isOutcome: Boolean
 
   """ Used only for grouping to display in UI. Does not used in automatic classification feature 
   """
@@ -14635,6 +14646,8 @@ input BankCostItemWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  isOutcome: Boolean
+  isOutcome_not: Boolean
   category: BankCategoryWhereInput
   category_is_null: Boolean
   id: ID
@@ -14702,6 +14715,8 @@ input BankCostItemWhereUniqueInput {
 enum SortBankCostItemsBy {
   name_ASC
   name_DESC
+  isOutcome_ASC
+  isOutcome_DESC
   category_ASC
   category_DESC
   id_ASC
@@ -14724,6 +14739,7 @@ enum SortBankCostItemsBy {
 
 input BankCostItemUpdateInput {
   name: String
+  isOutcome: Boolean
   category: BankCategoryRelateToOneInput
   v: Int
   createdAt: String
@@ -14743,6 +14759,7 @@ input BankCostItemsUpdateInput {
 
 input BankCostItemCreateInput {
   name: String
+  isOutcome: Boolean
   category: BankCategoryRelateToOneInput
   v: Int
   createdAt: String
