@@ -658,7 +658,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
                                             </Row>
                                         </Col>
-                                        <Col lg={24} md={24}>
+                                        <Col span={24}>
                                             <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
                                                 {
                                                     ({ getFieldsValue }) => {
