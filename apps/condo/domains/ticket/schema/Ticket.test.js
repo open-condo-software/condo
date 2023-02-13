@@ -2117,6 +2117,32 @@ describe('Ticket', () => {
 
                 expect(ticket.isAutoClassified).toEqual(false)
             })
+            test('Set to true if the ticket was updated with classifier', async () => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+                expect(ticket.isAutoClassified).toEqual(true)
+
+                const [classifier] = await createTestTicketClassifier(admin)
+                const [updatedTicket] = await updateTestTicket(client, ticket.id, {
+                    classifier: { connect: { id: classifier.id } },
+                })
+
+                expect(updatedTicket.isAutoClassified).toEqual(false)
+            })
+            test('Doesn\'t set to true if the ticket was updated without classifier', async () => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+                expect(ticket.isAutoClassified).toEqual(true)
+
+                const details = faker.lorem.sentence()
+                const [updatedTicket] = await updateTestTicket(client, ticket.id, {
+                    details,
+                })
+
+                expect(updatedTicket.isAutoClassified).toEqual(true)
+            })
         })
     })
 

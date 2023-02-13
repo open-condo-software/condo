@@ -104,7 +104,6 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const action = Ticket.useUpdate({})
     const updateAction = async (value) => action({
         ...Ticket.formValuesProcessor(value),
-        isAutoClassified: obj.isAutoClassified ? false : undefined,
     }, obj)
 
     useEffect(() => {

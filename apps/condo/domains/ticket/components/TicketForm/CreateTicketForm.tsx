@@ -132,7 +132,6 @@ export const CreateTicketForm: React.FC = () => {
         return action({
             ...Ticket.formValuesProcessor({ ...variables, deadline }),
             organization: { connect: { id: organization.id } },
-            isAutoClassified: false,
         })
     }, [organization, action])
 
