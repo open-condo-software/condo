@@ -399,8 +399,8 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     const ActualLabel = intl.formatMessage({ id: 'incident.status.actual' })
     const NotActualLabel = intl.formatMessage({ id: 'incident.status.notActual' })
     const EditLabel = intl.formatMessage({ id: 'incident.id.edit.label' })
-    const MakeActualLabel = intl.formatMessage({ id: 'incident.id.makeActual.label' })
-    const MakeNotActualLabel = intl.formatMessage({ id: 'incident.id.makeNotActual.label' })
+    const ChangeToActualLabel = intl.formatMessage({ id: 'incident.id.makeActual.label' })
+    const ChangeToNotActualLabel = intl.formatMessage({ id: 'incident.id.makeNotActual.label' })
     const ChangeHistoryTitle = intl.formatMessage({ id: 'incident.id.changeHistory.title' })
 
     const { incident, refetchIncident, incidentLoading, withOrganization } = props
@@ -475,14 +475,16 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                             <Button
                                 disabled={incidentLoading}
                                 type='primary'
-                                children={isActual ? MakeNotActualLabel : MakeActualLabel}
+                                children={isActual ? ChangeToNotActualLabel : ChangeToActualLabel}
                                 onClick={handleOpen}
+                                id={isActual ? 'changeStatusToNotActual' : 'changeStatusNotActual'}
                             />
                             <Button
                                 disabled={incidentLoading}
                                 type='secondary'
                                 children={EditLabel}
                                 onClick={handleEditIncident}
+                                id='editIncident'
                             />
                         </ActionBar>
                         <Col span={24} lg={24} xl={22}>

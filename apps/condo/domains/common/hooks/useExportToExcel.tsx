@@ -21,6 +21,7 @@ export type UseExportToExcelInputType = {
 
 type ExportButtonInputType = {
     disabled?: boolean
+    id?: string
 }
 
 type UseExportToExcelReturnType = {
@@ -77,7 +78,7 @@ export const useExportToExcel = (props: UseExportToExcelInputType): UseExportToE
         exportToExcel({ variables: { data: variablesData } })
     }, deps)
 
-    const ExportButton: React.FC<ExportButtonInputType> = useCallback(({ disabled = false }) => (
+    const ExportButton: React.FC<ExportButtonInputType> = useCallback(({ disabled = false, id = 'exportToExcel' }) => (
         <Button
             type='secondary'
             loading={isXlsLoading}
@@ -85,6 +86,7 @@ export const useExportToExcel = (props: UseExportToExcelInputType): UseExportToE
             disabled={isXlsLoading || disabled}
             children={label || ExportAsExcelLabel}
             icon={<Sheet size='small' />}
+            id={id}
         />
     ), [ExportAsExcelLabel, handleExportToExcel, isXlsLoading, label])
 
