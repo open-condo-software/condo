@@ -63,6 +63,7 @@ type TableContainerProps = {
 const ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const FILTER_ROW_GUTTER: RowProps['gutter'] = [24, 20]
 const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [16, 16]
+const SEARCH_WRAPPER_GUTTERS: RowProps['gutter'] = [20, 20]
 
 const IS_ACTUAL_ATTRIBUTE_NAME = INCIDENT_STATUS_ACTUAL
 const IS_NOT_ACTUAL_ATTRIBUTE_NAME = INCIDENT_STATUS_NOT_ACTUAL
@@ -71,13 +72,11 @@ const ATTRIBUTE_NAMES_TO_FILTERS = [IS_ACTUAL_ATTRIBUTE_NAME, IS_NOT_ACTUAL_ATTR
 const INCIDENTS_DEFAULT_SORT_BY = ['status_ASC', 'workFinish_ASC', 'createdAt_DESC']
 const SORTABLE_PROPERTIES = ['number', 'status', 'details', 'createdAt', 'workStart', 'workFinish']
 
-const FilterContainer: React.FC<FilterContainerProps> = (props) => {
+const FilterContainer: React.FC<FilterContainerProps> = () => {
     const intl = useIntl()
     const SearchPlaceholderMessage = intl.formatMessage({ id: 'incident.index.filter.searchByAddress.placeholder' })
     const ActualLabel = intl.formatMessage({ id: 'incident.index.filter.attributes.actual.label' })
     const NotActualLabel = intl.formatMessage({ id: 'incident.index.filter.attributes.notActual.label' })
-
-    const { filterMetas } = props
 
     const [search, changeSearch] = useSearch()
     const [attributes, handleChangeAttribute] = useBooleanAttributesSearch(ATTRIBUTE_NAMES_TO_FILTERS)
@@ -97,13 +96,14 @@ const FilterContainer: React.FC<FilterContainerProps> = (props) => {
             <TableFiltersContainer>
                 <Row gutter={FILTER_ROW_GUTTER} align='middle'>
                     <Col xs={24} md={8}>
-                        <Row gutter={[20, 20]}>
+                        <Row gutter={SEARCH_WRAPPER_GUTTERS}>
                             <Col span={24}>
                                 <Input
                                     placeholder={SearchPlaceholderMessage}
                                     onChange={handleSearchChange}
                                     value={search}
                                     allowClear
+                                    id='searchIncidents'
                                 />
                             </Col>
                         </Row>
@@ -115,6 +115,7 @@ const FilterContainer: React.FC<FilterContainerProps> = (props) => {
                                     onChange={handleAttributeCheckboxChange(IS_ACTUAL_ATTRIBUTE_NAME)}
                                     checked={isActual}
                                     label={ActualLabel}
+                                    id='changeFilterActualIncidents'
                                 />
                             </Col>
                             <Col>
@@ -122,6 +123,7 @@ const FilterContainer: React.FC<FilterContainerProps> = (props) => {
                                     onChange={handleAttributeCheckboxChange(IS_NOT_ACTUAL_ATTRIBUTE_NAME)}
                                     checked={isNotActual}
                                     label={NotActualLabel}
+                                    id='changeFilterNotActualIncidents'
                                 />
                             </Col>
                         </Row>
@@ -288,16 +290,19 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
     return (
         <>
             {IncidentsTable}
-            {!loading && <ActionBar>
-                <Button
-                    type='primary'
-                    children={AddNewIncidentLabel}
-                    onClick={handleAddNewIncident}
-                />
-                {Boolean(count) && (
-                    <ExportButton />
-                )}
-            </ActionBar>}
+            {
+                !loading && (
+                    <ActionBar>
+                        <Button
+                            type='primary'
+                            children={AddNewIncidentLabel}
+                            onClick={handleAddNewIncident}
+                            id='createIncident'
+                        />
+                        {Boolean(count) && <ExportButton id='exportToExcelIncidents' />}
+                    </ActionBar>
+                )
+            }
         </>
     )
 }
