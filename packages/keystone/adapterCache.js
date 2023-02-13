@@ -30,8 +30,9 @@
  */
 
 const { get, cloneDeep } = require('lodash')
-const { getRedisClient } = require('./redis')
+
 const { getLogger } = require('./logging')
+const { getRedisClient } = require('./redis')
 
 const UPDATED_AT_FIELD = 'updatedAt'
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
@@ -153,7 +154,7 @@ class AdapterCacheMiddleware {
     }
 
     logEvent ({ event }) {
-        if (!this.logging) { return }
+        if (!this.logging) return
         logger.info(event)
     }
 
@@ -357,10 +358,8 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
  */
 function stringifyComplexObj (obj){
     const result = {}
-    for (const prop in obj ){
-        if (!obj.hasOwnProperty(prop)) { continue }
-        if (typeof(obj[prop]) == 'object') { continue }
-        if (typeof(obj[prop]) == 'function') { continue }
+    for (const prop in obj ) {
+        if (!obj.hasOwnProperty(prop) || typeof(obj[prop]) == 'object' || typeof(obj[prop]) == 'function') continue
         result[prop] = obj[prop]
     }
     return JSON.stringify(result)
