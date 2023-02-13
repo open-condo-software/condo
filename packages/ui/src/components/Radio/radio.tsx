@@ -14,7 +14,7 @@ type CondoRadioProps = {
     labelProps?: TypographyTextProps
 }
 
-export type RadioProps = Pick<DefaultRadioProps, 'autoFocus' | 'defaultChecked' | 'disabled' | 'onChange' | 'checked' | 'value' | 'children'>
+export type RadioProps = Pick<DefaultRadioProps, 'autoFocus' | 'defaultChecked' | 'disabled' | 'onChange' | 'checked' | 'value' | 'children' | 'id'>
 & CondoRadioProps
 
 export interface IRadio {
@@ -22,22 +22,23 @@ export interface IRadio {
 }
 
 const Radio: IRadio = (props) => {
-    const { label, labelProps, disabled, onChange, children, ...rest } = props
+    const { label, labelProps, disabled, onChange, children, id, ...rest } = props
 
     const handleChange = useCallback((event) => {
         const stringContent = label ? label : extractChildrenContent(children)
         if (stringContent) {
-            sendAnalyticsCheckEvent('Radio', { value: stringContent })
+            sendAnalyticsCheckEvent('Radio', { value: stringContent, id })
         }
 
         if (onChange) {
             onChange(event)
         }
-    }, [onChange, children, label])
+    }, [label, children, onChange, id])
 
     return (
         <DefaultRadio
             {...rest}
+            id={id}
             prefixCls={RADIO_CLASS_PREFIX}
             disabled={disabled}
             onChange={handleChange}

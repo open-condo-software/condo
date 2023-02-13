@@ -8,11 +8,15 @@ import { version } from '@open-condo/ui/package.json'
 
 type AnalyticsEvent = 'click' | 'check' | 'select'
 
+type ComponentCommonEventProps = {
+    id?: string
+}
+
 type CommonAnalyticsProps<Event extends AnalyticsEvent, K> = {
     event: Event,
     location: string,
     component: K
-}
+} & ComponentCommonEventProps
 
 type ComponentSpecificClickEventProps = {
     Banner: { title: string }
@@ -29,6 +33,9 @@ type ComponentSpecificSelectEventProps = {
     Select: { value: string, label: string }
 }
 
+type ComponentClickData<K extends keyof ComponentSpecificClickEventProps> = ComponentSpecificClickEventProps[K] & ComponentCommonEventProps
+type ComponentCheckData<K extends keyof ComponentSpecificCheckEventProps> = ComponentSpecificCheckEventProps[K] & ComponentCommonEventProps
+type ComponentSelectData<K extends keyof ComponentSpecificSelectEventProps> = ComponentSpecificSelectEventProps[K] & ComponentCommonEventProps
 
 
 type AnalyticsClickData<K extends keyof ComponentSpecificClickEventProps> = CommonAnalyticsProps<'click', K>
@@ -60,7 +67,7 @@ export function extractChildrenContent (children: React.ReactNode): string | nul
     return null
 }
 
-export function sendAnalyticsClickEvent<K extends keyof ComponentSpecificClickEventProps> (component: K, data: ComponentSpecificClickEventProps[K]): void {
+export function sendAnalyticsClickEvent<K extends keyof ComponentSpecificClickEventProps> (component: K, data: ComponentClickData<K>): void {
     if (typeof window !== 'undefined') {
         const location = window.location.href
         const params: AnalyticsClickData<K> = {
@@ -78,7 +85,7 @@ export function sendAnalyticsClickEvent<K extends keyof ComponentSpecificClickEv
     }
 }
 
-export function sendAnalyticsCheckEvent<K extends keyof ComponentSpecificCheckEventProps> (component: K, data: ComponentSpecificCheckEventProps[K]): void {
+export function sendAnalyticsCheckEvent<K extends keyof ComponentSpecificCheckEventProps> (component: K, data: ComponentCheckData<K>): void {
     if (typeof window !== 'undefined') {
         const location = window.location.href
         const params: AnalyticsCheckData<K> = {
@@ -97,7 +104,7 @@ export function sendAnalyticsCheckEvent<K extends keyof ComponentSpecificCheckEv
     }
 }
 
-export function sendAnalyticsSelectEvent<K extends keyof ComponentSpecificSelectEventProps> (component: K, data: ComponentSpecificSelectEventProps[K]): void {
+export function sendAnalyticsSelectEvent<K extends keyof ComponentSpecificSelectEventProps> (component: K, data: ComponentSelectData<K>): void {
     if (typeof window !== undefined) {
         const location = window.location.href
         const params: AnalyticsSelectData<K> = {

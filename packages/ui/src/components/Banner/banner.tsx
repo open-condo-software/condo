@@ -14,6 +14,7 @@ export type BannerProps = {
     onClick?: React.MouseEventHandler<HTMLElement>
     imgUrl?: string
     invertText?: boolean
+    id?: string
 }
 
 // NOTE: Some ad blockers block elements containing "banner" in classes
@@ -45,6 +46,7 @@ export const Banner: React.FC<BannerProps> = ({
     subtitle,
     imgUrl,
     invertText,
+    id,
 }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { width } = useSize(ref)
@@ -64,12 +66,12 @@ export const Banner: React.FC<BannerProps> = ({
     const textSize = (width >= LG_BARRIER || width < MD_BARRIER) ? 'large' : 'medium'
 
     const handleClick = useCallback((event) => {
-        sendAnalyticsClickEvent('Banner', { title })
+        sendAnalyticsClickEvent('Banner', { title, id })
 
         if (onClick) {
             onClick(event)
         }
-    }, [title, onClick])
+    }, [title, id, onClick])
 
     return (
         <div

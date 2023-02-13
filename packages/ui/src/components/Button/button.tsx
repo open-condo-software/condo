@@ -19,7 +19,7 @@ export type ButtonProps = Omit<DefaultButtonProps, 'shape' | 'size' | 'style' | 
 & CondoButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
-    const { type, className, icon, children, onClick, stateless, ...rest } = props
+    const { type, className, icon, children, onClick, stateless, id, ...rest } = props
     const classes = classNames(
         {
             [`${BUTTON_CLASS_PREFIX}-${type}`]: type,
@@ -35,17 +35,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => 
     const handleClick = useCallback((event) => {
         const stringContent = extractChildrenContent(children)
         if (stringContent) {
-            sendAnalyticsClickEvent('Button', { value: stringContent, type })
+            sendAnalyticsClickEvent('Button', { value: stringContent, type, id })
         }
 
         if (onClick) {
             onClick(event)
         }
-    }, [children, onClick, type])
+    }, [children, id, onClick, type])
 
     return (
         <DefaultButton
             {...rest}
+            id={id}
             icon={wrappedIcon}
             prefixCls={BUTTON_CLASS_PREFIX}
             className={classes}

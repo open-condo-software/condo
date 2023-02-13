@@ -18,7 +18,7 @@ export type TypographyLinkProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElem
 }
 
 const Link = React.forwardRef<HTMLElement, TypographyLinkProps>((props, ref) => {
-    const { size, onClick, children, href } = props
+    const { size, onClick, children, href, id } = props
     const className = classNames({
         [`${TYPOGRAPHY_CLASS_PREFIX}-${size}`]: size,
     })
@@ -28,13 +28,13 @@ const Link = React.forwardRef<HTMLElement, TypographyLinkProps>((props, ref) => 
     const handleClick = useCallback((event) => {
         const stringContent = extractChildrenContent(children)
         if (stringContent) {
-            sendAnalyticsClickEvent('Typography.Link', { value: stringContent, href })
+            sendAnalyticsClickEvent('Typography.Link', { value: stringContent, href, id })
         }
 
         if (onClick) {
             onClick(event)
         }
-    }, [children, onClick, href])
+    }, [children, onClick, href, id])
 
     return (
         <Base
