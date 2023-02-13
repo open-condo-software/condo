@@ -73,16 +73,6 @@ class AdapterCacheMiddleware {
             this.totalRequests = 0
             this.cacheHits = 0
 
-            // Debug mode allows to get full history of operations with cache including cache dumps.
-            // Useful for local debugging
-            // You shouldn't allow this on production as it will lead to memory leak!
-            this.debugMode = !!get(parsedConfig, 'debug', false)
-            this.cacheHistory = {}
-            this.cacheCallHistory = []
-            if (this.debugMode) {
-                logger.warn(
-                    'ADAPTER CACHE HAS DEBUG MODE TURNED ON. THIS WILL LEAD TO MEMORY LEAK ERRORS IN NON LOCAL ENVIRONMENT')
-            }
         } catch (e) {
             this.enabled = false
             logger.warn(`ADAPTER_CACHE: Bad config! reason ${e}`)
@@ -142,29 +132,6 @@ class AdapterCacheMiddleware {
         return null
     }
 
-    writeChangeToHistory ({ cache, event, list }) {
-        if (!this.debugMode) { return }
-        if (!this.cacheHistory[list]) {
-            this.cacheHistory[list] = []
-        }
-        const copiedCache = cloneDeep(cache)
-        this.cacheHistory[list].push({
-            cache: copiedCache,
-            cacheByList: copiedCache[list],
-            type: event.type,
-            event: event,
-            dateTime: new Date().toLocaleString(),
-            number: this.totalRequests,
-        })
-        this.cacheCallHistory.push({
-            name: list,
-            eventType: event.type,
-            dateTime: new Date().toLocaleString(),
-            number: cloneDeep(this.totalRequests),
-        })
-        this.cacheHistory.lastListUpdated = list
-    }
-
     getCacheEvent ({ type, functionName, key, list, result }) {
         return ({
             type: type,
@@ -217,6 +184,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
 
     const manyToManyLists = {}
+    const connectedLists = {}
 
     const relations = {}
     for (const listAdapter of listAdapters) {
@@ -233,7 +201,6 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         }
     }
 
-    const connectedLists = {}
     for (const [listName, listRelations] of Object.entries(relations)) {
         for (const relationName of listRelations) {
             if (relations[relationName].includes(listName)) {
@@ -327,7 +294,6 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
             result: functionResult,
         })
         cache.logEvent({ event: cacheEvent })
-        cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, list: listName })
 
         return functionResult
     }
@@ -357,7 +323,6 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
                     key,
                     result: JSON.stringify(cached.response),
                 })
-                cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, list: listName } )
                 cache.logEvent({ event: cacheEvent })
                 return cloneDeep(cached.response)
             }
@@ -379,7 +344,6 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
             list: listName,
             result: copiedResponse,
         })
-        cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, list: listName } )
         cache.logEvent({ event: cacheEvent })
 
         return response
