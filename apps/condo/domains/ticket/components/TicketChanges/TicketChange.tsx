@@ -148,7 +148,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const DeferredUntilMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deferredUntil' })
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.source' })
     const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident' })
-    const DeclineTicketByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.declineTicketByResident.status' }).toLowerCase()
+    const DeclineTicketByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.declineTicketByResident.status' })
 
     const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
