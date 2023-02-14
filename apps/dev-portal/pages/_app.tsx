@@ -1,4 +1,4 @@
-import { Open_Sans }  from '@next/font/google'
+import { Open_Sans, Noto_Sans_Mono }  from '@next/font/google'
 import { ConfigProvider, Layout } from 'antd'
 import { Header } from 'domains/common/components/Header'
 import { theme } from 'domains/common/constants/antd'
@@ -8,10 +8,15 @@ import ru from 'lang/ru.json'
 import get from 'lodash/get'
 import { IntlProvider } from 'react-intl'
 
-const font = Open_Sans({
+const mainFont = Open_Sans({
     subsets: ['latin', 'cyrillic'],
     variable: '--condo-font-fallback',
     style: ['normal', 'italic'],
+})
+const monoFont = Noto_Sans_Mono({
+    subsets: ['latin', 'cyrillic'],
+    variable: '--condo-font-fallback-mono',
+    style: ['normal'],
 })
 
 import type { AppProps } from 'next/app'
@@ -21,7 +26,6 @@ import 'antd/dist/reset.css'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/style-vars/css'
 import './global.css'
-import './prism-code-highlight-theme.css'
 
 type AvailableLocales = typeof LOCALES[number]
 // NOTE: Combine all keys together
@@ -50,7 +54,7 @@ export default function App ({ Component, pageProps, router }: AppProps): ReactN
     return (
         <ConfigProvider theme={theme}>
             <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
-                <main className={font.variable}>
+                <main className={`${mainFont.variable} ${monoFont.variable}`}>
                     <Layout>
                         <Header/>
                         <Component {...pageProps}/>
