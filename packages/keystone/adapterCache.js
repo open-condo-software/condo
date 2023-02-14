@@ -17,16 +17,16 @@
  * Cache part example: { "User": { "where:{id:"1"},first:1": { result: <User>, updateTime: "1669912192723" } ] } }
  *
  * For every list patch listAdapter function:
- * If request to this list is Query ->
- * 1. check if request is in cache
- * 2. check if cache last update time equals state last update time
- * 3. If both checks are passed, then return value from cache, else get value from DB, update cache
- * If request to this list is Mutation (anything that mutates the data) ->
- * 1. update state on this list to the update time of the updated/created/deleted object
- *
- * Usage:
- * 1. Configure adapterCache with .env values
- * 2. Call new AdapterCacheMiddleware(config) in index.js
+ * If request to this list is Query:
+ *  1. check if request is in cache
+ *  2. check if cache last update time equals state last update time
+ *  3. If both checks are passed:
+ *      1. return value from cache
+ *     Else:
+ *     1. get value from DB
+ *     2. update cache
+ * If request to this list is Mutation (anything that mutates the data):
+ *  1. update state on this list to the update time of the updated/created/deleted object
  */
 
 const { get, cloneDeep } = require('lodash')
