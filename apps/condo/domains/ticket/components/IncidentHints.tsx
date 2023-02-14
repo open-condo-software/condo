@@ -10,7 +10,7 @@ import {
 import { Col, Row, RowProps } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -23,13 +23,12 @@ const INCIDENTS_GUTTER: RowProps['gutter'] = [0, 24]
 const DESCRIPTION_GUTTER: RowProps['gutter'] = [0, 14]
 const DETAILS_ELLIPSIS_CONFIG: TypographyParagraphProps['ellipsis'] = { rows: 7 }
 
-type classifierDataType = Pick<IIncidentClassifier, 'category' | 'problem'>
+type ClassifierDataType = Pick<IIncidentClassifier, 'category' | 'problem'>
 
 type IncidentHintsProps = {
     propertyId: string
     organizationId: string
-    classifier?: classifierDataType
-    dateISO?: string
+    classifier?: ClassifierDataType
 }
 
 type IncidentHintProps = {
@@ -88,28 +87,28 @@ const IncidentHint: React.FC<IncidentHintProps> = (props) => {
  *
  * 1 - search IncidentProperties by propertyId
  *
- * 2 - search Incidents
+ * 2 - search Incidents by IncidentProperties
+ * 2.1 - search all actual Incidents
+ * 2.2 - search last 3 not actual Incidents
  *
- * 2.1 - search all actual Incidents by IncidentProperties and date
+ * 3 - filter Incidents by IncidentClassifierIncident
+ * 3.1 - search IncidentClassifierIncident by ( TicketCategoryClassifier and TicketProblemClassifier ) and Incidents
+ * 3.2 - filter Incidents
  *
- * 2.2 - search last 3 not actual Incidents by IncidentProperties and date
- *
- * 3.1 - show Incidents
- *
- * 3.2.1 - search IncidentClassifierIncident by ( TicketCategoryClassifier and TicketProblemClassifier ) and Incidents
- *
- * 3.2.2 - filter Incidents by IncidentClassifierIncident
- *
- * 3.2.2 - show filtered Incidents
+ * 4 - show Incidents
  */
 export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
-    const { propertyId, dateISO, classifier, organizationId } = props
+    const { propertyId, classifier, organizationId } = props
 
-    const [incidents, setIncidents] = useState<IIncident[]>([])
+    const [allIncidents, setAllIncidents] = useState<IIncident[]>([])
+    const [incidentsToShow, setIncidentsToShow] = useState<IIncident[]>([])
 
     const { refetch: refetchAllIncidentProperties } = IncidentProperty.useAllObjects({}, { skip: true })
     const { refetch: refetchIncidents } = Incident.useObjects({}, { skip: true })
     const { refetch: refetchAllIncidentClassifierIncidents } = IncidentClassifierIncident.useAllObjects({}, { skip: true })
+
+    const categoryId = useMemo(() => get(classifier, 'category.id', null), [classifier]) as string | null
+    const problemId = useMemo(() => get(classifier, 'problem.id', null), [classifier]) as string | null
 
     const fetchIncidentProperties = useCallback(async (propertyId: string) => {
         const res = await refetchAllIncidentProperties({
@@ -125,42 +124,21 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         return get(res, 'data.objs', [])
     }, [])
 
-    const fetchIncidents = useCallback(async (sortBy: SortIncidentsBy[], incidentIds: string[], organizationId: string, dateISO?: string, status?: IncidentStatusType, count?: number) => {
+    const fetchIncidents = useCallback(async (sortBy: SortIncidentsBy[], incidentIds: string[], organizationId: string, status?: IncidentStatusType, count?: number) => {
         if (count === 0) {
             return []
         }
 
-        const whereAND: IncidentWhereInput[] = [
-            {
-                OR: [
-                    { id_in: incidentIds },
-                    { hasAllProperties: true },
-                ],
-            },
-        ]
-
-        if (dateISO) {
-            whereAND.push({
-                OR: [
-                    {
-                        AND: [
-                            { workStart_lte: dateISO },
-                            { workFinish: undefined },
-                        ],
-                    },
-                    {
-                        AND: [
-                            { workStart_lte: dateISO },
-                            { workFinish_gte: dateISO },
-                        ],
-                    },
-                ],
-            })
-        }
-
         const where: IncidentWhereInput = {
             organization: { id: organizationId },
-            AND: whereAND,
+            AND: [
+                {
+                    OR: [
+                        { id_in: incidentIds },
+                        { hasAllProperties: true },
+                    ],
+                },
+            ],
         }
 
         if (status) {
@@ -172,7 +150,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         return get(res, 'data.objs', [])
     }, [])
 
-    const fetchIncidentClassifierIncidents = useCallback(async (incidentIds: string[], classifier?: classifierDataType) => {
+    const fetchIncidentClassifierIncidents = useCallback(async (incidentIds: string[], categoryId?: string, problemId?: string) => {
         if (incidentIds.length < 1) {
             return []
         }
@@ -182,10 +160,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             deletedAt: null,
         }
 
-        if (classifier) {
-            const categoryId = get(classifier, 'category.id')
-            const problemId = get(classifier, 'problem.id')
-
+        if (categoryId || problemId) {
             const AND: IncidentClassifierWhereInput['AND'] = []
             if (categoryId) {
                 AND.push({
@@ -212,32 +187,47 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         return get(res, 'data.objs', [])
     }, [])
 
-    const getIncidents = useCallback(async (propertyId: string, organizationId: string, classifier?: classifierDataType, dateISO?: string) => {
+    const getAllIncidents = useCallback(async (propertyId: string, organizationId: string) => {
         const incidentProperties = await fetchIncidentProperties(propertyId)
         const incidentIds = incidentProperties.map(item => item.incident.id)
         const actualIncidents = await fetchIncidents(
             [SortIncidentsBy.WorkStartAsc, SortIncidentsBy.CreatedAtAsc],
-            incidentIds, organizationId, dateISO, IncidentStatusType.Actual
+            incidentIds, organizationId, IncidentStatusType.Actual
         )
         const notActualLastIncidents = await fetchIncidents(
             [SortIncidentsBy.WorkFinishDesc, SortIncidentsBy.CreatedAtDesc],
-            incidentIds, organizationId, dateISO, IncidentStatusType.NotActual, 3
+            incidentIds, organizationId, IncidentStatusType.NotActual, 3
         )
         const incidents = [...actualIncidents, ...notActualLastIncidents]
-        const incidentClassifierIncidents = await fetchIncidentClassifierIncidents(incidents.map(item => item.id), classifier)
-        const incidentIdsFormIncidentClassifiers = incidentClassifierIncidents.map(item => item.incident.id)
-        const filteredIncidents = incidents.filter((incident) => incidentIdsFormIncidentClassifiers.includes(incident.id))
-        setIncidents(filteredIncidents)
-    }, [fetchIncidentProperties, fetchIncidentClassifierIncidents, fetchIncidents])
+        setAllIncidents(incidents)
+    }, [fetchIncidentProperties, fetchIncidents])
+
+    const getIncidentsToShow = useCallback(async (incidents: IIncident[], categoryId?: string, problemId?: string) => {
+        if (!categoryId && !problemId) {
+            // NOTE: if we have not categoryId and problemId then we can show all incidents (without request to server)
+            setIncidentsToShow(incidents)
+        } else {
+            const incidentClassifierIncidents = await fetchIncidentClassifierIncidents(incidents.map(item => item.id), categoryId, problemId)
+            const incidentIdsFormIncidentClassifiers = incidentClassifierIncidents.map(item => item.incident.id)
+            const filteredIncidents = incidents.filter((incident) => incidentIdsFormIncidentClassifiers.includes(incident.id))
+            setIncidentsToShow(filteredIncidents)
+        }
+    }, [fetchIncidentClassifierIncidents])
 
     useEffect(() => {
-        getIncidents(propertyId, organizationId, classifier, dateISO)
-    }, [propertyId, dateISO, classifier, getIncidents, organizationId])
+        // NOTE: we should refetch all incidents if only was updated propertyId or organizationId
+        getAllIncidents(propertyId, organizationId)
+    }, [getAllIncidents, propertyId, organizationId])
+
+    useEffect(() => {
+        // NOTE: if we only change categoryId or problemId then we should not refetch all incidents
+        getIncidentsToShow(allIncidents, categoryId, problemId)
+    }, [allIncidents, categoryId, problemId, getIncidentsToShow])
 
     return (
         <Row gutter={INCIDENTS_GUTTER}>
             {
-                incidents.map(incident => (
+                incidentsToShow.map(incident => (
                     <Col span={24} key={incident.id}>
                         <IncidentHint incident={incident} />
                     </Col>
