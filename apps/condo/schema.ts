@@ -46454,7 +46454,6 @@ export type ResidentBillingReceiptOutput = {
   currencyCode: Scalars['String'];
   category: BillingCategory;
   isPayable: Scalars['Boolean'];
-  invalidServicesError?: Maybe<Scalars['String']>;
 };
 
 export type ResidentBillingReceiptWhereInput = {

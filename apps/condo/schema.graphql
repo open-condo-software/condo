@@ -50024,7 +50024,6 @@ type ResidentBillingReceiptOutput {
   currencyCode: String!
   category: BillingCategory!
   isPayable: Boolean!
-  invalidServicesError: String
 }
 
 input RegisterBillingReceiptInput {
