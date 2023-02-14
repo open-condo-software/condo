@@ -27,6 +27,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DEFAULT_PAGE_SIZE, Table, TableRecord } from '@condo/domains/common/components/Table/Index'
@@ -501,12 +502,12 @@ export const TicketsPageContent = ({
     baseQueryLoading = false,
 }): JSX.Element => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const TicketsMessage = intl.formatMessage({ id: 'global.section.tickets' })
     const TicketReadingObjectsNameManyGenitiveMessage = intl.formatMessage({ id: 'pages.condo.ticket.import.TicketReading.objectsName.many.genitive' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -518,11 +519,13 @@ export const TicketsPageContent = ({
     const {
         count: ticketsWithoutFiltersCount,
         loading: ticketsWithoutFiltersCountLoading,
+        error,
     } = Ticket.useCount({ where: baseTicketsQuery })
 
     const { useFlag } = useFeatureFlags()
     const isTicketImportFeatureEnabled = useFlag(TICKET_IMPORT)
     const [columns, ticketNormalizer, ticketValidator, ticketCreator] = useImporterFunctions()
+    const loading = baseQueryLoading || ticketsWithoutFiltersCountLoading
 
     const TicketImportButton = useMemo(() => {
         return showImport && isTicketImportFeatureEnabled && (
@@ -551,6 +554,50 @@ export const TicketsPageContent = ({
         )
     }, [TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, isTicketImportFeatureEnabled, showImport, ticketCreator, ticketNormalizer, ticketValidator])
 
+    if (loading || error) {
+        const errorToPrint = error ? ServerErrorMsg : null
+        return <LoadingOrErrorPage loading={loading} error={errorToPrint}/>
+    }
+
+    if (ticketsWithoutFiltersCount === 0) {
+        return (
+            <EmptyListView
+                label={EmptyListLabel}
+                message={EmptyListMessage}
+                createRoute='/ticket/create'
+                createLabel={CreateTicket}
+                button={TicketImportButton}
+            />
+        )
+    }
+
+    return (
+        <Row gutter={ROW_GUTTER} align='middle' justify='center'>
+            <Col span={24}>
+                <FiltersContainer
+                    TicketImportButton={TicketImportButton}
+                    filterMetas={filterMetas}
+                />
+            </Col>
+            <TicketsTableContainer
+                useTableColumns={useTableColumns}
+                filterMetas={filterMetas}
+                sortBy={sortBy}
+                searchTicketsQuery={searchTicketsQuery}
+                baseQueryLoading={baseQueryLoading || ticketsWithoutFiltersCountLoading}
+            />
+        </Row>
+    )
+}
+
+const TicketsPage: ITicketIndexPage = () => {
+    const intl = useIntl()
+    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
+
+    const filterMetas = useTicketTableFilters()
+
+    const { ticketFilterQuery, ticketFilterQueryLoading } = useTicketVisibility()
+
     return (
         <>
             <Head>
@@ -561,55 +608,19 @@ export const TicketsPageContent = ({
                     title={<Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{PageTitleMessage}</Typography.Title>}
                 />
                 <TablePageContent>
-                    {
-                        (!baseQueryLoading && !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount === 0)
-                            ? <EmptyListView
-                                label={EmptyListLabel}
-                                message={EmptyListMessage}
-                                createRoute='/ticket/create'
-                                createLabel={CreateTicket}
-                                button={TicketImportButton}
-                            />
-                            : (
-                                <Row gutter={ROW_GUTTER} align='middle' justify='center'>
-                                    <Col span={24}>
-                                        <FiltersContainer
-                                            TicketImportButton={TicketImportButton}
-                                            filterMetas={filterMetas}
-                                        />
-                                    </Col>
-                                    <TicketsTableContainer
-                                        useTableColumns={useTableColumns}
-                                        filterMetas={filterMetas}
-                                        sortBy={sortBy}
-                                        searchTicketsQuery={searchTicketsQuery}
-                                        baseQueryLoading={baseQueryLoading || ticketsWithoutFiltersCountLoading}
-                                    />
-                                </Row>
-                            )
-                    }
+                    <MultipleFilterContextProvider>
+                        <TicketsPageContent
+                            useTableColumns={useTableColumns}
+                            baseTicketsQuery={ticketFilterQuery}
+                            baseQueryLoading={ticketFilterQueryLoading}
+                            filterMetas={filterMetas}
+                            sortableProperties={SORTABLE_PROPERTIES}
+                            showImport
+                        />
+                    </MultipleFilterContextProvider>
                 </TablePageContent>
             </PageWrapper>
         </>
-    )
-}
-
-const TicketsPage: ITicketIndexPage = () => {
-    const filterMetas = useTicketTableFilters()
-
-    const { ticketFilterQuery, ticketFilterQueryLoading } = useTicketVisibility()
-
-    return (
-        <MultipleFilterContextProvider>
-            <TicketsPageContent
-                useTableColumns={useTableColumns}
-                baseTicketsQuery={ticketFilterQuery}
-                baseQueryLoading={ticketFilterQueryLoading}
-                filterMetas={filterMetas}
-                sortableProperties={SORTABLE_PROPERTIES}
-                showImport
-            />
-        </MultipleFilterContextProvider>
     )
 }
 
