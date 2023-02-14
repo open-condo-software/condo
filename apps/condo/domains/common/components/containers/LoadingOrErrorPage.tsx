@@ -9,12 +9,12 @@ import { Loader } from '../Loader'
 
 
 interface ILoadingOrErrorPageProps {
-    title: string
+    title?: string
     error: string | ApolloError
     loading?: boolean
 }
 
-const LoadingOrErrorPage: React.FC<ILoadingOrErrorPageProps> = ({ title, loading, error }) => {
+const LoadingOrErrorPage: React.FC<ILoadingOrErrorPageProps> = ({ title = '', loading, error }) => {
     return <>
         <Head>
             <title>{title}</title>
