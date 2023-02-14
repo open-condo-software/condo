@@ -97,7 +97,6 @@
     font-family: "Noto Sans Mono", var(--condo-font-fallback-mono);
     line-height: 1.5;
     direction: ltr;
-    white-space: pre;
     text-align: left;
     text-shadow: none;
     word-break: normal;
@@ -116,9 +115,10 @@
     display: grid;
     grid-column-gap: @condo-global-spacing-12;
     grid-template-columns: 1fr @condo-global-spacing-20;
-    margin: @condo-global-spacing-20 0;
+    margin: @condo-global-spacing-24 0 @condo-global-spacing-20;
     padding: @condo-global-spacing-16;
     overflow: visible;
+    white-space: pre;
     background: @condo-global-color-gray-1;
     border-radius: @condo-global-border-radius-large;
   }

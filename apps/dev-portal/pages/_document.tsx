@@ -1,5 +1,6 @@
 import { createCache, extractStyle, StyleProvider } from '@ant-design/cssinjs'
 import NextDocument, { Head, Html, Main, NextScript, DocumentContext, DocumentInitialProps } from 'next/document'
+import React from 'react'
 
 export default class Document extends NextDocument {
     static async getInitialProps (ctx: DocumentContext): Promise<DocumentInitialProps> {
@@ -35,7 +36,9 @@ export default class Document extends NextDocument {
     render (): JSX.Element {
         return (
             <Html>
-                <Head/>
+                <Head>
+                    <link rel='shortcut icon' href='/favicon.ico' type='image/x-icon'/>
+                </Head>
                 <body>
                     <Main/>
                     <NextScript/>
