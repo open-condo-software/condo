@@ -43,17 +43,6 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { services } = require('@condo/domains/billing/utils/testData/servicesData')
-    expectToThrowAuthenticationErrorToObj,
-    expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAccessDeniedErrorToObjects,
-    expectToThrowInternalError,
-    expectToThrowValidationFailureError,
-    expectToThrowGraphQLRequestError,
-} = require('@open-condo/keystone/test.utils')
-const { makeClient } = require('@open-condo/keystone/test.utils')
-const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('BillingReceipt', () => {
     let admin
