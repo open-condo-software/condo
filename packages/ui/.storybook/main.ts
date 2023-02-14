@@ -23,9 +23,10 @@ const config: StorybookConfig = {
     },
     'staticDirs': [{ from: '../public', to: '/ui' }],
     'webpackFinal': async (config) => {
-        const configRules = config && config.module ? config.module.rules : []
+        const configRules = config && config.module && config.module.rules ? config.module.rules : []
         const modifiedRules = configRules.map(rule => {
-            if (rule.test && rule.test.constructor === RegExp && rule.test.test('some.css')) {
+            if (typeof rule === 'object' && 'test' in rule && rule.test &&
+                rule.test.constructor === RegExp && rule.test.test('some.css')) {
                 return {...rule, use: baseCssLoaders}
             }
 
