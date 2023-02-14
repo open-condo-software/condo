@@ -20,7 +20,7 @@ const { v4 } = require('uuid')
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
-const { AdapterCacheMiddleware } = require('@open-condo/keystone/adapterCache')
+const { AdapterCache } = require('@open-condo/keystone/adapterCache')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { KeystoneCacheMiddleware } = require('@open-condo/keystone/cache')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
@@ -173,7 +173,7 @@ module.exports = {
         new OIDCMiddleware(),
         new FeaturesMiddleware(),
         new PaymentLinkMiddleware(),
-        new AdapterCacheMiddleware(conf.ADAPTER_CACHE_CONFIG),
+        new AdapterCache(conf.ADAPTER_CACHE_CONFIG),
         new GraphQLApp({
             apollo: {
                 formatError,
