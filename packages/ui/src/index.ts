@@ -21,7 +21,7 @@ export type { CheckboxProps } from './components/Checkbox'
 export { List } from './components/List'
 export type { ListProps } from './components/List'
 
-export { Markdown } from './components/Markdown'
+export { Markdown, MarkdownCodeWrapper } from './components/Markdown'
 export type { MarkdownProps } from './components/Markdown'
 
 export { Modal } from './components/Modal'

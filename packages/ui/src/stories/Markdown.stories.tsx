@@ -3,6 +3,46 @@ import React from 'react'
 
 import { Markdown as Component } from '@open-condo/ui/src'
 
+const TS_CODE_EXAMPLE = `
+\`\`\`typescript
+// Some extra long comment line which main goal is to make horizontal scroll appear
+import {
+    Card as DefaultCard,
+    CardProps as DefaultCardProps,
+} from 'antd'
+import React, { CSSProperties } from 'react'
+
+const CARD_CLASS_PREFIX = 'condo-card'
+
+export type CardProps = Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> &
+Pick<DefaultCardProps, 'hoverable' | 'title'> & {
+    width?: CSSProperties['width']
+    bodyPadding?: CSSProperties['padding']
+    titlePadding?: CSSProperties['padding']
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>((props, ref) => {
+    const { width, bodyPadding = 24, titlePadding = 24, ...rest } = props
+    return (
+        <DefaultCard
+            {...rest}
+            style={{ width }}
+            prefixCls={CARD_CLASS_PREFIX}
+            ref={ref}
+            bodyStyle={{ padding: bodyPadding }}
+            headStyle={{ padding: titlePadding }}
+        />
+    )
+})
+
+Card.displayName = 'Card'
+
+export {
+    Card,
+}
+\`\`\`
+`
+
 const MD_EXAMPLE = `
 # H1 Heading
 ## H2 Heading
@@ -79,9 +119,14 @@ However, ...
 
 ## Code 
 You can also add \`inline code elements\` or multiline code blocks:
+${TS_CODE_EXAMPLE}
+
+\`\`\`bash
+yarn dev
 \`\`\`
-const name = prompt('Enter your name: ')
-alert(\`Hello, \${name}\`)
+
+\`\`\`
+some code with no language
 \`\`\`
 
 ## Tables
