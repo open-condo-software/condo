@@ -16,7 +16,7 @@ const IconBlock: React.FC<IconBlockProps> = ({ name, icon, iconProps }) => {
     const Icon = icon
 
     return (
-        <Space direction='vertical' size={8} width={120} align='center'>
+        <Space direction='vertical' size={8} align='center' width={120}>
             <div style={{ fontSize: 32 }}>
                 <Icon {...iconProps}/>
             </div>
