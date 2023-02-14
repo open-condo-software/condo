@@ -125,7 +125,6 @@
     "antd": "^4.24.3",
     "classnames": "^2.3.2",
     "react-markdown": "^6",
-    "rehype-prism-plus": "1.5.1",
     "remark-gfm": "^1"
   }
 }
