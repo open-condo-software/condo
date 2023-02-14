@@ -70,7 +70,6 @@ export const IncidentHintsBlock = ({ organizationId, propertyId }) => {
                             propertyId={propertyId}
                             organizationId={organizationId}
                             classifier={classifier}
-                            onlyActual
                         />
                     </Col>
                 )
@@ -559,6 +558,21 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const propertyInfoColSpan = isSmall ? 24 : 17
 
+    const hintsBlock = useMemo(() => (
+        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+            <Col span={24}>
+                <TicketPropertyHintCard
+                    propertyId={selectedPropertyId}
+                    hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
+                />
+            </Col>
+            <IncidentHintsBlock
+                organizationId={organizationId}
+                propertyId={selectedPropertyId}
+            />
+        </Row>
+    ), [organizationId, selectedPropertyId])
+
     const formWithAction =  (
         <>
             <FormWithAction
@@ -630,20 +644,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                         {
                                                             selectedPropertyId && !breakpoints.xl && (
                                                                 <Col span={24}>
-                                                                    <Row gutter={[0, 24]}>
-                                                                        <Col span={24}>
-                                                                            <TicketPropertyHintCard
-                                                                                propertyId={selectedPropertyId}
-                                                                                hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
-                                                                            />
-                                                                        </Col>
-                                                                        <Col span={24}>
-                                                                            <IncidentHintsBlock
-                                                                                organizationId={organizationId}
-                                                                                propertyId={selectedPropertyId}
-                                                                            />
-                                                                        </Col>
-                                                                    </Row>
+                                                                    {hintsBlock}
                                                                 </Col>
                                                             )
                                                         }
@@ -724,20 +725,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                         selectedPropertyId && breakpoints.xl && (
                                             <Affix offsetTop={60}>
                                                 <div style={HINTS_WRAPPER_STYLE}>
-                                                    <Row gutter={[0, 24]}>
-                                                        <Col span={24}>
-                                                            <TicketPropertyHintCard
-                                                                propertyId={selectedPropertyId}
-                                                                hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
-                                                            />
-                                                        </Col>
-                                                        <Col span={24}>
-                                                            <IncidentHintsBlock
-                                                                organizationId={organizationId}
-                                                                propertyId={selectedPropertyId}
-                                                            />
-                                                        </Col>
-                                                    </Row>
+                                                    {hintsBlock}
                                                 </div>
                                             </Affix>
                                         )

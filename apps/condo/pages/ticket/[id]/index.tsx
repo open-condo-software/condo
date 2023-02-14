@@ -413,7 +413,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                             <IncidentHints
                                                 organizationId={organization.id}
                                                 propertyId={ticketPropertyId}
-                                                dateISO={ticket.createdAt}
                                                 classifier={ticket.classifier}
                                             />
                                         </Col>
