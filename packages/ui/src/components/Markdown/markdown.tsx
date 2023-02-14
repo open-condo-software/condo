@@ -1,7 +1,6 @@
 import omit from 'lodash/omit'
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
-import rehypePrism from 'rehype-prism-plus'
 import remarkGfm from 'remark-gfm'
 
 import { CodeWrapper } from './codeWrapper'
@@ -10,10 +9,6 @@ import { Typography } from '../Typography'
 
 const REMARK_PLUGINS = [
     remarkGfm,
-]
-
-const REHYPE_PLUGINS = [
-    rehypePrism,
 ]
 
 export type MarkdownProps = {
@@ -27,7 +22,6 @@ export const Markdown: React.FC<MarkdownProps> = ({ children }) => {
         <ReactMarkdown
             className={MARKDOWN_CLASS_PREFIX}
             remarkPlugins={REMARK_PLUGINS}
-            rehypePlugins={REHYPE_PLUGINS}
             components={{
                 h1: (props) => <Typography.Title {...omit(props, 'ref')} level={1}/>,
                 h2: (props) => <Typography.Title {...omit(props, 'ref')} level={2}/>,

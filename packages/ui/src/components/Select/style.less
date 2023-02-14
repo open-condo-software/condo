@@ -13,6 +13,7 @@
     display: inline-flex;
     width: min-content;
   }
+
   &-fill-parent {
     display: flex;
     width: 100%;
@@ -25,7 +26,11 @@
   .condo-select-type("info", @condo-global-color-blue-5);
   .condo-select-type("secondary", @condo-global-color-gray-7);
 
-  &-danger > &-arrow, &-warning > &-arrow, &-info > &-arrow, &-secondary > &-arrow, &-success > &-arrow {
+  &-danger > &-arrow,
+  &-warning > &-arrow,
+  &-info > &-arrow,
+  &-secondary > &-arrow,
+  &-success > &-arrow {
     color: @condo-global-color-white;
   }
 
@@ -39,35 +44,37 @@
 
   &-arrow {
     position: absolute;
-    margin: 0;
     top: @condo-global-spacing-16;
     right: 12px;
-    color: @condo-global-color-black;
     height: inherit;
+    margin: 0;
+    color: @condo-global-color-black;
   }
+
   &-disabled:not(.condo-select-customize-input) &-arrow {
     color: @condo-global-color-gray-3;
   }
+
   &-open &-arrow {
     transform: rotate(180deg);
   }
 
   &:not(.condo-select-customize-input) .condo-select-selector {
-    border-radius: @condo-global-border-radius-medium;
     height: 46px;
     padding: 0 36px 0 12px;
+    border-radius: @condo-global-border-radius-medium;
 
-    .condo-select-selection-item, .condo-select-selection-placeholder {
+    .condo-select-selection-item,
+    .condo-select-selection-placeholder {
       display: flex;
       align-items: center;
-      justify-content: start;
-      padding-right: 0;
+      justify-content: flex-start;
       width: 100%;
+      padding-right: 0;
       color: @condo-global-color-black;
-      font-family: @condo-global-font-family-default;
       font-size: @condo-global-font-size-text-m;
+      font-family: @condo-global-font-family-default;
     }
-
   }
 
   // Hover
@@ -77,7 +84,7 @@
     }
 
     &:not(.condo-select-success, .condo-select-warning, .condo-select-secondary,
-    .condo-select-danger, .condo-select-info) .condo-select-selector {
+  .condo-select-danger, .condo-select-info) .condo-select-selector {
       border-color: @condo-global-color-gray-7;
     }
   }
@@ -127,16 +134,19 @@
   box-shadow: @condo-global-box-shadow-default;
 
   .condo-select-item {
-    line-height: @condo-global-line-height-text-s;
     min-height: @condo-global-line-height-text-m;
+    line-height: @condo-global-line-height-text-s;
   }
+
   .condo-select-item.condo-select-item-option-active {
     background-color: @condo-global-color-gray-1;
   }
+
   .condo-select-item.condo-select-item-group {
     color: @condo-global-color-gray-7;
     .condo-typography-text-small();
   }
+
   .condo-select-item-option-content {
     .condo-typography-text-medium();
   }
