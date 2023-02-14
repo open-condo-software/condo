@@ -1,4 +1,4 @@
-import React, { CSSProperties, SVGProps } from 'react'
+import React, { CSSProperties, MouseEventHandler, SVGProps } from 'react'
 
 const SMALL_ICON_SIZE = 16
 const MEDIUM_ICON_SIZE = 20
@@ -10,6 +10,9 @@ export type IconProps = {
     size?: IconSize,
     color?: CSSProperties['color']
     svgProps?: Pick<SVGProps<SVGSVGElement>, 'onClick'>
+    className?: string
+    id?: string
+    onClick?: MouseEventHandler<HTMLSpanElement>
 }
 
 type IconWrapperProps = Omit<IconProps, 'svgProps'> & {
@@ -29,7 +32,14 @@ const getIconSize = (size: IconSize) => {
     }
 }
 
-export const IconWrapper: React.FC<IconWrapperProps> = ({ icon, size = 'large', color = 'currentcolor' }) => {
+export const IconWrapper: React.FC<IconWrapperProps> = ({
+    icon,
+    size = 'large',
+    color = 'currentcolor',
+    className,
+    id,
+    onClick,
+}) => {
     const iconSize = getIconSize(size)
     const spanStyles: CSSProperties = {
         color,
@@ -44,6 +54,9 @@ export const IconWrapper: React.FC<IconWrapperProps> = ({ icon, size = 'large', 
             role='img'
             aria-hidden={true}
             style={spanStyles}
+            className={className}
+            id={id}
+            onClick={onClick}
         >
             {icon}
         </span>
