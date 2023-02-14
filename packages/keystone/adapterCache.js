@@ -40,7 +40,7 @@ const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 const logger = getLogger('🔴 adapterCache')
 
 
-class AdapterCacheMiddleware {
+class AdapterCache {
 
     constructor (config) {
         try {
@@ -171,7 +171,7 @@ class AdapterCacheMiddleware {
 /**
  * Patches an internal keystone adapter adding cache functionality
  * @param keystone
- * @param {AdapterCacheMiddleware} middleware
+ * @param {AdapterCache} middleware
  * @returns {Promise<void>}
  */
 async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
@@ -270,7 +270,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
  * @param {string} functionName
  * @param {function} f
  * @param {Object} listAdapter
- * @param {AdapterCacheMiddleware} cache
+ * @param {AdapterCache} cache
  * @returns {function(...[*]): Promise<*>}
  */
 function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, connectedLists, manyToManyLists) {
@@ -366,5 +366,5 @@ function stringifyComplexObj (obj){
 }
 
 module.exports = {
-    AdapterCacheMiddleware,
+    AdapterCache,
 }
