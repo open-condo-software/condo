@@ -866,7 +866,6 @@ __metadata:
     react: 18.2.0
     react-dom: 18.2.0
     react-intl: 6.2.7
-    rehype-code-titles: 1.1.0
     rehype-prism-plus: 1.5.1
     remark-custom-heading-id: 1.0.0
     remark-gfm: 3.0.1
@@ -9321,6 +9320,7 @@ __metadata:
     react: ^16.13.1
     react-dom: ^16.13.1
     react-markdown: ^6
+    rehype-prism-plus: 1.5.1
     remark-gfm: ^1
     source-map-loader: ^4.0.1
     style-dictionary: ^3.7.1
@@ -39993,15 +39993,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rehype-code-titles@npm:1.1.0":
-  version: 1.1.0
-  resolution: "rehype-code-titles@npm:1.1.0"
-  dependencies:
-    unist-util-visit: ~4.1.0
-  checksum: 79b9c19d3d5498dec07b8ba22e1711c27c6d35dfc238e007737ec1bf887097fdcef44cb393fa5467468548f5b7493f5e8a15910d6fdeec7692776b911fe0b198
-  languageName: node
-  linkType: hard
-
 "rehype-parse@npm:^8.0.2":
   version: 8.0.4
   resolution: "rehype-parse@npm:8.0.4"
@@ -45645,7 +45636,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unist-util-visit@npm:^4.0.0, unist-util-visit@npm:^4.1.0, unist-util-visit@npm:~4.1.0":
+"unist-util-visit@npm:^4.0.0, unist-util-visit@npm:^4.1.0":
   version: 4.1.2
   resolution: "unist-util-visit@npm:4.1.2"
   dependencies:

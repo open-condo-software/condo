@@ -1,12 +1,19 @@
 import omit from 'lodash/omit'
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
+import rehypePrism from 'rehype-prism-plus'
 import remarkGfm from 'remark-gfm'
+
+import { CodeWrapper } from './codeWrapper'
 
 import { Typography } from '../Typography'
 
 const REMARK_PLUGINS = [
     remarkGfm,
+]
+
+const REHYPE_PLUGINS = [
+    rehypePrism,
 ]
 
 export type MarkdownProps = {
@@ -20,6 +27,7 @@ export const Markdown: React.FC<MarkdownProps> = ({ children }) => {
         <ReactMarkdown
             className={MARKDOWN_CLASS_PREFIX}
             remarkPlugins={REMARK_PLUGINS}
+            rehypePlugins={REHYPE_PLUGINS}
             components={{
                 h1: (props) => <Typography.Title {...omit(props, 'ref')} level={1}/>,
                 h2: (props) => <Typography.Title {...omit(props, 'ref')} level={2}/>,
@@ -29,8 +37,8 @@ export const Markdown: React.FC<MarkdownProps> = ({ children }) => {
                 h6: (props) => <Typography.Title {...omit(props, 'ref')} level={6}/>,
                 p: (props) => <Typography.Paragraph {...omit(props, 'ref')} type='secondary' />,
                 a: (props) => <Typography.Link {...omit(props, 'ref')} target='_blank'/>,
-                code: (props) => <Typography.Text {...omit(props, 'ref')} code/>,
                 li: ({ children, ...restProps }) => <li {...restProps}><Typography.Text type='secondary'>{children}</Typography.Text></li>,
+                pre: (props) => <CodeWrapper {...props}/>,
             }}
         >
             {children}

@@ -27,7 +27,7 @@ const Tag = React.forwardRef<HTMLSpanElement, TagProps>((props, ref) => {
             ref={ref}
             style={{
                 color: textColor,
-                backgroundColor: bgColor,
+                background: bgColor,
             }}
         />
     )
