@@ -229,6 +229,7 @@ const TrackingProvider: React.FC = ({ children }) => {
             if (link) {
                 trackingProviderValueRef.current.userProperties['role'] = get(link, 'role.name')
                 trackingProviderValueRef.current.userProperties['organization'] = get(link, 'organization.name')
+                trackingProviderValueRef.current.userProperties['organizationId'] = get(link, 'organization.id')
             }
         }
     }, [user, link])
