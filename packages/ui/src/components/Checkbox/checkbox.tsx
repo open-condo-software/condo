@@ -4,6 +4,8 @@ import React, { useCallback } from 'react'
 import { extractChildrenContent, sendAnalyticsCheckEvent } from '../_utils/analytics'
 import { Typography, TypographyTextProps } from '../Typography'
 
+import type { CheckboxChangeEvent } from 'antd/lib/checkbox'
+
 const CHECKBOX_CLASS_PREFIX = 'condo-checkbox'
 
 type CondoCheckboxProps = {
@@ -16,7 +18,7 @@ export type CheckboxProps = Pick<DefaultCheckboxProps, 'autoFocus' | 'defaultChe
 const Checkbox: React.FC<CheckboxProps> = (props) => {
     const { label, labelProps, disabled, id, onChange, children, ...rest } = props
 
-    const handleChange = useCallback((event) => {
+    const handleChange = useCallback((event: CheckboxChangeEvent) => {
         const stringContent = label ? label : extractChildrenContent(children)
         if (stringContent) {
             sendAnalyticsCheckEvent('Checkbox', { value: stringContent, id })
