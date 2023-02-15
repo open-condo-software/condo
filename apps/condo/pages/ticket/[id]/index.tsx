@@ -65,12 +65,15 @@ import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
+const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 60]
+const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
+const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 20]
 
 const TicketContent = ({ ticket }) => {
     return (
         <Col span={24}>
-            <Row gutter={[0, 40]}>
+            <Row gutter={BIG_VERTICAL_GUTTER}>
                 <Col span={24}>
                     <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                         <TicketReviewField ticket={ticket} />
@@ -97,7 +100,8 @@ const TICKET_CREATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12p
 const TICKET_UPDATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px', textAlign: 'end' }
 const TAGS_ROW_STYLE: CSSProperties = { marginTop: '1.6em ' }
 const TAGS_ROW_GUTTER: [Gutter, Gutter] = [0, 10]
-const HINT_CARD_STYLE = { maxHeight: '3em ' }
+const HINT_CARD_STYLE: CSSProperties = { maxHeight: '3em ' }
+const TITLE_STYLE: CSSProperties = { margin: 0 }
 
 export const TicketPageContent = ({ ticket, refetchTicket, loading, organization, employee, TicketContent }) => {
     const intl = useIntl()
@@ -228,11 +232,22 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     const ticketStatusType = useMemo(() => get(ticket, ['status', 'type']), [ticket])
     const isDeletedProperty = !ticket.property && ticket.propertyAddress
     const disabledEditButton = ticketStatusType === CLOSED_STATUS_TYPE || isDeletedProperty
-    const statusUpdatedAt = get(ticket, 'statusUpdatedAt')
+    const statusUpdatedAt = useMemo(() => get(ticket, 'statusUpdatedAt'), [ticket])
     const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === RESIDENT, [ticket])
     const canReadByResident = useMemo(() => get(ticket,  'canReadByResident'), [ticket])
     const canCreateComments = useMemo(() => get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments']),
         [auth, employee])
+    const createdBy = useMemo(() => get(ticket, ['createdBy']), [ticket])
+    const formattedStatusUpdatedAt = useMemo(() => dayjs(statusUpdatedAt).format('DD.MM.YY, HH:mm'), [statusUpdatedAt])
+    const sourceName = useMemo(() => get(ticket, ['source', 'name'], '').toLowerCase(), [ticket])
+
+    const canReadByResidentFormattedValue = useMemo(() => ({
+        canReadByResident: (
+            <Typography.Text type='danger'>
+                {ResidentCannotReadTicketMessage}
+            </Typography.Text>
+        ),
+    }), [ResidentCannotReadTicketMessage])
 
     const getTimeSinceCreation = useCallback(() => {
         const diffInMinutes = dayjs().diff(dayjs(statusUpdatedAt), 'minutes')
@@ -274,23 +289,23 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]}>
+                    <Row gutter={BIG_VERTICAL_GUTTER}>
                         <Col lg={15} xxl={16} xs={24}>
-                            <Row gutter={[0, 60]}>
+                            <Row gutter={TICKET_CONTENT_VERTICAL_GUTTER}>
                                 <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                                     <Col span={24}>
-                                        <Row gutter={[0, 40]}>
+                                        <Row gutter={BIG_VERTICAL_GUTTER}>
                                             <Col xl={13} md={11} xs={24}>
-                                                <Row gutter={[0, 20]}>
+                                                <Row gutter={SMALL_VERTICAL_GUTTER}>
                                                     <Col span={24}>
-                                                        <Typography.Title style={{ margin: 0 }} level={1}>{TicketTitleMessage}</Typography.Title>
+                                                        <Typography.Title style={TITLE_STYLE} level={1}>{TicketTitleMessage}</Typography.Title>
                                                     </Col>
                                                     <Col span={24}>
                                                         <Row>
                                                             <Col span={24}>
                                                                 <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
                                                                     <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE} type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
-                                                                    <UserNameField user={get(ticket, ['createdBy'])}>
+                                                                    <UserNameField user={createdBy}>
                                                                         {({ name, postfix }) => (
                                                                             <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
                                                                                 {name}
@@ -302,7 +317,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                                             </Col>
                                                             <Col span={24}>
                                                                 <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
-                                                                    {SourceMessage} — {get(ticket, ['source', 'name'], '').toLowerCase()}
+                                                                    {SourceMessage} — {sourceName}
                                                                 </Typography.Text>
                                                             </Col>
                                                             <Col span={24}>
@@ -311,13 +326,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                                                         <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
                                                                             <FormattedMessage
                                                                                 id='pages.condo.ticket.title.CanReadByResident'
-                                                                                values={{
-                                                                                    canReadByResident: (
-                                                                                        <Typography.Text type='danger'>
-                                                                                            {ResidentCannotReadTicketMessage}
-                                                                                        </Typography.Text>
-                                                                                    ),
-                                                                                }}
+                                                                                values={canReadByResidentFormattedValue}
                                                                             />
                                                                         </Typography.Text>
                                                                     )
@@ -328,7 +337,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                                 </Row>
                                             </Col>
                                             <Col xl={11} md={13} xs={24}>
-                                                <Row justify={isSmall ? 'center' : 'end'} gutter={[0, 20]}>
+                                                <Row justify={isSmall ? 'center' : 'end'} gutter={SMALL_VERTICAL_GUTTER}>
                                                     <Col span={24}>
                                                         <Row justify='end'>
                                                             <Col>
@@ -346,7 +355,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                                         statusUpdatedAt && (
                                                             <Col>
                                                                 <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}>
-                                                                    {ChangedMessage}: {dayjs(statusUpdatedAt).format('DD.MM.YY, HH:mm')}
+                                                                    {ChangedMessage}: {formattedStatusUpdatedAt}
                                                                 </Typography.Paragraph>
                                                                 <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE} type='secondary'>
                                                                     {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
