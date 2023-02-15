@@ -893,7 +893,7 @@ describe('BillingReceipt', () => {
 
                 expect(receipt).toHaveProperty(['invalidServicesError'], null)
                 expect(receipt2).toHaveProperty(['invalidServicesError'],
-                    'Services sum (9000) does not add up to the toPay (9999.00000000) amount correctly')
+                    'Services sum (9000) does not add up to the toPay (9999) amount correctly')
             })
         })
     })
