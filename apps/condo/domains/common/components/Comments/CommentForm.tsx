@@ -49,6 +49,7 @@ const Holder = styled.div`
 const ENTER_KEY_CODE = 13
 const COMMENT_HELPERS_ROW_STYLES: CSSProperties = { padding: '0 8px 8px 8px' }
 const INPUT_WITH_COUNTER_AUTOSIZE_CONFIG = { minRows: 1, maxRows: 6 }
+const EMPTY_FILLER_STYLE: CSSProperties = { height: 5 }
 
 const CommentHelperWrapper = styled(Col)`
   background-color: ${colors.textSecondary};
@@ -111,15 +112,14 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         }
     }, [editableComment, fieldName, form, setCommentLength])
 
-    const handleKeyUp = useCallback(async (event, form) => {
+    const handleKeyUp = useCallback((form: FormInstance) => async (event) => {
         if (event.keyCode === ENTER_KEY_CODE && !event.shiftKey) {
             const content = form.getFieldValue(fieldName)
             if (content && content.trim().length > 0 || filesCount > 0) {
                 setSending(true)
+                form.submit()
+                setCommentLength(0)
             }
-
-            form.submit()
-            setCommentLength(0)
         }
     }, [fieldName, filesCount, setCommentLength, setSending])
 
@@ -144,27 +144,32 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         setSending(false)
     }, [action, fieldName, form, resetModifiedFiles, setSending, syncModifiedFiles])
 
-    const MemoizedUploadComponent = useCallback(() => (
-        <UploadComponent
-            initialFileList={editableCommentFiles}
-            UploadButton={
-                <Button type='text'>
-                    <ClipIcon />
-                </Button>
-            }
-            uploadProps={{
-                iconRender: (file) => {
-                    return getIconByMimetype(file.type)
-                },
-            }}
-        />
-    ), [UploadComponent, editableComment, sending])
+    const MemoizedUploadComponent = useCallback(() => {
+        // NOTE: UploadComponent have 5px height if empty
+        if (sending) return <div style={EMPTY_FILLER_STYLE} />
+
+        return (
+            <UploadComponent
+                initialFileList={editableCommentFiles}
+                UploadButton={
+                    <Button type='text'>
+                        <ClipIcon/>
+                    </Button>
+                }
+                uploadProps={{
+                    iconRender: (file) => {
+                        return getIconByMimetype(file.type)
+                    },
+                }}
+            />
+        )
+    }, [UploadComponent, editableCommentFiles, sending])
 
     const initialCommentFormValues = useMemo(() => ({
         [fieldName]: initialValue,
     }), [fieldName, initialValue])
 
-    const showHelperMessage = useMemo(() => commentLength > 0 || editableComment, [commentLength, editableComment])
+    const showHelperMessage = useMemo(() => commentLength > 0 || (editableComment && !sending), [commentLength, editableComment, sending])
 
     return (
         <FormWithAction
@@ -204,7 +209,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     className='white'
                                     autoSize={INPUT_WITH_COUNTER_AUTOSIZE_CONFIG}
                                     onKeyDown={handleKeyDown}
-                                    onKeyUp={(event) => {handleKeyUp(event, form)}}
+                                    onKeyUp={handleKeyUp(form)}
                                 />
                             </Form.Item>
                             <MemoizedUploadComponent />

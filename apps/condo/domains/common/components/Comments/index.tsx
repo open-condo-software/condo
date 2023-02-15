@@ -307,7 +307,6 @@ const Comments: React.FC<ICommentsListProps> = ({
         if (editableComment) {
             await updateAction(values, editableComment)
             await syncModifiedFiles(editableComment.id)
-            setEditableComment(null)
         } else {
             const comment = await createAction({ ...values, type: commentType })
             await syncModifiedFiles(comment.id)
@@ -315,6 +314,7 @@ const Comments: React.FC<ICommentsListProps> = ({
         }
 
         await refetchComments()
+        setEditableComment(null)
     },
     [commentType, createAction, editableComment, refetchComments, updateAction])
 
