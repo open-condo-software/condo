@@ -32,13 +32,15 @@ const {
     createTestAcquiringIntegration,
     updateTestAcquiringIntegrationContext,
     createTestAcquiringIntegrationContext,
+    createTestRecurrentPaymentContext,
+    updateTestRecurrentPaymentContext,
     makePayerWithMultipleConsumers,
     makePayer,
     updateTestAcquiringIntegration, updateTestPayment, updateTestMultiPayment,
     getRandomHiddenCard,
     MultiPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { updateTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingCategory, updateTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
 const {
     updateTestBillingReceipt,
     updateTestBillingIntegration,
@@ -101,6 +103,54 @@ describe('RegisterMultiPaymentService', () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await registerMultiPaymentByTestClient(client, payload)
             })
+        })
+        test('Background process for RecurrentPaymentContext', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { commonData, batches } = await makePayerWithMultipleConsumers(1, 1)
+            const hostUrl = commonData.acquiringIntegration.hostUrl
+            const [batch] = batches
+            const serviceConsumerId = batch.serviceConsumer.id
+
+            // create RecurrentPaymentContext
+            const [billingCategory] = await createTestBillingCategory(
+                admin,
+                { name: `Category ${new Date()}` }
+            )
+            const [recurrentContext] = await createTestRecurrentPaymentContext(
+                commonData.client,
+                {
+                    enabled: false,
+                    limit: '10000',
+                    autoPayReceipts: false,
+                    paymentDay: 10,
+                    settings: {},
+                    serviceConsumer: { connect: { id: serviceConsumerId } },
+                    billingCategory: { connect: { id: billingCategory.id } },
+                }
+            )
+
+            const payload = [{
+                serviceConsumer: { id: serviceConsumerId },
+                receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+            }]
+
+            const extraArgs = { recurrentPaymentContext: { id: recurrentContext.id } }
+
+            const [result] = await registerMultiPaymentByTestClient(commonData.client, payload, extraArgs)
+
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('dv', 1)
+            expect(result).toHaveProperty('multiPaymentId')
+            expect(result).toHaveProperty('webViewUrl', `${hostUrl}${WEB_VIEW_PATH.replace('[id]', result.multiPaymentId)}`)
+            expect(result).toHaveProperty('feeCalculationUrl', `${hostUrl}${FEE_CALCULATION_PATH.replace('[id]', result.multiPaymentId)}`)
+            expect(result).toHaveProperty('directPaymentUrl', `${hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', result.multiPaymentId)}`)
+            expect(result).toHaveProperty('getCardTokensUrl', `${hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', batches[0].resident.user.id)}`)
+
+            const { multiPaymentId } = result
+            const multiPayment = await MultiPayment.getOne(admin, { id: multiPaymentId })
+            expect(multiPayment).toBeDefined()
+            expect(multiPayment).toHaveProperty('recurrentPaymentContext')
+            expect(multiPayment.recurrentPaymentContext.id).toEqual(recurrentContext.id)
         })
     })
     describe('Validations', () => {
@@ -540,6 +590,37 @@ describe('RegisterMultiPaymentService', () => {
                 })
             })
         })
+        describe('RecurrentPaymentContext checks', () => {
+            test('Input should contain existing RecurrentPaymentContext id', async () => {
+                const { commonData, batches } = await makePayerWithMultipleConsumers(1, 1)
+                const [batch] = batches
+                const serviceConsumerId = batch.serviceConsumer.id
+
+                const payload = [{
+                    serviceConsumer: { id: serviceConsumerId },
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+                }]
+
+                const recurrentPaymentContextId = faker.datatype.uuid()
+                const extraArgs = { recurrentPaymentContext: { id: recurrentPaymentContextId } }
+
+                await catchErrorFrom(async () => {
+                    await registerMultiPaymentByTestClient(commonData.client, payload, extraArgs)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: `Cannot find specified RecurrentPaymentContext with following id: ${recurrentPaymentContextId}`,
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'recurrentPaymentContext', 'id'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'NOT_FOUND',
+                            message: 'Cannot find specified RecurrentPaymentContext with following id: {id}',
+                        },
+                    }])
+                })
+            })
+        })
         describe('deletedAt check', () => {
             test('Should not be able to pay for deleted receipts', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(1, 2)
@@ -707,6 +788,60 @@ describe('RegisterMultiPaymentService', () => {
                                     integrationId: batches[0].billingIntegration.id,
                                 }],
                             },
+                        },
+                    }])
+                })
+            })
+            test('Should not be able to pay for deleted RecurrentPaymentContext', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const { commonData, batches } = await makePayerWithMultipleConsumers(1, 1)
+                const [batch] = batches
+                const serviceConsumerId = batch.serviceConsumer.id
+
+                // create RecurrentPaymentContext
+                const [billingCategory] = await createTestBillingCategory(
+                    admin,
+                    { name: `Category ${new Date()}` }
+                )
+                const [recurrentContext] = await createTestRecurrentPaymentContext(
+                    commonData.client,
+                    {
+                        enabled: false,
+                        limit: '10000',
+                        autoPayReceipts: false,
+                        paymentDay: 10,
+                        settings: {},
+                        serviceConsumer: { connect: { id: serviceConsumerId } },
+                        billingCategory: { connect: { id: billingCategory.id } },
+                    }
+                )
+
+                // soft delete recurrentPaymentContext
+                await updateTestRecurrentPaymentContext(
+                    commonData.client,
+                    recurrentContext.id,
+                    { deletedAt: dayjs().toISOString() }
+                )
+
+                const payload = [{
+                    serviceConsumer: { id: serviceConsumerId },
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+                }]
+
+                const extraArgs = { recurrentPaymentContext: { id: recurrentContext.id } }
+
+                await catchErrorFrom(async () => {
+                    await registerMultiPaymentByTestClient(commonData.client, payload, extraArgs)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: `RecurrentPaymentContext with following id: ${recurrentContext.id} is deleted`,
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'recurrentPaymentContext', 'id'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'NOT_FOUND',
+                            message: 'RecurrentPaymentContext with following id: {id} is deleted',
                         },
                     }])
                 })

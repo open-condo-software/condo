@@ -11,6 +11,8 @@ const { GeneratePaymentLinkService } = require('./GeneratePaymentLinkService')
 const { MultiPayment } = require('./MultiPayment')
 const { Payment } = require('./Payment')
 const { PaymentsFilterTemplate } = require('./PaymentsFilterTemplate')
+const { RecurrentPayment } = require('./RecurrentPayment')
+const { RecurrentPaymentContext } = require('./RecurrentPaymentContext')
 const { RegisterMultiPaymentForOneReceiptService } = require('./RegisterMultiPaymentForOneReceiptService')
 const { RegisterMultiPaymentForVirtualReceiptService } = require('./RegisterMultiPaymentForVirtualReceiptService')
 const { RegisterMultiPaymentService } = require('./RegisterMultiPaymentService')
@@ -30,5 +32,7 @@ module.exports = {
     RegisterMultiPaymentForVirtualReceiptService,
     GeneratePaymentLinkService,
     SumPaymentsService,
+    RecurrentPaymentContext,
+    RecurrentPayment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -18,7 +18,7 @@ const {
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
-const { Payment, MultiPayment, AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
+const { Payment, MultiPayment, AcquiringIntegration, RecurrentPaymentContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { REQUIRED, NOT_UNIQUE, NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
@@ -184,6 +184,20 @@ const ERRORS = {
         type: RECEIPTS_HAS_MULTIPLE_CURRENCIES,
         message: 'BillingReceipts has multiple currencies',
     },
+    RECURRENT_PAYMENT_CONTEXT_IS_MISSING: {
+        mutation: 'registerMultiPayment',
+        variable: ['data', 'recurrentPaymentContext', 'id'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Cannot find specified RecurrentPaymentContext with following id: {id}',
+    },
+    RECURRENT_PAYMENT_CONTEXT_IS_DELETED: {
+        mutation: 'registerMultiPayment',
+        variable: ['data', 'recurrentPaymentContext', 'id'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'RecurrentPaymentContext with following id: {id} is deleted',
+    },
 }
 
 
@@ -195,7 +209,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
         },
         {
             access: true,
-            type: 'input RegisterMultiPaymentInput { dv: Int!, sender: SenderFieldInput!, groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!]! }',
+            type: 'input RegisterMultiPaymentInput { dv: Int!, sender: SenderFieldInput!, groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!]!, recurrentPaymentContext: RecurrentPaymentContextWhereUniqueInput }',
         },
         {
             access: true,
@@ -209,7 +223,11 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
             schema: 'registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { sender, groupedReceipts } = data
+                const {
+                    sender,
+                    groupedReceipts,
+                    recurrentPaymentContext,
+                } = data
 
                 // Stage 0. Check if input is valid
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
@@ -383,6 +401,30 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 }
                 const currencyCode = get(billingIntegrations, ['0', 'currencyCode'])
 
+                // check recurrentPaymentContext if provided
+                if (recurrentPaymentContext) {
+                    const { id: recurrentPaymentContextId } = recurrentPaymentContext
+
+                    const recurrentContexts = await RecurrentPaymentContext.getAll(context, {
+                        id: recurrentPaymentContextId,
+                    })
+
+                    if (recurrentContexts.length === 0) {
+                        throw new GQLError({
+                            ...ERRORS.RECURRENT_PAYMENT_CONTEXT_IS_MISSING,
+                            messageInterpolation: { id: recurrentPaymentContextId },
+                        }, context)
+                    }
+                    const [recurrentContext] = recurrentContexts
+
+                    if (recurrentContext.deletedAt) {
+                        throw new GQLError({
+                            ...ERRORS.RECURRENT_PAYMENT_CONTEXT_IS_DELETED,
+                            messageInterpolation: { id: recurrentPaymentContextId },
+                        }, context)
+                    }
+                }
+
                 // Stage 3 Generating payments
                 const payments = []
                 for (const group of groupedReceipts) {
@@ -450,6 +492,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     serviceFee: Big('0.0'),
                     implicitFee: Big('0.0'),
                 })
+                const recurrentPaymentContextField = recurrentPaymentContext ? {
+                    recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
+                } : {}
                 const multiPayment = await MultiPayment.create(context, {
                     dv: 1,
                     sender,
@@ -460,6 +505,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     payments: { connect: paymentIds },
                     // TODO(DOMA-1574): add correct category
                     serviceCategory: DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY,
+                    ...recurrentPaymentContextField,
                 })
                 return {
                     dv: 1,

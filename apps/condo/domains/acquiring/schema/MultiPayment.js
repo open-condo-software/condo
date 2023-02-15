@@ -221,6 +221,15 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         },
 
         integration: ACQUIRING_INTEGRATION_FIELD,
+
+        recurrentPaymentContext: {
+            schemaDoc: 'Link to RecurrentPaymentContext',
+            type: Relationship,
+            ref: 'RecurrentPaymentContext',
+            isRequired: true,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
     },
     hooks: {
         validateInput: async ({ resolvedData, addValidationError, operation, existingItem }) => {

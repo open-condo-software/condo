@@ -18,6 +18,8 @@ const {
     REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION,
 } = require('@condo/domains/acquiring/gql')
 const { SUM_PAYMENTS_QUERY } = require('@condo/domains/acquiring/gql')
+const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
+const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
@@ -79,6 +81,8 @@ async function allPaymentsSum (context, data) {
     })
 }
 
+const RecurrentPaymentContext = generateServerUtils(RecurrentPaymentContextGQL)
+const RecurrentPayment = generateServerUtils(RecurrentPaymentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -92,5 +96,7 @@ module.exports = {
     registerMultiPaymentForOneReceipt,
     registerMultiPaymentForVirtualReceipt,
     allPaymentsSum,
+    RecurrentPaymentContext,
+    RecurrentPayment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
