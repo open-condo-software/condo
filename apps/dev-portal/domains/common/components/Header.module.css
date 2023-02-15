@@ -2,6 +2,7 @@
   position: relative;
   display: flex;
   flex-direction: row;
+  align-items: flex-end;
   width: 304px;
   height: 28px;
   padding-right: 40px;
@@ -11,6 +12,12 @@
 .logo-image-wrapper {
   width: 28px;
   height: 28px;
+}
+
+.logo-text {
+  color: var(--condo-global-color-black);
+  font-size: 20px;
+  line-height: 24px;
 }
 
 .dropout-wrapper {

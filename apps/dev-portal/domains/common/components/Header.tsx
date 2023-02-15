@@ -1,16 +1,24 @@
+import { Montserrat } from '@next/font/google'
 import { Layout, Dropdown } from 'antd'
 import { setCookie } from 'cookies-next'
 import { LOCALES } from 'domains/common/constants/locales'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
 import { Globe } from '@open-condo/icons'
-import { Space, Typography } from '@open-condo/ui'
+import { Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import styles from './Header.module.css'
+
+const logoFont = Montserrat({
+    subsets: ['latin', 'cyrillic'],
+    style: ['normal'],
+    weight: '600',
+})
 
 export const Header: React.FC = () => {
     const intl = useIntl()
@@ -24,12 +32,12 @@ export const Header: React.FC = () => {
 
     return (
         <Layout.Header className={styles.header}>
-            <div className={styles.logoContainer}>
+            <Link href='/' className={styles.logoContainer} locale={router.locale}>
                 <div className={styles.logoImageWrapper}>
                     <Image className={styles.logo} src='/logo.svg' alt='Logo' fill priority draggable={false}/>
                 </div>
-                <Typography.Title level={3}>{ServiceShortTitle}</Typography.Title>
-            </div>
+                <span className={`${logoFont.className} ${styles.logoText}`}>{ServiceShortTitle}</span>
+            </Link>
             <Space direction='horizontal' align='center' size={24}>
                 <Dropdown
                     menu={{
