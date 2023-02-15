@@ -8,15 +8,22 @@ const {
     expectToThrowAccessDeniedErrorToObj, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
-const { RecurrentPaymentContext, createTestRecurrentPaymentContext, updateTestRecurrentPaymentContext } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    RecurrentPaymentContext,
+    createTestRecurrentPaymentContext,
+    updateTestRecurrentPaymentContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithSupportUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 describe('RecurrentPaymentContext', () => {
     let admin, support, user, anonymous, getContextRequest, billingCategory, serviceConsumerClient
 
-    beforeEach( async () => {
+    beforeEach(async () => {
         serviceConsumerClient = await makeClientWithServiceConsumer()
     })
 
@@ -92,7 +99,10 @@ describe('RecurrentPaymentContext', () => {
                 const request = await getContextRequest()
                 const [objCreated] = await createTestRecurrentPaymentContext(admin, request)
 
-                const [obj, attrs] = await updateTestRecurrentPaymentContext(admin, objCreated.id, { ...request, enabled: false })
+                const [obj, attrs] = await updateTestRecurrentPaymentContext(admin, objCreated.id, {
+                    ...request,
+                    enabled: false,
+                })
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
@@ -107,7 +117,10 @@ describe('RecurrentPaymentContext', () => {
                 const [objCreated] = await createTestRecurrentPaymentContext(admin, request)
 
                 const client = await makeClientWithSupportUser()
-                const [obj, attrs] = await updateTestRecurrentPaymentContext(client, objCreated.id, { ...request, enabled: false })
+                const [obj, attrs] = await updateTestRecurrentPaymentContext(client, objCreated.id, {
+                    ...request,
+                    enabled: false,
+                })
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -121,7 +134,10 @@ describe('RecurrentPaymentContext', () => {
                 const request = await getContextRequest()
                 const [objCreated] = await createTestRecurrentPaymentContext(serviceConsumerClient, request)
 
-                const [obj, attrs] = await updateTestRecurrentPaymentContext(serviceConsumerClient, objCreated.id, { ...request, enabled: false })
+                const [obj, attrs] = await updateTestRecurrentPaymentContext(serviceConsumerClient, objCreated.id, {
+                    ...request,
+                    enabled: false,
+                })
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -235,7 +251,7 @@ describe('RecurrentPaymentContext', () => {
             }, ({ errors }) => {
                 expect(errors).toMatchObject([{
                     name: 'ValidationFailureError',
-                    data: { messages: [ 'RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR' ] },
+                    data: { messages: ['RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR'] },
                 }])
             })
         })
