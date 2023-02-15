@@ -21,7 +21,7 @@ const FEE_DISTRIBUTION_FIELDS = 'recipient percent minAmount maxAmount category'
 const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ status integration { id name appUrl explicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } email reason recipient { bic bankAccount iec tin } }`
 const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationContext', ACQUIRING_INTEGRATION_CONTEXT_FIELDS)
 
-const MULTI_PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } ${COMMON_FIELDS} }`
+const MULTI_PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } recurrentPaymentContext { id } ${COMMON_FIELDS} }`
 const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
 
 const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt receipt { id property { id address } account { unitName } } multiPayment { id transactionId } context { id integration { id name } } status order ${COMMON_FIELDS} period organization { id } recipientBic recipientBankAccount }`
@@ -62,6 +62,12 @@ const SUM_PAYMENTS_QUERY = gql`
     }
 `
 
+const RECURRENT_PAYMENT_CONTEXT_FIELDS = `{ enabled limit autoPayReceipts paymentDay settings serviceConsumer { id } billingCategory { id } ${COMMON_FIELDS} }`
+const RecurrentPaymentContext = generateGqlQueries('RecurrentPaymentContext', RECURRENT_PAYMENT_CONTEXT_FIELDS)
+
+const RECURRENT_PAYMENT_FIELDS = `{ status tryCount state billingReceipts ${COMMON_FIELDS} }`
+const RecurrentPayment = generateGqlQueries('RecurrentPayment', RECURRENT_PAYMENT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -83,5 +89,7 @@ module.exports = {
     REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION,
     GENERATE_PAYMENT_LINK_QUERY,
     SUM_PAYMENTS_QUERY,
+    RecurrentPaymentContext,
+    RecurrentPayment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -47,6 +47,8 @@ const {
     GENERATE_PAYMENT_LINK_QUERY,
 } = require('@condo/domains/acquiring/gql')
 const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL, SUM_PAYMENTS_QUERY  } = require('@condo/domains/acquiring/gql')
+const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
+const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -55,6 +57,8 @@ const AcquiringIntegrationContext = generateGQLTestUtils(AcquiringIntegrationCon
 const MultiPayment = generateGQLTestUtils(MultiPaymentGQL)
 const Payment = generateGQLTestUtils(PaymentGQL)
 const PaymentsFilterTemplate = generateGQLTestUtils(PaymentsFilterTemplateGQL)
+const RecurrentPaymentContext = generateGQLTestUtils(RecurrentPaymentContextGQL)
+const RecurrentPayment = generateGQLTestUtils(RecurrentPaymentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 function getRandomHiddenCard() {
@@ -440,6 +444,60 @@ async function sumPaymentsByTestClient(client, where = {}) {
     throwIfError(data, errors)
     return data.result
 }
+async function createTestRecurrentPaymentContext (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await RecurrentPaymentContext.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestRecurrentPaymentContext (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await RecurrentPaymentContext.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestRecurrentPayment (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await RecurrentPayment.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestRecurrentPayment (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await RecurrentPayment.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate bunch of entities for working with MultiPayments
@@ -667,5 +725,7 @@ module.exports = {
     registerMultiPaymentForVirtualReceiptByTestClient,
     generatePaymentLinkByTestClient,
     sumPaymentsByTestClient,
+    RecurrentPaymentContext, createTestRecurrentPaymentContext, updateTestRecurrentPaymentContext,
+    RecurrentPayment, createTestRecurrentPayment, updateTestRecurrentPayment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
