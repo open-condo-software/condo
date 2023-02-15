@@ -851,6 +851,9 @@ async function makeResidentClientWithOwnReceipt(existingResidentClient) {
     }
 }
 
+/** used to generate random services
+ * @param {number} count the number of services to create
+ * @param {string} toPay specific toPay amount. If not passed a random amount is used**/
 function generateServicesData(count=3, toPay=''){
     const services = []
 

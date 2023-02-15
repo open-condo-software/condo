@@ -110,18 +110,19 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             schemaDoc: 'Indicates if services are valid and add up to total sum toPay.',
             type: Virtual,
             isRequired: false,
-            resolver: async (item) => {
-                let servicesTotal = 0
+            resolver: async (receipt) => {
+                let servicesTotal = Big(0)
+                const toPay = Big(get(receipt, 'toPay'))
 
-                if (get(item, 'services')){
-                    for (let service of get(item, 'services')){
+                if (get(receipt, 'services')){
+                    for (let service of get(receipt, 'services')){
                         servicesTotal = Big(get(service, 'toPay')).plus(Big(servicesTotal))
                     }
                 }
 
-                const isServicesValid = Big(servicesTotal).cmp(Big(get(item, 'toPay'))) === 0
+                const servicesAreValid = servicesTotal.cmp(toPay) === 0
 
-                if (!isServicesValid) return `Services sum (${servicesTotal}) does not add up to the toPay (${get(item, 'toPay')}) amount correctly`
+                if (!servicesAreValid) return `Services sum (${servicesTotal}) does not add up to the toPay (${toPay}) amount correctly`
 
                 return null
             },
