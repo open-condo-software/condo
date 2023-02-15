@@ -1,3 +1,4 @@
+import { Link } from 'domains/docs/components/Link'
 import omit from 'lodash/omit'
 import React from 'react'
 
@@ -16,5 +17,6 @@ export const MDXMapping: MDXComponents = {
     p: (props) => <Typography.Paragraph {...omit(props, 'ref')} type='secondary'/>,
     li: ({ children, ...restProps }) => <li {...restProps}><Typography.Text type='secondary'>{children}</Typography.Text></li>,
     pre: (props) => <MarkdownCodeWrapper {...props}/>,
+    a: (props) => <Link {...props}/>,
     Alert,
 }

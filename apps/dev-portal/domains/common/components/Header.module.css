@@ -1,6 +1,15 @@
 .logo-container {
   position: relative;
+  display: flex;
+  flex-direction: row;
   width: 304px;
+  height: 28px;
+  padding-right: 40px;
+  column-gap: 10px;
+}
+
+.logo-image-wrapper {
+  width: 28px;
   height: 28px;
 }
 
