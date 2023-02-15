@@ -226,7 +226,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             schemaDoc: 'Link to RecurrentPaymentContext',
             type: Relationship,
             ref: 'RecurrentPaymentContext',
-            isRequired: true,
+            isRequired: false,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
