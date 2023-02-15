@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const faker = require('faker')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
@@ -20,7 +21,6 @@ const { syncUser } = require('./syncUser')
 const { dvSenderFields } = require('../constants')
 const { SBBOL_IMPORT_NAME } = require('../constants')
 const { getSbbolSecretStorage } = require('../utils')
-const dayjs = require('dayjs')
 
 
 const SYNC_BANK_ACCOUNTS_FROM_SBBOL = 'sync-bank-accounts-from-sbbol'
@@ -108,29 +108,17 @@ const sync = async ({ keystone, userInfo, tokenSet  }) => {
 
     const date = dayjs().format('YYYY-MM-DD')
     const user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid })
-    const organization = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
+    const { organization, employee } = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
     const sbbolSecretStorage = getSbbolSecretStorage()
     await sbbolSecretStorage.setOrganization(organization.id)
     await syncTokens(tokenSet, user.id)
     await syncServiceSubscriptions(userInfo.inn)
-
-    const { keystone: organizationContext } = await getSchemaCtx('Organization')
-    const organizationEmployee = await OrganizationEmployee.getOne(organizationContext, {
-        user: { id: user.id },
-        organization: {
-            id: organization.id,
-        },
-    })
-    if (!organizationEmployee) {
-        throw new Error('Failed to bind user to organization')
-    }
-
     await syncSbbolTransactions.delay(date, user.id, organization)
 
     return {
         user,
         organization,
-        organizationEmployee,
+        organizationEmployee: employee,
     }
 }
 

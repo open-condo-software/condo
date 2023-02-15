@@ -69,7 +69,7 @@ const createOrganization = async ({ context, user, importInfo, organizationInfo 
  * @param userData prepared data at our side for saving user
  * @param organizationInfo
  * @param dvSenderFields
- * @return {Promise<*>}
+ * @return {Promise<{organization, employee}>}
  */
 const syncOrganization = async ({ context, user, userData, organizationInfo, dvSenderFields }) => {
     const { context: adminContext } = context
@@ -89,7 +89,8 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
 
     if (!importedOrganization) {
         // Organization was not imported from SBBOL, but maybe, it was created before with the same TIN
-        const existingOrganization = get(employees.find(( employee ) => employee.organization.tin === organizationInfo.meta.inn && employee.organization.deletedAt === null), 'organization')
+        const employeeWithExistingOrganization = employees.find(( employee ) => employee.organization.tin === organizationInfo.meta.inn && employee.organization.deletedAt === null)
+        const existingOrganization = get(employeeWithExistingOrganization, 'organization')
 
         if (!existingOrganization) {
             const organization = await createOrganization({
@@ -98,12 +99,14 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
                 importInfo,
                 organizationInfo,
             })
-
+            const employee = await OrganizationEmployee.getOne(adminContext, {
+                organization: { id: organization.id },
+            })
             await sendToCustomer({ organization })
 
-            return organization
+            return { organization, employee }
         } else {
-            return await Organization.update(adminContext, existingOrganization.id, {
+            const updatedOrganization = await Organization.update(adminContext, existingOrganization.id, {
                 ...dvSenderFields,
                 ...importInfo,
                 meta: {
@@ -111,6 +114,8 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
                     ...organizationInfo.meta,
                 },
             })
+
+            return { organization: updatedOrganization, employee: employeeWithExistingOrganization }
         }
     } else {
         const isAlreadyEmployee = employees.find(employee => employee.organization.id === importedOrganization.id)
@@ -123,13 +128,14 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
                 name: 'employee.role.Administrator.name',
             })
 
-            await createConfirmedEmployee(adminContext, importedOrganization, {
+            const employee = await createConfirmedEmployee(adminContext, importedOrganization, {
                 ...userData,
                 ...user,
             }, allRoles[0], dvSenderFields)
+            return { organization: importedOrganization, employee }
         }
     }
-    return importedOrganization
+    return { organization: importedOrganization, employee: employees.find(employee => ( employee.organization.id === importedOrganization.id )) }
 }
 
 module.exports = {
