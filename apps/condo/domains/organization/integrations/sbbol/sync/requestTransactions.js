@@ -35,7 +35,7 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
 
     for (const bankAccount of bankAccounts) {
         let page = 1,
-            doRequest = true,
+            doNextRequest = true,
             timeout = 1000,
             failedReq = 0
 
@@ -75,14 +75,14 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
 
             // Checking that the response contains a link to the next page, if it is not there, then all transactions have been received
             if (isEmpty(get(response, 'data._links', []).filter(link => link.rel === 'next'))) {
-                doRequest = false
+                doNextRequest = false
             }
 
             // WORKFLOW_FAULT means invalid request parameters, that can occur in cases:
             // when report is requested for date in future
             // when report page does not exist, for example number is out of range of available pages
-            if (get(transactions, 'error.cause') === 'WORKFLOW_FAULT') doRequest = false
-        } while ( doRequest )
+            if (get(transactions, 'error.cause') === 'WORKFLOW_FAULT') doNextRequest = false
+        } while ( doNextRequest )
 
         for (const transaction of transactions) {
             // If SBBOL returned a transaction with an unsupported currency, do not process

@@ -40,7 +40,7 @@ describe('syncOrganization from SBBOL', () => {
             }, { first: 1 })
             userData.phone = user.phone
             organizationData.meta.inn = organization.tin
-            const updOrg = await syncOrganization({
+            const { organization: updOrg, employee } = await syncOrganization({
                 context,
                 user: user,
                 userData,
@@ -48,6 +48,7 @@ describe('syncOrganization from SBBOL', () => {
                 organizationInfo: organizationData,
             })
             expect(updOrg.id).toEqual(organization.id)
+            expect(employee).toBeDefined()
             const [ updatedOrganization ] = await OrganizationApi.getAll(adminContext, { id: organization.id })
             expect(updatedOrganization.importId).toEqual(organizationData.importId)
             expect(updatedOrganization.importRemoteSystem).toEqual(organizationData.importRemoteSystem)
