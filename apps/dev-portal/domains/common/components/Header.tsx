@@ -7,13 +7,14 @@ import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
 import { Globe } from '@open-condo/icons'
-import { Space } from '@open-condo/ui'
+import { Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import styles from './Header.module.css'
 
 export const Header: React.FC = () => {
     const intl = useIntl()
+    const ServiceShortTitle = intl.formatMessage({ id: 'global.service.name.short' })
     const router = useRouter()
 
     const handleLocaleChange = useCallback(({ key }: { key: string }) => {
@@ -24,7 +25,10 @@ export const Header: React.FC = () => {
     return (
         <Layout.Header className={styles.header}>
             <div className={styles.logoContainer}>
-                <Image className={styles.logo} src='/logo.svg' alt='Logo' fill priority draggable={false}/>
+                <div className={styles.logoImageWrapper}>
+                    <Image className={styles.logo} src='/logo.svg' alt='Logo' fill priority draggable={false}/>
+                </div>
+                <Typography.Title level={3}>{ServiceShortTitle}</Typography.Title>
             </div>
             <Space direction='horizontal' align='center' size={24}>
                 <Dropdown

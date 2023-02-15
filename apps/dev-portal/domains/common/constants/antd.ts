@@ -5,7 +5,10 @@ import type { ThemeConfig } from 'antd/lib/config-provider'
 export const theme: ThemeConfig = {
     token: {
         colorPrimary: colors.green['5'],
+        colorPrimaryBg: colors.green['1'],
+        colorPrimaryBgHover: colors.green['1'],
         colorBgContainer: colors.white,
+        colorFillTertiary: colors.gray['1'],
     },
     components: {
         Menu: {

@@ -39,7 +39,7 @@ const {
 const DOCS_ROOT_ENDPOINT = '/docs'
 const SIDER_WIDTH = 336
 const CARD_WIDTH = 308
-const CARD_PADDING = '28px 24px 28px 0'
+const CARD_PADDING = '20px 24px 20px 0'
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
 const FOOTER_GUTTER: RowProps['gutter'] = [40, 60]
 

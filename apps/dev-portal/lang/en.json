@@ -1,5 +1,6 @@
 {
   "global.service.name": "Condo for devs",
+  "global.service.name.short": "for devs",
   "global.lang.ru": "Русский",
   "global.lang.en": "English",
   "docs.editPage": "Edit this page on Github",
