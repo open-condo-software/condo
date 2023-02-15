@@ -60,7 +60,17 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
                 timeout *= 2
             }
 
-            get(response, 'data.transactions').map( transaction => transactions.push(transaction))
+            const receivedTransactions = get(response, 'data.transactions')
+            if (receivedTransactions) {
+                receivedTransactions.map( transaction => transactions.push(transaction))
+            } else {
+                logger.error(`Unsuccessful response to transaction request by state: ${{ 
+                    bankAccount: bankAccount.number, 
+                    statementDate,
+                    page,
+                }}`)
+            }
+
             page++
 
             // Checking that the response contains a link to the next page, if it is not there, then all transactions have been received
@@ -68,9 +78,9 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
                 doRequest = false
             }
 
-            // WORKFLOW_FAULT means that the request parameters are not valid. Occurs in two cases,
-            // if the report is requested in the future tense and
-            // if the report page does not exist. For example, the total report contains 3 pages, query 4 will return WORKFLOW_FAULT.
+            // WORKFLOW_FAULT means invalid request parameters, that can occur in cases:
+            // when report is requested for date in future
+            // when report page does not exist, for example number is out of range of available pages
             if (get(transactions, 'error.cause') === 'WORKFLOW_FAULT') doRequest = false
         } while ( doRequest )
 
@@ -84,8 +94,7 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
                     amount: transaction.amount.amount,
                     currencyCode: transaction.amount.currencyName,
                     purpose: transaction.paymentPurpose,
-                    dateWithdrawed: transaction.direction === 'CREDIT' ? formatedOperationDate : null,
-                    dateReceived: transaction.direction === 'DEBIT' ? formatedOperationDate : null,
+                    isOutcome: transaction.direction === 'CREDIT',
                     importId: transaction.uuid,
                     importRemoteSystem: SBBOL_IMPORT_NAME,
                 }
