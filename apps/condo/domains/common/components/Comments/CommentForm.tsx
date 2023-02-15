@@ -23,7 +23,7 @@ const Holder = styled.div`
 
     button.ant-btn {
       position: absolute;
-      right: 8px;
+      right: 20px;
       top: 2px;
       padding: 0;
     }
