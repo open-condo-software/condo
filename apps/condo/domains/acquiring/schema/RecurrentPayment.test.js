@@ -95,7 +95,7 @@ describe('RecurrentPayment', () => {
         })
 
         describe('update', () => {
-            test('admin can', async () => {
+            test('admin can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -103,7 +103,7 @@ describe('RecurrentPayment', () => {
                 })
             })
 
-            test('support can', async () => {
+            test('support can\'t', async () => {
                 const client = await makeClientWithSupportUser()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -111,7 +111,7 @@ describe('RecurrentPayment', () => {
                 })
             })
 
-            test('user can', async () => {
+            test('user can\'t', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
