@@ -56,7 +56,7 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
-    const { objs: incidentProperties, loading } = IncidentProperty.useAllObjects({
+    const { objs: incidentProperties, allDataLoaded } = IncidentProperty.useAllObjects({
         where: {
             incident: { id: incident.id },
             deletedAt: null,
@@ -68,7 +68,7 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
             return AllPropertiesMessage
         }
 
-        if (loading) {
+        if (!allDataLoaded) {
             return LoadingMessage
         }
 
@@ -97,7 +97,7 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
                 </div>
             )
         })
-    }, [AllPropertiesMessage, DeletedMessage, LoadingMessage, incident.hasAllProperties, incidentProperties, loading])
+    }, [AllPropertiesMessage, DeletedMessage, LoadingMessage, allDataLoaded, incident.hasAllProperties, incidentProperties])
 
     return (
         <Row>
@@ -230,7 +230,7 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
     const HaveNotMessage = intl.formatMessage({ id: 'incident.fields.classifier.empty' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
-    const { loading, objs: incidentClassifiers } = IncidentClassifierIncident.useAllObjects({
+    const { objs: incidentClassifiers, allDataLoaded } = IncidentClassifierIncident.useAllObjects({
         where: {
             incident: { id: incident.id },
             deletedAt: null,
@@ -249,7 +249,7 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
         [incidentClassifiers])
 
     const renderClassifiers = useMemo(() => {
-        if (loading) {
+        if (!allDataLoaded) {
             return LoadingMessage
         }
 
@@ -267,7 +267,7 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
                 </Typography.Text>}
             </Typography.Text>
         )
-    }, [HaveNotMessage, LoadingMessage, categories, incidentClassifiers.length, loading, problems])
+    }, [HaveNotMessage, LoadingMessage, allDataLoaded, categories, incidentClassifiers.length, problems])
 
     return (
         <Row>
@@ -387,6 +387,8 @@ const IncidentContent: React.FC<IncidentContentProps> = (props) => {
     )
 }
 
+const ChangeHistoryDiff: React.FC = (props) => <p {...props} />
+
 const HEADER_CONTENT_GUTTER: RowProps['gutter'] = [0, 24]
 const PAGE_CONTENT_GUTTER: RowProps['gutter'] = [0, 60]
 const PAGE_HEADER_STYLE: React.CSSProperties = { paddingBottom: 20 }
@@ -495,7 +497,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                 total={incidentChangesCount}
                                 title={ChangeHistoryTitle}
                                 useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
-                                Diff={(props) => <p {...props}></p>}
+                                Diff={ChangeHistoryDiff}
                             />
                         </Col>
                     </Row>
@@ -521,8 +523,7 @@ const IncidentIdPage: IIncidentIdPage = () => {
         refetch,
     } = Incident.useObject({ where: { id } })
 
-    if (incidentLoading || !incident) {
-
+    if (incidentLoading || !incident || error) {
         return (
             <LoadingOrErrorPage
                 title={ErrorPageTitle}
