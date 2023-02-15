@@ -8,6 +8,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RecurrentPaymentContext')
+const { RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR } = require('@condo/domains/acquiring/constants/errors')
 
 
 const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
@@ -35,6 +36,13 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
             schemaDoc: 'The day of month when resident`s receipts going to be proceeded. Only one trigger should be configured: autoPayReceipts or paymentDay.',
             type: Integer,
             isRequired: false,
+            hooks: {
+                validateInput: ({ resolvedData, addFieldValidationError }) => {
+                    if (resolvedData['autoPayReceipts'] && resolvedData['paymentDay']) {
+                        addFieldValidationError(RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR)
+                    }
+                },
+            },
         },
 
         settings: {

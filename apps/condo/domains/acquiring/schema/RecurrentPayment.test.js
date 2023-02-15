@@ -3,6 +3,7 @@
  */
 
 const { v4: uuid } = require('uuid')
+const dayjs = require('dayjs')
 
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const {
@@ -52,6 +53,7 @@ describe('RecurrentPayment', () => {
 
         getPaymentRequest = () => ({
             status: RECURRENT_PAYMENT_INIT_STATUS,
+            payAfter: dayjs().toISOString(),
             tryCount: 0,
             state: {},
             billingReceipts: [],
