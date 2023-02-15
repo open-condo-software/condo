@@ -6,7 +6,7 @@ import {
     SortTicketCommentsBy,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
-import { Affix, Col, Row, Space, Typography } from 'antd'
+import { Affix, Col, Row, RowProps, Space, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
 import { compact, get, isEmpty, map } from 'lodash'
@@ -19,6 +19,7 @@ import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Alert } from '@open-condo/ui'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
@@ -64,13 +65,14 @@ import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
+const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
 
 const TicketContent = ({ ticket }) => {
     return (
         <Col span={24}>
             <Row gutter={[0, 40]}>
                 <Col span={24}>
-                    <Row gutter={[0, 24]}>
+                    <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                         <TicketReviewField ticket={ticket} />
                         <TicketDeadlineField ticket={ticket} />
                         <TicketPropertyField ticket={ticket} />
@@ -80,7 +82,7 @@ const TicketContent = ({ ticket }) => {
                     </Row>
                 </Col>
                 <Col span={24}>
-                    <Row gutter={[0, 24]}>
+                    <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                         <TicketClassifierField ticket={ticket} />
                         <TicketExecutorField ticket={ticket} />
                         <TicketAssigneeField ticket={ticket} />
@@ -113,6 +115,8 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     const MinutesShortMessage = intl.formatMessage({ id: 'MinutesShort' })
     const LessThanMinuteMessage = intl.formatMessage({ id: 'LessThanMinute' })
     const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ResidentCannotReadTicket' })
+    const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
+    const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
 
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
@@ -221,8 +225,9 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     }
 
     const ticketPropertyId = get(ticket, ['property', 'id'], null)
-    const ticketStatusType = get(ticket, ['status', 'type'])
-    const disabledEditButton = useMemo(() => ticketStatusType === CLOSED_STATUS_TYPE, [ticketStatusType])
+    const ticketStatusType = useMemo(() => get(ticket, ['status', 'type']), [ticket])
+    const isDeletedProperty = !ticket.property && ticket.propertyAddress
+    const disabledEditButton = ticketStatusType === CLOSED_STATUS_TYPE || isDeletedProperty
     const statusUpdatedAt = get(ticket, 'statusUpdatedAt')
     const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === RESIDENT, [ticket])
     const canReadByResident = useMemo(() => get(ticket,  'canReadByResident'), [ticket])
@@ -272,105 +277,115 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                     <Row gutter={[0, 40]}>
                         <Col lg={15} xxl={16} xs={24}>
                             <Row gutter={[0, 60]}>
-                                <Col span={24}>
-                                    <Row gutter={[0, 40]}>
-                                        <Col xl={13} md={11} xs={24}>
-                                            <Row gutter={[0, 20]}>
-                                                <Col span={24}>
-                                                    <Typography.Title style={{ margin: 0 }} level={1}>{TicketTitleMessage}</Typography.Title>
-                                                </Col>
-                                                <Col span={24}>
-                                                    <Row>
-                                                        <Col span={24}>
-                                                            <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
-                                                                <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE} type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
-                                                                <UserNameField user={get(ticket, ['createdBy'])}>
-                                                                    {({ name, postfix }) => (
-                                                                        <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
-                                                                            {name}
-                                                                            {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
+                                <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+                                    <Col span={24}>
+                                        <Row gutter={[0, 40]}>
+                                            <Col xl={13} md={11} xs={24}>
+                                                <Row gutter={[0, 20]}>
+                                                    <Col span={24}>
+                                                        <Typography.Title style={{ margin: 0 }} level={1}>{TicketTitleMessage}</Typography.Title>
+                                                    </Col>
+                                                    <Col span={24}>
+                                                        <Row>
+                                                            <Col span={24}>
+                                                                <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
+                                                                    <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE} type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
+                                                                    <UserNameField user={get(ticket, ['createdBy'])}>
+                                                                        {({ name, postfix }) => (
+                                                                            <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
+                                                                                {name}
+                                                                                {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
+                                                                            </Typography.Text>
+                                                                        )}
+                                                                    </UserNameField>
+                                                                </Typography.Text>
+                                                            </Col>
+                                                            <Col span={24}>
+                                                                <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
+                                                                    {SourceMessage} — {get(ticket, ['source', 'name'], '').toLowerCase()}
+                                                                </Typography.Text>
+                                                            </Col>
+                                                            <Col span={24}>
+                                                                {
+                                                                    !isResidentTicket && !canReadByResident && (
+                                                                        <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
+                                                                            <FormattedMessage
+                                                                                id='pages.condo.ticket.title.CanReadByResident'
+                                                                                values={{
+                                                                                    canReadByResident: (
+                                                                                        <Typography.Text type='danger'>
+                                                                                            {ResidentCannotReadTicketMessage}
+                                                                                        </Typography.Text>
+                                                                                    ),
+                                                                                }}
+                                                                            />
                                                                         </Typography.Text>
-                                                                    )}
-                                                                </UserNameField>
-                                                            </Typography.Text>
-                                                        </Col>
-                                                        <Col span={24}>
-                                                            <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
-                                                                {SourceMessage} — {get(ticket, ['source', 'name'], '').toLowerCase()}
-                                                            </Typography.Text>
-                                                        </Col>
-                                                        <Col span={24}>
-                                                            {
-                                                                !isResidentTicket && !canReadByResident && (
-                                                                    <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
-                                                                        <FormattedMessage
-                                                                            id='pages.condo.ticket.title.CanReadByResident'
-                                                                            values={{
-                                                                                canReadByResident: (
-                                                                                    <Typography.Text type='danger'>
-                                                                                        {ResidentCannotReadTicketMessage}
-                                                                                    </Typography.Text>
-                                                                                ),
-                                                                            }}
-                                                                        />
-                                                                    </Typography.Text>
-                                                                )
-                                                            }
-                                                        </Col>
-                                                    </Row>
-                                                </Col>
-                                            </Row>
-                                        </Col>
-                                        <Col xl={11} md={13} xs={24}>
-                                            <Row justify={isSmall ? 'center' : 'end'} gutter={[0, 20]}>
-                                                <Col span={24}>
-                                                    <Row justify='end'>
-                                                        <Col>
-                                                            <TicketStatusSelect
-                                                                organization={organization}
-                                                                employee={employee}
-                                                                ticket={ticket}
-                                                                onUpdate={handleTicketStatusChanged}
-                                                                data-cy='ticket__status-select'
-                                                            />
-                                                        </Col>
-                                                    </Row>
-                                                </Col>
-                                                {
-                                                    statusUpdatedAt && (
-                                                        <Col>
-                                                            <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}>
-                                                                {ChangedMessage}: {dayjs(statusUpdatedAt).format('DD.MM.YY, HH:mm')}
-                                                            </Typography.Paragraph>
-                                                            <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE} type='secondary'>
-                                                                {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
-                                                            </Typography.Paragraph>
-                                                        </Col>
-                                                    )
-                                                }
-                                            </Row>
-                                        </Col>
-                                    </Row>
-                                    <Row justify='space-between' align='middle' style={TAGS_ROW_STYLE} gutter={TAGS_ROW_GUTTER}>
-                                        <Col>
-                                            <Space direction='horizontal'>
-                                                {isEmergency && <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
-                                                {isPaid && <TicketTag color={TICKET_TYPE_TAG_COLORS.paid}>{PaidMessage.toLowerCase()}</TicketTag>}
-                                                {isWarranty && <TicketTag color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
-                                                {
-                                                    statusReopenedCounter > 0 && (
-                                                        <TicketTag color={TICKET_TYPE_TAG_COLORS.returned}>
-                                                            {ReturnedMessage.toLowerCase()} {statusReopenedCounter > 1 && `(${statusReopenedCounter})`}
-                                                        </TicketTag>
-                                                    )
-                                                }
-                                            </Space>
-                                        </Col>
-                                        <Col>
-                                            <TicketResidentFeatures ticket={ticket} />
-                                        </Col>
-                                    </Row>
-                                </Col>
+                                                                    )
+                                                                }
+                                                            </Col>
+                                                        </Row>
+                                                    </Col>
+                                                </Row>
+                                            </Col>
+                                            <Col xl={11} md={13} xs={24}>
+                                                <Row justify={isSmall ? 'center' : 'end'} gutter={[0, 20]}>
+                                                    <Col span={24}>
+                                                        <Row justify='end'>
+                                                            <Col>
+                                                                <TicketStatusSelect
+                                                                    organization={organization}
+                                                                    employee={employee}
+                                                                    ticket={ticket}
+                                                                    onUpdate={handleTicketStatusChanged}
+                                                                    data-cy='ticket__status-select'
+                                                                />
+                                                            </Col>
+                                                        </Row>
+                                                    </Col>
+                                                    {
+                                                        statusUpdatedAt && (
+                                                            <Col>
+                                                                <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}>
+                                                                    {ChangedMessage}: {dayjs(statusUpdatedAt).format('DD.MM.YY, HH:mm')}
+                                                                </Typography.Paragraph>
+                                                                <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE} type='secondary'>
+                                                                    {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
+                                                                </Typography.Paragraph>
+                                                            </Col>
+                                                        )
+                                                    }
+                                                </Row>
+                                            </Col>
+                                        </Row>
+                                        <Row justify='space-between' align='middle' style={TAGS_ROW_STYLE} gutter={TAGS_ROW_GUTTER}>
+                                            <Col>
+                                                <Space direction='horizontal'>
+                                                    {isEmergency && <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
+                                                    {isPaid && <TicketTag color={TICKET_TYPE_TAG_COLORS.paid}>{PaidMessage.toLowerCase()}</TicketTag>}
+                                                    {isWarranty && <TicketTag color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
+                                                    {
+                                                        statusReopenedCounter > 0 && (
+                                                            <TicketTag color={TICKET_TYPE_TAG_COLORS.returned}>
+                                                                {ReturnedMessage.toLowerCase()} {statusReopenedCounter > 1 && `(${statusReopenedCounter})`}
+                                                            </TicketTag>
+                                                        )
+                                                    }
+                                                </Space>
+                                            </Col>
+                                            <Col>
+                                                <TicketResidentFeatures ticket={ticket} />
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Alert
+                                            type='info'
+                                            showIcon
+                                            message={BlockedEditingTitleMessage}
+                                            description={BlockedEditingDescriptionMessage}
+                                        />
+                                    </Col>
+                                </Row>
                                 <TicketContent ticket={ticket}/>
                                 {
                                     ticketVisibilityType !== ASSIGNED_TICKET_VISIBILITY && (
