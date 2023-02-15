@@ -57,7 +57,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
     const {
         objs: incidentProperties,
         error: incidentPropertyError,
-        loading: incidentPropertyLoading,
+        allDataLoaded: incidentPropertyAllDataLoaded,
     } = IncidentProperty.useAllObjects({
         where: { incident: { id } },
     })
@@ -65,7 +65,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
     const {
         objs: incidentClassifiers,
         error: incidentClassifiersError,
-        loading: incidentClassifiersLoading,
+        allDataLoaded: incidentClassifiersAllDataLoaded,
     } = IncidentClassifierIncident.useAllObjects({
         where: { incident: { id } },
     })
@@ -97,7 +97,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
         () => incidentError || incidentPropertyError || incidentClassifiersError,
         [incidentClassifiersError, incidentError, incidentPropertyError])
 
-    const loading = incidentLoading || incidentPropertyLoading || incidentClassifiersLoading
+    const loading = incidentLoading || !incidentPropertyAllDataLoaded || !incidentClassifiersAllDataLoaded
 
     if (loading && !incident) {
         return (
