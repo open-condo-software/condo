@@ -47,7 +47,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
     } = props
 
     return (
-        <Layout className={className} style={style} css={LAYOUT_CSS}>
+        <Layout className={className} style={style} css={LAYOUT_CSS} hasSider>
             <SideNav menuData={menuData} onLogoClick={onLogoClick}/>
             <Layout css={SUB_LAYOUT_CSS}>
                 <Header headerAction={headerAction} TopMenuItems={TopMenuItems} />
