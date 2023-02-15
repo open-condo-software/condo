@@ -41905,6 +41905,7 @@ type RecurrentPaymentHistoryRecord {
   """
   _label_: String
   status: String
+  payAfter: String
   tryCount: Int
   state: JSON
   billingReceipts: JSON
@@ -41945,6 +41946,14 @@ input RecurrentPaymentHistoryRecordWhereInput {
   status_not_ends_with_i: String
   status_in: [String]
   status_not_in: [String]
+  payAfter: String
+  payAfter_not: String
+  payAfter_lt: String
+  payAfter_lte: String
+  payAfter_gt: String
+  payAfter_gte: String
+  payAfter_in: [String]
+  payAfter_not_in: [String]
   tryCount: Int
   tryCount_not: Int
   tryCount_lt: Int
@@ -42050,6 +42059,8 @@ input RecurrentPaymentHistoryRecordWhereUniqueInput {
 enum SortRecurrentPaymentHistoryRecordsBy {
   status_ASC
   status_DESC
+  payAfter_ASC
+  payAfter_DESC
   tryCount_ASC
   tryCount_DESC
   id_ASC
@@ -42072,6 +42083,7 @@ enum SortRecurrentPaymentHistoryRecordsBy {
 
 input RecurrentPaymentHistoryRecordUpdateInput {
   status: String
+  payAfter: String
   tryCount: Int
   state: JSON
   billingReceipts: JSON
@@ -42097,6 +42109,7 @@ input RecurrentPaymentHistoryRecordsUpdateInput {
 
 input RecurrentPaymentHistoryRecordCreateInput {
   status: String
+  payAfter: String
   tryCount: Int
   state: JSON
   billingReceipts: JSON
@@ -42142,6 +42155,9 @@ type RecurrentPayment {
   """ Payment proceeding status """
   status: RecurrentPaymentStatusType
 
+  """ Payment proceeding should start after date. """
+  payAfter: String
+
   """ Count of proceeding tries. """
   tryCount: Int
 
@@ -42183,6 +42199,14 @@ input RecurrentPaymentWhereInput {
   status_not: RecurrentPaymentStatusType
   status_in: [RecurrentPaymentStatusType]
   status_not_in: [RecurrentPaymentStatusType]
+  payAfter: String
+  payAfter_not: String
+  payAfter_lt: String
+  payAfter_lte: String
+  payAfter_gt: String
+  payAfter_gte: String
+  payAfter_in: [String]
+  payAfter_not_in: [String]
   tryCount: Int
   tryCount_not: Int
   tryCount_lt: Int
@@ -42266,6 +42290,8 @@ input RecurrentPaymentWhereUniqueInput {
 enum SortRecurrentPaymentsBy {
   status_ASC
   status_DESC
+  payAfter_ASC
+  payAfter_DESC
   tryCount_ASC
   tryCount_DESC
   recurrentPaymentContext_ASC
@@ -42290,6 +42316,7 @@ enum SortRecurrentPaymentsBy {
 
 input RecurrentPaymentUpdateInput {
   status: RecurrentPaymentStatusType
+  payAfter: String
   tryCount: Int
   state: JSON
   billingReceipts: JSON
@@ -42312,6 +42339,7 @@ input RecurrentPaymentsUpdateInput {
 
 input RecurrentPaymentCreateInput {
   status: RecurrentPaymentStatusType
+  payAfter: String
   tryCount: Int
   state: JSON
   billingReceipts: JSON

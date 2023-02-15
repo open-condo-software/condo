@@ -225,6 +225,20 @@ describe('RecurrentPaymentContext', () => {
     })
 
     describe('Validation tests', () => {
+        test('validate both trigger set up', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const request = await getContextRequest()
+            request.autoPayReceipts = true
+
+            await catchErrorFrom(async () => {
+                await createTestRecurrentPaymentContext(admin, request)
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    name: 'ValidationFailureError',
+                    data: { messages: [ 'RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR' ] },
+                }])
+            })
+        })
         test('validate billingCategory is unique for serviceConsumer', async () => {
             const admin = await makeLoggedInAdminClient()
 

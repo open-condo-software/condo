@@ -44696,6 +44696,8 @@ export type RecurrentPayment = {
   _label_?: Maybe<Scalars['String']>;
   /**  Payment proceeding status  */
   status?: Maybe<RecurrentPaymentStatusType>;
+  /**  Payment proceeding should start after date.  */
+  payAfter?: Maybe<Scalars['String']>;
   /**  Count of proceeding tries.  */
   tryCount?: Maybe<Scalars['Int']>;
   /**  Hold current state of payment proceeding.  */
@@ -45139,6 +45141,7 @@ export type RecurrentPaymentContextsUpdateInput = {
 
 export type RecurrentPaymentCreateInput = {
   status?: Maybe<RecurrentPaymentStatusType>;
+  payAfter?: Maybe<Scalars['String']>;
   tryCount?: Maybe<Scalars['Int']>;
   state?: Maybe<Scalars['JSON']>;
   billingReceipts?: Maybe<Scalars['JSON']>;
@@ -45166,6 +45169,7 @@ export type RecurrentPaymentHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
+  payAfter?: Maybe<Scalars['String']>;
   tryCount?: Maybe<Scalars['Int']>;
   state?: Maybe<Scalars['JSON']>;
   billingReceipts?: Maybe<Scalars['JSON']>;
@@ -45187,6 +45191,7 @@ export type RecurrentPaymentHistoryRecord = {
 
 export type RecurrentPaymentHistoryRecordCreateInput = {
   status?: Maybe<Scalars['String']>;
+  payAfter?: Maybe<Scalars['String']>;
   tryCount?: Maybe<Scalars['Int']>;
   state?: Maybe<Scalars['JSON']>;
   billingReceipts?: Maybe<Scalars['JSON']>;
@@ -45213,6 +45218,7 @@ export enum RecurrentPaymentHistoryRecordHistoryActionType {
 
 export type RecurrentPaymentHistoryRecordUpdateInput = {
   status?: Maybe<Scalars['String']>;
+  payAfter?: Maybe<Scalars['String']>;
   tryCount?: Maybe<Scalars['Int']>;
   state?: Maybe<Scalars['JSON']>;
   billingReceipts?: Maybe<Scalars['JSON']>;
@@ -45252,6 +45258,14 @@ export type RecurrentPaymentHistoryRecordWhereInput = {
   status_not_ends_with_i?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  payAfter?: Maybe<Scalars['String']>;
+  payAfter_not?: Maybe<Scalars['String']>;
+  payAfter_lt?: Maybe<Scalars['String']>;
+  payAfter_lte?: Maybe<Scalars['String']>;
+  payAfter_gt?: Maybe<Scalars['String']>;
+  payAfter_gte?: Maybe<Scalars['String']>;
+  payAfter_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  payAfter_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   tryCount?: Maybe<Scalars['Int']>;
   tryCount_not?: Maybe<Scalars['Int']>;
   tryCount_lt?: Maybe<Scalars['Int']>;
@@ -45373,6 +45387,7 @@ export enum RecurrentPaymentStatusType {
 
 export type RecurrentPaymentUpdateInput = {
   status?: Maybe<RecurrentPaymentStatusType>;
+  payAfter?: Maybe<Scalars['String']>;
   tryCount?: Maybe<Scalars['Int']>;
   state?: Maybe<Scalars['JSON']>;
   billingReceipts?: Maybe<Scalars['JSON']>;
@@ -45395,6 +45410,14 @@ export type RecurrentPaymentWhereInput = {
   status_not?: Maybe<RecurrentPaymentStatusType>;
   status_in?: Maybe<Array<Maybe<RecurrentPaymentStatusType>>>;
   status_not_in?: Maybe<Array<Maybe<RecurrentPaymentStatusType>>>;
+  payAfter?: Maybe<Scalars['String']>;
+  payAfter_not?: Maybe<Scalars['String']>;
+  payAfter_lt?: Maybe<Scalars['String']>;
+  payAfter_lte?: Maybe<Scalars['String']>;
+  payAfter_gt?: Maybe<Scalars['String']>;
+  payAfter_gte?: Maybe<Scalars['String']>;
+  payAfter_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  payAfter_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   tryCount?: Maybe<Scalars['Int']>;
   tryCount_not?: Maybe<Scalars['Int']>;
   tryCount_lt?: Maybe<Scalars['Int']>;
@@ -51775,6 +51798,8 @@ export enum SortRecurrentPaymentContextsBy {
 export enum SortRecurrentPaymentHistoryRecordsBy {
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
+  PayAfterAsc = 'payAfter_ASC',
+  PayAfterDesc = 'payAfter_DESC',
   TryCountAsc = 'tryCount_ASC',
   TryCountDesc = 'tryCount_DESC',
   IdAsc = 'id_ASC',
@@ -51798,6 +51823,8 @@ export enum SortRecurrentPaymentHistoryRecordsBy {
 export enum SortRecurrentPaymentsBy {
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
+  PayAfterAsc = 'payAfter_ASC',
+  PayAfterDesc = 'payAfter_DESC',
   TryCountAsc = 'tryCount_ASC',
   TryCountDesc = 'tryCount_DESC',
   RecurrentPaymentContextAsc = 'recurrentPaymentContext_ASC',
