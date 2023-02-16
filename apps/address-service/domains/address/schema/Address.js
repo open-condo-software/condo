@@ -3,18 +3,20 @@
  */
 
 const { Text } = require('@keystonejs/fields')
+const get = require('lodash/get')
+const has = require('lodash/has')
 
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@address-service/domains/address/access/Address')
+const { OVERRIDING_ROOT } = require('@address-service/domains/address/constants')
 
 const Address = new GQLListSchema('Address', {
     schemaDoc: 'A model containing data on the particular building\'s address',
     labelResolver: ({ address }) => address,
     fields: {
-
         address: {
             schemaDoc: 'The normalized address itself in one string',
             type: Text,
@@ -34,6 +36,15 @@ const Address = new GQLListSchema('Address', {
             isRequired: true,
         },
 
+        overrides: {
+            schemaDoc: `The list of overrides for address ${OVERRIDING_ROOT} field`,
+            type: Json,
+            isRequired: false,
+            access: {
+                create: access.canManageOverrides,
+                update: access.canManageOverrides,
+            },
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
