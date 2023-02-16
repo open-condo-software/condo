@@ -45,6 +45,25 @@ describe('BillingIntegrationOrganizationContext', () => {
             expect(updatedContext).toHaveProperty('status', CONTEXT_FINISHED_STATUS)
 
             await catchErrorFrom(async () => {
+                await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+            }, (e) => {
+                expect(e.errors[0].data.messages[0]).toContain('Can\'t create two BillingIntegrationOrganizationContexts')
+            })
+
+            expect(context).toHaveProperty(['integration', 'id'], integration.id)
+            expect(context).toHaveProperty(['organization', 'id'], organization.id)
+        })
+
+        test('admin: can\'t create two BillingIntegrationOrganizationContext for same organization in connected statuses!', async () => {
+            const { context, integration, organization, admin } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+
+            await updateTestBillingIntegration(admin, integration.id, { isHidden: false })
+            const [updatedContext] = await updateTestBillingIntegrationOrganizationContext(admin, context.id, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+            expect(updatedContext).toHaveProperty('status', CONTEXT_FINISHED_STATUS)
+
+            await catchErrorFrom(async () => {
                 await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
                     status: CONTEXT_FINISHED_STATUS,
                 })

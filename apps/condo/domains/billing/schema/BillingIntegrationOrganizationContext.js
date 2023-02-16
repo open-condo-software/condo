@@ -85,7 +85,7 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
     hooks: {
         validateInput: async ({ operation, resolvedData, addValidationError }) => {
             // should have only one explicit (hidden = false) context in organization!
-            if (operation === 'create' && resolvedData['status'] === CONTEXT_FINISHED_STATUS) {
+            if (operation === 'create') {
                 const integration = await getById('BillingIntegration', get(resolvedData, ['integration']))
                 if (get(integration, 'isHidden') === true) { return } // we can add as many b2c integrations as we like
 
