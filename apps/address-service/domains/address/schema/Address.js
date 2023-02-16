@@ -38,6 +38,7 @@ const Address = new GQLListSchema('Address', {
 
         overrides: {
             schemaDoc: `The list of overrides for address ${OVERRIDING_ROOT} field`,
+            adminDoc: `This is a JSON object that must look like {"field":"value"}. Will use to override ${OVERRIDING_ROOT}`,
             type: Json,
             isRequired: false,
             access: {
