@@ -1,5 +1,8 @@
-import type { StorybookConfig } from '@storybook/react/types'
+import get from 'lodash/get'
 import lessLoader from '../less-loader.config.json'
+
+import type { StorybookConfig } from '@storybook/react/types'
+import type { RuleSetRule } from 'webpack'
 
 const baseCssLoaders = [
     'style-loader',
@@ -23,7 +26,7 @@ const config: StorybookConfig = {
     },
     'staticDirs': [{ from: '../public', to: '/ui' }],
     'webpackFinal': async (config) => {
-        const configRules = config && config.module && config.module.rules ? config.module.rules : []
+        const configRules: Array<RuleSetRule> = get(config, ['module', 'rules'], [])
         const modifiedRules = configRules.map(rule => {
             if (typeof rule === 'object' && 'test' in rule && rule.test &&
                 rule.test.constructor === RegExp && rule.test.test('some.css')) {

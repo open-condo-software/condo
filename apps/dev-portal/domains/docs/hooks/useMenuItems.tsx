@@ -19,9 +19,8 @@ function getMenuItems (
     currentTitleLevel: TitleLevel = 4,
     maxTitleLevel: TitleLevel = 5,
 ): Array<MenuItem> {
-    const nextTitleLevel = currentTitleLevel < maxTitleLevel
-        ? currentTitleLevel + 1 as TitleLevel
-        : maxTitleLevel
+    const nextTitleLevel = Math.min(currentTitleLevel + 1, maxTitleLevel) as TitleLevel
+
     return nav
         .filter(item => !item.hidden)
         .map(item => {
