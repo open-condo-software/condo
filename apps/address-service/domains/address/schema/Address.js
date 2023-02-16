@@ -50,6 +50,8 @@ const Address = new GQLListSchema('Address', {
                     Object.entries(get(resolvedData, fieldPath, {}) || {}).forEach(([path, value]) => {
                         if (!has({ ...existingItem, ...resolvedData }, `${OVERRIDING_ROOT}.${path}`)) {
                             addFieldValidationError(`${OVERRIDING_ROOT} does not contains ${path}`)
+                        } else if (get({ ...existingItem, ...resolvedData }, `${OVERRIDING_ROOT}.${path}`) === get(resolvedData, `${fieldPath}.${path}`)) {
+                            addFieldValidationError(`You trying to override field ${OVERRIDING_ROOT}.${path} with the same value`)
                         }
                     })
                 },

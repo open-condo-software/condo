@@ -215,7 +215,30 @@ describe('Address', () => {
             )
         })
 
-        test.todo('throw an error if try to override with the same value', async () => {
+        test('throw an error if try to override with the same value', async () => {
+            await catchErrorFrom(
+                async () => {
+                    await createTestAddress(
+                        adminClient,
+                        {
+                            meta: { data: { someField: 'some-val' } },
+                            overrides: { someField: 'some-val' },
+                        },
+                    )
+                },
+                (caught) => {
+                    expect(caught).toEqual(expect.objectContaining({
+                        errors: [expect.objectContaining({
+                            name: 'ValidationFailureError',
+                            path: ['obj'],
+                            data: expect.objectContaining({
+                                messages: ['You trying to override field meta.data.someField with the same value'],
+                            }),
+                        })],
+                        data: { obj: null },
+                    }))
+                },
+            )
         })
 
         test('fields structure is correct after overriding', async () => {
