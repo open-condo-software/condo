@@ -206,7 +206,7 @@ describe('Address', () => {
                             name: 'ValidationFailureError',
                             path: ['obj'],
                             data: expect.objectContaining({
-                                messages: ['meta.data does not contains nonExistingField'],
+                                messages: ['meta.data does not contains "nonExistingField" field'],
                             }),
                         })],
                         data: { obj: null },
@@ -233,6 +233,110 @@ describe('Address', () => {
                             path: ['obj'],
                             data: expect.objectContaining({
                                 messages: ['You trying to override field meta.data.someField with the same value'],
+                            }),
+                        })],
+                        data: { obj: null },
+                    }))
+                },
+            )
+        })
+
+        test('throw an error if try to override with array', async () => {
+            await catchErrorFrom(
+                async () => {
+                    await createTestAddress(
+                        adminClient,
+                        {
+                            meta: { data: { someField: 'some-val' } },
+                            overrides: [],
+                        },
+                    )
+                },
+                (caught) => {
+                    expect(caught).toEqual(expect.objectContaining({
+                        errors: [expect.objectContaining({
+                            name: 'ValidationFailureError',
+                            path: ['obj'],
+                            data: expect.objectContaining({
+                                messages: ['The "overrides" field must be an object'],
+                            }),
+                        })],
+                        data: { obj: null },
+                    }))
+                },
+            )
+        })
+
+        test('throw an error if try to override with string', async () => {
+            await catchErrorFrom(
+                async () => {
+                    await createTestAddress(
+                        adminClient,
+                        {
+                            meta: { data: { someField: 'some-val' } },
+                            overrides: 'some-val2',
+                        },
+                    )
+                },
+                (caught) => {
+                    expect(caught).toEqual(expect.objectContaining({
+                        errors: [expect.objectContaining({
+                            name: 'ValidationFailureError',
+                            path: ['obj'],
+                            data: expect.objectContaining({
+                                messages: ['The "overrides" field must be an object'],
+                            }),
+                        })],
+                        data: { obj: null },
+                    }))
+                },
+            )
+        })
+
+        test('throw an error if try to override with number', async () => {
+            await catchErrorFrom(
+                async () => {
+                    await createTestAddress(
+                        adminClient,
+                        {
+                            meta: { data: { someField: 'some-val' } },
+                            overrides: 42,
+                        },
+                    )
+                },
+                (caught) => {
+                    expect(caught).toEqual(expect.objectContaining({
+                        errors: [expect.objectContaining({
+                            name: 'ValidationFailureError',
+                            path: ['obj'],
+                            data: expect.objectContaining({
+                                messages: ['The "overrides" field must be an object'],
+                            }),
+                        })],
+                        data: { obj: null },
+                    }))
+                },
+            )
+        })
+
+        test('throw an error if try to override with empty object', async () => {
+            await catchErrorFrom(
+                async () => {
+                    await createTestAddress(
+                        adminClient,
+                        {
+                            meta: { data: { someField: 'some-val' } },
+                            overrides: {},
+                        },
+                    )
+                },
+                (caught) => {
+                    expect(caught).toEqual(expect.objectContaining({
+                        errors: [expect.objectContaining({
+                            name: 'ValidationFailureError',
+                            path: ['obj'],
+                            data: expect.objectContaining({
+                                messages: ['The "overrides" field must be a not empty object'],
                             }),
                         })],
                         data: { obj: null },
