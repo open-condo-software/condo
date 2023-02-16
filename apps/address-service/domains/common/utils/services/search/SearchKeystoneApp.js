@@ -3,7 +3,8 @@ const get = require('lodash/get')
 const set = require('lodash/set')
 
 const { OVERRIDING_ROOT } = require('@address-service/domains/address/constants')
-const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
+
+const { createReturnObject } = require('./searchServiceUtils')
 
 /**
  * @typedef {Object} AddressSearchResult
@@ -19,22 +20,6 @@ class SearchKeystoneApp {
      */
     constructor (plugins) {
         this.plugins = plugins
-    }
-
-    /**
-     * Converts the `Address` model to service response
-     * @param context Keystone context
-     * @param addressModel
-     * @returns {Promise<{ address: string, addressKey: string, addressMeta: NormalizedBuilding, addressSources: string[] }>}
-     */
-    async createReturnObject (context, addressModel) {
-        const addressSources = await AddressSource.getAll(context, { address: { id: addressModel.id } }) || []
-        return {
-            address: addressModel.address,
-            addressKey: addressModel.id,
-            addressMeta: addressModel.meta,
-            addressSources: addressSources.map(({ source }) => source),
-        }
     }
 
     /**
@@ -125,11 +110,19 @@ class SearchKeystoneApp {
                 }
 
                 // Override the values if overrides were set
+                let overridden = {}
                 Object.entries(get(searchResult, 'overrides', {}) || {}).forEach(([path, value]) => {
+                    // 1. Keep overridden value
+                    set(overridden, path, get(searchResult, `${OVERRIDING_ROOT}.${path}`))
+                    // 2. Do override
                     set(searchResult, `${OVERRIDING_ROOT}.${path}`, value)
                 })
 
-                res.json(await this.createReturnObject(keystoneContext.sudo(), searchResult))
+                res.json(await createReturnObject({
+                    context: keystoneContext.sudo(),
+                    addressModel: searchResult,
+                    overridden,
+                }))
             },
         )
 
