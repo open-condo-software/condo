@@ -381,14 +381,18 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                 </Col>
                             </Row>
                         </Col>
-                        <Col span={24}>
-                            <Alert
-                                type='info'
-                                showIcon
-                                message={BlockedEditingTitleMessage}
-                                description={BlockedEditingDescriptionMessage}
-                            />
-                        </Col>
+                        {
+                            isDeletedProperty && (
+                                <Col span={24}>
+                                    <Alert
+                                        type='info'
+                                        showIcon
+                                        message={BlockedEditingTitleMessage}
+                                        description={BlockedEditingDescriptionMessage}
+                                    />
+                                </Col>
+                            )
+                        }
                     </Row>
                     <TicketContent ticket={ticket}/>
                     {
