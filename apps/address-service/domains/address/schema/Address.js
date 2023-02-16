@@ -44,6 +44,16 @@ const Address = new GQLListSchema('Address', {
                 create: access.canManageOverrides,
                 update: access.canManageOverrides,
             },
+            hooks: {
+                validateInput: async (data) => {
+                    const { resolvedData, addFieldValidationError, existingItem, fieldPath } = data
+                    Object.entries(get(resolvedData, fieldPath, {}) || {}).forEach(([path, value]) => {
+                        if (!has({ ...existingItem, ...resolvedData }, `${OVERRIDING_ROOT}.${path}`)) {
+                            addFieldValidationError(`${OVERRIDING_ROOT} does not contains ${path}`)
+                        }
+                    })
+                },
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
