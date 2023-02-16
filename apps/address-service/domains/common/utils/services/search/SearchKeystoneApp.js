@@ -1,6 +1,8 @@
 const express = require('express')
 const get = require('lodash/get')
+const set = require('lodash/set')
 
+const { OVERRIDING_ROOT } = require('@address-service/domains/address/constants')
 const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 
 /**
@@ -121,6 +123,11 @@ class SearchKeystoneApp {
                     res.send(404)
                     return
                 }
+
+                // Override the values if overrides were set
+                Object.entries(get(searchResult, 'overrides', {}) || {}).forEach(([path, value]) => {
+                    set(searchResult, `${OVERRIDING_ROOT}.${path}`, value)
+                })
 
                 res.json(await this.createReturnObject(keystoneContext.sudo(), searchResult))
             },
