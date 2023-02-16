@@ -7,6 +7,7 @@ import {
 import { Col, Row, RowProps } from 'antd'
 import dayjs  from 'dayjs'
 import { get } from 'lodash'
+import uniq from 'lodash/uniq'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -237,14 +238,14 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
         },
     })
     const categories = useMemo(
-        () => incidentClassifiers
-            .map(item => get(item, 'classifier.category.name'))
+        () => uniq(incidentClassifiers
+            .map(item => get(item, 'classifier.category.name')))
             .join(', '),
         [incidentClassifiers])
     const problems = useMemo(
-        () => incidentClassifiers
+        () => uniq(incidentClassifiers
             .map(item => get(item, 'classifier.problem.name'))
-            .filter(Boolean)
+            .filter(Boolean))
             .join(', '),
         [incidentClassifiers])
 

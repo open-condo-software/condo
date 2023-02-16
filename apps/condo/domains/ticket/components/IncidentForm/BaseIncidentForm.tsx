@@ -203,8 +203,8 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
         ClassifierLoader.init().then(async () => {
             const classifiers = await ClassifierLoader.search('', 'rules', null, 500) as IIncidentClassifier[]
             const initialClassifiers = classifiers.filter(classifier => initialClassifierIds.includes(classifier.id))
-            const initialCategoryIds = initialClassifiers.map(classifier => get(classifier, 'category.id'))
-            const initialProblemIds = initialClassifiers.map(classifier => get(classifier, 'problem.id', null)).filter(Boolean)
+            const initialCategoryIds = uniq(initialClassifiers.map(classifier => get(classifier, 'category.id')))
+            const initialProblemIds = uniq(initialClassifiers.map(classifier => get(classifier, 'problem.id', null)).filter(Boolean))
             setClassifiers(classifiers)
             setSelectedCategories(initialCategoryIds)
             setSelectedProblems(initialProblemIds)
