@@ -3,6 +3,8 @@
  */
 
 const faker = require('faker')
+const get = require('lodash/get')
+const set = require('lodash/set')
 
 const {
     makeLoggedInAdminClient,
@@ -16,6 +18,7 @@ const {
     expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
+const { OVERRIDING_ROOT } = require('@address-service/domains/address/constants')
 const {
     Address,
     AddressSource,
@@ -23,11 +26,11 @@ const {
     updateTestAddress,
 } = require('@address-service/domains/address/utils/testSchema')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
+const { createReturnObject } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@address-service/domains/user/utils/testSchema')
-
 
 let adminClient, supportClient, userClient, anonymousClient, sender
 
@@ -213,6 +216,46 @@ describe('Address', () => {
         })
 
         test.todo('throw an error if try to override with the same value', async () => {
+        })
+
+        test('fields structure is correct after overriding', async () => {
+            const [obj, attrs] = await createTestAddress(
+                adminClient,
+                {
+                    meta: { data: { someField: 'some-val' } },
+                    overrides: { someField: 'some-new-val' },
+                },
+            )
+
+            let overridden = {}
+            Object.entries(get(obj, 'overrides', {}) || {}).forEach(([path, value]) => {
+                // 1. Keep overridden value
+                set(overridden, path, get(obj, `${OVERRIDING_ROOT}.${path}`))
+                // 2. Do override
+                set(obj, `${OVERRIDING_ROOT}.${path}`, value)
+            })
+
+            const ret = await createReturnObject({
+                context: adminClient,
+                addressModel: obj,
+                overridden,
+                AddressSourceServerUtils: AddressSource,
+            })
+
+            expect(ret).toEqual(expect.objectContaining({
+                addressMeta: {
+                    data: {
+                        someField: 'some-new-val',
+                    },
+                },
+                overridden: {
+                    addressMeta: {
+                        data: {
+                            someField: 'some-val',
+                        },
+                    },
+                },
+            }))
         })
     })
 

@@ -1,3 +1,9 @@
+const get = require('lodash/get')
+const set = require('lodash/set')
+
+const { OVERRIDING_ROOT } = require('@address-service/domains/address/constants')
+const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
+
 /**
  * @param context Keystone context
  * @param addressServerUtils
@@ -49,4 +55,33 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     return addressItem
 }
 
-module.exports = { createOrUpdateAddressWithSource }
+/**
+ * Converts the `Address` model to service response
+ * @param context Keystone context
+ * @param {Address} addressModel
+ * @param {Object} overridden Original values of overridden fields
+ * @param AddressSourceServerUtils The AddressSource server utils (differs for prod and test env)
+ * @returns {Promise<{ address: string, addressKey: string, addressMeta: NormalizedBuilding, addressSources: string[] }>}
+ */
+async function createReturnObject ({
+    context,
+    addressModel,
+    overridden = {},
+    AddressSourceServerUtils = AddressSource,
+}) {
+    const addressSources = await AddressSourceServerUtils.getAll(context, { address: { id: addressModel.id } }) || []
+    const ret = {
+        address: addressModel.address,
+        addressKey: addressModel.id,
+        addressMeta: addressModel.meta,
+        addressSources: addressSources.map(({ source }) => source),
+    }
+
+    if (Object.keys(overridden).length > 0) {
+        ret.overridden = { addressMeta: { data: overridden } }
+    }
+
+    return ret
+}
+
+module.exports = { createOrUpdateAddressWithSource, createReturnObject }
