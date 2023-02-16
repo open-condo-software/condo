@@ -5,7 +5,14 @@ import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
 import { MDXMapping } from 'domains/docs/components/mdx'
 import { useMenuItems } from 'domains/docs/hooks/useMenuItems'
 import { extractMdx } from 'domains/docs/utils/mdx'
-import { getNavTree, getAllRoutes, getFlatArticles, extractLocalizedTitleParts } from 'domains/docs/utils/routing'
+import {
+    getNavTree,
+    getAllRoutes,
+    getFlatArticles,
+    getNextArticle,
+    getPrevArticle,
+    extractLocalizedTitleParts, 
+} from 'domains/docs/utils/routing'
 import get from 'lodash/get'
 import getConfig from 'next/config'
 import Head from 'next/head'
@@ -210,8 +217,8 @@ export const getStaticProps: GetStaticProps<DocPageProps, GetStaticPathParams> =
     const pageIndex = articles.findIndex((item) => item.route === route)
 
     const currentPage = articles[pageIndex]
-    const prevPage = pageIndex > 0 ? articles[pageIndex - 1] : null
-    const nextPage = (pageIndex < articles.length - 1 && pageIndex != -1) ? articles[pageIndex + 1] : null
+    const prevPage = getPrevArticle(articles, pageIndex)
+    const nextPage = getNextArticle(articles, pageIndex)
 
     const localizedPageTitleParts = extractLocalizedTitleParts(currentPage.route, navTree)
 

@@ -2,6 +2,8 @@ import fs from 'fs'
 import path from 'path'
 
 import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
+import merge from 'lodash/merge'
+import pickBy from 'lodash/pickBy'
 import uniq from 'lodash/uniq'
 import getTitle from 'title'
 
@@ -18,6 +20,7 @@ export type NavItem = {
     label: string
     route: string
     external?: boolean
+    hidden?: boolean
     children?: Array<NavItem>
 }
 
@@ -27,12 +30,15 @@ type FileMetaInfo = {
 }
 
 type ItemDescription =
-    string | // File name mapping
-    { href: string, title: string } // External resource
+    string | // File name mapping via string value
+    { title: string } | // File name mapping via title property
+    { title: string, href: string,  } | // External resource
+    { title: string, hidden: boolean } // Files, which available just from direct url (hidden in menu)
 
 export type ArticleInfo = {
     label: string
     route: string
+    hidden?: boolean
 }
 
 /**
@@ -51,80 +57,104 @@ function _fileComparer (lhs: FileMetaInfo, rhs: FileMetaInfo) {
 }
 
 /**
- * Generates nested navigation tree (root node are excluded, so return type is Array of top-level nodes)
+ * Generates nested articles navigation tree (root node is excluded, so return type is Array of top-level nodes)
  * Recursively:
- * 1. Find all matching doc files in dir
- * 2. Find meta file for specific locale
- * 3. For each key in meta:
+ * 1. Find all matching doc files and subdirectories in dir
+ * 2. Find meta file for specified locale and meta for default locale
+ * 3. Merge meta files (first goes meta from specified locale, then from default locale (only keys missing in specified locale)
+ * 4. For each key in meta:
  *  i. If it's an existing file, return localized name and its relative path (route)
- *  ii. If it's an existing dir, return localize name, its relative path (route) and trigger function for nested objects
+ *  ii. If it's an existing dir, return localize name, its relative path (route) and trigger function for dir children objects
  *  iii. If it's an external link, return external flag with external route.
- * 4. For each file / dir which was not in meta and left after step 3 doing same process, but title are generated from filename itself.
+ * 5. For each file / dir which was not in meta and left after step 5 doing same process, but title are generated from filename itself
+ * and files are sorted alphabetically.
+ * Each file / dir can also be hidden by specifying "hidden" property in meta.
+ * This way they will appear in nav tree and will be accessible by direct link, but will be hidden visually.
  * @param dir - dir to scan files
  * @param locale - current locale used to generate file regex
  * @param rootDir - root dir to generate routes (relative paths)
  */
 export function getNavTree (dir: string, locale: string, rootDir: string): Array<NavItem> {
-    const fileRegexp = getFileNameRegexp(locale)
+    const fileNameRegexp = getFileNameRegexp(locale)
     // Extract all files in dir
     const filePaths = fs.readdirSync(dir, { withFileTypes: true })
-    // Filter MD files without extension
+    // Filter MD / MDX files in current or default locale without extensions
     const files = uniq(filePaths
-        .filter(file => {
-            return file.isFile() && fileRegexp.test(file.name)
-        })
-        .map(file => file.name.split('.')[0]))
-    // Filter dirs
-    const dirs = filePaths
+        .filter(file => file.isFile() && fileNameRegexp.test(file.name))
+        .map(file => file.name.split('.')[0])
+    )
+    // Filter directories
+    const directories = filePaths
         .filter(file => file.isDirectory())
         .map(file => file.name)
-    // Obtain meta info
-    const metaPath = path.join(dir, `_meta.${locale}.json`)
-    const meta: Record<string, ItemDescription> = fs.existsSync(metaPath)
-        ? JSON.parse(fs.readFileSync(metaPath, 'utf-8'))
+    // Obtain meta for current locale and default locale
+    const localizedMetaPath = path.join(dir, `_meta.${locale}.json`)
+    const defaultMetaPath = path.join(dir, `_meta.${DEFAULT_LOCALE}.json`)
+    const localizedMeta: Record<string, ItemDescription> = fs.existsSync(localizedMetaPath)
+        ? JSON.parse(fs.readFileSync(localizedMetaPath, 'utf-8'))
         : {}
+    const defaultMeta: Record<string, ItemDescription> = fs.existsSync(defaultMetaPath)
+        ? JSON.parse(fs.readFileSync(defaultMetaPath, 'utf-8'))
+        : {}
+    // Merge localized meta with default (localized first order, localized override priority)
+    const localizedKeys = Object.keys(localizedMeta)
+    const defaultMetaLeftover = pickBy(defaultMeta, (_, key) => !localizedKeys.includes(key))
+    const meta = merge(localizedMeta, defaultMetaLeftover)
+
     const result: Array<NavItem> = []
-
-    // Process meta
-    for (const [key, value] of Object.entries(meta)) {
-        if (files.includes(key) && typeof value === 'string') {
+    // Process meta info
+    for (const [key, item] of Object.entries(meta)) {
+        if (files.includes(key)) {
             files.splice(files.indexOf(key), 1)
-            result.push({
-                label: value,
-                route: path.relative(rootDir, path.join(dir, key)),
-            })
-
-        } else if (dirs.includes(key) && typeof value === 'string') {
-            dirs.splice(dirs.indexOf(key), 1)
-            const children = getNavTree(path.join(dir, key), locale, rootDir)
-            if (children.length) {
+            if (typeof item === 'string') {
                 result.push({
-                    label: value,
+                    label: item,
+                    route: path.relative(rootDir, path.join(dir, key)),
+                })
+            } else {
+                result.push({
+                    label: item.title,
+                    route: path.relative(rootDir, path.join(dir, key)),
+                    hidden: 'hidden' in item ? item.hidden : undefined,
+                })
+            }
+        } else if (directories.includes(key)) {
+            directories.splice(directories.indexOf(key), 1)
+            const children = getNavTree(path.join(dir, key), locale, rootDir)
+            if (typeof item === 'string') {
+                result.push({
+                    label: item,
                     route: path.relative(rootDir, path.join(dir, key)),
                     children,
                 })
+            } else {
+                result.push({
+                    label: item.title,
+                    route: path.relative(rootDir, path.join(dir, key)),
+                    hidden: 'hidden' in item ? item.hidden : undefined,
+                    children,
+                })
             }
-        } else if (typeof value === 'object' && 'title' in value && 'href' in value) {
+        } else if (typeof item === 'object' && 'href' in item) {
             result.push({
-                label: value.title,
-                route: value.href,
+                label: item.title,
+                route: item.href,
                 external: true,
             })
         }
     }
 
-    // Sort rest of the files (was not in meta) alphabetically
+    // Sort rest of the files which was not in localized / default meta alphabetically
     const restFiles: Array<FileMetaInfo> = [
         ...files.map(name => ({ name, isDir: false })),
-        ...dirs.map(name => ({ name, isDir: true })),
+        ...directories.map(name => ({ name, isDir: true })),
     ]
     restFiles.sort(_fileComparer)
 
-    // Process rest of the files using title pkg for generation titles
+    // Process rest of the files using title package for generation titles
     for (const fileInfo of restFiles) {
         const label = getTitle(fileInfo.name)
         const route = path.relative(rootDir, path.join(dir, fileInfo.name))
-
         if (fileInfo.isDir) {
             const children = getNavTree(path.join(dir, fileInfo.name), locale, rootDir)
             if (children.length) {
@@ -147,9 +177,42 @@ export function *getFlatArticles (navTree: Array<NavItem>): IterableIterator<Art
         if (item.children) {
             yield *getFlatArticles(item.children)
         } else if (!item.external) {
-            yield { label: item.label, route: item.route }
+            // NOTE: undefined is not serializable in props
+            yield { label: item.label, route: item.route, hidden: item.hidden || false }
         }
     }
+}
+
+/**
+ * Finds next non-hidden article starting from (currentIndex + 1) pos
+ * @param articles - All articles
+ * @param currentIndex - Current index
+ */
+export function getNextArticle (articles: Array<ArticleInfo>, currentIndex: number): ArticleInfo | null {
+    for (let idx = currentIndex + 1; idx < articles.length; ++idx) {
+        const article = articles[idx]
+        if (!article.hidden) {
+            return article
+        }
+    }
+
+    return null
+}
+
+/**
+ * Finds previous non-hidden article starting from (currentIndex - 1) pos
+ * @param articles - All articles
+ * @param currentIndex - Current index
+ */
+export function getPrevArticle (articles: Array<ArticleInfo>, currentIndex: number): ArticleInfo | null {
+    for (let idx = currentIndex - 1; idx >= 0; --idx) {
+        const article = articles[idx]
+        if (!article.hidden) {
+            return article
+        }
+    }
+
+    return null
 }
 
 /**
