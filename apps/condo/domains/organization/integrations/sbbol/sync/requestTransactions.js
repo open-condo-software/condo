@@ -5,7 +5,8 @@ const { validate: uuidValidate } = require('uuid')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { BankAccount, BankTransaction } = require('@condo/domains/banking/utils/serverSchema')
+const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
+const { BankAccount, BankTransaction, BankIntegration, BankIntegrationContext } = require('@condo/domains/banking/utils/serverSchema')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
@@ -24,9 +25,8 @@ const isTransactionsReceived = (response) => (get(response, 'error.cause', '') !
  *  @param {keystoneContext} context
  *  @param {String} statementDate
  *  @param {String} organizationId
- *  @param {String} bankIntegrationContextId
  */
-async function _requestTransactions ({ userId, bankAccounts, context, statementDate, organizationId, bankIntegrationContextId }) {
+async function _requestTransactions ({ userId, bankAccounts, context, statementDate, organizationId }) {
     const fintechApi = await initSbbolFintechApi(userId)
 
     if (!fintechApi) return
@@ -102,11 +102,11 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
                 const foundTransaction = await BankTransaction.getOne(context, {
                     organization: { id: organizationId },
                     account: { id: bankAccount.id },
-                    integrationContext: { id: bankIntegrationContextId },
                     ...whereConditions,
                 })
 
                 if (!foundTransaction) {
+                    const bankIntegrationContextId = get(bankAccount, 'integrationContext.id')
                     const createdTransaction = await BankTransaction.create(context, {
                         organization: { connect: { id: organizationId } },
                         account: { connect: { id: bankAccount.id } },
@@ -128,16 +128,23 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
  * @param {String[] | String} date
  * @param {String} userId
  * @param {Organization} organization
- * @param {String} bankIntegrationContextId
  * @returns {Promise<Transaction[]>}
  */
-async function requestTransactions ({ date, userId, organization, bankIntegrationContextId }) {
+async function requestTransactions ({ date, userId, organization }) {
     if (!uuidValidate(userId)) return logger.error(`passed userId is not a valid uuid. userId: ${userId}`)
     if (!date) return logger.error('date is required')
 
     const { keystone: context } = await getSchemaCtx('Organization')
     // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
-    const bankAccounts = await BankAccount.getAll(context, { tin: organization.tin, deletedAt: null })
+    const bankAccounts = await BankAccount.getAll(context, {
+        tin: organization.tin,
+        integrationContext: {
+            integration: {
+                id: BANK_INTEGRATION_IDS.SBBOL,
+            },
+        },
+        deletedAt: null,
+    })
     const today = dayjs().format('YYYY-MM-DD')
 
     if (typeof date === 'string') {
@@ -152,7 +159,6 @@ async function requestTransactions ({ date, userId, organization, bankIntegratio
             context,
             statementDate: date,
             organizationId: organization.id,
-            bankIntegrationContextId,
         })
     } else {
         const transactions = []
@@ -167,7 +173,6 @@ async function requestTransactions ({ date, userId, organization, bankIntegratio
                 context,
                 statementDate,
                 organizationId: organization.id,
-                bankIntegrationContextId,
             }))
         }
         return transactions
