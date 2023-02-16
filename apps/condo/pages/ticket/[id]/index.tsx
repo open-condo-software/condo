@@ -472,8 +472,8 @@ const TicketIdPage = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
 
-    const { user, isLoading: userLoading } = useAuth()
-    const { link, organization, selectLink, isLoading: currentOrganizationLoading } = useOrganization()
+    const { user } = useAuth()
+    const { link, organization, selectLink } = useOrganization()
 
     const router = useRouter()
 
@@ -482,8 +482,6 @@ const TicketIdPage = () => {
 
     const { refetch: refetchTicket, loading: ticketLoading, obj: ticket, error } = Ticket.useObject({
         where: { id },
-    }, {
-        fetchPolicy: 'network-only',
     })
 
     const userId = get(user, 'id', null)
@@ -491,7 +489,6 @@ const TicketIdPage = () => {
 
     const {
         obj: ticketOrganizationEmployee,
-        loading: ticketOrganizationEmployeeLoading,
     } = OrganizationEmployee.useObject({
         where: {
             user: { id: userId },
@@ -499,34 +496,34 @@ const TicketIdPage = () => {
         },
     })
 
-    const { canEmployeeReadTicket, ticketFilterQueryLoading } = useTicketVisibility()
-    const isEmployeeReadTicket = canEmployeeReadTicket(ticket)
-
-    const loading = userLoading || currentOrganizationLoading || ticketLoading || ticketOrganizationEmployeeLoading || ticketFilterQueryLoading
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
 
-    if (loading) {
+    const ticketOrganizationEmployeeOrganizationId = get(ticketOrganizationEmployee, 'organization.id')
+    const currentEmployeeOrganization = get(organization, 'id')
+
+    useEffect(() => {
+        if (
+            ticketOrganizationEmployeeOrganizationId &&
+            ticketOrganizationEmployeeOrganizationId !== currentEmployeeOrganization
+        ) {
+            selectLink(ticketOrganizationEmployee)
+        }
+    }, [ticketOrganizationEmployeeOrganizationId, currentEmployeeOrganization])
+
+    const { canEmployeeReadTicket, ticketFilterQueryLoading } = useTicketVisibility()
+
+    if (!ticket || ticketFilterQueryLoading) {
         return (
             <LoadingOrErrorPage
-                title={TicketTitleMessage}
-                loading={loading}
+                loading={ticketFilterQueryLoading || ticketLoading}
                 error={error && ServerErrorMessage}
             />
         )
     }
 
-    const ticketOrganizationEmployeeOrganizationId = get(ticketOrganizationEmployee, 'organization.id')
-    const currentEmployeeOrganization = get(organization, 'id')
-    if (
-        ticketOrganizationEmployeeOrganizationId &&
-        ticketOrganizationEmployeeOrganizationId !== currentEmployeeOrganization
-    ) {
-        selectLink(ticketOrganizationEmployee)
-    }
-
-    if (!ticket || !ticketOrganizationEmployee || !isEmployeeReadTicket) {
+    if (!canEmployeeReadTicket(ticket)) {
         return (
-            <AccessDeniedPage title={TicketTitleMessage} />
+            <AccessDeniedPage />
         )
     }
 
@@ -539,7 +536,7 @@ const TicketIdPage = () => {
                 <PageContent>
                     <TicketPageContent
                         ticket={ticket}
-                        loading={loading}
+                        loading={ticketLoading}
                         refetchTicket={refetchTicket}
                         organization={organization}
                         employee={link}
