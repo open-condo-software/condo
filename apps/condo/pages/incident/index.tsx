@@ -1,4 +1,10 @@
-import { IncidentWhereInput, SortIncidentsBy, Incident as IIncident, OrganizationWhereInput } from '@app/condo/schema'
+import {
+    IncidentWhereInput,
+    SortIncidentsBy,
+    Incident as IIncident,
+    OrganizationWhereInput,
+    PropertyWhereInput,
+} from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import get from 'lodash/get'
@@ -32,6 +38,7 @@ import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBoole
 import { useIncidentTableColumns, UseTableColumnsType } from '@condo/domains/ticket/hooks/useIncidentTableColumns'
 import { useIncidentTableFilters } from '@condo/domains/ticket/hooks/useIncidentTableFilters'
 import { Incident, IncidentProperty } from '@condo/domains/ticket/utils/clientSchema'
+import { getFilterAddressForSearch } from '@condo/domains/ticket/utils/tables.utils'
 
 
 export interface IIncidentIndexPage extends React.FC {
@@ -134,6 +141,8 @@ const FilterContainer: React.FC<FilterContainerProps> = () => {
     )
 }
 
+const filterAddressForSearch = getFilterAddressForSearch()
+
 const useIncidentsSearch = ({ baseQuery, filterMetas }) => {
     const router = useRouter()
     const { filters, offset, sorters } = useMemo(() => parseQuery(router.query), [router.query])
@@ -165,10 +174,15 @@ const useIncidentsSearch = ({ baseQuery, filterMetas }) => {
             return { where: {} }
         }
 
+        const propertyWhere = filterAddressForSearch(search) as { property: PropertyWhereInput }
+        if (!propertyWhere) {
+            return { where: {} }
+        }
+
         const { data: { objs: foundedProperties, meta: { count: countProperties } } } = await properties.refetch({
             where: {
                 ...baseQuery,
-                address_contains_i: search,
+                ...propertyWhere.property,
                 deletedAt: null,
             },
         })
