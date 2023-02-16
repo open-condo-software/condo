@@ -11,6 +11,7 @@ import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/ut
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 
 const BillingPage = () => {
     const intl = useIntl()
@@ -28,6 +29,7 @@ const BillingPage = () => {
             organization: {
                 id: organizationId,
             },
+            status: CONTEXT_FINISHED_STATUS,
         },
     }, {
         fetchPolicy: 'network-only',
