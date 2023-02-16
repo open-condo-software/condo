@@ -22,50 +22,52 @@ function getMenuItems (
     const nextTitleLevel = currentTitleLevel < maxTitleLevel
         ? currentTitleLevel + 1 as TitleLevel
         : maxTitleLevel
-    return nav.map(item => {
-        const route = `${entryEndpoint}/${item.route}`
-        const isActive = route === currentRoute
-        const textType = isActive ? 'success' : 'secondary'
-        const children = item.children
-            ? getMenuItems(item.children, locale, currentRoute, entryEndpoint, nextTitleLevel, maxTitleLevel)
-            : undefined
+    return nav
+        .filter(item => !item.hidden)
+        .map(item => {
+            const route = `${entryEndpoint}/${item.route}`
+            const isActive = route === currentRoute
+            const textType = isActive ? 'success' : 'secondary'
+            const children = item.children
+                ? getMenuItems(item.children, locale, currentRoute, entryEndpoint, nextTitleLevel, maxTitleLevel)
+                : undefined
 
-        if (item.children) {
-            return {
-                key: route,
-                label: (
-                    <Typography.Title level={currentTitleLevel} type='secondary' ellipsis>
-                        {item.label}
-                    </Typography.Title>
-                ),
-                children,
-            }
-        }
-
-        if (item.external) {
-            return {
-                key: route,
-                label: (
-                    <a href={item.route} target='_blank' rel='noreferrer'>
+            if (item.children) {
+                return {
+                    key: route,
+                    label: (
                         <Typography.Title level={currentTitleLevel} type='secondary' ellipsis>
                             {item.label}
                         </Typography.Title>
-                    </a>
+                    ),
+                    children,
+                }
+            }
+
+            if (item.external) {
+                return {
+                    key: route,
+                    label: (
+                        <a href={item.route} target='_blank' rel='noreferrer'>
+                            <Typography.Title level={currentTitleLevel} type='secondary' ellipsis>
+                                {item.label}
+                            </Typography.Title>
+                        </a>
+                    ),
+                }
+            }
+
+            return {
+                key: route,
+                label: (
+                    <Link href={route} locale={locale}>
+                        <Typography.Title level={currentTitleLevel} type={textType} ellipsis>
+                            {item.label}
+                        </Typography.Title>
+                    </Link>
                 ),
             }
-        }
-
-        return {
-            key: route,
-            label: (
-                <Link href={route} locale={locale}>
-                    <Typography.Title level={currentTitleLevel} type={textType} ellipsis>
-                        {item.label}
-                    </Typography.Title>
-                </Link>
-            ),
-        }
-    })
+        })
 }
 
 export function useMenuItems (

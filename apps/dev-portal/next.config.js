@@ -38,6 +38,11 @@ const nextConfig = {
                 destination: docsEntryEndpoint,
                 permanent: false,
             },
+            {
+                source: '/docs',
+                destination: docsEntryEndpoint,
+                permanent: false,
+            },
         ]
     },
     webpack: (config) => {
