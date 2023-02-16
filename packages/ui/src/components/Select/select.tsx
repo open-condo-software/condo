@@ -40,10 +40,11 @@ const Select: ISelect = (props) => {
         [`${SELECT_CLASS_PREFIX}-${type}`]: type,
     })
 
-    const handleChange = useCallback((value: any, option: any) => {
+    // TODO(DOMA-5347): Handle this value and option properly
+    const handleChange = useCallback((value: OptionType['value'], option: any) => {
         const title = extractChildrenContent(option.children)
         if (title) {
-            sendAnalyticsSelectEvent('Select', { label: title, value, id })
+            sendAnalyticsSelectEvent('Select', { label: title, value: String(value), id })
         }
 
         if (onChange) {
