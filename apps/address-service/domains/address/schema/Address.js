@@ -5,6 +5,8 @@
 const { Text } = require('@keystonejs/fields')
 const get = require('lodash/get')
 const has = require('lodash/has')
+const isEmpty = require('lodash/isEmpty')
+const isPlainObject = require('lodash/isPlainObject')
 
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -38,7 +40,7 @@ const Address = new GQLListSchema('Address', {
 
         overrides: {
             schemaDoc: `The list of overrides for address ${OVERRIDING_ROOT} field`,
-            adminDoc: `This is a JSON object that must look like {"field":"value"}. Will use to override ${OVERRIDING_ROOT}`,
+            adminDoc: `This is a JSON object that must look like {"field":"value", "someField.nestedField": "value2"}. Will use to override ${OVERRIDING_ROOT}`,
             type: Json,
             isRequired: false,
             access: {
@@ -48,13 +50,28 @@ const Address = new GQLListSchema('Address', {
             hooks: {
                 validateInput: async (data) => {
                     const { resolvedData, addFieldValidationError, existingItem, fieldPath } = data
-                    Object.entries(get(resolvedData, fieldPath, {}) || {}).forEach(([path, value]) => {
-                        if (!has({ ...existingItem, ...resolvedData }, `${OVERRIDING_ROOT}.${path}`)) {
-                            addFieldValidationError(`${OVERRIDING_ROOT} does not contains ${path}`)
-                        } else if (get({ ...existingItem, ...resolvedData }, `${OVERRIDING_ROOT}.${path}`) === get(resolvedData, `${fieldPath}.${path}`)) {
-                            addFieldValidationError(`You trying to override field ${OVERRIDING_ROOT}.${path} with the same value`)
-                        }
-                    })
+
+                    const overrides = get(resolvedData, fieldPath)
+
+                    if (overrides === null) {
+                        return
+                    }
+
+                    if (!isPlainObject(overrides)) {
+                        addFieldValidationError(`The "${fieldPath}" field must be an object`)
+                    } else {
+                        isEmpty(overrides) && addFieldValidationError(`The "${fieldPath}" field must be a not empty object`)
+
+                        const possibleObj = { ...existingItem, ...resolvedData }
+
+                        Object.entries(overrides).forEach(([path, value]) => {
+                            if (!has(possibleObj, `${OVERRIDING_ROOT}.${path}`)) {
+                                addFieldValidationError(`${OVERRIDING_ROOT} does not contains "${path}" field`)
+                            } else if (get(possibleObj, `${OVERRIDING_ROOT}.${path}`) === get(resolvedData, `${fieldPath}.${path}`)) {
+                                addFieldValidationError(`You trying to override field ${OVERRIDING_ROOT}.${path} with the same value`)
+                            }
+                        })
+                    }
                 },
             },
         },
