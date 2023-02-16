@@ -123,7 +123,7 @@ describe('RegisterMultiPaymentService', () => {
                     limit: '10000',
                     autoPayReceipts: false,
                     paymentDay: 10,
-                    settings: {},
+                    settings: { cardId: faker.datatype.uuid() },
                     serviceConsumer: { connect: { id: serviceConsumerId } },
                     billingCategory: { connect: { id: billingCategory.id } },
                 }
@@ -810,7 +810,7 @@ describe('RegisterMultiPaymentService', () => {
                         limit: '10000',
                         autoPayReceipts: false,
                         paymentDay: 10,
-                        settings: {},
+                        settings: { cardId: faker.datatype.uuid() },
                         serviceConsumer: { connect: { id: serviceConsumerId } },
                         billingCategory: { connect: { id: billingCategory.id } },
                     }
