@@ -41417,6 +41417,7 @@ type RecurrentPaymentContextHistoryRecord {
   limit: String
   autoPayReceipts: Boolean
   paymentDay: Int
+  settings: JSON
   serviceConsumer: String
   billingCategory: String
   id: ID!
@@ -41467,6 +41468,10 @@ input RecurrentPaymentContextHistoryRecordWhereInput {
   paymentDay_gte: Int
   paymentDay_in: [Int]
   paymentDay_not_in: [Int]
+  settings: JSON
+  settings_not: JSON
+  settings_in: [JSON]
+  settings_not_in: [JSON]
   serviceConsumer: String
   serviceConsumer_not: String
   serviceConsumer_in: [String]
@@ -41589,6 +41594,7 @@ input RecurrentPaymentContextHistoryRecordUpdateInput {
   limit: String
   autoPayReceipts: Boolean
   paymentDay: Int
+  settings: JSON
   serviceConsumer: String
   billingCategory: String
   v: Int
@@ -41615,6 +41621,7 @@ input RecurrentPaymentContextHistoryRecordCreateInput {
   limit: String
   autoPayReceipts: Boolean
   paymentDay: Int
+  settings: JSON
   serviceConsumer: String
   billingCategory: String
   v: Int
@@ -41633,6 +41640,14 @@ input RecurrentPaymentContextHistoryRecordCreateInput {
 
 input RecurrentPaymentContextHistoryRecordsCreateInput {
   data: RecurrentPaymentContextHistoryRecordCreateInput
+}
+
+type SettingsField {
+  cardId: String!
+}
+
+input SettingsFieldInput {
+  cardId: String!
 }
 
 input ServiceConsumerRelateToOneInput {
@@ -41668,6 +41683,9 @@ type RecurrentPaymentContext {
   """ The day of month when resident`s receipts going to be proceeded. Only one trigger should be configured: autoPayReceipts or paymentDay. 
   """
   paymentDay: Int
+
+  """ Settings. Should contain recurrent payment context configuration. """
+  settings: SettingsField
 
   """ Link to ServiceConsumer """
   serviceConsumer: ServiceConsumer
@@ -41730,6 +41748,10 @@ input RecurrentPaymentContextWhereInput {
   paymentDay_gte: Int
   paymentDay_in: [Int]
   paymentDay_not_in: [Int]
+  settings: SettingsFieldInput
+  settings_not: SettingsFieldInput
+  settings_in: [SettingsFieldInput]
+  settings_not_in: [SettingsFieldInput]
   serviceConsumer: ServiceConsumerWhereInput
   serviceConsumer_is_null: Boolean
   billingCategory: BillingCategoryWhereInput
@@ -41832,6 +41854,7 @@ input RecurrentPaymentContextUpdateInput {
   limit: String
   autoPayReceipts: Boolean
   paymentDay: Int
+  settings: SettingsFieldInput
   serviceConsumer: ServiceConsumerRelateToOneInput
   billingCategory: BillingCategoryRelateToOneInput
   v: Int
@@ -41855,6 +41878,7 @@ input RecurrentPaymentContextCreateInput {
   limit: String
   autoPayReceipts: Boolean
   paymentDay: Int
+  settings: SettingsFieldInput
   serviceConsumer: ServiceConsumerRelateToOneInput
   billingCategory: BillingCategoryRelateToOneInput
   v: Int

@@ -44741,6 +44741,8 @@ export type RecurrentPaymentContext = {
   autoPayReceipts?: Maybe<Scalars['Boolean']>;
   /**  The day of month when resident`s receipts going to be proceeded. Only one trigger should be configured: autoPayReceipts or paymentDay.  */
   paymentDay?: Maybe<Scalars['Int']>;
+  /**  Settings. Should contain recurrent payment context configuration.  */
+  settings?: Maybe<SettingsField>;
   /**  Link to ServiceConsumer  */
   serviceConsumer?: Maybe<ServiceConsumer>;
   /**  Link to BillingCategory  */
@@ -44766,6 +44768,7 @@ export type RecurrentPaymentContextCreateInput = {
   limit?: Maybe<Scalars['String']>;
   autoPayReceipts?: Maybe<Scalars['Boolean']>;
   paymentDay?: Maybe<Scalars['Int']>;
+  settings?: Maybe<SettingsFieldInput>;
   serviceConsumer?: Maybe<ServiceConsumerRelateToOneInput>;
   billingCategory?: Maybe<BillingCategoryRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
@@ -44794,6 +44797,7 @@ export type RecurrentPaymentContextHistoryRecord = {
   limit?: Maybe<Scalars['String']>;
   autoPayReceipts?: Maybe<Scalars['Boolean']>;
   paymentDay?: Maybe<Scalars['Int']>;
+  settings?: Maybe<Scalars['JSON']>;
   serviceConsumer?: Maybe<Scalars['String']>;
   billingCategory?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -44816,6 +44820,7 @@ export type RecurrentPaymentContextHistoryRecordCreateInput = {
   limit?: Maybe<Scalars['String']>;
   autoPayReceipts?: Maybe<Scalars['Boolean']>;
   paymentDay?: Maybe<Scalars['Int']>;
+  settings?: Maybe<Scalars['JSON']>;
   serviceConsumer?: Maybe<Scalars['String']>;
   billingCategory?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -44843,6 +44848,7 @@ export type RecurrentPaymentContextHistoryRecordUpdateInput = {
   limit?: Maybe<Scalars['String']>;
   autoPayReceipts?: Maybe<Scalars['Boolean']>;
   paymentDay?: Maybe<Scalars['Int']>;
+  settings?: Maybe<Scalars['JSON']>;
   serviceConsumer?: Maybe<Scalars['String']>;
   billingCategory?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -44892,6 +44898,10 @@ export type RecurrentPaymentContextHistoryRecordWhereInput = {
   paymentDay_gte?: Maybe<Scalars['Int']>;
   paymentDay_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   paymentDay_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  settings?: Maybe<Scalars['JSON']>;
+  settings_not?: Maybe<Scalars['JSON']>;
+  settings_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  settings_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   serviceConsumer?: Maybe<Scalars['String']>;
   serviceConsumer_not?: Maybe<Scalars['String']>;
   serviceConsumer_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -45003,6 +45013,7 @@ export type RecurrentPaymentContextUpdateInput = {
   limit?: Maybe<Scalars['String']>;
   autoPayReceipts?: Maybe<Scalars['Boolean']>;
   paymentDay?: Maybe<Scalars['Int']>;
+  settings?: Maybe<SettingsFieldInput>;
   serviceConsumer?: Maybe<ServiceConsumerRelateToOneInput>;
   billingCategory?: Maybe<BillingCategoryRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
@@ -45049,6 +45060,10 @@ export type RecurrentPaymentContextWhereInput = {
   paymentDay_gte?: Maybe<Scalars['Int']>;
   paymentDay_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   paymentDay_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  settings?: Maybe<SettingsFieldInput>;
+  settings_not?: Maybe<SettingsFieldInput>;
+  settings_in?: Maybe<Array<Maybe<SettingsFieldInput>>>;
+  settings_not_in?: Maybe<Array<Maybe<SettingsFieldInput>>>;
   serviceConsumer?: Maybe<ServiceConsumerWhereInput>;
   serviceConsumer_is_null?: Maybe<Scalars['Boolean']>;
   billingCategory?: Maybe<BillingCategoryWhereInput>;
@@ -48070,6 +48085,15 @@ export type SetMessageStatusOutput = {
   __typename?: 'SetMessageStatusOutput';
   id: Scalars['ID'];
   status: Scalars['String'];
+};
+
+export type SettingsField = {
+  __typename?: 'SettingsField';
+  cardId: Scalars['String'];
+};
+
+export type SettingsFieldInput = {
+  cardId: Scalars['String'];
 };
 
 export type ShareTicketInput = {

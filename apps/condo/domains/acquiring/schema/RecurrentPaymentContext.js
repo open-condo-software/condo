@@ -9,7 +9,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RecurrentPaymentContext')
 const { RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR } = require('@condo/domains/acquiring/constants/errors')
-
+const { SETTINGS_FIELD } = require('@condo/domains/acquiring/schema/fields/Settings')
 
 const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
     schemaDoc: 'Recurrent payments context configuration. Holding settings, limits and etc, configured by resident for background process that proceeding resident`s receipts on monthly basis.',
@@ -44,6 +44,8 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
                 },
             },
         },
+
+        settings: SETTINGS_FIELD,
 
         serviceConsumer: {
             schemaDoc: 'Link to ServiceConsumer',
