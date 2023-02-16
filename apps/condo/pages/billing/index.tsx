@@ -10,8 +10,8 @@ import { BillingPageContent } from '@condo/domains/billing/components/BillingPag
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 const BillingPage = () => {
     const intl = useIntl()
