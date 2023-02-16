@@ -2,8 +2,9 @@ import { CheckOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Col, Row, Space, Image } from 'antd'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
+import React, { HtmlHTMLAttributes, CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
 
+import { ChevronRight } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Tag, Carousel, Button } from '@open-condo/ui'
 import type { ButtonProps, CarouselRef } from '@open-condo/ui'
@@ -54,12 +55,16 @@ type TopCardProps = {
     connectAction: () => void
 }
 
+type ArrowProps = HtmlHTMLAttributes<HTMLDivElement> & {
+    size?: 'medium' | 'large';
+}
+
 const ArrowWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   border-radius: 100%;
   border: 1px solid ${colors.white};
   background: ${colors.white};
@@ -72,15 +77,17 @@ const ArrowWrapper = styled.div`
     border-color: ${colors.gray['3']};
     color: ${colors.black};
   }
+
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+  }
 `
 
-const Arrow: React.FC<React.HtmlHTMLAttributes<HTMLDivElement>> = (props) => {
-    // TODO (DOMA-4666): Move to icons pack
+const Arrow: React.FC<ArrowProps> = ({ size = 'large', ...props }) => {
     return (
         <ArrowWrapper {...props} className='preview-arrow'>
-            <svg  width='9' height='14' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                <path d='M1 2.374 5.414 7 1 11.626 2.293 13 8 7 2.293 1 1 2.374Z' fill='currentColor' stroke='currentColor' strokeWidth='.7'/>
-            </svg>
+            <ChevronRight size={size} />
         </ArrowWrapper>
     )
 }
@@ -231,8 +238,8 @@ const TopCard = React.memo<TopCardProps>(({
                         <div style={HIDE_GALLERY_STYLES}>
                             <Image.PreviewGroup
                                 icons={{
-                                    right: <Arrow onClick={handleNextPreview}/>,
-                                    left: <Arrow style={ARROW_REVERSE_STYLES} onClick={handlePrevPreview}/>,
+                                    right: <Arrow size={isWide ? 'large' : 'medium'} onClick={handleNextPreview}/>,
+                                    left: <Arrow style={ARROW_REVERSE_STYLES} size={isWide ? 'large' : 'medium'} onClick={handlePrevPreview}/>,
                                 }}
                                 preview={{
                                     visible: previewVisible,

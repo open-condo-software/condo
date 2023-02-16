@@ -458,16 +458,39 @@ const cardCSS = css`
 `
 
 const previewCSS = css`
+  .ant-image-preview-switch-left {
+    left: 60px;
+  },
+  .ant-image-preview-switch-right {
+    right: 60px;
+  },
   .ant-image-preview-switch-left,
   .ant-image-preview-switch-right {
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    height: 60px;
     background: transparent;
   }
   .ant-image-preview-img {
     width: auto;
-    max-width: calc(100vw - 120px) !important;
+    max-width: calc(100vw - 260px) !important;
     height: 600px;
     object-fit: contain;
+  }
+  @media (max-width: 768px) {
+    .ant-image-preview-switch-left {
+      left: 40px;
+    },
+    .ant-image-preview-switch-right {
+      right: 40px;
+    },
+    .ant-image-preview-switch-left,
+    .ant-image-preview-switch-right {
+      width: 40px;
+      height: 40px;
+    }
+    .ant-image-preview-img {
+      max-width: calc(100vw - 180px) !important;
+      height: 330px;
+    }
   }
 `
