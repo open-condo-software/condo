@@ -6,5 +6,5 @@
     "preserveSymlinks": true,
   },
   "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts"],
-  "exclude": ["node_modules", "**/@open-condo"]
+  "exclude": ["node_modules"]
 }
