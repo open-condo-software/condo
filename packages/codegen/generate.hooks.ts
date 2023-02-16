@@ -252,36 +252,46 @@ export function generateReactHooks<
     }
 
     function useAllObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
-        const { objs, count, error, loading, refetch, fetchMore, stopPolling } = useObjects(variables, options)
+        const { objs, count, error, loading, refetch: _refetch, fetchMore, stopPolling } = useObjects(variables, options)
         const [data, setData] = useState(objs)
-        const [allDataLoaded, setAllDataLoaded] = useState<boolean>(false)
+        const [fetchMoreError, setFetchMoreError] = useState()
+
+        const refetch: IRefetchType<GQLObject, QueryVariables> = useCallback((...args) => {
+            setData([])
+            return _refetch(...args)
+        }, [_refetch])
 
         useDeepCompareEffect(() => {
             setData([])
         }, [variables])
 
-        useDeepCompareEffect(() => {
-            if (data.length === count) {
-                setAllDataLoaded(true)
+        useEffect(() => {
+            const isAllDataLoaded = objs.length === count || data.length === count
+            if (isAllDataLoaded || loading || error || fetchMoreError) {
+                return
             }
 
-            if (!loading && fetchMore && count > data.length) {
-                fetchMore({
-                    variables: {
-                        skip: data.length,
-                    },
-                })
-                    // @ts-ignore
-                    .then(({ data }) => setData(prevData => [...prevData, ...data.objs]))
+            if (data.length === 0) {
+                setData(objs)
+                return
             }
-        }, [count, fetchMore, loading, objs, data])
+
+            fetchMore({
+                variables: {
+                    skip: data.length,
+                },
+            })
+                // @ts-ignore
+                .then(({ data }) => setData(prevData => [...prevData, ...data.objs]))
+                .catch(e => setFetchMoreError(e))
+        }, [loading, data.length])
 
         return {
             loading,
-            allDataLoaded,
-            objs: data,
+            allDataLoaded: data.length === 0 ? objs.length === count : data.length === count,
+            objs: data.length === 0 ? objs : data,
             count,
-            error,
+            error: error || fetchMoreError,
             refetch,
             fetchMore,
             stopPolling,
