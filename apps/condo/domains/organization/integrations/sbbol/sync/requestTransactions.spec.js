@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { BankIntegration, createTestBankIntegrationContext, BankAccount } = require('@condo/domains/banking/utils/testSchema')
+const { createTestBankIntegrationContext, BankAccount, BankIntegrationContext, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { requestTransactions } = require('@condo/domains/organization/integrations/sbbol/sync/requestTransactions')
 const { createTestOrganization, Organization, generateTin } = require('@condo/domains/organization/utils/testSchema')
@@ -47,10 +47,10 @@ jest.mock('@condo/domains/organization/integrations/sbbol/SbbolFintechApi',  () 
     }
 })
 
-describe('syncBankAccount from SBBOL', () => {
+describe('syncBankTransaction from SBBOL', () => {
     setFakeClientMode(index)
 
-    let adminClient, commonClient, adminContext, context, commonOrganization, bankIntegration, commonBankIntegrationContext, commonBankIntegrationContextAttrs
+    let adminClient, commonClient, adminContext, context, commonOrganization
     beforeAll(async () => {
         jest.setTimeout(300000)
 
@@ -63,11 +63,13 @@ describe('syncBankAccount from SBBOL', () => {
         }
         const [createdOrganization] = await createTestOrganization(adminClient)
         commonOrganization = await Organization.update(adminClient, createdOrganization.id, { tin: generateTin(RUSSIA_COUNTRY).toString(), ...dvSenderFields })
-        bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
-        const [obj, attrs] = await createTestBankIntegrationContext(adminClient, bankIntegration, commonOrganization)
-
-        commonBankIntegrationContext = obj
-        commonBankIntegrationContextAttrs = attrs
+        const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
+        const bankIntegrationContext = await BankIntegrationContext.create(adminClient, {
+            dv: 1,
+            sender: { dv: 1, fingerprint: 'tests' },
+            integration: { connect: { id: bankIntegration.id } },
+            organization: { connect: { id: commonOrganization.id } },
+        })
         const commonBankAccount = await BankAccount.create(adminClient, {
             tin: commonOrganization.tin,
             country: RUSSIA_COUNTRY,
@@ -75,6 +77,7 @@ describe('syncBankAccount from SBBOL', () => {
             currencyCode: 'RUB',
             routingNumber: '044525225',
             organization: { connect: { id: commonOrganization.id } },
+            integrationContext: { connect: { id: bankIntegrationContext.id } },
             ...dvSenderFields,
         })
 
@@ -86,7 +89,6 @@ describe('syncBankAccount from SBBOL', () => {
                 date: dayjs().format('YYYY-MM-DD'),
                 userId: commonClient.user.id,
                 organization: commonOrganization,
-                bankIntegrationContextId: commonBankIntegrationContext.id,
             })
 
             expect(transactions).toHaveLength(5)
@@ -100,7 +102,6 @@ describe('syncBankAccount from SBBOL', () => {
                     date:  dayjs().add(7, 'day').format('YYYY-MM-DD'),
                     userId: commonClient.user.id,
                     organization: commonOrganization,
-                    bankIntegrationContextId: commonBankIntegrationContext.id,
                 })
             } catch (e) {
                 error = e.message
@@ -117,7 +118,6 @@ describe('syncBankAccount from SBBOL', () => {
                     date:  'h3ge4jh32',
                     userId: commonClient.user.id,
                     organization: commonOrganization,
-                    bankIntegrationContextId: commonBankIntegrationContext.id,
                 })
             } catch (e) {
                 error = e.message
@@ -136,7 +136,6 @@ describe('syncBankAccount from SBBOL', () => {
                 date: date,
                 userId: commonClient.user.id,
                 organization: commonOrganization,
-                bankIntegrationContextId: commonBankIntegrationContext.id,
             })
             expect(transactions).toHaveLength(4)
         })

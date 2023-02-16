@@ -20,9 +20,9 @@ const logger = getLogger('sbbol/CronTaskSyncTransactions')
  * Synchronizes SBBOL transaction data with data in the system
  * @returns {Promise<void|Transaction[]>}
  */
-async function syncSbbolTransactions (date, userId = '', organization = {}, bankIntegrationContextId = '' ) {
+async function syncSbbolTransactions (date, userId = '', organization = {}) {
     // if userId and organization is passed, receive transactions only for it. Case when it's not a cron task
-    if (userId && !isEmpty(organization)) return await requestTransactions({ date, userId, organization, bankIntegrationContextId })
+    if (userId && !isEmpty(organization)) return await requestTransactions({ date, userId, organization })
 
     const { keystone: context } = await getSchemaCtx('User')
     // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
@@ -32,12 +32,9 @@ async function syncSbbolTransactions (date, userId = '', organization = {}, bank
     })
     if (isEmpty(usersWithSBBOLExternalIdentity)) return logger.info('No users imported from SBBOL found. Cancel sync transactions')
 
-    const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })
-    if (!integration) throw new Error(`BankIntegration where: { id: ${BANK_INTEGRATION_IDS.SBBOL} } was not found`)
-
     for (const identity of usersWithSBBOLExternalIdentity) {
         const userId = identity.user.id
-        const [employee] = OrganizationEmployee.getAll(context, {
+        const [employee] = await OrganizationEmployee.getAll(context, {
             user: userId,
             organization: {
                 importRemoteSystem: SBBOL_IMPORT_NAME,
@@ -46,20 +43,10 @@ async function syncSbbolTransactions (date, userId = '', organization = {}, bank
             deletedAt: null,
         }, { first: 1 })
 
-        const organizationId = get(employee, 'organization, id')
-        const where = {
-            integration: { id: integration.id },
-            organization: { id: organizationId },
-        }
-        const [foundIntegrationContext] = await BankIntegrationContext.getAll(context, where, { first: 1 })
-
-        if (!foundIntegrationContext) return logger.info(`BankIntegrationContext not found for organization { id: ${organizationId} }. Skip sync transactions`)
-
         await requestTransactions({
             date,
             userId,
             organization: get(employee, 'organization'),
-            bankIntegrationContextId: foundIntegrationContext.id,
         })
     }
 }
