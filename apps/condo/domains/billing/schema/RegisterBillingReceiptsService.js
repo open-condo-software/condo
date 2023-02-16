@@ -179,6 +179,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
                     { category: { id: get(item, ['category', 'id']) } },
                     { property: { id: get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } },
                     { account: { id: get(accountsIndex[getBillingAccountKey(item.account)], 'id') } },
+                    { deletedAt: null },
                 ],
             }
         )),
