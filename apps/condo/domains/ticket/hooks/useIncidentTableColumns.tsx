@@ -1,31 +1,30 @@
-import { getTimeLeftMessage, getTimeLeftMessageType } from '@app/condo/pages/incident/[id]'
 import {
     Incident as IIncident,
-    IncidentStatusType,
     IncidentProperty as IIncidentProperty,
     IncidentClassifierIncident as IIncidentClassifierIncident,
 } from '@app/condo/schema'
 import { ColumnsType } from 'antd/es/table/interface'
-import { EllipsisConfig } from 'antd/es/typography/Base'
-import dayjs from 'dayjs'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { ColumnType } from 'rc-table/lib/interface'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Tag, Typography } from '@open-condo/ui'
 
-import { getDateRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { getOneAddressAndPropertiesCountRender } from '@condo/domains/property/utils/clientSchema/Renders'
-import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
 import { UseIncidentTableFiltersReturnType } from '@condo/domains/ticket/hooks/useIncidentTableFilters'
 import { IncidentProperty, IncidentClassifierIncident } from '@condo/domains/ticket/utils/clientSchema'
-import { getManyIncidentClassifiersGroupByPlaceRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
+import {
+    getRenderClassifiers,
+    getRenderDetails,
+    getRenderNumber,
+    getRenderProperties,
+    getRenderStatus,
+    getRenderWorkFinish,
+    getRenderWorkStart,
+} from '@condo/domains/ticket/utils/clientSchema/IncidentRenders'
 
 
 type UseTableColumnsPropsType = {
@@ -38,37 +37,16 @@ type UseTableColumnsReturnType = {
     loading: boolean
 }
 
-export type UseTableColumnsType = (props: UseTableColumnsPropsType) => UseTableColumnsReturnType
-
-const COLUMNS_WIDTH = {
-    number: '6%',
-    properties: '19%',
-    classifiers: '21%',
-    details: '25%',
-    status: '9%',
-    workStart: '10%',
-    workFinish: '10%',
+type UseLoadRelatedDataReturnType = {
+    incidentProperties: IIncidentProperty[]
+    incidentClassifiers: IIncidentClassifierIncident[]
+    loading: boolean
 }
 
-const DETAILS_ELLIPSIS_SETTINGS: EllipsisConfig = { rows: 4, expandable: false }
+export type UseTableColumnsType = (props: UseTableColumnsPropsType) => UseTableColumnsReturnType
+type UseIncidentRelatedDataType = (incidents: IIncident[]) => UseLoadRelatedDataReturnType
 
-export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
-    const intl = useIntl()
-    const NumberLabel = intl.formatMessage({ id: 'incident.index.tableColumns.number.label' })
-    const PropertiesLabel = intl.formatMessage({ id: 'incident.index.tableColumns.properties.label' })
-    const ClassifiersLabel = intl.formatMessage({ id: 'incident.index.tableColumns.classifiers.label' })
-    const DetailsLabel = intl.formatMessage({ id: 'incident.index.tableColumns.details.label' })
-    const StatusLabel = intl.formatMessage({ id: 'incident.index.tableColumns.status.label' })
-    const WorkStartLabel = intl.formatMessage({ id: 'incident.index.tableColumns.workStart.label' })
-    const WorkFinishLabel = intl.formatMessage({ id: 'incident.index.tableColumns.workFinish.label' })
-    const AllPropertiesMessage = intl.formatMessage({ id: 'incident.fields.properties.allSelected' })
-    const ActualMessage = intl.formatMessage({ id: 'incident.status.actual' })
-    const NotActualMessage = intl.formatMessage({ id: 'incident.status.notActual' })
-    const OverdueMessage = intl.formatMessage({ id: 'incident.fields.workDate.overdue' }).toLowerCase()
-    const TimeLeftMessage = intl.formatMessage({ id: 'incident.fields.workDate.timeLeft' }).toLowerCase()
-
-    const { incidents, filterMetas } = props
-
+export const useIncidentRelatedData: UseIncidentRelatedDataType = (incidents) => {
     const incidentIds = useMemo(() => incidents.map(incident => incident.id), [incidents])
 
     const [incidentProperties, setIncidentProperties] = useState<IIncidentProperty[]>([])
@@ -124,76 +102,48 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
         getPropertiesAndClassifiers(incidentIds)
     }, [getPropertiesAndClassifiers, incidentIds])
 
+    return useMemo(() => ({
+        incidentProperties,
+        incidentClassifiers,
+        loading,
+    }), [incidentClassifiers, incidentProperties, loading])
+}
+
+const COLUMNS_WIDTH = {
+    number: '6%',
+    properties: '19%',
+    classifiers: '21%',
+    details: '25%',
+    status: '9%',
+    workStart: '10%',
+    workFinish: '10%',
+}
+
+export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
+    const intl = useIntl()
+    const NumberLabel = intl.formatMessage({ id: 'incident.index.tableColumns.number.label' })
+    const PropertiesLabel = intl.formatMessage({ id: 'incident.index.tableColumns.properties.label' })
+    const ClassifiersLabel = intl.formatMessage({ id: 'incident.index.tableColumns.classifiers.label' })
+    const DetailsLabel = intl.formatMessage({ id: 'incident.index.tableColumns.details.label' })
+    const StatusLabel = intl.formatMessage({ id: 'incident.index.tableColumns.status.label' })
+    const WorkStartLabel = intl.formatMessage({ id: 'incident.index.tableColumns.workStart.label' })
+    const WorkFinishLabel = intl.formatMessage({ id: 'incident.index.tableColumns.workFinish.label' })
+
+    const { incidents, filterMetas } = props
+
+    const { incidentClassifiers, incidentProperties, loading } = useIncidentRelatedData(incidents)
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
     const search = getFilteredValue(filters, 'search')
 
-    const renderNumber = useMemo(() => getTableCellRenderer(), [])
-
-    const renderDetails = useMemo(() => getTableCellRenderer('', DETAILS_ELLIPSIS_SETTINGS), [])
-
-    const renderStatus = useCallback((status, incident) => {
-        const isActual = status === IncidentStatusType.Actual
-        return (
-            <Tag
-                bgColor={INCIDENT_STATUS_COLORS[incident.status].background}
-                textColor={INCIDENT_STATUS_COLORS[incident.status].text}
-            >
-                {isActual ? ActualMessage : NotActualMessage}
-            </Tag>
-        )
-    }, [ActualMessage, NotActualMessage])
-
-    const renderWorkStart = useMemo(() => getDateRender(intl), [intl])
-    const renderWorkFinish = useCallback((stringDate: string, incident) => {
-        const renderDate = getDateRender(intl)(stringDate)
-        if (!stringDate) return renderDate
-
-        const isActual = incident.status === IncidentStatusType.Actual
-        const currentDate = dayjs().toISOString()
-        const timeLeftMessageType = getTimeLeftMessageType({
-            deadline: stringDate,
-            isDefault: !isActual,
-            startWithDate: currentDate,
-        })
-        const renderTimeLeftMessage = getTimeLeftMessage({
-            show: isActual,
-            deadline: incident.workFinish,
-            startWithDate: currentDate,
-            OverdueMessage,
-            TimeLeftMessage,
-        })
-
-        return (
-            <>
-                {renderDate}
-                <Typography.Text type={timeLeftMessageType}>
-                    {renderTimeLeftMessage}
-                </Typography.Text>
-            </>
-        )
-    }, [OverdueMessage, TimeLeftMessage, intl])
-
-    const renderProperties: ColumnType<IIncident>['render'] = useCallback((_, incident) => {
-        if (get(incident, 'hasAllProperties')) {
-            return AllPropertiesMessage
-        }
-
-        const properties = incidentProperties
-            .filter(item => get(item, 'incident.id') === incident.id)
-            .map(item => item.property)
-
-        return getOneAddressAndPropertiesCountRender(search)(intl, properties)
-    }, [AllPropertiesMessage, incidentProperties, intl, search])
-
-    const renderClassifiers: ColumnType<IIncident>['render'] = useCallback((_, incident) => {
-        const classifiers = incidentClassifiers
-            .filter(item => get(item, 'incident.id') === incident.id)
-            .map(item => item.classifier)
-
-        return getManyIncidentClassifiersGroupByPlaceRender(DETAILS_ELLIPSIS_SETTINGS)(classifiers)
-    }, [incidentClassifiers])
+    const renderNumber = useMemo(() => getRenderNumber(), [])
+    const renderDetails = useMemo(() => getRenderDetails(), [])
+    const renderStatus = useMemo(() => getRenderStatus(intl), [intl])
+    const renderWorkStart = useMemo(() => getRenderWorkStart(intl), [intl])
+    const renderWorkFinish = useMemo(() => getRenderWorkFinish(intl), [intl])
+    const renderProperties = useMemo(() => getRenderProperties(intl, search, incidentProperties), [intl, search, incidentProperties])
+    const renderClassifiers = useMemo(() => getRenderClassifiers(incidentClassifiers), [incidentClassifiers])
 
     return useMemo(() => ({
         loading,

@@ -20,6 +20,7 @@ import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { getTimeLeftMessage, getTimeLeftMessageType } from '@condo/domains/common/utils/date.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
 import { useIncidentChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useIncidentChangedFieldMessagesOf'
@@ -107,52 +108,6 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
             </PageFieldRow>
         </Row>
     )
-}
-
-/**
- *
- * @param deadline Date in ISO format
- * @param isDefault return default type
- * @param startWithDate Date in ISO format
- */
-export const getTimeLeftMessageType: (props: {
-    deadline?: string,
-    isDefault?: boolean
-    startWithDate?: string,
-}) => 'warning' | 'danger' | null = ({ deadline, isDefault, startWithDate }) => {
-    if (isDefault) return null
-    const startWith = startWithDate ? dayjs(startWithDate) : dayjs()
-    const timeLeft = deadline && dayjs.duration(dayjs(deadline).diff(startWith))
-    if (timeLeft && timeLeft.asMilliseconds() < 0) return 'danger'
-    if (timeLeft && timeLeft.asHours() < 24) return 'warning'
-    return null
-}
-
-/**
- *
- * @param show
- * @param type 'warning' or 'danger'
- * @param deadline Date in ISO format
- * @param startWithDate Date in ISO format
- */
-export const getTimeLeftMessage: (props: {
-    show: boolean,
-    deadline?: string,
-    startWithDate?: string
-    TimeLeftMessage: string
-    OverdueMessage: string
-}) => string = ({ show, deadline, startWithDate, TimeLeftMessage, OverdueMessage }) => {
-    if (!show || !deadline) return null
-
-    const startWith = startWithDate ? dayjs(startWithDate) : dayjs()
-    const timeLeft = deadline && dayjs.duration(dayjs(deadline).diff(startWith))
-    if (timeLeft && timeLeft.asMilliseconds() < 0) {
-        return OverdueMessage
-    }
-    if (timeLeft && timeLeft.asHours() < 24) {
-        return `${TimeLeftMessage} ${timeLeft.format('HH:mm')}`
-    }
-    return null
 }
 
 const WORK_DATE_UPDATING_INTERVAL_IN_SECONDS = 1000 * 5 // every 10 seconds

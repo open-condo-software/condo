@@ -1,13 +1,11 @@
-import { IncidentClassifier, Property, Ticket } from '@app/condo/schema'
+import { Property, Ticket } from '@app/condo/schema'
 import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
-import { EllipsisConfig } from 'antd/es/typography/Base'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import isString from 'lodash/isString'
-import uniqBy from 'lodash/uniqBy'
 import React, { CSSProperties } from 'react'
 
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
@@ -23,7 +21,6 @@ import {
     hasUnreadResidentComments,
     TicketDeadlineType,
 } from '../helpers'
-
 
 
 const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = {
@@ -172,31 +169,6 @@ export const getClassifierRender = (intl, search?: FilterValue) => {
         const postfix = `\n(${placeClassifier})`
 
         return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
-    }
-}
-
-export const getManyIncidentClassifiersGroupByPlaceRender = (ellipsis?: boolean | EllipsisConfig) => {
-    return (classifiers: IncidentClassifier[]): React.ReactElement => {
-        const categoryNames = uniqBy(classifiers
-            .map(item => item.category)
-            .filter(Boolean), (item) => item.id)
-            .map(item => item.name)
-
-        const problemNames = uniqBy(classifiers
-            .map(item => item.problem)
-            .filter(Boolean), (item) => item.id)
-            .map(item => item.name)
-
-        if (isEmpty(categoryNames)) {
-            return null
-        }
-
-        const categoriesPart = `${categoryNames.join(', ')}`
-        const problemsPart = !isEmpty(problemNames) ? ` » ${problemNames.join(', ')}` : ''
-
-        const text = `${categoriesPart}${problemsPart}`
-
-        return getTableCellRenderer(null, ellipsis)(text)
     }
 }
 
