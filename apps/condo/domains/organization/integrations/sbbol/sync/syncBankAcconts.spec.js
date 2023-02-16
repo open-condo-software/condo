@@ -7,12 +7,10 @@ const get = require('lodash/get')
 
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { BankIntegration, createTestBankIntegrationContext, BankAccount } = require('@condo/domains/banking/utils/testSchema')
+const { BankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { createValidRuRoutingNumber, createValidRuNumber } = require('@condo/domains/banking/utils/testSchema/bankAccount')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { _syncBankAccounts } = require('@condo/domains/organization/integrations/sbbol/sync/syncBankAccounts')
-const { checkSbbolBankIntegrationContext } = require('@condo/domains/organization/integrations/sbbol/utils/checkSbbolBankIntegrationContext')
 const { createTestOrganization, Organization, generateTin } = require('@condo/domains/organization/utils/testSchema')
 
 const { MockSbbolResponses } = require('./MockSbbolResponses')
@@ -22,7 +20,7 @@ const { dvSenderFields } = require('../constants')
 
 const { keystone } = index
 
-let adminClient, adminContext, context, commonOrganization, bankIntegration, commonBankIntegrationContext, commonBankIntegrationContextAttrs
+let adminClient, adminContext, context, commonOrganization
 
 describe('syncBankAccount from SBBOL', () => {
     setFakeClientMode(index)
@@ -35,28 +33,6 @@ describe('syncBankAccount from SBBOL', () => {
         }
         const [createdOrganization] = await createTestOrganization(adminClient)
         commonOrganization = await Organization.update(adminClient, createdOrganization.id, { tin: generateTin(RUSSIA_COUNTRY).toString(), ...dvSenderFields })
-        bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
-        const [obj, attrs] = await createTestBankIntegrationContext(adminClient, bankIntegration, commonOrganization)
-        commonBankIntegrationContext = obj
-        commonBankIntegrationContextAttrs = attrs
-    })
-
-    describe('checkSbbolBankIntegrationContext', async () => {
-        it('checkSbbolBankIntegrationContext when instance of BankIntegrationContext not exist', async () => {
-            const [organization] = await createTestOrganization(adminClient)
-
-            const integrationContext = await checkSbbolBankIntegrationContext(adminContext, organization.id)
-
-            expect(integrationContext.id).toBeDefined()
-            expect(integrationContext.organization.id).toEqual(organization.id)
-        })
-
-        it('checkSbbolBankIntegrationContext when instance of BankIntegrationContext is exist', async () => {
-            const integrationContext = await checkSbbolBankIntegrationContext(adminContext, commonOrganization.id)
-
-            expect(integrationContext.id).toBeDefined()
-            expect(integrationContext.organization.id).toEqual(commonOrganization.id)
-        })
     })
 
     describe('syncBankAccounts', async () => {
@@ -80,7 +56,7 @@ describe('syncBankAccount from SBBOL', () => {
             })
             expect(accountsNotFound).toEqual([])
 
-            await _syncBankAccounts(accounts, commonBankIntegrationContext.id, commonOrganization)
+            await _syncBankAccounts(accounts, commonOrganization)
 
             const foundAccounts = await BankAccount.getAll(adminClient, {
                 number_in: [accountNumber1, accountNumber2],

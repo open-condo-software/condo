@@ -5,11 +5,12 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
+const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
+const { BankIntegration } = require('@condo/domains/banking/utils/serverSchema')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { syncBankAccounts } = require('@condo/domains/organization/integrations/sbbol/sync/syncBankAccounts')
-const { checkSbbolBankIntegrationContext } = require('@condo/domains/organization/integrations/sbbol/utils/checkSbbolBankIntegrationContext')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { User } = require('@condo/domains/user/utils/serverSchema/index')
+const { UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
 
 
 
@@ -20,22 +21,27 @@ const logger = getLogger('sbbol/syncBankAccounts')
  */
 async function syncSbbolBankAccounts () {
     const { keystone: context } = await getSchemaCtx('User')
-    const sbbolUsers = await User.getAll(context, {
+    // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
+    const usersWithSBBOLExternalIdentity = await UserExternalIdentity.getAll(context, {
         importRemoteSystem: SBBOL_IMPORT_NAME,
         deletedAt: null,
     })
+    if (isEmpty(usersWithSBBOLExternalIdentity)) return logger.info('No users imported from SBBOL found. Cancel sync bank accounts')
 
-    if (isEmpty(sbbolUsers)) return logger.info('Users imported from SBBOL not found. To do nothing')
+    const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })
+    if (!integration) throw new Error(`BankIntegration where: { id: ${BANK_INTEGRATION_IDS.SBBOL} } was not found`)
 
-    for await (const user of sbbolUsers) {
-        const employee = await OrganizationEmployee.getOne(context, {
-            user: { id: user.id },
-            importRemoteSystem: SBBOL_IMPORT_NAME,
-        })
-        const organizationId = get(employee, 'organization.id')
-        const bankIntegrationContextId = get(await checkSbbolBankIntegrationContext(context, organizationId), 'id')
+    for (const identity of usersWithSBBOLExternalIdentity) {
+        const [employee] = await OrganizationEmployee.getAll(context, {
+            user: identity.user.id,
+            organization: {
+                importRemoteSystem: SBBOL_IMPORT_NAME,
+                deletedAt: null,
+            },
+            deletedAt: null,
+        }, { first: 1 })
 
-        await syncBankAccounts(user.id, bankIntegrationContextId, employee.organization)
+        await syncBankAccounts(identity.user.id, employee.organization)
     }
 
 }

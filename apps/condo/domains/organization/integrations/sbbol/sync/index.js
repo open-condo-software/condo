@@ -4,7 +4,6 @@ const get = require('lodash/get')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { checkSbbolBankIntegrationContext } = require('@condo/domains/organization/integrations/sbbol/utils/checkSbbolBankIntegrationContext')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 
 const { syncBankAccounts } = require('./syncBankAccounts')
@@ -105,8 +104,7 @@ const sync = async ({ keystone, userInfo, tokenSet  }) => {
     await sbbolSecretStorage.setOrganization(organization.id)
     await syncTokens(tokenSet, user.id)
     await syncServiceSubscriptions(userInfo.inn)
-    const bankIntegrationContextId = get((await checkSbbolBankIntegrationContext(adminContext, organization.id))[0], 'id')
-    await syncBankAccounts(user.id, bankIntegrationContextId, organization)
+    await syncBankAccounts(user.id, organization)
 
     const organizationEmployee = await OrganizationEmployee.getOne(adminContext, {
         user: { id: user.id },

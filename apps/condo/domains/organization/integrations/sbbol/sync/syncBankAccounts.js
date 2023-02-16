@@ -3,21 +3,23 @@ const { get, isEmpty } = require('lodash')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { BankAccount } = require('@condo/domains/banking/utils/serverSchema')
+const { BankIntegrationContext, BankIntegration } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES_FOR_SBBOL } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { initSbbolFintechApi } = require('@condo/domains/organization/integrations/sbbol/SbbolFintechApi')
+
 
 const logger = getLogger('sbbol/syncBankAccounts')
 
 /**
  * Connects new BankAccount records for user according to accounts data from SBBOL.
  *  @param {SbbolAccount} accounts
- *  @param {String} bankIntegrationContextId
  *  @param {Object} organization
  */
-const _syncBankAccounts = async (accounts, bankIntegrationContextId, organization) => {
+const _syncBankAccounts = async (accounts, organization) => {
     const { keystone: context } = await getSchemaCtx('User')
 
     for (const account of accounts) {
@@ -30,10 +32,19 @@ const _syncBankAccounts = async (accounts, bankIntegrationContextId, organizatio
         }
         const foundAccount = await BankAccount.getOne(context, {
             ...bankAccountDetails,
-            organization: { id_in: organization.id },
+            organization: { id: organization.id },
         })
 
         if (!foundAccount) {
+            const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })
+            if (!integration) throw new Error(`BankIntegration where: { id: ${BANK_INTEGRATION_IDS.SBBOL} } was not found`)
+
+            const bankIntegrationContext = await BankIntegrationContext.create(context, {
+                ...dvSenderFields,
+                integration: { connect: { id: integration.id } },
+                organization: { connect: { id: organization.id } },
+            })
+
             await BankAccount.create(
                 context,
                 {
@@ -48,6 +59,7 @@ const _syncBankAccounts = async (accounts, bankIntegrationContextId, organizatio
                     },
                     ...bankAccountDetails,
                     ...dvSenderFields,
+                    integrationContext: { connect: { id: bankIntegrationContext.id } },
                     organization: { connect: { id: organization.id } },
                 }
             )
@@ -59,13 +71,11 @@ const _syncBankAccounts = async (accounts, bankIntegrationContextId, organizatio
  * Fetches ClientAccounts from SBBOL for specified date and creates BankAccount if this bank account has not yet been created
  *
  *  @param {String} userId
- *  @param {String} bankIntegrationContextId
  *  @param {Object} organization
  * @return {Promise<void>}
  */
-const syncBankAccounts = async (userId, bankIntegrationContextId, organization) => {
+const syncBankAccounts = async (userId, organization) => {
     if (!userId) throw new Error('userId is required')
-    if (!bankIntegrationContextId) throw new Error('bankIntegrationContextId is required')
     if (!organization) throw new Error('organization is required')
 
     const fintechApi = await initSbbolFintechApi(userId)
@@ -80,7 +90,7 @@ const syncBankAccounts = async (userId, bankIntegrationContextId, organization) 
     if (isEmpty(accounts)) {
         logger.info('SBBOL did not return any ClientAccount, do nothing')
     } else {
-        await _syncBankAccounts(accounts, bankIntegrationContextId, organization)
+        await _syncBankAccounts(accounts, organization)
     }
 }
 
