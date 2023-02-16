@@ -33,6 +33,8 @@ export type Address = {
   key?: Maybe<Scalars['String']>;
   /**  Some additional data for building  */
   meta?: Maybe<Scalars['JSON']>;
+  /**  The list of overrides for address meta.data field  */
+  overrides?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -53,6 +55,7 @@ export type AddressCreateInput = {
   address?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  overrides?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -78,6 +81,7 @@ export type AddressHistoryRecord = {
   address?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  overrides?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -97,6 +101,7 @@ export type AddressHistoryRecordCreateInput = {
   address?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  overrides?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -121,6 +126,7 @@ export type AddressHistoryRecordUpdateInput = {
   address?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  overrides?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -178,6 +184,10 @@ export type AddressHistoryRecordWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  overrides?: Maybe<Scalars['JSON']>;
+  overrides_not?: Maybe<Scalars['JSON']>;
+  overrides_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  overrides_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -1119,6 +1129,7 @@ export type AddressUpdateInput = {
   address?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
+  overrides?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1173,6 +1184,10 @@ export type AddressWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  overrides?: Maybe<Scalars['JSON']>;
+  overrides_not?: Maybe<Scalars['JSON']>;
+  overrides_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  overrides_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
