@@ -39,7 +39,6 @@ describe('RecurrentPaymentContext', () => {
             limit: '10000',
             autoPayReceipts: false,
             paymentDay: 10,
-            settings: {},
             serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } },
             billingCategory: { connect: { id: billingCategory.id } },
         })

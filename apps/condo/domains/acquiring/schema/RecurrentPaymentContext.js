@@ -45,12 +45,6 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
             },
         },
 
-        settings: {
-            schemaDoc: 'Hold additional settings for recurrent payment background process.',
-            type: Json,
-            isRequired: true,
-        },
-
         serviceConsumer: {
             schemaDoc: 'Link to ServiceConsumer',
             type: Relationship,
