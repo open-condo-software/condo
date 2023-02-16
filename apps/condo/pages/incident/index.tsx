@@ -242,7 +242,6 @@ const useIncidentsSearch = ({ baseQuery, filterMetas }) => {
 const TableContainer: React.FC<TableContainerProps> = (props) => {
     const intl = useIntl()
     const AddNewIncidentLabel = intl.formatMessage({ id: 'incident.index.addNewIncident.label' })
-    const ExportLabel = intl.formatMessage({ id: 'incident.task.exportToExcel' })
 
     const { useTableColumns, filterMetas, baseQuery } = props
 
@@ -255,7 +254,6 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
         sortBy,
         exportToExcelQuery: EXPORT_INCIDENTS_TO_EXCEL_QUERY,
         useTimeZone: true,
-        label: ExportLabel,
     })
 
     const { loading: columnsLoading, columns } = useTableColumns({ filterMetas, incidents })
