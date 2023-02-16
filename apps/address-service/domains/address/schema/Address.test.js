@@ -16,7 +16,12 @@ const {
     expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
-const { Address, AddressSource, createTestAddress, updateTestAddress } = require('@address-service/domains/address/utils/testSchema')
+const {
+    Address,
+    AddressSource,
+    createTestAddress,
+    updateTestAddress,
+} = require('@address-service/domains/address/utils/testSchema')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -177,6 +182,37 @@ describe('Address', () => {
                     await Address.getAll(anonymousClient, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
+        })
+    })
+
+    describe('Overriding', async () => {
+        test('throw an error if no field to override', async () => {
+            await catchErrorFrom(
+                async () => {
+                    await createTestAddress(
+                        adminClient,
+                        {
+                            meta: { data: { existingField: 'some-val' } },
+                            overrides: { nonExistingField: 'some-new-val' },
+                        },
+                    )
+                },
+                (caught) => {
+                    expect(caught).toEqual(expect.objectContaining({
+                        errors: [expect.objectContaining({
+                            name: 'ValidationFailureError',
+                            path: ['obj'],
+                            data: expect.objectContaining({
+                                messages: ['meta.data does not contains nonExistingField'],
+                            }),
+                        })],
+                        data: { obj: null },
+                    }))
+                },
+            )
+        })
+
+        test.todo('throw an error if try to override with the same value', async () => {
         })
     })
 
