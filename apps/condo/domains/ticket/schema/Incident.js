@@ -27,7 +27,7 @@ const ERRORS = {
     WORK_FINISH_EARLY_THAN_WORK_START: {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'The value of the "workFinish" field must be greater than the "workStart" field',
+        message: 'The value of the "workFinish" field must be greater or equal than the "workStart" field',
         messageForUser: 'api.incident.WORK_FINISH_EARLY_THAN_WORK_START',
     },
 }
