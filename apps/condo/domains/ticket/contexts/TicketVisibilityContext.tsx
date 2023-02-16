@@ -1,6 +1,6 @@
 import { Ticket, TicketWhereInput } from '@app/condo/schema'
 import get from 'lodash/get'
-import { createContext, useContext } from 'react'
+import { createContext, useCallback, useContext } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
@@ -254,7 +254,7 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
     const ticketFilterQueryLoading = isLoading || userOrganizationLoading || employeesLoading ||
         propertyScopeLoading || propertiesLoading || specializationsLoading
 
-    const canEmployeeReadTicket = (ticket) => isEmployeeCanReadTicket({
+    const canEmployeeReadTicket = useCallback((ticket) => isEmployeeCanReadTicket({
         ticket,
         ticketVisibilityType,
         organizationId,
@@ -263,7 +263,7 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
         properties,
         propertyScopes,
         employee,
-    })
+    }), [employee, organizationId, properties, propertyScopes, specializations, ticketVisibilityType, userId])
 
     return (
         <TicketVisibilityContext.Provider value={{
