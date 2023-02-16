@@ -10,4 +10,3 @@ export {
 }
 
 export type { ColorPalette } from './colors'
-
