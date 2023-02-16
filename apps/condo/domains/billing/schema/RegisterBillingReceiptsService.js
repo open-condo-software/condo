@@ -76,7 +76,7 @@ const getBillingAccountKey = ({ unitName, unitType, number, property }) => [unit
 const getBillingReceiptKey = ({ category: { id: categoryId }, period, property, account }) => [categoryId, period, getBillingPropertyKey(property), getBillingAccountKey(account) ].join('_')
 
 const syncBillingProperties = async (context, properties, { billingContextId }) => {
-    const propertiesQuery = { address_in: properties.map(p => p.address), context: { id: billingContextId } }
+    const propertiesQuery = { address_in: properties.map(p => p.address), context: { id: billingContextId }, deletedAt: null }
 
     const existingProperties = await find('BillingProperty', propertiesQuery)
     const existingPropertiesIndex = Object.fromEntries(existingProperties.map((property) => ([getBillingPropertyKey(property), property.id])))
@@ -111,6 +111,7 @@ const syncBillingAccounts = async (context, accounts, { properties, billingConte
                     { unitName: item.unitName },
                     { unitType: item.unitType },
                     { property: { id: get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } },
+                    { deletedAt: null },
                 ],
             }
         )),
