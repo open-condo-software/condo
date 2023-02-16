@@ -1742,6 +1742,5 @@
   "incident.changeHistory.workType.notEmergency": "\"«not emergency\"",
   "incident.changeHistory.workType.scheduled": "\"scheduled\"",
   "incident.changeHistory.workType.notScheduled": "\"not scheduled\"",
-  "incident.hints.more.label": "Подробнее",
-  "incident.task.exportToExcel": "Export"
+  "incident.hints.more.label": "Подробнее"
 }
