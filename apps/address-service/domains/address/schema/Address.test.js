@@ -242,11 +242,11 @@ describe('Address', () => {
         })
 
         test('fields structure is correct after overriding', async () => {
-            const [obj, attrs] = await createTestAddress(
+            const [obj] = await createTestAddress(
                 adminClient,
                 {
-                    meta: { data: { someField: 'some-val' } },
-                    overrides: { someField: 'some-new-val' },
+                    meta: { data: { someField: 'some-val', a: { a1: 'a1' } } },
+                    overrides: { someField: 'some-new-val', 'a.a1': 'a2' },
                 },
             )
 
@@ -269,12 +269,18 @@ describe('Address', () => {
                 addressMeta: {
                     data: {
                         someField: 'some-new-val',
+                        a: {
+                            a1: 'a2',
+                        },
                     },
                 },
                 overridden: {
                     addressMeta: {
                         data: {
                             someField: 'some-val',
+                            a: {
+                                a1: 'a1',
+                            },
                         },
                     },
                 },
