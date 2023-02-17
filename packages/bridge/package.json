@@ -28,8 +28,7 @@
   "types": "dist/types/src/index.d.ts",
   "scripts": {
     "build": "rm -rf dist && NODE_ENV=production rollup -c",
-    "watch": "rollup -c -w",
-    "prepack": "yarn install --mode update-lockfile && yarn build"
+    "watch": "rollup -c -w"
   },
   "publishConfig": {
     "access": "public"
