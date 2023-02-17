@@ -16982,20 +16982,6 @@ input BankTransactionWhereInput {
   importId_not_in: [String]
   importRemoteSystem: String
   importRemoteSystem_not: String
-  importRemoteSystem_contains: String
-  importRemoteSystem_not_contains: String
-  importRemoteSystem_starts_with: String
-  importRemoteSystem_not_starts_with: String
-  importRemoteSystem_ends_with: String
-  importRemoteSystem_not_ends_with: String
-  importRemoteSystem_i: String
-  importRemoteSystem_not_i: String
-  importRemoteSystem_contains_i: String
-  importRemoteSystem_not_contains_i: String
-  importRemoteSystem_starts_with_i: String
-  importRemoteSystem_not_starts_with_i: String
-  importRemoteSystem_ends_with_i: String
-  importRemoteSystem_not_ends_with_i: String
   importRemoteSystem_in: [String]
   importRemoteSystem_not_in: [String]
   id: ID
@@ -52377,6 +52363,17 @@ type CreateBankAccountRequestOutput {
   id: ID!
 }
 
+input ImportBankTransactionsInput {
+  dv: Int!
+  sender: JSON!
+  file: Upload!
+  organizationId: ID!
+}
+
+type ImportBankTransactionsOutput {
+  bankAccount: BankAccount
+}
+
 input ShareTicketInput {
   sender: SenderFieldInput!
   employees: [ID!]!
@@ -59578,6 +59575,7 @@ type Mutation {
   acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]
   createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
+  importBankTransactions(data: ImportBankTransactionsInput!): ImportBankTransactionsOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
 
   """
