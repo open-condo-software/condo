@@ -102,7 +102,9 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
         importRemoteSystem: {
             schemaDoc: 'Name of external system, from that this record was copied',
             type: Select,
-            options: [IMPORT_REMOTE_SYSTEM_VALUES],
+            options: IMPORT_REMOTE_SYSTEM_VALUES,
+            // Cannot use `enum` datatype because a number is presented in first character of a value "1CClientBankExchange".
+            dataType: 'string',
             isRequired: true,
         },
 
