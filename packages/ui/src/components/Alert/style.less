@@ -17,24 +17,11 @@
     .condo-typography-text-medium();
   }
 
-  &-success {
-    .condo-alert-border();
-    .condo-alert-colors(@condo-global-color-green-5);
-  }
-
-  &-info {
-    .condo-alert-border();
-    .condo-alert-colors(@condo-global-color-blue-5);
-  }
-
-  &-warning {
-    .condo-alert-border();
-    .condo-alert-colors(@condo-global-color-orange-5);
-  }
-
+  &-success,
+  &-info,
+  &-warning,
   &-error {
     .condo-alert-border();
-    .condo-alert-colors(@condo-global-color-red-5);
   }
 
   &-with-description {
@@ -47,5 +34,7 @@
 
   &-with-description &-message {
     .condo-typography-h4();
+
+    margin-bottom: @condo-global-spacing-4;
   }
 }
