@@ -34,6 +34,9 @@ jobs:
           npm i -g turbo
           yarn --immutable
 
+      - name: Build packages
+        run: turbo build --filter="./packages/*"
+
       - name: Publish packages
         run: node bin/publish-packages.js
         env:
