@@ -29,7 +29,7 @@ export const useLayoutContext = (): ILayoutContext => useContext<ILayoutContext>
 
 export const LayoutContextProvider: React.FC = (props) => {
     const breakpoints = useBreakpoint()
-    const [isCollapsed, setIsCollapsed] = useState(true)
+    const [isCollapsed, setIsCollapsed] = useState(false)
 
     const {
         TopNotificationComponent,
