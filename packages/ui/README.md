@@ -8,7 +8,8 @@
 [Installation](#installation)\
 [Usage](#usage)\
 [Including styles](#including-styles)\
-[Access theme colors](#access-theme-colors)
+[Access theme colors](#access-theme-colors)\
+[Style-variables](#style-variables)
 
 ## Installation
 To install package simply run the following command if you're using npm as your package manager:
@@ -34,9 +35,24 @@ import '@open-condo/ui/dist/styles.min.css'
 ```
 
 ## Access theme colors
-You also can directly access to all our theme colors as well
+You can also directly access to all our theme colors
 by specifying import sub path like this:
 ```typescript
 import { colors } from '@open-condo/ui/colors'
 import type { ColorPalette } from '@open-condo/ui/colors'
+```
+
+## Style variables
+Style tokens are available for import as well:
+- CSS Variables:
+```typescript
+import '@open-condo/ui/style-vars/css'
+```
+- Less Variables
+```less
+@import (reference) "@open-condo/ui/style-vars/less";
+```
+
+```less
+@import (reference) "@open-condo/ui/dist/style-vars/variables.less";
 ```
