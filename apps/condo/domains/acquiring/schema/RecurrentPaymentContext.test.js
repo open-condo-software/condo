@@ -256,6 +256,44 @@ describe('RecurrentPaymentContext', () => {
                 }])
             })
         })
+        test('validate both trigger set up in update paymentDay + autoPayReceipts', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const request = await getContextRequest()
+
+            const [objCreated] = await createTestRecurrentPaymentContext(admin, request)
+
+            await catchErrorFrom(async () => {
+                await updateTestRecurrentPaymentContext(admin, objCreated.id, {
+                    ...request,
+                    autoPayReceipts: true,
+                })
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    name: 'ValidationFailureError',
+                    data: { messages: ['RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR'] },
+                }])
+            })
+        })
+        test('validate both trigger set up in update autoPayReceipts + paymentDay', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const request = await getContextRequest()
+            request.autoPayReceipts = true
+            request.paymentDay = null
+
+            const [objCreated] = await createTestRecurrentPaymentContext(admin, request)
+
+            await catchErrorFrom(async () => {
+                await updateTestRecurrentPaymentContext(admin, objCreated.id, {
+                    ...request,
+                    paymentDay: 10,
+                })
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    name: 'ValidationFailureError',
+                    data: { messages: ['RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR'] },
+                }])
+            })
+        })
         test('validate billingCategory is unique for serviceConsumer', async () => {
             const admin = await makeLoggedInAdminClient()
 
