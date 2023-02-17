@@ -81,8 +81,8 @@ const PAYMENT_CATEGORIES_META = [
     },
     {
         id: '6',
-        name: 'Тепло',
-        active: false,
+        name: 'Отопление и ГВС',
+        active: true,
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
