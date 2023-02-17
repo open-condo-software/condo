@@ -63,8 +63,8 @@ const RecurrentPayment = new GQLListSchema('RecurrentPayment', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadRecurrentPayments,
-        create: false,
-        update: false,
+        create: access.canManageRecurrentPayments,
+        update: access.canManageRecurrentPayments,
         delete: false,
         auth: true,
     },

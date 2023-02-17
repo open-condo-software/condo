@@ -3,9 +3,10 @@
  */
 
 const dayjs = require('dayjs')
+const faker = require('faker')
 const { v4: uuid } = require('uuid')
 
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
@@ -17,6 +18,7 @@ const { RecurrentPayment, createTestRecurrentPayment, updateTestRecurrentPayment
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { RecurrentPaymentContext } = require("../utils/testSchema");
 
 describe('RecurrentPayment', () => {
     let admin, 
@@ -46,7 +48,7 @@ describe('RecurrentPayment', () => {
             limit: '10000',
             autoPayReceipts: false,
             paymentDay: 10,
-            settings: {},
+            settings: { cardId: faker.datatype.uuid() },
             serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } },
             billingCategory: { connect: { id: billingCategory.id } },
         })
@@ -63,20 +65,38 @@ describe('RecurrentPayment', () => {
     
     describe('CRUD tests', () => {
         describe('create', () => {
-            test('admin can\'t', async () => {
+            test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
 
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestRecurrentPayment(admin, getPaymentRequest())
-                })
+                const [obj, attrs] = await createTestRecurrentPayment(admin, getPaymentRequest())
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(1)
+                expect(obj.newId).toEqual(null)
+                expect(obj.deletedAt).toEqual(null)
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+                expect(obj.createdAt).toMatch(DATETIME_RE)
+                expect(obj.updatedAt).toMatch(DATETIME_RE)
             })
 
-            test('support can\'t', async () => {
+            test('support can', async () => {
                 const client = await makeClientWithSupportUser()
 
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestRecurrentPayment(client, getPaymentRequest())
-                })
+                const [obj, attrs] = await createTestRecurrentPayment(client, getPaymentRequest())
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(1)
+                expect(obj.newId).toEqual(null)
+                expect(obj.deletedAt).toEqual(null)
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                expect(obj.createdAt).toMatch(DATETIME_RE)
+                expect(obj.updatedAt).toMatch(DATETIME_RE)
             })
 
             test('user can\'t', async () => {
@@ -90,27 +110,45 @@ describe('RecurrentPayment', () => {
             test('anonymous can\'t', async () => {
                 const client = await makeClient()
 
-                await expectToThrowAccessDeniedErrorToObj(async () => {
+                await expectToThrowAuthenticationErrorToObj(async () => {
                     await createTestRecurrentPayment(client, getPaymentRequest())
                 })
             })
         })
 
         describe('update', () => {
-            test('admin can\'t', async () => {
+            test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
 
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestRecurrentPayment(admin, uuid(), getPaymentRequest())
+                const [objCreated] = await createTestRecurrentPayment(admin, getPaymentRequest())
+
+                const [obj, attrs] = await updateTestRecurrentPayment(admin, objCreated.id, {
+                    ...getPaymentRequest(),
+                    tryCount: 1,
                 })
+
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(2)
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+                expect(obj.tryCount).toEqual(1)
             })
 
-            test('support can\'t', async () => {
+            test('support can', async () => {
                 const client = await makeClientWithSupportUser()
 
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestRecurrentPayment(client, uuid(), getPaymentRequest())
+                const [objCreated] = await createTestRecurrentPayment(client, getPaymentRequest())
+
+                const [obj, attrs] = await updateTestRecurrentPayment(client, objCreated.id, {
+                    ...getPaymentRequest(),
+                    tryCount: 1,
                 })
+
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(2)
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                expect(obj.tryCount).toEqual(1)
             })
 
             test('user can\'t', async () => {
@@ -124,7 +162,7 @@ describe('RecurrentPayment', () => {
             test('anonymous can\'t', async () => {
                 const client = await makeClient()
 
-                await expectToThrowAccessDeniedErrorToObj(async () => {
+                await expectToThrowAuthenticationErrorToObj(async () => {
                     await updateTestRecurrentPayment(client, uuid(), getPaymentRequest())
                 })
             })
@@ -145,6 +183,71 @@ describe('RecurrentPayment', () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await RecurrentPayment.delete(client, uuid())
                 })
+            })
+
+            test('anonymous can\'t', async () => {
+                const client = await makeClient()
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await RecurrentPayment.delete(client, uuid())
+                })
+            })
+        })
+
+        describe('read', () => {
+            let recurrentPaymentId, serviceConsumerClient
+            beforeAll(async () => {
+                const admin = await makeLoggedInAdminClient()
+                serviceConsumerClient = await makeClientWithServiceConsumer()
+
+                const [testContext] = await createTestRecurrentPaymentContext(admin, {
+                    ...getContextRequest(),
+                    serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } },
+                })
+
+                const [obj] = await createTestRecurrentPayment(admin, {
+                    ...getPaymentRequest(),
+                    recurrentPaymentContext: { connect: { id: testContext.id } },
+                })
+
+                recurrentPaymentId = obj.id
+            })
+
+            test('admin can', async () => {
+                const admin = await makeLoggedInAdminClient()
+
+                const objs = await RecurrentPayment.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
+
+                expect(objs.length).toBeGreaterThanOrEqual(1)
+                expect(objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: recurrentPaymentId,
+                    }),
+                ]))
+            })
+
+            test('support can', async () => {
+                const client = await makeClientWithSupportUser()
+
+                const objs = await RecurrentPayment.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+
+                expect(objs.length).toBeGreaterThanOrEqual(1)
+                expect(objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: recurrentPaymentId,
+                    }),
+                ]))
+            })
+
+            test('user can', async () => {
+                const objs = await RecurrentPayment.getAll(serviceConsumerClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+                expect(objs.length).toBeGreaterThanOrEqual(1)
+                expect(objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: recurrentPaymentId,
+                    }),
+                ]))
             })
 
             test('anonymous can\'t', async () => {
