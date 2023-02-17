@@ -6,7 +6,14 @@ const dayjs = require('dayjs')
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    UUID_RE,
+    DATETIME_RE,
+    expectToThrowAuthenticationErrorToObj,
+    catchErrorFrom,
+} = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
@@ -18,7 +25,6 @@ const { RecurrentPayment, createTestRecurrentPayment, updateTestRecurrentPayment
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { RecurrentPaymentContext } = require("../utils/testSchema");
 
 describe('RecurrentPayment', () => {
     let admin, 
@@ -58,7 +64,7 @@ describe('RecurrentPayment', () => {
             payAfter: dayjs().toISOString(),
             tryCount: 0,
             state: {},
-            billingReceipts: [],
+            billingReceipts: [ { id: faker.datatype.uuid() }],
             recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
         })
     })
@@ -255,6 +261,40 @@ describe('RecurrentPayment', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await RecurrentPayment.delete(client, uuid())
+                })
+            })
+        })
+    })
+
+    describe('Validation tests', () => {
+        describe('billingReceipts', () => {
+            test('validate billingReceipts id field type', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const request = getPaymentRequest()
+                request.billingReceipts = [{ id: 1 }]
+
+                await catchErrorFrom(async () => {
+                    await createTestRecurrentPayment(admin, request)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        name: 'UserInputError',
+                        extensions: { code: 'BAD_USER_INPUT' },
+                    }])
+                })
+            })
+
+            test('validate billingReceipts extra data', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const request = getPaymentRequest()
+                request.billingReceipts = [{ id: faker.datatype.uuid(), billingId: faker.datatype.uuid() }]
+
+                await catchErrorFrom(async () => {
+                    await createTestRecurrentPayment(admin, request)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        name: 'UserInputError',
+                        extensions: { code: 'BAD_USER_INPUT' },
+                    }])
                 })
             })
         })

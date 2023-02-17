@@ -41442,20 +41442,10 @@ input RecurrentPaymentContextHistoryRecordWhereInput {
   enabled_not: Boolean
   limit: String
   limit_not: String
-  limit_contains: String
-  limit_not_contains: String
-  limit_starts_with: String
-  limit_not_starts_with: String
-  limit_ends_with: String
-  limit_not_ends_with: String
-  limit_i: String
-  limit_not_i: String
-  limit_contains_i: String
-  limit_not_contains_i: String
-  limit_starts_with_i: String
-  limit_not_starts_with_i: String
-  limit_ends_with_i: String
-  limit_not_ends_with_i: String
+  limit_lt: String
+  limit_lte: String
+  limit_gt: String
+  limit_gte: String
   limit_in: [String]
   limit_not_in: [String]
   autoPayReceipts: Boolean
@@ -41722,20 +41712,10 @@ input RecurrentPaymentContextWhereInput {
   enabled_not: Boolean
   limit: String
   limit_not: String
-  limit_contains: String
-  limit_not_contains: String
-  limit_starts_with: String
-  limit_not_starts_with: String
-  limit_ends_with: String
-  limit_not_ends_with: String
-  limit_i: String
-  limit_not_i: String
-  limit_contains_i: String
-  limit_not_contains_i: String
-  limit_starts_with_i: String
-  limit_not_starts_with_i: String
-  limit_ends_with_i: String
-  limit_not_ends_with_i: String
+  limit_lt: String
+  limit_lte: String
+  limit_gt: String
+  limit_gte: String
   limit_in: [String]
   limit_not_in: [String]
   autoPayReceipts: Boolean
@@ -42146,6 +42126,15 @@ enum RecurrentPaymentStatusType {
   DONE
   ERROR_NEED_RETRY
   ERROR
+  CANCEL
+}
+
+type BillingReceiptsField {
+  id: String!
+}
+
+input BillingReceiptsFieldInput {
+  id: String!
 }
 
 """ Hold a snapshot of monthly payment data. Used by background recurrent payment process. 
@@ -42172,8 +42161,8 @@ type RecurrentPayment {
   """ Hold current state of payment proceeding. """
   state: JSON
 
-  """ Array of billing receipt ids to pay """
-  billingReceipts: JSON
+  """ Contains information about the distribution of a certain type of fee """
+  billingReceipts: [BillingReceiptsField!]
 
   """ Link to RecurrentPaymentContext """
   recurrentPaymentContext: RecurrentPaymentContext
@@ -42227,10 +42216,10 @@ input RecurrentPaymentWhereInput {
   state_not: JSON
   state_in: [JSON]
   state_not_in: [JSON]
-  billingReceipts: JSON
-  billingReceipts_not: JSON
-  billingReceipts_in: [JSON]
-  billingReceipts_not_in: [JSON]
+  billingReceipts: [BillingReceiptsFieldInput!]
+  billingReceipts_not: [BillingReceiptsFieldInput!]
+  billingReceipts_in: [[BillingReceiptsFieldInput!]]
+  billingReceipts_not_in: [[BillingReceiptsFieldInput!]]
   recurrentPaymentContext: RecurrentPaymentContextWhereInput
   recurrentPaymentContext_is_null: Boolean
   id: ID
@@ -42327,7 +42316,7 @@ input RecurrentPaymentUpdateInput {
   payAfter: String
   tryCount: Int
   state: JSON
-  billingReceipts: JSON
+  billingReceipts: [BillingReceiptsFieldInput!]
   recurrentPaymentContext: RecurrentPaymentContextRelateToOneInput
   v: Int
   createdAt: String
@@ -42350,7 +42339,7 @@ input RecurrentPaymentCreateInput {
   payAfter: String
   tryCount: Int
   state: JSON
-  billingReceipts: JSON
+  billingReceipts: [BillingReceiptsFieldInput!]
   recurrentPaymentContext: RecurrentPaymentContextRelateToOneInput
   v: Int
   createdAt: String

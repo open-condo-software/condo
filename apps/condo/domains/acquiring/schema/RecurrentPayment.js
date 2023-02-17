@@ -13,6 +13,7 @@ const {
     RECURRENT_PAYMENT_STATUSES,
     RECURRENT_PAYMENT_INIT_STATUS,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
+const { BILLING_RECEIPTS_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/BillingReceipts')
 
 
 const RecurrentPayment = new GQLListSchema('RecurrentPayment', {
@@ -44,11 +45,7 @@ const RecurrentPayment = new GQLListSchema('RecurrentPayment', {
             isRequired: true,
         },
 
-        billingReceipts: {
-            schemaDoc: 'Array of billing receipt ids to pay',
-            type: Json,
-            isRequired: true,
-        },
+        billingReceipts: BILLING_RECEIPTS_SCHEMA_FIELD,
 
         recurrentPaymentContext: {
             schemaDoc: 'Link to RecurrentPaymentContext',

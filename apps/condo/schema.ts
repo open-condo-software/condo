@@ -14187,6 +14187,15 @@ export type BillingReceiptsCreateInput = {
   data?: Maybe<BillingReceiptCreateInput>;
 };
 
+export type BillingReceiptsField = {
+  __typename?: 'BillingReceiptsField';
+  id: Scalars['String'];
+};
+
+export type BillingReceiptsFieldInput = {
+  id: Scalars['String'];
+};
+
 export type BillingReceiptsRecipientField = {
   __typename?: 'BillingReceiptsRecipientField';
   name?: Maybe<Scalars['String']>;
@@ -44702,8 +44711,8 @@ export type RecurrentPayment = {
   tryCount?: Maybe<Scalars['Int']>;
   /**  Hold current state of payment proceeding.  */
   state?: Maybe<Scalars['JSON']>;
-  /**  Array of billing receipt ids to pay  */
-  billingReceipts?: Maybe<Scalars['JSON']>;
+  /**  Contains information about the distribution of a certain type of fee  */
+  billingReceipts?: Maybe<Array<BillingReceiptsField>>;
   /**  Link to RecurrentPaymentContext  */
   recurrentPaymentContext?: Maybe<RecurrentPaymentContext>;
   id: Scalars['ID'];
@@ -44872,20 +44881,10 @@ export type RecurrentPaymentContextHistoryRecordWhereInput = {
   enabled_not?: Maybe<Scalars['Boolean']>;
   limit?: Maybe<Scalars['String']>;
   limit_not?: Maybe<Scalars['String']>;
-  limit_contains?: Maybe<Scalars['String']>;
-  limit_not_contains?: Maybe<Scalars['String']>;
-  limit_starts_with?: Maybe<Scalars['String']>;
-  limit_not_starts_with?: Maybe<Scalars['String']>;
-  limit_ends_with?: Maybe<Scalars['String']>;
-  limit_not_ends_with?: Maybe<Scalars['String']>;
-  limit_i?: Maybe<Scalars['String']>;
-  limit_not_i?: Maybe<Scalars['String']>;
-  limit_contains_i?: Maybe<Scalars['String']>;
-  limit_not_contains_i?: Maybe<Scalars['String']>;
-  limit_starts_with_i?: Maybe<Scalars['String']>;
-  limit_not_starts_with_i?: Maybe<Scalars['String']>;
-  limit_ends_with_i?: Maybe<Scalars['String']>;
-  limit_not_ends_with_i?: Maybe<Scalars['String']>;
+  limit_lt?: Maybe<Scalars['String']>;
+  limit_lte?: Maybe<Scalars['String']>;
+  limit_gt?: Maybe<Scalars['String']>;
+  limit_gte?: Maybe<Scalars['String']>;
   limit_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   limit_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   autoPayReceipts?: Maybe<Scalars['Boolean']>;
@@ -45034,20 +45033,10 @@ export type RecurrentPaymentContextWhereInput = {
   enabled_not?: Maybe<Scalars['Boolean']>;
   limit?: Maybe<Scalars['String']>;
   limit_not?: Maybe<Scalars['String']>;
-  limit_contains?: Maybe<Scalars['String']>;
-  limit_not_contains?: Maybe<Scalars['String']>;
-  limit_starts_with?: Maybe<Scalars['String']>;
-  limit_not_starts_with?: Maybe<Scalars['String']>;
-  limit_ends_with?: Maybe<Scalars['String']>;
-  limit_not_ends_with?: Maybe<Scalars['String']>;
-  limit_i?: Maybe<Scalars['String']>;
-  limit_not_i?: Maybe<Scalars['String']>;
-  limit_contains_i?: Maybe<Scalars['String']>;
-  limit_not_contains_i?: Maybe<Scalars['String']>;
-  limit_starts_with_i?: Maybe<Scalars['String']>;
-  limit_not_starts_with_i?: Maybe<Scalars['String']>;
-  limit_ends_with_i?: Maybe<Scalars['String']>;
-  limit_not_ends_with_i?: Maybe<Scalars['String']>;
+  limit_lt?: Maybe<Scalars['String']>;
+  limit_lte?: Maybe<Scalars['String']>;
+  limit_gt?: Maybe<Scalars['String']>;
+  limit_gte?: Maybe<Scalars['String']>;
   limit_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   limit_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   autoPayReceipts?: Maybe<Scalars['Boolean']>;
@@ -45144,7 +45133,7 @@ export type RecurrentPaymentCreateInput = {
   payAfter?: Maybe<Scalars['String']>;
   tryCount?: Maybe<Scalars['Int']>;
   state?: Maybe<Scalars['JSON']>;
-  billingReceipts?: Maybe<Scalars['JSON']>;
+  billingReceipts?: Maybe<Array<BillingReceiptsFieldInput>>;
   recurrentPaymentContext?: Maybe<RecurrentPaymentContextRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -45382,7 +45371,8 @@ export enum RecurrentPaymentStatusType {
   Processing = 'PROCESSING',
   Done = 'DONE',
   ErrorNeedRetry = 'ERROR_NEED_RETRY',
-  Error = 'ERROR'
+  Error = 'ERROR',
+  Cancel = 'CANCEL'
 }
 
 export type RecurrentPaymentUpdateInput = {
@@ -45390,7 +45380,7 @@ export type RecurrentPaymentUpdateInput = {
   payAfter?: Maybe<Scalars['String']>;
   tryCount?: Maybe<Scalars['Int']>;
   state?: Maybe<Scalars['JSON']>;
-  billingReceipts?: Maybe<Scalars['JSON']>;
+  billingReceipts?: Maybe<Array<BillingReceiptsFieldInput>>;
   recurrentPaymentContext?: Maybe<RecurrentPaymentContextRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -45430,10 +45420,10 @@ export type RecurrentPaymentWhereInput = {
   state_not?: Maybe<Scalars['JSON']>;
   state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   state_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  billingReceipts?: Maybe<Scalars['JSON']>;
-  billingReceipts_not?: Maybe<Scalars['JSON']>;
-  billingReceipts_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  billingReceipts_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  billingReceipts?: Maybe<Array<BillingReceiptsFieldInput>>;
+  billingReceipts_not?: Maybe<Array<BillingReceiptsFieldInput>>;
+  billingReceipts_in?: Maybe<Array<Maybe<Array<BillingReceiptsFieldInput>>>>;
+  billingReceipts_not_in?: Maybe<Array<Maybe<Array<BillingReceiptsFieldInput>>>>;
   recurrentPaymentContext?: Maybe<RecurrentPaymentContextWhereInput>;
   recurrentPaymentContext_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;

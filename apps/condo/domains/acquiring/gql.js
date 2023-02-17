@@ -8,6 +8,8 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
+const { BILLING_RECEIPT_QUERY_LIST } = require('@condo/domains/acquiring/schema/fields/BillingReceipts')
+
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 const ACQUIRING_INTEGRATION_FIELDS = `{ name shortDescription gallery price detailedDescription logo { publicUrl } developer partnerUrl appUrl canGroupReceipts hostUrl supportedBillingIntegrations { id } ${COMMON_FIELDS} }`
@@ -65,7 +67,7 @@ const SUM_PAYMENTS_QUERY = gql`
 const RECURRENT_PAYMENT_CONTEXT_FIELDS = `{ enabled limit autoPayReceipts paymentDay settings { cardId } serviceConsumer { id } billingCategory { id } ${COMMON_FIELDS} }`
 const RecurrentPaymentContext = generateGqlQueries('RecurrentPaymentContext', RECURRENT_PAYMENT_CONTEXT_FIELDS)
 
-const RECURRENT_PAYMENT_FIELDS = `{ status tryCount state billingReceipts ${COMMON_FIELDS} }`
+const RECURRENT_PAYMENT_FIELDS = `{ status tryCount state billingReceipts {${BILLING_RECEIPT_QUERY_LIST}} ${COMMON_FIELDS} }`
 const RecurrentPayment = generateGqlQueries('RecurrentPayment', RECURRENT_PAYMENT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
