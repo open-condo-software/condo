@@ -513,6 +513,7 @@ const TicketIdPage = () => {
     const { canEmployeeReadTicket, ticketFilterQueryLoading } = useTicketVisibility()
 
     if (!ticket || ticketFilterQueryLoading) {
+        console.log('loading page')
         return (
             <LoadingOrErrorPage
                 loading={ticketFilterQueryLoading || ticketLoading}
@@ -522,10 +523,13 @@ const TicketIdPage = () => {
     }
 
     if (!canEmployeeReadTicket(ticket)) {
+        console.log('access denied page')
         return (
             <AccessDeniedPage />
         )
     }
+
+    console.log('ticket page')
 
     return (
         <>
