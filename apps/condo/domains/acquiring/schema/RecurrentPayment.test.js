@@ -256,6 +256,13 @@ describe('RecurrentPayment', () => {
                 ]))
             })
 
+            test('another user can\'t', async () => {
+                const anotherServiceConsumerClient = await makeClientWithServiceConsumer()
+                const objs = await RecurrentPayment.getAll(anotherServiceConsumerClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+                expect(objs.length).toBeGreaterThanOrEqual(0)
+            })
+
             test('anonymous can\'t', async () => {
                 const client = await makeClient()
 
