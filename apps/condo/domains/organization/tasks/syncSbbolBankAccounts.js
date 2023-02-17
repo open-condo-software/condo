@@ -29,7 +29,7 @@ async function syncSbbolBankAccounts () {
     if (isEmpty(usersWithSBBOLExternalIdentity)) return logger.info('No users imported from SBBOL found. Cancel sync bank accounts')
 
     const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })
-    if (!integration) throw new Error(`BankIntegration where: { id: ${BANK_INTEGRATION_IDS.SBBOL} } was not found`)
+    if (!integration) throw new Error(`Cannot find SBBOL integration by id=" ${BANK_INTEGRATION_IDS.SBBOL}"`)
 
     for (const identity of usersWithSBBOLExternalIdentity) {
         const [employee] = await OrganizationEmployee.getAll(context, {
@@ -39,6 +39,8 @@ async function syncSbbolBankAccounts () {
                 deletedAt: null,
             },
             deletedAt: null,
+            isRejected: false,
+            isBlocked: false,
         }, { first: 1 })
 
         await syncBankAccounts(identity.user.id, employee.organization)

@@ -168,13 +168,13 @@ class SbbolFintechApi extends SbbolRequestApi {
     async getClientInfo () {
         const { data, statusCode } = await this.request({
             method: 'GET',
-            path: this.getClientInfoRequestPath,
+            path: this.clientInfoRequestPath,
         })
 
         return parseSbbolResponse({ data, statusCode }, 200, 'getClientInfo from SBBOL error')
     }
 
-    get getClientInfoRequestPath () {
+    get clientInfoRequestPath () {
         return `${this.apiPrefix}/v1/client-info`
     }
 
@@ -189,7 +189,7 @@ class SbbolFintechApi extends SbbolRequestApi {
     async getStatementTransactions (accountNumber, statementDate, page = 1) {
         const { data, statusCode } = await this.request({
             method: 'GET',
-            path: this.getStatementTransactionsRequestPath,
+            path: this.statementTransactionsRequestPath,
             body: {
                 accountNumber,
                 statementDate,
@@ -199,7 +199,7 @@ class SbbolFintechApi extends SbbolRequestApi {
         return parseSbbolResponse({ data, statusCode }, 200, 'getStatementTransactions from SBBOL error')
     }
 
-    get getStatementTransactionsRequestPath () {
+    get statementTransactionsRequestPath () {
         return `${this.apiPrefix}/v1/statement/transactions`
     }
 }

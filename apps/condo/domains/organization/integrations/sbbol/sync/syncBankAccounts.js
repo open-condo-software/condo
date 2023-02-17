@@ -37,7 +37,7 @@ const _syncBankAccounts = async (accounts, organization) => {
 
         if (!foundAccount) {
             const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })
-            if (!integration) throw new Error(`BankIntegration where: { id: ${BANK_INTEGRATION_IDS.SBBOL} } was not found`)
+            if (!integration) throw new Error(`Cannot find SBBOL integration by id=" ${BANK_INTEGRATION_IDS.SBBOL}"`)
 
             const bankIntegrationContext = await BankIntegrationContext.create(context, {
                 ...dvSenderFields,
@@ -63,7 +63,7 @@ const _syncBankAccounts = async (accounts, organization) => {
                     organization: { connect: { id: organization.id } },
                 }
             )
-            logger.info('Created BankAccount', { bankAccount: { id: account.number, organization } })
+            logger.info('Created BankAccount', { bankAccount: { id: account.number, organization: { id: organization.id, name: organization.name } } })
         }
     }
 }
