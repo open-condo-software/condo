@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "test": "mkdirp dist/admin && jest --unhandled-rejections=strict",
-    "dev": "yarn build:deps && keystone dev",
+    "dev": "yarn build:deps && node ./../../bin/keystone-dev.js",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build:static": "yarn workspace @open-condo/ui build:sb -o ../../apps/condo/public/ui && mv -f public/ui/ui/* public/ui",
     "build:deps": "turbo build --filter=condo^...",
