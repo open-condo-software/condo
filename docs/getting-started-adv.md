@@ -1,55 +1,24 @@
 # Some advanced topics # 
 
-## Use mongo
+## Database and Migrations
 
-You need to set `DATABASE_URL` like `mongodb://mongo:mongo@127.0.0.1/main?authSource=admin`.
-Check is your database really running? or run it by docker `docker-compose up -d mongodb`.
-Then, create tables.
-```bash
-yarn workspace @app/ex02back keystone create-tables
-```
-
-## Use postgresql
+Migration process based on: https://github.com/keystonejs/keystone/discussions/3067
 
 You need to set `DATABASE_URL` like `postgresql://postgres:postgres@127.0.0.1/main`.
 Check is your database really running? or run it by docker `docker-compose up -d postgresdb`.
 
-Then, create tables.
-```bash
-yarn workspace @app/ex02back migrate
-```
-
-## Postgres migrations
-
-Migration process based on: https://github.com/keystonejs/keystone/discussions/3067
-[Migrations guide](apps/condo/docs/migrations.md) with snippets, errors and solutions
-
-Install dependencies:
-
+Then you need to install kmigrator dependencies:
 ```bash
 # install dependencies
 python3 -m pip install django
 python3 -m pip install psycopg2-binary
 ```
 
-Probably you already have some kmigrator scripts inside the `package.json` like so:
-```js
-  ...
-  "scripts": {
-    "makemigrations": "../bin/kmigrator.py makemigrations",
-    "migrate": "./kmigrator.py migrate",
-    ...
-  }
-```
+And now you can create tables: `yarn workspace @app/condo migrate`
 
-And you just need to run:
-```bash
-# create new migrations based on the changes you have made
-yarn makemigrations
+If you change some schemas you need to create database schema migration: `yarn workspace @app/condo makemigrations`
 
-# applying database migrations
-yarn migrate
-```
+You can also check [migrations guide with snippets, errors and solutions](apps/condo/docs/migrations.md)
 
 ## Upgrade packages versions
 
@@ -78,11 +47,6 @@ And use IDE integrations for easy debugging.
 For postgres you can set env `DEBUG=knex:query,knex:tx`. Example:
 ```bash
 DEBUG=knex:query,knex:tx yarn workspace @app/ex02back dev
-```
-
-For mongo you can set env `DEBUG_MONGOOSE=1`. Example:
-```bash
-DEBUG_MONGOOSE=1 yarn workspace @app/ex02back dev
 ```
 
 ## linter
@@ -119,3 +83,4 @@ The configuration for the [eslint](https://eslint.org) is found under `package.j
  - `yarn <command>` -- run command (`yarn dev`)
  - `yarn workspace @app/<name> <command>` -- run command inside workspace (`yarn workspace @app/web dev`)
  - `yarn --cwd <app-path-name> <command>` -- run command inside app (`yarn --cwd apps/web dev`)
+ - `yarn workspaces foreach -pt run dev` -- run `dev` command for all apps and packages
