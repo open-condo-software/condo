@@ -4,6 +4,7 @@
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox } = require('@keystonejs/fields')
 const get = require('lodash/get')
 
+const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find, getByCondition, getById } = require('@open-condo/keystone/schema')
 
@@ -163,6 +164,21 @@ const Meter = new GQLListSchema('Meter', {
             isRequired: true,
             defaultValue: false,
         },
+        meta: {
+            schemaDoc: 'Meter metadata. Can be used to store additional settings from integrations',
+            type: Json,
+            isRequired: false,
+        },
+        importRemoteSystem: {
+            schemaDoc: 'External provider for meter',
+            type: Text,
+            kmigratorOptions: { null: true, unique: false },
+        },
+        importId: {
+            schemaDoc: 'External system meter id. Used for integrations',
+            type: Text,
+            kmigratorOptions: { null: true, unique: false },
+        },
         b2cApp: {
             schemaDoc: 'Ref to the B2CApp which used to replace default integration with meter by resident\'s user in resident\'s app',
             type: Relationship,
@@ -182,6 +198,12 @@ const Meter = new GQLListSchema('Meter', {
     },
     kmigratorOptions: {
         constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['importId', 'importRemoteSystem'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'meter_unique_importid_and_importremotesystem',
+            },
             {
                 type: 'models.UniqueConstraint',
                 fields: ['organization', 'number', 'resource'],
