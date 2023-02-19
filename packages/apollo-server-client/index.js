@@ -3,7 +3,8 @@ const { BatchHttpLink } = require('@apollo/client/link/batch-http')
 const { RetryLink } = require('@apollo/client/link/retry')
 const { onError }  = require('apollo-link-error')
 const { createUploadLink } = require('apollo-upload-client')
-const fetchPoltfill = require('cross-fetch/polyfill')
+const fetchPolyFill = require('cross-fetch/polyfill')
+const FormData = require('form-data')
 const { chunk: splitArray } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -11,7 +12,14 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { MAX_REQUESTS_IN_BATCH, MAX_MODIFY_OPERATIONS_IN_REQUEST, MAX_RETRIES_ON_NETWORK_ERROR, LOAD_CHUNK_SIZE } = require('./constants')
 const { SIGNIN_BY_EMAIL_MUTATION, SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('./lib/gql')
 
-const fetch = fetchPoltfill.fetch
+const fetch = fetchPolyFill.fetch
+
+
+class UploadingFile {
+    constructor (stream) {
+        this.stream = stream
+    }
+}
 
 class ApolloServerClient {
 
@@ -213,8 +221,23 @@ class ApolloServerClient {
         })
     }
 
+    createUploadFile (stream) {
+        return new UploadingFile(stream)
+    }
+
     uploadTerminateLink () {
-        return createUploadLink({ uri: this.endpoint, fetch })
+        return createUploadLink({
+            uri: this.endpoint,
+            includeExtensions: true,
+            isExtractableFile: (value) => {
+                return value instanceof UploadingFile
+            },
+            FormData,
+            formDataAppendFile: (form, name, file) => {
+                form.append(name, file.stream)
+            },
+            fetch,
+        })
     }
 
     batchTerminateLink () {
