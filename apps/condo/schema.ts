@@ -19573,6 +19573,12 @@ export type Meter = {
   resource?: Maybe<MeterResource>;
   /**  Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading. So MeterReadings only be acquired through external integration or adjusted by organization employee  */
   isAutomatic?: Maybe<Scalars['Boolean']>;
+  /**  Meter metadata. Can be used to store additional settings from integrations  */
+  meta?: Maybe<Scalars['JSON']>;
+  /**  External provider for meter  */
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  /**  External system meter id. Used for integrations  */
+  importId?: Maybe<Scalars['String']>;
   /**  Ref to the B2CApp which used to replace default integration with meter by resident's user in resident's app  */
   b2cApp?: Maybe<B2CApp>;
   /**  Ref to B2BApp, which is used as a master system for this meter. Specified organization must connect this app.  */
@@ -19610,6 +19616,9 @@ export type MeterCreateInput = {
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   b2cApp?: Maybe<B2CAppRelateToOneInput>;
   b2bApp?: Maybe<B2BAppRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
@@ -19650,6 +19659,9 @@ export type MeterHistoryRecord = {
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   b2cApp?: Maybe<Scalars['String']>;
   b2bApp?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -19684,6 +19696,9 @@ export type MeterHistoryRecordCreateInput = {
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   b2cApp?: Maybe<Scalars['String']>;
   b2bApp?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -19723,6 +19738,9 @@ export type MeterHistoryRecordUpdateInput = {
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   b2cApp?: Maybe<Scalars['String']>;
   b2bApp?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -19902,6 +19920,46 @@ export type MeterHistoryRecordWhereInput = {
   resource_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   isAutomatic_not?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importRemoteSystem_not?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   b2cApp?: Maybe<Scalars['String']>;
   b2cApp_not?: Maybe<Scalars['String']>;
   b2cApp_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -21735,6 +21793,9 @@ export type MeterUpdateInput = {
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   b2cApp?: Maybe<B2CAppRelateToOneInput>;
   b2bApp?: Maybe<B2BAppRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
@@ -21891,6 +21952,46 @@ export type MeterWhereInput = {
   resource_is_null?: Maybe<Scalars['Boolean']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   isAutomatic_not?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importRemoteSystem_not?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   b2cApp?: Maybe<B2CAppWhereInput>;
   b2cApp_is_null?: Maybe<Scalars['Boolean']>;
   b2bApp?: Maybe<B2BAppWhereInput>;
@@ -49297,6 +49398,10 @@ export enum SortMeterHistoryRecordsBy {
   PlaceDesc = 'place_DESC',
   IsAutomaticAsc = 'isAutomatic_ASC',
   IsAutomaticDesc = 'isAutomatic_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -49564,6 +49669,10 @@ export enum SortMetersBy {
   ResourceDesc = 'resource_DESC',
   IsAutomaticAsc = 'isAutomatic_ASC',
   IsAutomaticDesc = 'isAutomatic_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
   B2cAppAsc = 'b2cApp_ASC',
   B2cAppDesc = 'b2cApp_DESC',
   B2bAppAsc = 'b2bApp_ASC',
