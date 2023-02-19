@@ -8,6 +8,7 @@ const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
 const { createUploadLink } = require('apollo-upload-client')
 const axiosLib = require('axios')
 const axiosCookieJarSupportLib = require('axios-cookiejar-support')
+const debug = require('debug')('@open-condo/keystone/test.utils')
 const express = require('express')
 const falsey = require('falsey')
 const FormData = require('form-data')
@@ -105,6 +106,7 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
 }
 
 const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
+    debug('prepareKeystoneExpressApp(%s) excludeApps=%j cwd=%s', entryPoint, excludeApps, process.cwd())
     const dev = process.env.NODE_ENV === 'development'
     const {
         distDir,
@@ -113,7 +115,6 @@ const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
         configureExpress,
     } = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
     const newApps = (excludeApps) ? apps.filter(x => !excludeApps.includes(x.constructor.name)) : apps
-    if (excludeApps && dev) console.info('prepareKeystoneExpressApp() with excluded apps:', excludeApps, 'apps:', newApps.map(x => x.constructor.name))
     const { middlewares } = await keystone.prepare({ apps: newApps, distDir, dev })
     await keystone.connect()
     const app = express()
