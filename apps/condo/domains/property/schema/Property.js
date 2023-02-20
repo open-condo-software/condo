@@ -101,6 +101,27 @@ const Property = new GQLListSchema('Property', {
             type: Json,
             extendGraphQLTypes: [PROPERTY_MAP_GRAPHQL_TYPES],
             graphQLReturnType: 'BuildingMap',
+            // Since `BuildingMap` is a part of `PropertyMap` union {@see apps/condo/domains/property/gql.js:~104}
+            // we have to say keystone which type do we mean {@see packages/keystone/fields/Json/Implementation.js:~68}
+            gqlAuxFieldResolver: (args) => {
+                return {
+                    PropertyMap: {
+                        /**
+                         * Here we must resolve the type depending on the object
+                         * @link https://www.apollographql.com/docs/apollo-server/schema/unions-interfaces/#resolving-a-union
+                         * @param obj
+                         * @param contextValue
+                         * @param info
+                         * @returns {'BuildingMap' | 'VillageMap'}
+                         * @private
+                         */
+                        __resolveType (obj, contextValue, info) {
+                            // For now, we use only this one
+                            return 'BuildingMap'
+                        },
+                    },
+                }
+            },
             graphQLAdminFragment: `{ ${PROPERTY_MAP_JSON_FIELDS} }`,
             isRequired: false,
             hooks: {
