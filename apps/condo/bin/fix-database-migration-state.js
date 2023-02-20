@@ -114,6 +114,16 @@ ALTER TABLE "User" DROP COLUMN "importId" CASCADE;
 ALTER TABLE "User" DROP COLUMN "importRemoteSystem" CASCADE;
 ALTER TABLE "UserHistoryRecord" DROP COLUMN "importId" CASCADE;
 ALTER TABLE "UserHistoryRecord" DROP COLUMN "importRemoteSystem" CASCADE;
+
+--
+-- 20230220213813-0223_remove_ticketchange_numberfrom_and_more.js: Remove fields numberFrom, numberTo, orderFrom, orderTo from TicketChange
+--
+
+ALTER TABLE "TicketChange" DROP COLUMN "numberFrom" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN "numberTo" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN "orderFrom" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN "orderTo" CASCADE;
+
 COMMIT;
 
     `))

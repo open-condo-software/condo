@@ -46,8 +46,6 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'statusReopenedCounterTo',
     'statusReasonFrom',
     'statusReasonTo',
-    'numberFrom',
-    'numberTo',
     'clientNameFrom',
     'clientNameTo',
     'clientEmailFrom',
