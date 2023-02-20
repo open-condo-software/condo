@@ -19582,7 +19582,7 @@ export type Meter = {
   resource?: Maybe<MeterResource>;
   /**  Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading. So MeterReadings only be acquired through external integration or adjusted by organization employee  */
   isAutomatic?: Maybe<Scalars['Boolean']>;
-  /**  Meter metadata. Can be used to store additional settings from integrations  */
+  /**  Meter metadata. Can be used to store additional settings from external sources, such as billing integrations or mini apps  */
   meta?: Maybe<Scalars['JSON']>;
   /**  Ref to the B2CApp which used to replace default integration with meter by resident's user in resident's app  */
   b2cApp?: Maybe<B2CApp>;

@@ -165,7 +165,7 @@ const Meter = new GQLListSchema('Meter', {
             defaultValue: false,
         },
         meta: {
-            schemaDoc: 'Meter metadata. Can be used to store additional settings from integrations',
+            schemaDoc: 'Meter metadata. Can be used to store additional settings from external sources, such as billing integrations or mini apps',
             type: Json,
             isRequired: false,
         },
