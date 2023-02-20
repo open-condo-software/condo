@@ -169,16 +169,6 @@ const Meter = new GQLListSchema('Meter', {
             type: Json,
             isRequired: false,
         },
-        importRemoteSystem: {
-            schemaDoc: 'External provider for meter',
-            type: Text,
-            kmigratorOptions: { null: true, unique: false },
-        },
-        importId: {
-            schemaDoc: 'External system meter id. Used for integrations',
-            type: Text,
-            kmigratorOptions: { null: true, unique: false },
-        },
         b2cApp: {
             schemaDoc: 'Ref to the B2CApp which used to replace default integration with meter by resident\'s user in resident\'s app',
             type: Relationship,
@@ -198,12 +188,6 @@ const Meter = new GQLListSchema('Meter', {
     },
     kmigratorOptions: {
         constraints: [
-            {
-                type: 'models.UniqueConstraint',
-                fields: ['importId', 'importRemoteSystem'],
-                condition: 'Q(deletedAt__isnull=True)',
-                name: 'meter_unique_importid_and_importremotesystem',
-            },
             {
                 type: 'models.UniqueConstraint',
                 fields: ['organization', 'number', 'resource'],
