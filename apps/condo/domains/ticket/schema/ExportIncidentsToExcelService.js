@@ -14,13 +14,15 @@ const { i18n } = require('@open-condo/locales/loader')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { getHeadersTranslations, EXPORT_TYPE_INCIDENTS } = require('@condo/domains/common/utils/exportToExcel')
+const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/ticket/access/ExportIncidentsToExcelService')
-const { INCIDENT_STATUS_ACTUAL } = require('@condo/domains/ticket/constants/incident')
+const { INCIDENT_STATUS_ACTUAL, INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_WORK_TYPE_EMERGENCY } = require('@condo/domains/ticket/constants/incident')
 const {
     loadIncidentsForExcelExport,
-    loadIncidentClassifiersForExcelExport,
+    loadIncidentClassifierIncidentsForExcelExport,
     loadIncidentPropertiesForExcelExport,
-    loadClassifiersForExcelExport,
+    loadIncidentClassifiersForExcelExport,
 } = require('@condo/domains/ticket/utils/serverSchema')
 
 
@@ -37,13 +39,13 @@ const ERRORS = {
 }
 
 const EMPTY_SYMBOL = '—'
+const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
 const classifiersToString = (classifiers = []) => {
     if (classifiers.length < 1) {
         return EMPTY_SYMBOL
     }
 
-    const place = classifiers[0].place
     const categories = uniq(classifiers
         .map(({ category }) => category))
         .join(', ')
@@ -53,12 +55,10 @@ const classifiersToString = (classifiers = []) => {
 
     const renderProblems = problems ? ` » ${problems}` : ''
 
-    return `${place} » ${categories}${renderProblems}`
+    return `${categories}${renderProblems}`
 }
 
-const formatDate = (date, timeZone, format = 'DD.MM.YYYY HH:mm') => {
-    if (!date || !format) return EMPTY_SYMBOL
-    if (!timeZone) return dayjs(date).format(format)
+const formatDate = (date, timeZone, format = DATE_FORMAT) => {
     return dayjs(date).tz(timeZone).format(format)
 }
 
@@ -79,8 +79,9 @@ const ExportIncidentsToExcelService = new GQLCustomSchema('ExportIncidentsToExce
             access: access.canExportIncidentsToExcel,
             schema: 'exportIncidentsToExcel(data: ExportIncidentsToExcelInput!): ExportIncidentsToExcelOutput',
             resolver: async (parent, args, context) => {
-                const { where, sortBy, timeZone } = args.data
+                const { where, sortBy, timeZone: timeZoneFromUser } = args.data
 
+                const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
                 const HeaderMessage = i18n('excelExport.headers.incidents.title', { locale })
@@ -88,8 +89,13 @@ const ExportIncidentsToExcelService = new GQLCustomSchema('ExportIncidentsToExce
                 const SheetNameMessage = i18n('excelExport.sheetNames.incidents', { locale })
                 const ActualMessage = i18n('incident.status.actual', { locale })
                 const NotActualMessage = i18n('incident.status.notActual', { locale })
-                const YesMessage = i18n('Yes', { locale })
-                const NoMessage = i18n('No', { locale })
+                const WorkTypeEmergencyMessage = i18n('incident.workType.emergency', { locale })
+                const WorkTypeScheduledMessage = i18n('incident.workType.scheduled', { locale })
+
+                const workTypeLabels = {
+                    [INCIDENT_WORK_TYPE_SCHEDULED]: WorkTypeScheduledMessage,
+                    [INCIDENT_WORK_TYPE_EMERGENCY]: WorkTypeEmergencyMessage,
+                }
 
                 const incidents = await loadIncidentsForExcelExport({ where, sortBy })
                 if (incidents.length < 1) {
@@ -105,22 +111,26 @@ const ExportIncidentsToExcelService = new GQLCustomSchema('ExportIncidentsToExce
                     },
                 })
 
-                const incidentClassifiers = await loadIncidentClassifiersForExcelExport({
+                const incidentClassifierIncidents = await loadIncidentClassifierIncidentsForExcelExport({
                     where: {
                         incident: { id_in: incidentIds },
                         deletedAt: null,
                     },
                 })
 
-                const classifierIds = uniq(incidentClassifiers.map(({ classifier }) => classifier))
+                const classifierIds = uniq(incidentClassifierIncidents.map(({ classifier }) => classifier))
 
-                const classifiers = await loadClassifiersForExcelExport({ classifierRuleIds: classifierIds })
+                const classifiers = await loadIncidentClassifiersForExcelExport({
+                    where: {
+                        id_in: classifierIds,
+                    },
+                })
 
                 const excelRows = incidents.map(incident => {
                     const properties = incidentProperties
                         .filter(incidentProperty => incidentProperty.incident === incident.id)
                         .map(({ property }) => property)
-                    const classifiersIds = incidentClassifiers
+                    const classifiersIds = incidentClassifierIncidents
                         .filter(incidentClassifier => incidentClassifier.incident === incident.id)
                         .map(({ classifier }) => classifier)
                     const filteredClassifiers = classifiers.filter(classifier => classifiersIds.includes(classifier.id))
@@ -130,23 +140,22 @@ const ExportIncidentsToExcelService = new GQLCustomSchema('ExportIncidentsToExce
                         number: incident.number,
                         addresses: incident.hasAllProperties
                             ? AllPropertiesMessage
-                            : properties.join(',\n'),
+                            : properties.join(';\n'),
                         classifiers: classifiersToString(filteredClassifiers),
                         details: incident.details,
                         status: isActual ? ActualMessage : NotActualMessage,
-                        workStart: formatDate(incident.workStart, timeZone),
-                        workFinish: formatDate(incident.workFinish, timeZone),
+                        workStart: incident.workStart ? formatDate(incident.workStart, timeZone) : EMPTY_SYMBOL,
+                        workFinish: incident.workFinish ? formatDate(incident.workFinish, timeZone) : EMPTY_SYMBOL,
+                        workType: incident.workType ? workTypeLabels[incident.workType] : EMPTY_SYMBOL,
                         organization: incident.organization,
                         textForResident: incident.textForResident || EMPTY_SYMBOL,
                         createdBy: incident.createdBy,
-                        createdAt: formatDate(incident.createdAt, timeZone),
-                        isScheduled: incident.isScheduled ? YesMessage : NoMessage,
-                        isEmergency: incident.isEmergency ? YesMessage : NoMessage,
+                        createdAt: incident.createdAt ? formatDate(incident.createdAt, timeZone) : EMPTY_SYMBOL,
                     }
                 })
 
                 const { url: linkToFile } = await createExportFile({
-                    fileName: `incidents_${dayjs().format('DD_MM_YYYY')}.xlsx`,
+                    fileName: `incidents_${formatDate(null, timeZone, 'DD_MM_YYYY')}.xlsx`,
                     templatePath: INCIDENTS_EXPORT_TEMPLATE_PATH,
                     replaces: {
                         incidents: excelRows,

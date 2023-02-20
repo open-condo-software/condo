@@ -115,8 +115,7 @@ describe('Incident', () => {
                 expect(incident).toHaveProperty('status', INCIDENT_STATUS_ACTUAL)
                 expect(incident).toHaveProperty('workStart')
                 expect(incident).toHaveProperty('workFinish', null)
-                expect(incident).toHaveProperty('isScheduled', false)
-                expect(incident).toHaveProperty('isEmergency', false)
+                expect(incident).toHaveProperty('workType', null)
                 expect(incident).toHaveProperty('hasAllProperties', false)
                 expect(incident).toHaveProperty('number')
                 expect(incident.number).not.toBeNull()
@@ -201,10 +200,27 @@ describe('Incident', () => {
                 expect(incident).toBeDefined()
                 expect(incident).toHaveProperty('workFinish', incidentByAdmin.workStart)
             })
-            test('workFinish should not be early then workStart', async () => {
+            test('workFinish should not be early then workStart when update workFinish', async () => {
                 await catchErrorFrom(async () => {
                     await updateTestIncident(admin, incidentByAdmin.id, {
                         workFinish: dayjs(incidentByAdmin.workStart).subtract(1, 'minute').toISOString(),
+                    })
+                }, ({ errors }) => {
+                    expect(errors).toHaveLength(1)
+                    expect(errors[0]).toEqual(expect.objectContaining({
+                        message: INCIDENT_ERRORS.WORK_FINISH_EARLY_THAN_WORK_START.message,
+                    }))
+                })
+            })
+            test('workFinish should not be early then workStart when update workStart', async () => {
+                const [incident] = await createTestIncident(admin, organization, {
+                    ...INCIDENT_PAYLOAD,
+                    workStart: dayjs('2023-01-01').toISOString(),
+                    workFinish: dayjs('2023-01-02').toISOString(),
+                })
+                await catchErrorFrom(async () => {
+                    await updateTestIncident(admin, incident.id, {
+                        workStart: dayjs('2023-01-03').toISOString(),
                     })
                 }, ({ errors }) => {
                     expect(errors).toHaveLength(1)

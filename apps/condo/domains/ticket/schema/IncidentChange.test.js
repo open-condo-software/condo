@@ -94,12 +94,6 @@ describe('IncidentChange', () => {
                 const incidentChange = await IncidentChange.getAll(support, { incident: { id: incidentByAdmin.id } })
                 expect(incidentChange).toHaveLength(1)
                 expect(incidentChange[0]).toHaveProperty('incident.id', incidentByAdmin.id)
-                expect(incidentChange[0]).toHaveProperty('incident.id', incidentByAdmin.id)
-                expect(incidentChange[0]).toHaveProperty('incident.id', incidentByAdmin.id)
-                expect(incidentChange[0]).toHaveProperty('incident.id', incidentByAdmin.id)
-                expect(incidentChange[0]).toHaveProperty('incident.id', incidentByAdmin.id)
-                expect(incidentChange[0]).toHaveProperty('incident.id', incidentByAdmin.id)
-                expect(incidentChange[0]).toHaveProperty('incident.id', incidentByAdmin.id)
             })
             test('Can not update', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {

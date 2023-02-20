@@ -22,7 +22,11 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { getTimeLeftMessage, getTimeLeftMessageType } from '@condo/domains/common/utils/date.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
+import {
+    INCIDENT_STATUS_COLORS,
+    INCIDENT_WORK_TYPE_EMERGENCY,
+    INCIDENT_WORK_TYPE_SCHEDULED,
+} from '@condo/domains/ticket/constants/incident'
 import { useIncidentChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useIncidentChangedFieldMessagesOf'
 import { useIncidentUpdateStatusModal } from '@condo/domains/ticket/hooks/useIncidentUpdateStatusModal'
 import { Incident, IncidentProperty, IncidentClassifierIncident, IncidentChange } from '@condo/domains/ticket/utils/clientSchema'
@@ -241,23 +245,16 @@ const IncidentWorkTypeField: React.FC<IncidentFieldProps> = ({ incident }) => {
     const WorkTypeScheduledLabel = intl.formatMessage({ id: 'incident.workType.scheduled' })
     const HaveNotMessage = intl.formatMessage({ id: 'incident.fields.workType.empty' })
 
-    const workTypes = useMemo(() => {
-        const types = []
-        if (incident.isEmergency) {
-            types.push(WorkTypeEmergencyLabel)
-        }
-        if (incident.isScheduled) {
-            types.push(WorkTypeScheduledLabel)
-        }
-
-        return types.join(', ')
-    }, [WorkTypeEmergencyLabel, WorkTypeScheduledLabel, incident.isEmergency, incident.isScheduled])
+    const workTypeLabels = useMemo(() => ({
+        [INCIDENT_WORK_TYPE_SCHEDULED]: WorkTypeScheduledLabel,
+        [INCIDENT_WORK_TYPE_EMERGENCY]: WorkTypeEmergencyLabel,
+    }), [WorkTypeEmergencyLabel, WorkTypeScheduledLabel])
 
     return (
         <Row>
             <PageFieldRow title={WorkTypeLabel} ellipsis labelSpan={5}>
                 <Typography.Text>
-                    {workTypes || HaveNotMessage}
+                    {incident.workType && workTypeLabels[incident.workType] || HaveNotMessage}
                 </Typography.Text>
             </PageFieldRow>
         </Row>
@@ -435,7 +432,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                 type='primary'
                                 children={isActual ? ChangeToNotActualLabel : ChangeToActualLabel}
                                 onClick={handleOpen}
-                                id={isActual ? 'changeStatusToNotActual' : 'changeStatusNotActual'}
+                                id={isActual ? 'changeStatusToNotActual' : 'changeStatusToActual'}
                             />
                             <Button
                                 disabled={incidentLoading}

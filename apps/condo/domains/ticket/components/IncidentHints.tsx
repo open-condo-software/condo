@@ -7,21 +7,21 @@ import {
     IncidentWhereInput,
     SortIncidentsBy,
 } from '@app/condo/schema'
-import { Col, Row, RowProps } from 'antd'
+import { Col, ColProps, Row, RowProps } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Typography, TypographyParagraphProps } from '@open-condo/ui'
+import { Alert, Typography } from '@open-condo/ui'
 
 import { Incident, IncidentClassifierIncident, IncidentProperty } from '@condo/domains/ticket/utils/clientSchema'
 
 
 const INCIDENTS_GUTTER: RowProps['gutter'] = [0, 24]
 const DESCRIPTION_GUTTER: RowProps['gutter'] = [0, 14]
-const DETAILS_ELLIPSIS_CONFIG: TypographyParagraphProps['ellipsis'] = { rows: 7 }
+const MAX_DETAILS_LENGTH = 150
 
 type ClassifierDataType = Pick<IIncidentClassifier, 'category' | 'problem'>
 
@@ -29,6 +29,7 @@ type IncidentHintsProps = {
     propertyId: string
     organizationId: string
     classifier?: ClassifierDataType
+    colProps?: ColProps
 }
 
 type IncidentHintProps = {
@@ -46,6 +47,12 @@ const IncidentHint: React.FC<IncidentHintProps> = (props) => {
 
     const { incident } = props
 
+    const trimmedDetails = useMemo(() => {
+        const details = get(incident, 'details', '')
+        return details.length > MAX_DETAILS_LENGTH ? `${details.substring(0, MAX_DETAILS_LENGTH)}…` : details
+    }, [incident])
+
+    // todo(DOMA-2567) update alert, add custom icon, add new type with grey color
     return (
         <Alert
             showIcon
@@ -55,8 +62,8 @@ const IncidentHint: React.FC<IncidentHintProps> = (props) => {
                     <Col span={24}>
                         <Row>
                             <Col span={24}>
-                                <Typography.Paragraph strong ellipsis={DETAILS_ELLIPSIS_CONFIG}>
-                                    {get(incident, 'details', '')}
+                                <Typography.Paragraph strong>
+                                    {trimmedDetails}
                                 </Typography.Paragraph>
                             </Col>
                             <Col span={24}>
@@ -81,6 +88,10 @@ const IncidentHint: React.FC<IncidentHintProps> = (props) => {
     )
 }
 
+
+type FetchIncidentsType = (props: { sortBy: SortIncidentsBy[], incidentIds: string[], organizationId: string, status?: IncidentStatusType, workFinishedInLastDays?: number }) => Promise<IIncident[]>
+
+
 /**
  *
  * logic getting incident hints:
@@ -89,7 +100,7 @@ const IncidentHint: React.FC<IncidentHintProps> = (props) => {
  *
  * 2 - search Incidents by IncidentProperties
  * 2.1 - search all actual Incidents
- * 2.2 - search last 3 not actual Incidents
+ * 2.2 - search not actual Incidents in last 7 days
  *
  * 3 - filter Incidents by IncidentClassifierIncident
  * 3.1 - search IncidentClassifierIncident by ( TicketCategoryClassifier and TicketProblemClassifier ) and Incidents
@@ -98,7 +109,7 @@ const IncidentHint: React.FC<IncidentHintProps> = (props) => {
  * 4 - show Incidents
  */
 export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
-    const { propertyId, classifier, organizationId } = props
+    const { propertyId, classifier, organizationId, colProps } = props
 
     const [allIncidents, setAllIncidents] = useState<IIncident[]>([])
     const [incidentsToShow, setIncidentsToShow] = useState<IIncident[]>([])
@@ -124,11 +135,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         return get(res, 'data.objs', [])
     }, [])
 
-    const fetchIncidents = useCallback(async (sortBy: SortIncidentsBy[], incidentIds: string[], organizationId: string, status?: IncidentStatusType, count?: number) => {
-        if (count === 0) {
-            return []
-        }
-
+    const fetchIncidents: FetchIncidentsType = useCallback(async ({ sortBy, incidentIds, organizationId, status, workFinishedInLastDays }) => {
         const where: IncidentWhereInput = {
             organization: { id: organizationId },
             AND: [
@@ -145,7 +152,11 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             where.status = status
         }
 
-        const res = await refetchIncidents({ where, sortBy, first: count })
+        if (workFinishedInLastDays) {
+            where.workFinish_gte = dayjs().subtract(workFinishedInLastDays, 'days').toISOString()
+        }
+
+        const res = await refetchIncidents({ where, sortBy })
 
         return get(res, 'data.objs', [])
     }, [])
@@ -190,14 +201,19 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     const getAllIncidents = useCallback(async (propertyId: string, organizationId: string) => {
         const incidentProperties = await fetchIncidentProperties(propertyId)
         const incidentIds = incidentProperties.map(item => item.incident.id)
-        const actualIncidents = await fetchIncidents(
-            [SortIncidentsBy.WorkStartAsc, SortIncidentsBy.CreatedAtAsc],
-            incidentIds, organizationId, IncidentStatusType.Actual
-        )
-        const notActualLastIncidents = await fetchIncidents(
-            [SortIncidentsBy.WorkFinishDesc, SortIncidentsBy.CreatedAtDesc],
-            incidentIds, organizationId, IncidentStatusType.NotActual, 3
-        )
+        const actualIncidents = await fetchIncidents({
+            sortBy: [SortIncidentsBy.WorkStartAsc, SortIncidentsBy.CreatedAtAsc],
+            incidentIds,
+            organizationId,
+            status: IncidentStatusType.Actual,
+        })
+        const notActualLastIncidents = await fetchIncidents({
+            sortBy: [SortIncidentsBy.WorkFinishDesc, SortIncidentsBy.CreatedAtDesc],
+            incidentIds,
+            organizationId,
+            status: IncidentStatusType.NotActual,
+            workFinishedInLastDays: 7,
+        })
         const incidents = [...actualIncidents, ...notActualLastIncidents]
         setAllIncidents(incidents)
     }, [fetchIncidentProperties, fetchIncidents])
@@ -207,7 +223,8 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             // NOTE: if we have not categoryId and problemId then we can show all incidents (without request to server)
             setIncidentsToShow(incidents)
         } else {
-            const incidentClassifierIncidents = await fetchIncidentClassifierIncidents(incidents.map(item => item.id), categoryId, problemId)
+            const incidentIds = incidents.map(incident => incident.id)
+            const incidentClassifierIncidents = await fetchIncidentClassifierIncidents(incidentIds, categoryId, problemId)
             const incidentIdsFormIncidentClassifiers = incidentClassifierIncidents.map(item => item.incident.id)
             const filteredIncidents = incidents.filter((incident) => incidentIdsFormIncidentClassifiers.includes(incident.id))
             setIncidentsToShow(filteredIncidents)
@@ -224,7 +241,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         getIncidentsToShow(allIncidents, categoryId, problemId)
     }, [allIncidents, categoryId, problemId, getIncidentsToShow])
 
-    return (
+    const renderIncidents = useMemo(() => (
         <Row gutter={INCIDENTS_GUTTER}>
             {
                 incidentsToShow.map(incident => (
@@ -234,5 +251,9 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
                 ))
             }
         </Row>
-    )
+    ), [incidentsToShow])
+
+    if (!incidentsToShow.length) return null
+
+    return colProps ? (<Col {...colProps}>{renderIncidents}</Col>) : renderIncidents
 }

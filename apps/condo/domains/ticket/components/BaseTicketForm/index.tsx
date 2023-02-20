@@ -8,7 +8,7 @@ import {
     TicketStatusTypeType,
     TicketSource as TicketSourceType,
 } from '@app/condo/schema'
-import { Affix, Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
+import { Affix, Alert, Col, ColProps, Form, FormItemProps, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -58,6 +58,9 @@ import { useTicketValidations } from './useTicketValidations'
 
 import { IncidentHints } from '../IncidentHints'
 
+
+const HINTS_COL_PROPS: ColProps = { span: 24 }
+
 export const IncidentHintsBlock = ({ organizationId, propertyId }) => {
     const { classifier } = useTicketFormContext()
 
@@ -65,13 +68,12 @@ export const IncidentHintsBlock = ({ organizationId, propertyId }) => {
         <>
             {
                 propertyId && organizationId && (
-                    <Col span={24}>
-                        <IncidentHints
-                            propertyId={propertyId}
-                            organizationId={organizationId}
-                            classifier={classifier}
-                        />
-                    </Col>
+                    <IncidentHints
+                        propertyId={propertyId}
+                        organizationId={organizationId}
+                        classifier={classifier}
+                        colProps={HINTS_COL_PROPS}
+                    />
                 )
             }
         </>
@@ -352,7 +354,7 @@ export const TicketSourceSelect: React.FC = () => {
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em', maxWidth: '250px' }
-const HINTS_WRAPPER_STYLE: CSSProperties = { overflow: 'auto', maxHeight: 'calc(100vh - 128px)', paddingRight: 8 }
+const HINTS_WRAPPER_STYLE: CSSProperties = { overflowY: 'scroll', maxHeight: 'calc(100vh - 220px)', paddingRight: 8 }
 
 export interface ITicketFormProps {
     organization?: Organization
@@ -560,12 +562,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const hintsBlock = useMemo(() => (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-            <Col span={24}>
-                <TicketPropertyHintCard
-                    propertyId={selectedPropertyId}
-                    hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
-                />
-            </Col>
+            <TicketPropertyHintCard
+                propertyId={selectedPropertyId}
+                hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
+                colProps={HINTS_COL_PROPS}
+            />
             <IncidentHintsBlock
                 organizationId={organizationId}
                 propertyId={selectedPropertyId}
