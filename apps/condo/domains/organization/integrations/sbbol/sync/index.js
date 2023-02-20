@@ -22,7 +22,6 @@ const { dvSenderFields } = require('../constants')
 const { SBBOL_IMPORT_NAME } = require('../constants')
 const { getSbbolSecretStorage } = require('../utils')
 
-
 const SYNC_BANK_ACCOUNTS_FROM_SBBOL = 'sync-bank-accounts-from-sbbol'
 
 /**
@@ -113,7 +112,11 @@ const sync = async ({ keystone, userInfo, tokenSet  }) => {
     await sbbolSecretStorage.setOrganization(organization.id)
     await syncTokens(tokenSet, user.id)
     await syncServiceSubscriptions(userInfo.inn)
-    await syncSbbolTransactions.delay(date, user.id, organization)
+
+    if (await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL)) {
+        await syncSbbolTransactions.delay(date, user.id, organization)
+        await syncSbbolTransactions.delay(date, user.id, organization)
+    }
 
     return {
         user,

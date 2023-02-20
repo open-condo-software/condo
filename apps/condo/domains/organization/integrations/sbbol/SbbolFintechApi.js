@@ -79,7 +79,7 @@ function parseSbbolResponse (response, statusCode, msg) {
             return { error: jsonData, statusCode: response.statusCode }
         }
     } catch (error) {
-        return logger.error({ msg, error })
+        return logger.error({ msg: 'Error parsing response from SBBOL', error, response })
     }
 }
 
