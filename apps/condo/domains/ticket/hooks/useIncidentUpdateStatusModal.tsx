@@ -69,13 +69,15 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
 
     const initialState = useMemo(() => {
         const beforeWorkStart = incident.workStart && dayjs().diff(incident.workStart) < 0
-        const workFinish = incident.workFinish
-            ? dayjs(incident.workFinish)
-            : beforeWorkStart
-                ? dayjs(incident.workStart)
-                : dayjs()
+        const afterWorkFinish = incident.workFinish && dayjs().diff(incident.workFinish) > 0
+
+        let workFinish
+        if (!incident.workFinish && beforeWorkStart) workFinish = dayjs(incident.workStart)
+        if (isActual && afterWorkFinish) workFinish = dayjs(incident.workFinish)
+        workFinish = dayjs()
+
         return { workFinish }
-    }, [incident.workFinish, incident.workStart])
+    }, [incident.workFinish, incident.workStart, isActual])
 
     const handleOpen = useCallback(() => {
         setOpen(true)

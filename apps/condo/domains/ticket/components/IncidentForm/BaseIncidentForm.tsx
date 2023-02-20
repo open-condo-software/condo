@@ -13,7 +13,7 @@ import { Col, Form, FormInstance, Row, RowProps, Typography } from 'antd'
 import { FormProps } from 'antd/lib/form/Form'
 import { ColProps } from 'antd/lib/grid/col'
 import dayjs from 'dayjs'
-import { difference } from 'lodash'
+import difference from 'lodash/difference'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
@@ -27,10 +27,10 @@ import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { Alert } from '@open-condo/ui'
+import { Alert, Space } from '@open-condo/ui'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
+import AntRadio from '@condo/domains/common/components/antd/Radio'
 import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import {
@@ -41,8 +41,8 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { Loader } from '@condo/domains/common/components/Loader'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import Prompt from '@condo/domains/common/components/Prompt'
-import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_WORK_TYPE_EMERGENCY } from '@condo/domains/ticket/constants/incident'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import {
     IncidentClassifierIncident,
@@ -64,8 +64,7 @@ export type BaseIncidentFormProps = {
     initialValues?: Pick<IIncident, 'id'
     | 'workStart'
     | 'workFinish'
-    | 'isEmergency'
-    | 'isScheduled'
+    | 'workType'
     | 'status'
     | 'details'
     | 'textForResident'
@@ -109,21 +108,6 @@ export const TextArea = styled(Input.TextArea)`
   &.ant-input {
     min-height: 120px;
   }
-`
-
-export const CheckboxFormItem = styled(Form.Item)`  
-  & .ant-form-item-label {
-    display: flex;
-    align-items: center;
-    
-    & > label {
-      height: initial;
-    }
-  }
-`
-
-export const Label = styled(Typography.Text)`
-  color: ${colors.textSecondary};
 `
 
 type OptionType = Required<Pick<DefaultOptionType, 'label' | 'value'>>
@@ -267,9 +251,9 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
 }
 
 
+export const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
 export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
-export const CHECKBOXES_GUTTER: RowProps['gutter'] = [24, 0]
 export const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 export const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
 export const getFinishWorkRules: (error: string) => Rule[] = (error) => [(form) => {
@@ -315,6 +299,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const NotActualWorkFinishAlertMessage = intl.formatMessage({ id: 'incident.form.alert.notActualWorkFinish.description' })
     const PromptTitle = intl.formatMessage({ id: 'incident.form.prompt.exit.title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'incident.form.prompt.exit.message' })
+    const notAvailableMessage = intl.formatMessage({ id: 'global.notAvailable' })
+    const SelectPlaceholder = intl.formatMessage({ id: 'Select' })
 
     const {
         action: createOrUpdateIncident,
@@ -407,7 +393,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         search: searchOrganizationProperty(organizationId),
         disabled: !organizationId,
         required: true,
-    }), [initialPropertyIds, organizationId])
+        placeholder: SelectPlaceholder,
+    }), [initialPropertyIds, organizationId, SelectPlaceholder])
 
     const propertySelectFormItemProps: InputWithCheckAllProps['selectFormItemProps'] = useMemo(() => ({
         label: PropertiesLabel,
@@ -417,6 +404,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     }), [PropertiesLabel])
 
     const initialFormValues = useMemo(() => ({
+        workType: null,
         ...initialValues,
         properties: initialPropertyIds,
         classifiers: initialIncidentClassifiers,
@@ -453,6 +441,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                     action={handleFormSubmit}
                     colon={false}
                     scrollToFirstError={SCROLL_TO_FIRST_ERROR_CONFIG}
+                    validateTrigger={FORM_VALIDATE_TRIGGER}
                     {...FORM_LAYOUT_PROPS}
                     children={({ handleSave, isLoading, form }) => (
                         <>
@@ -511,6 +500,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                             format='DD MMMM YYYY HH:mm'
                                             showTime={SHOW_TIME_CONFIG}
                                             onChange={handleChangeDate(form, 'workStart')}
+                                            placeholder={SelectPlaceholder}
                                         />
                                     </Form.Item>
                                 </Col>
@@ -526,6 +516,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                             format='DD MMMM YYYY HH:mm'
                                             showTime={SHOW_TIME_CONFIG}
                                             onChange={handleChangeDate(form, 'workFinish')}
+                                            placeholder={SelectPlaceholder}
                                         />
                                     </Form.Item>
                                 </Col>
@@ -535,31 +526,19 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                     rules={commonRules}
                                 />
                                 <Col span={24}>
-                                    <Row align='middle'>
-                                        <Col {...FORM_LAYOUT_PROPS.labelCol}>
-                                            <Label>{WorkTypeLabel}</Label>
-                                        </Col>
-                                        <Col>
-                                            <Row gutter={CHECKBOXES_GUTTER} align='middle'>
-                                                <Col>
-                                                    <CheckboxFormItem
-                                                        name='isEmergency'
-                                                        valuePropName='checked'
-                                                    >
-                                                        <Checkbox children={EmergencyTypeLabel}/>
-                                                    </CheckboxFormItem>
-                                                </Col>
-                                                <Col>
-                                                    <CheckboxFormItem
-                                                        name='isScheduled'
-                                                        valuePropName='checked'
-                                                    >
-                                                        <Checkbox children={ScheduledTypeLabel}/>
-                                                    </CheckboxFormItem>
-                                                </Col>
-                                            </Row>
-                                        </Col>
-                                    </Row>
+                                    <Form.Item
+                                        label={WorkTypeLabel}
+                                        name='workType'
+                                    >
+                                        {/* TODO(DOMA-2567) change to ui kit */}
+                                        <AntRadio.Group>
+                                            <Space size={isSmallWindow ? 16 : 40} wrap>
+                                                <AntRadio value={null}>{notAvailableMessage}</AntRadio>
+                                                <AntRadio value={INCIDENT_WORK_TYPE_SCHEDULED}>{ScheduledTypeLabel}</AntRadio>
+                                                <AntRadio value={INCIDENT_WORK_TYPE_EMERGENCY}>{EmergencyTypeLabel}</AntRadio>
+                                            </Space>
+                                        </AntRadio.Group>
+                                    </Form.Item>
                                 </Col>
                                 <Col span={24}>
                                     <Form.Item

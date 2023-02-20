@@ -15,7 +15,7 @@ const { normalizeText } = require('@condo/domains/common/utils/text')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/Incident')
 const { OMIT_INCIDENT_CHANGE_TRACKABLE_FIELDS } = require('@condo/domains/ticket/constants')
-const { INCIDENT_STATUSES, INCIDENT_STATUS_ACTUAL } = require('@condo/domains/ticket/constants/incident')
+const { INCIDENT_STATUSES, INCIDENT_STATUS_ACTUAL, INCIDENT_WORK_TYPES } = require('@condo/domains/ticket/constants/incident')
 const {
     createIncidentChange,
     incidentRelatedManyToManyResolvers,
@@ -57,7 +57,7 @@ const Incident = new GQLListSchema('Incident', {
         },
 
         status: {
-            schemaDoc: 'Incident status.',
+            schemaDoc: 'Incident status indicates the actuality of the incident',
             type: 'Select',
             isRequired: true,
             options: INCIDENT_STATUSES.join(','),
@@ -69,7 +69,7 @@ const Incident = new GQLListSchema('Incident', {
             type: 'Text',
             hooks: {
                 resolveInput: async ({ resolvedData, fieldPath }) => {
-                    return normalizeText(resolvedData[fieldPath])
+                    return normalizeText(resolvedData[fieldPath]) || ''
                 },
             },
         },
@@ -105,34 +105,16 @@ const Incident = new GQLListSchema('Incident', {
                     }
                     return workFinish
                 },
-                validateInput: async (props) => {
-                    const { resolvedData, existingItem, fieldPath, context } = props
-                    const newItem = { ...existingItem, ...resolvedData }
-                    if (!newItem[fieldPath]) return
-
-                    const workFinish = dayjs(newItem[fieldPath])
-                    const workStart = dayjs(newItem.workStart)
-                    const isValidFinishDate = workFinish.diff(workStart) >= 0
-
-                    if (workFinish && workStart && !isValidFinishDate) {
-                        throw new GQLError(ERRORS.WORK_FINISH_EARLY_THAN_WORK_START, context)
-                    }
-                },
             },
         },
 
-        isScheduled: {
-            schemaDoc: 'Scheduled works',
-            type: 'Checkbox',
-            isRequired: true,
-            defaultValue: false,
-        },
-
-        isEmergency: {
-            schemaDoc: 'Emergency work',
-            type: 'Checkbox',
-            isRequired: true,
-            defaultValue: false,
+        workType: {
+            schemaDoc: 'Type of work that is carried out during the incident: emergency or scheduled',
+            type: 'Select',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true },
+            options: INCIDENT_WORK_TYPES.join(','),
         },
 
         hasAllProperties: {
@@ -143,6 +125,19 @@ const Incident = new GQLListSchema('Incident', {
 
     },
     hooks: {
+        validateInput: async (props) => {
+            const { resolvedData, existingItem, context } = props
+            const newItem = { ...existingItem, ...resolvedData }
+            if (newItem.workFinish) {
+                const workFinish = dayjs(newItem.workFinish)
+                const workStart = dayjs(newItem.workStart)
+                const isValidFinishDate = workFinish.diff(workStart) >= 0
+
+                if (workFinish && workStart && !isValidFinishDate) {
+                    throw new GQLError(ERRORS.WORK_FINISH_EARLY_THAN_WORK_START, context)
+                }
+            }
+        },
         afterChange: async (...args) => {
             /**
              * Creates a new IncidentChange item
