@@ -3,14 +3,18 @@ const { BatchHttpLink } = require('@apollo/client/link/batch-http')
 const { RetryLink } = require('@apollo/client/link/retry')
 const { onError }  = require('apollo-link-error')
 const { createUploadLink } = require('apollo-upload-client')
-const fetch = require('cross-fetch/polyfill').fetch
 const FormData = require('form-data')
 const { chunk: splitArray } = require('lodash')
+const fetch = require('node-fetch')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { MAX_REQUESTS_IN_BATCH, MAX_MODIFY_OPERATIONS_IN_REQUEST, MAX_RETRIES_ON_NETWORK_ERROR, LOAD_CHUNK_SIZE } = require('./constants')
 const { SIGNIN_BY_EMAIL_MUTATION, SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('./lib/gql')
+
+if (!globalThis.fetch) {
+    globalThis.fetch = fetch
+}
 
 class UploadingFile {
     constructor (stream) {

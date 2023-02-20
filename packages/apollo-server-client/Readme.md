@@ -9,7 +9,7 @@ We need basic client to support
 
 # Where to use
 
-In billing and acquiring mini-aps (EPS, RB...). Everywhere where we are using service type user for requests
+In billing and acquiring mini-aps (EPS, RB...). Everywhere where we are using service type user for requests to condo
 
 # How to use
 See examples in example folder

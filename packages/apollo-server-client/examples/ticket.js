@@ -45,7 +45,7 @@ const TicketGql = generateGqlQueries('Ticket', TICKET_FIELDS)
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketFileGql = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
 
-class TicketBot extends ApolloServerClient {
+class TicketClient extends ApolloServerClient {
 
     async classifyTicket (details = '') {
         const { data: { obj } } = await this.client.query({
@@ -77,7 +77,7 @@ class TicketBot extends ApolloServerClient {
 // 4. Create ticket file and attach it to the ticket
 
 const bootstrap = async () => {
-    const bot = new TicketBot(endpoint, authRequisites)
+    const bot = new TicketClient(endpoint, authRequisites)
     await bot.signIn()
     bot.info('Logged in as', { user: { id: bot.userId } })
     const classifier = await bot.classifyTicket(ticket.details)
