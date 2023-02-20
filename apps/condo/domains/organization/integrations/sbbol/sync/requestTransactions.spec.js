@@ -128,12 +128,12 @@ describe('syncBankTransaction from SBBOL', () => {
 
         it('Request transactions from SBBOL for a period', async () => {
             const dateEnd = dayjs().format('YYYY-MM-DD')
-            const date = [dateEnd]
+            const dateInterval = [dateEnd]
             for (let i = 1; i <= 3; i++) {
-                date.push(dayjs(date[date.length - 1]).subtract(1, 'day').format('YYYY-MM-DD'))
+                dateInterval.push(dayjs(dateInterval[dateInterval.length - 1]).subtract(1, 'day').format('YYYY-MM-DD'))
             }
             const transactions = await requestTransactions({
-                date: date,
+                dateInterval,
                 userId: commonClient.user.id,
                 organization: commonOrganization,
             })

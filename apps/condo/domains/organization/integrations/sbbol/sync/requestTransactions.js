@@ -86,7 +86,7 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
 
         for (const transaction of transactions) {
             // If SBBOL returned a transaction with an unsupported currency, do not process
-            if (!isEmpty(ISO_CODES.map( currencyName => get(transaction, 'amount.currencyName') === currencyName))) {
+            if (ISO_CODES.includes(transaction.amount.currencyName)) {
                 const formatedOperationDate = dayjs(transaction.operationDate).format('YYYY-MM-DD')
                 const whereConditions = {
                     number: transaction.number,
@@ -115,8 +115,11 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
                         ...whereConditions,
                         ...dvSenderFields,
                     })
-                    logger.info(`BankTransaction instance created with id: ${createdTransaction.id}`)
+                    logger.info({ msg: `BankTransaction instance created with id: ${createdTransaction.id}` })
                 }
+
+            } else {
+                logger.warn({ msg: 'Not supported currency of BankTransaction from SBBOL. It will not be saved.', transaction })
             }
         }
     }
@@ -125,20 +128,22 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
 
 /**
  * Synchronizes SBBOL transaction data with data in the system
- * @param {String[] | String} date
+ * @param {String} date
+ * @param {String[]} dateInterval
  * @param {String} userId
  * @param {Organization} organization
  * @returns {Promise<Transaction[]>}
  */
-async function requestTransactions ({ date, userId, organization }) {
+async function requestTransactions ({ date, dateInterval, userId, organization }) {
     if (!uuidValidate(userId)) return logger.error(`passed userId is not a valid uuid. userId: ${userId}`)
-    if (!date) return logger.error('date is required')
+    if (!date && !dateInterval) return logger.error('date or dateInterval is required')
 
     const { keystone: context } = await getSchemaCtx('Organization')
     // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
     const bankAccounts = await BankAccount.getAll(context, {
         tin: organization.tin,
         integrationContext: {
+            enabled: true,
             integration: {
                 id: BANK_INTEGRATION_IDS.SBBOL,
             },
@@ -147,7 +152,7 @@ async function requestTransactions ({ date, userId, organization }) {
     })
     const today = dayjs().format('YYYY-MM-DD')
 
-    if (typeof date === 'string') {
+    if (date) {
         if (dayjs(date).format('YYYY-MM-DD') === 'Invalid Date') throw new Error(`${INVALID_DATE_RECEIVED_MESSAGE} ${date}`)
 
         // you can't request a report by a date in the future
@@ -160,9 +165,10 @@ async function requestTransactions ({ date, userId, organization }) {
             statementDate: date,
             organizationId: organization.id,
         })
-    } else {
+    }
+    if (dateInterval){
         const transactions = []
-        for (const statementDate of date) {
+        for (const statementDate of dateInterval) {
             if (dayjs(statementDate).format('YYYY-MM-DD') === 'Invalid Date') throw new Error(`${INVALID_DATE_RECEIVED_MESSAGE} ${date}`)
 
             if (today < statementDate) throw new Error(ERROR_PASSED_DATE_IN_THE_FUTURE)
