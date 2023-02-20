@@ -35310,8 +35310,6 @@ type MeterHistoryRecord {
   resource: String
   isAutomatic: Boolean
   meta: JSON
-  importRemoteSystem: String
-  importId: String
   b2cApp: String
   b2bApp: String
   id: ID!
@@ -35496,42 +35494,6 @@ input MeterHistoryRecordWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  importRemoteSystem: String
-  importRemoteSystem_not: String
-  importRemoteSystem_contains: String
-  importRemoteSystem_not_contains: String
-  importRemoteSystem_starts_with: String
-  importRemoteSystem_not_starts_with: String
-  importRemoteSystem_ends_with: String
-  importRemoteSystem_not_ends_with: String
-  importRemoteSystem_i: String
-  importRemoteSystem_not_i: String
-  importRemoteSystem_contains_i: String
-  importRemoteSystem_not_contains_i: String
-  importRemoteSystem_starts_with_i: String
-  importRemoteSystem_not_starts_with_i: String
-  importRemoteSystem_ends_with_i: String
-  importRemoteSystem_not_ends_with_i: String
-  importRemoteSystem_in: [String]
-  importRemoteSystem_not_in: [String]
-  importId: String
-  importId_not: String
-  importId_contains: String
-  importId_not_contains: String
-  importId_starts_with: String
-  importId_not_starts_with: String
-  importId_ends_with: String
-  importId_not_ends_with: String
-  importId_i: String
-  importId_not_i: String
-  importId_contains_i: String
-  importId_not_contains_i: String
-  importId_starts_with_i: String
-  importId_not_starts_with_i: String
-  importId_ends_with_i: String
-  importId_not_ends_with_i: String
-  importId_in: [String]
-  importId_not_in: [String]
   b2cApp: String
   b2cApp_not: String
   b2cApp_in: [String]
@@ -35649,10 +35611,6 @@ enum SortMeterHistoryRecordsBy {
   place_DESC
   isAutomatic_ASC
   isAutomatic_DESC
-  importRemoteSystem_ASC
-  importRemoteSystem_DESC
-  importId_ASC
-  importId_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -35689,8 +35647,6 @@ input MeterHistoryRecordUpdateInput {
   resource: String
   isAutomatic: Boolean
   meta: JSON
-  importRemoteSystem: String
-  importId: String
   b2cApp: String
   b2bApp: String
   v: Int
@@ -35730,8 +35686,6 @@ input MeterHistoryRecordCreateInput {
   resource: String
   isAutomatic: Boolean
   meta: JSON
-  importRemoteSystem: String
-  importId: String
   b2cApp: String
   b2bApp: String
   v: Int
@@ -35839,12 +35793,6 @@ type Meter {
   """ Meter metadata. Can be used to store additional settings from integrations 
   """
   meta: JSON
-
-  """ External provider for meter """
-  importRemoteSystem: String
-
-  """ External system meter id. Used for integrations """
-  importId: String
 
   """ Ref to the B2CApp which used to replace default integration with meter by resident's user in resident's app 
   """
@@ -36023,42 +35971,6 @@ input MeterWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  importRemoteSystem: String
-  importRemoteSystem_not: String
-  importRemoteSystem_contains: String
-  importRemoteSystem_not_contains: String
-  importRemoteSystem_starts_with: String
-  importRemoteSystem_not_starts_with: String
-  importRemoteSystem_ends_with: String
-  importRemoteSystem_not_ends_with: String
-  importRemoteSystem_i: String
-  importRemoteSystem_not_i: String
-  importRemoteSystem_contains_i: String
-  importRemoteSystem_not_contains_i: String
-  importRemoteSystem_starts_with_i: String
-  importRemoteSystem_not_starts_with_i: String
-  importRemoteSystem_ends_with_i: String
-  importRemoteSystem_not_ends_with_i: String
-  importRemoteSystem_in: [String]
-  importRemoteSystem_not_in: [String]
-  importId: String
-  importId_not: String
-  importId_contains: String
-  importId_not_contains: String
-  importId_starts_with: String
-  importId_not_starts_with: String
-  importId_ends_with: String
-  importId_not_ends_with: String
-  importId_i: String
-  importId_not_i: String
-  importId_contains_i: String
-  importId_not_contains_i: String
-  importId_starts_with_i: String
-  importId_not_starts_with_i: String
-  importId_ends_with_i: String
-  importId_not_ends_with_i: String
-  importId_in: [String]
-  importId_not_in: [String]
   b2cApp: B2CAppWhereInput
   b2cApp_is_null: Boolean
   b2bApp: B2BAppWhereInput
@@ -36158,10 +36070,6 @@ enum SortMetersBy {
   resource_DESC
   isAutomatic_ASC
   isAutomatic_DESC
-  importRemoteSystem_ASC
-  importRemoteSystem_DESC
-  importId_ASC
-  importId_DESC
   b2cApp_ASC
   b2cApp_DESC
   b2bApp_ASC
@@ -36202,8 +36110,6 @@ input MeterUpdateInput {
   resource: MeterResourceRelateToOneInput
   isAutomatic: Boolean
   meta: JSON
-  importRemoteSystem: String
-  importId: String
   b2cApp: B2CAppRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
   v: Int
@@ -36240,8 +36146,6 @@ input MeterCreateInput {
   resource: MeterResourceRelateToOneInput
   isAutomatic: Boolean
   meta: JSON
-  importRemoteSystem: String
-  importId: String
   b2cApp: B2CAppRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
   v: Int
