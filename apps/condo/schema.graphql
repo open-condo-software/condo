@@ -35790,7 +35790,7 @@ type Meter {
   """
   isAutomatic: Boolean
 
-  """ Meter metadata. Can be used to store additional settings from integrations 
+  """ Meter metadata. Can be used to store additional settings from external sources, such as billing integrations or mini apps 
   """
   meta: JSON
 
