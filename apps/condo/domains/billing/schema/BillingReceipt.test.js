@@ -890,10 +890,14 @@ describe('BillingReceipt', () => {
                 const [receipt2] = await createTestBillingReceipt(admin, context, property, account, {
                     services: generateServicesData(1, '9000'), toPay: '9999.00',
                 })
+                const [receipt3] = await createTestBillingReceipt(admin, context, property, account, {
+                    services: [],
+                })
 
                 expect(receipt).toHaveProperty(['invalidServicesError'], null)
                 expect(receipt2).toHaveProperty(['invalidServicesError'],
                     'Services sum (9000) does not add up to the toPay (9999) amount correctly')
+                expect(receipt3).toHaveProperty(['invalidServicesError'], null)
             })
         })
     })
