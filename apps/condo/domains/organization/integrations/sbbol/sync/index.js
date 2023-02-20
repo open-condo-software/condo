@@ -1,5 +1,6 @@
 const faker = require('faker')
-const get = require('lodash/get')
+
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
@@ -16,6 +17,7 @@ const { dvSenderFields } = require('../constants')
 const { SBBOL_IMPORT_NAME } = require('../constants')
 const { getSbbolSecretStorage } = require('../utils')
 
+const SYNC_BANK_ACCOUNTS_FROM_SBBOL = 'sync-bank-accounts-from-sbbol'
 
 /**
  * Params for direct execution of GraphQL queries and mutations using Keystone
@@ -104,7 +106,10 @@ const sync = async ({ keystone, userInfo, tokenSet  }) => {
     await sbbolSecretStorage.setOrganization(organization.id)
     await syncTokens(tokenSet, user.id)
     await syncServiceSubscriptions(userInfo.inn)
-    await syncBankAccounts(user.id, organization)
+
+    if (await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL)) {
+        await syncBankAccounts(user.id, organization)
+    }
 
     const organizationEmployee = await OrganizationEmployee.getOne(adminContext, {
         user: { id: user.id },

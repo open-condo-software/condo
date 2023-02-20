@@ -133,10 +133,9 @@ const logger = getLogger('sbbol/SbbolFintechApi')
  *
  * @param {{data: Object, statusCode: Number}} response SBBOL formatted response
  * @param {Number} statusCode successful response code
- * @param {String} msg successful response code
  * @return {{{error: any, statusCode: Number}}|{data: any}}
  */
-function parseSbbolResponse (response, statusCode, msg) {
+function parseSbbolResponse (response, statusCode) {
     try {
         const jsonData = JSON.parse(get(response, 'data'))
 
@@ -146,7 +145,7 @@ function parseSbbolResponse (response, statusCode, msg) {
             return { error: jsonData, statusCode: response.statusCode }
         }
     } catch (error) {
-        return logger.error({ msg, error })
+        return logger.error({ msg: 'Error parsing response from SBBOL', error, response })
     }
 }
 
@@ -171,7 +170,7 @@ class SbbolFintechApi extends SbbolRequestApi {
             path: this.clientInfoRequestPath,
         })
 
-        return parseSbbolResponse({ data, statusCode }, 200, 'getClientInfo from SBBOL error')
+        return parseSbbolResponse({ data, statusCode }, 200)
     }
 
     get clientInfoRequestPath () {
@@ -196,7 +195,7 @@ class SbbolFintechApi extends SbbolRequestApi {
                 page,
             },
         })
-        return parseSbbolResponse({ data, statusCode }, 200, 'getStatementTransactions from SBBOL error')
+        return parseSbbolResponse({ data, statusCode }, 200)
     }
 
     get statementTransactionsRequestPath () {
