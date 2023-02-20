@@ -19,68 +19,119 @@ const { makeClientWithProperty, createTestProperty } = require('@condo/domains/p
 const { registerServiceConsumerByTestClient, updateTestServiceConsumer, registerResidentByTestClient, createTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { addResidentAccess, makeClientWithResidentUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
-const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt } = require('../utils/testSchema')
+const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt,
+    generateServicesData,
+} = require('../utils/testSchema')
 
 
 describe('AllResidentBillingReceiptsService', () => {
 
-    it('returns all required fields for resident', async () => {
-        const userClient = await makeClientWithProperty()
-        const support = await makeClientWithSupportUser()
+    describe('fields for resident',  () => {
+        it('returns all required fields', async () => {
+            const userClient = await makeClientWithProperty()
+            const support = await makeClientWithSupportUser()
 
-        const [integration] = await createTestBillingIntegration(support)
-        const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
+            const [integration] = await createTestBillingIntegration(support)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
 
-        const integrationClient = await makeClientWithServiceUser()
-        await createTestBillingIntegrationAccessRight(support, integration, integrationClient.user)
-        const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
-            address: userClient.property.address,
+            const integrationClient = await makeClientWithServiceUser()
+            await createTestBillingIntegrationAccessRight(support, integration, integrationClient.user)
+            const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
+                address: userClient.property.address,
+            })
+            const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(integrationClient, billingContext, billingProperty)
+
+            const residentUser = await makeClientWithResidentUser()
+            const [resident] = await registerResidentByTestClient(residentUser, {
+                address: userClient.property.address,
+                addressMeta: userClient.property.addressMeta,
+                unitName: billingAccountAttrs.unitName,
+            })
+            await registerServiceConsumerByTestClient(residentUser, {
+                residentId: resident.id,
+                accountNumber: billingAccountAttrs.number,
+                organizationId: userClient.organization.id,
+            })
+            await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
+            const residentBillingReceipts = await ResidentBillingReceipt.getAll(residentUser)
+
+            expect(residentBillingReceipts).toBeDefined()
+            expect(residentBillingReceipts).not.toHaveLength(0)
+            residentBillingReceipts.forEach(receipt => {
+                expect(receipt).toHaveProperty('id')
+                expect(receipt.id).not.toBeNull()
+
+                expect(receipt).toHaveProperty('toPay')
+                expect(receipt.toPay).not.toBeNull()
+
+                expect(receipt).toHaveProperty('paid')
+                expect(receipt.paid).not.toBeNull()
+
+                expect(receipt).toHaveProperty('period')
+                expect(receipt.period).not.toBeNull()
+
+                expect(receipt).toHaveProperty('recipient')
+                expect(receipt.recipient).not.toBeNull()
+
+                expect(receipt).toHaveProperty('serviceConsumer')
+                expect(receipt.serviceConsumer).not.toBeNull()
+
+                expect(receipt).toHaveProperty('serviceConsumer.id')
+                expect(receipt.serviceConsumer.id).not.toBeNull()
+
+                expect(receipt).toHaveProperty('currencyCode')
+                expect(receipt.currencyCode).not.toBeNull()
+
+                expect(receipt).toHaveProperty('category')
+                expect(receipt.category).not.toBeNull()
+
+                expect(receipt).toHaveProperty('services')
+                expect(receipt.services).toBeNull()
+            })
         })
-        const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(integrationClient, billingContext, billingProperty)
 
-        const residentUser = await makeClientWithResidentUser()
-        const [resident] = await registerResidentByTestClient(residentUser, {
-            address: userClient.property.address,
-            addressMeta: userClient.property.addressMeta,
-            unitName: billingAccountAttrs.unitName,
-        })
-        await registerServiceConsumerByTestClient(residentUser, {
-            residentId: resident.id,
-            accountNumber: billingAccountAttrs.number,
-            organizationId: userClient.organization.id,
-        })
-        await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
-        const residentBillingReceipts = await ResidentBillingReceipt.getAll(residentUser)
+        it('returns correct services field', async () => {
+            const userClient = await makeClientWithProperty()
+            const support = await makeClientWithSupportUser()
 
-        expect(residentBillingReceipts).toBeDefined()
-        expect(residentBillingReceipts).not.toHaveLength(0)
-        residentBillingReceipts.forEach(receipt => {
-            expect(receipt).toHaveProperty('id')
-            expect(receipt.id).not.toBeNull()
+            const [integration] = await createTestBillingIntegration(support)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
 
-            expect(receipt).toHaveProperty('toPay')
-            expect(receipt.toPay).not.toBeNull()
+            const integrationClient = await makeClientWithServiceUser()
+            await createTestBillingIntegrationAccessRight(support, integration, integrationClient.user)
+            const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
+                address: userClient.property.address,
+            })
+            const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(integrationClient, billingContext, billingProperty)
 
-            expect(receipt).toHaveProperty('paid')
-            expect(receipt.paid).not.toBeNull()
+            const residentUser = await makeClientWithResidentUser()
+            const [resident] = await registerResidentByTestClient(residentUser, {
+                address: userClient.property.address,
+                addressMeta: userClient.property.addressMeta,
+                unitName: billingAccountAttrs.unitName,
+            })
+            await registerServiceConsumerByTestClient(residentUser, {
+                residentId: resident.id,
+                accountNumber: billingAccountAttrs.number,
+                organizationId: userClient.organization.id,
+            })
 
-            expect(receipt).toHaveProperty('period')
-            expect(receipt.period).not.toBeNull()
+            await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount,
+                { services: generateServicesData(1, '1000'), toPay: '2000' })
+            await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount,
+                { services: generateServicesData(2, '1000'), toPay: '2000' })
+            const residentBillingReceipts = await ResidentBillingReceipt.getAll(residentUser)
 
-            expect(receipt).toHaveProperty('recipient')
-            expect(receipt.recipient).not.toBeNull()
+            expect(residentBillingReceipts).toBeDefined()
+            expect(residentBillingReceipts).not.toHaveLength(0)
+            
+            expect(residentBillingReceipts[0]).toBeDefined()
+            expect(residentBillingReceipts[0]).toHaveProperty('services')
+            expect(residentBillingReceipts[0].services).toBeNull()
 
-            expect(receipt).toHaveProperty('serviceConsumer')
-            expect(receipt.serviceConsumer).not.toBeNull()
-
-            expect(receipt).toHaveProperty('serviceConsumer.id')
-            expect(receipt.serviceConsumer.id).not.toBeNull()
-
-            expect(receipt).toHaveProperty('currencyCode')
-            expect(receipt.currencyCode).not.toBeNull()
-
-            expect(receipt).toHaveProperty('category')
-            expect(receipt.category).not.toBeNull()
+            expect(residentBillingReceipts[1]).toBeDefined()
+            expect(residentBillingReceipts[1]).toHaveProperty('services')
+            expect(residentBillingReceipts[1].services).not.toBeNull()
         })
     })
 
