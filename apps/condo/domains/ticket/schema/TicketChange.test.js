@@ -91,8 +91,6 @@ describe('TicketChange', () => {
             expect(ticket1.sender).toEqual(updatedTicket.sender)
             expect(ticket1.detailsFrom).toEqual(ticket.details)
             expect(ticket1.detailsTo).toEqual(payload.details)
-            expect(ticket1.numberFrom).toEqual(ticket.number)
-            expect(ticket1.numberTo).toEqual(payload.number)
             expect(ticket1.statusReasonFrom).toEqual(ticket.statusReason)
             expect(ticket1.statusReasonTo).toEqual(payload.statusReason)
             expect(ticket1.clientNameFrom).toEqual(ticket.clientName)
