@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Col, Typography } from 'antd'
+import { Col, ColProps, Typography } from 'antd'
 import { get } from 'lodash'
 import React, { CSSProperties, useMemo } from 'react'
 
@@ -27,10 +27,10 @@ const StyledAlert = styled(Alert)`
 type TicketPropertyHintCardProps = {
     propertyId: string
     hintContentStyle?: CSSProperties
-    withCol?: boolean
+    colProps?: ColProps
 }
 
-export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ propertyId, hintContentStyle, withCol }) => {
+export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ propertyId, hintContentStyle, colProps }) => {
     const intl = useIntl()
     const PropertyHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.ticketPropertyHint' })
 
@@ -68,5 +68,5 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
         return null
     }
     
-    return withCol ? (<Col span={24}>{Hint}</Col>) : Hint
+    return colProps ? (<Col {...colProps}>{Hint}</Col>) : Hint
 }

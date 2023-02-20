@@ -7,7 +7,7 @@ import {
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Affix, Col, Row, RowProps, Space, Typography } from 'antd'
+import { Affix, Col, ColProps, Row, RowProps, Space, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
 import { compact, get, isEmpty, map } from 'lodash'
@@ -127,6 +127,7 @@ const TAGS_ROW_STYLE: CSSProperties = { marginTop: '1.6em ' }
 const TAGS_ROW_GUTTER: [Gutter, Gutter] = [0, 10]
 const HINT_CARD_STYLE: CSSProperties = { maxHeight: '3em ' }
 const TITLE_STYLE: CSSProperties = { margin: 0 }
+const HINTS_COL_PROPS: ColProps = { span: 24 }
 
 export const TicketPageContent = ({ ticket, refetchTicket, loading, organization, employee, TicketContent }) => {
     const intl = useIntl()
@@ -424,21 +425,19 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                             {
                                 ticketVisibilityType !== ASSIGNED_TICKET_VISIBILITY && (
-                                    <Col span={24}>
-                                        <TicketPropertyHintCard
-                                            propertyId={ticketPropertyId}
-                                            hintContentStyle={HINT_CARD_STYLE}
-                                        />
-                                    </Col>
+                                    <TicketPropertyHintCard
+                                        propertyId={ticketPropertyId}
+                                        hintContentStyle={HINT_CARD_STYLE}
+                                        colProps={HINTS_COL_PROPS}
+                                    />
                                 )
                             }
-                            <Col span={24}>
-                                <IncidentHints
-                                    organizationId={organization.id}
-                                    propertyId={ticketPropertyId}
-                                    classifier={ticket.classifier}
-                                />
-                            </Col>
+                            <IncidentHints
+                                organizationId={organization.id}
+                                propertyId={ticketPropertyId}
+                                classifier={ticket.classifier}
+                                colProps={HINTS_COL_PROPS}
+                            />
                         </Row>
                     </Col>
                     <ActionBar>

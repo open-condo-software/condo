@@ -58,7 +58,7 @@ const EXCEL_TEMPLATES_HEADERS = {
     ],
     [EXPORT_TYPE_INCIDENTS]: [
         'number', 'addresses', 'classifiers', 'details', 'textForResident', 'status', 'workStart', 'workFinish',
-        'organization', 'createdBy', 'createdAt', 'isScheduled', 'isEmergency',
+        'organization', 'createdBy', 'createdAt', 'workType',
     ],
 }
 

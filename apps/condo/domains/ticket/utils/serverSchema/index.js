@@ -225,9 +225,9 @@ const loadTicketCommentsForPdfExport = async ({ where = {}, sortBy = ['createdAt
 }
 
 const loadIncidentsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
-    const propertyScopesLoader = new GqlWithKnexLoadList({
+    const incidentsLoader = new GqlWithKnexLoadList({
         listKey: 'Incident',
-        fields: 'id number details status textForResident workStart workFinish isScheduled isEmergency hasAllProperties createdAt',
+        fields: 'id number details status textForResident workStart workFinish workType isScheduled isEmergency hasAllProperties createdAt',
         singleRelations: [
             ['User', 'createdBy', 'name'],
             ['Organization', 'organization', 'name'],
@@ -235,11 +235,11 @@ const loadIncidentsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DE
         sortBy,
         where,
     })
-    return await propertyScopesLoader.load()
+    return await incidentsLoader.load()
 }
 
 const loadIncidentPropertiesForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
-    const propertyScopesLoader = new GqlWithKnexLoadList({
+    const incidentPropertiesLoader = new GqlWithKnexLoadList({
         listKey: 'IncidentProperty',
         fields: 'id incident',
         singleRelations: [
@@ -249,21 +249,35 @@ const loadIncidentPropertiesForExcelExport = async ({ where = {}, sortBy = ['cre
         sortBy,
         where,
     })
-    return await propertyScopesLoader.load()
+    return await incidentPropertiesLoader.load()
 }
 
-const loadIncidentClassifiersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
-    const propertyScopesLoader = new GqlWithKnexLoadList({
+const loadIncidentClassifierIncidentsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const incidentClassifierIncidentsLoader = new GqlWithKnexLoadList({
         listKey: 'IncidentClassifierIncident',
         fields: 'id',
         singleRelations: [
-            ['TicketClassifier', 'classifier', 'id'],
+            ['IncidentClassifier', 'classifier', 'id'],
             ['Incident', 'incident', 'id'],
         ],
         sortBy,
         where,
     })
-    return await propertyScopesLoader.load()
+    return await incidentClassifierIncidentsLoader.load()
+}
+
+const loadIncidentClassifiersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const incidentClassifiersLoader = new GqlWithKnexLoadList({
+        listKey: 'IncidentClassifier',
+        fields: 'id',
+        singleRelations: [
+            ['TicketCategoryClassifier', 'category', 'name'],
+            ['TicketProblemClassifier', 'problem', 'name'],
+        ],
+        sortBy,
+        where,
+    })
+    return await incidentClassifiersLoader.load()
 }
 
 module.exports = {
@@ -298,6 +312,7 @@ module.exports = {
     exportIncidentsToExcel,
     loadIncidentsForExcelExport,
     loadIncidentPropertiesForExcelExport,
+    loadIncidentClassifierIncidentsForExcelExport,
     loadIncidentClassifiersForExcelExport,
     IncidentClassifier,
     IncidentClassifierIncident,

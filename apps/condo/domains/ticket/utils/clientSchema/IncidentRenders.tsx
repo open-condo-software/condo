@@ -6,7 +6,6 @@ import {
     IncidentProperty as IIncidentProperty,
 } from '@app/condo/schema'
 import { FilterValue } from 'antd/es/table/interface'
-import { EllipsisConfig } from 'antd/es/typography/Base'
 import dayjs from 'dayjs'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
@@ -42,14 +41,17 @@ type GetRenderPropertiesType = (intl: IntlShape, search: FilterValue, incidentPr
 type GetRenderClassifiersType = (incidentClassifiers: IIncidentClassifierIncident[]) => GetRenderType
 
 
-const CELL_ELLIPSIS_SETTINGS: EllipsisConfig = { rows: 4, expandable: false }
+const MAX_CELL_CONTENT_LENGTH = 150
 
 
 export const getRenderNumber: GetRenderNumberType = () => getTableCellRenderer()
 
 export const getRenderOrganization: GetRenderOrganizationType = () => getTableCellRenderer()
 
-export const getRenderDetails: GetRenderDetailsType = () => getTableCellRenderer('', CELL_ELLIPSIS_SETTINGS)
+export const getRenderDetails: GetRenderDetailsType = () => (details) =>  {
+    const trimmedText = String(details).length > MAX_CELL_CONTENT_LENGTH ? `${String(details).substring(0, MAX_CELL_CONTENT_LENGTH)}…` : details
+    return getTableCellRenderer(null, false, null, null, null, details)(trimmedText)
+}
 
 export const getRenderStatus: GetRenderStatusType = (intl) => (status, incident) => {
     const ActualMessage = intl.formatMessage({ id: 'incident.status.actual' })
@@ -114,7 +116,7 @@ export const getRenderProperties: GetRenderPropertiesType = (intl, search, incid
     return getOneAddressAndPropertiesCountRender(search)(intl, properties)
 }
 
-export const getManyIncidentClassifiersGroupByPlaceRender = (ellipsis?: boolean | EllipsisConfig) => {
+export const getManyIncidentClassifiersGroupByPlaceRender = () => {
     return (classifiers: IncidentClassifier[]): React.ReactElement => {
         const categoryNames = uniqBy(classifiers
             .map(item => item.category)
@@ -134,8 +136,9 @@ export const getManyIncidentClassifiersGroupByPlaceRender = (ellipsis?: boolean 
         const problemsPart = !isEmpty(problemNames) ? ` » ${problemNames.join(', ')}` : ''
 
         const text = `${categoriesPart}${problemsPart}`
+        const trimmedText = text.length > MAX_CELL_CONTENT_LENGTH ? `${text.substring(0, MAX_CELL_CONTENT_LENGTH)}…` : text
 
-        return getTableCellRenderer(null, ellipsis)(text)
+        return getTableCellRenderer(null, false, null, null, null, text)(trimmedText)
     }
 }
 
@@ -144,5 +147,5 @@ export const getRenderClassifiers: GetRenderClassifiersType = (incidentClassifie
         .filter(item => get(item, 'incident.id') === incident.id)
         .map(item => item.classifier)
 
-    return getManyIncidentClassifiersGroupByPlaceRender(CELL_ELLIPSIS_SETTINGS)(classifiers)
+    return getManyIncidentClassifiersGroupByPlaceRender()(classifiers)
 }

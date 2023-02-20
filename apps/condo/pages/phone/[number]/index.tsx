@@ -7,7 +7,7 @@ import {
     Ticket as TicketType,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Row, Typography } from 'antd'
+import { Col, ColProps, Row, Typography } from 'antd'
 import { CarouselRef } from 'antd/es/carousel'
 import { Gutter } from 'antd/es/grid/row'
 import { EllipsisConfig } from 'antd/es/typography/Base'
@@ -64,6 +64,7 @@ const CLIENT_TEXT_STYLE = { fontSize: fontSizes.content }
 const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
 const PLUS_ICON_WRAPPER_CLASS = 'plusIconWrapper'
 const ADD_ADDRESS_TAB_KEY = 'addAddress'
+const HINTS_COL_PROPS: ColProps = { span: 24 }
 
 interface IClientContactProps {
     lastTicket: TicketType,
@@ -409,16 +410,15 @@ const ClientCardTabContent = ({
                                 <TicketPropertyHintCard
                                     propertyId={propertyId}
                                     hintContentStyle={HINT_CARD_STYLE}
-                                    withCol
+                                    colProps={HINTS_COL_PROPS}
                                 />
                                 {
                                     propertyId && organizationId && (
-                                        <Col span={24}>
-                                            <IncidentHints
-                                                organizationId={organizationId}
-                                                propertyId={propertyId}
-                                            />
-                                        </Col>
+                                        <IncidentHints
+                                            organizationId={organizationId}
+                                            propertyId={propertyId}
+                                            colProps={HINTS_COL_PROPS}
+                                        />
                                     )
                                 }
                             </Row>

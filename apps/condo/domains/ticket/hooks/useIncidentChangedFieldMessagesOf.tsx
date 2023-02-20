@@ -2,14 +2,18 @@ import { IncidentChange as IIncidentChange, IncidentStatusType } from '@app/cond
 import { Typography } from 'antd'
 import dayjs from 'dayjs'
 import { has, isNil } from 'lodash'
-import React, { ComponentProps } from 'react'
+import React, { ComponentProps, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { SafeUserMention } from '@condo/domains/common/components/ChangeHistory/SafeUserMention'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
+import {
+    INCIDENT_STATUS_COLORS,
+    INCIDENT_WORK_TYPE_EMERGENCY,
+    INCIDENT_WORK_TYPE_SCHEDULED,
+} from '@condo/domains/ticket/constants/incident'
 import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 
 
@@ -38,12 +42,10 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
     const WorkStartMessage = intl.formatMessage({ id: 'incident.changeHistory.workStart' })
     const WorkFinishMessage = intl.formatMessage({ id: 'incident.changeHistory.workFinish' })
     const WorkTypeMessage = intl.formatMessage({ id: 'incident.changeHistory.workType' })
-    const WorkTypeIsScheduledMessage = intl.formatMessage({ id: 'incident.changeHistory.workType.scheduled' })
-    const WorkTypeIsNotScheduledMessage = intl.formatMessage({ id: 'incident.changeHistory.workType.notScheduled' })
-    const WorkTypeIsEmergencyMessage = intl.formatMessage({ id: 'incident.changeHistory.workType.emergency' })
-    const WorkTypeIsNotEmergencyMessage = intl.formatMessage({ id: 'incident.changeHistory.workType.notEmergency' })
-    const ActualMessage = intl.formatMessage({ id: 'incident.status.actual' }).toLowerCase()
-    const NotActualMessage = intl.formatMessage({ id: 'incident.status.notActual' }).toLowerCase()
+    const WorkTypeIsScheduledMessage = intl.formatMessage({ id: 'incident.workType.scheduled' })
+    const WorkTypeIsEmergencyMessage = intl.formatMessage({ id: 'incident.workType.emergency' })
+    const ActualMessage = intl.formatMessage({ id: 'incident.status.actual' })
+    const NotActualMessage = intl.formatMessage({ id: 'incident.status.notActual' })
 
     const fields: Array<{ fieldName: string, message: string, changeMessage?: IIncidentChangeFieldMessages }> = [
         { fieldName: 'details', message: DetailsMessage },
@@ -51,20 +53,15 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
         { fieldName: 'textForResident', message: TextForResidentMessage },
         { fieldName: 'workStart', message: WorkStartMessage },
         { fieldName: 'workFinish', message: WorkFinishMessage },
-        { fieldName: 'isScheduled', message: WorkTypeMessage },
-        { fieldName: 'isEmergency', message: WorkTypeMessage },
+        { fieldName: 'workType', message: WorkTypeMessage },
     ]
 
-    const BooleanToString = {
-        isScheduled: {
-            'true': WorkTypeIsScheduledMessage,
-            'false': WorkTypeIsNotScheduledMessage,
-        },
-        isEmergency: {
-            'true': WorkTypeIsEmergencyMessage,
-            'false': WorkTypeIsNotEmergencyMessage,
-        },
-    }
+    const BooleanToString = {}
+
+    const workTypeLabels = useMemo(() => ({
+        [INCIDENT_WORK_TYPE_SCHEDULED]: WorkTypeIsScheduledMessage,
+        [INCIDENT_WORK_TYPE_EMERGENCY]: WorkTypeIsEmergencyMessage,
+    }), [WorkTypeIsScheduledMessage, WorkTypeIsEmergencyMessage])
 
     const formatField = (field, value, type: IncidentChangeFieldMessageType) => {
         const formatterFor = {
@@ -104,6 +101,12 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
             workFinish: (field, value, type) => {
                 return <Typography.Text>{dayjs(value).format('DD MMMM YYYY')}</Typography.Text>
             },
+            workType: (field, value, type) => {
+                const label = workTypeLabels[value]
+                if (label) {
+                    return <Typography.Text>«{label}»</Typography.Text>
+                }
+            },
         }
 
         return has(formatterFor, field)
@@ -135,8 +138,8 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
 
         const valueFrom = incidentChange[`${field}From`]
         const valueTo = incidentChange[`${field}To`]
-        const isValueFromNotEmpty = !isNil(valueFrom)
-        const isValueToNotEmpty = !isNil(valueTo)
+        const isValueFromNotEmpty = !isNil(valueFrom) && valueFrom !== ''
+        const isValueToNotEmpty = !isNil(valueTo) && valueTo !== ''
         const formattedValueFrom = formatField(field, valueFrom, IncidentChangeFieldMessageType.From)
         const formattedValueTo = formatField(field, valueTo, IncidentChangeFieldMessageType.To)
         const values = {

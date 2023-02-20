@@ -13,6 +13,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Checkbox, Button } from '@open-condo/ui'
@@ -310,6 +311,7 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
                             children={AddNewIncidentLabel}
                             onClick={handleAddNewIncident}
                             id='createIncident'
+                            icon={<PlusCircle size='small' />}
                         />
                         {Boolean(count) && <ExportButton id='exportToExcelIncidents' />}
                     </ActionBar>
