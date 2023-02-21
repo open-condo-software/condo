@@ -56,9 +56,8 @@ export type AcquiringIntegration = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   /**  Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.  */
   hostUrl?: Maybe<Scalars['String']>;
-  /**  List of supported billing integrations. If one of them is here, it means that this acquiring can accept receipts from it  */
-  supportedBillingIntegrations: Array<BillingIntegration>;
-  _supportedBillingIntegrationsMeta?: Maybe<_QueryMeta>;
+  /**  Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing  */
+  supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   /**  Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient  */
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
   /**  The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1.  */
@@ -104,28 +103,6 @@ export type AcquiringIntegration_AccessRightsMetaArgs = {
   where?: Maybe<AcquiringIntegrationAccessRightWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortAcquiringIntegrationAccessRightsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  Information about `acquiring component` which will generate `billing receipts` and `payments`  */
-export type AcquiringIntegrationSupportedBillingIntegrationsArgs = {
-  where?: Maybe<BillingIntegrationWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBillingIntegrationsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  Information about `acquiring component` which will generate `billing receipts` and `payments`  */
-export type AcquiringIntegration_SupportedBillingIntegrationsMetaArgs = {
-  where?: Maybe<BillingIntegrationWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBillingIntegrationsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -946,7 +923,7 @@ export type AcquiringIntegrationCreateInput = {
   accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
-  supportedBillingIntegrations?: Maybe<BillingIntegrationRelateToManyInput>;
+  supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   displayPriority?: Maybe<Scalars['Int']>;
   label?: Maybe<Scalars['String']>;
@@ -985,6 +962,7 @@ export type AcquiringIntegrationHistoryRecord = {
   isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   displayPriority?: Maybe<Scalars['Int']>;
   label?: Maybe<Scalars['String']>;
@@ -1017,6 +995,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   displayPriority?: Maybe<Scalars['Int']>;
   label?: Maybe<Scalars['String']>;
@@ -1054,6 +1033,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   displayPriority?: Maybe<Scalars['Int']>;
   label?: Maybe<Scalars['String']>;
@@ -1197,6 +1177,24 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   hostUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   hostUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   hostUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_contains?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_contains?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_starts_with?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_starts_with?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_ends_with?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_ends_with?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_contains_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_contains_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_starts_with_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_starts_with_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_ends_with_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_ends_with_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  supportedBillingIntegrationsGroup_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   explicitFeeDistributionSchema_not?: Maybe<Scalars['JSON']>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -1377,7 +1375,7 @@ export type AcquiringIntegrationUpdateInput = {
   accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
-  supportedBillingIntegrations?: Maybe<BillingIntegrationRelateToManyInput>;
+  supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   displayPriority?: Maybe<Scalars['Int']>;
   label?: Maybe<Scalars['String']>;
@@ -1538,12 +1536,24 @@ export type AcquiringIntegrationWhereInput = {
   hostUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   hostUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   hostUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  /**  condition must be true for all nodes  */
-  supportedBillingIntegrations_every?: Maybe<BillingIntegrationWhereInput>;
-  /**  condition must be true for at least 1 node  */
-  supportedBillingIntegrations_some?: Maybe<BillingIntegrationWhereInput>;
-  /**  condition must be false for all nodes  */
-  supportedBillingIntegrations_none?: Maybe<BillingIntegrationWhereInput>;
+  supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_contains?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_contains?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_starts_with?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_starts_with?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_ends_with?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_ends_with?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_contains_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_contains_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_starts_with_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_starts_with_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_ends_with_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_not_ends_with_i?: Maybe<Scalars['String']>;
+  supportedBillingIntegrationsGroup_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  supportedBillingIntegrationsGroup_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   explicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
@@ -11084,6 +11094,8 @@ export type BillingIntegration = {
   appUrl?: Maybe<Scalars['String']>;
   /**  This title is shown on /billing page, usually contains word "Billing"  */
   billingPageTitle?: Maybe<Scalars['String']>;
+  /**  Billing group which this billing is part of. Used to restrict certain billings from certain acquirings"  */
+  group?: Maybe<Scalars['String']>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
   contextDefaultStatus?: Maybe<Scalars['String']>;
   /**  Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay)  */
@@ -11436,6 +11448,7 @@ export type BillingIntegrationCreateInput = {
   detailedDescription?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
+  group?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -11489,6 +11502,7 @@ export type BillingIntegrationHistoryRecord = {
   detailedDescription?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
+  group?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -11522,6 +11536,7 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   detailedDescription?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
+  group?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -11560,6 +11575,7 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   detailedDescription?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
+  group?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -11702,6 +11718,24 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   billingPageTitle_not_ends_with_i?: Maybe<Scalars['String']>;
   billingPageTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   billingPageTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  group?: Maybe<Scalars['String']>;
+  group_not?: Maybe<Scalars['String']>;
+  group_contains?: Maybe<Scalars['String']>;
+  group_not_contains?: Maybe<Scalars['String']>;
+  group_starts_with?: Maybe<Scalars['String']>;
+  group_not_starts_with?: Maybe<Scalars['String']>;
+  group_ends_with?: Maybe<Scalars['String']>;
+  group_not_ends_with?: Maybe<Scalars['String']>;
+  group_i?: Maybe<Scalars['String']>;
+  group_not_i?: Maybe<Scalars['String']>;
+  group_contains_i?: Maybe<Scalars['String']>;
+  group_not_contains_i?: Maybe<Scalars['String']>;
+  group_starts_with_i?: Maybe<Scalars['String']>;
+  group_not_starts_with_i?: Maybe<Scalars['String']>;
+  group_ends_with_i?: Maybe<Scalars['String']>;
+  group_not_ends_with_i?: Maybe<Scalars['String']>;
+  group_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  group_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_contains?: Maybe<Scalars['String']>;
@@ -12456,13 +12490,6 @@ export type BillingIntegrationOrganizationContextsUpdateInput = {
   data?: Maybe<BillingIntegrationOrganizationContextUpdateInput>;
 };
 
-export type BillingIntegrationRelateToManyInput = {
-  create?: Maybe<Array<Maybe<BillingIntegrationCreateInput>>>;
-  connect?: Maybe<Array<Maybe<BillingIntegrationWhereUniqueInput>>>;
-  disconnect?: Maybe<Array<Maybe<BillingIntegrationWhereUniqueInput>>>;
-  disconnectAll?: Maybe<Scalars['Boolean']>;
-};
-
 export type BillingIntegrationRelateToOneInput = {
   create?: Maybe<BillingIntegrationCreateInput>;
   connect?: Maybe<BillingIntegrationWhereUniqueInput>;
@@ -12479,6 +12506,7 @@ export type BillingIntegrationUpdateInput = {
   detailedDescription?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
   billingPageTitle?: Maybe<Scalars['String']>;
+  group?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -12633,6 +12661,24 @@ export type BillingIntegrationWhereInput = {
   billingPageTitle_not_ends_with_i?: Maybe<Scalars['String']>;
   billingPageTitle_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   billingPageTitle_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  group?: Maybe<Scalars['String']>;
+  group_not?: Maybe<Scalars['String']>;
+  group_contains?: Maybe<Scalars['String']>;
+  group_not_contains?: Maybe<Scalars['String']>;
+  group_starts_with?: Maybe<Scalars['String']>;
+  group_not_starts_with?: Maybe<Scalars['String']>;
+  group_ends_with?: Maybe<Scalars['String']>;
+  group_not_ends_with?: Maybe<Scalars['String']>;
+  group_i?: Maybe<Scalars['String']>;
+  group_not_i?: Maybe<Scalars['String']>;
+  group_contains_i?: Maybe<Scalars['String']>;
+  group_not_contains_i?: Maybe<Scalars['String']>;
+  group_starts_with_i?: Maybe<Scalars['String']>;
+  group_not_starts_with_i?: Maybe<Scalars['String']>;
+  group_ends_with_i?: Maybe<Scalars['String']>;
+  group_not_ends_with_i?: Maybe<Scalars['String']>;
+  group_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  group_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -48273,6 +48319,8 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   CanGroupReceiptsDesc = 'canGroupReceipts_DESC',
   HostUrlAsc = 'hostUrl_ASC',
   HostUrlDesc = 'hostUrl_DESC',
+  SupportedBillingIntegrationsGroupAsc = 'supportedBillingIntegrationsGroup_ASC',
+  SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
   DisplayPriorityAsc = 'displayPriority_ASC',
   DisplayPriorityDesc = 'displayPriority_DESC',
   LabelAsc = 'label_ASC',
@@ -48320,8 +48368,8 @@ export enum SortAcquiringIntegrationsBy {
   CanGroupReceiptsDesc = 'canGroupReceipts_DESC',
   HostUrlAsc = 'hostUrl_ASC',
   HostUrlDesc = 'hostUrl_DESC',
-  SupportedBillingIntegrationsAsc = 'supportedBillingIntegrations_ASC',
-  SupportedBillingIntegrationsDesc = 'supportedBillingIntegrations_DESC',
+  SupportedBillingIntegrationsGroupAsc = 'supportedBillingIntegrationsGroup_ASC',
+  SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
   DisplayPriorityAsc = 'displayPriority_ASC',
   DisplayPriorityDesc = 'displayPriority_DESC',
   LabelAsc = 'label_ASC',
@@ -49527,6 +49575,8 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   AppUrlDesc = 'appUrl_DESC',
   BillingPageTitleAsc = 'billingPageTitle_ASC',
   BillingPageTitleDesc = 'billingPageTitle_DESC',
+  GroupAsc = 'group_ASC',
+  GroupDesc = 'group_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CurrencyCodeAsc = 'currencyCode_ASC',
@@ -49645,6 +49695,8 @@ export enum SortBillingIntegrationsBy {
   AppUrlDesc = 'appUrl_DESC',
   BillingPageTitleAsc = 'billingPageTitle_ASC',
   BillingPageTitleDesc = 'billingPageTitle_DESC',
+  GroupAsc = 'group_ASC',
+  GroupDesc = 'group_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CurrencyCodeAsc = 'currencyCode_ASC',
