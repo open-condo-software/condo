@@ -126,8 +126,6 @@ describe('Apple adapter utils', () => {
             },
         })
 
-        console.log('result.responses[0].error:', result.responses[0].error)
-
         expect(isOk).toBeFalsy()
         expect(result).toBeDefined()
         expect(result.failureCount).toEqual(1)
