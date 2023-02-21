@@ -147,6 +147,7 @@ const Resident = new GQLListSchema('Resident', {
             access: true,
         },
 
+        // TODO(pahaz): we should remove this field. Because you don't need it anymore. You can get billing/acquiring from ?!
         paymentCategories: {
             schemaDoc: 'Contains billing and acquiring integration names that are enabled for this resident per category',
             type: Virtual,

@@ -94,6 +94,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         services: SERVICES_FIELD,
 
+        // TODO(pahaz): remove this field! we already have `receiver` field! And we can save this date in raw/meta field
         recipient: RECIPIENT_FIELD,
 
         // TODO @toplenboren (Doma-2241) make this not null!

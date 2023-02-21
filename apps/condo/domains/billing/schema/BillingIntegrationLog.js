@@ -15,6 +15,7 @@ const { UPPER_CASE_ALPHANUMERIC_REGEXP } = require('@condo/domains/common/consta
 const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
 
 
+// TODO(pahaz): we should rename it to BillingIntegrationProblem and change the fields!
 const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
     schemaDoc: 'Important `integration component` log records. Sometimes you need to report some errors/problems related to the integration process. ' +
         'The target audience of these messages is the client of our API platform. You should avoid repeating the same messages. ' +

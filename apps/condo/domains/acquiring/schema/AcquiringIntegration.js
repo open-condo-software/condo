@@ -73,6 +73,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             isRequired: true,
         },
 
+        // TODO(pahaz): we should remove this field and use `billingAcquiringGroup` filed!
         supportedBillingIntegrations: {
             schemaDoc: 'List of supported billing integrations. If one of them is here, it means that this acquiring can accept receipts from it',
             type: Relationship,
