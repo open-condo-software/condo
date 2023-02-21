@@ -72,7 +72,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
 
     const [modalIsVisible, setModalIsVisible] = useState(false)
     const [detailedReceipt, setDetailedReceipt] = useState<BillingReceiptType>(null)
-    const [period, setPeriod] = useState(dayjs(get(context, ['lastReport', 'period'], undefined)))
+    const [period, setPeriod] = useState(dayjs(get(context, ['lastReport', 'period'])))
     const showServiceModal = (receipt: BillingReceiptType) => {
         setModalIsVisible(true)
         setDetailedReceipt(receipt || null)

@@ -62,6 +62,9 @@ const WideModalStyles = css`
         & > .ant-modal-content > .ant-modal-body {
             width: min-content;
         }
+        & > .ant-modal-content > .ant-modal-header > .ant-modal-title {
+          line-height: 20px;
+        }
     }
 `
 
@@ -101,9 +104,14 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const unitName = get(receipt, ['account', 'unitName'])
     const unitType = get(receipt, ['account', 'unitType'])
     const fullName = get(receipt, ['account', 'fullName'])
+    const period = get(receipt, 'period')
+    const category = get(receipt, ['category', 'nameNonLocalized'])
     const services = get(receipt, 'services', [])
 
-    const UnitTypePrefix = intl.formatMessage({ id: `field.UnitType.prefix.${unitType}` }).toLocaleLowerCase()
+    const UnitTypePrefix = unitType
+        ? intl.formatMessage({ id: `field.UnitType.prefix.${unitType.toLowerCase()}` }).toLocaleLowerCase()
+        : ''
+    const CategoryName = category ? intl.formatMessage({ id: category }) : ''
 
     const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
 
@@ -117,6 +125,8 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                 {address}{unitName ? `, ${UnitTypePrefix}. ${unitName}` : ''}
             </SubText>
             {fullName && <SubText size={configSize}>{fullName}</SubText>}
+            {category && <SubText size={configSize}>{CategoryName}</SubText>}
+            {period && <SubText size={configSize}>{period}</SubText>}
         </Space>
     )
 

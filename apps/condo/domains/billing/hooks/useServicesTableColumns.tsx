@@ -44,7 +44,7 @@ const getAdvancedMoneyRender = (intl, currencyCode: string) => {
 
 export const useServicesTableColumns = (detailed: boolean, currencyCode: string) => {
     const intl = useIntl()
-    const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
+    const ToPayTitle = intl.formatMessage({ id: 'field.TotalCharged' })
     const ServiceTitle = intl.formatMessage({ id: 'BillingServiceName' })
     const ChargeTitle = intl.formatMessage({ id: 'Charged' })
     const VolumeTitle = intl.formatMessage({ id: 'Volume' })
