@@ -8,8 +8,8 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
-const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
+const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
 const {
@@ -73,20 +73,11 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             isRequired: true,
         },
 
-        // TODO(pahaz): we should remove this field and use `billingAcquiringGroup` filed!
-        supportedBillingIntegrations: {
-            schemaDoc: 'List of supported billing integrations. If one of them is here, it means that this acquiring can accept receipts from it',
-            type: Relationship,
-            ref: 'BillingIntegration',
+        supportedBillingIntegrationsGroup: {
+            schemaDoc: 'Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing',
+            type: Text,
             isRequired: true,
-            many: true,
-            hooks: {
-                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
-                    if (resolvedData[fieldPath] && !resolvedData[fieldPath].length) {
-                        addFieldValidationError(INTEGRATION_NO_BILLINGS_ERROR)
-                    }
-                },
-            },
+            defaultValue: DEFAULT_BILLING_INTEGRATION_GROUP,
         },
 
         explicitFeeDistributionSchema: {
