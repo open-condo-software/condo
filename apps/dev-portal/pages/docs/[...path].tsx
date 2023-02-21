@@ -223,8 +223,10 @@ export const getStaticProps: GetStaticProps<DocPageProps, GetStaticPathParams> =
     const { serializedContent, headings, fileName } = await extractMdx(DOCS_ROOT_PATH, currentPage.route, locale)
 
     const filePath = path.relative(DOCS_ROOT_PATH, fileName)
+    const repoRoute = path.join('edit', DOCS_EDIT_BRANCH, DOCS_REPO_DOCS_ROOT, filePath)
+
     const editUrl = DOCS_REPO
-        ? path.join(DOCS_REPO, 'edit', DOCS_EDIT_BRANCH, DOCS_REPO_DOCS_ROOT, filePath)
+        ? `${DOCS_REPO}/${repoRoute}`
         : null
 
     return {
