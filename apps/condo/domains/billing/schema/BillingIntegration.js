@@ -8,6 +8,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingIntegration')
+const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
@@ -56,6 +57,13 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             schemaDoc: 'This title is shown on /billing page, usually contains word "Billing"',
             type: Text,
             isRequired: false,
+        },
+
+        group: {
+            schemaDoc: 'Billing group which this billing is part of. Used to restrict certain billings from certain acquirings"',
+            type: Text,
+            isRequired: true,
+            defaultValue: DEFAULT_BILLING_INTEGRATION_GROUP,
         },
 
         contextDefaultStatus: CONTEXT_DEFAULT_STATUS_FIELD,
