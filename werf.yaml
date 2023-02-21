@@ -575,13 +575,14 @@ shell:
     - "yarn install --immutable"
   setup:
     - "cd /app"
-    - "echo '# Build time .env config!' >> /app/.env"
-    - "echo 'NODE_ENV=production' >> /app/.env"
-    - "echo 'DOCS_REPO=https://github.com/open-condo-software/condo' >> /app/.env"
-    - "echo 'DOCS_REPO_DOCS_ROOT=apps/dev-portal/docs' >> /app/.env"
+    #NOTE: Next.js is picking .env only from package-level envs during build time
+    - "echo '# Build time .env config!' >> /app/apps/dev-portal/.env"
+    - "echo 'NODE_ENV=production' >> /app/apps/dev-portal/.env"
+    - "echo 'DOCS_REPO=https://github.com/open-condo-software/condo' >> /app/apps/dev-portal/.env"
+    - "echo 'DOCS_REPO_DOCS_ROOT=apps/dev-portal/docs' >> /app/apps/dev-portal/.env"
     - "yarn workspace @app/dev-portal next telemetry disable"
     - "yarn workspace @app/dev-portal build"
-    - "rm -rf /app/.env"
+    - "rm -rf /app/apps/dev-portal/.env"
     - "rm -rf /app/.config"
 
 docker:
