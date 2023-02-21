@@ -90,13 +90,11 @@ function getRandomImplicitFeeDistribution () {
 }
 
 
-async function createTestAcquiringIntegration (client, billings, extraAttrs = {}) {
+async function createTestAcquiringIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!billings) throw new Error('no billings')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST ACQUIRING'
     const hostUrl = faker.internet.url()
-    const billingsIds = billings.map(billing => ({id: billing.id}))
     const attrs = {
         dv: 1,
         sender,
@@ -105,7 +103,6 @@ async function createTestAcquiringIntegration (client, billings, extraAttrs = {}
         shortDescription: faker.commerce.productDescription(),
         developer: faker.company.companyName(),
         detailedDescription: faker.lorem.paragraphs(5),
-        supportedBillingIntegrations: { connect: billingsIds },
         explicitFeeDistributionSchema: getRandomExplicitFeeDistribution(),
         ...extraAttrs
     }

@@ -53,7 +53,6 @@ class AppsGenerator {
                     shortDescription: faker.commerce.productDescription(),
                     detailedDescription: faker.lorem.paragraphs(5),
                     hostUrl: faker.internet.url(),
-                    supportedBillingIntegrations: { connect: [ { id: billings[0].id } ] },
                     explicitFeeDistributionSchema: [],
                     appUrl: this.withFrames ? 'http://localhost:3001' : undefined,
                 })
