@@ -5,7 +5,7 @@ import isUndefined from 'lodash/isUndefined'
 import pick from 'lodash/pick'
 import upperFirst from 'lodash/upperFirst'
 import { useRouter } from 'next/router'
-import React, { createContext, useContext, useEffect, useRef, useCallback } from 'react'
+import React, { createContext, useContext, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
@@ -207,13 +207,20 @@ const TrackingProvider: React.FC = ({ children }) => {
         return { sent: true }
     }, [router.route])
 
+    // It's important to init all the analytics instances right before first content render
+    useLayoutEffect(() => {
+        if (!isUndefined(window)) {
+            Object.values(trackingProviderValueRef.current.trackerInstances)
+                .forEach(trackerInstance => trackerInstance.init())
+        }
+    }, [])
+
     useEffect(() => {
         // Init all instances of trackers only on client side rendering
         if (!isUndefined(window)) {
             addEventHandler('CondoWebSendAnalyticsEvent', '*', handleExternalAnalyticsEvent)
             // Page path changed -> change value at context object
             router.events.on('routeChangeComplete', routeChangeComplete)
-            Object.values(trackingProviderValueRef.current.trackerInstances).forEach(trackerInstance => trackerInstance.init())
         }
 
         return () => {
