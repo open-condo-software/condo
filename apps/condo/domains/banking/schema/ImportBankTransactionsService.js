@@ -64,7 +64,7 @@ const ImportBankTransactionsService = new GQLCustomSchema('ImportBankTransaction
     types: [
         {
             access: true,
-            type: 'input ImportBankTransactionsInput { dv: Int!, sender: JSON!, file: Upload!, organizationId: ID! }',
+            type: 'input ImportBankTransactionsInput { dv: Int!, sender: JSON!, file: Upload!, organizationId: ID!, propertyId: ID! }',
         },
         {
             access: true,
@@ -78,7 +78,7 @@ const ImportBankTransactionsService = new GQLCustomSchema('ImportBankTransaction
             schema: 'importBankTransactions(data: ImportBankTransactionsInput!): ImportBankTransactionsOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { sender, file, organizationId } = data
+                const { sender, file, organizationId, propertyId } = data
                 const dvSender = { dv: 1, sender }
                 let conversionResult
                 try {
@@ -120,6 +120,7 @@ const ImportBankTransactionsService = new GQLCustomSchema('ImportBankTransaction
                         meta: bankAccountData.meta,
                         organization: { connect: { id: organizationId } },
                         integrationContext: { connect: { id: integrationContext.id } },
+                        property: { connect: { id: propertyId } },
                     })
                 } else {
                     if (bankAccount.integrationContext) {
