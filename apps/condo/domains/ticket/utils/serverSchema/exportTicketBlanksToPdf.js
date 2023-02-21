@@ -10,9 +10,12 @@ const { i18n } = require('@open-condo/locales/loader')
 
 const { COMPLETED } = require('@condo/domains/common/constants/export')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
+const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { MAX_TICKET_BLANKS_EXPORT } = require('@condo/domains/ticket/constants/export')
 
 const { TicketExportTask, loadTicketsForPdfExport, loadTicketCommentsForPdfExport } = require('./index')
+
 
 const PDFDocument = pdfLib.PDFDocument
 
@@ -39,6 +42,7 @@ const PDF_FONTS = {
 }
 
 const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
+const DEFAULT_DATE_FORMAT = 'DD.MM.YYYY'
 
 const printer = new PDFMake(PDF_FONTS)
 
@@ -52,6 +56,10 @@ const getTranslateWithLocale = ({ locale }) => (key = '', meta = {}) => {
  */
 const formatPhone = (phone) =>
     phone ? phone.replace(PHONE_FORMAT_REGEXP, '$1 $2 $3 $4 $5') : phone
+
+const formatDate = ({ date, timeZone, format }) => {
+    return dayjs(date).tz(timeZone).format(format || DEFAULT_DATE_FORMAT)
+}
 
 const getAddressDetails = (propertyAddressMeta) => {
     const addressMeta = get(propertyAddressMeta, 'data')
@@ -140,24 +148,24 @@ const getAddressPartsByTicket = ({ ticket, locale }) => {
     }
 }
 
-const convertCommentsToTicketBlank = (comments) => {
+const convertCommentsToTicketBlank = ({ comments, timeZone }) => {
     return comments.map(comment => ({
         ...comment,
-        createdAt: dayjs(comment.createdAt).format('DD.MM.YYYY, HH:mm'),
+        createdAt: formatDate({ date: comment.createdAt, timeZone, format: 'DD.MM.YYYY, HH:mm' }),
     }))
 }
 
-const convertTicketToTicketBlank = ({ ticket, comments, blankOptions, locale }) => {
+const convertTicketToTicketBlank = ({ ticket, comments, blankOptions, locale, timeZone }) => {
     return {
         number: ticket.number,
-        printDate: dayjs().format('DD.MM.YYYY'),
-        createdAt: dayjs(ticket.createdAt).format('DD.MM.YYYY'),
+        printDate: formatDate({ timeZone }),
+        createdAt: formatDate({ date: ticket.createdAt, timeZone }),
         organization: ticket.organization,
         address: getAddressPartsByTicket({ ticket, locale }),
         clientName: ticket.clientName || ticket.createdBy,
         clientPhone: formatPhone(ticket.clientPhone),
         details: ticket.details,
-        comments: convertCommentsToTicketBlank(comments),
+        comments: convertCommentsToTicketBlank({ comments, timeZone }),
         options: {
             haveComments: !isEmpty(comments),
             haveListCompletedWorks: blankOptions.haveListCompletedWorks,
@@ -535,12 +543,12 @@ const pdfToBuffer = (pdfDoc) => new Promise((resolve, reject) => {
     }
 })
 
-const createPdfForTicketBlanks = async ({ tickets, blankOptions, locale }) => {
+const createPdfForTicketBlanks = async ({ tickets, blankOptions, locale, timeZone }) => {
     const ticketPdfBuffers = []
 
     for (const ticket of tickets) {
         const comments = await getComments({ ticket, blankOptions })
-        const ticketBlankData = convertTicketToTicketBlank({ ticket, comments, blankOptions, locale })
+        const ticketBlankData = convertTicketToTicketBlank({ ticket, comments, blankOptions, locale, timeZone })
         const translations = getTranslations({ locale, ticketBlankData })
         const replaces = {
             blank: ticketBlankData,
@@ -575,17 +583,19 @@ const getTicketBlankOptions = (options) => {
 }
 
 const exportTicketBlanksToPdf = async ({ context, task, baseAttrs, where, sortBy }) => {
-    const { id: taskId, options, locale } = task
+    const { id: taskId, options, locale, timeZone: timeZoneFromUser } = task
+
+    const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
 
     const blankOptions = getTicketBlankOptions(options)
 
     const tickets = await loadTicketsForPdfExport({ where, sortBy, limit: MAX_TICKET_BLANKS_EXPORT })
 
-    const { stream } = await createPdfForTicketBlanks({ tickets, blankOptions, locale })
+    const { stream } = await createPdfForTicketBlanks({ tickets, blankOptions, locale, timeZone })
 
     const fileInput = {
         stream,
-        filename: `ticket_blanks_${dayjs().format('DD_MM_YYYY__HH_mm_ss')}.pdf`,
+        filename: `ticket_blanks_${formatDate({ timeZone, format: 'DD_MM_YYYY__HH_mm_ss' })}.pdf`,
         mimetype: PDF_FILE_META.mimetype,
         encoding: PDF_FILE_META.encoding,
         meta: {
