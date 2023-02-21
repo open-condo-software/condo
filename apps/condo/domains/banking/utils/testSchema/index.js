@@ -18,6 +18,7 @@ const { BankIntegrationAccountContext: BankIntegrationAccountContextGQL } = requ
 const { BankTransaction: BankTransactionGQL } = require('@condo/domains/banking/gql')
 const { BankSyncTask: BankSyncTaskGQL } = require('@condo/domains/banking/gql')
 const { BankIntegrationOrganizationContext: BankIntegrationOrganizationContextGQL } = require('@condo/domains/banking/gql')
+const { BankIntegrationAccessRight: BankIntegrationAccessRightGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BankCategory = generateGQLTestUtils(BankCategoryGQL)
@@ -30,6 +31,7 @@ const BankIntegrationAccountContext = generateGQLTestUtils(BankIntegrationAccoun
 const BankTransaction = generateGQLTestUtils(BankTransactionGQL)
 const BankSyncTask = generateGQLTestUtils(BankSyncTaskGQL)
 const BankIntegrationOrganizationContext = generateGQLTestUtils(BankIntegrationOrganizationContextGQL)
+const BankIntegrationAccessRight = generateGQLTestUtils(BankIntegrationAccessRightGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBankCategory (client, extraAttrs = {}) {
@@ -362,6 +364,37 @@ async function updateTestBankIntegrationOrganizationContext (client, id, extraAt
     return [obj, attrs]
 }
 
+async function createTestBankIntegrationAccessRight (client, integration, user, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!integration || !integration.id) throw new Error('no integration.id')
+    if (!user || !user.id) throw new Error('no user.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        integration: { connect: { id: integration.id } },
+        user: { connect: { id: user.id } },
+        ...extraAttrs,
+    }
+    const obj = await BankIntegrationAccessRight.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBankIntegrationAccessRight (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BankIntegrationAccessRight.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -376,5 +409,6 @@ module.exports = {
     createBankAccountRequestByTestClient,
     importBankTransactionsByTestClient,
     BankIntegrationOrganizationContext, createTestBankIntegrationOrganizationContext, updateTestBankIntegrationOrganizationContext,
+    BankIntegrationAccessRight, createTestBankIntegrationAccessRight, updateTestBankIntegrationAccessRight,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
