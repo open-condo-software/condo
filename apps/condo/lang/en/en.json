@@ -90,6 +90,7 @@
   "FiltersLabel": "Filters",
   "field.required": "This field is required — please fill it out",
   "field.AccountNumberShort": "Account Number",
+  "field.TotalCharged": "TOTAL charged",
   "field.TotalPayment": "TOTAL payable",
   "field.Address": "Address",
   "field.Address.notFound": "Address not found. Maybe this house is not added into CRM",
