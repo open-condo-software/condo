@@ -14,7 +14,6 @@ import {
     extractLocalizedTitleParts, 
 } from 'domains/docs/utils/routing'
 import get from 'lodash/get'
-import getConfig from 'next/config'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -33,15 +32,14 @@ import type { NavItem, ArticleInfo } from 'domains/docs/utils/routing'
 import type { GetStaticPaths, GetStaticProps } from 'next'
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
 
-
-const {
-    publicRuntimeConfig: {
-        docsRootPath,
-        docsRepo,
-        docsRepoDocsRoot,
-        docsEditBranch,
-    },
-} = getConfig()
+// NOTE: These values are used in getStaticProps, so they should be available at build time.
+// You can use different values in yarn start and yarn build, which can cause some bugs in CI envs
+// That's the reason they're moved away from publicRuntimeConfig
+// https://github.com/vercel/next.js/discussions/11493#discussioncomment-14606
+const DOCS_ROOT_PATH = process.env.DOCS_ROOT_PATH || 'docs'
+const DOCS_REPO = process.env.DOCS_REPO
+const DOCS_REPO_DOCS_ROOT = process.env.DOCS_REPO_DOCS_ROOT || '/'
+const DOCS_EDIT_BRANCH = process.env.DOCS_EDIT_BRANCH || 'master'
 
 const DOCS_ROOT_ENDPOINT = '/docs'
 const SIDER_WIDTH = 336
@@ -200,7 +198,7 @@ type GetStaticPathParams = {
 export const getStaticPaths: GetStaticPaths<GetStaticPathParams> = ({ locales = [] }) => {
     return {
         paths: locales.flatMap(locale => {
-            return Array.from(getAllRoutes(docsRootPath, locale, docsRootPath), (route) => ({
+            return Array.from(getAllRoutes(DOCS_ROOT_PATH, locale, DOCS_ROOT_PATH), (route) => ({
                 params: { path: route.split('/') },
                 locale,
             }))
@@ -210,7 +208,7 @@ export const getStaticPaths: GetStaticPaths<GetStaticPathParams> = ({ locales = 
 }
 
 export const getStaticProps: GetStaticProps<DocPageProps, GetStaticPathParams> = async ({ locale = DEFAULT_LOCALE, params }) => {
-    const navTree = getNavTree(docsRootPath, locale, docsRootPath)
+    const navTree = getNavTree(DOCS_ROOT_PATH, locale, DOCS_ROOT_PATH)
 
     const articles = Array.from(getFlatArticles(navTree))
     const route = get(params, 'path', []).join('/')
@@ -222,11 +220,11 @@ export const getStaticProps: GetStaticProps<DocPageProps, GetStaticPathParams> =
 
     const localizedPageTitleParts = extractLocalizedTitleParts(currentPage.route, navTree)
 
-    const { serializedContent, headings, fileName } = await extractMdx(docsRootPath, currentPage.route, locale)
+    const { serializedContent, headings, fileName } = await extractMdx(DOCS_ROOT_PATH, currentPage.route, locale)
 
-    const filePath = path.relative(docsRootPath, fileName)
-    const editUrl = docsRepo
-        ? `${docsRepo}/edit/${docsEditBranch}/${docsRepoDocsRoot}/${filePath}`
+    const filePath = path.relative(DOCS_ROOT_PATH, fileName)
+    const editUrl = DOCS_REPO
+        ? path.join(DOCS_REPO, 'edit', DOCS_EDIT_BRANCH, DOCS_REPO_DOCS_ROOT, filePath)
         : null
 
     return {
@@ -236,7 +234,7 @@ export const getStaticProps: GetStaticProps<DocPageProps, GetStaticPathParams> =
             headings,
             prevPage,
             nextPage,
-            editUrl: editUrl,
+            editUrl,
             articleTitle: currentPage.label,
             localizedPageTitleParts,
         },

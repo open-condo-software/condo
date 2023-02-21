@@ -577,6 +577,8 @@ shell:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
+    - "echo 'DOCS_REPO=https://github.com/open-condo-software/condo' >> /app/.env"
+    - "echo 'DOCS_REPO_DOCS_ROOT=apps/dev-portal/docs' >> /app/.env"
     - "yarn workspace @app/dev-portal next telemetry disable"
     - "yarn workspace @app/dev-portal build"
     - "rm -rf /app/.env"
