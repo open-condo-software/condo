@@ -543,6 +543,10 @@ shell:
   - "yarn workspace @app/telephony build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
+
+docker:
+  ENV:
+    LANG: C.UTF-8
 ---
 image: devportal
 fromImage: base
@@ -584,7 +588,3 @@ shell:
     - "yarn workspace @app/dev-portal build"
     - "rm -rf /app/apps/dev-portal/.env"
     - "rm -rf /app/.config"
-
-docker:
-  ENV:
-    LANG: C.UTF-8
