@@ -6475,6 +6475,7 @@ type BillingIntegrationHistoryRecord {
   detailedDescription: JSON
   appUrl: String
   billingPageTitle: String
+  group: String
   contextDefaultStatus: String
   dataFormat: JSON
   currencyCode: String
@@ -6618,6 +6619,24 @@ input BillingIntegrationHistoryRecordWhereInput {
   billingPageTitle_not_ends_with_i: String
   billingPageTitle_in: [String]
   billingPageTitle_not_in: [String]
+  group: String
+  group_not: String
+  group_contains: String
+  group_not_contains: String
+  group_starts_with: String
+  group_not_starts_with: String
+  group_ends_with: String
+  group_not_ends_with: String
+  group_i: String
+  group_not_i: String
+  group_contains_i: String
+  group_not_contains_i: String
+  group_starts_with_i: String
+  group_not_starts_with_i: String
+  group_ends_with_i: String
+  group_not_ends_with_i: String
+  group_in: [String]
+  group_not_in: [String]
   contextDefaultStatus: String
   contextDefaultStatus_not: String
   contextDefaultStatus_contains: String
@@ -6805,6 +6824,8 @@ enum SortBillingIntegrationHistoryRecordsBy {
   appUrl_DESC
   billingPageTitle_ASC
   billingPageTitle_DESC
+  group_ASC
+  group_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   currencyCode_ASC
@@ -6846,6 +6867,7 @@ input BillingIntegrationHistoryRecordUpdateInput {
   detailedDescription: JSON
   appUrl: String
   billingPageTitle: String
+  group: String
   contextDefaultStatus: String
   dataFormat: JSON
   currencyCode: String
@@ -6883,6 +6905,7 @@ input BillingIntegrationHistoryRecordCreateInput {
   detailedDescription: JSON
   appUrl: String
   billingPageTitle: String
+  group: String
   contextDefaultStatus: String
   dataFormat: JSON
   currencyCode: String
@@ -6969,6 +6992,10 @@ type BillingIntegration {
   """ This title is shown on /billing page, usually contains word "Billing" 
   """
   billingPageTitle: String
+
+  """ Billing group which this billing is part of. Used to restrict certain billings from certain acquirings" 
+  """
+  group: String
 
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
@@ -7162,6 +7189,24 @@ input BillingIntegrationWhereInput {
   billingPageTitle_not_ends_with_i: String
   billingPageTitle_in: [String]
   billingPageTitle_not_in: [String]
+  group: String
+  group_not: String
+  group_contains: String
+  group_not_contains: String
+  group_starts_with: String
+  group_not_starts_with: String
+  group_ends_with: String
+  group_not_ends_with: String
+  group_i: String
+  group_not_i: String
+  group_contains_i: String
+  group_not_contains_i: String
+  group_starts_with_i: String
+  group_not_starts_with_i: String
+  group_ends_with_i: String
+  group_not_ends_with_i: String
+  group_in: [String]
+  group_not_in: [String]
   contextDefaultStatus: String
   contextDefaultStatus_not: String
   contextDefaultStatus_in: [String]
@@ -7298,6 +7343,8 @@ enum SortBillingIntegrationsBy {
   appUrl_DESC
   billingPageTitle_ASC
   billingPageTitle_DESC
+  group_ASC
+  group_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   currencyCode_ASC
@@ -7341,6 +7388,7 @@ input BillingIntegrationUpdateInput {
   detailedDescription: String
   appUrl: String
   billingPageTitle: String
+  group: String
   contextDefaultStatus: String
   dataFormat: BillingIntegrationDataFormatFieldInput
   currencyCode: String
@@ -7376,6 +7424,7 @@ input BillingIntegrationCreateInput {
   detailedDescription: String
   appUrl: String
   billingPageTitle: String
+  group: String
   contextDefaultStatus: String
   dataFormat: BillingIntegrationDataFormatFieldInput
   currencyCode: String
@@ -37164,6 +37213,7 @@ type AcquiringIntegrationHistoryRecord {
   isHidden: Boolean
   canGroupReceipts: Boolean
   hostUrl: String
+  supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: JSON
   displayPriority: Int
   label: String
@@ -37308,6 +37358,24 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   hostUrl_not_ends_with_i: String
   hostUrl_in: [String]
   hostUrl_not_in: [String]
+  supportedBillingIntegrationsGroup: String
+  supportedBillingIntegrationsGroup_not: String
+  supportedBillingIntegrationsGroup_contains: String
+  supportedBillingIntegrationsGroup_not_contains: String
+  supportedBillingIntegrationsGroup_starts_with: String
+  supportedBillingIntegrationsGroup_not_starts_with: String
+  supportedBillingIntegrationsGroup_ends_with: String
+  supportedBillingIntegrationsGroup_not_ends_with: String
+  supportedBillingIntegrationsGroup_i: String
+  supportedBillingIntegrationsGroup_not_i: String
+  supportedBillingIntegrationsGroup_contains_i: String
+  supportedBillingIntegrationsGroup_not_contains_i: String
+  supportedBillingIntegrationsGroup_starts_with_i: String
+  supportedBillingIntegrationsGroup_not_starts_with_i: String
+  supportedBillingIntegrationsGroup_ends_with_i: String
+  supportedBillingIntegrationsGroup_not_ends_with_i: String
+  supportedBillingIntegrationsGroup_in: [String]
+  supportedBillingIntegrationsGroup_not_in: [String]
   explicitFeeDistributionSchema: JSON
   explicitFeeDistributionSchema_not: JSON
   explicitFeeDistributionSchema_in: [JSON]
@@ -37477,6 +37545,8 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   canGroupReceipts_DESC
   hostUrl_ASC
   hostUrl_DESC
+  supportedBillingIntegrationsGroup_ASC
+  supportedBillingIntegrationsGroup_DESC
   displayPriority_ASC
   displayPriority_DESC
   label_ASC
@@ -37514,6 +37584,7 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   isHidden: Boolean
   canGroupReceipts: Boolean
   hostUrl: String
+  supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: JSON
   displayPriority: Int
   label: String
@@ -37550,6 +37621,7 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   isHidden: Boolean
   canGroupReceipts: Boolean
   hostUrl: String
+  supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: JSON
   displayPriority: Int
   label: String
@@ -37578,13 +37650,6 @@ input AcquiringIntegrationAccessRightRelateToManyInput {
   create: [AcquiringIntegrationAccessRightCreateInput]
   connect: [AcquiringIntegrationAccessRightWhereUniqueInput]
   disconnect: [AcquiringIntegrationAccessRightWhereUniqueInput]
-  disconnectAll: Boolean
-}
-
-input BillingIntegrationRelateToManyInput {
-  create: [BillingIntegrationCreateInput]
-  connect: [BillingIntegrationWhereUniqueInput]
-  disconnect: [BillingIntegrationWhereUniqueInput]
   disconnectAll: Boolean
 }
 
@@ -37654,10 +37719,9 @@ type AcquiringIntegration {
   """
   hostUrl: String
 
-  """ List of supported billing integrations. If one of them is here, it means that this acquiring can accept receipts from it 
+  """ Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing 
   """
-  supportedBillingIntegrations(where: BillingIntegrationWhereInput, search: String, sortBy: [SortBillingIntegrationsBy!], orderBy: String, first: Int, skip: Int): [BillingIntegration!]!
-  _supportedBillingIntegrationsMeta(where: BillingIntegrationWhereInput, search: String, sortBy: [SortBillingIntegrationsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  supportedBillingIntegrationsGroup: String
 
   """ Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient 
   """
@@ -37851,15 +37915,24 @@ input AcquiringIntegrationWhereInput {
   hostUrl_not_ends_with_i: String
   hostUrl_in: [String]
   hostUrl_not_in: [String]
-
-  """ condition must be true for all nodes """
-  supportedBillingIntegrations_every: BillingIntegrationWhereInput
-
-  """ condition must be true for at least 1 node """
-  supportedBillingIntegrations_some: BillingIntegrationWhereInput
-
-  """ condition must be false for all nodes """
-  supportedBillingIntegrations_none: BillingIntegrationWhereInput
+  supportedBillingIntegrationsGroup: String
+  supportedBillingIntegrationsGroup_not: String
+  supportedBillingIntegrationsGroup_contains: String
+  supportedBillingIntegrationsGroup_not_contains: String
+  supportedBillingIntegrationsGroup_starts_with: String
+  supportedBillingIntegrationsGroup_not_starts_with: String
+  supportedBillingIntegrationsGroup_ends_with: String
+  supportedBillingIntegrationsGroup_not_ends_with: String
+  supportedBillingIntegrationsGroup_i: String
+  supportedBillingIntegrationsGroup_not_i: String
+  supportedBillingIntegrationsGroup_contains_i: String
+  supportedBillingIntegrationsGroup_not_contains_i: String
+  supportedBillingIntegrationsGroup_starts_with_i: String
+  supportedBillingIntegrationsGroup_not_starts_with_i: String
+  supportedBillingIntegrationsGroup_ends_with_i: String
+  supportedBillingIntegrationsGroup_not_ends_with_i: String
+  supportedBillingIntegrationsGroup_in: [String]
+  supportedBillingIntegrationsGroup_not_in: [String]
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
@@ -37985,8 +38058,8 @@ enum SortAcquiringIntegrationsBy {
   canGroupReceipts_DESC
   hostUrl_ASC
   hostUrl_DESC
-  supportedBillingIntegrations_ASC
-  supportedBillingIntegrations_DESC
+  supportedBillingIntegrationsGroup_ASC
+  supportedBillingIntegrationsGroup_DESC
   displayPriority_ASC
   displayPriority_DESC
   label_ASC
@@ -38025,7 +38098,7 @@ input AcquiringIntegrationUpdateInput {
   accessRights: AcquiringIntegrationAccessRightRelateToManyInput
   canGroupReceipts: Boolean
   hostUrl: String
-  supportedBillingIntegrations: BillingIntegrationRelateToManyInput
+  supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   displayPriority: Int
   label: String
@@ -38060,7 +38133,7 @@ input AcquiringIntegrationCreateInput {
   accessRights: AcquiringIntegrationAccessRightRelateToManyInput
   canGroupReceipts: Boolean
   hostUrl: String
-  supportedBillingIntegrations: BillingIntegrationRelateToManyInput
+  supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   displayPriority: Int
   label: String
