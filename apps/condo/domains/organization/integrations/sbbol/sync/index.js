@@ -3,14 +3,10 @@ const faker = require('faker')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
-
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { syncSbbolTransactions } = require('@condo/domains/organization/tasks/syncSbbolTransactions')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { getOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/OrganizationEmployee')
 
 const { syncBankAccounts } = require('./syncBankAccounts')
 const { syncOrganization } = require('./syncOrganization')
@@ -114,7 +110,7 @@ const sync = async ({ keystone, userInfo, tokenSet  }) => {
     await syncServiceSubscriptions(userInfo.inn)
 
     if (await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL)) {
-        await syncSbbolTransactions.delay(date, user.id, organization)
+        await syncBankAccounts(user.id, organization)
         await syncSbbolTransactions.delay(date, user.id, organization)
     }
 
