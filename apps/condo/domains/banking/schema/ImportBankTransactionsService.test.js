@@ -21,7 +21,9 @@ const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const faker = require('faker')
 
 
 const pathToCorrectFile = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/banking/utils/testSchema/assets/1CClientBankExchange.txt')
@@ -55,9 +57,11 @@ describe('ImportBankTransactionsService', () => {
     it('creates BankAccount, BankIntegrationContext, BankTransaction and BankContractorAccount records', async () => {
         const userClient = await makeClientWithRegisteredOrganization()
         const organization = userClient.organization
+        const [property] = await createTestProperty(userClient, organization)
         const payload = {
             file: uploadingFile,
             organizationId: organization.id,
+            propertyId: property.id,
         }
         const [result, attrs] = await importBankTransactionsByTestClient(userClient, payload)
 
@@ -92,6 +96,7 @@ describe('ImportBankTransactionsService', () => {
     it('reuses existing BankAccount and BankIntegrationContext when it has the same integration', async () => {
         const userClient = await makeClientWithRegisteredOrganization()
         const organization = userClient.organization
+        const [property] = await createTestProperty(userClient, organization)
         const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS['1CClientBankExchange'] })
         const [bankIntegrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
         const [existingBankAccount] = await createTestBankAccount(adminClient, organization, {
@@ -102,6 +107,7 @@ describe('ImportBankTransactionsService', () => {
         const payload = {
             file: uploadingFile,
             organizationId: organization.id,
+            propertyId: property.id,
         }
         const [result, attrs] = await importBankTransactionsByTestClient(userClient, payload)
         expect(result.bankAccount).toBeDefined()
@@ -134,6 +140,7 @@ describe('ImportBankTransactionsService', () => {
     it('throws error when another integration of different type exist', async () => {
         const userClient = await makeClientWithRegisteredOrganization()
         const organization = userClient.organization
+        const [property] = await createTestProperty(userClient, organization)
         const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
         const [bankIntegrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
         await createTestBankAccount(adminClient, organization, {
@@ -144,6 +151,7 @@ describe('ImportBankTransactionsService', () => {
         const payload = {
             file: uploadingFile,
             organizationId: organization.id,
+            propertyId: property.id,
         }
         await expectToThrowGQLError(async () => {
             await importBankTransactionsByTestClient(userClient, payload)
@@ -160,6 +168,7 @@ describe('ImportBankTransactionsService', () => {
     it('throws error when no integration is connected to bank account', async () => {
         const userClient = await makeClientWithRegisteredOrganization()
         const organization = userClient.organization
+        const [property] = await createTestProperty(userClient, organization)
         const [existingBankAccount] = await createTestBankAccount(adminClient, organization, {
             number: '40702810801500116391',
             routingNumber: '044525999',
@@ -167,6 +176,7 @@ describe('ImportBankTransactionsService', () => {
         const payload = {
             file: uploadingFile,
             organizationId: organization.id,
+            propertyId: property.id,
         }
         await expectToThrowGQLError(async () => {
             await importBankTransactionsByTestClient(userClient, payload)
@@ -183,12 +193,14 @@ describe('ImportBankTransactionsService', () => {
         }, 'result')
     })
 
-    it('throws INVALID_VILE_FORMAT error in case of file parsing error', async () => {
+    it('throws INVALID_FILE_FORMAT error in case of file parsing error', async () => {
         const userClient = await makeClientWithRegisteredOrganization()
         const organization = userClient.organization
+        const [property] = await createTestProperty(userClient, organization)
         const payload = {
             file: invalidUploadingFile,
             organizationId: organization.id,
+            propertyId: property.id,
         }
         await expectToThrowGQLError(async () => {
             await importBankTransactionsByTestClient(userClient, payload)
@@ -209,17 +221,39 @@ describe('ImportBankTransactionsService', () => {
         it('can be executed by admin', async () => {
             const userClient = await makeClientWithRegisteredOrganization()
             const organization = userClient.organization
+            const [property] = await createTestProperty(userClient, organization)
             const payload = {
                 file: uploadingFile,
                 organizationId: organization.id,
+                propertyId: property.id,
             }
-            const [result, attrs] = await importBankTransactionsByTestClient(userClient, payload)
+            const [result] = await importBankTransactionsByTestClient(userClient, payload)
 
             const createdBankAccount = await BankAccount.getOne(adminClient, { id: result.bankAccount.id })
             expect(result.bankAccount).toEqual(createdBankAccount)
         })
 
         it('cannot be executed by organization employee user without "canManageBankAccounts" permission', async () => {
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                canManageBankAccounts: false,
+            })
+            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+            const payload = {
+                file: uploadingFile,
+                organizationId: organization.id,
+                propertyId: property.id,
+            }
+
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await importBankTransactionsByTestClient(userClient, payload)
+            })
+        })
+
+        it('cannot be executed if property is not found', async () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
@@ -230,8 +264,24 @@ describe('ImportBankTransactionsService', () => {
             const payload = {
                 file: uploadingFile,
                 organizationId: organization.id,
+                propertyId: faker.datatype.uuid(),
             }
 
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await importBankTransactionsByTestClient(userClient, payload)
+            })
+        })
+
+        it('cannot be executed when specified property does not belongs to specified organization', async () => {
+            const userClient = await makeClientWithRegisteredOrganization()
+            const [anotherOrganization] = await createTestOrganization(adminClient)
+            const [anotherProperty] = await createTestProperty(adminClient, anotherOrganization)
+            const organization = userClient.organization
+            const payload = {
+                file: uploadingFile,
+                organizationId: organization.id,
+                propertyId: anotherProperty.id,
+            }
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await importBankTransactionsByTestClient(userClient, payload)
             })
@@ -240,11 +290,13 @@ describe('ImportBankTransactionsService', () => {
         it('cannot be executed by anonymous', async () => {
             const anonymousClient = await makeClient()
             const userClient = await makeClientWithRegisteredOrganization()
+            const [property] = await createTestProperty(userClient, organization)
             const organization = userClient.organization
             expect(userClient).toBeDefined()
             const payload = {
                 file: uploadingFile,
                 organizationId: organization.id,
+                propertyId: property.id,
             }
             await expectToThrowAuthenticationErrorToResult(async () => {
                 await importBankTransactionsByTestClient(anonymousClient, payload)
