@@ -92,6 +92,19 @@ describe('syncBankTransaction from SBBOL', () => {
             expect(transactions).toHaveLength(5)
         })
 
+        it('Check taskStatus when request transactions from SBBOL', async () => {
+            const transactions = await requestTransactions({
+                date: dayjs().format('YYYY-MM-DD'),
+                userId: commonClient.user.id,
+                organization: commonOrganization,
+            })
+            const bankAccounts = await BankAccount.getAll(adminClient, {
+                meta: { sbbol: { syncTransactionsTaskStatus: 'completed' } },
+            })
+            expect(bankAccounts.length).toBeGreaterThanOrEqual(1)
+            expect(transactions).toHaveLength(5)
+        })
+
         it('Expect an error if trying to get a statement for a future date', async () => {
             let error
 
