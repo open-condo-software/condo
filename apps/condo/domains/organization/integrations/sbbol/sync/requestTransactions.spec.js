@@ -52,8 +52,6 @@ describe('syncBankTransaction from SBBOL', () => {
 
     let adminClient, commonClient, adminContext, context, commonOrganization
     beforeAll(async () => {
-        jest.setTimeout(300000)
-
         adminClient = await makeLoggedInAdminClient()
         commonClient = await makeLoggedInClient()
         adminContext = await keystone.createContext({ skipAccessControl: true })
