@@ -98,8 +98,8 @@ describe('syncBankTransaction from SBBOL', () => {
                 userId: commonClient.user.id,
                 organization: commonOrganization,
             })
-            const bankAccounts = await BankAccount.getAll(adminClient, {
-                meta: { sbbol: { syncTransactionsTaskStatus: 'completed' } },
+            const bankAccounts = await BankIntegrationContext.getAll(adminClient, {
+                meta: { syncTransactionsTaskStatus: 'completed' },
             })
             expect(bankAccounts.length).toBeGreaterThanOrEqual(1)
             expect(transactions).toHaveLength(5)

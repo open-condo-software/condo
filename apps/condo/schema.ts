@@ -7908,6 +7908,8 @@ export type BankIntegrationContext = {
   organization?: Maybe<Organization>;
   /**  Controls availability of sync operation for this integration. Can be disabled by support in some cases, when client dont wants to have automatic synchronization via API, for example  */
   enabled?: Maybe<Scalars['Boolean']>;
+  /**  Structured non-typed metadata, can be used by mini-apps or external services to store information  */
+  meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7928,6 +7930,7 @@ export type BankIntegrationContextCreateInput = {
   integration?: Maybe<BankIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   enabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7953,6 +7956,7 @@ export type BankIntegrationContextHistoryRecord = {
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   enabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7972,6 +7976,7 @@ export type BankIntegrationContextHistoryRecordCreateInput = {
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   enabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7996,6 +8001,7 @@ export type BankIntegrationContextHistoryRecordUpdateInput = {
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   enabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8023,6 +8029,10 @@ export type BankIntegrationContextHistoryRecordWhereInput = {
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   enabled?: Maybe<Scalars['Boolean']>;
   enabled_not?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -8125,6 +8135,7 @@ export type BankIntegrationContextUpdateInput = {
   integration?: Maybe<BankIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   enabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -8145,6 +8156,10 @@ export type BankIntegrationContextWhereInput = {
   organization_is_null?: Maybe<Scalars['Boolean']>;
   enabled?: Maybe<Scalars['Boolean']>;
   enabled_not?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

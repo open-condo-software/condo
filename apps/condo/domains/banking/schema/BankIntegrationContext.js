@@ -4,6 +4,7 @@
 
 const { Relationship, Checkbox } = require('@keystonejs/fields')
 
+const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
@@ -33,6 +34,10 @@ const BankIntegrationContext = new GQLListSchema('BankIntegrationContext', {
             defaultValue: true,
         },
 
+        meta: {
+            schemaDoc: 'Structured non-typed metadata, can be used by mini-apps or external services to store information',
+            type: Json,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
