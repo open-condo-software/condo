@@ -141,7 +141,7 @@ describe('MultiPayment', () => {
                 test('integration account can see only multipayments linked to it\'s integration', async () => {
                     const { admin, payments, acquiringIntegration: firstIntegration, client, billingIntegration } = await makePayerAndPayments()
                     const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, firstIntegration)
-                    const [secondIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
+                    const [secondIntegration] = await createTestAcquiringIntegration(admin)
 
                     const firstIntegrationClient = await makeClientWithServiceUser()
                     const secondIntegrationClient = await makeClientWithServiceUser()
@@ -359,8 +359,7 @@ describe('MultiPayment', () => {
                 })
             })
             test('Cannot accept payments with different acquiring', async () => {
-                const { billingIntegration, admin, payments, client } = await makePayerAndPayments()
-                const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
+                const [integration] = await createTestAcquiringIntegration(admin)
                 await expectToThrowValidationFailureError(async () => {
                     await createTestMultiPayment(admin, payments, client.user, integration)
                 }, MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH)
