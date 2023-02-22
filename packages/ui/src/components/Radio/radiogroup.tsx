@@ -2,6 +2,7 @@ import { Radio as DefaultRadio } from 'antd'
 import classNames from 'classnames'
 import React, { useState, useCallback } from 'react'
 
+import { ChevronDown } from '@open-condo/icons'
 import { Radio, Typography, Space } from '@open-condo/ui/src'
 import type { RadioProps } from '@open-condo/ui/src'
 
@@ -9,22 +10,28 @@ import type { RadioGroupProps as DefaultRadioGroupProps } from 'antd'
 
 const RADIO_GROUP_CLASS_PREFIX = 'condo-radio'
 
-type RadioGroupOptionType = Pick<RadioProps, 'value' | 'label'> & {
+type ItemGroupOptionType = Pick<RadioProps, 'value' | 'label'> & {
     radioProps?: Partial<Pick<RadioProps, 'labelProps' | 'disabled'>>
 }
 
-type RadioGroupType = {
+type ItemGroupProps = {
     name: string
-    icon?: React.ReactElement
-    options: Array<RadioGroupOptionType>
+    options: Array<ItemGroupOptionType>
 }
 
+// TODO(DOMA-5430): breaking changes (v2.0.0)
 export type RadioGroupProps = {
-    icon: React.ReactElement
-    groups: Array<RadioGroupType>
-} & Pick<DefaultRadioGroupProps, 'value' | 'onChange' | 'disabled'>
+    /**
+     * @deprecated should use "children" and "RadioGroup.ItemGroup" instead of "groups". "groups" will be removed in the next major release (v2).
+     */
+    groups?: Array<ItemGroupProps>
+} & Pick<DefaultRadioGroupProps, 'value' | 'onChange' | 'disabled' | 'children'>
 
-const GroupWithIcon: React.FC<RadioGroupType> = ({ name, options, icon }) => {
+type CompoundedComponent = React.FC<RadioGroupProps> & {
+    ItemGroup: React.FC<ItemGroupProps>
+}
+
+const ItemGroup: React.FC<ItemGroupProps> = ({ name, options }) => {
     const [open, setOpen] = useState(false)
 
     const onGroupClick = useCallback(() => {
@@ -41,7 +48,7 @@ const GroupWithIcon: React.FC<RadioGroupType> = ({ name, options, icon }) => {
                 className={`${RADIO_GROUP_CLASS_PREFIX}-group-title`}
                 onClick={onGroupClick}
             >
-                <span className={`${RADIO_GROUP_CLASS_PREFIX}-group-icon`}>{icon}</span>
+                <span className={`${RADIO_GROUP_CLASS_PREFIX}-group-icon`}><ChevronDown size='small' /></span>
                 <Typography.Text>{name}</Typography.Text>
             </div>
             <Space
@@ -56,20 +63,23 @@ const GroupWithIcon: React.FC<RadioGroupType> = ({ name, options, icon }) => {
     )
 }
 
-const RadioGroup: React.FC<RadioGroupProps> = (props) => {
-    const { groups, icon, ...rest } = props
+const CondoRadioGroup: React.FC<RadioGroupProps> = (props) => {
+    const { groups, children, ...rest } = props
 
     return (
         <DefaultRadio.Group
             {...rest}
             prefixCls={RADIO_GROUP_CLASS_PREFIX}
         >
-            {groups.map(group => (
-                <GroupWithIcon name={group.name} options={group.options} key={group.name} icon={icon} />
-            ))}
+            {groups ? groups.map(group => (
+                <ItemGroup name={group.name} options={group.options} key={group.name} />
+            )) : children}
         </DefaultRadio.Group>
     )
 }
+
+const RadioGroup = CondoRadioGroup as CompoundedComponent
+RadioGroup.ItemGroup = ItemGroup
 
 export {
     RadioGroup,
