@@ -51,7 +51,7 @@ describe('Interaction with sales CRM', () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const user = client.user
         userData.phone = user.phone
-        const org = await syncOrganization({
+        const { organization: org } = await syncOrganization({
             context,
             user: user,
             userInfo: userData,
