@@ -186,6 +186,7 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                 }
 
                 const billingContext = await getById('BillingIntegrationOrganizationContext', billingReceipt.context)
+                const billingIntegration = await getById('BillingIntegration', billingContext.integration)
 
                 if (billingContext.deletedAt) {
                     const failedReceipts = [{ receiptId: billingReceipt.id, contextId: billingReceipt.context }]
@@ -195,17 +196,14 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                     }, context)
                 }
 
-                const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', [])
-                    .map(integration => integration.id)
+                const supportedBillingIntegrationsGroup = get(acquiringIntegration, 'supportedBillingIntegrationsGroup')
 
-                if (!supportedBillingIntegrations.includes(billingContext.integration)) {
+                if (billingIntegration.group !== supportedBillingIntegrationsGroup) {
                     throw new GQLError({
                         ...ERRORS.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
                         messageInterpolation: { unsupportedBillingIntegration: billingContext.integration },
                     }, context)
                 }
-
-                const billingIntegration = await getById('BillingIntegration', billingContext.integration)
 
                 if (billingIntegration.deletedAt) {
                     const failedReceipts = [{
