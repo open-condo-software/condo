@@ -6,7 +6,8 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { BankAccount, BankTransaction, BankIntegration, BankIntegrationContext } = require('@condo/domains/banking/utils/serverSchema')
+const { BankAccount, BankTransaction, BankContractorAccount } = require('@condo/domains/banking/utils/serverSchema')
+const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
@@ -88,7 +89,7 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
             // If SBBOL returned a transaction with an unsupported currency, do not process
             if (ISO_CODES.includes(transaction.amount.currencyName)) {
                 const formatedOperationDate = dayjs(transaction.operationDate).format('YYYY-MM-DD')
-                const whereConditions = {
+                const whereTransactionConditions = {
                     number: transaction.number,
                     date:  formatedOperationDate,
                     amount: transaction.amount.amount,
@@ -102,8 +103,28 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
                 const foundTransaction = await BankTransaction.getOne(context, {
                     organization: { id: organizationId },
                     account: { id: bankAccount.id },
-                    ...whereConditions,
+                    ...whereTransactionConditions,
                 })
+
+                let [bankContractorAccount] = await BankContractorAccount.getAll(context, {
+                    organization: { id: organizationId },
+                    tin: transaction.rurTransfer.payeeInn,
+                    number: transaction.rurTransfer.payeeAccount,
+                }, { first: 1 })
+
+                if (!bankContractorAccount) {
+                    bankContractorAccount = await BankContractorAccount.create(context, {
+                        organization: { connect: { id: organizationId } },
+                        name: transaction.rurTransfer.payeeName,
+                        tin: transaction.rurTransfer.payeeInn,
+                        country: RUSSIA_COUNTRY,
+                        routingNumber: transaction.rurTransfer.payeeBankBic,
+                        number: transaction.rurTransfer.payeeAccount,
+                        currencyCode: transaction.amount.currencyName,
+                        ...dvSenderFields,
+                    })
+                    logger.info({ msg: `BankContractorAccount instance created with id: ${bankContractorAccount.id}` })
+                }
 
                 if (!foundTransaction) {
                     const bankIntegrationContextId = get(bankAccount, 'integrationContext.id')
@@ -111,8 +132,9 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
                         organization: { connect: { id: organizationId } },
                         account: { connect: { id: bankAccount.id } },
                         integrationContext: { connect: { id: bankIntegrationContextId } },
+                        contractorAccount: { connect: { id: bankContractorAccount.id } },
                         meta: { sbbol: transaction },
-                        ...whereConditions,
+                        ...whereTransactionConditions,
                         ...dvSenderFields,
                     })
                     logger.info({ msg: `BankTransaction instance created with id: ${createdTransaction.id}` })
