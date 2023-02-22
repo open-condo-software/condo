@@ -549,13 +549,11 @@ async function makePayer (receiptsAmount = 1) {
 async function makePayerWithMultipleConsumers(consumersAmount = 1, receiptsAmount = 1) {
     const client = await makeClientWithResidentUser()
     const admin = await makeLoggedInAdminClient()
-    const billings = []
     const result = []
     for (let i = 0; i < consumersAmount; i++) {
         const [organization] = await registerNewOrganization(admin)
         const [property] = await createTestProperty(admin, organization)
         const [billingIntegration] = await createTestBillingIntegration(admin)
-        billings.push(billingIntegration)
         const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration)
         const [billingProperty] = await createTestBillingProperty(admin, billingContext, {address: property.address})
         const [billingAccount] = await createTestBillingAccount(admin, billingContext, billingProperty)
@@ -574,7 +572,7 @@ async function makePayerWithMultipleConsumers(consumersAmount = 1, receiptsAmoun
             billingReceipts
         })
     }
-    const [acquiringIntegration] = await createTestAcquiringIntegration(admin, billings, {
+    const [acquiringIntegration] = await createTestAcquiringIntegration(admin,{
         canGroupReceipts: true
     })
     for (let i = 0; i < consumersAmount; i++) {

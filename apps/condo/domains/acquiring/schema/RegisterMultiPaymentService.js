@@ -345,19 +345,18 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     throw new GQLError({ ...ERRORS.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED, data: { failedReceipts } }, context)
                 }
 
-                const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', [])
-                    .map(integration => integration.id)
+                const supportedBillingIntegrationsGroup = get(acquiringIntegration, 'supportedBillingIntegrationsGroup')
                 const uniqueBillingIntegrationsIds = new Set(billingContexts.map(context => context.integration))
-                const unsupportedBillings = Array.from(uniqueBillingIntegrationsIds)
-                    .filter(integration => !supportedBillingIntegrations.includes(integration))
-                if (unsupportedBillings.length) {
-                    throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION, messageInterpolation: { unsupportedBillingIntegrations:  unsupportedBillings.join(', ') } }, context)
-                }
-
-                const billingIntegrations = await find('BillingIntegration', {
+                const uniqueBillingIntegrations = await find('BillingIntegration', {
                     id_in: Array.from(uniqueBillingIntegrationsIds),
                 })
-                const deletedBillingIntegrationsIds = new Set(billingIntegrations.filter(integration => integration.deletedAt).map(integration => integration.id))
+
+                const unsupportedBillings = Array.from(uniqueBillingIntegrations).filter(integration => integration.group !== supportedBillingIntegrationsGroup)
+                if (unsupportedBillings.length) {
+                    throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION, messageInterpolation: { unsupportedBillingIntegrations:  unsupportedBillings.map(billing => billing.id).join(', ') } }, context)
+                }
+
+                const deletedBillingIntegrationsIds = new Set(uniqueBillingIntegrations.filter(integration => integration.deletedAt).map(integration => integration.id))
                 if (deletedBillingIntegrationsIds.size) {
                     const failedReceipts = receipts
                         .filter(receipt => deletedBillingIntegrationsIds.has(billingContextsById[receipt.context].integration))
@@ -395,11 +394,11 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     }
                 }
 
-                const currencies = new Set(billingIntegrations.map(integration => integration.currencyCode))
+                const currencies = new Set(uniqueBillingIntegrations.map(integration => integration.currencyCode))
                 if (currencies.size > 1) {
                     throw new GQLError(ERRORS.RECEIPTS_HAS_MULTIPLE_CURRENCIES, context)
                 }
-                const currencyCode = get(billingIntegrations, ['0', 'currencyCode'])
+                const currencyCode = get(uniqueBillingIntegrations, ['0', 'currencyCode'])
 
                 // check recurrentPaymentContext if provided
                 if (recurrentPaymentContext) {
