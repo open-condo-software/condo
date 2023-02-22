@@ -300,17 +300,13 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
     describe('ServerSchema get all should provide enough fields', () => {
         test('AcquiringIntegration', async () => {
             const admin = await makeLoggedInAdminClient()
-            const [firstBilling] = await createTestBillingIntegration(admin)
-            const [secondBilling] = await createTestBillingIntegration(admin)
-            const [acquiring] = await createTestAcquiringIntegration(admin, [firstBilling, secondBilling])
+            const [acquiring] = await createTestAcquiringIntegration(admin)
             const [serverObtainedAcquiring] = await AcquiringIntegration.getAll(admin, {
                 id: acquiring.id,
             })
             expect(serverObtainedAcquiring).toBeDefined()
             expect(serverObtainedAcquiring).toHaveProperty('id')
             expect(serverObtainedAcquiring).toHaveProperty('canGroupReceipts')
-            expect(serverObtainedAcquiring).toHaveProperty('supportedBillingIntegrations')
-            expect(serverObtainedAcquiring.supportedBillingIntegrations).toHaveLength(2)
         })
     })
 })
