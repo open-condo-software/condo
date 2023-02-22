@@ -515,7 +515,7 @@ async function makePayer (receiptsAmount = 1) {
         billingReceipts.push(receipt)
     }
 
-    const [acquiringIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
+    const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
     const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
 
     const [resident] = await createTestResident(admin, client.user, property, {
