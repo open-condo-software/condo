@@ -11,10 +11,18 @@ const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrgani
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadBankIntegrationAccountContexts ({ authentication: { item: user } }) {
+const { checkBankIntegrationsAccessRights } = require('./BankIntegrationAccessRight')
+
+const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('../../organization/utils/accessSchema')
+const { BANK_INTEGRATION_IDS } = require('../constants')
+
+async function canReadBankIntegrationContexts ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin) return {}
+
+    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
 
     return {
         OR: [

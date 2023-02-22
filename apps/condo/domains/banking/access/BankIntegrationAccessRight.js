@@ -4,6 +4,8 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
+const { BankIntegrationAccessRight } = require('@condo/domains/banking/utils/serverSchema')
+
 async function canReadBankIntegrationAccessRights ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -20,7 +22,25 @@ async function canManageBankIntegrationAccessRights ({ authentication: { item: u
     return !!(user.isSupport || user.isAdmin)
 }
 
+async function checkBankIntegrationsAccessRights (context, userId, integrationIds) {
+    if (!context) return false
+    if (!userId) return false
+    if (!Array.isArray(integrationIds) || !integrationIds.length || !integrationIds.every(Boolean)) return false
+
+    const rights = await BankIntegrationAccessRight.getAll(context, {
+        integration: { id_in: integrationIds },
+        user: { id: userId },
+        deletedAt: null,
+    }, { first: 100 })
+
+    const permittedIntegrations = new Set(rights.map(right => right.integration))
+    const nonPermittedIntegrations = integrationIds.filter(id => !permittedIntegrations.has(id))
+
+    return nonPermittedIntegrations.length === 0
+}
+
 module.exports = {
     canReadBankIntegrationAccessRights,
     canManageBankIntegrationAccessRights,
+    checkBankIntegrationsAccessRights,
 }
