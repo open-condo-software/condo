@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const { get, isEmpty, isString } = require('lodash')
 
-const { getCurrSec } = require('@condo/domains/common/utils/date')
+const { getCurrTimeStamp } = require('@condo/domains/common/utils/date')
 
 const ENCRYPTION_ALGORITHM = 'ES256'
 /** APNS accepts tokens no more than 1 hour old, so we should refresh token some time ahead of deadline */
@@ -62,7 +62,7 @@ class JSONWebTokenAPNs {
      * @returns {null}
      */
     #createSignedToken (currTime) {
-        const createdAt = currTime || getCurrSec()
+        const createdAt = currTime || getCurrTimeStamp()
         const payload = { iss: this.#iss, iat: createdAt }
         const signingOptions = {
             algorithm: ENCRYPTION_ALGORITHM,
@@ -80,7 +80,7 @@ class JSONWebTokenAPNs {
      * Checks & refreshes/creates JWT
      */
     #checkAndRefreshToken () {
-        const currTime = getCurrSec()
+        const currTime = getCurrTimeStamp()
 
         if (isEmpty(this.#expires) || this.#expires <= currTime) this.#createSignedToken(currTime)
     }

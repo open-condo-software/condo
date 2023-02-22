@@ -3,7 +3,7 @@ const fetch = require('node-fetch')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { getCurrSec } = require('@condo/domains/common/utils/date')
+const { getCurrTimeStamp } = require('@condo/domains/common/utils/date')
 
 const ENDPOINT = 'https://oauth-login.cloud.huawei.com/oauth2/v3/token'
 
@@ -30,7 +30,7 @@ class HСMAuth {
     }
 
     get isExpired () {
-        return isEmpty(this.#token) || this.#expires && getCurrSec() >= this.#expires
+        return isEmpty(this.#token) || this.#expires && getCurrTimeStamp() >= this.#expires
     }
 
     async refreshToken (force = false) {
@@ -54,7 +54,7 @@ class HСMAuth {
 
         if (get(response, 'status') === 200) {
             this.#token = json.access_token
-            this.#expires = getCurrSec() + json.expires_in - 5
+            this.#expires = getCurrTimeStamp() + json.expires_in - 5
         } else {
             logger.info({ msg: 'access token request error', json })
         }

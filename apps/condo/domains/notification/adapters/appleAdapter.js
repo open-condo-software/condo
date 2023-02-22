@@ -32,8 +32,7 @@ const logger = getLogger('appleAdapter')
  * Attempts to send push notifications to devices, connected through different projects will fail.
  */
 class AppleAdapter {
-    app = null
-    projectId = null
+    #app = null
 
     constructor (config = APPLE_CONFIG) {
 
@@ -41,15 +40,12 @@ class AppleAdapter {
             if (isEmpty(config)) throw new Error(EMPTY_APPLE_CONFIG_ERROR)
 
             // This will could throw on config validation
-            this.app = new AppleMessaging(config)
+            this.#app = new AppleMessaging(config)
         } catch (error) {
             // For CI/local tests config is useless because of emulation via FAKE tokens
             logger.error({ msg: 'AppleAdapter error', error })
 
         }
-
-        this.projectId = get(config, 'project_id', null)
-        this.messageIdPrefixRegexp = new RegExp(`projects/${this.projectId}/messages`)
     }
 
     /**
@@ -220,9 +216,9 @@ class AppleAdapter {
         }
 
         // NOTE: we try to fire Apple push request only if Apple push was initialized and we have some real notifications
-        if (!isNull(this.app) && !isEmpty(notifications)) {
+        if (!isNull(this.#app) && !isEmpty(notifications)) {
             try {
-                const appleResult = await this.app.sendAll(notifications, isVoIP)
+                const appleResult = await this.#app.sendAll(notifications, isVoIP)
 
                 if (!isEmpty(appleResult.responses)) {
                     appleResult.responses = appleResult.responses.map(
