@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "test": "jest",
+    "prepare": "node ./bin/prepare.js",
     "dev": "node ./../../bin/keystone-dev.js",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "keystone build",
