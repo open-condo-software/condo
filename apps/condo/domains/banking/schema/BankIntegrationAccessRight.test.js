@@ -13,15 +13,14 @@ const { BankIntegrationAccessRight, createTestBankIntegrationAccessRight, update
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('BankIntegrationAccessRight', () => {
-    let adminClient, serviceUserClient
+    let adminClient, serviceUserClient, integration
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         serviceUserClient = await makeClientWithServiceUser()
+        integration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
     })
 
     it('user: create BankIntegrationAccessRight', async () => {
-        const integration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
-
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestBankIntegrationAccessRight(client, integration, serviceUserClient.user)
@@ -29,8 +28,6 @@ describe('BankIntegrationAccessRight', () => {
     })
 
     it('anonymous: create BankIntegrationAccessRight', async () => {
-        const integration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
-
         const client = await makeClient()
         await expectToThrowAuthenticationErrorToObj(async () => {
             await createTestBankIntegrationAccessRight(client, integration, serviceUserClient.user)
@@ -39,9 +36,6 @@ describe('BankIntegrationAccessRight', () => {
 
     it('support: create BankIntegrationAccessRight', async () => {
         const support = await makeClientWithSupportUser()
-
-        const integration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
-
         const [integrationAccessRight] = await createTestBankIntegrationAccessRight(support, integration,  serviceUserClient.user)
         expect(integrationAccessRight).toEqual(expect.objectContaining({
             integration: { id: integration.id },
@@ -49,8 +43,6 @@ describe('BankIntegrationAccessRight', () => {
     })
 
     it('adminClient: create BankIntegrationAccessRight', async () => {
-        const integration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
-
         const [integrationAccessRight] = await createTestBankIntegrationAccessRight(
             adminClient, integration, serviceUserClient.user)
         expect(integrationAccessRight).toEqual(expect.objectContaining({
@@ -59,30 +51,22 @@ describe('BankIntegrationAccessRight', () => {
     })
 
     it('user: read BankIntegrationAccessRight', async () => {
-        const integration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
         const [right] = await createTestBankIntegrationAccessRight(adminClient, integration, serviceUserClient.user)
-
-
         await expectToThrowAccessDeniedErrorToObjects(async () => {
             await BankIntegrationAccessRight.getAll(serviceUserClient, { id: right.id })
         })
     })
 
     it('anonymous: read BankIntegrationAccessRight', async () => {
-        const integration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
         const [right] = await createTestBankIntegrationAccessRight(adminClient, integration, serviceUserClient.user)
         const client = await makeClient()
-
-
         await expectToThrowAuthenticationErrorToObjects(async () => {
             await BankIntegrationAccessRight.getAll(client, { id: right.id })
         })
     })
 
     it('user: update BankIntegrationAccessRight', async () => {
-        const integration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
         const [objCreated] = await createTestBankIntegrationAccessRight(adminClient, integration, serviceUserClient.user)
-
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const payload = {}
         await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -91,9 +75,7 @@ describe('BankIntegrationAccessRight', () => {
     })
 
     it('anonymous: update BankIntegrationAccessRight', async () => {
-        const integration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
         const [objCreated] = await createTestBankIntegrationAccessRight(adminClient, integration, serviceUserClient.user)
-
         const client = await makeClient()
         const payload = {}
         await expectToThrowAuthenticationErrorToObj(async () => {
@@ -102,7 +84,6 @@ describe('BankIntegrationAccessRight', () => {
     })
 
     it('adminClient: delete BankIntegrationAccessRight', async () => {
-        const integration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
         const [objCreated] = await createTestBankIntegrationAccessRight(adminClient, integration, serviceUserClient.user)
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await BankIntegrationAccessRight.delete(adminClient, objCreated.id)
