@@ -56,13 +56,8 @@ const {
     createTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
+const faker = require('faker')
 
-
-
-
-
-
-const { updateTestAcquiringIntegration } = require('../utils/testSchema')
 
 describe('Payment', () => {
     describe('CRUD tests', () => {
@@ -471,8 +466,9 @@ describe('Payment', () => {
             })
             test('Receipt\'s billing should be supported by acquiring', async () => {
                 const { admin, organization, billingReceipts, acquiringContext } = await makePayer()
-                const [billing] = await createTestBillingIntegration(admin)
-                const [acquiring] = await createTestAcquiringIntegration(admin, [billing])
+                const testBillingGroup = faker.random.word().toLowerCase()
+                const [billing] = await createTestBillingIntegration(admin, { group: testBillingGroup } )
+                const [acquiring] = await createTestAcquiringIntegration(admin, { supportedBillingIntegrationsGroup: testBillingGroup })
                 await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, {
                     deletedAt: dayjs().toString(),
                 })
