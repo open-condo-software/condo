@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "test": "jest",
+    "prepare": "node ./bin/prepare.js",
     "dev": "yarn build:deps && node ./../../bin/keystone-dev.js",
     "debug": "node inspect node_modules/.bin/keystone dev --port 3001",
     "build:deps": "turbo build --filter=miniapp^... --filter=!condo",
