@@ -6,7 +6,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { BankAccount, BankTransaction, BankContractorAccount } = require('@condo/domains/banking/utils/serverSchema')
+const { BankAccount, BankTransaction, BankContractorAccount, BankIntegrationContext } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
@@ -31,7 +31,7 @@ const COMPLETED_STATUS = 'completed'
  *  @param {String} statementDate
  *  @param {String} organizationId
  */
-async function _requestTransactions ({ userId, bankAccounts, context, statementDate, organizationId }) {
+async function requestTransactionsForDate ({ userId, bankAccounts, context, statementDate, organizationId }) {
     const fintechApi = await initSbbolFintechApi(userId)
 
     if (!fintechApi) return
@@ -40,11 +40,10 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
 
     for (const bankAccount of bankAccounts) {
         // ---------------------------------
-        await BankAccount.update(context, bankAccount.id, {
+        const bankIntegrationContext = await BankIntegrationContext.getOne(context, { id: bankAccount.integrationContext.id })
+        await BankIntegrationContext.update(context, bankIntegrationContext.id, {
             meta: {
-                sbbol:{
-                    syncTransactionsTaskStatus: IN_PROGRESS_STATUS,
-                },
+                syncTransactionsTaskStatus: IN_PROGRESS_STATUS,
             },
             ...dvSenderFields,
         })
@@ -81,11 +80,9 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
                 receivedTransactions.map( transaction => transactions.push(transaction))
             } else {
                 // ---------------------------------
-                await BankAccount.update(context, bankAccount.id, {
+                await BankIntegrationContext.update(context, bankIntegrationContext.id, {
                     meta: {
-                        sbbol:{
-                            syncTransactionsTaskStatus: FAILED_STATUS,
-                        },
+                        syncTransactionsTaskStatus: FAILED_STATUS,
                     },
                     ...dvSenderFields,
                 })
@@ -171,11 +168,9 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
 
             } else {
                 // ---------------------------------
-                await BankAccount.update(context, bankAccount.id, {
+                await BankIntegrationContext.update(context, bankIntegrationContext.id, {
                     meta: {
-                        sbbol:{
-                            syncTransactionsTaskStatus: FAILED_STATUS,
-                        },
+                        syncTransactionsTaskStatus: FAILED_STATUS,
                     },
                     ...dvSenderFields,
                 })
@@ -184,11 +179,9 @@ async function _requestTransactions ({ userId, bankAccounts, context, statementD
             }
         }
         // ---------------------------------
-        await BankAccount.update(context, bankAccount.id, {
+        await BankIntegrationContext.update(context, bankIntegrationContext.id, {
             meta: {
-                sbbol:{
-                    syncTransactionsTaskStatus: COMPLETED_STATUS,
-                },
+                syncTransactionsTaskStatus: COMPLETED_STATUS,
             },
             ...dvSenderFields,
         })
@@ -229,7 +222,7 @@ async function requestTransactions ({ date, dateInterval, userId, organization }
         // you can't request a report by a date in the future
         if (today < date) throw new Error(ERROR_PASSED_DATE_IN_THE_FUTURE)
 
-        return await _requestTransactions({
+        return await requestTransactionsForDate({
             userId,
             bankAccounts,
             context,
@@ -244,7 +237,7 @@ async function requestTransactions ({ date, dateInterval, userId, organization }
 
             if (today < statementDate) throw new Error(ERROR_PASSED_DATE_IN_THE_FUTURE)
 
-            transactions.push(await _requestTransactions({
+            transactions.push(await requestTransactionsForDate({
                 userId,
                 bankAccounts,
                 context,

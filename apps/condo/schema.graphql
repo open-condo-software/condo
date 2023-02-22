@@ -15981,6 +15981,7 @@ type BankIntegrationContextHistoryRecord {
   integration: String
   organization: String
   enabled: Boolean
+  meta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -16009,6 +16010,10 @@ input BankIntegrationContextHistoryRecordWhereInput {
   organization_not_in: [String]
   enabled: Boolean
   enabled_not: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -16116,6 +16121,7 @@ input BankIntegrationContextHistoryRecordUpdateInput {
   integration: String
   organization: String
   enabled: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -16139,6 +16145,7 @@ input BankIntegrationContextHistoryRecordCreateInput {
   integration: String
   organization: String
   enabled: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -16186,6 +16193,10 @@ type BankIntegrationContext {
   """ Controls availability of sync operation for this integration. Can be disabled by support in some cases, when client dont wants to have automatic synchronization via API, for example 
   """
   enabled: Boolean
+
+  """ Structured non-typed metadata, can be used by mini-apps or external services to store information 
+  """
+  meta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -16218,6 +16229,10 @@ input BankIntegrationContextWhereInput {
   organization_is_null: Boolean
   enabled: Boolean
   enabled_not: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -16309,6 +16324,7 @@ input BankIntegrationContextUpdateInput {
   integration: BankIntegrationRelateToOneInput
   organization: OrganizationRelateToOneInput
   enabled: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -16329,6 +16345,7 @@ input BankIntegrationContextCreateInput {
   integration: BankIntegrationRelateToOneInput
   organization: OrganizationRelateToOneInput
   enabled: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
