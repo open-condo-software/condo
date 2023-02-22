@@ -369,9 +369,8 @@ describe('RegisterMultiPaymentService', () => {
             describe('AcquiringIntegrationContext', () => {
                 test('All should be linked to same AcquiringIntegration', async () => {
                     const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
-                    const billings = batches.map(batch => batch.billingIntegration)
 
-                    const [secondAcquiring] = await createTestAcquiringIntegration(commonData.admin, billings)
+                    const [secondAcquiring] = await createTestAcquiringIntegration(commonData.admin)
                     await updateTestAcquiringIntegrationContext(commonData.admin, batches[1].acquiringContext.id, {
                         deletedAt: dayjs().toISOString(),
                     })
@@ -465,15 +464,15 @@ describe('RegisterMultiPaymentService', () => {
                     serviceConsumer: { id: batch.serviceConsumer.id },
                     receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
                 }))
-                const disconnectedBillingIntegrationId = batches[1].billingIntegration.id
-                await updateTestAcquiringIntegration(commonData.admin, commonData.acquiringIntegration.id, {
-                    supportedBillingIntegrations: { disconnect: [{ id: disconnectedBillingIntegrationId }] },
+                const billingIntegrationId = batches[1].billingIntegration.id
+                await updateTestBillingIntegration(commonData.admin, billingIntegrationId, {
+                    group: 'test',
                 })
                 await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
-                        message: `Some of ServiceConsumer's AcquiringIntegration does not supports following BillingReceipt's BillingIntegrations: ${disconnectedBillingIntegrationId}`,
+                        message: `Some of ServiceConsumer's AcquiringIntegration does not supports following BillingReceipt's BillingIntegrations: ${billingIntegrationId}`,
                         path: ['result'],
                         extensions: {
                             mutation: 'registerMultiPayment',
@@ -913,7 +912,7 @@ describe('RegisterMultiPaymentService', () => {
             } = await makePayer(1)
 
             // We create a new billing context and delete old
-            const [newBillingIntegration] = await createTestBillingIntegration(admin)
+            await createTestBillingIntegration(admin)
             const [newBillingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration)
             const [newBillingProperty] = await createTestBillingProperty(admin, newBillingContext, { address: property.address })
             const [newBillingAccount] = await createTestBillingAccount(admin, newBillingContext, newBillingProperty, {
@@ -922,7 +921,7 @@ describe('RegisterMultiPaymentService', () => {
                 number: billingAccount.number,
             })
             const [newReceipt] = await createTestBillingReceipt(admin, newBillingContext, newBillingProperty, newBillingAccount)
-            await updateTestAcquiringIntegration(admin, acquiringIntegration.id, { supportedBillingIntegrations: { connect: [{ id: newBillingIntegration.id }] } })
+            await updateTestAcquiringIntegration(admin, acquiringIntegration.id)
 
             const payload = [
                 {
@@ -999,17 +998,13 @@ describe('RegisterMultiPaymentService', () => {
     describe('ServerSchema get all should provide enough fields', () => {
         test('AcquiringIntegration', async () => {
             const admin = await makeLoggedInAdminClient()
-            const [firstBilling] = await createTestBillingIntegration(admin)
-            const [secondBilling] = await createTestBillingIntegration(admin)
-            const [acquiring] = await createTestAcquiringIntegration(admin, [firstBilling, secondBilling])
+            const [acquiring] = await createTestAcquiringIntegration(admin)
             const [serverObtainedAcquiring] = await AcquiringIntegration.getAll(admin, {
                 id: acquiring.id,
             })
             expect(serverObtainedAcquiring).toBeDefined()
             expect(serverObtainedAcquiring).toHaveProperty('id')
             expect(serverObtainedAcquiring).toHaveProperty('canGroupReceipts')
-            expect(serverObtainedAcquiring).toHaveProperty('supportedBillingIntegrations')
-            expect(serverObtainedAcquiring.supportedBillingIntegrations).toHaveLength(2)
         })
     })
 })
