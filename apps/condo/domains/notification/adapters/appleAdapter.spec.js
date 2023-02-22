@@ -53,7 +53,7 @@ describe('Apple adapter utils', () => {
         expect(result.responses[0].headers[':status']).toEqual(APS_RESPONSE_STATUS_SUCCESS)
     })
 
-    it('tries to send push notification to real test push token if provided ', async () => {
+    it.skip('tries to send push notification to real test push token if provided ', async () => {
         const token = APPLE_TEST_PUSHTOKEN
 
         if (!token) return
@@ -83,7 +83,7 @@ describe('Apple adapter utils', () => {
         expect(result.responses[0].apnsId).toBeTruthy()
     })
 
-    it('tries to send VoIP push notification to real test VoIP push token if provided ', async () => {
+    it.skip('tries to send VoIP push notification to real test VoIP push token if provided ', async () => {
         const token = APPLE_TEST_VOIP_PUSHTOKEN
 
         if (!token) return

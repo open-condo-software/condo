@@ -4,7 +4,7 @@ const { isEmpty, get } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { getCurrSec } = require('@condo/domains/common/utils/date')
+const { getCurrTimeStamp } = require('@condo/domains/common/utils/date')
 
 const SESSION_LIFE_TIME = 60 * 60 * 24
 const SESSION_PING_INTERVAL = 60
@@ -77,7 +77,7 @@ class SessionAPNs {
      * @param force
      */
     #connect (force = false) {
-        const currTime = getCurrSec()
+        const currTime = getCurrTimeStamp()
         const isExpired = !isEmpty(this.#expires) && currTime >= this.#expires
 
         if (this.#validateSession() && !force && !isExpired) return
