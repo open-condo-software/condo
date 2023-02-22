@@ -30,7 +30,7 @@ type ComponentSpecificCheckEventProps = {
 }
 
 type ComponentSpecificSelectEventProps = {
-    Select: { value: string, label: string }
+    Select: { value: string, label: string | Array<string> }
 }
 
 type ComponentClickData<K extends keyof ComponentSpecificClickEventProps> = ComponentSpecificClickEventProps[K] & ComponentCommonEventProps

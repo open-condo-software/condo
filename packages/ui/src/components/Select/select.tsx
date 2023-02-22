@@ -1,5 +1,6 @@
 import { Select as DefaultSelect } from 'antd'
 import classNames from 'classnames'
+import compact from 'lodash/compact'
 import React, { useCallback } from 'react'
 
 import { ChevronDown } from '@open-condo/icons'
@@ -15,18 +16,20 @@ const SELECT_CLASS_PREFIX = 'condo-select'
 const Option: typeof DefaultSelect.Option = DefaultSelect.Option
 const OptGroup: typeof DefaultSelect.OptGroup = DefaultSelect.OptGroup
 
-export type OptionType = {
+export type OptionType = React.PropsWithChildren<{
     label: React.ReactNode
     value?: string | number | null
     disabled?: boolean
     textType?: TypographyTextProps['type']
-}
+}>
+type OnChangeType = (value: OptionType['value'], option: OptionType | Array<OptionType>) => void
 
-export type SelectProps = Pick<DefaultSelectProps, 'disabled' | 'value' | 'onChange' | 'loading' | 'children' | 'id'> & {
+export type SelectProps = Pick<DefaultSelectProps, 'disabled' | 'value' | 'loading' | 'children' | 'id'> & {
     placeholder: string
     options?: Array<OptionType>
     displayMode?: 'fill-parent' | 'fit-content'
     type?: typeof SELECT_TYPES[number]
+    onChange?: OnChangeType
 }
 
 export interface ISelect {
@@ -40,9 +43,14 @@ const Select: ISelect = (props) => {
         [`${SELECT_CLASS_PREFIX}-${type}`]: type,
     })
 
-    // TODO(DOMA-5347): Handle this value and option properly
-    const handleChange = useCallback((value: OptionType['value'], option: any) => {
-        const title = extractChildrenContent(option.children)
+    const handleChange = useCallback<OnChangeType>((value, option) => {
+        let title
+        if (Array.isArray(option)) {
+            title = compact(option.map(opt => extractChildrenContent(opt.children)))
+        } else {
+            title = extractChildrenContent(option.children)
+        }
+
         if (title) {
             sendAnalyticsSelectEvent('Select', { label: title, value: String(value), id })
         }
