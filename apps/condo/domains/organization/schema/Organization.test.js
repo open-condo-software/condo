@@ -6,7 +6,6 @@ const {
     catchErrorFrom,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
@@ -379,20 +378,20 @@ describe('Check read access to organization from service user with billing integ
 
 describe('Check read access to organization from service user with acquiring integration',  () => {
     it('can get organization if organization has acquiring context', async () => {
-        const { integration: billingIntegration, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+        const { organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const admin = await makeLoggedInAdminClient()
         const serviceUserClient = await makeClientWithServiceUser()
-        const [acquiringIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
+        const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
         await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, serviceUserClient.user)
         await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
         const resultOrganization = await Organization.getOne(serviceUserClient, { id: organization.id })
         expect(resultOrganization.id).toEqual(organization.id)
     })
     it('can not get organization if organization has no acquiring context', async () => {
-        const { integration: billingIntegration, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+        const { organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         const admin = await makeLoggedInAdminClient()
         const serviceUserClient = await makeClientWithServiceUser()
-        const [acquiringIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
+        const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
         await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, serviceUserClient.user)
         const resultOrganization = await Organization.getOne(serviceUserClient, { id: organization.id })
         expect(resultOrganization).toBeUndefined()
