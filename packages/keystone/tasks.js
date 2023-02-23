@@ -8,12 +8,12 @@ const { prepareKeystoneExpressApp, getRandomString } = require('./test.utils')
 
 const TASK_TYPE = 'TASK'
 const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')
-
+const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 // NOTE: If this is True, all tasks will be executed in the node process with setTimeout.
 const FAKE_WORKER_MODE = conf.TESTS_FAKE_WORKER_MODE
 const logger = getLogger('worker')
 
-const taskQueue = new Queue('tasks', {
+const taskQueue = (IS_BUILD) ? undefined : new Queue('tasks', {
     /**
      * @param {'client' | 'subscriber' | 'bclient'} type
      * @return {import('ioredis')}

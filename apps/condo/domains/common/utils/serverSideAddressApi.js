@@ -4,11 +4,12 @@ const fetch = require('node-fetch')
 const conf = require('@open-condo/config')
 
 const FAKE_SUGGESTIONS = (conf['FAKE_ADDRESS_SUGGESTIONS'] && conf['FAKE_ADDRESS_SUGGESTIONS'] === 'true') || false
+const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const addressSuggestionsConfig = conf['ADDRESS_SUGGESTIONS_CONFIG'] && JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG'])
 const API_URL = get(addressSuggestionsConfig, 'apiUrl', null)
 const API_TOKEN = get(addressSuggestionsConfig, 'apiToken', null)
 
-if (!FAKE_SUGGESTIONS && (!API_URL || !API_TOKEN)) {
+if (!IS_BUILD && !FAKE_SUGGESTIONS && (!API_URL || !API_TOKEN)) {
     throw new Error('FAKE_ADDRESS_SUGGESTIONS env set to false, but no ADDRESS_SUGGESTIONS_CONFIG was provided')
 }
 
