@@ -1,7 +1,9 @@
+const cp = require('child_process')
 const fs = require('fs')
 const path = require('path')
 const util = require('util')
-const exec = util.promisify(require('child_process').exec)
+
+const exec = util.promisify(cp.exec)
 const readdir = util.promisify(fs.readdir)
 const exists = util.promisify(fs.exists)
 const readFile = util.promisify(fs.readFile)
@@ -149,7 +151,8 @@ async function main ([project]) {
 
 # - add mkcert root CA for node.js
 export NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem"
-echo 'export NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem"' >> ~/.bashrc
+echo '\\nexport NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem"' >> ~/.bashrc
+echo '\\nexport NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem"' >> ~/.zshrc
 
 ====
 `)
