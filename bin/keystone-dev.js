@@ -37,7 +37,7 @@ async function main () {
         })
     })
 
-    if (HTTPS_OPTIONS.key && HTTPS_OPTIONS.cert)  {
+    if (HTTPS_OPTIONS.key && HTTPS_OPTIONS.cert && SPORT)  {
         httpsServer = await new Promise((resolve, reject) => {
             const server = https.createServer(HTTPS_OPTIONS, app).listen(SPORT, (error) => {
                 if (error) return reject(error)
