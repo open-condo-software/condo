@@ -1,10 +1,13 @@
-
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
 const connectRedis = require('connect-redis')
 const session = require('express-session')
 const IORedis = require('ioredis')
 const { v5: uuidv5 } = require('uuid')
+
+const conf = require('@open-condo/config')
+
+const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 
 const RedisStore = connectRedis(session)
 
@@ -22,10 +25,8 @@ function _makeid (length) {
 
 function getCookieSecret (cookieSecret) {
     if (!cookieSecret) {
-        if (process.env.NODE_ENV === 'production') {
-            throw new TypeError('getCookieSecret() call without cookieSecret (check the COOKIE_SECRET environment)')
-        }
-        return undefined
+        if (IS_BUILD) return undefined
+        throw new TypeError('getCookieSecret() call without cookieSecret (check the COOKIE_SECRET environment)')
     }
     if (typeof cookieSecret !== 'string') throw new TypeError('getCookieSecret() cookieSecret is not a string')
     if (cookieSecret.startsWith('undefined')) {
