@@ -1,26 +1,55 @@
+const fs = require('fs')
 const util = require('util')
-const { readFileSync, writeFileSync } = require('fs')
 const exec = util.promisify(require('child_process').exec)
+const readFile = util.promisify(fs.readFile)
+const writeFile = util.promisify(fs.writeFile)
 
 const conf = require('@open-condo/config')
-
 const { getRandomString } = require('@open-condo/keystone/test.utils')
 
 const PROJECT_ROOT = conf['PROJECT_ROOT']
 const TRACE = conf['TRACE']
 
-async function safeExec (command) {
+async function safeExec (command, envNames = []) {
     try {
         // dotenv package add all variables in process.env but we really don't want it!
-        const { stdout, stderr } = await exec(
-            `${command}`, { env: { PATH: process.env.PATH } },
-        )
+        const env = { PATH: process.env.PATH, HOME: process.env.HOME, USER: process.env.USER }
+        for (const name of envNames) {
+            if (typeof process.env[name] === 'undefined') continue
+            env[name] = process.env[name]
+        }
+        const { stdout, stderr } = await exec(`${command}`, { env })
         if (TRACE) console.log('EXEC RESULT', JSON.stringify(stdout), JSON.stringify(stderr))
         return { stdout, stderr }
     } catch (e) {
         if (TRACE) console.error('EXEC ERROR', e)
         throw e
     }
+}
+
+async function updateAppEnvFile (serviceName, key, value) {
+    value = `${value}`.trim()
+    let envData, result
+
+    try {
+        envData = (await readFile(`${PROJECT_ROOT}/apps/${serviceName}/.env`, { encoding: 'utf-8' })).toString()
+    } catch (e) {
+        if (e.code === 'ENOENT') {
+            envData = ''
+        } else {
+            throw e
+        }
+    }
+
+    const re = new RegExp(`^${key}=.*?[\n]`, 'ms')
+
+    if (!re.test(envData)) {
+        result = envData + (envData && envData[envData.length - 1] !== '\n' ? '\n' : '') + `${key}=${value}\n`
+    } else {
+        result = envData.replace(re, `${key}=${value}\n`)
+    }
+
+    await writeFile(`${PROJECT_ROOT}/apps/${serviceName}/.env`, result, { encoding: 'utf-8' })
 }
 
 async function getEnv (serviceName, key) {
@@ -39,31 +68,6 @@ async function prepareOidcConfig (serviceName) {
     const callbackUrl = await getServerUrl(serviceName) + '/oidc/callback'
     await safeExec(`yarn workspace @app/condo node ./bin/create-oidc-client.js ${serviceName} ${clientSecret} ${callbackUrl}`)
     return { serverUrl, clientId, clientSecret }
-}
-
-async function updateAppEnvFile (serviceName, key, value) {
-    value = `${value}`.trim()
-    let envData, result
-
-    try {
-        envData = readFileSync(`${PROJECT_ROOT}/apps/${serviceName}/.env`, { encoding: 'utf-8' }).toString()
-    } catch (e) {
-        if (e.code === 'ENOENT') {
-            envData = ''
-        } else {
-            throw e
-        }
-    }
-
-    const re = new RegExp(`^${key}=.*?[\n]`, 'ms')
-
-    if (!re.test(envData)) {
-        result = envData + (envData && envData[envData.length - 1] !== '\n' ? '\n' : '') + `${key}=${value}\n`
-    } else {
-        result = envData.replace(re, `${key}=${value}\n`)
-    }
-
-    writeFileSync(`${PROJECT_ROOT}/apps/${serviceName}/.env`, result, { encoding: 'utf-8' })
 }
 
 async function updateAppEnvUsers (serviceName) {
