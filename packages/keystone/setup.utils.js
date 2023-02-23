@@ -67,7 +67,8 @@ function prepareDefaultKeystoneConfig (conf) {
         cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
         cookie: {
             sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) ? 'None' : 'Lax',
-            secure: HTTPS_REGEXP.test(conf.SERVER_URL),
+            // NOTE(pahaz): Apollo server client doesn't work with secure=true! Need to research why
+            secure: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production',
             // 1000 * (Math.pow(2, 31) - 1) IS APPROXIMATELY 68 YEARS IN MILLISECONDS :)
             maxAge: conf.COOKIE_MAX_AGE || 1000 * (Math.pow(2, 31) - 1),
         },
