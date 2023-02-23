@@ -4,6 +4,7 @@
 
 const Big = require('big.js')
 const dayjs = require('dayjs')
+const faker = require('faker')
 
 const { makeClient } = require('@open-condo/keystone/test.utils')
 const {
@@ -56,7 +57,6 @@ const {
     createTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const faker = require('faker')
 
 
 describe('Payment', () => {
