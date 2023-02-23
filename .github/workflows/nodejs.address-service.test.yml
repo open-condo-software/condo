@@ -71,6 +71,9 @@ jobs:
 
           node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
 
+          # NOTE(pahaz): Keystone not in dev mode trying to check dist/admin folder
+          mkdir -p ./apps/address-service/dist/admin
+
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/address-service migrate
 
           yarn workspace @app/address-service dev 2>&1 > address-service.dev.log &
