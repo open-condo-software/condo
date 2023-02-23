@@ -115,10 +115,14 @@ async function checkCert () {
     }
 }
 
-async function main ([project]) {
+async function main ([project, useHttps]) {
+    if (project === '--https') {
+        project = undefined
+        useHttps = true
+    }
     if (!project) project = 'local'
 
-    const secure = true
+    const secure = Boolean(useHttps)
     let index = 1
 
     await checkPostgres()
@@ -146,7 +150,7 @@ async function main ([project]) {
         if (prepareResult) console.log(`----> '${app}' > prepare ${JSON.stringify(prepareResult)}`)
     }
 
-    console.log(`
+    if (secure) console.log(`
 ======== you need to run the following commands ========
 
 # - add mkcert root CA for node.js
