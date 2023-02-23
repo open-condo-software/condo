@@ -39,6 +39,7 @@ ignore.*
 *.p8
 *.p12
 *.key
+*.pem
 *.mobileprovision
 *.orig.*
 .kmigratorknex.connection.json
