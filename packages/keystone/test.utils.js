@@ -37,11 +37,12 @@ const DEFAULT_TEST_USER_IDENTITY = conf.DEFAULT_TEST_USER_IDENTITY || 'user@exam
 const DEFAULT_TEST_USER_SECRET = conf.DEFAULT_TEST_USER_SECRET || '1a92b3a07c78'
 const DEFAULT_TEST_ADMIN_IDENTITY = conf.DEFAULT_TEST_ADMIN_IDENTITY || 'admin@example.com'
 const DEFAULT_TEST_ADMIN_SECRET = conf.DEFAULT_TEST_ADMIN_SECRET || '3a74b3f07978'
+const TESTS_TLS_IGNORE_UNAUTHORIZED = conf.TESTS_TLS_IGNORE_UNAUTHORIZED === 'true'
 const TESTS_LOG_REQUEST_RESPONSE = conf.TESTS_LOG_REQUEST_RESPONSE
 // TODO(pahaz): remove this old consts! we have TESTS_LOG_REQUEST_RESPONSE
 const TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS = conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
 const TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS = !conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
-const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `http://127.0.0.1:3000${API_PATH}`
+const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `${conf.SERVER_URL}${API_PATH}`
 
 const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
     mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
@@ -222,6 +223,8 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
         }
     }
 
+    const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
+
     const apolloLinks = []
     // Terminating link must be in the end of links chain
     apolloLinks.push(createUploadLink({
@@ -249,6 +252,8 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
             if (cookiesObj && Object.keys(cookiesObj).length > 0) {
                 options.headers = { ...options.headers, cookie: restoreCookies() }
             }
+
+            if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.agent = httpsAgentWithUnauthorizedTls
 
             return fetch(uri, options)
                 .then((response) => {
@@ -308,6 +313,8 @@ const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '
     const cookieJar = new CookieJar()
     const domain = (urlParse(cookieDomain).protocol || 'http:') + '//' + urlParse(cookieDomain).host
     cookies.forEach((cookie) => cookieJar.setCookieSync(cookie, domain))
+    const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
+    if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.httpsAgent = httpsAgentWithUnauthorizedTls
     const client = axios.create({
         withCredentials: true,
         adapter: require('axios/lib/adapters/http'),
