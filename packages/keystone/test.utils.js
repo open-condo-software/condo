@@ -109,13 +109,14 @@ const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
     debug('prepareKeystoneExpressApp(%s) excludeApps=%j cwd=%s', entryPoint, excludeApps, process.cwd())
     const dev = process.env.NODE_ENV === 'development'
     const {
-        distDir,
         keystone,
         apps,
         configureExpress,
+        cors,
+        pinoOptions,
     } = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
     const newApps = (excludeApps) ? apps.filter(x => !excludeApps.includes(x.constructor.name)) : apps
-    const { middlewares } = await keystone.prepare({ apps: newApps, distDir, dev })
+    const { middlewares } = await keystone.prepare({ apps: newApps, dev, cors, pinoOptions })
     await keystone.connect()
     const app = express()
     if (configureExpress) configureExpress(app)

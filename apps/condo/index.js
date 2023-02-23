@@ -151,6 +151,7 @@ class VersioningMiddleware {
 }
 
 module.exports = {
+    cors: conf.CORS && JSON.parse(conf.CORS),
     keystone,
     apps: [
         keystoneCacheApp,
