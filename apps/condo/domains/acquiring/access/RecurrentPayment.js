@@ -24,7 +24,7 @@ async function canReadRecurrentPayments ({ authentication: { item: user } }) {
 async function canManageRecurrentPayments ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isSupport || user.isAdmin) return true
+    if (user.isAdmin) return true
 
     return false
 }
