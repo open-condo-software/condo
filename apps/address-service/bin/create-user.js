@@ -30,7 +30,7 @@ async function main (args) {
     console.info(`EMAIL: ${email}`)
     const user = await User.getOne(context, { email })
     if (!json.dv) json.dv = 1
-    if (!json.sender) json.sender = {"dv": 1, "fingerprint": "create-user-script"}
+    if (!json.sender) json.sender = { 'dv': 1, 'fingerprint': 'create-user-script' }
     if (!user) {
         if (!json.password) {
             json.password = getRandomString()
