@@ -13,7 +13,7 @@ const chalk = require('chalk')
 const conf = require('@open-condo/config')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
-const PORT = conf['PORT']
+const PORT = conf['PORT'] || '3000'
 const SPORT = conf['SPORT']
 const SERVER_URL = conf['SERVER_URL']
 const KEY_FILE = path.join(__filename, '..', '.ssl', 'localhost.key')
