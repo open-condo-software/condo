@@ -1,6 +1,8 @@
+const cp = require('child_process')
 const fs = require('fs')
 const util = require('util')
-const exec = util.promisify(require('child_process').exec)
+
+const exec = util.promisify(cp.exec)
 const readFile = util.promisify(fs.readFile)
 const writeFile = util.promisify(fs.writeFile)
 
