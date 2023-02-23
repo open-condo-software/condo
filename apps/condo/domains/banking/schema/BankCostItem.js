@@ -17,7 +17,7 @@ const BankCostItem = new GQLListSchema('BankCostItem', {
         name: {
             schemaDoc: 'Name of expenses item as key for i18n',
             type: LocalizedText,
-            template: 'banking.category.*.name',
+            template: 'banking.costItem.*.name',
             isRequired: true,
         },
         isOutcome: {

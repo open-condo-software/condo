@@ -17,7 +17,7 @@ const BankIntegration = new GQLListSchema('BankIntegration', {
             schemaDoc: 'Name of integration',
             type: LocalizedText,
             isRequired: true,
-            template: 'banking.category.*.name',
+            template: 'banking.integration.*.name',
         },
 
     },
