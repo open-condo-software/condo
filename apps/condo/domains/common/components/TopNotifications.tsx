@@ -64,6 +64,7 @@ export const useTopNotificationsHook = (): ITopNotificationHookResult => {
 
     const TopNotificationComponent: React.FC = () => {
         const { isSmall } = useLayoutContext()
+        if (topNotifications.length === 0) return null
         return (
             <>
                 <Affix>{
