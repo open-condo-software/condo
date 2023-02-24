@@ -116,14 +116,17 @@ async function checkCert () {
 }
 
 async function main ([project, useHttps]) {
-    if (project === '--https') {
+    if (project === '--apphttps') {
         project = undefined
-        useHttps = true
+        useHttps = 'app.localhost'
     }
+
     if (!project) project = 'local'
 
     const secure = Boolean(useHttps)
+    const localhostDomain = (useHttps) ? useHttps : 'localhost'
     let index = 1
+    let domains = `127.0.0.1 ${localhostDomain}`
 
     await checkPostgres()
     await checkCert()
@@ -135,7 +138,8 @@ async function main ([project, useHttps]) {
         const redisName = 5 + index
         const port = 4000 + index
         const sport = 8000 + index
-        const serverUrl = (secure) ? `https://localhost:${sport}` : `http://localhost:${port}`
+        domains += ` ${app}.${localhostDomain}`
+        const serverUrl = (secure) ? `https://${app}.${localhostDomain}:${sport}` : `http://${localhostDomain}:${port}`
 
         console.log(`====> prepare '${app}' database`)
         await createPostgresDb(dbName)
@@ -157,6 +161,9 @@ async function main ([project, useHttps]) {
 export NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem"
 echo '\\nexport NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem"' >> ~/.bashrc
 echo '\\nexport NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem"' >> ~/.zshrc
+
+# - add domains to /etc/hosts
+sudo -- sh -c -e "echo '${domains}' >> /etc/hosts"
 
 ====
 `)
