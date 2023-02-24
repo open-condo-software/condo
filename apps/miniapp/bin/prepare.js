@@ -72,6 +72,13 @@ async function prepareOidcConfig (serviceName) {
     return { serverUrl, clientId, clientSecret }
 }
 
+async function prepareB2BAppConfig (serviceName, appName) {
+    const appUrl = await getServerUrl(serviceName)
+    const opts = JSON.stringify({ appUrl, displayPriority: 2 })
+    await safeExec(`yarn workspace @app/condo node ./bin/create-b2bapp.js ${appName} ${JSON.stringify(opts)}`)
+    return { appUrl }
+}
+
 async function updateAppEnvUsers (serviceName) {
     const justUserEmail = await getEnv(serviceName, 'DEFAULT_TEST_USER_IDENTITY') || 'user@example.com'
     const justUserPassword = await getEnv(serviceName, 'DEFAULT_TEST_USER_SECRET') || getRandomString()
@@ -91,8 +98,11 @@ async function updateAppEnvUsers (serviceName) {
 async function main () {
     // 1) register oidc url in condo!
     const serviceName = 'miniapp'
+    const appName = 'MiniApp'
     const oidcConf = await prepareOidcConfig(serviceName)
     await updateAppEnvFile(serviceName, 'OIDC_CONDO_CLIENT_CONFIG', JSON.stringify(oidcConf))
+    // 2) prepare B2BApp in condo!
+    await prepareB2BAppConfig(serviceName, appName)
     // 2) add local admin user!
     await updateAppEnvUsers(serviceName)
     console.log('done')
