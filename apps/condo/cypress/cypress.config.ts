@@ -1,8 +1,10 @@
 import { defineConfig } from 'cypress'
 
+import conf from '@open-condo/config'
+
 export default defineConfig({
     e2e: {
-        baseUrl: 'http://localhost:3000',
+        baseUrl: conf['SERVER_URL'],
         projectId: 'dc36jj',
         videoCompression: 15,
         waitForAnimations: true,
