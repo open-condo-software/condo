@@ -849,7 +849,7 @@ describe('AllResidentBillingReceiptsService', () => {
             )
 
             // Prepare acquiring integration
-            const [acquiringIntegration] = await createTestAcquiringIntegration(admin, [organizationClient.billingIntegration], {
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin, {
                 canGroupReceipts: true,
             })
             await createTestAcquiringIntegrationContext(organizationClient, organizationClient.organization, acquiringIntegration)
@@ -939,7 +939,7 @@ describe('AllResidentBillingReceiptsService', () => {
             )
 
             // Prepare acquiring integration
-            const [ acquiringIntegration ] = await createTestAcquiringIntegration(admin, [organizationClient.billingIntegration], {
+            const [ acquiringIntegration ] = await createTestAcquiringIntegration(admin, {
                 canGroupReceipts: true,
             })
             await createTestAcquiringIntegrationContext(organizationClient, organizationClient.organization, acquiringIntegration)
@@ -1023,7 +1023,7 @@ describe('AllResidentBillingReceiptsService', () => {
             )
 
             // Prepare acquiring integration
-            const [ acquiringIntegration ] = await createTestAcquiringIntegration(admin, [organizationClient.billingIntegration], {
+            const [ acquiringIntegration ] = await createTestAcquiringIntegration(admin, {
                 canGroupReceipts: true,
             })
             await createTestAcquiringIntegrationContext(organizationClient, organizationClient.organization, acquiringIntegration)
