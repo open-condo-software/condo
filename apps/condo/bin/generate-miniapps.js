@@ -1,7 +1,8 @@
 const path = require('path')
 
-const { GraphQLApp } = require('@keystonejs/app-graphql')
 const faker = require('faker')
+
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')
@@ -9,19 +10,17 @@ const { B2BApp } = require('@condo/domains/miniapp/utils/serverSchema')
 
 class AppsGenerator {
     context = null
-    constructor ({ category, amount, withFrames }) {
+
+    constructor ({ category, amount, withFrames, appUrl }) {
         this.category = category.toUpperCase()
         this.amount = amount
         this.withFrames = withFrames
+        this.appUrl = appUrl || 'http://localhost:3001'
     }
 
     async connect () {
         console.info('[INFO] Connecting to database...')
-        const resolved = path.resolve('./index.js')
-        const { distDir, keystone, apps } = require(resolved)
-        const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
-        await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
-        await keystone.connect()
+        const { keystone } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
@@ -38,7 +37,7 @@ class AppsGenerator {
                     detailedDescription: faker.lorem.paragraphs(5),
                     contextDefaultStatus: this.withFrames ? 'Finished' : 'InProgress',
                     currencyCode: 'RUB',
-                    appUrl: this.withFrames ? 'http://localhost:3001' : undefined,
+                    appUrl: this.withFrames ? this.appUrl : undefined,
                 })
             } else if (this.category === 'ACQUIRING') {
                 const billings = await BillingIntegration.getAll(this.context, {}, { first: 1 })
@@ -54,7 +53,7 @@ class AppsGenerator {
                     detailedDescription: faker.lorem.paragraphs(5),
                     hostUrl: faker.internet.url(),
                     explicitFeeDistributionSchema: [],
-                    appUrl: this.withFrames ? 'http://localhost:3001' : undefined,
+                    appUrl: this.withFrames ? this.appUrl : undefined,
                 })
             } else {
                 await B2BApp.create(this.context, {
@@ -66,18 +65,19 @@ class AppsGenerator {
                     detailedDescription: faker.lorem.paragraphs(5),
                     contextDefaultStatus: this.withFrames ? 'Finished' : 'InProgress',
                     category: this.category,
-                    appUrl: this.withFrames ? 'http://localhost:3001' : undefined,
+                    isHidden: false, isGlobal: false,
+                    appUrl: this.withFrames ? this.appUrl : undefined,
                 })
             }
         }
     }
 }
 
-const generateMiniapps = async ([category, amount, framed]) => {
+const generateMiniapps = async ([category, amount, framed, appUrl]) => {
     const totalAmount = parseInt(amount)
     const withFrames = framed && framed.toUpperCase() === 'TRUE'
 
-    const generator = new AppsGenerator({ category, amount: totalAmount, withFrames })
+    const generator = new AppsGenerator({ category, amount: totalAmount, withFrames, appUrl })
     await generator.connect()
     await generator.generateMiniApps()
 }
@@ -88,4 +88,5 @@ generateMiniapps(process.argv.slice(2)).then(() => {
     process.exit(0)
 }).catch(err => {
     console.error('Failed to done', err)
+    process.exit(1)
 })
