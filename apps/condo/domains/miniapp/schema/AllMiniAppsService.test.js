@@ -151,7 +151,7 @@ describe('AllMiniAppsService', () => {
                 billings = [billing]
             })
             beforeEach(async () => {
-                [integration] = await createTestAcquiringIntegration(admin, billings)
+                [integration] = await createTestAcquiringIntegration(admin)
             })
             test('Shows unconnected without context', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
@@ -195,7 +195,7 @@ describe('AllMiniAppsService', () => {
             })
             test('Shows unconnected with deleted context', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
-                const [context] = await createTestAcquiringIntegrationContext(admin, client.organization, {
+                const [context] = await createTestAcquiringIntegrationContext(admin, client.organization, integration, {
                     status: CONTEXT_FINISHED_STATUS,
                 })
                 await updateTestAcquiringIntegrationContext(admin, context.id, {
