@@ -195,7 +195,7 @@ describe('AllMiniAppsService', () => {
             })
             test('Shows unconnected with deleted context', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
-                const [context] = await createTestAcquiringIntegrationContext(admin, client.organization, integration, {
+                const [context] = await createTestAcquiringIntegrationContext(admin, client.organization, {
                     status: CONTEXT_FINISHED_STATUS,
                 })
                 await updateTestAcquiringIntegrationContext(admin, context.id, {
@@ -212,7 +212,7 @@ describe('AllMiniAppsService', () => {
                 ]))
             })
             test('Doesn\'t shows if hidden integration', async () => {
-                const [hiddenIntegration] = await createTestAcquiringIntegration(admin, billings, { isHidden: true })
+                const [hiddenIntegration] = await createTestAcquiringIntegration(admin, { isHidden: true })
                 const client = await makeEmployeeUserClientWithAbilities()
                 const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
@@ -317,7 +317,7 @@ describe('AllMiniAppsService', () => {
                 const admin = await makeLoggedInAdminClient()
                 const [firstApp] = await createTestB2BApp(admin, { isHidden: false, displayPriority: 6 })
                 const [billing] = await createTestBillingIntegration(admin, { isHidden: false, displayPriority: 3 })
-                const [acquiring] = await createTestAcquiringIntegration(admin, [billing], { isHidden: false, displayPriority: 4 })
+                const [acquiring] = await createTestAcquiringIntegration(admin, { isHidden: false, displayPriority: 4 })
                 const [secondApp] = await createTestB2BApp(admin, { isHidden: false, displayPriority: 3, label: APP_NEW_LABEL })
 
                 const client = await makeEmployeeUserClientWithAbilities()
@@ -341,7 +341,7 @@ describe('AllMiniAppsService', () => {
                 const admin = await makeLoggedInAdminClient()
                 const [app] = await createTestB2BApp(admin, { isHidden: false })
                 const [billing] = await createTestBillingIntegration(admin, { isHidden: false })
-                const [acquiring] = await createTestAcquiringIntegration(admin, [billing], { isHidden: false })
+                const [acquiring] = await createTestAcquiringIntegration(admin, { isHidden: false })
 
                 const client = await makeEmployeeUserClientWithAbilities()
                 const [apps] = await allMiniAppsByTestClient(client, client.organization.id)
