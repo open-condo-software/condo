@@ -145,12 +145,12 @@ describe('RegisterServiceConsumerService', () => {
 
         const [ organization ] = await createTestOrganization(adminClient)
 
-        const { billingIntegration, billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, organization)
+        const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, organization)
 
         const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext)
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty)
 
-        const { acquiringIntegration, acquiringIntegrationContext } = await addAcquiringIntegrationAndContext(adminClient, organization, [ billingIntegration ])
+        const { acquiringIntegration, acquiringIntegrationContext } = await addAcquiringIntegrationAndContext(adminClient, organization)
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
         const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
@@ -189,7 +189,7 @@ describe('RegisterServiceConsumerService', () => {
             unitName: USER_UNIT_NAME,
         })
 
-        await addAcquiringIntegrationAndContext(adminClient, userClient.organization, [ billingIntegration ])
+        await addAcquiringIntegrationAndContext(adminClient, userClient.organization)
 
         const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
         await createTestMeter(adminClient, userClient.organization, userClient.property, resource, {
