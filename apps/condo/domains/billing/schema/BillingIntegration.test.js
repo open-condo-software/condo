@@ -3,7 +3,12 @@
  */
 import { v4 } from 'uuid'
 
-import { catchErrorFrom } from '@open-condo/keystone/test.utils'
+import {
+    catchErrorFrom,
+    expectToThrowValidationFailureError,
+} from '@open-condo/keystone/test.utils'
+
+import { WRONG_FORMAT } from '../../common/constants/errors'
 
 const { getRandomString } = require('@open-condo/keystone/test.utils')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
@@ -35,6 +40,49 @@ describe('BillingIntegration', () => {
 
             expect(updatedIntegration.id).toEqual(objCreated.id)
             expect(updatedIntegration.dataFormat.hasToPayDetails).toEqual(true)
+        })
+
+        test('update group with wrong payload', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [objCreated] = await createTestBillingIntegration(admin)
+
+            const errMsg = `${WRONG_FORMAT}:BillingIntegration:group] group should be a sequence of lowercase latin characters`
+
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingIntegration(admin, objCreated.id, {
+                    group: 'common ',
+                })
+            }, errMsg)
+
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingIntegration(admin, objCreated.id, {
+                    group: '',
+                })
+            }, errMsg)
+
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingIntegration(admin, objCreated.id, {
+                    group: ' common',
+                })
+            }, errMsg)
+
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingIntegration(admin, objCreated.id, {
+                    group: 'com mon',
+                })
+            }, errMsg)
+
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingIntegration(admin, objCreated.id, {
+                    group: 'com$mon',
+                })
+            }, errMsg)
+
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingIntegration(admin, objCreated.id, {
+                    group: 'comMon',
+                })
+            }, errMsg)
         })
 
         test('update format with wrong payload', async () => {
