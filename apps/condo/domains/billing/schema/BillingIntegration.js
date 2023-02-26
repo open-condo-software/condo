@@ -60,6 +60,7 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         },
 
         group: {
+            adminDoc: 'Billing group consists of lowercase latin characters. Any number of billings can have the same billing group.',
             schemaDoc: 'Billing group which this billing is part of. Used to restrict certain billings from certain acquirings"',
             type: Text,
             isRequired: true,
