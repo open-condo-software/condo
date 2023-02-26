@@ -37719,7 +37719,7 @@ type AcquiringIntegration {
   """
   hostUrl: String
 
-  """ Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing 
+  """ Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing. 
   """
   supportedBillingIntegrationsGroup: String
 
