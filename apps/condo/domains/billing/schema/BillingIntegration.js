@@ -3,6 +3,7 @@
  */
 
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
+const { get } = require('lodash')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -28,6 +29,8 @@ const {
 } = require('@condo/domains/miniapp/schema/fields/integration')
 
 const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')
+
+const { WRONG_FORMAT } = require('../../common/constants/errors')
 
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
@@ -60,11 +63,20 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         },
 
         group: {
-            adminDoc: 'Billing group consists of lowercase latin characters. Any number of billings can have the same billing group.',
+            adminDoc: 'Any number of billings can have the same billing group. Validations: Should be a sequence of lowercase latin characters.',
             schemaDoc: 'Billing group which this billing is part of. Used to restrict certain billings from certain acquirings"',
             type: Text,
             isRequired: true,
             defaultValue: DEFAULT_BILLING_INTEGRATION_GROUP,
+            hooks: {
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                    const group = get(resolvedData, 'group')
+
+                    if (/[^a-z]/.test(group) || group === '') {
+                        return addFieldValidationError(`[${WRONG_FORMAT}:BillingIntegration:group] group should be a sequence of lowercase latin characters`)
+                    }
+                },
+            },
         },
 
         contextDefaultStatus: CONTEXT_DEFAULT_STATUS_FIELD,
