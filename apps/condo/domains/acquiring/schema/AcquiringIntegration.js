@@ -74,7 +74,8 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         },
 
         supportedBillingIntegrationsGroup: {
-            schemaDoc: 'Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing',
+            adminDoc: 'To successfully complete the payment billing integration of the billing receipt should be supported by acquiring (supportedBillingIntegration should be the same as BillingReceipt.context.integration.group). Validations: Should be a sequence of lowercase latin characters. Should equal any BillingIntegration.group.',
+            schemaDoc: 'Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing.',
             type: Text,
             isRequired: true,
             defaultValue: DEFAULT_BILLING_INTEGRATION_GROUP,
