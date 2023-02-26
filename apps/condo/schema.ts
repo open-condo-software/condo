@@ -56,7 +56,7 @@ export type AcquiringIntegration = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   /**  Url to acquiring integration service. Mobile devices will use it communicate with external acquiring. List of endpoints is the same for all of them.  */
   hostUrl?: Maybe<Scalars['String']>;
-  /**  Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing  */
+  /**  Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing.  */
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   /**  Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient  */
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
