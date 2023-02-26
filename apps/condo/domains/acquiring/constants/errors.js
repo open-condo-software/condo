@@ -19,7 +19,7 @@ const EMPTY_RECEIPT_AND_RECEIPT_DATA_VALUES = 'EMPTY_RECEIPT_AND_RECEIPT_DATA_VA
 const RECEIPT_HAVE_INVALID_PAYMENT_MONTH_VALUE = 'RECEIPT_HAVE_INVALID_PAYMENT_MONTH_VALUE'
 const RECEIPT_HAVE_INVALID_PAYMENT_YEAR_VALUE = 'RECEIPT_HAVE_INVALID_PAYMENT_YEAR_VALUE'
 
-const INTEGRATION_NO_BILLINGS_ERROR = '[acquiringIntegration:noBillings] Acquiring integration must cover at least 1 billing'
+const SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR = '[acquiringIntegration:supportedBillingIntegrationsGroupDoesNotExist] BillingIntegration with specified group does not exist'
 const CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT = '[acquiringIntegrationContext:alreadyCreated] Specified organization already have active acquiring context'
 const PAYMENT_NO_PAIRED_RECEIPT = '[payment:frozenReceipt:noReceipt] Input is containing "frozenReceipt", but "receipt" is not specified'
 const PAYMENT_NO_PAIRED_FROZEN_RECEIPT = '[payment:receipt:noFrozenReceipt] Input is containing "receipt", but no "frozenReceipt" is not specified'
@@ -82,7 +82,7 @@ module.exports = {
     RECEIPT_HAVE_INVALID_PAYMENT_MONTH_VALUE,
     RECEIPT_HAVE_INVALID_PAYMENT_YEAR_VALUE,
 
-    INTEGRATION_NO_BILLINGS_ERROR,
+    SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR,
     CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT,
     PAYMENT_NO_PAIRED_RECEIPT,
     PAYMENT_NO_PAIRED_FROZEN_RECEIPT,

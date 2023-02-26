@@ -3,9 +3,10 @@
  */
 
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
+const { get } = require('lodash')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
@@ -27,6 +28,7 @@ const {
     CONTEXT_DEFAULT_STATUS_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 
+const { SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR } = require('../constants/errors')
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
 
@@ -74,11 +76,22 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         },
 
         supportedBillingIntegrationsGroup: {
-            adminDoc: 'To successfully complete the payment billing integration of the billing receipt should be supported by acquiring (supportedBillingIntegration should be the same as BillingReceipt.context.integration.group). Validations: Should be a sequence of lowercase latin characters. Should equal any BillingIntegration.group.',
+            adminDoc: 'To successfully complete the payment billing integration of the billing receipt should be supported by acquiring (supportedBillingIntegration should be the same as BillingReceipt.context.integration.group). Validations: Should equal any existing BillingIntegration.group.',
             schemaDoc: 'Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing.',
             type: Text,
             isRequired: true,
             defaultValue: DEFAULT_BILLING_INTEGRATION_GROUP,
+            hooks: {
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                    const resolvedGroup = get(resolvedData, ['supportedBillingIntegrationsGroup'])
+
+                    const existingBillingIntegrations = await find('BillingIntegration', { group: resolvedGroup, deletedAt: null })
+
+                    if (existingBillingIntegrations.length === 0) {
+                        addFieldValidationError(SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR)
+                    }
+                },
+            },
         },
 
         explicitFeeDistributionSchema: {
