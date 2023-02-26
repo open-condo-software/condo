@@ -151,6 +151,9 @@ class VersioningMiddleware {
 }
 
 module.exports = {
+    // NOTE(pahaz): please, check the `executeDefaultServer(..)` to understand how it works.
+    // And you need to look at `keystone/lib/Keystone/index.js:602` it uses `{ origin: true, credentials: true }` as default value for cors!
+    // Examples: https://expressjs.com/en/resources/middleware/cors.html or check `node_modules/cors/README.md`
     cors: conf.CORS && JSON.parse(conf.CORS),
     keystone,
     apps: [
