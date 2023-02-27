@@ -1,6 +1,5 @@
 /**
  * @typedef {Object} SearchPluginParams
- * @property {String} geo
  * @property {String} searchContext
  * @property {Object} keystoneContext
  */
@@ -24,7 +23,6 @@ class AbstractSearchPlugin {
      * @returns {AbstractSearchPlugin}
      */
     prepare (params) {
-        this.geo = params.geo
         this.searchContext = params.searchContext
         this.keystoneContext = params.keystoneContext
 

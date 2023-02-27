@@ -42,12 +42,6 @@ class SuggestionKeystoneApp {
             const getParam = (param, defaultValue) => get(reqBody, param, get(reqQuery, param, defaultValue))
 
             /**
-             * Using to detect a proper suggestion provider
-             * @type {string}
-             */
-            const geo = String(getParam('geo', null))
-
-            /**
              * User's search string
              * @type {?string}
              */
