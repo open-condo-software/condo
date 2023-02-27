@@ -354,7 +354,7 @@ export const TicketSourceSelect: React.FC = () => {
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em', maxWidth: '250px' }
-const HINTS_WRAPPER_STYLE: CSSProperties = { overflowY: 'scroll', maxHeight: 'calc(100vh - 220px)', paddingRight: 8 }
+const HINTS_WRAPPER_STYLE: CSSProperties = { overflow: 'auto', maxHeight: 'calc(100vh - 220px)', paddingRight: 8 }
 
 export interface ITicketFormProps {
     organization?: Organization

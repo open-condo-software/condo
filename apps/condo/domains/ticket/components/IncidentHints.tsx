@@ -7,6 +7,7 @@ import {
     IncidentWhereInput,
     SortIncidentsBy,
 } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import { Col, ColProps, Row, RowProps } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -15,6 +16,7 @@ import { IntlShape } from 'react-intl/src/types'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { Incident, IncidentClassifierIncident, IncidentProperty } from '@condo/domains/ticket/utils/clientSchema'
 
@@ -41,6 +43,23 @@ const formatDate = (intl: IntlShape, date?: string) => {
     return dayjs(date).format('DD.MM.YYYY HH.mm')
 }
 
+const TranslucentBlock = styled.div`
+  opacity: 0.54;
+`
+
+const StyledAlert = styled(Alert)`
+   background-color: ${colors.orange[1]} !important;
+  
+   .condo-alert-description > div {
+     overflow: hidden;
+     position: relative;
+   }
+  
+  & svg {
+    color: ${colors.orange[5]} !important;
+  }
+`
+
 const IncidentHint: React.FC<IncidentHintProps> = (props) => {
     const intl = useIntl()
     const MoreLabel = intl.formatMessage({ id: 'incident.hints.more.label' })
@@ -52,11 +71,11 @@ const IncidentHint: React.FC<IncidentHintProps> = (props) => {
         return details.length > MAX_DETAILS_LENGTH ? `${details.substring(0, MAX_DETAILS_LENGTH)}…` : details
     }, [incident])
 
-    // todo(DOMA-2567) update alert, add custom icon, add new type with grey color
-    return (
-        <Alert
+    // todo(DOMA-2567) to update alert without override colors
+    const renderedAlert = useMemo(() => (
+        <StyledAlert
             showIcon
-            type='warning'
+            type='info'
             description={
                 <Row gutter={DESCRIPTION_GUTTER}>
                     <Col span={24}>
@@ -85,7 +104,11 @@ const IncidentHint: React.FC<IncidentHintProps> = (props) => {
                 </Row>
             }
         />
-    )
+    ), [MoreLabel, incident.id, incident.workFinish, incident.workStart, intl, trimmedDetails])
+
+    return incident.status === IncidentStatusType.NotActual
+        ? <TranslucentBlock>{renderedAlert}</TranslucentBlock>
+        : renderedAlert
 }
 
 
@@ -241,7 +264,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         getIncidentsToShow(allIncidents, categoryId, problemId)
     }, [allIncidents, categoryId, problemId, getIncidentsToShow])
 
-    const renderIncidents = useMemo(() => (
+    const renderedIncidents = useMemo(() => (
         <Row gutter={INCIDENTS_GUTTER}>
             {
                 incidentsToShow.map(incident => (
@@ -255,5 +278,5 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
 
     if (!incidentsToShow.length) return null
 
-    return colProps ? (<Col {...colProps}>{renderIncidents}</Col>) : renderIncidents
+    return colProps ? (<Col {...colProps}>{renderedIncidents}</Col>) : renderedIncidents
 }

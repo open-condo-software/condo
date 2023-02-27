@@ -27,10 +27,9 @@ import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Space } from '@open-condo/ui'
+import { Alert, Space, Radio, RadioGroup } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import AntRadio from '@condo/domains/common/components/antd/Radio'
 import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import {
@@ -530,14 +529,13 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                         label={WorkTypeLabel}
                                         name='workType'
                                     >
-                                        {/* TODO(DOMA-2567) change to ui kit */}
-                                        <AntRadio.Group>
+                                        <RadioGroup>
                                             <Space size={isSmallWindow ? 16 : 40} wrap>
-                                                <AntRadio value={null}>{notAvailableMessage}</AntRadio>
-                                                <AntRadio value={INCIDENT_WORK_TYPE_SCHEDULED}>{ScheduledTypeLabel}</AntRadio>
-                                                <AntRadio value={INCIDENT_WORK_TYPE_EMERGENCY}>{EmergencyTypeLabel}</AntRadio>
+                                                <Radio value={null}>{notAvailableMessage}</Radio>
+                                                <Radio value={INCIDENT_WORK_TYPE_SCHEDULED}>{ScheduledTypeLabel}</Radio>
+                                                <Radio value={INCIDENT_WORK_TYPE_EMERGENCY}>{EmergencyTypeLabel}</Radio>
                                             </Space>
-                                        </AntRadio.Group>
+                                        </RadioGroup>
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>

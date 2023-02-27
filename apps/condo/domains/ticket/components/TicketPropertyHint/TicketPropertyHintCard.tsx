@@ -60,7 +60,7 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
                 />
             }
             showIcon
-            type='warning'
+            type='info'
         />
     ), [PropertyHintMessage, hintContentStyle, htmlContent, propertyId])
 
