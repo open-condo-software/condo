@@ -53,9 +53,19 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
     }
 `
 
+/**
+ * Should be used to pass file uploading to variables of Keystone mutations
+ * Pay attention to close stream in case when instance of this class is used more than one time in tests,
+ * that examining a function (without mutation call).
+ */
 class UploadingFile {
     constructor (filePath) {
         this.stream = fs.createReadStream(filePath)
+    }
+
+    // Used for testing code, that reads data from this object
+    createReadStream () {
+        return this.stream
     }
 }
 

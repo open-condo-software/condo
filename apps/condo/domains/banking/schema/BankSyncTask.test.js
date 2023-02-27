@@ -41,7 +41,10 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                const [obj, attrs] = await createTestBankSyncTask(adminClient, account, integrationContext, organization)
+                const [obj, attrs] = await createTestBankSyncTask(adminClient, organization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -67,7 +70,10 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                const [obj, attrs] = await createTestBankSyncTask(userClient, account, integrationContext, organization)
+                const [obj, attrs] = await createTestBankSyncTask(userClient, organization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -95,7 +101,10 @@ describe('BankSyncTask', () => {
                 })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestBankSyncTask(userClient, account, integrationContext, organization)
+                    await createTestBankSyncTask(userClient, organization, {
+                        account: { connect: { id: account.id } },
+                        integrationContext: { connect: { id: integrationContext.id } },
+                    })
                 })
             })
 
@@ -114,7 +123,10 @@ describe('BankSyncTask', () => {
                 })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestBankSyncTask(userClient, account, integrationContext, organization)
+                    await createTestBankSyncTask(userClient, organization, {
+                        account: { connect: { id: account.id } },
+                        integrationContext: { connect: { id: integrationContext.id } },
+                    })
                 })
             })
 
@@ -133,7 +145,10 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                const [obj, attrs] = await createTestBankSyncTask(userClient, account, integrationContext, childOrganization)
+                const [obj, attrs] = await createTestBankSyncTask(userClient, childOrganization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -163,7 +178,10 @@ describe('BankSyncTask', () => {
                 })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestBankSyncTask(userClient, account, integrationContext, childOrganization)
+                    await createTestBankSyncTask(userClient, childOrganization, {
+                        account: { connect: { id: account.id } },
+                        integrationContext: { connect: { id: integrationContext.id } },
+                    })
                 })
             })
 
@@ -175,7 +193,10 @@ describe('BankSyncTask', () => {
                 })
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestBankSyncTask(anonymousClient, account, integrationContext, organization)
+                    await createTestBankSyncTask(anonymousClient, organization, {
+                        account: { connect: { id: account.id } },
+                        integrationContext: { connect: { id: integrationContext.id } },
+                    })
                 })
             })
         })
@@ -188,7 +209,10 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                const [objCreated] = await createTestBankSyncTask(adminClient, account, integrationContext, organization)
+                const [objCreated] = await createTestBankSyncTask(adminClient, organization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
 
                 const [obj, attrs] = await updateTestBankSyncTask(adminClient, objCreated.id)
 
@@ -210,7 +234,10 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                const [objCreated] = await createTestBankSyncTask(userClient, account, integrationContext, organization)
+                const [objCreated] = await createTestBankSyncTask(userClient, organization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
 
 
                 const [objUpdated, attrs] = await updateTestBankSyncTask(userClient, objCreated.id, {
@@ -231,7 +258,10 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                const [objCreated] = await createTestBankSyncTask(adminClient, account, integrationContext, organization)
+                const [objCreated] = await createTestBankSyncTask(adminClient, organization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await updateTestBankSyncTask(anonymousClient, objCreated.id)
@@ -252,7 +282,10 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                const [objCreated] = await createTestBankSyncTask(userClient, account, integrationContext, organization)
+                const [objCreated] = await createTestBankSyncTask(userClient, organization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await BankSyncTask.delete(adminClient, objCreated.id)
@@ -271,7 +304,10 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                const [objCreated] = await createTestBankSyncTask(userClient, account, integrationContext, organization)
+                const [objCreated] = await createTestBankSyncTask(userClient, organization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await BankSyncTask.delete(userClient, objCreated.id)
@@ -285,7 +321,10 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                const [obj] = await createTestBankSyncTask(adminClient, account, integrationContext, organization)
+                const [obj] = await createTestBankSyncTask(adminClient, organization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await BankSyncTask.delete(anonymousClient, obj.id)
@@ -306,7 +345,10 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                const [obj] = await createTestBankSyncTask(userClient, account, integrationContext, organization)
+                const [obj] = await createTestBankSyncTask(userClient, organization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
 
                 const objs = await BankSyncTask.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -335,7 +377,10 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                const [obj] = await createTestBankSyncTask(userClient, account, integrationContext, organization)
+                const [obj] = await createTestBankSyncTask(userClient, organization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
 
                 const objs = await BankSyncTask.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -354,7 +399,10 @@ describe('BankSyncTask', () => {
                 })
                 await createTestOrganizationEmployee(adminClient, organization, userClient2.user, role2)
 
-                const [obj2] = await createTestBankSyncTask(userClient2, account, integrationContext, organization)
+                const [obj2] = await createTestBankSyncTask(userClient2, organization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
                 const objs2 = await BankSyncTask.getAll(userClient2, {}, { sortBy: ['updatedAt_DESC'] })
                 expect(objs2).toHaveLength(1)
                 expect(objs2[0]).toMatchObject({
@@ -373,7 +421,10 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                await createTestBankSyncTask(adminClient, account, integrationContext, organization)
+                await createTestBankSyncTask(adminClient, organization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
 
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await BankSyncTask.getAll(anonymousClient, {}, { sortBy: ['updatedAt_DESC'] })
@@ -391,8 +442,10 @@ describe('BankSyncTask', () => {
             })
 
             await expectToThrowGQLError(async () => {
-                await createTestBankSyncTask(adminClient, account, integrationContext, organization, {
+                await createTestBankSyncTask(adminClient, organization, {
                     dv: 2,
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
                 })
             }, {
                 code: 'BAD_USER_INPUT',
@@ -419,7 +472,9 @@ describe('BankSyncTask', () => {
             const [propertyFromAnotherOrganization] = await createTestProperty(adminClient, anotherOrganization)
 
             await catchErrorFrom(async () => {
-                await createTestBankSyncTask(adminClient, account, integrationContext, organization, {
+                await createTestBankSyncTask(adminClient, organization, {
+                    account: { connect: { id: account.id } },
+                    integrationContext: { connect: { id: integrationContext.id } },
                     property: { connect: { id: propertyFromAnotherOrganization.id } },
                 })
             }, ({ errors, data }) => {

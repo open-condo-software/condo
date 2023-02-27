@@ -8,12 +8,14 @@ const { values } = require('lodash')
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/banking/access/BankSyncTask')
 const { BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+
+const { importBankTransactionsTask } = require('../tasks/importBankTransactions')
 
 const BANK_SYNC_TASK_FOLDER_NAME = 'BankSyncTask'
 const BankSyncTaskFileAdapter = new FileAdapter(BANK_SYNC_TASK_FOLDER_NAME)
@@ -43,6 +45,26 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
         },
 
         organization: ORGANIZATION_OWNED_FIELD,
+
+        property: {
+            schemaDoc: 'Property to which sync operation in this task should be related. When property is specified, new BankAccount will be connected to it if it does not exists',
+            type: Relationship,
+            ref: 'Property',
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+            hooks: {
+                validateInput: async ({ existingItem, resolvedData, addFieldValidationError }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+
+                    if (newItem.property) {
+                        const property = await getById('Property', newItem.property)
+                        const propertyOrganization = await getById('Organization', property.organization)
+                        if (propertyOrganization !== newItem.organization) {
+                            addFieldValidationError(`Specified property with id="${property.id}" should belong to the same organization with id="${newItem.organization}" as specified in "organization"`)
+                        }
+                    }
+                },
+            },
+        },
 
         status: {
             schemaDoc: 'Status of current synchronization operation',
@@ -76,14 +98,35 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
         processedCount: {
             schemaDoc: 'Count of transactions, that has been actually created in our database based in data from external source, determined by integration context',
             type: Integer,
+            defaultValue: 0,
+        },
+
+        user: {
+            schemaDoc: 'User that requested this operation. Will be used for read access checks to display all tasks somewhere and to display progress indicator of ongoing exporting task for current user',
+            type: 'Relationship',
+            ref: 'User',
+            isRequired: true,
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            knexOptions: { isNotNullable: true },
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
         },
 
         meta: {
             schemaDoc: 'Additional data, specific to used integration',
             type: Json,
-            isRequired: true,
         },
-
+    },
+    hooks: {
+        afterChange: async (args) => {
+            const { updatedItem, operation } = args
+            if (operation === 'create') {
+                await importBankTransactionsTask.delay(updatedItem.id)
+            }
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
