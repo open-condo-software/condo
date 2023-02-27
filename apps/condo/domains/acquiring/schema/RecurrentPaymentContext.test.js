@@ -65,15 +65,12 @@ describe('RecurrentPaymentContext', () => {
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
             })
 
-            test('support can', async () => {
+            test('support can\'t', async () => {
                 const client = await makeClientWithSupportUser()
 
-                const [obj, attrs] = await createTestRecurrentPaymentContext(client, await getContextRequest())
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestRecurrentPaymentContext(client, await getContextRequest())
+                })
             })
 
             test('user can', async () => {
@@ -112,23 +109,19 @@ describe('RecurrentPaymentContext', () => {
                 expect(obj.enabled).not.toBeTruthy()
             })
 
-            test('support can', async () => {
+            test('support can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const request = await getContextRequest()
                 const [objCreated] = await createTestRecurrentPaymentContext(admin, request)
 
                 const client = await makeClientWithSupportUser()
-                const [obj, attrs] = await updateTestRecurrentPaymentContext(client, objCreated.id, {
-                    ...request,
-                    enabled: false,
-                })
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-                expect(obj.enabled).not.toBeTruthy()
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestRecurrentPaymentContext(client, objCreated.id, {
+                        ...request,
+                        enabled: false,
+                    })
+                })
             })
 
             test('user can', async () => {
