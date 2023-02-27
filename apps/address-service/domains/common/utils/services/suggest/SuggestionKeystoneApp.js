@@ -76,12 +76,16 @@ class SuggestionKeystoneApp {
                 return
             }
 
+            let suggestions = []
+
             // 1. Detect the suggestion provider
-            const suggestionProvider = getSuggestionsProvider(geo)
+            const suggestionProvider = getSuggestionsProvider()
 
             // 2. Get suggestions array
-            const denormalizedSuggestions = await suggestionProvider.get({ query: s, context, count, helpers })
-            const suggestions = bypass ? denormalizedSuggestions : suggestionProvider.normalize(denormalizedSuggestions)
+            if (suggestionProvider) {
+                const denormalizedSuggestions = await suggestionProvider.get({ query: s, context, count, helpers })
+                suggestions = bypass ? denormalizedSuggestions : suggestionProvider.normalize(denormalizedSuggestions)
+            }
 
             // 3. Inject some data not presented in provider
             if (!bypass) {
