@@ -67,7 +67,7 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
     const isActual = incident.status === IncidentStatusType.Actual
     const isOverdue = useMemo(() => incident.workFinish && dayjs().set('seconds', 0).set('milliseconds', 0).diff(incident.workFinish) > 0, [incident.workFinish])
 
-    const initialState = useMemo(() => {
+    const getInitialState = useCallback(() => {
         const beforeWorkStart = incident.workStart && dayjs().diff(incident.workStart) < 0
         const afterWorkFinish = incident.workFinish && dayjs().diff(incident.workFinish) > 0
 
@@ -79,9 +79,13 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
         return { workFinish }
     }, [incident.workFinish, incident.workStart, isActual])
 
+    const initialState = useMemo(() => getInitialState(), [getInitialState])
+
     const handleOpen = useCallback(() => {
+        const formState = getInitialState()
+        formRef.current.setFieldValue('workFinish', formState.workFinish)
         setOpen(true)
-    }, [])
+    }, [getInitialState])
 
     const handleClose = useCallback(() => {
         formRef.current.resetFields()
