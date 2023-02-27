@@ -10,6 +10,11 @@ const { AbstractSearchProvider } = require('./AbstractSearchProvider')
  */
 class DadataSearchProvider extends AbstractSearchProvider {
 
+    constructor () {
+        super()
+        // Use the suggestions API instead of the standardization API. At least yet.
+        this.suggestionProvider = new DadataSuggestionProvider()
+    }
 
     getProviderName () {
         return DADATA_PROVIDER
@@ -19,9 +24,7 @@ class DadataSearchProvider extends AbstractSearchProvider {
      * @returns {Promise<DadataObject[]>}
      */
     async get ({ query, context = null }) {
-        // Use the suggestions API instead of the standardization API. At least yet.
-        const suggestionProvider = new DadataSuggestionProvider()
-        return await suggestionProvider.get({ query, context, count: 1 })
+        return await this.suggestionProvider.get({ query, context, count: 1 })
     }
 
     /**
@@ -29,9 +32,7 @@ class DadataSearchProvider extends AbstractSearchProvider {
      * @returns {NormalizedBuilding[]}
      */
     normalize (data) {
-        // According to the DRY principle we use here normalizer from suggestions
-        const suggestionProvider = new DadataSuggestionProvider()
-        return suggestionProvider.normalize(data)
+        return this.suggestionProvider.normalize(data)
     }
 }
 
