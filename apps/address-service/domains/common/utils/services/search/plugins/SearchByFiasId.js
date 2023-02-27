@@ -1,7 +1,9 @@
 const get = require('lodash/get')
 
 const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
+const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
+const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
 
@@ -19,8 +21,9 @@ class SearchByFiasId extends AbstractSearchPlugin {
      */
     isEnabled (s, params) {
         const [type, fiasId] = s.split(SEPARATOR, 2)
+        const provider = getSearchProvider()
 
-        return type === 'fiasId' && !!fiasId
+        return type === 'fiasId' && !!fiasId && !!provider && provider.getProviderName() === DADATA_PROVIDER
     }
 
     /**
