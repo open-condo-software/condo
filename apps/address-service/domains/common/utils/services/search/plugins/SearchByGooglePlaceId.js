@@ -1,12 +1,13 @@
 const get = require('lodash/get')
 
 const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
+const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
+const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
+const { GoogleSearchProvider } = require('@address-service/domains/common/utils/services/search/providers')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 
 const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
-
-const { GoogleSearchProvider } = require('../providers')
 
 const SEPARATOR = ':'
 
@@ -19,8 +20,9 @@ class SearchByGooglePlaceId extends AbstractSearchPlugin {
      */
     isEnabled (s, params) {
         const [type, placeId] = s.split(SEPARATOR, 2)
+        const provider = getSearchProvider()
 
-        return type === 'googlePlaceId' && !!placeId
+        return type === 'googlePlaceId' && !!placeId && !!provider && provider.getProviderName() === GOOGLE_PROVIDER
     }
 
     /**
