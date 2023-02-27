@@ -1671,7 +1671,7 @@
   "incident.index.tableColumns.properties.label": "Addresses",
   "incident.index.tableColumns.classifiers.label": "Classifier",
   "incident.index.tableColumns.details.label": "Details",
-  "incident.index.tableColumns.status.label": "Статус",
+  "incident.index.tableColumns.status.label": "Status",
   "incident.index.tableColumns.workStart.label": "Work start",
   "incident.index.tableColumns.workFinish.label": "Work finish",
   "incident.id.title": "Incident №",
@@ -1691,8 +1691,8 @@
   "incident.form.save.label": "Save",
   "incident.form.alert.notActualWorkFinish.title": "Completion date not up to date",
   "incident.form.alert.notActualWorkFinish.description": "The deadline for completing this shutdown has expired. Update the date or remove if unknown.",
-  "incident.form.prompt.exit.title": "",
-  "incident.form.prompt.exit.message": "",
+  "incident.form.prompt.exit.title": "Don't save the record?",
+  "incident.form.prompt.exit.message": "Record will not be saved if you leave the page",
   "incident.fields.classifier.label": "Classifier",
   "incident.fields.classifier.empty": "—",
   "incident.fields.placeClassifier.label": "Place",
@@ -1737,5 +1737,5 @@
   "incident.changeHistory.workStart": "work start",
   "incident.changeHistory.workFinish": "work finish",
   "incident.changeHistory.workType": "work type",
-  "incident.hints.more.label": "Подробнее"
+  "incident.hints.more.label": "More details"
 }
