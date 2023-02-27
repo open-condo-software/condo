@@ -37,7 +37,7 @@ class GoogleSearchProvider extends AbstractSearchProvider {
 
         const apiKey = get(conf, CONFIG_KEY)
         if (!apiKey) {
-            throw new Error(`There is no '${CONFIG_KEY}' in .env`)
+            throw new Error(`There is no '${CONFIG_KEY}' in .env.`)
         }
 
         this.apiKey = apiKey

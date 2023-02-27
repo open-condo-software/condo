@@ -34,7 +34,7 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
 
         const apiKey = get(conf, CONFIG_KEY)
         if (!apiKey) {
-            throw new Error(`There is no '${CONFIG_KEY}' in config.`)
+            throw new Error(`There is no '${CONFIG_KEY}' in .env.`)
         }
 
         this.apiKey = apiKey
