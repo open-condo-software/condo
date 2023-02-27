@@ -1,3 +1,7 @@
+const get = require('lodash/get')
+
+const conf = require('@open-condo/config')
+
 const { DADATA_PROVIDER, GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const {
     DadataSearchProvider,
@@ -9,49 +13,42 @@ const {
 } = require('@address-service/domains/common/utils/services/suggest/providers')
 
 /**
- * @param {string} geo 'ru'|'en'|'dadata'|'google'|'<some city name>'|...
  * @returns {AbstractSearchProvider}
  */
-function getSearchProvider (geo) {
+function getSearchProvider () {
+    const provider = get(conf, 'PROVIDER')
+
     /** @type {AbstractSearchProvider} */
     let searchProvider
-    switch (geo) {
-        // In some cases, we need to force choose one of the providers.
-        // To achieve this, we give an ability to pass a particular provider name
+
+    switch (provider) {
         case DADATA_PROVIDER:
-        case 'ru':
             searchProvider = new DadataSearchProvider()
             break
         case GOOGLE_PROVIDER:
             searchProvider = new GoogleSearchProvider()
             break
-        default:
-            //TODO(AleX83Xpert) always return dadata provider till the google's one will be ready
-            searchProvider = new DadataSearchProvider()
     }
 
     return searchProvider
 }
 
 /**
- * @param {string} geo
  * @returns {AbstractSuggestionProvider}
  */
-function getSuggestionsProvider (geo) {
+function getSuggestionsProvider () {
+    const provider = get(conf, 'PROVIDER')
+
     /** @type {AbstractSuggestionProvider} */
     let suggestionProvider
-    switch (geo) {
-        // In some cases, we need to force choose one of the providers.
-        // To achieve this, we give an ability to pass a particular provider name
+
+    switch (provider) {
         case GOOGLE_PROVIDER:
             suggestionProvider = new GoogleSuggestionProvider()
             break
         case DADATA_PROVIDER:
-        case 'ru':
             suggestionProvider = new DadataSuggestionProvider()
             break
-        default:
-            suggestionProvider = new DadataSuggestionProvider()
     }
 
     return suggestionProvider
