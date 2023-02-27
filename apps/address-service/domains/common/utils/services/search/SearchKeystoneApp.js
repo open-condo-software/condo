@@ -5,6 +5,7 @@ const set = require('lodash/set')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { OVERRIDING_ROOT } = require('@address-service/domains/address/constants')
+const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 
 const { createReturnObject } = require('./searchServiceUtils')
 
@@ -30,6 +31,13 @@ class SearchKeystoneApp {
      * @returns {Express}
      */
     prepareMiddleware ({ keystone, dev, distDir }) {
+
+        // check for provider is configured
+        const provider = getSearchProvider()
+        if (!provider) {
+            this.logger.warn('⚠️ No provider set. Use only local database for addresses searching')
+        }
+
         if (this.plugins.length === 0) {
             throw new Error('You must add at least one search plugin!')
         }
