@@ -147,7 +147,7 @@ describe('{{name}}', () => {
                 const [objCreated] = await createTest{{name}}(admin)
 
                 const client = await makeClient()
-                await expectToThrowAuthenticationErrorToObj(async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
                     await {{name}}.delete(client, objCreated.id)  // TODO(codegen): write 'anonymous: delete {{name}}' test
                 })
             })
@@ -190,7 +190,7 @@ describe('{{name}}', () => {
                 const [obj, attrs] = await createTest{{name}}(admin)
 
                 const client = await makeClient()
-                await expectToThrowAccessDeniedErrorToObj(async () => {
+                await expectToThrowAuthenticationErrorToObjects(async () => {
                     await {{name}}.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read {{name}}' test
                 })
             })
