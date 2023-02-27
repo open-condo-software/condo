@@ -28,7 +28,7 @@ class SearchByProvider extends AbstractSearchPlugin {
         const dvSender = this.getDvAndSender(this.constructor.name)
 
         const denormalizedRows = await searchProvider.get({ query: s, context: this.searchContext })
-        const searchResults = searchProvider.normalize(denormalizedRows)
+        const searchResults = searchProvider ? searchProvider.normalize(denormalizedRows) : []
 
         if (searchResults.length === 0) {
             return null
