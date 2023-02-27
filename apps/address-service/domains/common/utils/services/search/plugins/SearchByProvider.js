@@ -14,7 +14,7 @@ class SearchByProvider extends AbstractSearchPlugin {
      * @returns {Promise<?Object>}
      */
     async search (s) {
-        const searchProvider = getSearchProvider(this.geo)
+        const searchProvider = getSearchProvider()
         const godContext = this.keystoneContext.sudo()
         const dvSender = this.getDvAndSender(this.constructor.name)
 

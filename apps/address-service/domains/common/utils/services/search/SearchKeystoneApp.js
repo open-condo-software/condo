@@ -58,12 +58,6 @@ class SearchKeystoneApp {
              */
             async (req, res, next) => {
                 /**
-                 * Using to detect a proper suggestion provider
-                 * @type {string}
-                 */
-                const geo = String(get(req, ['query', 'geo'], ''))
-
-                /**
                  * User's search string
                  * @type {string}
                  */
@@ -82,7 +76,7 @@ class SearchKeystoneApp {
                 }
 
                 const keystoneContext = await keystone.createContext()
-                const pluginParams = { geo, searchContext, keystoneContext }
+                const pluginParams = { searchContext, keystoneContext }
 
                 const plugins = this.plugins.filter((plugin) => plugin.isEnabled(s, pluginParams))
                 if (plugins.length === 0) {
