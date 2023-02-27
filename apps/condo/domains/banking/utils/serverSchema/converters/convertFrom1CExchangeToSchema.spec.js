@@ -31,6 +31,18 @@ describe('convertFrom1CExchangeToSchema', () => {
             meta: {
                 amount: '135394.23',
                 amountAt: dayjs('27.10.2022', 'DD.MM.YYYY', true),
+                '1CClientBankExchange': {
+                    'v': '1.03',
+                    'data': {
+                        'ДатаНачала': '01.04.2022',
+                        'ДатаКонца': '27.10.2022',
+                        'РасчСчет': '40702810801500116391',
+                        'НачальныйОстаток': '8300.00',
+                        'ВсегоПоступило': '2681831.46',
+                        'ВсегоСписано': '2554737.23',
+                        'КонечныйОстаток': '135394.23',
+                    },
+                },
             },
         })
         expect(bankTransactionsData[0]).toMatchObject(PARSED_TRANSACTIONS_TO_COMPARE[0])

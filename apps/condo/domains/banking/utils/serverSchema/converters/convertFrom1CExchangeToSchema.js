@@ -112,6 +112,10 @@ function initNode (line) {
                 meta: {
                     amount: values['КонечныйОстаток'],
                     amountAt: parseDate(values['ДатаКонца']),
+                    '1CClientBankExchange': {
+                        v: '1.03',
+                        data: values,
+                    },
                 },
             }),
         })

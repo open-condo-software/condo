@@ -270,18 +270,14 @@ async function updateTestBankTransaction (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBankSyncTask (client, account, integrationContext, organization, extraAttrs = {}) {
+async function createTestBankSyncTask (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!account || !account.id) throw new Error('no account.id')
-    if (!integrationContext || !integrationContext.id) throw new Error('no integrationContext.id')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
-        account: { connect: { id: account.id } },
-        integrationContext: { connect: { id: integrationContext.id } },
         organization: { connect: { id: organization.id } },
         ...extraAttrs,
     }
