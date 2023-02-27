@@ -180,9 +180,10 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                 } = await makePayer()
                 const receipt = { id: billingReceipts[0].id }
                 const acquiringIntegrationContext = { id: acquiringContext.id }
-                await createTestBillingIntegration(admin, { group: 'test' })
+                const groupName = faker.random.alpha().toLowerCase()
+                await createTestBillingIntegration(admin, { group: groupName })
                 await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
-                    supportedBillingIntegrationsGroup: 'test',
+                    supportedBillingIntegrationsGroup: groupName,
                 })
 
                 await catchErrorFrom(async () => {
