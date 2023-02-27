@@ -75,7 +75,7 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
             }
         }
 
-        return null
+        return []
     }
 
     /**
