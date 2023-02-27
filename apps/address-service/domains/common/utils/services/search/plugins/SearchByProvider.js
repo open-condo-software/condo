@@ -11,6 +11,15 @@ class SearchByProvider extends AbstractSearchPlugin {
 
     /**
      * @param {String} s
+     * @param {SearchPluginParams} params
+     * @returns {boolean}
+     */
+    isEnabled (s, params) {
+        return !!getSearchProvider()
+    }
+
+    /**
+     * @param {String} s
      * @returns {Promise<?Object>}
      */
     async search (s) {
