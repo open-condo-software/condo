@@ -72,6 +72,8 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
                 return result.predictions
             } else if (result.status === 'ZERO_RESULTS') {
                 return []
+            } else if (result.status === 'REQUEST_DENIED') {
+                this.logger.error('Request to google place autocomplete was denied.')
             }
         }
 
