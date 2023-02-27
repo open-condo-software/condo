@@ -1,6 +1,8 @@
 const express = require('express')
 const get = require('lodash/get')
 
+const { getLogger } = require('@open-condo/keystone/logging')
+
 const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 const { getSuggestionsProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
@@ -14,6 +16,10 @@ const { getSuggestionsProvider } = require('@address-service/domains/common/util
 const ALLOWED_METHODS = ['GET', 'POST']
 
 class SuggestionKeystoneApp {
+    constructor () {
+        this.logger = getLogger(this.constructor.name)
+    }
+
     /**
      * @param {{ keystone, distDir, dev }} params
      * @returns {Express}

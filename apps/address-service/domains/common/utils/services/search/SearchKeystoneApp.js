@@ -2,6 +2,8 @@ const express = require('express')
 const get = require('lodash/get')
 const set = require('lodash/set')
 
+const { getLogger } = require('@open-condo/keystone/logging')
+
 const { OVERRIDING_ROOT } = require('@address-service/domains/address/constants')
 
 const { createReturnObject } = require('./searchServiceUtils')
@@ -20,6 +22,7 @@ class SearchKeystoneApp {
      */
     constructor (plugins) {
         this.plugins = plugins
+        this.logger = getLogger(this.constructor.name)
     }
 
     /**
