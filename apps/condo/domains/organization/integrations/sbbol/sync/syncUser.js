@@ -174,7 +174,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
         return updatedUser
     }
 
-    return user
+    return await UserAdmin.getOne(context, { id: user.id })
 }
 
 module.exports = {
