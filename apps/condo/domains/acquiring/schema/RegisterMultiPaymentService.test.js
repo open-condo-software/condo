@@ -466,7 +466,7 @@ describe('RegisterMultiPaymentService', () => {
                 }))
                 const billingIntegrationId = batches[1].billingIntegration.id
                 await updateTestBillingIntegration(commonData.admin, billingIntegrationId, {
-                    group: 'test',
+                    group: faker.random.alpha().toLowerCase(),
                 })
                 await catchErrorFrom(async () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
