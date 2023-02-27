@@ -298,6 +298,8 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
     const handleUpdateComment = useCallback(() => setEditableComment(comment), [comment, setEditableComment])
     const datetimeText = useMemo(() => dayjs(dateShowMode === 'created' ? comment.createdAt : comment.updatedAt).format(COMMENT_DATE_FORMAT),
         [comment.createdAt, comment.updatedAt, dateShowMode])
+    const datetimeTitle = useMemo(() => comment.createdAt !== comment.updatedAt ? MetaUpdatedText : null,
+        [MetaUpdatedText, comment.createdAt, comment.updatedAt])
     const actions = useMemo(() => user.id === comment.user.id && ([
         <Popconfirm
             key='delete'
@@ -355,7 +357,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
                     onMouseOut={() => setDateShowMode('created')}
                     onMouseOver={() => setDateShowMode('updated')}
                 >
-                    <Typography.Text title={MetaUpdatedText}>
+                    <Typography.Text title={datetimeTitle}>
                         {datetimeText}
                     </Typography.Text>
                 </div>
