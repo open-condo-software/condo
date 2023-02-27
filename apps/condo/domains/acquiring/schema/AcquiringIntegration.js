@@ -11,6 +11,7 @@ const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
+const { SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR } = require('@condo/domains/billing/constants/errors')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
 const {
@@ -28,7 +29,6 @@ const {
     CONTEXT_DEFAULT_STATUS_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 
-const { SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR } = require('../constants/errors')
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
 
