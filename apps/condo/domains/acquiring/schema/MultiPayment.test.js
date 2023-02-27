@@ -359,10 +359,8 @@ describe('MultiPayment', () => {
                 })
             })
             test('Cannot accept payments with different acquiring', async () => {
-                const { billingIntegration, admin, payments, client } = await makePayerAndPayments()
+                const { admin, payments, client } = await makePayerAndPayments()
                 const [integration] = await createTestAcquiringIntegration(admin)
-                const newBillingIntegrationGroup = 'test'
-                await updateTestBillingIntegration(admin, billingIntegration.id, { group: newBillingIntegrationGroup })
                 await expectToThrowValidationFailureError(async () => {
                     await createTestMultiPayment(admin, payments, client.user, integration)
                 }, MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH)

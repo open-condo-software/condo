@@ -398,6 +398,7 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
             expect(serverObtainedAcquiring).toBeDefined()
             expect(serverObtainedAcquiring).toHaveProperty('id')
             expect(serverObtainedAcquiring).toHaveProperty('canGroupReceipts')
+            expect(serverObtainedAcquiring).toHaveProperty('supportedBillingIntegrationsGroup')
         })
     })
 })

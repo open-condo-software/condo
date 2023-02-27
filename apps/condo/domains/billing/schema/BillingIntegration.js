@@ -10,6 +10,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingIntegration')
 const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
+const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
@@ -30,7 +31,6 @@ const {
 
 const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')
 
-const { WRONG_FORMAT } = require('../../common/constants/errors')
 
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
