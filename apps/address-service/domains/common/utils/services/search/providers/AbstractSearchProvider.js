@@ -17,12 +17,18 @@
 
 const get = require('lodash/get')
 
+const { getLogger } = require('@open-condo/keystone/logging')
+
 const { searchContexts } = require('@address-service/domains/common/constants/contexts')
 
 /**
  * @abstract
  */
 class AbstractSearchProvider {
+
+    constructor () {
+        this.logger = getLogger(this.constructor.name)
+    }
 
     /**
      * @abstract

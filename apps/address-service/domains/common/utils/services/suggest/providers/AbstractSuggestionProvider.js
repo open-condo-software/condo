@@ -1,11 +1,17 @@
 const get = require('lodash/get')
 
+const { getLogger } = require('@open-condo/keystone/logging')
+
 const { suggestionContexts } = require('@address-service/domains/common/constants/contexts')
 
 /**
  * @abstract
  */
 class AbstractSuggestionProvider {
+
+    constructor () {
+        this.logger = getLogger(this.constructor.name)
+    }
 
     /**
      * @abstract
