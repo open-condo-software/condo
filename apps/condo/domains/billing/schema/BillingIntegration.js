@@ -10,7 +10,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingIntegration')
 const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
-const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { BILLING_INTEGRATION_WRONG_GROUP_FORMAT_ERROR } = require('@condo/domains/billing/constants/errors')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
@@ -69,11 +69,13 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             isRequired: true,
             defaultValue: DEFAULT_BILLING_INTEGRATION_GROUP,
             hooks: {
-                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                validateInput: async ({ operation, resolvedData, addFieldValidationError }) => {
                     const group = get(resolvedData, 'group')
 
+                    if (operation === 'update' && group === undefined) { return }
+
                     if (/[^a-z]/.test(group) || group === '') {
-                        return addFieldValidationError(`[${WRONG_FORMAT}:BillingIntegration:group] group should be a sequence of lowercase latin characters`)
+                        return addFieldValidationError(BILLING_INTEGRATION_WRONG_GROUP_FORMAT_ERROR)
                     }
                 },
             },
