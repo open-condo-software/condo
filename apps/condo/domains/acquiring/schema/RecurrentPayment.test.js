@@ -88,21 +88,12 @@ describe('RecurrentPayment', () => {
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
             })
 
-            test('support can', async () => {
+            test('support can\'t', async () => {
                 const client = await makeClientWithSupportUser()
 
-                const [obj, attrs] = await createTestRecurrentPayment(client, getPaymentRequest())
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(1)
-                expect(obj.newId).toEqual(null)
-                expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-                expect(obj.createdAt).toMatch(DATETIME_RE)
-                expect(obj.updatedAt).toMatch(DATETIME_RE)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestRecurrentPayment(client, getPaymentRequest())
+                })
             })
 
             test('user can\'t', async () => {
@@ -140,21 +131,17 @@ describe('RecurrentPayment', () => {
                 expect(obj.tryCount).toEqual(1)
             })
 
-            test('support can', async () => {
+            test('support can\'t', async () => {
                 const client = await makeClientWithSupportUser()
 
-                const [objCreated] = await createTestRecurrentPayment(client, getPaymentRequest())
+                const [objCreated] = await createTestRecurrentPayment(admin, getPaymentRequest())
 
-                const [obj, attrs] = await updateTestRecurrentPayment(client, objCreated.id, {
-                    ...getPaymentRequest(),
-                    tryCount: 1,
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestRecurrentPayment(client, objCreated.id, {
+                        ...getPaymentRequest(),
+                        tryCount: 1,
+                    })
                 })
-
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-                expect(obj.tryCount).toEqual(1)
             })
 
             test('user can\'t', async () => {
