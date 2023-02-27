@@ -67,7 +67,6 @@ const {
     makePayer,
     makePayerWithMultipleConsumers,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('MultiPayment', () => {

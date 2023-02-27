@@ -15,90 +15,84 @@ const {
     expectToThrowAuthenticationErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { BILLING_INTEGRATION_WRONG_GROUP_FORMAT_ERROR } = require('@condo/domains/billing/constants/errors')
 const { BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
-const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('BillingIntegration', () => {
 
-    describe('Validators', () => {
-        test('update format with right payload', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [objCreated] = await createTestBillingIntegration(admin)
+    describe('Validators', async () => {
+        describe('Group', async () => {
+            let billingIntegrationId
+            let billingIntegration
+            let admin
+            beforeAll(async () => {
+                admin = await makeLoggedInAdminClient()
+                billingIntegration = (await createTestBillingIntegration(admin))[0]
+                billingIntegrationId = billingIntegration.id
+            })
 
-            const payload = {
-                dataFormat: {
-                    hasToPayDetails: true,
-                    hasServices: true,
-                    hasServicesDetails: true,
-                },
-            }
+            const wrongGroupCases = [
+                'common ',
+                ' common',
+                '"common',
+                '123',
+                '',
+                ' ',
+                'commOn',
+            ]
 
-            const [updatedIntegration] = await updateTestBillingIntegration(admin, objCreated.id, payload)
-
-            expect(updatedIntegration.id).toEqual(objCreated.id)
-            expect(updatedIntegration.dataFormat.hasToPayDetails).toEqual(true)
+            await test.each(wrongGroupCases)('group = %p should fail because it is not latin sequnce',
+                async (group) => {
+                    await expectToThrowValidationFailureError(async () => {
+                        await updateTestBillingIntegration(admin, billingIntegrationId, {
+                            group: group,
+                        })
+                    }, BILLING_INTEGRATION_WRONG_GROUP_FORMAT_ERROR)
+                })
         })
 
-        test('update group with wrong payload', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [objCreated] = await createTestBillingIntegration(admin)
+        describe('Format', async () => {
 
-            const errMsg = `${WRONG_FORMAT}:BillingIntegration:group] group should be a sequence of lowercase latin characters`
+            test('update format with wrong payload', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [billingIntegration] = await createTestBillingIntegration(admin)
+                const billingIntegrationId = billingIntegration.id
 
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestBillingIntegration(admin, objCreated.id, {
-                    group: 'common ',
+                const payload = {
+                    dataFormat: {
+                        hasToPayDetails: true,
+                        hasServices: true,
+                        // no hasServiceDetail key!
+                    },
+                }
+
+                await catchErrorFrom(async () => {
+                    await updateTestBillingIntegration(admin, billingIntegrationId,
+                        payload)
+                }, (err) => {
+                    expect(err).toBeDefined()
                 })
-            }, errMsg)
+            })
 
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestBillingIntegration(admin, objCreated.id, {
-                    group: '',
-                })
-            }, errMsg)
+            test('update format with right payload', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [billingIntegration] = await createTestBillingIntegration(admin)
+                const billingIntegrationId = billingIntegration.id
 
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestBillingIntegration(admin, objCreated.id, {
-                    group: ' common',
-                })
-            }, errMsg)
+                const payload = {
+                    dataFormat: {
+                        hasToPayDetails: true,
+                        hasServices: true,
+                        hasServicesDetails: true,
+                    },
+                }
 
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestBillingIntegration(admin, objCreated.id, {
-                    group: 'com mon',
-                })
-            }, errMsg)
+                const [updatedIntegration] = await updateTestBillingIntegration(
+                    admin, billingIntegrationId, payload)
 
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestBillingIntegration(admin, objCreated.id, {
-                    group: 'com$mon',
-                })
-            }, errMsg)
-
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestBillingIntegration(admin, objCreated.id, {
-                    group: 'comMon',
-                })
-            }, errMsg)
-        })
-
-        test('update format with wrong payload', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [objCreated] = await createTestBillingIntegration(admin)
-
-            const payload = {
-                dataFormat: {
-                    hasToPayDetails: true,
-                    hasServices: true,
-                    // no hasServiceDetail key!
-                },
-            }
-
-            await catchErrorFrom(async () => {
-                await updateTestBillingIntegration(admin, objCreated.id, payload)
-            }, (err) => {
-                expect(err).toBeDefined()
+                expect(updatedIntegration.id).toEqual(billingIntegrationId)
+                expect(updatedIntegration.dataFormat.hasToPayDetails).toEqual(true)
             })
         })
     })
