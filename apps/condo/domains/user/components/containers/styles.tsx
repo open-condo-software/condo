@@ -60,11 +60,7 @@ export const PosterWrapper = styled.div`
   margin: 36px 0 36px 36px
 `
 
-interface IContentProps {
-    isSmall: boolean
-}
-
-export const PageContent = styled.div<IContentProps>`
+export const PageContent = styled.div`
   display: flex;
   overflow: hidden;
   overflow-y: scroll;

@@ -48,7 +48,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                     </PosterWrapper>
                 </Col>
                 <Col lg={12} md={24}>
-                    <PageContent isSmall={isSmall}>
+                    <PageContent>
                         <ReCaptchaContainer id='ReCaptchaContainer'/>
                         <ChildrenWrapper isSmall={isSmall}>
                             <Row style={ROW_STYLE}>
