@@ -30,7 +30,7 @@ function createTestInstance (existingItem = null) {
  * @returns {MockedAddressServiceClient|AddressServiceClient}
  */
 function createInstance (testItem) {
-    return conf.NODE_ENV === 'test'
+    return conf.NODE_ENV === 'test' || get(conf, 'ADDRESS_SERVICE_CLIENT_MODE') === 'fake'
         ? createTestInstance(testItem)
         : createRealInstance(get(conf, 'ADDRESS_SERVICE_URL'))
 }
