@@ -18022,19 +18022,6 @@ export type GetPhoneByConfirmPhoneActionTokenOutput = {
   isPhoneVerified: Scalars['Boolean'];
 };
 
-export type ImportBankTransactionsInput = {
-  dv: Scalars['Int'];
-  sender: Scalars['JSON'];
-  file: Scalars['Upload'];
-  organizationId: Scalars['ID'];
-  propertyId: Scalars['ID'];
-};
-
-export type ImportBankTransactionsOutput = {
-  __typename?: 'ImportBankTransactionsOutput';
-  bankAccount?: Maybe<BankAccount>;
-};
-
 /**  Entries of mass planned and emergency incidents with water, electricity, etc.  */
 export type Incident = {
   __typename?: 'Incident';
@@ -28156,7 +28143,6 @@ export type Mutation = {
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   registerBillingReceipts?: Maybe<Array<Maybe<BillingReceipt>>>;
   createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
-  importBankTransactions?: Maybe<ImportBankTransactionsOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
   /**
    * Sends message of specified type to specified contact
@@ -34957,11 +34943,6 @@ export type MutationRegisterBillingReceiptsArgs = {
 
 export type MutationCreateBankAccountRequestArgs = {
   data: CreateBankAccountRequestInput;
-};
-
-
-export type MutationImportBankTransactionsArgs = {
-  data: ImportBankTransactionsInput;
 };
 
 

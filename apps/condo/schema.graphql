@@ -52903,18 +52903,6 @@ type CreateBankAccountRequestOutput {
   id: ID!
 }
 
-input ImportBankTransactionsInput {
-  dv: Int!
-  sender: JSON!
-  file: Upload!
-  organizationId: ID!
-  propertyId: ID!
-}
-
-type ImportBankTransactionsOutput {
-  bankAccount: BankAccount
-}
-
 input ShareTicketInput {
   sender: SenderFieldInput!
   employees: [ID!]!
@@ -60179,7 +60167,6 @@ type Mutation {
   acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]
   createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
-  importBankTransactions(data: ImportBankTransactionsInput!): ImportBankTransactionsOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
 
   """
