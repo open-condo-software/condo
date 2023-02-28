@@ -11,6 +11,17 @@ import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { FeatureFlagsProvider } from '@open-condo/featureflags/FeatureFlagsContext'
+import {
+    BarChartVertical,
+    LayoutList,
+    Building,
+    Contacts,
+    Employee,
+    Wallet,
+    Meters,
+    Services,
+    Settings,
+} from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { withApollo } from '@open-condo/next/apollo'
 import { useAuth, withAuth } from '@open-condo/next/auth'
@@ -25,16 +36,6 @@ import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleA
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
 import { FocusContextProvider } from '@condo/domains/common/components/Focus/FocusContextProvider'
 import { FocusElement } from '@condo/domains/common/components/Focus/FocusElement'
-import { BarBillingIcon } from '@condo/domains/common/components/icons/BarBillingIcon'
-import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
-import { BarEmployeeIcon } from '@condo/domains/common/components/icons/BarEmployeeIcon'
-import { BarMeterIcon } from '@condo/domains/common/components/icons/BarMeterIcon'
-import { BarMiniAppsIcon } from '@condo/domains/common/components/icons/BarMiniAppsIcon'
-import { BarPaymentsIcon } from '@condo/domains/common/components/icons/BarPaymentsIcon'
-import { BarPropertyIcon } from '@condo/domains/common/components/icons/BarPropertyIcon'
-import { BarSettingIcon } from '@condo/domains/common/components/icons/BarSettingIcon'
-import { BarTicketIcon } from '@condo/domains/common/components/icons/BarTicketIcon'
-import { BarUserIcon } from '@condo/domains/common/components/icons/BarUserIcon'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
@@ -91,56 +92,51 @@ const MenuItems: React.FC = () => {
     const menuItemsData: IMenuItemData[] = useMemo(() => {
         const itemsConfigs = [{
             path: 'reports',
-            icon: BarChartIconNew,
+            icon: BarChartVertical,
             label: 'global.section.analytics',
             access: () => !isAssignedVisibilityType,
         }, {
             path: 'ticket',
-            icon: BarTicketIcon,
+            icon: LayoutList,
             label: 'global.section.controlRoom',
         }, {
             path: 'property',
-            icon: BarPropertyIcon,
+            icon: Building,
             label: 'global.section.properties',
             access: () => !isAssignedVisibilityType,
         }, {
             path: 'contact',
-            icon: BarUserIcon,
+            icon: Contacts,
             label: 'global.section.contacts',
             access: () => !isAssignedVisibilityType,
         }, {
             path: 'employee',
-            icon: BarEmployeeIcon,
+            icon: Employee,
             label: 'global.section.employees',
             access: () => !isAssignedVisibilityType,
         }, {
             path: 'billing',
-            icon: BarBillingIcon,
-            label: 'global.section.billing',
-            access: () => get(role, 'canReadBillingReceipts', false ) && !isAssignedVisibilityType,
-        }, {
-            path: 'payments',
-            icon: BarPaymentsIcon,
-            label: 'global.section.payments',
-            access: () => get(role, 'canReadPayments', false ) && !isAssignedVisibilityType,
+            icon: Wallet,
+            label: 'global.section.accrualsAndPayments',
+            access: () => (get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)) && !isAssignedVisibilityType,
         }, {
             path: 'meter',
-            icon: BarMeterIcon,
+            icon: Meters,
             label: 'global.section.meters',
             access: () => !isAssignedVisibilityType,
         }, {
             path: 'miniapps',
-            icon: BarMiniAppsIcon,
+            icon: Services,
             label: 'global.section.miniapps',
             access: () => !isAssignedVisibilityType,
         }, {
             path: 'settings',
-            icon: BarSettingIcon,
+            icon: Settings,
             label: 'global.section.settings',
             access: () => !isAssignedVisibilityType,
         }]
         return itemsConfigs.filter((item) => get(item, 'access', () => true)())
-    }, [link])
+    }, [role, isAssignedVisibilityType])
 
     return (
         <>

@@ -1,10 +1,7 @@
-import { Col, Row, Tabs } from 'antd'
+import { Col, Row } from 'antd'
 import get from 'lodash/get'
 import React, { useEffect } from 'react'
 
-import { useIntl } from '@open-condo/next/intl'
-
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 
 import { ReceiptsTable } from './ReceiptsTable'
@@ -16,11 +13,6 @@ import { IContextProps } from './index'
 
 
 export const MainContent: React.FC<IContextProps> = ({ context }) => {
-    const intl = useIntl()
-    const AccrualsTitle = intl.formatMessage({ id: 'Accruals' })
-    const MetersTitle = intl.formatMessage({ id: 'Meters' })
-    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
-
     const { logEvent } = useTracking()
 
     const lastReport = get(context, 'lastReport')
@@ -35,24 +27,7 @@ export const MainContent: React.FC<IContextProps> = ({ context }) => {
                 <ReportMessage lastReport={lastReport}/>
             </Col>
             <Col span={24}>
-                <Tabs
-                    defaultActiveKey='Accruals'
-                    tabBarStyle={{ marginBottom: 40 }}
-                    style={{ overflow: 'visible' }}
-                >
-                    <Tabs.TabPane key='Accruals' tab={AccrualsTitle}>
-                        <ReceiptsTable context={context}/>
-                    </Tabs.TabPane>
-                    <Tabs.TabPane
-                        key='meters'
-                        tab={(
-                            <Tooltip title={NotImplementedYetMessage}>
-                                {MetersTitle}
-                            </Tooltip>
-                        )}
-                        disabled
-                    />
-                </Tabs>
+                <ReceiptsTable context={context}/>
             </Col>
         </Row>
     )

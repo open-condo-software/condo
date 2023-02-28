@@ -530,6 +530,7 @@ __metadata:
     "@emotion/react": ^11.9.3
     "@emotion/styled": ^11.10.0
     "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/locales": "workspace:^"
     "@open-condo/next": "workspace:^"
@@ -608,6 +609,7 @@ __metadata:
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/featureflags": "workspace:^"
+    "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/locales": "workspace:^"
     "@open-condo/next": "workspace:^"
