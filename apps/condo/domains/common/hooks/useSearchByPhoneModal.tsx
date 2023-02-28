@@ -1,9 +1,11 @@
 import styled from '@emotion/styled'
-import { AutoComplete, Col, Row, Typography } from 'antd'
+import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import { SelectProps } from 'antd/lib/select'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
+import { PhoneInputProps } from 'react-phone-input-2'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -18,6 +20,7 @@ import {
     mapSearchItemToOption,
     redirectToForm,
 } from '@condo/domains/contact/utils/clientCard'
+
 
 const StyledModal = styled(Modal)`
   animation-duration: 0s !important;
@@ -110,6 +113,8 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
 
 const SELECT_STYLES = { width: '100%' }
 const PHONE_INPUT_MASK = { ru: '... ... .. ..' }
+const SELECT_DROPDOWN_ALIGN: SelectProps['dropdownAlign'] = { overflow: { adjustX: false, adjustY: false } }
+const PHONE_INPUT_PROPS: PhoneInputProps['inputProps'] = { autoFocus: true }
 
 const StyledPhoneInput = styled(PhoneInput)`
   & .ant-input {
@@ -201,11 +206,10 @@ const SearchByPhoneSelect = ({
                 showLoadingMessage={false}
                 autoClearSearchValue
                 getPopupContainer={getPopupContainer}
+                dropdownAlign={SELECT_DROPDOWN_ALIGN}
             >
                 <StyledPhoneInput
-                    inputProps={{
-                        autoFocus: true,
-                    }}
+                    inputProps={PHONE_INPUT_PROPS}
                     compatibilityWithAntAutoComplete
                     placeholder={EnterPhoneMessage}
                     masks={PHONE_INPUT_MASK}
