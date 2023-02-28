@@ -45,6 +45,11 @@ const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
     transition: ${transitions.allDefault};
   }
 
+  // NOTE: Fix width to reduce flick effect on collapse / expand
+  .condo-typography {
+    width: 155px;
+  }
+
   &.active {
     .condo-typography {
       font-weight: 700;
@@ -138,9 +143,9 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         : (
             <Space size={12} align='center' direction='horizontal'>
                 <ClientRenderedIcon icon={icon} iconProps={MenuItemIconProps}/>
-                <Typography.Text>
+                <Typography.Paragraph ellipsis={{ rows: 2 }}>
                     {Message}
-                </Typography.Text>
+                </Typography.Paragraph>
             </Space>
         )
 
