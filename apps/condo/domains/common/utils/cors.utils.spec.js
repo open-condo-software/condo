@@ -37,7 +37,7 @@ describe('CORS simple settings', () => {
         const domains = ['v1.doma.ai', 'cc.doma.ai', '*.doma.ai']
         const setting = { origin: domains }
         const { origin } = parseCorsSettings(setting)
-        expect(origin).toHaveLength(2)
+        expect(origin).toHaveLength(3)
         domains.forEach((domain, index) => {
             expect(origin[index]).toEqual(domains[index])
         })
@@ -48,6 +48,12 @@ describe('CORS simple settings', () => {
         const setting = { origin: domain }
         const { origin } = parseCorsSettings(setting)
         expect(origin).toEqual(domain)
+    })
+
+    it('should work on null settings ', () => {
+        const setting = null
+        const result = parseCorsSettings(setting)
+        expect(result).toEqual(setting)
     })
 
 })
