@@ -14043,24 +14043,26 @@ export type BillingReceiptServiceFieldInput = {
 
 export type BillingReceiptServiceToPayDetailsField = {
   __typename?: 'BillingReceiptServiceToPayDetailsField';
-  formula: Scalars['String'];
+  formula?: Maybe<Scalars['String']>;
   charge?: Maybe<Scalars['String']>;
   balance?: Maybe<Scalars['String']>;
   recalculation?: Maybe<Scalars['String']>;
   privilege?: Maybe<Scalars['String']>;
   penalty?: Maybe<Scalars['String']>;
+  paid?: Maybe<Scalars['String']>;
   volume?: Maybe<Scalars['String']>;
   tariff?: Maybe<Scalars['String']>;
   measure?: Maybe<Scalars['String']>;
 };
 
 export type BillingReceiptServiceToPayDetailsFieldInput = {
-  formula: Scalars['String'];
+  formula?: Maybe<Scalars['String']>;
   charge?: Maybe<Scalars['String']>;
   balance?: Maybe<Scalars['String']>;
   recalculation?: Maybe<Scalars['String']>;
   privilege?: Maybe<Scalars['String']>;
   penalty?: Maybe<Scalars['String']>;
+  paid?: Maybe<Scalars['String']>;
   volume?: Maybe<Scalars['String']>;
   tariff?: Maybe<Scalars['String']>;
   measure?: Maybe<Scalars['String']>;
@@ -14068,21 +14070,23 @@ export type BillingReceiptServiceToPayDetailsFieldInput = {
 
 export type BillingReceiptToPayDetailsField = {
   __typename?: 'BillingReceiptToPayDetailsField';
-  formula: Scalars['String'];
+  formula?: Maybe<Scalars['String']>;
   charge?: Maybe<Scalars['String']>;
   balance?: Maybe<Scalars['String']>;
   recalculation?: Maybe<Scalars['String']>;
   privilege?: Maybe<Scalars['String']>;
   penalty?: Maybe<Scalars['String']>;
+  paid?: Maybe<Scalars['String']>;
 };
 
 export type BillingReceiptToPayDetailsFieldInput = {
-  formula: Scalars['String'];
+  formula?: Maybe<Scalars['String']>;
   charge?: Maybe<Scalars['String']>;
   balance?: Maybe<Scalars['String']>;
   recalculation?: Maybe<Scalars['String']>;
   privilege?: Maybe<Scalars['String']>;
   penalty?: Maybe<Scalars['String']>;
+  paid?: Maybe<Scalars['String']>;
 };
 
 export type BillingReceiptUpdateInput = {
