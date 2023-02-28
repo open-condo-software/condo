@@ -71,10 +71,9 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
         const beforeWorkStart = incident.workStart && dayjs().diff(incident.workStart) < 0
         const afterWorkFinish = incident.workFinish && dayjs().diff(incident.workFinish) > 0
 
-        let workFinish
+        let workFinish = dayjs()
         if (!incident.workFinish && beforeWorkStart) workFinish = dayjs(incident.workStart)
         if (isActual && afterWorkFinish) workFinish = dayjs(incident.workFinish)
-        workFinish = dayjs()
 
         return { workFinish }
     }, [incident.workFinish, incident.workStart, isActual])
