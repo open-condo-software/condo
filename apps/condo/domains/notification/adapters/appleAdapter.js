@@ -13,8 +13,8 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { EMPTY_APPLE_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('@condo/domains/notification/constants/errors')
 
+const AppleMessaging = require('./apple/AppleMessaging')
 const { APS_RESPONSE_STATUS_SUCCESS } = require('./apple/constants')
-const AppleMessaging = require('./apple/messaging')
 
 const APPLE_CONFIG = conf[APPLE_CONFIG_ENV] ? JSON.parse(conf[APPLE_CONFIG_ENV]) : null
 const DEFAULT_PUSH_SETTINGS = {

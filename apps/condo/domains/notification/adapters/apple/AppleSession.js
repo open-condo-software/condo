@@ -19,9 +19,9 @@ const logger = getLogger('APNs Session')
  * Pings backend each SESSION_PING_INTERVAL seconds, closes connection after APPLE_API_ENDPOINT seconds and reopens new one.
  * Takes care of session breakage, reopens session on demand.
  *
- * Usage: const session = new SessionAPNs(); session.request(...); session.errorHandler(error);
+ * Usage: const session = new AppleSession(); session.request(...); session.errorHandler(error);
  */
-class SessionAPNs {
+class AppleSession {
     #ENDPOINT = APPLE_API_ENDPOINT
     #session = null
     #expires = null
@@ -110,4 +110,4 @@ class SessionAPNs {
     }
 }
 
-module.exports = SessionAPNs
+module.exports = AppleSession
