@@ -6,12 +6,13 @@ const { BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME, BILLING_RECEIPT_TO_PAY_DETAIL
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 
 const ToPayDetailsFields = {
-    formula: 'String!',
+    formula: 'String',
     charge: 'String',
     balance: 'String',
     recalculation: 'String',
     privilege: 'String',
     penalty: 'String',
+    paid: 'String',
 }
 
 const TO_PAY_DETAILS_GRAPHQL_TYPES = `

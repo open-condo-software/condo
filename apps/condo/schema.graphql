@@ -11569,42 +11569,46 @@ input BillingCategoryRelateToOneInput {
 }
 
 type BillingReceiptToPayDetailsField {
-  formula: String!
+  formula: String
   charge: String
   balance: String
   recalculation: String
   privilege: String
   penalty: String
+  paid: String
 }
 
 input BillingReceiptToPayDetailsFieldInput {
-  formula: String!
+  formula: String
   charge: String
   balance: String
   recalculation: String
   privilege: String
   penalty: String
+  paid: String
 }
 
 type BillingReceiptServiceToPayDetailsField {
-  formula: String!
+  formula: String
   charge: String
   balance: String
   recalculation: String
   privilege: String
   penalty: String
+  paid: String
   volume: String
   tariff: String
   measure: String
 }
 
 input BillingReceiptServiceToPayDetailsFieldInput {
-  formula: String!
+  formula: String
   charge: String
   balance: String
   recalculation: String
   privilege: String
   penalty: String
+  paid: String
   volume: String
   tariff: String
   measure: String
