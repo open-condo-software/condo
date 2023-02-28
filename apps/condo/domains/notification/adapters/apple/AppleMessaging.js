@@ -4,6 +4,8 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const { PUSH_TYPE_SILENT_DATA } = require('@condo/domains/notification/constants/constants')
 
+const AppleJSONWebToken = require('./AppleJSONWebToken')
+const AppleSession = require('./AppleSession')
 const {
     UNKNOWN_STATUS,
     ERRORS,
@@ -12,8 +14,6 @@ const {
     APS_PUSH_TYPE_BACKGROUND,
     APS_RESPONSE_STATUS_SUCCESS,
 } = require('./constants')
-const SessionAPNs = require('./session')
-const JSONWebTokenAPNs = require('./token')
 
 const logger = getLogger('AppleMessaging')
 
@@ -25,8 +25,8 @@ class AppleMessaging {
      * @param config
      */
     constructor (config) {
-        this.#token = new JSONWebTokenAPNs(config)
-        this.#session = new SessionAPNs()
+        this.#token = new AppleJSONWebToken(config)
+        this.#session = new AppleSession()
         this.getResponseHandler = this.getResponseHandler.bind(this)
         this.sendPush = this.sendPush.bind(this)
     }

@@ -12,7 +12,7 @@ const PRIVATE_KEY_LENGTH_MIN = 180
 /**
  *
  */
-class JSONWebTokenAPNs {
+class AppleJSONWebToken {
     #config = null
     #iss = null
     #kid = null
@@ -21,7 +21,7 @@ class JSONWebTokenAPNs {
     #expires = null
 
     /**
-     * Initializes JSONWebTokenAPNs instance
+     * Initializes AppleJSONWebToken instance
      * @param conf
      */
     constructor (conf) {
@@ -96,4 +96,4 @@ class JSONWebTokenAPNs {
     }
 }
 
-module.exports = JSONWebTokenAPNs
+module.exports = AppleJSONWebToken
