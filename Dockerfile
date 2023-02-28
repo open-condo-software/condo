@@ -41,7 +41,7 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 	echo "REDIS_URL=undefined" >> /app/.env && \
 	echo "NODE_ENV=production" >> /app/.env
 
-ADD --chown=app:app . /app
+COPY --chown=app:app . /app
 RUN yarn install --immutable
 
 # yarn workspaces foreach -pt run build
