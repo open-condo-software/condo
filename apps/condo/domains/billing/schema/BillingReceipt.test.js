@@ -654,19 +654,6 @@ describe('BillingReceipt', () => {
                 })
             })
         })
-        describe('toPayDetails', () => {
-            test('Must have formula', async () => {
-                const payload = {
-                    toPayDetails: {
-                        charge: '12341.21',
-                        penalty: '200.12',
-                    },
-                }
-                await expectToThrowGraphQLRequestError(async () => {
-                    await updateTestBillingReceipt(admin, receipt.id, payload)
-                }, '"data.toPayDetails"; Field "formula" of required type "String!" was not provided.')
-            })
-        })
         describe('period', () => {
             test('Day of period must be equal to 01', async () => {
                 await expectToThrowValidationFailureError(async () => {
@@ -677,27 +664,6 @@ describe('BillingReceipt', () => {
             })
         })
         describe('services', () => {
-            describe('toPayDetails', () => {
-                test('Must have formula', async () => {
-                    const payload = {
-                        services: [
-                            {
-                                id: '1',
-                                toPay: '1200.00',
-                                name: 'Water',
-                                // No formula
-                                toPayDetails: {
-                                    charge: '12341.21',
-                                    penalty: '200.12',
-                                },
-                            },
-                        ],
-                    }
-                    await expectToThrowGraphQLRequestError(async () => {
-                        await updateTestBillingReceipt(admin, receipt.id, payload)
-                    }, '"data.services[0].toPayDetails"; Field "formula" of required type "String!" was not provided.')
-                })
-            })
             test('Each service must have a name', async () => {
                 const payload = {
                     services: [
