@@ -35,6 +35,9 @@ function renderError (error: ApolloError | string) {
     )
 }
 
+/**
+ * @deprecated TODO(DOMA-5444): Rewrite it to fit self-service flow
+ */
 const PaymentsPageContent = (): JSX.Element => {
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], '')
@@ -97,4 +100,7 @@ const PaymentsPageContent = (): JSX.Element => {
     return content
 }
 
+/**
+ * @deprecated TODO(DOMA-5444): Rewrite it to fit self-service flow
+ */
 export default PaymentsPageContent

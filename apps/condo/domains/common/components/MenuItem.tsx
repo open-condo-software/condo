@@ -1,11 +1,13 @@
 import styled from '@emotion/styled'
-import { Space, Typography } from 'antd'
 import classnames from 'classnames'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
+import type { IconProps } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { Space, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { transitions } from '@condo/domains/common/constants/style'
@@ -13,11 +15,8 @@ import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/u
 
 
 import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
-import { TrackingEventType, useTracking } from './TrackingContext'
+import { useTracking } from './TrackingContext'
 
-import { colors } from '../constants/style'
-
-const IconWrapper = styled.div``
 
 interface IMenuItemWrapperProps {
     padding?: string
@@ -27,39 +26,28 @@ interface IMenuItemWrapperProps {
 
 const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
   cursor: pointer;
-  padding: ${props => props.padding ? props.padding : '12px 0'};
+  padding: ${props => props.padding ? props.padding : '18px 0'};
   display: flex;
   border-radius: 8px;
   flex-direction: row;
   align-items: center;
   justify-content: ${({ isCollapsed }) => isCollapsed ? 'center' : 'flex-start'};
   vertical-align: center;
-
-  .label {
-    font-size: ${props => props.labelFontSize ? props.labelFontSize : '16px'};
-    transition: ${transitions.allDefault};
-    white-space: nowrap;
+  color: ${colors.gray['7']};
+  
+  &:hover,
+  &.active {
+    color: ${colors.black};
   }
 
+  .condo-typography, 
   .icon {
-    color: ${colors.textSecondary};
-    font-size: 20px;
     transition: ${transitions.allDefault};
-  }
-
-  &:hover {
-    .icon {
-      color: ${colors.black};
-    }
   }
 
   &.active {
-    .label {
+    .condo-typography {
       font-weight: 700;
-    }
-
-    .icon {
-      color: ${colors.black};
     }
   }
 
@@ -97,6 +85,11 @@ const addToolTipForCollapsedMenu = (content: JSX.Element, Message: string) => (
         {content}
     </Tooltip>
 )
+
+const MenuItemIconProps: IconProps = {
+    size: 'medium',
+    className: 'icon',
+}
 
 export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const {
@@ -140,16 +133,12 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
 
     const linkContent = isCollapsed
         ? (
-            <IconWrapper className='icon'>
-                <ClientRenderedIcon icon={icon}/>
-            </IconWrapper>
+            <ClientRenderedIcon icon={icon} iconProps={MenuItemIconProps}/>
         )
         : (
-            <Space size={14}>
-                <IconWrapper className='icon'>
-                    <ClientRenderedIcon icon={icon}/>
-                </IconWrapper>
-                <Typography.Text className='label'>
+            <Space size={12} align='center' direction='horizontal'>
+                <ClientRenderedIcon icon={icon} iconProps={MenuItemIconProps}/>
+                <Typography.Text>
                     {Message}
                 </Typography.Text>
             </Space>

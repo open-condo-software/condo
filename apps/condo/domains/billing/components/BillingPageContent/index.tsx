@@ -32,6 +32,9 @@ export interface IContextProps {
 
 const BIG_DINO_STYLE: CSSProperties = { height: 200 }
 
+/**
+ * @deprecated TODO(DOMA-5444): Rewrite it to fit self-service flow
+ */
 export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access, contextLoading, contextError, context }) => {
     const intl = useIntl()
     const NoPermissionsMessage = intl.formatMessage({ id: 'global.noPageViewPermission' })
