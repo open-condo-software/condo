@@ -14,6 +14,7 @@ const get = require('lodash/get')
 const nextCookie = require('next-cookies')
 const { v4 } = require('uuid')
 
+
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
@@ -27,6 +28,7 @@ const { prepareDefaultKeystoneConfig, getAdapter } = require('@open-condo/keysto
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
+const { parseCorsSettings } = require('@condo/domains/common/utils/cors.utils')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
@@ -150,11 +152,14 @@ class VersioningMiddleware {
     }
 }
 
+
+
+
 module.exports = {
     // NOTE(pahaz): please, check the `executeDefaultServer(..)` to understand how it works.
     // And you need to look at `keystone/lib/Keystone/index.js:602` it uses `{ origin: true, credentials: true }` as default value for cors!
     // Examples: https://expressjs.com/en/resources/middleware/cors.html or check `node_modules/cors/README.md`
-    cors: conf.CORS && JSON.parse(conf.CORS),
+    ...conf.CORS ? { cors: parseCorsSettings(JSON.parse(conf.CORS)) } : {},
     keystone,
     apps: [
         keystoneCacheApp,
