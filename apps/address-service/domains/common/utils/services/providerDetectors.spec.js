@@ -39,6 +39,7 @@ describe('Provider detector', () => {
 
         test.each(cases)('in the case of %p provider the %p variable must exist', (providerName, variableName) => {
             process.env.PROVIDER = providerName
+            delete process.env[variableName]
             expect(getSearchProvider).toThrow(`There is no '${variableName}' in .env.`)
         })
     })
