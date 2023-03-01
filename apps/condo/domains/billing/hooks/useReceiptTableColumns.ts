@@ -23,7 +23,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
     const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
     const ChargeTitle = intl.formatMessage({ id: 'Charged' })
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
-    const PaidTitle = intl.formatMessage({ id: 'field.Paid' })
+    const PaidTitle = intl.formatMessage({ id: 'PaymentPaid' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -123,7 +123,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
                 sorter: false,
                 width: '14%',
                 align: 'right',
-                render: getMoneyRender(intl, currencyCode, true),
+                render: getMoneyRender(intl, currencyCode),
             },
             toPay: {
                 title: ToPayTitle,
