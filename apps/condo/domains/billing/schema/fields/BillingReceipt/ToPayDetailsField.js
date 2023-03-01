@@ -31,7 +31,7 @@ const ToPayDetailsSchema = {
         ...Object.keys(ToPayDetailsFields).map((field) => ({ [field]: { 'type': ['string', 'null'] } })),
         { formula: { type: 'string' } }
     ),
-    required: ['formula'],
+    required: [],
     additionalProperties: false,
 }
 
