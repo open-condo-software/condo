@@ -1,4 +1,6 @@
 import { Ticket } from '@app/condo/schema'
+import { ColumnsType } from 'antd/lib/table'
+import { ColumnType } from 'antd/lib/table/interface'
 import get from 'lodash/get'
 import map from 'lodash/map'
 import { identity } from 'lodash/util'
@@ -22,8 +24,7 @@ import { RE_FETCH_TICKETS_IN_CONTROL_ROOM } from '@condo/domains/common/constant
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-
-import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '../utils/clientSchema'
+import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '@condo/domains/ticket/utils/clientSchema'
 import {
     getClassifierRender,
     getStatusRender,
@@ -31,9 +32,10 @@ import {
     getTicketNumberRender,
     getTicketUserNameRender,
     getUnitRender,
-} from '../utils/clientSchema/Renders'
-import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
-import { IFilters } from '../utils/helpers'
+} from '@condo/domains/ticket/utils/clientSchema/Renders'
+import { convertGQLItemToFormSelectState } from '@condo/domains/ticket/utils/clientSchema/TicketStatus'
+import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
 
 const COLUMNS_WIDTH = {
     number: '8%',
@@ -56,7 +58,7 @@ export function useTableColumns <T> (
     refetchTickets: () => Promise<undefined>,
     isRefetching: boolean,
     setIsRefetching: Dispatch<SetStateAction<boolean>>,
-) {
+): { columns: ColumnsType<Ticket>,  loading: boolean } {
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
@@ -78,16 +80,11 @@ export function useTableColumns <T> (
 
     const { loading: statusesLoading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
-    const renderStatusFilterDropdown = useCallback(({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-        const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
-        const filterProps = {
-            setSelectedKeys,
-            selectedKeys,
-            confirm,
-            clearFilters,
-        }
 
-        return getOptionFilterDropdown(adaptedStatuses, statusesLoading)(filterProps)
+    // todo(doma-5456) difference filters in condo & cc
+    const renderStatusFilterDropdown: ColumnType<Ticket>['filterDropdown'] = useCallback((filterProps) => {
+        const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
+        return getOptionFilterDropdown({ checkboxGroupProps: { options: adaptedStatuses, disabled: statusesLoading } })(filterProps)
     }, [statusesLoading, ticketStatuses])
 
     const renderAddress = useCallback(
@@ -283,5 +280,5 @@ export function useTableColumns <T> (
             },
         ],
         loading: userTicketCommentReadTimesLoading || ticketCommentTimesLoading || statusesLoading,
-    }), [NumberMessage, sorterMap, filters, filterMetas, intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes, search, DateMessage, StatusMessage, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading, statusesLoading])
+    }), [NumberMessage, sorterMap, filters, filterMetas, intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes, search, DateMessage, StatusMessage, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading, statusesLoading])
 }

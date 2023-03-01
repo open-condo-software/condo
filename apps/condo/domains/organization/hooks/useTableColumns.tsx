@@ -1,11 +1,12 @@
+import { Organization } from '@app/condo/schema'
 import { Typography } from 'antd'
+import { ColumnType } from 'antd/lib/table/interface'
 import get from 'lodash/get'
 import { identity } from 'lodash/util'
 import { useRouter } from 'next/router'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-
 
 import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
@@ -17,6 +18,7 @@ import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clie
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { getEmployeeSpecializationsMessage, renderPhone } from '@condo/domains/organization/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
+
 
 const TEXT_STYLES = { margin: 0 }
 
@@ -46,19 +48,12 @@ export const useTableColumns = (
 
     const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
 
-    const renderCheckboxFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+    const renderCheckboxFilterDropdown: ColumnType<Organization>['filterDropdown'] = useCallback((filterProps) => {
         const adaptedStatuses = organizationEmployeeRoles.map(OrganizationEmployeeRole.convertGQLItemToFormSelectState).filter(identity)
-        const filterProps = {
-            setSelectedKeys,
-            selectedKeys,
-            confirm,
-            clearFilters,
-        }
+        return getOptionFilterDropdown({ checkboxGroupProps: { options: adaptedStatuses, disabled: loading } })(filterProps)
+    }, [loading, organizationEmployeeRoles])
 
-        return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
-    }
-
-    const renderSpecializations = (employee) => {
+    const renderSpecializations = useCallback((employee) => {
         const { SpecializationsMessage } = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
 
         return (
@@ -66,7 +61,7 @@ export const useTableColumns = (
                 {SpecializationsMessage && SpecializationsMessage}
             </Typography.Paragraph>
         )
-    }
+    }, [intl, organizationEmployeeSpecializations])
 
     const columns = useMemo(() => {
         return [

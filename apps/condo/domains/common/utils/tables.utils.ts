@@ -357,11 +357,14 @@ export const convertColumns = (
             const filter = column.filter
             baseColumnInfo.filterIcon = getFilterIcon
             if (filter.type === 'string') {
-                const placeHolder = filter.placeholder || column.title
-                baseColumnInfo.filterDropdown = getTextFilterDropdown(placeHolder)
+                const placeholder = filter.placeholder || column.title
+                baseColumnInfo.filterDropdown = getTextFilterDropdown({ inputProps: { placeholder } })
             } else if (filter.type === 'stringOption' && filter.options.length > 0) {
                 const loading = get(filter, 'loading', false)
-                baseColumnInfo.filterDropdown = getOptionFilterDropdown(filter.options, loading)
+                baseColumnInfo.filterDropdown = getOptionFilterDropdown({ checkboxGroupProps: {
+                    options: filter.options,
+                    disabled: loading,
+                } })
             } else if (filter.type === 'date') {
                 baseColumnInfo.filterDropdown = getDateFilterDropdown()
             } else if (filter.type === 'custom') {

@@ -5,7 +5,6 @@ import { RangePickerProps } from 'antd/lib/date-picker/generatePicker'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
-import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
 import React from 'react'
 
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
