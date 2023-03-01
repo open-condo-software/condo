@@ -347,6 +347,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                             options: categoryClassifiersOptions,
                             placeholder: CategoryClassifierLabel,
                             mode: 'multiple',
+                            id: 'categoryClassifierFilterDropdown',
                         },
                     }),
                 },
