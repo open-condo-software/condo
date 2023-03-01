@@ -107,7 +107,7 @@ const SettingsPage: React.FC = () => {
                 content: <ControlRoomSettingsContent/>,
             },
         ].filter(Boolean),
-        [hasSubscriptionFeature, SubscriptionTitle, HintTitle, DetailsTitle, canManageContactRoles, RolesTitle, PropertyScopeTitle, ControlRoomTitle],
+        [CommonTitle, hasSubscriptionFeature, SubscriptionTitle, HintTitle, PropertyScopeTitle, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle],
     )
 
     const titleContent = useMemo(() => (
