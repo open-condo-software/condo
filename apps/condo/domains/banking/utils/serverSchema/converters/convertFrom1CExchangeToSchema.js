@@ -7,16 +7,32 @@ dayjs.extend(customParseFormat)
 const DATE_FORMAT = 'DD.MM.YYYY'
 
 /**
- * Parses `key=value` string to JSON
- */
-function getKeyValueFrom (line) {
-    return line.split('=')
-}
-
-/**
  * Represents entity, that starts at "begin" marker-line, has key-value body and ends with "end" marker
+ * Example
+ * ```
+ * BeginSomeDocument
+ * key1=value1
+ * key2=value2
+ * ...
+ * EndSomeDocument
+ * ```
  */
 class StreamNode {
+    // When Parser will face this marker, it will start handle lines below as a key-value body fields
+    #begin
+    // When parser will face this marker, it will handle all collected line as a finished body
+    #end
+    // Some nodes instead of end marker may have just last field in key-value format
+    #endBodyKey
+    // List of correct keys for this node. Everything else will be handled as an error
+    #bodyKeys
+    // Contains key-values parsed from lines between #begin and #end marker (or #endBodyKey).
+    #body
+    // Determines whether #end marker or #endBodyKey was faced
+    #isFinished
+    // Determines, whether parser has extracted key from line, missing in #bodyKeys
+    #isValid
+
     // TODO(antonal): validate with Ajv after collecting all keys. Replace `bodyKeys` with Ajv validation schema
     /**
      *
@@ -26,46 +42,46 @@ class StreamNode {
      * @param {String[]} bodyKeys
      */
     constructor ({ begin, end, endBodyKey, bodyKeys, converter }) {
-        this.begin = begin
-        this.end = end
-        this.endBodyKey = endBodyKey
-        this.bodyKeys = bodyKeys
-        this.body = {}
-        this.finished = false
-        this.valid = true
+        this.#begin = begin
+        this.#end = end
+        this.#endBodyKey = endBodyKey
+        this.#bodyKeys = bodyKeys
+        this.#body = {}
+        this.#isFinished = false
+        this.#isValid = true
         this.converter = converter
     }
 
     parse (line) {
-        if (line === this.end) {
-            this.finished = true
+        if (line === this.#end) {
+            this.#isFinished = true
         } else {
-            const [key, value] = getKeyValueFrom(line)
-            if (this.bodyKeys.includes(key)) {
-                this.body[key] = value
-                if (this.endBodyKey === key) {
-                    this.finished = true
+            const [key, value] = line.split('=')
+            if (this.#bodyKeys.includes(key)) {
+                this.#body[key] = value
+                if (this.#endBodyKey === key) {
+                    this.#isFinished = true
                 }
             } else {
-                this.valid = false
+                this.#isValid = false
             }
         }
     }
 
     convert () {
-        return this.converter(this.body)
+        return this.converter(this.#body)
     }
 
     get isFinished () {
-        return this.finished
+        return this.#isFinished
     }
 
     get isValid () {
-        return this.valid
+        return this.#isValid
     }
 
     get name () {
-        return this.begin
+        return this.#begin
     }
 
 }
