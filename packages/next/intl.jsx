@@ -147,4 +147,5 @@ export {
     withIntl,
     useIntl,
     FormattedMessage,
+    LocaleContext,
 }
