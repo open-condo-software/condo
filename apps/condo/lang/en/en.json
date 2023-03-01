@@ -105,6 +105,7 @@
   "field.Executor.description": "The executor is an employee who will fix the problem described in the task",
   "field.FlatNumber": "Unit",
   "field.Holder": "Holder",
+  "field.Paid": "Paid",
   "field.ShortFlatNumber": "fl.",
   "field.sectionType.section": "Section",
   "field.sectionType.parking": "Parking",

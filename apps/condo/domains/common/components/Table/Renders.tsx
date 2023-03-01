@@ -246,10 +246,12 @@ const dimText = (text: string, index: number) => (
 
 export const getMoneyRender = (
     intl,
-    currencyCode = DEFAULT_CURRENCY_CODE
+    currencyCode = DEFAULT_CURRENCY_CODE,
+    isNegative = false
 ) => {
     return function render (text: string): RenderReturnType {
         if (!text) return <EmptyTableCell/>
+        if (isNegative) text = `-${text}`
         const formattedParts = intl.formatNumberToParts(parseFloat(text), { style: 'currency', currency: currencyCode })
 
         return formattedParts.map((part, index) => {

@@ -105,6 +105,7 @@
   "field.Executor.description": "Исполнитель — это сотрудник, который будет устранять проблему, описанную в заявке",
   "field.FlatNumber": "Помещение",
   "field.Holder": "Собственник",
+  "field.Paid": "Оплачено",
   "field.ShortFlatNumber": "кв.",
   "field.sectionType.section": "Подъезд",
   "field.sectionType.parking": "Паркинг",

@@ -23,6 +23,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
     const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
     const ChargeTitle = intl.formatMessage({ id: 'Charged' })
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const PaidTitle = intl.formatMessage({ id: 'field.Paid' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -115,6 +116,15 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
                 align: 'right',
                 render: getMoneyRender(intl, currencyCode),
             },
+            paid: {
+                title: PaidTitle,
+                key: 'paid',
+                dataIndex: ['toPayDetails', 'paid'],
+                sorter: false,
+                width: '14%',
+                align: 'right',
+                render: getMoneyRender(intl, currencyCode, true),
+            },
             toPay: {
                 title: ToPayTitle,
                 key: 'toPay',
@@ -128,7 +138,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
         }
 
         return detailed
-            ? [columns.address, columns.unitName, columns.fullName, columns.account, columns.category, columns.balance, columns.penalty, columns.charge, columns.toPay]
+            ? [columns.address, columns.unitName, columns.fullName, columns.account, columns.category, columns.balance, columns.penalty, columns.charge, columns.paid, columns.toPay]
             : [columns.address, columns.unitName, columns.account, columns.toPay]
     }, [
         AddressTitle,
@@ -137,6 +147,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
         AccountTitle,
         ToPayTitle,
         DebtTitle,
+        PaidTitle,
         PenaltyTitle,
         ChargeTitle,
         CategoryTitle,
