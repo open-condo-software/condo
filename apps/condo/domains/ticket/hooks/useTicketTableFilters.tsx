@@ -1,5 +1,6 @@
 import {
     BuildingUnitSubType,
+    Ticket,
     TicketCategoryClassifier as TicketCategoryClassifierType,
     TicketSource as TicketSourceType,
     TicketStatus as TicketStatusType,
@@ -82,7 +83,8 @@ const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in
 const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')
 const filterPropertyScope = getPropertyScopeFilter()
 
-export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  {
+
+export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ticket>> {
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' }).toLowerCase()
@@ -341,9 +343,11 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                         size: FilterComponentSize.Small,
                     },
                     getComponentFilterDropdown: getSelectFilterDropdown({
-                        options: categoryClassifiersOptions,
-                        placeholder: CategoryClassifierLabel,
-                        mode: 'multiple',
+                        selectProps: {
+                            options: categoryClassifiersOptions,
+                            placeholder: CategoryClassifierLabel,
+                            mode: 'multiple',
+                        },
                     }),
                 },
             },
@@ -577,5 +581,5 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 filters: [filterTicketContact],
             },
         ]
-    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, StartDateMessage, EndDateMessage, LastCommentAtMessage, reviewValueOptions, ReviewValueMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
+    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, StartDateMessage, EndDateMessage, LastCommentAtMessage, reviewValueOptions, ReviewValueMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
 }

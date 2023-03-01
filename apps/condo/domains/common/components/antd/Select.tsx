@@ -15,7 +15,9 @@ export interface CustomSelectProps<T> extends SelectProps<T> {
     ref?: React.Ref<RefSelectProps>
 }
 
-const Select = <T extends string | number | { value: any, label: any }> (props: CustomSelectProps<T>) => {
+export type SelectValueType = string | number | { value: any, label: any }
+
+const Select = <T extends SelectValueType> (props: CustomSelectProps<T>) => {
     const { eventName: propEventName, eventProperties = {}, onChange, ...restProps } = props
     const { logEvent, getEventName } = useTracking()
 

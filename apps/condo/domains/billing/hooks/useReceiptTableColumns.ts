@@ -42,7 +42,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
                 filteredValue: get(filters, 'address'),
                 width: detailed ? '25%' : '50%',
                 filterIcon: getFilterIcon,
-                filterDropdown: getTextFilterDropdown(AddressTitle),
+                filterDropdown: getTextFilterDropdown({ inputProps: { placeholder: AddressTitle } }),
                 render: getTextRender(search),
             },
             unitName: {
@@ -52,7 +52,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
                 sorter: false,
                 filteredValue: get(filters, 'unitName'),
                 filterIcon: getFilterIcon,
-                filterDropdown: getTextFilterDropdown(UnitNameTitle),
+                filterDropdown: getTextFilterDropdown({ inputProps: { placeholder: UnitNameTitle } }),
                 width: '17%',
                 render: getTextRender(search),
             },
@@ -64,7 +64,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
                 filteredValue: get(filters, 'fullName'),
                 width: '18%',
                 filterIcon: getFilterIcon,
-                filterDropdown: getTextFilterDropdown(FullNameTitle),
+                filterDropdown: getTextFilterDropdown({ inputProps: { placeholder: FullNameTitle } }),
                 render: getTextRender(search),
             },
             category: {
@@ -86,7 +86,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
                 filteredValue: get(filters, 'account'),
                 width: detailed ? '20%' : '30%',
                 filterIcon: getFilterIcon,
-                filterDropdown: getTextFilterDropdown(AccountTitle),
+                filterDropdown: getTextFilterDropdown({ inputProps: { placeholder: AccountTitle } }),
                 render: getTextRender(search),
             },
             balance: {
