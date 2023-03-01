@@ -15,6 +15,7 @@ import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/u
 
 
 import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
+import { useLayoutContext } from './LayoutContext'
 import { useTracking } from './TrackingContext'
 
 
@@ -44,10 +45,12 @@ const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
   .icon {
     transition: ${transitions.allDefault};
   }
-
+  
   // NOTE: Fix width to reduce flick effect on collapse / expand
-  .condo-typography {
-    width: 155px;
+  &.side {
+    .condo-typography {
+      width: 155px;
+    }
   }
 
   &.active {
@@ -109,6 +112,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         onClick,
         eventName,
     } = props
+    const { isSmall } = useLayoutContext()
     const { route } = useRouter()
     const intl = useIntl()
     const { getTrackingWrappedCallback } = useTracking()
@@ -132,6 +136,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const Message = intl.formatMessage({ id: label })
 
     const menuItemClassNames = classnames({
+        'side': !isSmall,
         'active': isActive,
         'disabled': disabled,
     })
