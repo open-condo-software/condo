@@ -2,7 +2,7 @@
  * Regenerate address.key using actual rules
  *
  * Usage:
- *      yarn workspace @app/condo node bin/regenerate-keys [--dry-run] [addressId, addressId, ...]
+ *      yarn workspace @app/address-service node bin/regenerate-keys [--dry-run] [addressId, addressId, ...]
  */
 
 const path = require('path')
@@ -41,18 +41,30 @@ async function main (args) {
             sortBy: ['createdAt_ASC'],
         })
 
-        await addresses.map(async (address) => {
+        for (const address of addresses) {
+            const t1 = performance.now()
+            process.stdout.write(`\r\n${address.id}: `)
             const newKey = generateAddressKey(address.meta)
-            if (address.key !== newKey) {
-                console.info(`${address.id}: ${address.key} -> ${newKey}`)
-                if (!isDryRun) {
-                    await Address.update(context, address.id, { dv, sender, key: newKey })
+
+            if (newKey) {
+                if (address.key === newKey) {
+                    process.stdout.write('the key was not changed')
+                } else {
+                    process.stdout.write(`${address.key} -> ${newKey}`)
+                    if (!isDryRun) {
+                        await Address.update(context, address.id, { dv, sender, key: newKey })
+                    }
                 }
+            } else {
+                process.stdout.write('no data to generate new key')
             }
-        })
+            const t2 = performance.now()
+            process.stdout.write(`, done in ${Number(t2 - t1).toFixed(3)} ms`)
+        }
 
         offset += Math.min(pageSize, addresses.length)
     } while (addresses.length > 0)
+    process.stdout.write('\r\n')
 }
 
 main(process.argv.slice(2)).then(
