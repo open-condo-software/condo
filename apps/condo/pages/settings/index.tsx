@@ -9,6 +9,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { CommonSettingsContent } from '@condo/domains/common/components/settings/CommonSettingsContent'
 import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
 import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
 import { SettingsTabPaneDescriptor } from '@condo/domains/common/components/settings/Tabs'
@@ -20,6 +21,7 @@ import {
     SETTINGS_TAB_CONTROL_ROOM,
     SETTINGS_TAB_PROPERTY_SCOPE,
     SETTINGS_TAB_EMPLOYEE_ROLES,
+    SETTINGS_TAB_COMMON,
 } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
 import { EmployeeRolesSettingsContent } from '@condo/domains/organization/components/EmployeeRolesSettingsContent'
@@ -47,6 +49,7 @@ const SettingsPage: React.FC = () => {
     const ControlRoomTitle = intl.formatMessage({ id: 'ControlRoom' })
     const PropertyScopeTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.title' })
     const EmployeeRolesTitle = intl.formatMessage({ id: 'EmployeeRoles' })
+    const CommonTitle = intl.formatMessage({ id: 'pages.condo.settings.common.title' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
 
@@ -62,6 +65,11 @@ const SettingsPage: React.FC = () => {
 
     const settingsTabs: SettingsTabPaneDescriptor[] = useMemo(
         () => [
+            {
+                key: SETTINGS_TAB_COMMON,
+                title: CommonTitle,
+                content: <CommonSettingsContent/>,
+            },
             hasSubscriptionFeature && {
                 key: SETTINGS_TAB_SUBSCRIPTION,
                 title: SubscriptionTitle,
@@ -96,7 +104,7 @@ const SettingsPage: React.FC = () => {
             {
                 key: SETTINGS_TAB_CONTROL_ROOM,
                 title: ControlRoomTitle,
-                content: <ControlRoomSettingsContent />,
+                content: <ControlRoomSettingsContent/>,
             },
         ].filter(Boolean),
         [hasSubscriptionFeature, SubscriptionTitle, HintTitle, DetailsTitle, canManageContactRoles, RolesTitle, PropertyScopeTitle, ControlRoomTitle],
