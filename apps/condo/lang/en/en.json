@@ -797,6 +797,7 @@
   "pages.condo.settings.propertyScope.form.alert.descriptionLink": "Go to the list of employees",
   "pages.condo.settings.propertyScope.alert.delete.Title": "Delete property scope?",
   "pages.condo.settings.propertyScope.alert.delete.Message": "It will be impossible to restore. But it will be possible to create again.",
+  "pages.condo.settings.common.title": "Common",
   "pages.index.PageTitle": "Analytics",
   "pages.organizations.CreateOrganizationMessage": "Creating new organization",
   "pages.condo.analytics.index.PageTitle": "Analytics for supervisors",
