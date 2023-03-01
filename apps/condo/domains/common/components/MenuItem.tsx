@@ -90,7 +90,10 @@ const makeLink = (content: JSX.Element, path: string) => {
 
 const addToolTipForCollapsedMenu = (content: JSX.Element, Message: string) => (
     <Tooltip title={Message} placement='right'>
-        {content}
+        {/* NOTE: Antd tooltip doesn't work with spans, so icons must have a div wrapper */}
+        <div>
+            {content}
+        </div>
     </Tooltip>
 )
 
@@ -144,8 +147,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const linkContent = isCollapsed
         ? (
             <ClientRenderedIcon icon={icon} iconProps={MenuItemIconProps}/>
-        )
-        : (
+        ) : (
             <Space size={12} align='center' direction='horizontal'>
                 <ClientRenderedIcon icon={icon} iconProps={MenuItemIconProps}/>
                 <Typography.Paragraph ellipsis={{ rows: 2 }}>
