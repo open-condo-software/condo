@@ -1,6 +1,7 @@
 import path from 'path'
 
 import { Layout, Menu, Row, Col, Anchor } from 'antd'
+import { DOCS_REPO, DOCS_ROOT_PATH, DOCS_REPO_DOCS_ROOT, DOCS_EDIT_BRANCH } from 'domains/common/constants/buildVars'
 import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
 import { MDXMapping } from 'domains/docs/components/mdx'
 import { useMenuItems } from 'domains/docs/hooks/useMenuItems'
@@ -31,15 +32,6 @@ import type { Heading } from 'domains/docs/utils/mdx'
 import type { NavItem, ArticleInfo } from 'domains/docs/utils/routing'
 import type { GetStaticPaths, GetStaticProps } from 'next'
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
-
-// NOTE: These values are used in getStaticProps, so they should be available at build time.
-// You can use different values in yarn start and yarn build, which can cause some bugs in CI envs
-// That's the reason they're moved away from publicRuntimeConfig
-// https://github.com/vercel/next.js/discussions/11493#discussioncomment-14606
-const DOCS_ROOT_PATH = process.env.DOCS_ROOT_PATH || 'docs'
-const DOCS_REPO = process.env.DOCS_REPO
-const DOCS_REPO_DOCS_ROOT = process.env.DOCS_REPO_DOCS_ROOT || '/'
-const DOCS_EDIT_BRANCH = process.env.DOCS_EDIT_BRANCH || 'master'
 
 const DOCS_ROOT_ENDPOINT = '/docs'
 const SIDER_WIDTH = 336
