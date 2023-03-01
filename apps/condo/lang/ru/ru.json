@@ -1316,6 +1316,7 @@
   "DataWasUploadedOnSuffix": ", в",
   "DebtOverpayment": "Долг/Переплата",
   "PaymentPenalty": "Пени",
+  "PaymentPaid": "Оплачено",
   "PaymentType": "Тип",
   "PaymentOrder": "Платежное поручение",
   "PaymentOrderShort": "П/П",

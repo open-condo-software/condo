@@ -1316,6 +1316,7 @@
   "DataWasUploadedOnSuffix": " at",
   "DebtOverpayment": "Debt/Overpayment",
   "PaymentPenalty": "Penalty",
+  "PaymentPaid": "Paid",
   "PaymentType": "Type",
   "PaymentOrder": "Payment order",
   "PaymentOrderShort": "P/O",

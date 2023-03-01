@@ -21,6 +21,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
     const DebtTitle = intl.formatMessage({ id: 'DebtOverpayment' })
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
     const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
+    const PaidTitle = intl.formatMessage({ id: 'PaymentPaid' })
     const ChargeTitle = intl.formatMessage({ id: 'Charged' })
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
@@ -97,6 +98,15 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
                 align: 'right',
                 render: getMoneyRender(intl, currencyCode),
             },
+            paid: {
+                title: PaidTitle,
+                key: 'paid',
+                dataIndex: ['toPayDetails', 'paid'],
+                sorter: false,
+                width: '14%',
+                align: 'right',
+                render: getMoneyRender(intl, currencyCode),
+            },
             penalty: {
                 title: PenaltyTitle,
                 key: 'penalty',
@@ -128,7 +138,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
         }
 
         return detailed
-            ? [columns.address, columns.unitName, columns.fullName, columns.account, columns.category, columns.balance, columns.penalty, columns.charge, columns.toPay]
+            ? [columns.address, columns.unitName, columns.fullName, columns.account, columns.category, columns.balance, columns.paid, columns.penalty, columns.charge, columns.toPay]
             : [columns.address, columns.unitName, columns.account, columns.toPay]
     }, [
         AddressTitle,
