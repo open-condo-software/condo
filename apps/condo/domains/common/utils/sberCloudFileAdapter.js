@@ -124,7 +124,7 @@ class SberCloudFileAdapter {
     }
 
     getFilename ({ id, originalFilename }) {
-        const forbiddenCharacters = /[^<>\\%$]]/g
+        const forbiddenCharacters = /[^a-z0-9.+-]+/ig
         return `${id}${path.extname(originalFilename).replace(forbiddenCharacters, '')}` // will skip adding originalFilename
     }
 
