@@ -11,6 +11,7 @@ import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import isFunction from 'lodash/isFunction'
 import isNil from 'lodash/isNil'
+import omit from 'lodash/omit'
 import omitBy from 'lodash/omitBy'
 import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
@@ -341,8 +342,7 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     const { setSelectedFiltersTemplate } = useMultipleFilterContext()
 
     const handleReset = useCallback(async () => {
-        const newParameters = getFiltersQueryData({})
-        await updateQuery(router, { newParameters })
+        router.replace({ query: omit(router.query, ['filters', 'sort', 'offset']) })
         setSelectedFiltersTemplate(null)
 
         if (isFunction(handleResetFromProps)) {

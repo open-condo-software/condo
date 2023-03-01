@@ -2,7 +2,7 @@ import { Tabs } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -33,16 +33,19 @@ const AccrualsAndPaymentsPage: PageType = () => {
     const router = useRouter()
     const { query: { tab } } = router
 
-    const handleTabChange = useCallback((activeKey: string) => {
-        const newPath = `${router.route}?tab=${activeKey}`
-        router.push(newPath)
-    }, [router])
-
     const defaultTab = useMemo(() =>
         (tab && !Array.isArray(tab) && ALL_TAB_KEYS.includes(tab.toLowerCase()))
             ? tab.toLowerCase()
             : ACCRUALS_TAB_KEY
     , [tab])
+
+    const [activeTab, setActiveTab] = useState(defaultTab)
+
+    const handleTabChange = useCallback((activeKey: string) => {
+        router
+            .replace({ query: { tab: activeKey } })
+            .then(() => setActiveTab(activeKey))
+    }, [router])
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], '')
@@ -77,6 +80,8 @@ const AccrualsAndPaymentsPage: PageType = () => {
                         defaultActiveKey={defaultTab}
                         tabBarStyle={{ marginBottom: 40 }}
                         onChange={handleTabChange}
+                        destroyInactiveTabPane
+                        activeKey={activeTab}
                     >
                         <Tabs.TabPane key={ACCRUALS_TAB_KEY} tab={AccrualsTitle}>
                             <BillingPageContent

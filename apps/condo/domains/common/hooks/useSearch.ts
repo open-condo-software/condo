@@ -16,7 +16,7 @@ export const useSearch = <F> (): UseSearchOutputType => {
 
     const searchChange = useMemo(() => debounce(async (searchString) => {
         const newParameters = getFiltersQueryData({ ...filtersFromQuery, search: searchString })
-        await updateQuery(router, { newParameters })
+        await updateQuery(router, { newParameters }, { resetOldParameters: false })
     }, 400), [router, filtersFromQuery])
 
     const handleSearchChange = useCallback((value: string): void => {
