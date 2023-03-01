@@ -42,7 +42,7 @@ async function main (args) {
         })
 
         for (const address of addresses) {
-            const t1 = performance.now()
+            const t1 = Date.now()
             process.stdout.write(`\r\n${address.id}: `)
             const newKey = generateAddressKey(address.meta)
 
@@ -58,8 +58,7 @@ async function main (args) {
             } else {
                 process.stdout.write('no data to generate new key')
             }
-            const t2 = performance.now()
-            process.stdout.write(`, done in ${Number(t2 - t1).toFixed(3)} ms`)
+            process.stdout.write(`, done in ${Number(Date.now() - t1)} ms`)
         }
 
         offset += Math.min(pageSize, addresses.length)
