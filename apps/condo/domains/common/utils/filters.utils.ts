@@ -118,20 +118,25 @@ export function getFilterDropdownByKey <FilterType, RecordType> (filterMetas: Ar
     const component = get(filterMeta, 'component')
     const type = get(component, 'type')
     const props = get(component, 'props')
+    const idFromProps = get(props, 'id')
     const columnFilterComponentWrapperStyles = get(component, 'columnFilterComponentWrapper')
+    const id = idFromProps || `${key}FilterDropdown`
 
     switch (type) {
         case ComponentType.Input: {
             const placeholder = get(props, 'placeholder')
 
             return getTextFilterDropdown({
-                inputProps: { placeholder },
+                inputProps: { placeholder, id },
                 containerStyles: columnFilterComponentWrapperStyles,
             })
         }
 
         case ComponentType.Date:
-            return getDateFilterDropdown({ containerStyles: columnFilterComponentWrapperStyles })
+            return getDateFilterDropdown({
+                datePickerProps: { id },
+                containerStyles: columnFilterComponentWrapperStyles,
+            })
 
         case ComponentType.CheckboxGroup: {
             const options = get(component, 'options')
@@ -141,6 +146,7 @@ export function getFilterDropdownByKey <FilterType, RecordType> (filterMetas: Ar
                 checkboxGroupProps: {
                     options,
                     disabled: loading,
+                    id,
                 },
                 containerStyles: columnFilterComponentWrapperStyles,
             })
@@ -148,7 +154,7 @@ export function getFilterDropdownByKey <FilterType, RecordType> (filterMetas: Ar
 
         case ComponentType.DateRange:
             return getDateRangeFilterDropdown({
-                datePickerProps: props,
+                datePickerProps: { ...props, id },
                 containerStyles: columnFilterComponentWrapperStyles,
             })
 
@@ -158,7 +164,7 @@ export function getFilterDropdownByKey <FilterType, RecordType> (filterMetas: Ar
             const props = get(component, 'props', {})
 
             return getSelectFilterDropdown({
-                selectProps: { options, loading, ...props },
+                selectProps: { options, loading, ...props, id },
                 containerStyles: columnFilterComponentWrapperStyles,
             })
         }
@@ -173,6 +179,7 @@ export function getFilterDropdownByKey <FilterType, RecordType> (filterMetas: Ar
                     ...props,
                     search,
                     mode,
+                    id,
                 },
                 containerStyles: columnFilterComponentWrapperStyles,
             })
@@ -188,6 +195,7 @@ export function getFilterDropdownByKey <FilterType, RecordType> (filterMetas: Ar
                     allowClear: true,
                     suffixIcon: null,
                     ...props,
+                    id,
                 },
                 containerStyles: columnFilterComponentWrapperStyles,
             })

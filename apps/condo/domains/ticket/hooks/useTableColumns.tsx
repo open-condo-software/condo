@@ -1,9 +1,7 @@
 import { Ticket } from '@app/condo/schema'
 import { ColumnsType } from 'antd/lib/table'
-import { ColumnType } from 'antd/lib/table/interface'
 import get from 'lodash/get'
 import map from 'lodash/map'
-import { identity } from 'lodash/util'
 import { useRouter } from 'next/router'
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react'
 
@@ -13,7 +11,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
     getAddressRender,
     getDateRender,
@@ -24,7 +21,7 @@ import { RE_FETCH_TICKETS_IN_CONTROL_ROOM } from '@condo/domains/common/constant
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketCommentsTime, UserTicketCommentReadTime } from '@condo/domains/ticket/utils/clientSchema'
 import {
     getClassifierRender,
     getStatusRender,
@@ -33,7 +30,6 @@ import {
     getTicketUserNameRender,
     getUnitRender,
 } from '@condo/domains/ticket/utils/clientSchema/Renders'
-import { convertGQLItemToFormSelectState } from '@condo/domains/ticket/utils/clientSchema/TicketStatus'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 
@@ -77,15 +73,6 @@ export function useTableColumns <T> (
     const sorterMap = getSorterMap(sorters)
     const search = getFilteredValue(filters, 'search')
     const { breakpoints } = useLayoutContext()
-
-    const { loading: statusesLoading, objs: ticketStatuses } = TicketStatus.useObjects({})
-
-
-    // todo(doma-5456) difference filters in condo & cc
-    const renderStatusFilterDropdown: ColumnType<Ticket>['filterDropdown'] = useCallback((filterProps) => {
-        const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
-        return getOptionFilterDropdown({ checkboxGroupProps: { options: adaptedStatuses, disabled: statusesLoading } })(filterProps)
-    }, [statusesLoading, ticketStatuses])
 
     const renderAddress = useCallback(
         (property) => getAddressRender(property, DeletedMessage, search),
@@ -279,6 +266,6 @@ export function useTableColumns <T> (
                 ellipsis: true,
             },
         ],
-        loading: userTicketCommentReadTimesLoading || ticketCommentTimesLoading || statusesLoading,
-    }), [NumberMessage, sorterMap, filters, filterMetas, intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes, search, DateMessage, StatusMessage, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading, statusesLoading])
+        loading: userTicketCommentReadTimesLoading || ticketCommentTimesLoading,
+    }), [NumberMessage, sorterMap, filters, filterMetas, intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes, search, DateMessage, StatusMessage, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading])
 }
