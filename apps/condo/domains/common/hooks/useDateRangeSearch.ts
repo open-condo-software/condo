@@ -9,8 +9,7 @@ import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/he
 type DayJSRangeType = [dayjs.Dayjs, dayjs.Dayjs]
 
 export const useDateRangeSearch = <F> (
-    filterKey: string,
-    loading: boolean,
+    filterKey: string
 ): [null | DayJSRangeType, (search: DayJSRangeType) => void] => {
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
@@ -26,11 +25,11 @@ export const useDateRangeSearch = <F> (
                     ...filtersFromQuery,
                     [filterKey]: searchString,
                 })
-                await updateQuery(router, { newParameters })
+                await updateQuery(router, { newParameters }, { resetOldParameters: false })
             },
             400,
         ),
-        [loading, searchValueFromQuery],
+        [searchValueFromQuery],
     )
 
     const handleSearchChange = (value: DayJSRangeType): void => {
