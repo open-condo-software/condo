@@ -231,6 +231,16 @@ const MyApp = ({ Component, pageProps }) => {
 
     const shouldDisplayCookieAgreement = router.pathname.match(/\/auth\/.*/)
 
+    // NOTE: when we page render on server then page on client have flick and bug layout
+    // What problem is happening on the client?
+    // 1) Get filled page --> show this page
+    // 2) Start loading all data --> show loader
+    // 3) Finish loading all data --> show this page again
+    // It also eliminates the layout bug
+    if (typeof window === 'undefined') {
+        return null
+    }
+
     return (
         <>
             <Head>
