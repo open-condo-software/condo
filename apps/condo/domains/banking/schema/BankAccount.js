@@ -44,11 +44,6 @@ const BankAccount = new GQLListSchema('BankAccount', {
                     }
                 },
             },
-            access: {
-                read: true,
-                create: true,
-                update: false,
-            },
         },
 
         property: {
