@@ -1,106 +1,124 @@
 import { Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { LocaleContext, useIntl } from '@open-condo/next/intl'
-import { Modal } from '@open-condo/ui'
+import { Button, Modal, Radio } from '@open-condo/ui'
 
-interface ISettingsItem {
+interface ISettingsPopupContentProps<T> {
+    value: T
+    onChange: (value: T) => void
+}
+
+interface ILanguageSettingPopupContentProps extends ISettingsPopupContentProps<string> {
+    possibleLocales: { [locale: string]: string }
+}
+
+interface ISettingsTableItem {
     title: string
-    value: JSX.Element
-    modalContent: JSX.Element
+    valueCell: JSX.Element
+    modalContentComponent: React.FC<ISettingsPopupContentProps<unknown>>
+    value: unknown
+    onChange: { (data: unknown): void }
+    props: { [key: string]: unknown }
+    onSave: { (data: unknown): void }
 }
 
-interface ISettingsModal {
-    title: string
-    content: JSX.Element
-}
+type TCurrentSettingModalData = Omit<ISettingsTableItem, 'valueCell'>
 
-interface ILanguageNameProps {
-    locale: string
-    useFlag?: boolean
-}
-
-const LanguageName: React.FC<ILanguageNameProps> = ({ locale, useFlag = true }) => {
-    const intl = useIntl()
-    const RuTitle = intl.formatMessage({ id: 'language.russian' })
-    const EnTitle = intl.formatMessage({ id: 'language.english-us' })
-
-    // todo(AleX83Xpert) maybe move languages to some global place
-    const possible: { [locale: string]: { title: string, flagEmoji: string } } = {
-        ru: { title: RuTitle, flagEmoji: '🇷🇺' },
-        en: { title: EnTitle, flagEmoji: '🇺🇸' },
-    }
-
-    return (
-        <>
-            {useFlag && `${possible[locale].flagEmoji}\u00a0`}
-            {possible[locale].title}
-        </>
-    )
-}
-
-interface ILanguageSettingPopupContentProps {
-    locale: string
-    setLocale: { (locale: string): void }
-}
-
-const LanguageSettingPopupContent: React.FC<ILanguageSettingPopupContentProps> = ({ locale, setLocale }) => {
+const LanguageSettingPopupContent: React.FC<ILanguageSettingPopupContentProps> = ({
+    value,
+    onChange,
+    possibleLocales,
+}) => {
     return (
         <div>
-            <button onClick={() => setLocale('ru')}>{locale === 'ru' ? 'RU' : 'ru'}</button>
-            <button onClick={() => setLocale('en')}>{locale === 'en' ? 'EN' : 'en'}</button>
+            {Object.entries(possibleLocales).map(([locale, localeName]) => (
+                <div key={`locale=${locale}`}>
+                    <Radio
+                        label={localeName}
+                        value={locale}
+                        checked={locale === value}
+                        onChange={(event) => onChange(event.target.value)}
+                    />
+                </div>
+            ))}
         </div>
     )
 }
 
 export const CommonSettingsContent: React.FC = () => {
     const intl = useIntl()
+    const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
+    const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
     const SettingNameTitle = intl.formatMessage({ id: 'pages.condo.settings.common.settingName' })
     const SettingValueTitle = intl.formatMessage({ id: 'pages.condo.settings.common.settingValue' })
     const InterfaceLanguageTitle = intl.formatMessage({ id: 'pages.condo.settings.common.interfaceLanguage' })
+    const SaveTitle = intl.formatMessage({ id: 'Save' })
 
-    const [modalContent, setModalContent] = useState<ISettingsModal>()
+    const [currentSettingModalData, setCurrentSettingModalData] = useState<TCurrentSettingModalData>()
 
-    const handleRowClick = useCallback((row: ISettingsItem) => {
-        return {
-            onClick: () => {
-                setModalContent({ content: row.modalContent, title: row.title })
-            },
-        }
-    }, [])
+    const possibleLocales = useMemo(() => ({
+        ru: RuTitle,
+        en: EnTitle,
+    }), [EnTitle, RuTitle])
+
+    const handleRowClick = useCallback((row: ISettingsTableItem) => ({
+        onClick: () => {
+            setCurrentSettingModalData(row)
+        },
+    }), [])
+
+    const onModalSave = useCallback(() => {
+        currentSettingModalData.onSave(currentSettingModalData.value)
+        setCurrentSettingModalData(undefined)
+    }, [currentSettingModalData])
+
+    const onModalCancel = useCallback(() => setCurrentSettingModalData(undefined), [])
 
     return (
         <LocaleContext.Consumer>
             {({ locale, setLocale }) => {
-                const dataSource: ISettingsItem[] = [
+                const dataSource: ISettingsTableItem[] = [
                     {
                         title: InterfaceLanguageTitle,
-                        value: <LanguageName locale={locale}/>,
-                        modalContent: <LanguageSettingPopupContent locale={locale} setLocale={setLocale}/>,
+                        valueCell: possibleLocales[locale],
+                        modalContentComponent: LanguageSettingPopupContent,
+                        onChange: (newLocale) => {
+                            setCurrentSettingModalData((prev) => ({ ...prev, value: newLocale }))
+                        },
+                        value: locale,
+                        props: { possibleLocales },
+                        onSave: (locale: string) => setLocale(locale),
                     },
                 ]
-                const columns: ColumnsType<ISettingsItem> = [
+
+                const columns: ColumnsType<ISettingsTableItem> = [
                     { title: SettingNameTitle, dataIndex: 'title', width: 250 },
-                    { title: SettingValueTitle, dataIndex: 'value' },
+                    { title: SettingValueTitle, dataIndex: 'valueCell' },
                 ]
 
                 return (
                     <>
-                        <Table<ISettingsItem>
+                        <Table<ISettingsTableItem>
                             dataSource={dataSource}
                             columns={columns}
                             onRow={handleRowClick}
                             pagination={false}
                             bordered={true}
                         />
-                        {!!modalContent && (
+                        {!!currentSettingModalData && (
                             <Modal
-                                title={modalContent.title}
-                                open={!!modalContent}
-                                onCancel={() => setModalContent(undefined)}
+                                open={!!currentSettingModalData}
+                                title={currentSettingModalData.title}
+                                onCancel={onModalCancel}
+                                footer={<Button type='primary' onClick={onModalSave}>{SaveTitle}</Button>}
                             >
-                                {modalContent.content}
+                                <currentSettingModalData.modalContentComponent
+                                    value={currentSettingModalData.value}
+                                    onChange={currentSettingModalData.onChange}
+                                    {...currentSettingModalData.props}
+                                />
                             </Modal>
                         )}
                     </>
