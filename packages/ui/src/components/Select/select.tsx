@@ -3,7 +3,7 @@ import classNames from 'classnames'
 import compact from 'lodash/compact'
 import React, { useCallback } from 'react'
 
-import { ChevronDown } from '@open-condo/icons'
+import { ChevronDown, Close, XCircle, Check, Inbox } from '@open-condo/icons'
 import { Typography } from '@open-condo/ui/src'
 import type { TypographyTextProps } from '@open-condo/ui/src'
 import { sendAnalyticsSelectEvent, extractChildrenContent } from '@open-condo/ui/src/components/_utils/analytics'
@@ -21,26 +21,39 @@ export type OptionType = React.PropsWithChildren<{
     value?: string | number | null
     disabled?: boolean
     textType?: TypographyTextProps['type']
+    title?: string
 }>
 type OnChangeType = (value: OptionType['value'], option: OptionType | Array<OptionType>) => void
 
-export type SelectProps = Pick<DefaultSelectProps, 'disabled' | 'value' | 'loading' | 'children' | 'id'> & {
+type SelectValueTypeBase = string | number | null | undefined
+export type SelectProps<ValueType = SelectValueTypeBase> = Pick<DefaultSelectProps<ValueType, OptionType>,
+'disabled'
+| 'value'
+| 'loading'
+| 'children'
+| 'id'
+| 'dropdownAlign'
+| 'filterOption'
+| 'optionFilterProp'
+| 'allowClear'
+| 'showSearch'
+| 'defaultValue'
+> & {
     placeholder: string
     options?: Array<OptionType>
     displayMode?: 'fill-parent' | 'fit-content'
     type?: typeof SELECT_TYPES[number]
     onChange?: OnChangeType
+    isMultiple?: boolean
+    notFoundContentLabel?: string
 }
 
-export interface ISelect {
-    (props: SelectProps): React.ReactElement
-}
+const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueType>): React.ReactElement => {
+    const { options, children, displayMode = 'fill-parent', type, onChange, id, isMultiple, notFoundContentLabel,  ...rest } = props
 
-const Select: ISelect = (props) => {
-    const { options, children, displayMode = 'fill-parent', type, onChange, id, ...rest } = props
     const className = classNames({
         [`${SELECT_CLASS_PREFIX}-${displayMode}`]: displayMode,
-        [`${SELECT_CLASS_PREFIX}-${type}`]: type,
+        [`${SELECT_CLASS_PREFIX}-${type}`]: !isMultiple && type,
     })
 
     const handleChange = useCallback<OnChangeType>((value, option) => {
@@ -64,17 +77,33 @@ const Select: ISelect = (props) => {
         <DefaultSelect
             {...rest}
             id={id}
+            mode={isMultiple ? 'multiple' : undefined}
             prefixCls={SELECT_CLASS_PREFIX}
             className={className}
             suffixIcon={<ChevronDown size='small' />}
             onChange={handleChange}
+            removeIcon={<Close size='small' />}
+            clearIcon={<XCircle size='small' />}
+            menuItemSelectedIcon={<Check size='small' />}
+            showArrow
+            notFoundContent={
+                <>
+                    <Inbox size='large' />
+                    {notFoundContentLabel && <Typography.Text size='medium'>
+                        {notFoundContentLabel}
+                    </Typography.Text>}
+                </>
+            }
         >
             {options
-                ? options.map(({ label, value, textType, disabled }, optionIndex) => (
-                    <Option key={optionIndex} value={value} disabled={disabled}>
-                        <Typography.Text size='medium' disabled={disabled} type={textType}>
-                            {label}
-                        </Typography.Text>
+                ? options.map(({ label, value, textType, disabled, title }, optionIndex) => (
+                    <Option
+                        key={optionIndex}
+                        value={value}
+                        disabled={disabled}
+                        title={(title || typeof label !== 'string') ? title : label}
+                    >
+                        <Typography.Text size='medium' disabled={disabled} type={textType} children={label} />
                     </Option>
                 ))
                 : children
