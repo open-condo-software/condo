@@ -158,7 +158,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     : await Message.create(context, messageAttrs)
 
                 if (!messageWithSameUniqKey) await deliverMessage.delay(message.id)
-
+                
                 return {
                     isDuplicateMessage: !!messageWithSameUniqKey,
                     id: message.id,

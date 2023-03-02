@@ -5,10 +5,12 @@
 
 const { DisconnectUserFromRemoteClientService } = require('./DisconnectUserFromRemoteClientService')
 const { Message } = require('./Message')
+const { MessageAppBlackList } = require('./MessageAppBlackList')
 const { MessageBatch } = require('./MessageBatch')
 const { MessageOrganizationBlackList } = require('./MessageOrganizationBlackList')
 const { MessageUserBlackList } = require('./MessageUserBlackList')
 const { RemoteClient } = require('./RemoteClient')
+const { SendAppPushMessageService } = require('./SendAppPushMessageService')
 const { SendMessageService } = require('./SendMessageService')
 const { SetMessageStatusService } = require('./SetMessageStatusService')
 const { SyncRemoteClientService } = require('./SyncRemoteClientService')
@@ -24,5 +26,7 @@ module.exports = {
     MessageUserBlackList,
     MessageOrganizationBlackList,
     MessageBatch,
+    SendAppPushMessageService,
+    MessageAppBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

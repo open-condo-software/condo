@@ -17585,6 +17585,372 @@ export type Message = {
   sender?: Maybe<SenderField>;
 };
 
+/**  Rule for blocking specific type of messages for apps  */
+export type MessageAppBlackList = {
+  __typename?: 'MessageAppBlackList';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MessageAppBlackList List config, or
+   *  2. As an alias to the field set on 'labelField' in the MessageAppBlackList List config, or
+   *  3. As an alias to a 'name' field on the MessageAppBlackList List (if one exists), or
+   *  4. As an alias to the 'id' field on the MessageAppBlackList List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  the app we want to block from sending messages to (null - all organizations)  */
+  app?: Maybe<B2CApp>;
+  /**  The type of message we want to block  */
+  type?: Maybe<Scalars['String']>;
+  /**  The reason why the entry was added to the MessageAppBlackList  */
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type MessageAppBlackListCreateInput = {
+  app?: Maybe<B2CAppRelateToOneInput>;
+  type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type MessageAppBlackListHistoryRecord = {
+  __typename?: 'MessageAppBlackListHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MessageAppBlackListHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the MessageAppBlackListHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the MessageAppBlackListHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the MessageAppBlackListHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  app?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MessageAppBlackListHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MessageAppBlackListHistoryRecordCreateInput = {
+  app?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MessageAppBlackListHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum MessageAppBlackListHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type MessageAppBlackListHistoryRecordUpdateInput = {
+  app?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MessageAppBlackListHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MessageAppBlackListHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<MessageAppBlackListHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MessageAppBlackListHistoryRecordWhereInput>>>;
+  app?: Maybe<Scalars['String']>;
+  app_not?: Maybe<Scalars['String']>;
+  app_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  app_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description?: Maybe<Scalars['String']>;
+  description_not?: Maybe<Scalars['String']>;
+  description_contains?: Maybe<Scalars['String']>;
+  description_not_contains?: Maybe<Scalars['String']>;
+  description_starts_with?: Maybe<Scalars['String']>;
+  description_not_starts_with?: Maybe<Scalars['String']>;
+  description_ends_with?: Maybe<Scalars['String']>;
+  description_not_ends_with?: Maybe<Scalars['String']>;
+  description_i?: Maybe<Scalars['String']>;
+  description_not_i?: Maybe<Scalars['String']>;
+  description_contains_i?: Maybe<Scalars['String']>;
+  description_not_contains_i?: Maybe<Scalars['String']>;
+  description_starts_with_i?: Maybe<Scalars['String']>;
+  description_not_starts_with_i?: Maybe<Scalars['String']>;
+  description_ends_with_i?: Maybe<Scalars['String']>;
+  description_not_ends_with_i?: Maybe<Scalars['String']>;
+  description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<MessageAppBlackListHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<MessageAppBlackListHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<MessageAppBlackListHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<MessageAppBlackListHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MessageAppBlackListHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MessageAppBlackListHistoryRecordsCreateInput = {
+  data?: Maybe<MessageAppBlackListHistoryRecordCreateInput>;
+};
+
+export type MessageAppBlackListHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MessageAppBlackListHistoryRecordUpdateInput>;
+};
+
+export type MessageAppBlackListUpdateInput = {
+  app?: Maybe<B2CAppRelateToOneInput>;
+  type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type MessageAppBlackListWhereInput = {
+  AND?: Maybe<Array<Maybe<MessageAppBlackListWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MessageAppBlackListWhereInput>>>;
+  app?: Maybe<B2CAppWhereInput>;
+  app_is_null?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description?: Maybe<Scalars['String']>;
+  description_not?: Maybe<Scalars['String']>;
+  description_contains?: Maybe<Scalars['String']>;
+  description_not_contains?: Maybe<Scalars['String']>;
+  description_starts_with?: Maybe<Scalars['String']>;
+  description_not_starts_with?: Maybe<Scalars['String']>;
+  description_ends_with?: Maybe<Scalars['String']>;
+  description_not_ends_with?: Maybe<Scalars['String']>;
+  description_i?: Maybe<Scalars['String']>;
+  description_not_i?: Maybe<Scalars['String']>;
+  description_contains_i?: Maybe<Scalars['String']>;
+  description_not_contains_i?: Maybe<Scalars['String']>;
+  description_starts_with_i?: Maybe<Scalars['String']>;
+  description_not_starts_with_i?: Maybe<Scalars['String']>;
+  description_ends_with_i?: Maybe<Scalars['String']>;
+  description_not_ends_with_i?: Maybe<Scalars['String']>;
+  description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type MessageAppBlackListWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MessageAppBlackListsCreateInput = {
+  data?: Maybe<MessageAppBlackListCreateInput>;
+};
+
+export type MessageAppBlackListsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MessageAppBlackListUpdateInput>;
+};
+
 /**  Message batch. Adding record here will cause sending message to all targets (user, phone or email) listed in targets via transport detected based on target type.  */
 export type MessageBatch = {
   __typename?: 'MessageBatch';
@@ -24100,6 +24466,30 @@ export type Mutation = {
   deleteMessageBatch?: Maybe<MessageBatch>;
   /**  Delete multiple MessageBatch items by ID.  */
   deleteMessageBatches?: Maybe<Array<Maybe<MessageBatch>>>;
+  /**  Create a single MessageAppBlackListHistoryRecord item.  */
+  createMessageAppBlackListHistoryRecord?: Maybe<MessageAppBlackListHistoryRecord>;
+  /**  Create multiple MessageAppBlackListHistoryRecord items.  */
+  createMessageAppBlackListHistoryRecords?: Maybe<Array<Maybe<MessageAppBlackListHistoryRecord>>>;
+  /**  Update a single MessageAppBlackListHistoryRecord item by ID.  */
+  updateMessageAppBlackListHistoryRecord?: Maybe<MessageAppBlackListHistoryRecord>;
+  /**  Update multiple MessageAppBlackListHistoryRecord items by ID.  */
+  updateMessageAppBlackListHistoryRecords?: Maybe<Array<Maybe<MessageAppBlackListHistoryRecord>>>;
+  /**  Delete a single MessageAppBlackListHistoryRecord item by ID.  */
+  deleteMessageAppBlackListHistoryRecord?: Maybe<MessageAppBlackListHistoryRecord>;
+  /**  Delete multiple MessageAppBlackListHistoryRecord items by ID.  */
+  deleteMessageAppBlackListHistoryRecords?: Maybe<Array<Maybe<MessageAppBlackListHistoryRecord>>>;
+  /**  Create a single MessageAppBlackList item.  */
+  createMessageAppBlackList?: Maybe<MessageAppBlackList>;
+  /**  Create multiple MessageAppBlackList items.  */
+  createMessageAppBlackLists?: Maybe<Array<Maybe<MessageAppBlackList>>>;
+  /**  Update a single MessageAppBlackList item by ID.  */
+  updateMessageAppBlackList?: Maybe<MessageAppBlackList>;
+  /**  Update multiple MessageAppBlackList items by ID.  */
+  updateMessageAppBlackLists?: Maybe<Array<Maybe<MessageAppBlackList>>>;
+  /**  Delete a single MessageAppBlackList item by ID.  */
+  deleteMessageAppBlackList?: Maybe<MessageAppBlackList>;
+  /**  Delete multiple MessageAppBlackList items by ID.  */
+  deleteMessageAppBlackLists?: Maybe<Array<Maybe<MessageAppBlackList>>>;
   /**  Create a single ContactHistoryRecord item.  */
   createContactHistoryRecord?: Maybe<ContactHistoryRecord>;
   /**  Create multiple ContactHistoryRecord items.  */
@@ -26453,6 +26843,7 @@ export type Mutation = {
   syncRemoteClient?: Maybe<RemoteClient>;
   disconnectUserFromRemoteClient?: Maybe<DisconnectUserFromRemoteClientOutput>;
   setMessageStatus?: Maybe<SetMessageStatusOutput>;
+  sendAppPushMessage?: Maybe<SendAppPushMessageOutput>;
   registerResident?: Maybe<Resident>;
   /**
    * Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
@@ -29774,6 +30165,68 @@ export type MutationDeleteMessageBatchesArgs = {
 };
 
 
+export type MutationCreateMessageAppBlackListHistoryRecordArgs = {
+  data?: Maybe<MessageAppBlackListHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateMessageAppBlackListHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MessageAppBlackListHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateMessageAppBlackListHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MessageAppBlackListHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateMessageAppBlackListHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MessageAppBlackListHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMessageAppBlackListHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMessageAppBlackListHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMessageAppBlackListArgs = {
+  data?: Maybe<MessageAppBlackListCreateInput>;
+};
+
+
+export type MutationCreateMessageAppBlackListsArgs = {
+  data?: Maybe<Array<Maybe<MessageAppBlackListsCreateInput>>>;
+};
+
+
+export type MutationUpdateMessageAppBlackListArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MessageAppBlackListUpdateInput>;
+};
+
+
+export type MutationUpdateMessageAppBlackListsArgs = {
+  data?: Maybe<Array<Maybe<MessageAppBlackListsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMessageAppBlackListArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMessageAppBlackListsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
 export type MutationCreateContactHistoryRecordArgs = {
   data?: Maybe<ContactHistoryRecordCreateInput>;
 };
@@ -32073,6 +32526,11 @@ export type MutationDisconnectUserFromRemoteClientArgs = {
 
 export type MutationSetMessageStatusArgs = {
   data: SetMessageStatusInput;
+};
+
+
+export type MutationSendAppPushMessageArgs = {
+  data: SendAppPushMessageInput;
 };
 
 
@@ -39588,6 +40046,22 @@ export type Query = {
   _allMessageBatchesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the MessageBatch list.  */
   _MessageBatchesMeta?: Maybe<_ListMeta>;
+  /**  Search for all MessageAppBlackListHistoryRecord items which match the where clause.  */
+  allMessageAppBlackListHistoryRecords?: Maybe<Array<Maybe<MessageAppBlackListHistoryRecord>>>;
+  /**  Search for the MessageAppBlackListHistoryRecord item with the matching ID.  */
+  MessageAppBlackListHistoryRecord?: Maybe<MessageAppBlackListHistoryRecord>;
+  /**  Perform a meta-query on all MessageAppBlackListHistoryRecord items which match the where clause.  */
+  _allMessageAppBlackListHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MessageAppBlackListHistoryRecord list.  */
+  _MessageAppBlackListHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MessageAppBlackList items which match the where clause.  */
+  allMessageAppBlackLists?: Maybe<Array<Maybe<MessageAppBlackList>>>;
+  /**  Search for the MessageAppBlackList item with the matching ID.  */
+  MessageAppBlackList?: Maybe<MessageAppBlackList>;
+  /**  Perform a meta-query on all MessageAppBlackList items which match the where clause.  */
+  _allMessageAppBlackListsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MessageAppBlackList list.  */
+  _MessageAppBlackListsMeta?: Maybe<_ListMeta>;
   /**  Search for all ContactHistoryRecord items which match the where clause.  */
   allContactHistoryRecords?: Maybe<Array<Maybe<ContactHistoryRecord>>>;
   /**  Search for the ContactHistoryRecord item with the matching ID.  */
@@ -42852,6 +43326,56 @@ export type Query_AllMessageBatchesMetaArgs = {
   where?: Maybe<MessageBatchWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortMessageBatchesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMessageAppBlackListHistoryRecordsArgs = {
+  where?: Maybe<MessageAppBlackListHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMessageAppBlackListHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMessageAppBlackListHistoryRecordArgs = {
+  where: MessageAppBlackListHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllMessageAppBlackListHistoryRecordsMetaArgs = {
+  where?: Maybe<MessageAppBlackListHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMessageAppBlackListHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMessageAppBlackListsArgs = {
+  where?: Maybe<MessageAppBlackListWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMessageAppBlackListsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMessageAppBlackListArgs = {
+  where: MessageAppBlackListWhereUniqueInput;
+};
+
+
+export type Query_AllMessageAppBlackListsMetaArgs = {
+  where?: Maybe<MessageAppBlackListWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMessageAppBlackListsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -47035,6 +47559,31 @@ export type ResidentsUpdateInput = {
   data?: Maybe<ResidentUpdateInput>;
 };
 
+export type SendAppPushMessageData = {
+  body: Scalars['String'];
+  title?: Maybe<Scalars['String']>;
+};
+
+export type SendAppPushMessageInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  app: B2CAppWhereUniqueInput;
+  user: UserWhereUniqueInput;
+  type: SendAppPushMessageType;
+  data: SendAppPushMessageData;
+  uniqKey?: Maybe<Scalars['String']>;
+};
+
+export type SendAppPushMessageOutput = {
+  __typename?: 'SendAppPushMessageOutput';
+  id: Scalars['String'];
+  status: Scalars['String'];
+};
+
+export enum SendAppPushMessageType {
+  VoipIncomingCallMessage = 'VOIP_INCOMING_CALL_MESSAGE'
+}
+
 export type SendMessageInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -50193,6 +50742,54 @@ export enum SortForgotPasswordActionsBy {
   ExpiresAtDesc = 'expiresAt_DESC',
   UsedAtAsc = 'usedAt_ASC',
   UsedAtDesc = 'usedAt_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortMessageAppBlackListHistoryRecordsBy {
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortMessageAppBlackListsBy {
+  AppAsc = 'app_ASC',
+  AppDesc = 'app_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

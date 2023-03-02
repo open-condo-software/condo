@@ -12,19 +12,21 @@ const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
-const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST, MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
+const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST, MESSAGE_TYPE_IN_USER_BLACK_LIST, MESSAGE_TYPE_IN_APP_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
 const {
     SEND_MESSAGE,
     RESEND_MESSAGE,
     SYNC_DEVICE_MUTATION,
     DISCONNECT_USER_FROM_DEVICE_MUTATION,
     SET_MESSAGE_STATUS_MUTATION,
+    SEND_APP_PUSH_MESSAGE_MUTATION,
     Message: MessageGQL,
     RemoteClient: RemoteClientGQL,
     MessageUserBlackList: MessageUserBlackListGQL,
     MessageOrganizationBlackList: MessageOrganizationBlackListGQL,
     MessageOrganizationWhiteList: MessageOrganizationWhiteListGQL,
     MessageBatch: MessageBatchGQL,
+    MessageAppBlackList: MessageAppBlackListGQL,
 } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -151,13 +153,44 @@ async function checkMessageTypeInBlackList (context, message) {
         if (isMessageTypeInUserBlackList) return { error: MESSAGE_TYPE_IN_USER_BLACK_LIST }
     }
 
+    //TODO(Kekmus) think more about it maybe in some cases it doesnt work
+    if (message.meta.data && message.meta.data.B2CAppId) {
+        const messageAppBlackListWhere = {
+            type: message.type,
+            OR: [
+                { app_is_null: true },
+                { app: message.meta.data.B2CAppId },
+            ],
+            deletedAt: null,
+        }
+
+        const messageAppBlackListRules = await MessageAppBlackList.getAll(context, messageAppBlackListWhere)
+
+        if (!isEmpty(messageAppBlackListRules)) return { error: MESSAGE_TYPE_IN_APP_BLACK_LIST }
+    }
+
     return { error: null }
 }
 
 const MessageUserBlackList = generateServerUtils(MessageUserBlackListGQL)
 const MessageOrganizationBlackList = generateServerUtils(MessageOrganizationBlackListGQL)
 const MessageOrganizationWhiteList = generateServerUtils(MessageOrganizationWhiteListGQL)
+const MessageAppBlackList = generateServerUtils(MessageAppBlackListGQL)
 const MessageBatch = generateServerUtils(MessageBatchGQL)
+
+async function sendAppPushMessage (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    
+    return await execGqlWithoutAccess(context, {
+        query: SEND_APP_PUSH_MESSAGE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to sendAppPushMessage',
+        dataPath: 'result',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -173,5 +206,7 @@ module.exports = {
     MessageOrganizationWhiteList,
     checkMessageTypeInBlackList,
     MessageBatch,
+    sendAppPushMessage,
+    MessageAppBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

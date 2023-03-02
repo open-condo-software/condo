@@ -22,6 +22,7 @@ const {
     Message: MessageGQL,
     SEND_MESSAGE,
     RESEND_MESSAGE,
+    SEND_APP_PUSH_MESSAGE_MUTATION,
     RemoteClient: RemoteClientGQL,
     SYNC_REMOTE_CLIENT_MUTATION,
     DISCONNECT_USER_FROM_REMOTE_CLIENT_MUTATION,
@@ -29,6 +30,7 @@ const {
     MessageUserBlackList: MessageUserBlackListGQL,
     MessageOrganizationBlackList: MessageOrganizationBlackListGQL,
     MessageBatch: MessageBatchGQL,
+    MessageAppBlackList: MessageAppBlackListGQL
 } = require('@condo/domains/notification/gql')
 
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -39,6 +41,7 @@ const RemoteClient = generateGQLTestUtils(RemoteClientGQL)
 const MessageUserBlackList = generateGQLTestUtils(MessageUserBlackListGQL)
 const MessageOrganizationBlackList = generateGQLTestUtils(MessageOrganizationBlackListGQL)
 const MessageBatch = generateGQLTestUtils(MessageBatchGQL)
+const MessageAppBlackList = generateGQLTestUtils(MessageAppBlackListGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -279,6 +282,51 @@ async function updateTestMessageBatch (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+//TODO(Kekmus) rewrite testSchema
+async function sendAppPushMessageByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(SEND_APP_PUSH_MESSAGE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+async function createTestMessageAppBlackList (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestMessageAppBlackList logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MessageAppBlackList.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMessageAppBlackList (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestMessageAppBlackList logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MessageAppBlackList.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -291,5 +339,7 @@ module.exports = {
     MessageOrganizationBlackList, createTestMessageOrganizationBlackList,
     updateTestMessageOrganizationBlackList,
     MessageBatch, createTestMessageBatch, updateTestMessageBatch,
+    sendAppPushMessageByTestClient,
+    MessageAppBlackList, createTestMessageAppBlackList, updateTestMessageAppBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -46,11 +46,20 @@ const SET_MESSAGE_STATUS_MUTATION = gql`
     }
 `
 
+const SEND_APP_PUSH_MESSAGE_MUTATION = gql`
+    mutation sendAppPushMessage ($data: SendAppPushMessageInput!) {
+        result: sendAppPushMessage(data: $data) { id, status }
+    }
+`
+
 const MESSAGE_USER_BLACK_LIST_FIELDS = `{ user { id } phone email description ${COMMON_FIELDS} }`
 const MessageUserBlackList = generateGqlQueries('MessageUserBlackList', MESSAGE_USER_BLACK_LIST_FIELDS)
 
 const MESSAGE_ORGANIZATION_BLACK_LIST_FIELDS = `{ organization { id } description ${COMMON_FIELDS} }`
 const MessageOrganizationBlackList = generateGqlQueries('MessageOrganizationBlackList', MESSAGE_ORGANIZATION_BLACK_LIST_FIELDS)
+
+const MESSAGE_APP_BLACK_LIST_FIELDS = `{ app { id } description ${COMMON_FIELDS} }`
+const MessageAppBlackList = generateGqlQueries('MessageAppBlackList', MESSAGE_APP_BLACK_LIST_FIELDS)
 
 const MESSAGE_BATCH_FIELDS = `{ messageType title message deepLink targets status processingMeta ${COMMON_FIELDS} }`
 const MessageBatch = generateGqlQueries('MessageBatch', MESSAGE_BATCH_FIELDS)
@@ -68,5 +77,7 @@ module.exports = {
     MessageUserBlackList,
     MessageOrganizationBlackList,
     MessageBatch,
+    SEND_APP_PUSH_MESSAGE_MUTATION,
+    MessageAppBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -59,6 +59,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
             schema: 'sendMessageToSupport(data: SendMessageToSupportInput!): SendMessageToSupportOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
+                //TODO(Kekmus) why we need meta if not use it here
                 const { dv, sender, text, emailFrom, attachments = [], os, appVersion, lang } = data
 
                 const user = get(context, ['req', 'user'])
