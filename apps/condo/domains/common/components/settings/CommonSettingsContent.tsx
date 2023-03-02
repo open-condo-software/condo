@@ -3,7 +3,7 @@ import { ColumnsType } from 'antd/es/table'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { LocaleContext, useIntl } from '@open-condo/next/intl'
-import { Button, Modal, Radio } from '@open-condo/ui'
+import { Button, Modal, Radio, RadioGroup, Space } from '@open-condo/ui'
 
 interface ISettingsPopupContentProps<T> {
     value: T
@@ -33,16 +33,13 @@ const LanguageSettingPopupContent: React.FC<ILanguageSettingPopupContentProps> =
 }) => {
     return (
         <div>
-            {Object.entries(possibleLocales).map(([locale, localeName]) => (
-                <div key={`locale=${locale}`}>
-                    <Radio
-                        label={localeName}
-                        value={locale}
-                        checked={locale === value}
-                        onChange={(event) => onChange(event.target.value)}
-                    />
-                </div>
-            ))}
+            <RadioGroup value={value} onChange={(event) => onChange(event.target.value)}>
+                <Space direction='vertical' size={12}>
+                    {Object.entries(possibleLocales).map(([locale, localeName]) => (
+                        <Radio key={`locale=${locale}`} label={localeName} value={locale}/>
+                    ))}
+                </Space>
+            </RadioGroup>
         </div>
     )
 }
