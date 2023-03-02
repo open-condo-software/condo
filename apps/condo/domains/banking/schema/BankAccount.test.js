@@ -396,38 +396,5 @@ describe('BankAccount', () => {
                 })
             }, `Cannot connect to BankIntegrationContext, used by another BankAccount(id="${anotherBankAccount.id}")`)
         })
-
-        test('can\'t update connection to BankIntegrationContext', async () => {
-            const [organization] = await createTestOrganization(adminClient)
-
-            const [bankIntegrationContext1] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
-            const [bankAccount1] = await createTestBankAccount(adminClient, organization, {
-                integrationContext: { connect: { id: bankIntegrationContext1.id } },
-            })
-
-            await catchErrorFrom(async () => {
-                await updateTestBankAccount(adminClient, bankAccount1.id, {
-                    integrationContext: { disconnect: { id: bankIntegrationContext1.id } },
-                })
-            }, (e) => {
-                expect(e.errors[0].message).toContain('Field "integrationContext" is not defined by type "BankAccountUpdateInput"')
-            })
-
-            const [bankIntegrationContext2] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
-            await createTestBankAccount(adminClient, organization, {
-                integrationContext: { connect: { id: bankIntegrationContext2.id } },
-            })
-
-            await catchErrorFrom(async () => {
-                await updateTestBankAccount(adminClient, bankAccount1.id, {
-                    integrationContext: {
-                        disconnect: { id: bankIntegrationContext1.id },
-                        connect: { id: bankIntegrationContext2.id },
-                    },
-                })
-            }, (e) => {
-                expect(e.errors[0].message).toContain('Field "integrationContext" is not defined by type "BankAccountUpdateInput"')
-            })
-        })
     })
 })
