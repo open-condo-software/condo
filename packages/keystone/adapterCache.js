@@ -236,7 +236,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         // Patch public queries from BaseKeystoneList:
 
         const originalItemsQuery = listAdapter.itemsQuery
-        const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${stringifyComplexObj(opts)}`
+        const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, 'from', null)}_${get(opts, ['context', 'authedItem'])}`
         listAdapter.itemsQuery = patchAdapterQueryFunction(listName, 'itemsQuery', originalItemsQuery, listAdapter, middleware, getItemsQueryKey)
 
         const originalFind = listAdapter.find
@@ -354,14 +354,24 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
 /**
  * Stringifies complex objects with circular dependencies
  * @param obj
+ * @param depth
  * @returns {string}
  */
-function stringifyComplexObj (obj){
+function stringifyComplexObj (obj, depth = 0) {
+    if (depth == 1) {
+        return 'Circular depth exhausted'
+    }
     const result = {}
     for (const prop in obj ) {
-        if (!obj.hasOwnProperty(prop) || typeof(obj[prop]) == 'object' || typeof(obj[prop]) == 'function') continue
+        if (!obj.hasOwnProperty(prop) || typeof(obj[prop]) === 'function') {
+            continue
+        }
+        if (typeof (obj[prop]) === 'object') {
+            result[prop] = stringifyComplexObj(result[prop], depth + 1)
+        }
         result[prop] = obj[prop]
     }
+    console.log(result)
     return JSON.stringify(result)
 }
 
