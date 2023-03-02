@@ -10,23 +10,30 @@ interface ISettingsPopupContentProps<T> {
     onChange: (value: T) => void
 }
 
-interface ILanguageSettingPopupContentProps extends ISettingsPopupContentProps<string> {
+type TLanguageSettingsModalContentAdditionalProps = {
     possibleLocales: { [locale: string]: string }
 }
+type TLanguageSettingsResult = string
+
+// Next two types are unions
+// TResult = TResult1 | TResult2 ...
+// But for now we have only one possible type for each union
+type TSettingsItemResult = TLanguageSettingsResult
+type TSettingsModalContentAdditionalProps = TLanguageSettingsModalContentAdditionalProps
 
 interface ISettingsTableItem {
     title: string
     valueCell: JSX.Element
-    modalContentComponent: React.FC<ISettingsPopupContentProps<unknown>>
-    value: unknown
-    onChange: { (data: unknown): void }
-    props: { [key: string]: unknown }
-    onSave: { (data: unknown): void }
+    modalContentComponent: React.FC<ISettingsPopupContentProps<TSettingsItemResult>>
+    value: TSettingsItemResult
+    onChange: { (data: TSettingsItemResult): void }
+    props: TSettingsModalContentAdditionalProps
+    onSave: { (data: TSettingsItemResult): void }
 }
 
 type TCurrentSettingModalData = Omit<ISettingsTableItem, 'valueCell'>
 
-const LanguageSettingPopupContent: React.FC<ILanguageSettingPopupContentProps> = ({
+const LanguageSettingPopupContent: React.FC<TLanguageSettingsModalContentAdditionalProps & ISettingsPopupContentProps<TLanguageSettingsResult>> = ({
     value,
     onChange,
     possibleLocales,
@@ -86,7 +93,9 @@ export const CommonSettingsContent: React.FC = () => {
                         },
                         value: locale,
                         props: { possibleLocales },
-                        onSave: (locale: string) => setLocale(locale),
+                        onSave: (locale: TLanguageSettingsResult) => {
+                            setLocale(locale)
+                        },
                     },
                 ]
 
