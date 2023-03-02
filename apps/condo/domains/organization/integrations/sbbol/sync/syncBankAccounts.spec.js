@@ -10,6 +10,7 @@ const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keys
 const { BankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { createValidRuRoutingNumber, createValidRuNumber } = require('@condo/domains/banking/utils/testSchema/bankAccount')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { ISO_CODES_FOR_SBBOL } = require('@condo/domains/common/constants/currencies')
 const { _syncBankAccounts } = require('@condo/domains/organization/integrations/sbbol/sync/syncBankAccounts')
 const { createTestOrganization, Organization, generateTin } = require('@condo/domains/organization/utils/testSchema')
 
@@ -36,11 +37,12 @@ describe('syncBankAccount from SBBOL', () => {
     })
 
     describe('syncBankAccounts', async () => {
-        let accountNumber1, accountNumber2, routingNumber
+        let accountNumber1, accountNumber2, accountNumber3, routingNumber
         beforeAll(async () => {
             routingNumber = createValidRuRoutingNumber()
             accountNumber1 = createValidRuNumber(routingNumber)
             accountNumber2 = createValidRuNumber(routingNumber)
+            accountNumber3 = createValidRuNumber(routingNumber)
         })
 
         it('get accounts if they have not been created before', async () => {
@@ -63,6 +65,34 @@ describe('syncBankAccount from SBBOL', () => {
             })
 
             expect(foundAccounts).toHaveLength(2)
+        })
+
+        it('Create integrationContext for founded BankAccount without context created not in sbbol sync flow', async () => {
+            const [account] = get(MockSbbolResponses.getClientInfo(
+                commonOrganization.tin,
+                accountNumber3,
+                '',
+                routingNumber,
+            ), 'accounts')
+
+            await BankAccount.create(adminClient, {
+                organization: { connect: { id: commonOrganization.id } },
+                tin: commonOrganization.tin,
+                country: RUSSIA_COUNTRY,
+                number: account.number,
+                currencyCode: (ISO_CODES_FOR_SBBOL[account.currencyCode]),
+                routingNumber: account.bic,
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+            })
+
+            await _syncBankAccounts([account], commonOrganization)
+
+            const foundAccount = await BankAccount.getAll(adminClient, {
+                number: accountNumber3,
+            })
+
+            expect(get(foundAccount[0], 'integrationContext.id')).toBeDefined()
         })
 
     })

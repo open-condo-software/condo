@@ -30,15 +30,16 @@ const _syncBankAccounts = async (accounts, organization) => {
             currencyCode: (ISO_CODES_FOR_SBBOL[account.currencyCode]),
             routingNumber: account.bic,
         }
+
         const foundAccount = await BankAccount.getOne(context, {
             ...bankAccountDetails,
             organization: { id: organization.id },
         })
 
-        if (!foundAccount) {
-            const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })
-            if (!integration) throw new Error(`Cannot find SBBOL integration by id=" ${BANK_INTEGRATION_IDS.SBBOL}"`)
+        const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })
+        if (!integration) throw new Error(`Cannot find SBBOL integration by id=" ${BANK_INTEGRATION_IDS.SBBOL}"`)
 
+        if (!foundAccount) {
             const bankIntegrationContext = await BankIntegrationContext.create(context, {
                 ...dvSenderFields,
                 integration: { connect: { id: integration.id } },
@@ -63,7 +64,26 @@ const _syncBankAccounts = async (accounts, organization) => {
                     organization: { connect: { id: organization.id } },
                 }
             )
-            logger.info('Created BankAccount', { bankAccount: { id: account.number, organization: { id: organization.id, name: organization.name } } })
+            logger.info({ msg: 'Created BankAccount', bankAccount: { id: account.number, organization: { id: organization.id, name: organization.name } } })
+        } else {
+            const haveSBBOLIntegrationContext = get(foundAccount, 'integrationContext.integration.id') === integration.id
+
+            if (!haveSBBOLIntegrationContext) {
+                logger.info({ msg: 'Found account have`nt integrationContext' })
+
+                const createdBankIntegrationContext = await BankIntegrationContext.create(context, {
+                    ...dvSenderFields,
+                    integration: { connect: { id: integration.id } },
+                    organization: { connect: { id: organization.id } },
+                })
+
+                await BankAccount.update(context, foundAccount.id, {
+                    integrationContext: { connect: { id: createdBankIntegrationContext.id } },
+                    ...dvSenderFields,
+                })
+
+                logger.info({ msg: `Connected BankIntegrationContext { id: ${createdBankIntegrationContext.id} } to BankAccount { id: ${foundAccount.id} }` })
+            }
         }
     }
 }
@@ -82,13 +102,13 @@ const syncBankAccounts = async (userId, organization) => {
 
     if (!fintechApi) return
 
-    logger.info('Checking, whether the user have ClientAccount items')
+    logger.info({ msg: 'Checking, whether the user have ClientAccount items' })
 
     const { data } = await fintechApi.getClientInfo()
     const accounts = get(data, 'accounts', [])
 
     if (isEmpty(accounts)) {
-        logger.info('SBBOL did not return any ClientAccount, do nothing')
+        logger.info({ msg: 'SBBOL did not return any ClientAccount, do nothing' })
     } else {
         await _syncBankAccounts(accounts, organization)
     }
