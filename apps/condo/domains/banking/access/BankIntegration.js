@@ -4,7 +4,7 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { checkBankIntegrationsAccessRights } = require('./BankIntegrationAccessRight')
+const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/utils/accessSchema')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
 

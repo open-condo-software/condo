@@ -3,8 +3,8 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/access/BankIntegrationAccessRight')
 const { canManageBankEntityWithOrganization } = require('@condo/domains/banking/utils/accessSchema')
+const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/utils/accessSchema')
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
@@ -37,10 +37,12 @@ async function canReadBankAccounts ({ authentication: { item: user }, context })
  * 1. Admin or support
  */
 async function canManageBankAccounts (args) {
-    const { authentication: { item: user } } = args
+    const { authentication: { item: user }, context } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
+
+    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
 
     return canManageBankEntityWithOrganization(args, 'canManageBankAccounts')
 }
