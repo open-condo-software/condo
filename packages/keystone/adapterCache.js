@@ -239,9 +239,9 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${stringifyComplexObj(opts)}`
         listAdapter.itemsQuery = patchAdapterQueryFunction(listName, 'itemsQuery', originalItemsQuery, listAdapter, middleware, getItemsQueryKey)
 
-        // const originalFind = listAdapter.find
-        // const getFindKey = ([condition]) => `${JSON.stringify(condition)}`
-        // listAdapter.find = patchAdapterQueryFunction(listName, 'find', originalFind, listAdapter, middleware, getFindKey)
+        const originalFind = listAdapter.find
+        const getFindKey = ([condition]) => `${JSON.stringify(condition)}`
+        listAdapter.find = patchAdapterQueryFunction(listName, 'find', originalFind, listAdapter, middleware, getFindKey)
 
         const originalFindById = listAdapter.findById
         const getFindByIdKey = ([id]) => `${id}`
