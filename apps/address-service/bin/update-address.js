@@ -34,8 +34,7 @@ async function main (args) {
 
     const [addressId, searchString] = args
 
-    const { keystone } = await prepareKeystoneExpressApp(path.resolve(__dirname, '../index.js'), { excludeApps: ['NextApp'] })
-    const context = await keystone.createContext({ skipAccessControl: true })
+    const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
     let addressItem = await Address.getOne(context, { id: addressId })
 

@@ -12,12 +12,6 @@ function getJson (data) {
     }
 }
 
-async function prepareContext () {
-    const index = path.resolve('./index.js')
-    const { keystone } = await prepareKeystoneExpressApp(index, { excludeApps: ['NextApp', 'AdminUIApp'] })
-    return keystone
-}
-
 async function main (args) {
     const [email, options] = args
     let optionsJson = getJson(options)
@@ -25,7 +19,7 @@ async function main (args) {
     if (options && !optionsJson) throw new Error('<options> argument should be a valid json')
     const json = optionsJson || {}
 
-    const context = await prepareContext()
+    const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
     console.info(`EMAIL: ${email}`)
     const user = await User.getOne(context, { email })
