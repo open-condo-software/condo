@@ -25,8 +25,7 @@ async function main (args) {
         args.shift()
     }
 
-    const { keystone } = await prepareKeystoneExpressApp(path.resolve(__dirname, '../index.js'), { excludeApps: ['NextApp'] })
-    const context = await keystone.createContext({ skipAccessControl: true })
+    const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
     const where = { deletedAt: null }
     if (args.length > 0) {
