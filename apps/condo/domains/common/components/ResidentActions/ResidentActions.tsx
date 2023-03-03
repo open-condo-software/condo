@@ -1,15 +1,14 @@
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Divider, Dropdown, DropDownProps, Menu } from 'antd'
 import get from 'lodash/get'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
+import { Readings, NewAppeal, Smartphone } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { Button } from '@condo/domains/common/components/Button'
-import { AppealIcon } from '@condo/domains/common/components/icons/AppealIcon'
-import { MeterIcon } from '@condo/domains/common/components/icons/MeterIcon'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { fontSizes } from '@condo/domains/common/constants/style'
@@ -32,6 +31,7 @@ const StyledButton = styled(Button)`
 export const ResidentAppealDropDownMenuItemWrapperProps = {
     labelFontSize: fontSizes.label,
     padding: '16px 24px 16px 16px',
+    className: 'width-full',
 }
 
 const DIVIDER_STYLES: CSSProperties = { margin: 0 }
@@ -47,7 +47,7 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchBy
             <MenuItem
                 onClick={handleButtonClick}
                 menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
-                icon={SearchOutlined}
+                icon={Smartphone}
                 label='SearchByPhoneNumber'
                 eventName='MenuSearchByPhoneClick'
             />
@@ -55,7 +55,7 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchBy
             <MenuItem
                 menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                 path='/ticket/create'
-                icon={AppealIcon}
+                icon={NewAppeal}
                 label='CreateAppeal'
                 eventName='MenuCreateTicketClick'
             />
@@ -66,7 +66,7 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchBy
                         <MenuItem
                             menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                             path='/meter/create'
-                            icon={MeterIcon}
+                            icon={Readings}
                             label='CreateMeterReading'
                             eventName='MenuCreateMeterReadingClick'
                         />
