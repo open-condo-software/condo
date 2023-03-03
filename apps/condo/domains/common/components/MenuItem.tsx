@@ -23,6 +23,7 @@ interface IMenuItemWrapperProps {
     padding?: string
     isCollapsed?: boolean
     labelFontSize?: string
+    className?: string
 }
 
 const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
@@ -46,8 +47,12 @@ const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
     transition: ${transitions.allDefault};
   }
   
+  .condo-typography {
+    width: max-content;
+  }
+
   // NOTE: Fix width to reduce flick effect on collapse / expand
-  &.side {
+  &.side:not(.width-full) {
     .condo-typography {
       width: 155px;
     }
@@ -109,7 +114,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         label,
         hideInMenu,
         disabled,
-        menuItemWrapperProps,
+        menuItemWrapperProps = {},
         isCollapsed,
         toolTipDecorator = null,
         onClick,
@@ -119,6 +124,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const { route } = useRouter()
     const intl = useIntl()
     const { getTrackingWrappedCallback } = useTracking()
+    const { className: wrapperClassName, ...restWrapperProps } = menuItemWrapperProps
 
     const [isActive, setIsActive] = useState(false)
 
@@ -138,7 +144,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
 
     const Message = intl.formatMessage({ id: label })
 
-    const menuItemClassNames = classnames({
+    const menuItemClassNames = classnames(wrapperClassName, {
         'side': !isSmall,
         'active': isActive,
         'disabled': disabled,
@@ -157,7 +163,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         )
 
     const menuItem = (
-        <MenuItemWrapper onClick={handleClick} className={menuItemClassNames} isCollapsed={isCollapsed} {...menuItemWrapperProps}>
+        <MenuItemWrapper onClick={handleClick} className={menuItemClassNames} isCollapsed={isCollapsed} {...restWrapperProps}>
             {(isCollapsed && !disabled) ? addToolTipForCollapsedMenu(linkContent, Message) : linkContent}
         </MenuItemWrapper>
     )
