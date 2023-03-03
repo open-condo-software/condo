@@ -46,7 +46,12 @@ class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
         const rlock = new Redlock([this.redis])
         const redisLockKey = `AutoIncrementInteger:${tableName}:${fieldName}`
         const redisMaxValueKey = `AutoIncrementInteger:${tableName}:${fieldName}:value`
-        let lock = await rlock.acquire([redisLockKey], 500) // 0.5 sec
+        let lock = await rlock.acquire([redisLockKey], 500, {
+            retryDelay: 1000,
+            retryCount: 30,
+            automaticExtensionThreshold: 100,
+            retryJitter: 1000,
+        }) // 0.5 sec
         try {
             let currentMaxNumber = await this.redis.get(redisMaxValueKey)
             if (!currentMaxNumber) {
