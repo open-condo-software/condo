@@ -89,7 +89,7 @@ const makeLink = (content: JSX.Element, path: string) => {
 }
 
 const addToolTipForCollapsedMenu = (content: JSX.Element, Message: string) => (
-    <Tooltip title={Message} placement='right'>
+    <Tooltip title={Message} placement='right' overlayStyle={{ position: 'fixed' }}>
         {/* NOTE: Antd tooltip doesn't work with spans, so icons must have a div wrapper */}
         <div>
             {content}
