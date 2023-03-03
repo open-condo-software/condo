@@ -64,7 +64,7 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     const originalResolveInput = hooks.resolveInput
     hooks.resolveInput = composeResolveInputHook(originalResolveInput, newResolveInput)
 
-    const newAccess = async (args) => {
+    const softDeletePluginWrapperForAccess = async (args) => {
         const { operation } = args
         if (operation === 'read') {
             const current = await evaluateKeystoneAccessResult(access, 'read', args)
@@ -76,7 +76,7 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
         }
     }
 
-    return { fields, hooks, access: newAccess, ...rest }
+    return { fields, hooks, access: softDeletePluginWrapperForAccess, ...rest }
 })
 
 /**

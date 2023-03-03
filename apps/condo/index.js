@@ -97,6 +97,81 @@ if (IS_ENABLE_CACHE) {
     keystoneCacheApp = new KeystoneCacheMiddleware(keystone)
 }
 
+// eslint-disable-next-line import/order
+const { getType } = require('@keystonejs/utils')
+// eslint-disable-next-line import/order
+const { evaluateKeystoneAccessResult, evaluateKeystoneFieldAccessResult } = require('@open-condo/keystone/plugins/utils')
+// eslint-disable-next-line import/order
+const { GQL_LIST_SCHEMA_TYPE } = require('@open-condo/keystone/schema')
+
+// eslint-disable-next-line import/order
+const process_1 = require('process')
+delete process_1.env['DEBUG']
+
+
+function fieldAccessWrapperIfNeeded (access, fnWrapper, asyncFnWrapper) {
+    // NOTE: you can use the same object in many places! you don't needed to wrap it twice
+    if (!fnWrapper.alreadyprocessedbyexamplefieldprocessor) fnWrapper.alreadyprocessedbyexamplefieldprocessor = true
+    if (!asyncFnWrapper.alreadyprocessedbyexamplefieldprocessor) asyncFnWrapper.alreadyprocessedbyexamplefieldprocessor = true
+    const type = getType(access)
+    if (type === 'Boolean') {
+        // No need to wrap! You already have access or you should not have it anyway!
+        return access
+    } else if (type === 'Function') {
+        // NOTE: to prevent multiple wrapping the same function
+        if (access.alreadyprocessedbyexamplefieldprocessor) return access
+        else return fnWrapper
+    } else if (type === 'AsyncFunction') {
+        // NOTE: to prevent multiple wrapping the same function
+        if (access.alreadyprocessedbyexamplefieldprocessor) return access
+        else return asyncFnWrapper
+    } else if (type === 'Object') {
+        const newAccess = {}
+        if (typeof access.read !== 'undefined') newAccess.read = fieldAccessWrapperIfNeeded(access.read, fnWrapper, asyncFnWrapper)
+        if (typeof access.create !== 'undefined') newAccess.create = fieldAccessWrapperIfNeeded(access.create, fnWrapper, asyncFnWrapper)
+        if (typeof access.update !== 'undefined') newAccess.update = fieldAccessWrapperIfNeeded(access.update, fnWrapper, asyncFnWrapper)
+        if (typeof access.delete !== 'undefined') newAccess.delete = fieldAccessWrapperIfNeeded(access.delete, fnWrapper, asyncFnWrapper)
+        if (typeof access.auth !== 'undefined') newAccess.auth = fieldAccessWrapperIfNeeded(access.auth, fnWrapper, asyncFnWrapper)
+        return newAccess
+    }
+
+    throw new Error(
+        `fieldAccessWrapperIfNeeded(), received ${type}.`,
+    )
+}
+
+function fieldExampleProcessor (schemaType, name, schema) {
+    if (schemaType === GQL_LIST_SCHEMA_TYPE && !name.endsWith('HistoryRecord')) {
+
+        const access = schema.access
+        const newSchemaAccess = (args) => {
+            const { operation } = args
+            return evaluateKeystoneAccessResult(access, operation, args)
+        }
+
+        const newAccess = fieldAccessWrapperIfNeeded(access, newSchemaAccess, newSchemaAccess)
+        schema.access = newAccess
+
+        console.log('fieldExampleProcessor', name, access, newAccess)
+
+        Object.keys(schema.fields).forEach(field => {
+            const access = schema.fields[field].access
+            if (access) {
+                const newFieldAccess = (args) => {
+                    const { operation } = args
+                    return evaluateKeystoneFieldAccessResult(access, operation, args)
+                }
+
+                const newAccess = fieldAccessWrapperIfNeeded(access, newFieldAccess, newFieldAccess)
+                // if (access !== newAccess) console.log(name, field, access, newAccess)
+                schema.fields[field].access = newAccess
+            }
+        })
+    }
+
+    return schema
+}
+
 // Because Babel is used only for frontend to transpile and optimise code,
 // backend files will bring unnecessary workload to building stage.
 // They can be safely ignored without impact on final executable code
@@ -121,7 +196,7 @@ registerSchemas(keystone, [
     require('@condo/domains/scope/schema'),
     require('@condo/domains/news/schema'),
     getWebhookModels('@app/condo/schema.graphql'),
-], [schemaDocPreprocessor, escapeSearchPreprocessor])
+], [schemaDocPreprocessor, escapeSearchPreprocessor, fieldExampleProcessor])
 
 if (!IS_BUILD_PHASE) {
     // NOTE(pahaz): we put it here because it inits the redis connection and we don't want it at build time
