@@ -92,22 +92,22 @@ export const OnBoardingProvider: React.FC = (props) => {
         'create.Property': {
             query: PropertyGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
             resolver: (data) => get(data, 'objs', []).length > 0,
-            action: () => Router.push('property/create'),
+            action: () => Router.push('/property/create'),
         },
         'create.OrganizationEmployee': {
             query: OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
             resolver: (data) => get(data, 'objs', []).length > 1,
-            action: () => Router.push('employee/create'),
+            action: () => Router.push('/employee/create'),
         },
         'create.Billing': {
             query: BillingGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
             resolver: (data) => get(data, 'objs', []).length > 0,
-            action: () => Router.push('billing'),
+            action: () => Router.push('/miniapps?tab=ACCRUALS_AND_PAYMENTS'),
         },
         'create.Acquiring': {
             query: AcquiringGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
             resolver: (data) => get(data, 'objs', []).length > 0,
-            action: () => Router.push('payments'),
+            action: () => Router.push('/miniapps?tab=ACCRUALS_AND_PAYMENTS'),
         },
     }
 
