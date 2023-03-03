@@ -1,0 +1,34 @@
+name: Chromatic sync baseline
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'packages/ui/src/**'
+
+jobs:
+  chromatic:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+
+      - name: Install packages
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+
+      - name: Publish chromatic build
+        uses: chromaui/action@v1
+        with:
+          workingDir: packages/ui
+          projectToken: ${{ secrets.UI_CHROMATIC_PROJECT_TOKEN }}
+          buildScriptName: "build:sb"
+          # Auto-accepting build as a baseline
+          autoAcceptChanges: true
