@@ -12,5 +12,6 @@ export default defineConfig({
             // eslint-disable-next-line import/order
             return require('./plugins/index.js')(on, config)
         },
+        requestTimeout: 10000,
     },
 })
