@@ -11,11 +11,10 @@ const { B2BApp } = require('@condo/domains/miniapp/utils/serverSchema')
 class AppsGenerator {
     context = null
 
-    constructor ({ category, amount, withFrames, appUrl }) {
+    constructor ({ category, amount, appUrl }) {
         this.category = category.toUpperCase()
         this.amount = amount
-        this.withFrames = withFrames
-        this.appUrl = appUrl || 'http://localhost:3001'
+        this.appUrl = appUrl
     }
 
     async connect () {
@@ -35,9 +34,9 @@ class AppsGenerator {
                     name: `${faker.company.companyName(0)} billing`,
                     shortDescription: faker.commerce.productDescription(),
                     detailedDescription: faker.lorem.paragraphs(5),
-                    contextDefaultStatus: this.withFrames ? 'Finished' : 'InProgress',
+                    contextDefaultStatus: this.appUrl ? 'Finished' : 'InProgress',
                     currencyCode: 'RUB',
-                    appUrl: this.withFrames ? this.appUrl : undefined,
+                    appUrl: this.appUrl,
                 })
             } else if (this.category === 'ACQUIRING') {
                 const billings = await BillingIntegration.getAll(this.context, {}, { first: 1 })
@@ -53,7 +52,7 @@ class AppsGenerator {
                     detailedDescription: faker.lorem.paragraphs(5),
                     hostUrl: faker.internet.url(),
                     explicitFeeDistributionSchema: [],
-                    appUrl: this.withFrames ? this.appUrl : undefined,
+                    appUrl: this.appUrl,
                 })
             } else {
                 await B2BApp.create(this.context, {
@@ -63,21 +62,20 @@ class AppsGenerator {
                     developer: faker.company.companyName(),
                     shortDescription: faker.commerce.productDescription(),
                     detailedDescription: faker.lorem.paragraphs(5),
-                    contextDefaultStatus: this.withFrames ? 'Finished' : 'InProgress',
+                    contextDefaultStatus: this.appUrl ? 'Finished' : 'InProgress',
                     category: this.category,
                     isHidden: false, isGlobal: false,
-                    appUrl: this.withFrames ? this.appUrl : undefined,
+                    appUrl: this.appUrl,
                 })
             }
         }
     }
 }
 
-const generateMiniapps = async ([category, amount, framed, appUrl]) => {
+const generateMiniapps = async ([category, amount, appUrl]) => {
     const totalAmount = parseInt(amount)
-    const withFrames = framed && framed.toUpperCase() === 'TRUE'
 
-    const generator = new AppsGenerator({ category, amount: totalAmount, withFrames, appUrl })
+    const generator = new AppsGenerator({ category, amount: totalAmount, appUrl })
     await generator.connect()
     await generator.generateMiniApps()
 }
