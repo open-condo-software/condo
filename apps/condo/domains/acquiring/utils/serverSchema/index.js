@@ -36,7 +36,7 @@ async function registerMultiPayment (context, data) {
         query: REGISTER_MULTI_PAYMENT_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to registerMultiPayment',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
