@@ -1,6 +1,7 @@
 const cp = require('child_process')
 const crypto = require('crypto')
 const fs = require('fs')
+const path = require('path')
 const util = require('util')
 
 const conf = require('@open-condo/config')
@@ -8,6 +9,8 @@ const conf = require('@open-condo/config')
 const exec = util.promisify(cp.exec)
 const readFile = util.promisify(fs.readFile)
 const writeFile = util.promisify(fs.writeFile)
+const readdir = util.promisify(fs.readdir)
+const exists = util.promisify(fs.exists)
 
 const PROJECT_ROOT = conf['PROJECT_ROOT']
 const TRACE = conf['TRACE']
@@ -41,6 +44,56 @@ async function safeExec (command, envNames = [], opts = {}) {
     }
 }
 
+/**
+ * Check that the docker-compose postgres container is running and working!
+ * @return {Promise<void>}
+ */
+async function checkDockerComposePostgresIsRunning () {
+    try {
+        await safeExec('docker-compose exec postgresdb bash -c "su -c \'psql -tAc \\"select 1+1\\" postgres\' postgres"', ['COMPOSE_PROJECT_NAME'])
+    } catch (e) {
+        throw new Error('ERROR: You should run: `docker-compose up -d postgresdb redis`')
+    }
+}
+
+/**
+ * Run `createdb` command inside docker-compose to create database
+ * @param dbName
+ * @return {Promise<void>}
+ */
+async function createPostgresDatabaseInsideDockerComposeContainerIfNotExists (dbName) {
+    try {
+        await safeExec(`docker-compose exec postgresdb bash -c "su -c 'createdb ${dbName}' postgres"`, ['COMPOSE_PROJECT_NAME'])
+    } catch (e) {
+        if (!e.stderr.includes('already exists')) throw e
+    }
+}
+
+async function _checkCertDomain (certFile, domain) {
+    try {
+        await safeExec(`cat "${certFile}" | openssl x509 -text | grep "DNS" | grep "*.${domain}"`)
+        return true
+    } catch (e) {
+        return false
+    }
+}
+
+/**
+ * Check that the mkcert command exists!
+ * @return {Promise<void>}
+ */
+async function checkMkCertCommandAndLocalCerts (keyFile, certFile, domain = 'app.localhost') {
+    try {
+        await safeExec('which mkcert')
+    } catch (e) {
+        throw new Error('ERROR: You should install mkcert command! Use: `brew install mkcert`')
+    }
+
+    if (!await exists(keyFile) || !await exists(certFile) || !await _checkCertDomain(certFile, domain)) {
+        await safeExec(`mkdir -p "${path.join(certFile, '..')}"`)
+        await safeExec(`mkcert --cert-file "${certFile}" --key-file "${keyFile}" localhost "${domain}" "*.${domain}"`)
+    }
+}
 
 /**
  * Add or update some ./apps/<appName>/.env config value!
@@ -116,6 +169,14 @@ async function prepareCondoAppB2BAppConfig (appName, p2pAppName) {
     return { appUrl }
 }
 
+async function prepareMinimalAppEnv (appName, dbName, redisName, port, sport, serverUrl) {
+    await updateAppEnvFile(appName, 'DATABASE_URL', `postgresql://postgres:postgres@127.0.0.1/${dbName}`)
+    await updateAppEnvFile(appName, 'REDIS_URL', `redis://127.0.0.1:6379/${redisName}`)
+    await updateAppEnvFile(appName, 'PORT', String(port))
+    await updateAppEnvFile(appName, 'SPORT', String(sport))
+    await updateAppEnvFile(appName, 'SERVER_URL', serverUrl)
+}
+
 async function prepareAppEnvLocalAdminUsers (appName) {
     // TODO(pahaz): check create-user.js logic!
     const justUserEmail = await getAppEnvValue(appName, 'DEFAULT_TEST_USER_IDENTITY') || 'user@example.com'
@@ -133,13 +194,33 @@ async function prepareAppEnvLocalAdminUsers (appName) {
     return { justUserEmail, justUserPassword, adminUserEmail, adminUserPassword }
 }
 
+async function runAppPackageJsonScript (appName, script) {
+    const packageJson = JSON.parse((await readFile(`${PROJECT_ROOT}/apps/${appName}/package.json`, { encoding: 'utf-8' })).trim())
+    if (packageJson.scripts && packageJson.scripts[script]) {
+        const { stdout } = await safeExec(`yarn workspace @app/${appName} ${script}`)
+        return stdout.trim()
+    }
+    return ''
+}
+
+async function getAllActualApps () {
+    const appNames = await readdir(`${PROJECT_ROOT}/apps`)
+    const hasPackageJson = await Promise.all(appNames.map(name => exists(`${PROJECT_ROOT}/apps/${name}/package.json`)))
+    return appNames.filter((value, index) => hasPackageJson[index])
+}
 
 module.exports = {
     safeExec,
+    checkDockerComposePostgresIsRunning,
+    createPostgresDatabaseInsideDockerComposeContainerIfNotExists,
+    checkMkCertCommandAndLocalCerts,
     updateAppEnvFile,
     getAppEnvValue,
     getAppServerUrl,
     prepareCondoAppOidcConfig,
     prepareCondoAppB2BAppConfig,
+    prepareMinimalAppEnv,
     prepareAppEnvLocalAdminUsers,
+    runAppPackageJsonScript,
+    getAllActualApps,
 }
