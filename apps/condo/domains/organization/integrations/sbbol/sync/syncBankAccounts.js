@@ -82,7 +82,7 @@ const _syncBankAccounts = async (accounts, organization) => {
                     ...dvSenderFields,
                 })
 
-                logger.info({ msg: `Connected BankIntegrationContext { id: ${createdBankIntegrationContext.id} } to BankAccount { id: ${foundAccount.id} }` })
+                logger.info({ msg: `Connected BankIntegrationContext { id: ${createdBankIntegrationContext.id}, integration: { name: 'SBBOL' } } to BankAccount { id: ${foundAccount.id} }` })
             }
         }
     }
@@ -101,8 +101,6 @@ const syncBankAccounts = async (userId, organization) => {
     const fintechApi = await initSbbolFintechApi(userId)
 
     if (!fintechApi) return
-
-    logger.info({ msg: 'Checking, whether the user have ClientAccount items' })
 
     const { data } = await fintechApi.getClientInfo()
     const accounts = get(data, 'accounts', [])

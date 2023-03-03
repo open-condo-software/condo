@@ -67,7 +67,7 @@ describe('syncBankAccount from SBBOL', () => {
             expect(foundAccounts).toHaveLength(2)
         })
 
-        it('Create integrationContext for founded BankAccount without context created not in sbbol sync flow', async () => {
+        it('Connects integration context to existing BankAccount when it does not have any of them', async () => {
             const [account] = get(MockSbbolResponses.getClientInfo(
                 commonOrganization.tin,
                 accountNumber3,
