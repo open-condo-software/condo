@@ -2,7 +2,13 @@
 const TICKET_CREATE_URL = '/ticket/create'
 const TICKET_VIEW_URL = '/ticket'
 
-const BASE_SIDE_EFFECTS = ['@getAllOnBoardings', '@getAllOnBoardingSteps', '@getAllOrganizationEmployees', '@getOrganizationEmployeeById']
+const BASE_SIDE_EFFECTS = [
+    '@getAllOnBoardings',
+    '@getAllOnBoardingSteps',
+    '@getAllOrganizationEmployees',
+    '@getOrganizationEmployeeById',
+    '@getAllServiceSubscriptions',
+]
 
 class TicketCreate {
 /*
@@ -27,9 +33,7 @@ class TicketCreate {
     }
 
     clickAndInputAddress (address: string): this {
-        cy.get('[data-cy=ticket__property-address-search-input] input', {
-            timeout: 5000,
-        }).should('be.visible')
+        cy.get('[data-cy=ticket__property-address-search-input] input').should('be.visible')
         cy.wait('@getAllProperties')
 
         cy.get('[data-cy=ticket__property-address-search-input] input')
@@ -40,16 +44,15 @@ class TicketCreate {
     }
 
     chooseAddressForTicket (): this {
-        cy.get('[data-cy=ticket__property-address-search-option', {
-            timeout: 5000,
-        }).should('be.visible')
+        cy.get('[data-cy=ticket__property-address-search-option').should('be.visible')
         cy.get('[data-cy=ticket__property-address-search-input] input').click().type('{downArrow}').type('{enter}')
         return this
     }
 
     clickAndInputUnitName (unitName: string): this {
         cy.wait('@getAllProperties')
-        cy.get('[data-cy=unit-name-input-item] .ant-select-selection-search')
+        cy.get('[data-cy=unit-name-input-item] .ant-select-selection-search').should('be.visible')
+        cy.get('[data-cy=unit-name-input-item] input')
             .click({ force: true })
             .type(unitName)
         return this
@@ -171,7 +174,8 @@ class TicketView {
             .type(propertyAddress.slice(0, 5))
         cy.wait('@selectProperty')
 
-        cy.get('[data-cy=search-input--option]', { timeout: 5000 })
+        cy.get('[data-cy=search-input--option]').should('be.visible')
+        cy.get('[data-cy=search-input--option]')
             .click()
         cy.get('[data-cy=common__filters-button-submit]').click()
 
@@ -216,6 +220,9 @@ class TicketEdit {
             '@getAllPropertyScopeProperties',
             '@getAllPropertyScopes',
             '@getAllPropertyScopeOrganizationEmployees',
+            '@getAllTicketPropertyHintProperties',
+            '@getAllIncidentProperties',
+            '@getAllIncidents',
         ])
 
         return this
@@ -232,9 +239,7 @@ class TicketEdit {
             .click()
         cy.get('[data-cy=ticket__status-select]').should('have.class', 'ant-select-open')
 
-        cy.get('[data-cy=ticket__status-select-option]', {
-            timeout: 5000,
-        }).first().click()
+        cy.get('[data-cy=ticket__status-select-option]').first().click()
 
         return this
     }
