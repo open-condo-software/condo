@@ -396,5 +396,22 @@ describe('BankAccount', () => {
                 })
             }, `Cannot connect to BankIntegrationContext, used by another BankAccount(id="${anotherBankAccount.id}")`)
         })
+
+        test('cannot connect BankIntegrationContext if BankAccount is already connected to some integrationContext', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+
+            const [bankIntegrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+            const [anotherIntegrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+
+            const [bankAccount] = await createTestBankAccount(adminClient, organization, {
+                integrationContext: { connect: { id: bankIntegrationContext.id } },
+            })
+
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBankAccount(adminClient, bankAccount.id, {
+                    integrationContext: { connect: { id: anotherIntegrationContext.id } },
+                })
+            }, 'Integration reassignment is not allowed for BankAccount')
+        })
     })
 })
