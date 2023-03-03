@@ -18,26 +18,53 @@ const {
     PAYMENT_PROCESSING_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 const {
+    RECURRENT_PAYMENT_INIT_STATUS,
+    RECURRENT_PAYMENT_PROCESSING_STATUS,
+    RECURRENT_PAYMENT_DONE_STATUS,
+    RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS,
+    RECURRENT_PAYMENT_ERROR_STATUS,
+    RECURRENT_PAYMENT_CANCEL_STATUS,
+} = require('@condo/domains/acquiring/constants/recurrentPayment')
+const {
     Payment,
 } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     makePayerWithMultipleConsumers,
     createTestRecurrentPaymentContext,
     registerMultiPaymentByTestClient,
+    RecurrentPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    createTestRecurrentPayment,
+    updateTestRecurrentPaymentContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const {
     ServiceConsumer,
 } = require('@condo/domains/resident/utils/serverSchema')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 
 const {
+    PAYMENT_ERROR_UNKNOWN_CODE,
+    PAYMENT_ERROR_LIMIT_EXCEEDED_CODE,
+    PAYMENT_ERROR_CONTEXT_NOT_FOUND_CODE,
+    PAYMENT_ERROR_CONTEXT_DISABLED_CODE,
+    PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+    PAYMENT_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE,
+    PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
+} = require('./constants')
+const {
     getReadyForProcessingContextPage,
     getServiceConsumer,
     getReceiptsForServiceConsumer,
-    filterPayedBillingReceipts,
+    filterPaidBillingReceipts,
+    getReadyForProcessingPaymentsPage,
+    registerMultiPayment,
+    setRecurrentPaymentAsSuccess,
+    setRecurrentPaymentAsFailed,
 } = require('./queries')
 
-
+const pageSize = 10000
 const { keystone } = index
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'test-fingerprint-alphanumeric-value' } }
 
@@ -68,15 +95,26 @@ describe('recurrent payments queries', () => {
         })
 
         it('should return with enabled=true only', async () => {
-            const { batches } = await makePayerWithMultipleConsumers(2, 1)
+            const { batches } = await makePayerWithMultipleConsumers(3, 1)
 
-            await createTestRecurrentPaymentContext(admin, getContextRequest(batches[0]))
+            // create 3 contexts:
+            // deleted, disabled and regular one
+            const [{ id }] = await createTestRecurrentPaymentContext(admin, getContextRequest(batches[0]))
+            await updateTestRecurrentPaymentContext(admin, id, {
+                deletedAt: dayjs().toISOString(),
+            })
             await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[1]),
+                enabled: false,
+            })
+            await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest(batches[2]),
                 enabled: true,
             })
 
-            const objs = await getReadyForProcessingContextPage(adminContext, date, 100, 0)
+            const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
+                createdBy: { id: admin.user.id },
+            })
             expect(objs.length).toBeGreaterThanOrEqual(1)
             expect(objs).toEqual(expect.arrayContaining([
                 expect.objectContaining({
@@ -99,7 +137,9 @@ describe('recurrent payments queries', () => {
                 paymentDay: null,
             })
 
-            const objs = await getReadyForProcessingContextPage(adminContext, date, 100, 0)
+            const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
+                createdBy: { id: admin.user.id },
+            })
             expect(objs.length).toBeGreaterThanOrEqual(1)
             expect(objs).toEqual(expect.arrayContaining([
                 expect.objectContaining({
@@ -129,7 +169,9 @@ describe('recurrent payments queries', () => {
                 enabled: true,
             })
 
-            const objs = await getReadyForProcessingContextPage(adminContext, date, 100, 0)
+            const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
+                createdBy: { id: admin.user.id },
+            })
             expect(objs.length).toBeGreaterThanOrEqual(1)
             expect(objs).toEqual(expect.arrayContaining([
                 expect.objectContaining({
@@ -163,7 +205,9 @@ describe('recurrent payments queries', () => {
             })
 
             const date = dayjs('2023-02-28')
-            const objs = await getReadyForProcessingContextPage(adminContext, date, 100, 0)
+            const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
+                createdBy: { id: admin.user.id },
+            })
             expect(objs.length).toBeGreaterThanOrEqual(4)
 
             objs.forEach(obj => {
@@ -187,6 +231,7 @@ describe('recurrent payments queries', () => {
             expect(serviceConsumer).toHaveProperty('id')
             expect(serviceConsumer).toHaveProperty('accountNumber')
             expect(serviceConsumer).toHaveProperty('billingIntegrationContext')
+            expect(serviceConsumer).toHaveProperty('resident.user.id')
             expect(serviceConsumer.billingIntegrationContext).toHaveProperty('id')
         })
 
@@ -299,7 +344,7 @@ describe('recurrent payments queries', () => {
         })
     })
 
-    describe('filterPayedBillingReceipts', () => {
+    describe('filterPaidBillingReceipts', () => {
         it('should return all receipts - no payments', async () => {
             const { batches } = await makePayerWithMultipleConsumers(1, 2)
             const [batch] = batches
@@ -308,7 +353,7 @@ describe('recurrent payments queries', () => {
             } = batch
 
             // get receipts
-            const receipts = await filterPayedBillingReceipts(adminContext, billingReceipts)
+            const receipts = await filterPaidBillingReceipts(adminContext, billingReceipts)
 
             expect(receipts).toHaveLength(billingReceipts.length)
         })
@@ -331,7 +376,7 @@ describe('recurrent payments queries', () => {
             expect(result).toHaveProperty('multiPaymentId')
 
             // get receipts
-            const receipts = await filterPayedBillingReceipts(adminContext, billingReceipts)
+            const receipts = await filterPaidBillingReceipts(adminContext, billingReceipts)
 
             expect(receipts).toHaveLength(billingReceipts.length)
         })
@@ -370,7 +415,7 @@ describe('recurrent payments queries', () => {
             })
 
             // get receipts
-            const receipts = await filterPayedBillingReceipts(adminContext, billingReceipts)
+            const receipts = await filterPaidBillingReceipts(adminContext, billingReceipts)
             expect(receipts).toHaveLength(1)
             expect(receipts[0].id).toEqual(payments[1].receipt.id)
         })
@@ -414,7 +459,7 @@ describe('recurrent payments queries', () => {
             })
 
             // get receipts
-            const receipts = await filterPayedBillingReceipts(adminContext, billingReceipts)
+            const receipts = await filterPaidBillingReceipts(adminContext, billingReceipts)
             expect(receipts).toHaveLength(1)
             expect(receipts[0].id).toEqual(payments[1].receipt.id)
         })
@@ -467,7 +512,7 @@ describe('recurrent payments queries', () => {
             })
 
             // get receipts
-            const receipts = await filterPayedBillingReceipts(adminContext, billingReceipts)
+            const receipts = await filterPaidBillingReceipts(adminContext, billingReceipts)
             expect(receipts).toHaveLength(1)
             expect(receipts[0].id).toEqual(payments[2].receipt.id)
         })
@@ -508,9 +553,697 @@ describe('recurrent payments queries', () => {
             }
 
             // get receipts
-            const receipts = await filterPayedBillingReceipts(adminContext, billingReceipts)
+            const receipts = await filterPaidBillingReceipts(adminContext, billingReceipts)
 
             expect(receipts).toHaveLength(0)
+        })
+    })
+
+    describe('getReadyForProcessingPaymentsPage', () => {
+        let admin,
+            getContextRequest,
+            getPaymentRequest,
+            billingCategory,
+            serviceConsumerClient,
+            recurrentPaymentContext
+
+        beforeEach( async () => {
+            serviceConsumerClient = await makeClientWithServiceConsumer()
+            recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest()))[0]
+        })
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            billingCategory = (await createTestBillingCategory(admin, { name: `Category ${new Date()}` }))[0]
+
+            getContextRequest = () => ({
+                enabled: false,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: 10,
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } },
+                billingCategory: { connect: { id: billingCategory.id } },
+            })
+
+            getPaymentRequest = ({ payAfter = null,  tryCount = 0, status = RECURRENT_PAYMENT_INIT_STATUS }) => ({
+                payAfter,
+                tryCount,
+                status,
+                state: {},
+                billingReceipts: [ { id: faker.datatype.uuid() }],
+                recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
+            })
+        })
+
+        it('should return payment with empty payAfter', async () => {
+            const payAfter = null
+            const tryCount = 0
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount }),
+            )
+
+            const recurrentPayments = await getReadyForProcessingPaymentsPage(adminContext, pageSize, 0, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+
+            expect(recurrentPayments).toBeDefined()
+            expect(recurrentPayments).toHaveLength(1)
+            expect(recurrentPayments[0]).toHaveProperty('id')
+            expect(recurrentPayments[0].id).toEqual(recurrentPayment.id)
+        })
+
+        it('should return payment with payAfter set to today', async () => {
+            const payAfter = dayjs().startOf('day').toISOString()
+            const tryCount = 0
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount }),
+            )
+
+            const recurrentPayments = await getReadyForProcessingPaymentsPage(adminContext, pageSize, 0, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+
+            expect(recurrentPayments).toBeDefined()
+            expect(recurrentPayments).toHaveLength(1)
+            expect(recurrentPayments[0]).toHaveProperty('id')
+            expect(recurrentPayments[0].id).toEqual(recurrentPayment.id)
+        })
+
+        it('should return payment with payAfter set to past', async () => {
+            const payAfter = dayjs().subtract(2, 'days').toISOString()
+            const tryCount = 0
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount }),
+            )
+
+            const recurrentPayments = await getReadyForProcessingPaymentsPage(adminContext, pageSize, 0, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+
+            expect(recurrentPayments).toBeDefined()
+            expect(recurrentPayments).toHaveLength(1)
+            expect(recurrentPayments[0]).toHaveProperty('id')
+            expect(recurrentPayments[0].id).toEqual(recurrentPayment.id)
+        })
+
+        it('should filter payment with payAfter set to tomorrow', async () => {
+            const payAfter = dayjs().add(1, 'day').toISOString()
+            const tryCount = 0
+
+            // create test recurrent payments
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter: null, tryCount }),
+            )
+            await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount }),
+            )
+
+            const recurrentPayments = await getReadyForProcessingPaymentsPage(adminContext, pageSize, 0, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+
+            expect(recurrentPayments).toBeDefined()
+            expect(recurrentPayments).toHaveLength(1)
+            expect(recurrentPayments[0]).toHaveProperty('id')
+            expect(recurrentPayments[0].id).toEqual(recurrentPayment.id)
+        })
+
+        it('should filter payment with tryCount >= 5', async () => {
+            const payAfter = null
+            const tryCount = 5
+
+            // create test recurrent payments
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount: 0 }),
+            )
+            await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount }),
+            )
+
+            const recurrentPayments = await getReadyForProcessingPaymentsPage(adminContext, pageSize, 0, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+
+            expect(recurrentPayments).toBeDefined()
+            expect(recurrentPayments).toHaveLength(1)
+            expect(recurrentPayments[0]).toHaveProperty('id')
+            expect(recurrentPayments[0].id).toEqual(recurrentPayment.id)
+        })
+
+        it('should return payment only with RECURRENT_PAYMENT_INIT_STATUS status', async () => {
+            const payAfter = null
+            const tryCount = 0
+
+            // create test recurrent payments
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount, status:  RECURRENT_PAYMENT_INIT_STATUS }),
+            )
+            await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount, status:  RECURRENT_PAYMENT_PROCESSING_STATUS }),
+            )
+            await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount, status:  RECURRENT_PAYMENT_DONE_STATUS }),
+            )
+            await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount, status:  RECURRENT_PAYMENT_ERROR_STATUS }),
+            )
+            await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount, status:  RECURRENT_PAYMENT_CANCEL_STATUS }),
+            )
+
+            const recurrentPayments = await getReadyForProcessingPaymentsPage(adminContext, pageSize, 0, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+
+            expect(recurrentPayments).toBeDefined()
+            expect(recurrentPayments).toHaveLength(1)
+            expect(recurrentPayments[0]).toHaveProperty('id')
+            expect(recurrentPayments[0].id).toEqual(recurrentPayment.id)
+        })
+
+
+        it('should return payment only with RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS status', async () => {
+            const payAfter = null
+            const tryCount = 0
+
+            // create test recurrent payments
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount, status:  RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS }),
+            )
+            await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount, status:  RECURRENT_PAYMENT_PROCESSING_STATUS }),
+            )
+            await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount, status:  RECURRENT_PAYMENT_DONE_STATUS }),
+            )
+            await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount, status:  RECURRENT_PAYMENT_ERROR_STATUS }),
+            )
+            await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount, status:  RECURRENT_PAYMENT_CANCEL_STATUS }),
+            )
+
+            const recurrentPayments = await getReadyForProcessingPaymentsPage(adminContext, pageSize, 0, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+
+            expect(recurrentPayments).toBeDefined()
+            expect(recurrentPayments).toHaveLength(1)
+            expect(recurrentPayments[0]).toHaveProperty('id')
+            expect(recurrentPayments[0].id).toEqual(recurrentPayment.id)
+        })
+    })
+
+    describe('registerMultiPayment', () => {
+        let admin,
+            getContextRequest,
+            getPaymentRequest,
+            serviceConsumerBatch,
+            recurrentPaymentContext
+
+        beforeEach( async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            serviceConsumerBatch = batches[0]
+            recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest(serviceConsumerBatch)))[0]
+        })
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+
+            getContextRequest = (batch) => ({
+                enabled: true,
+                limit: '100000000',
+                autoPayReceipts: false,
+                paymentDay: 10,
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batch.serviceConsumer.id } },
+                billingCategory: { connect: { id: batch.billingReceipts[0].category.id } },
+            })
+
+            getPaymentRequest = (batch, recurrentPaymentContext) => ({
+                payAfter: null,
+                tryCount: 0,
+                status: RECURRENT_PAYMENT_INIT_STATUS,
+                state: {},
+                billingReceipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+                recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
+            })
+        })
+
+        it('should return multi payment with registered=true', async () => {
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest(serviceConsumerBatch, recurrentPaymentContext),
+            )
+
+            // register multi payment
+            const response = await registerMultiPayment(adminContext, recurrentPayment)
+
+            expect(response).toBeDefined()
+            expect(response).toHaveProperty('registered')
+            expect(response.registered).toBeTruthy()
+            expect(response).not.toHaveProperty('errorCode')
+            expect(response).not.toHaveProperty('errorMessage')
+            expect(response).toHaveProperty('multiPaymentId')
+            expect(response).toHaveProperty('directPaymentUrl')
+            expect(response).toHaveProperty('getCardTokensUrl')
+        })
+
+        it('should return multi payment with registered=true and no limit set', async () => {
+            // create test recurrent payment context
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest(batches[0]),
+                limit: null,
+            }))[0]
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest(batches[0], recurrentPaymentContext),
+            )
+
+            // register multi payment
+            const response = await registerMultiPayment(adminContext, recurrentPayment)
+
+            expect(response).toBeDefined()
+            expect(response).toHaveProperty('registered')
+            expect(response.registered).toBeTruthy()
+            expect(response).not.toHaveProperty('errorCode')
+            expect(response).not.toHaveProperty('errorMessage')
+            expect(response).toHaveProperty('multiPaymentId')
+            expect(response).toHaveProperty('directPaymentUrl')
+            expect(response).toHaveProperty('getCardTokensUrl')
+        })
+
+        it('should return registered=false - bills already paid', async () => {
+            const {
+                serviceConsumer,
+                billingReceipts,
+            } = serviceConsumerBatch
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest(serviceConsumerBatch, recurrentPaymentContext),
+            )
+
+            // register multi payment
+            const [result] = await registerMultiPaymentByTestClient(admin, [{
+                serviceConsumer: { id: serviceConsumer.id },
+                receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
+            }])
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('dv', 1)
+            expect(result).toHaveProperty('multiPaymentId')
+
+            // get payments
+            const payments = await Payment.getAll(adminContext, {
+                multiPayment: {
+                    id: result.multiPaymentId,
+                },
+            })
+            expect(payments).toBeDefined()
+            expect(payments).toHaveLength(billingReceipts.length)
+
+            // mark payment as done
+            for (const payment of payments) {
+                await Payment.update(adminContext, payment.id, {
+                    ...dvAndSender,
+                    status: PAYMENT_DONE_STATUS,
+                    advancedAt: dayjs().toISOString(),
+                })
+            }
+
+            // register multi payment through mutation under test
+            const response = await registerMultiPayment(adminContext, recurrentPayment)
+
+            expect(response).toBeDefined()
+            expect(response).toHaveProperty('registered')
+            expect(response.registered).not.toBeTruthy()
+            expect(response).not.toHaveProperty('errorCode')
+            expect(response).not.toHaveProperty('errorMessage')
+        })
+
+        it('should return registered=false - no bills to pay', async () => {
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({
+                    ...serviceConsumerBatch,
+                    billingReceipts: [],
+                }, recurrentPaymentContext),
+            )
+
+            // register multi payment
+            const response = await registerMultiPayment(adminContext, recurrentPayment)
+
+            expect(response).toBeDefined()
+            expect(response).toHaveProperty('registered')
+            expect(response.registered).not.toBeTruthy()
+            expect(response).not.toHaveProperty('errorCode')
+            expect(response).not.toHaveProperty('errorMessage')
+        })
+
+        it('should return registered=false and PAYMENT_ERROR_LIMIT_EXCEEDED_CODE error', async () => {
+            // create test recurrent payment context
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest(batches[0]),
+                limit: '0.001',
+            }))[0]
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest(batches[0], recurrentPaymentContext),
+            )
+
+            // register multi payment
+            const response = await registerMultiPayment(adminContext, recurrentPayment)
+
+            expect(response).toBeDefined()
+            expect(response).toHaveProperty('registered')
+            expect(response).toHaveProperty('errorCode')
+            expect(response).toHaveProperty('errorMessage')
+
+            expect(response.registered).not.toBeTruthy()
+            expect(response.errorCode).toEqual(PAYMENT_ERROR_LIMIT_EXCEEDED_CODE)
+            expect(response.errorMessage).toContain('RecurrentPaymentContext limit exceeded for multi payment')
+        })
+
+        it('should return registered=false and PAYMENT_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE error', async () => {
+            // create service consumer without set up acquiring integration context
+            const serviceConsumerClient = await makeClientWithServiceConsumer()
+
+            // create test recurrent payment context
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest({
+                    ...batches[0],
+                    serviceConsumer: serviceConsumerClient.serviceConsumer,
+                }),
+            }))[0]
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest(serviceConsumerBatch, recurrentPaymentContext),
+            )
+
+            // register multi payment
+            const response = await registerMultiPayment(adminContext, recurrentPayment)
+
+            expect(response).toBeDefined()
+            expect(response).toHaveProperty('registered')
+            expect(response).toHaveProperty('errorCode')
+            expect(response).toHaveProperty('errorMessage')
+
+            expect(response.registered).not.toBeTruthy()
+            expect(response.errorCode).toEqual(PAYMENT_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE)
+            expect(response.errorMessage).toContain('Can not register multi payment: ')
+        })
+
+        it('should return registered=false and PAYMENT_ERROR_CONTEXT_DISABLED_CODE error', async () => {
+            // create test recurrent payment context
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest(batches[0]),
+                enabled: false,
+            }))[0]
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest(batches[0], recurrentPaymentContext),
+            )
+
+            // register multi payment
+            const response = await registerMultiPayment(adminContext, recurrentPayment)
+
+            expect(response).toBeDefined()
+            expect(response).toHaveProperty('registered')
+            expect(response).toHaveProperty('errorCode')
+            expect(response).toHaveProperty('errorMessage')
+
+            expect(response.registered).not.toBeTruthy()
+            expect(response.errorCode).toEqual(PAYMENT_ERROR_CONTEXT_DISABLED_CODE)
+            expect(response.errorMessage)
+                .toContain(`RecurrentPaymentContext (${recurrentPaymentContext.id}) is disabled`)
+        })
+
+        it('should return registered=false and PAYMENT_ERROR_CONTEXT_NOT_FOUND_CODE error', async () => {
+            // create test recurrent payment context
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest(batches[0])))[0]
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest(batches[0], recurrentPaymentContext),
+            )
+
+            // delete context
+            await updateTestRecurrentPaymentContext(admin, recurrentPaymentContext.id, {
+                deletedAt: dayjs().toISOString(),
+            })
+
+            // register multi payment
+            const response = await registerMultiPayment(adminContext, recurrentPayment)
+
+            expect(response).toBeDefined()
+            expect(response).toHaveProperty('registered')
+            expect(response).toHaveProperty('errorCode')
+            expect(response).toHaveProperty('errorMessage')
+
+            expect(response.registered).not.toBeTruthy()
+            expect(response.errorCode).toEqual(PAYMENT_ERROR_CONTEXT_NOT_FOUND_CODE)
+            expect(response.errorMessage)
+                .toContain(`RecurrentPaymentContext not found for RecurrentPayment(${recurrentPayment.id})`)
+        })
+    })
+
+    describe('setRecurrentPaymentAsSuccess', () => {
+        let admin,
+            getContextRequest,
+            getPaymentRequest,
+            serviceConsumerBatch,
+            recurrentPaymentContext
+
+        beforeEach( async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            serviceConsumerBatch = batches[0]
+            recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest(serviceConsumerBatch)))[0]
+        })
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+
+            getContextRequest = (batch) => ({
+                enabled: true,
+                limit: '100000000',
+                autoPayReceipts: false,
+                paymentDay: 10,
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batch.serviceConsumer.id } },
+                billingCategory: { connect: { id: batch.billingReceipts[0].category.id } },
+            })
+
+            getPaymentRequest = (batch, recurrentPaymentContext) => ({
+                payAfter: null,
+                tryCount: 0,
+                status: RECURRENT_PAYMENT_INIT_STATUS,
+                state: {},
+                billingReceipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+                recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
+            })
+        })
+
+        it('should set status and increase try count', async () => {
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest(serviceConsumerBatch, recurrentPaymentContext),
+            )
+
+            // set status
+            await setRecurrentPaymentAsSuccess(adminContext, recurrentPayment)
+
+            // retrieve updated recurrent payment
+            const result = await RecurrentPayment.getOne(admin, { id: recurrentPayment.id })
+
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('status')
+            expect(result).toHaveProperty('tryCount')
+
+            expect(result.status).toEqual(RECURRENT_PAYMENT_DONE_STATUS)
+            expect(result.tryCount).toEqual(recurrentPayment.tryCount + 1)
+
+            // todo assert notifications are sent
+        })
+    })
+
+    describe('setRecurrentPaymentAsFailed', () => {
+        let admin,
+            getContextRequest,
+            getPaymentRequest,
+            serviceConsumerBatch,
+            recurrentPaymentContext
+
+        beforeEach( async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            serviceConsumerBatch = batches[0]
+            recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest(serviceConsumerBatch)))[0]
+        })
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+
+            getContextRequest = (batch) => ({
+                enabled: true,
+                limit: '100000000',
+                autoPayReceipts: false,
+                paymentDay: 10,
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batch.serviceConsumer.id } },
+                billingCategory: { connect: { id: batch.billingReceipts[0].category.id } },
+            })
+
+            getPaymentRequest = (batch, recurrentPaymentContext) => ({
+                payAfter: null,
+                tryCount: 0,
+                status: RECURRENT_PAYMENT_INIT_STATUS,
+                state: {},
+                billingReceipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+                recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
+            })
+        })
+
+        it('should set retry status and increase try count for empty errorCode', async () => {
+            const errorCode = PAYMENT_ERROR_UNKNOWN_CODE
+            const errorMessage = 'An error message'
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest(serviceConsumerBatch, recurrentPaymentContext),
+            )
+
+            // set status
+            await setRecurrentPaymentAsFailed(adminContext, recurrentPayment, errorMessage)
+
+            // retrieve updated recurrent payment
+            const result = await RecurrentPayment.getOne(admin, { id: recurrentPayment.id })
+
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('status')
+            expect(result).toHaveProperty('tryCount')
+            expect(result).toHaveProperty('state')
+
+            expect(result.status).toEqual(RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS)
+            expect(result.tryCount).toEqual(recurrentPayment.tryCount + 1)
+            expect(result.state).toMatchObject({
+                errorCode,
+                errorMessage,
+            })
+
+            // todo assert notifications are sent
+        })
+
+        const retryCases = [
+            [PAYMENT_ERROR_UNKNOWN_CODE],
+            [PAYMENT_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE],
+            [PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE],
+        ]
+        test.each(retryCases)('should set retry status and increase try count for %s errorCode', async (errorCode) => {
+            const errorMessage = 'An error message'
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest(serviceConsumerBatch, recurrentPaymentContext),
+            )
+
+            // set status
+            await setRecurrentPaymentAsFailed(adminContext, recurrentPayment, errorMessage, errorCode)
+
+            // retrieve updated recurrent payment
+            const result = await RecurrentPayment.getOne(admin, { id: recurrentPayment.id })
+
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('status')
+            expect(result).toHaveProperty('tryCount')
+            expect(result).toHaveProperty('state')
+
+            expect(result.status).toEqual(RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS)
+            expect(result.tryCount).toEqual(recurrentPayment.tryCount + 1)
+            expect(result.state).toMatchObject({
+                errorCode,
+                errorMessage,
+            })
+
+            // todo assert notifications are sent
+        })
+
+        const noRetryCases = [
+            [PAYMENT_ERROR_LIMIT_EXCEEDED_CODE],
+            [PAYMENT_ERROR_CONTEXT_NOT_FOUND_CODE],
+            [PAYMENT_ERROR_CONTEXT_DISABLED_CODE],
+            [PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE],
+        ]
+        test.each(noRetryCases)('should set error status and increase try count for %s errorCode', async (errorCode) => {
+            const errorMessage = 'An error message'
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest(serviceConsumerBatch, recurrentPaymentContext),
+            )
+
+            // set status
+            await setRecurrentPaymentAsFailed(adminContext, recurrentPayment, errorMessage, errorCode)
+
+            // retrieve updated recurrent payment
+            const result = await RecurrentPayment.getOne(admin, { id: recurrentPayment.id })
+
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('status')
+            expect(result).toHaveProperty('tryCount')
+            expect(result).toHaveProperty('state')
+
+            expect(result.status).toEqual(RECURRENT_PAYMENT_ERROR_STATUS)
+            expect(result.tryCount).toEqual(recurrentPayment.tryCount + 1)
+            expect(result.state).toMatchObject({
+                errorCode,
+                errorMessage,
+            })
+
+            // todo assert notifications are sent
         })
     })
 })
