@@ -69,7 +69,7 @@ const _syncBankAccounts = async (accounts, organization) => {
             const haveSBBOLIntegrationContext = get(foundAccount, 'integrationContext.integration.id') === integration.id
 
             if (!haveSBBOLIntegrationContext) {
-                logger.info({ msg: 'Found account have`nt integrationContext' })
+                logger.info({ msg: 'Found BankAccount does not have integrationContext' })
 
                 const createdBankIntegrationContext = await BankIntegrationContext.create(context, {
                     ...dvSenderFields,

@@ -36,7 +36,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
                     const existingBankAccounts = await find('BankAccount', { integrationContext: { id: bankIntegrationContext.id } })
                     const alreadyHaveIntegrationContext = get(existingItem, 'integrationContext')
                     if (operation === 'update' && alreadyHaveIntegrationContext) {
-                        return addFieldValidationError('Integration reassignment is not allowed for BankAccount')
+                        return addFieldValidationError(`Integration reassignment is not allowed for BankAccount with id="${existingItem.id}"`)
                     }
                     if (existingBankAccounts.length > 1) {
                         return addFieldValidationError(`Multiple BankAccount with ids "[${map(existingBankAccounts, 'id').join(', ')}]" are connected to BankIntegrationContext(id="${bankIntegrationContext.id}")`)

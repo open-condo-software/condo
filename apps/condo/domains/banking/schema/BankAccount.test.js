@@ -411,7 +411,7 @@ describe('BankAccount', () => {
                 await updateTestBankAccount(adminClient, bankAccount.id, {
                     integrationContext: { connect: { id: anotherIntegrationContext.id } },
                 })
-            }, 'Integration reassignment is not allowed for BankAccount')
+            }, `Integration reassignment is not allowed for BankAccount with id="${bankAccount.id}"`)
         })
     })
 })
