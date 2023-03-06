@@ -36389,6 +36389,8 @@ export type Organization = {
   importRemoteSystem?: Maybe<Scalars['String']>;
   /**  External system organization id. Used for integrations  */
   importId?: Maybe<Scalars['String']>;
+  /**  List of the organization's features connected by a particular integration  */
+  features: Array<OrganizationFeature>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -36465,6 +36467,7 @@ export type OrganizationCreateInput = {
   relatedOrganizations?: Maybe<OrganizationLinkRelateToManyInput>;
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
+  features?: Maybe<Array<OrganizationFeature>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37978,6 +37981,10 @@ export type OrganizationEmployeesUpdateInput = {
   data?: Maybe<OrganizationEmployeeUpdateInput>;
 };
 
+export enum OrganizationFeature {
+  Spp = 'SPP'
+}
+
 export type OrganizationFeatures = {
   __typename?: 'OrganizationFeatures';
   hasBillingData: Scalars['Boolean'];
@@ -38005,6 +38012,7 @@ export type OrganizationHistoryRecord = {
   defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
+  features?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -38031,6 +38039,7 @@ export type OrganizationHistoryRecordCreateInput = {
   defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
+  features?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -38062,6 +38071,7 @@ export type OrganizationHistoryRecordUpdateInput = {
   defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
+  features?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -38189,6 +38199,10 @@ export type OrganizationHistoryRecordWhereInput = {
   importId_not_ends_with_i?: Maybe<Scalars['String']>;
   importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  features?: Maybe<Scalars['JSON']>;
+  features_not?: Maybe<Scalars['JSON']>;
+  features_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  features_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -38612,6 +38626,7 @@ export type OrganizationUpdateInput = {
   relatedOrganizations?: Maybe<OrganizationLinkRelateToManyInput>;
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
+  features?: Maybe<Array<OrganizationFeature>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -38740,6 +38755,10 @@ export type OrganizationWhereInput = {
   importId_not_ends_with_i?: Maybe<Scalars['String']>;
   importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  features?: Maybe<Array<OrganizationFeature>>;
+  features_not?: Maybe<Array<OrganizationFeature>>;
+  features_in?: Maybe<Array<Maybe<Array<OrganizationFeature>>>>;
+  features_not_in?: Maybe<Array<Maybe<Array<OrganizationFeature>>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

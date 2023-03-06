@@ -14,6 +14,7 @@ const { webHooked } = require('@open-condo/webhooks/plugins')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/organization/access/Organization')
+const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const userAccess = require('@condo/domains/user/access/User')
@@ -128,6 +129,7 @@ const Organization = new GQLListSchema('Organization', {
             access: access.canAccessToImportField,
             kmigratorOptions: { null: true, unique: false },
         },
+        features: ORGANIZATION_FEATURES_FIELD,
     },
     kmigratorOptions: {
         constraints: [
