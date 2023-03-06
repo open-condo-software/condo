@@ -371,30 +371,6 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
     }
 }
 
-/**
- * Stringifies complex objects with circular dependencies
- * @param obj
- * @param depth
- * @returns {string}
- */
-function stringifyComplexObj (obj, depth = 0) {
-    if (depth == 1) {
-        return 'Circular depth exhausted'
-    }
-    const result = {}
-    for (const prop in obj ) {
-        if (!obj.hasOwnProperty(prop) || typeof(obj[prop]) === 'function') {
-            continue
-        }
-        if (typeof (obj[prop]) === 'object') {
-            result[prop] = stringifyComplexObj(result[prop], depth + 1)
-        }
-        result[prop] = obj[prop]
-    }
-    console.log(result)
-    return JSON.stringify(result)
-}
-
 module.exports = {
     AdapterCache,
 }
