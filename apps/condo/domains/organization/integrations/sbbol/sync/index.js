@@ -8,6 +8,7 @@ const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { syncSbbolTransactions } = require('@condo/domains/organization/tasks/syncSbbolTransactions')
 
+const { syncFeatures } = require('./features')
 const { syncBankAccounts } = require('./syncBankAccounts')
 const { syncOrganization } = require('./syncOrganization')
 const { syncServiceSubscriptions } = require('./syncServiceSubscriptions')
@@ -64,9 +65,10 @@ const SYNC_BANK_ACCOUNTS_FROM_SBBOL = 'sync-bank-accounts-from-sbbol'
  * @param {UserInfo} userInfo data from OAuth client about user
  * @param {TokenSet} tokenSet
  * @param {string} reqId
+ * @param {Array<string>} features list of features to sync
  * @return {Promise<void>}
  */
-const sync = async ({ keystone, userInfo, tokenSet  }) => {
+const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
     const adminContext = await keystone.createContext({ skipAccessControl: true })
     const context = {
         keystone,
@@ -108,6 +110,7 @@ const sync = async ({ keystone, userInfo, tokenSet  }) => {
     await sbbolSecretStorage.setOrganization(organization.id)
     await syncTokens(tokenSet, user.id)
     await syncServiceSubscriptions(userInfo.inn)
+    await syncFeatures({ context, organization, features })
 
     if (await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL)) {
         await syncBankAccounts(user.id, organization)

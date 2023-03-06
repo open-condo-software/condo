@@ -19,13 +19,16 @@ class SbbolRoutes {
 
     async startAuth (req, res, next) {
         const sbbolAuthApi = await initializeSbbolAuthApi()
+        const query = get(req, 'query', {})
+        const redirectUrl = get(query, 'redirectUrl')
+        const queryFeatures = get(query, 'features', [])
+        const features = Array.isArray(queryFeatures) ? queryFeatures : [queryFeatures]
 
-        const redirectUrl = get(req, 'query.redirectUrl')
         if (redirectUrl && !isSafeUrl(redirectUrl)) throw new Error('redirectUrl is incorrect')
         // nonce: to prevent several callbacks from same request
         // state: to validate user browser on callback
         const checks = { nonce: generators.nonce(), state: generators.state() }
-        req.session[SBBOL_SESSION_KEY] = { checks, redirectUrl }
+        req.session[SBBOL_SESSION_KEY] = { checks, redirectUrl, features }
         await req.session.save()
         try {
             const redirectUrl = sbbolAuthApi.authorizationUrlWithParams(checks)
@@ -70,13 +73,14 @@ class SbbolRoutes {
             }
 
             const redirectUrl = get(req.session[SBBOL_SESSION_KEY], 'redirectUrl')
+            const features = get(req.session[SBBOL_SESSION_KEY], 'features', [])
 
             const { keystone } = await getSchemaCtx('User')
             const {
                 user,
                 organization,
                 organizationEmployee,
-            } = await sync({ keystone, userInfo, tokenSet, reqId })
+            } = await sync({ keystone, userInfo, tokenSet, reqId, features })
             await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
 
             if (organizationEmployee) {
