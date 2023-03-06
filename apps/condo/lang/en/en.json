@@ -1156,6 +1156,8 @@
   "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.title": "New request for Sber account creation",
   "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.subject": "Bank account creation",
   "notification.messages.VOIP_INCOMING_CALL_MESSAGE.push.title": "{title}",
+  "notification.messages.RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE.push.title": "Bills were successfully paid",
+  "notification.messages.RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE.push.title": "Failed to pay for bills",
   "TicketDeadline": "Ticket deadline",
   "TicketDeferredDeadline": "Ticket deferred deadline",
   "ticket.EmptyList.header": "The list of applications is still empty",

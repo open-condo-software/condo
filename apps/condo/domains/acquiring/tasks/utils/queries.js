@@ -3,6 +3,8 @@ const Big = require('big.js')
 const dayjs = require('dayjs')
 const { isNil, get } = require('lodash')
 
+const { getLogger } = require('@open-condo/keystone/logging')
+
 const {
     PAYMENT_DONE_STATUS,
     PAYMENT_WITHDRAWN_STATUS,
@@ -32,6 +34,13 @@ const {
 const {
     BillingReceipt,
 } = require('@condo/domains/billing/utils/serverSchema')
+const {
+    RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
+} = require('@condo/domains/notification/constants/constants')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+
+const logger = getLogger('recurrent-payment-processing-queries')
 
 async function getReadyForProcessingContextPage (context, date, pageSize, offset, extraArgs = {}) {
     // calculate payment day
@@ -245,6 +254,43 @@ async function registerMultiPayment (context, recurrentPayment) {
     }
 }
 
+async function sendResultMessageSafely (context, recurrentPayment, success, errorCode) {
+    const {
+        id,
+        tryCount,
+        recurrentPaymentContext: { id: recurrentContextId },
+    } = recurrentPayment
+    const uniqKey = `rp_${id}_${tryCount + 1}_${success}`
+    const type = success ? RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE
+        : RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE
+    const meta = success ? {} : { errorCode }
+
+    try {
+        const [recurrentContext] = await getItems({
+            context,
+            listKey: 'RecurrentPaymentContext',
+            where: { id: recurrentContextId },
+            returnFields: 'serviceConsumer { resident { user { id } } }',
+        })
+        const {
+            serviceConsumer: { resident: { user: { id: userId } } },
+        } = recurrentContext
+
+        await sendMessage(context, {
+            ...dvAndSender,
+            to: { user: { id: userId } },
+            type,
+            uniqKey,
+            meta: {
+                dv: 1,
+                ...meta,
+            },
+        })
+    } catch (error) {
+        logger.error({ msg: 'sendMessage error', error })
+    }
+}
+
 async function setRecurrentPaymentAsSuccess (context, recurrentPayment) {
     const {
         id,
@@ -257,7 +303,7 @@ async function setRecurrentPaymentAsSuccess (context, recurrentPayment) {
         status: RECURRENT_PAYMENT_DONE_STATUS,
     })
 
-    // todo: send push notification to user
+    await sendResultMessageSafely(context, recurrentPayment, true)
 }
 
 async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMessage, errorCode = PAYMENT_ERROR_UNKNOWN_CODE) {
@@ -289,7 +335,7 @@ async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMess
         },
     })
 
-    // todo send push notification to user
+    await sendResultMessageSafely(context, recurrentPayment, false, errorCode)
 }
 
 module.exports = {

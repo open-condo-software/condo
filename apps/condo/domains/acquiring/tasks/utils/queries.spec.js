@@ -40,6 +40,9 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const {
+    Message,
+} = require('@condo/domains/notification/utils/serverSchema')
+const {
     ServiceConsumer,
 } = require('@condo/domains/resident/utils/serverSchema')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
@@ -1104,7 +1107,13 @@ describe('recurrent payments queries', () => {
             expect(result.status).toEqual(RECURRENT_PAYMENT_DONE_STATUS)
             expect(result.tryCount).toEqual(recurrentPayment.tryCount + 1)
 
-            // todo assert notifications are sent
+            const notification = await Message.getOne(adminContext, {
+                uniqKey: `rp_${recurrentPayment.id}_1_true`,
+            })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
         })
     })
 
@@ -1172,7 +1181,16 @@ describe('recurrent payments queries', () => {
                 errorMessage,
             })
 
-            // todo assert notifications are sent
+            const notification = await Message.getOne(adminContext, {
+                uniqKey: `rp_${recurrentPayment.id}_1_false`,
+            })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('errorCode')
+            expect(notification.meta.errorCode).toEqual(errorCode)
         })
 
         const retryCases = [
@@ -1207,7 +1225,16 @@ describe('recurrent payments queries', () => {
                 errorMessage,
             })
 
-            // todo assert notifications are sent
+            const notification = await Message.getOne(adminContext, {
+                uniqKey: `rp_${recurrentPayment.id}_1_false`,
+            })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('errorCode')
+            expect(notification.meta.errorCode).toEqual(errorCode)
         })
 
         const noRetryCases = [
@@ -1243,7 +1270,16 @@ describe('recurrent payments queries', () => {
                 errorMessage,
             })
 
-            // todo assert notifications are sent
+            const notification = await Message.getOne(adminContext, {
+                uniqKey: `rp_${recurrentPayment.id}_1_false`,
+            })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('errorCode')
+            expect(notification.meta.errorCode).toEqual(errorCode)
         })
     })
 })
