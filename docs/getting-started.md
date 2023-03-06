@@ -11,14 +11,3 @@ cd my-condo
 # 2) Install dependencies and link workspaces
 yarn
 ```
-
-# Create new application
-
-```bash
-# 4) run create app command
-yarn createapp APPNAME
-
-# 5) follow the README quick start (check ./apps/APPNAME/ folder)
-```
-
-[continue to some advanced topics](getting-started-adv.md)
