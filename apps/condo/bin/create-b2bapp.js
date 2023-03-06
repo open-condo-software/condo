@@ -14,12 +14,6 @@ function getJson (data) {
     }
 }
 
-async function prepareContext () {
-    const index = path.resolve('./index.js')
-    const { keystone } = await prepareKeystoneExpressApp(index, { excludeApps: ['NextApp', 'AdminUIApp'] })
-    return keystone
-}
-
 async function main (args) {
     const [name, options] = args
     let optionsJson = getJson(options)
@@ -28,7 +22,7 @@ async function main (args) {
     if (options && !optionsJson.appUrl) throw new Error('<options> argument should have appUrl key')
     const json = optionsJson || {}
 
-    const context = await prepareContext()
+    const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
     console.info(`NAME: ${name}`)
     const [b2bapp] = await B2BApp.getAll(context, { name }, { first: 1, sortBy: ['createdAt_DESC'] })
