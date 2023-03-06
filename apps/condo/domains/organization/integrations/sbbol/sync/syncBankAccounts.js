@@ -66,9 +66,9 @@ const _syncBankAccounts = async (accounts, organization) => {
             )
             logger.info({ msg: 'Created BankAccount', bankAccount: { id: account.number, organization: { id: organization.id, name: organization.name } } })
         } else {
-            const haveSBBOLIntegrationContext = get(foundAccount, 'integrationContext.integration.id') === integration.id
+            const alreadyHaveIntegrationContext = get(foundAccount, 'integrationContext.integration.id')
 
-            if (!haveSBBOLIntegrationContext) {
+            if (!alreadyHaveIntegrationContext) {
                 logger.info({ msg: 'Found BankAccount does not have integrationContext' })
 
                 const createdBankIntegrationContext = await BankIntegrationContext.create(context, {
