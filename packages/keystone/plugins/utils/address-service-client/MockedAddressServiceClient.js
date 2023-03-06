@@ -137,6 +137,9 @@ class MockedAddressServiceClient {
     }
 
     async suggest (s, params) {
+        // TODO(pahaz): DOMA-5499 at the moment it's just a copy-past from old tests. But the real logic is not similar than real address suggest service.
+        //   You need to support all arguments. And provide a way return more real data result!
+
         const parts = this.existingItem.address.split(', ')
         const begin = parts.slice(0, -3)
         const [cityPart, streetPart, housePart] = parts.slice(-3)
