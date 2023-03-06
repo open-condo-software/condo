@@ -23,7 +23,6 @@ const withTM = withTMModule([
 
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
-const addressSuggestionsConfig = conf['ADDRESS_SUGGESTIONS_CONFIG'] && JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG'])
 const addressServiceUrl = conf['ADDRESS_SERVICE_URL']
 const mapApiKey = conf['MAP_API_KEY']
 const behaviorRecorder = { 'plerdy': conf['BEHAVIOR_RECORDER_PLERDY_CONFIG'] }
@@ -45,7 +44,6 @@ module.exports = withTM(withLess(withCSS({
         // Will be available on both server and client
         serverUrl,
         apolloGraphQLUrl,
-        addressSuggestionsConfig,
         addressServiceUrl,
         mapApiKey,
         googleCaptcha,
