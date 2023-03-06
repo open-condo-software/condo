@@ -29,7 +29,7 @@
  *  1. update state on this list to the update time of the updated/created/deleted object
  */
 
-const { get, cloneDeep } = require('lodash')
+const { get, cloneDeep, isEqual } = require('lodash')
 
 const { getLogger } = require('./logging')
 const { getRedisClient } = require('./redis')
@@ -236,7 +236,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         // Patch public queries from BaseKeystoneList:
 
         const originalItemsQuery = listAdapter.itemsQuery
-        const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, 'from', null)}_${get(opts, ['context', 'authedItem'])}`
+        const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, 'from', null)}_${JSON.stringify(get(opts, ['context', 'authedItem']))}`
         listAdapter.itemsQuery = patchAdapterQueryFunction(listName, 'itemsQuery', originalItemsQuery, listAdapter, middleware, getItemsQueryKey)
 
         const originalFind = listAdapter.find
@@ -325,7 +325,27 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
                     result: JSON.stringify(cached.response),
                 })
                 cache.logEvent({ event: cacheEvent })
-                return cloneDeep(cached.response)
+
+                // TODO
+                // DELETE THIS!
+                const cachedResponse = cloneDeep(cached.response)
+                const realResponse = await f.apply(listAdapter, args)
+
+                const diff = !isEqual(realResponse, cachedResponse)
+
+                if (diff) {
+                    const cacheEvent = cache.getCacheEvent({
+                        type: 'ALERT-EQUAL',
+                        functionName,
+                        key,
+                        list: listName,
+                        result: { cached: JSON.stringify(cachedResponse), real: JSON.stringify(realResponse), diff: diff },
+                    })
+                    cache.logEvent({ event: cacheEvent })
+                }
+                //
+
+                return cachedResponse
             }
         }
 
