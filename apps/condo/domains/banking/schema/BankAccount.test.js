@@ -382,7 +382,7 @@ describe('BankAccount', () => {
             expect(firstBankAccount.id).not.toEqual(secondBankAccount.id)
         })
 
-        test('can\'t connect to BankIntegrationContext used by another BankAccount', async () => {
+        test('can\'t connect new BankAccount to BankIntegrationContext used by another BankAccount', async () => {
             const [organization] = await createTestOrganization(adminClient)
 
             const [bankIntegrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
@@ -395,6 +395,23 @@ describe('BankAccount', () => {
                     integrationContext: { connect: { id: anotherBankAccount.integrationContext.id } },
                 })
             }, `Cannot connect to BankIntegrationContext, used by another BankAccount(id="${anotherBankAccount.id}")`)
+        })
+
+        test('can\'t connect existing BankAccount without BankIntegrationContext to BankIntegrationContext used by another BankAccount', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const [bankAccount] = await createTestBankAccount(adminClient, organization)
+            const [anotherBankIntegrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+            const [anotherBankAccount] = await createTestBankAccount(adminClient, organization, {
+                integrationContext: { connect: { id: anotherBankIntegrationContext.id } },
+            })
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBankAccount(adminClient, bankAccount.id, {
+                    integrationContext: {
+                        connect: { id: anotherBankIntegrationContext.id },
+                    },
+                })
+            }, `Cannot connect to BankIntegrationContext, used by another BankAccount(id="${anotherBankAccount.id}")`)
+
         })
 
         test('cannot connect BankIntegrationContext if BankAccount is already connected to some integrationContext', async () => {
