@@ -12,6 +12,7 @@ const {
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationAccessRight, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, makeClientWithIntegrationAccess, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { SERVICE_PROVIDER_PROFILE_FEATURE } = require('@condo/domains/organization/constants/features')
 const { registerNewOrganization, createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
     Organization,
@@ -30,7 +31,7 @@ const {
     SOME_RANDOM_LETTERS,
 } = require('@condo/domains/organization/utils/tin.utils.spec')
 const { DEFAULT_STATUS_TRANSITIONS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('Organization', () => {
@@ -66,6 +67,7 @@ describe('Organization', () => {
         expect(objs[0].id).toEqual(client.organization.id)
         expect(objs[0].name).toEqual(client.organization.name)
         expect(objs[0].description).toEqual(client.organization.description)
+        expect(objs[0]).toHaveProperty('features', [])
     })
 
     test('anonymous: read Organization', async () => {
@@ -395,5 +397,35 @@ describe('Check read access to organization from service user with acquiring int
         await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, serviceUserClient.user)
         const resultOrganization = await Organization.getOne(serviceUserClient, { id: organization.id })
         expect(resultOrganization).toBeUndefined()
+    })
+})
+
+describe('Organization features', () => {
+    test('Organization can be created with known features', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [obj] = await createTestOrganization(admin, { features: [SERVICE_PROVIDER_PROFILE_FEATURE] })
+        expect(obj).toHaveProperty('features', [SERVICE_PROVIDER_PROFILE_FEATURE])
+    })
+    test('Existing organization can be enhanced with features by support', async () => {
+        const support = await makeClientWithSupportUser()
+        const client = await makeClientWithRegisteredOrganization()
+        expect(client).toHaveProperty(['organization', 'id'])
+        expect(client).toHaveProperty(['organization', 'features'], [])
+
+        const [orgWithFeatures] = await updateTestOrganization(support, client.organization.id, {
+            features: [SERVICE_PROVIDER_PROFILE_FEATURE],
+        })
+        expect(orgWithFeatures).toHaveProperty('features', [SERVICE_PROVIDER_PROFILE_FEATURE])
+
+        const [orgWithDisabledFeature] = await updateTestOrganization(support, client.organization.id, {
+            features: [],
+        })
+        expect(orgWithDisabledFeature).toHaveProperty('features', [])
+    })
+    test('Organization employee cannot set features himself', async () => {
+        const orgManager = await makeClientWithRegisteredOrganization()
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestOrganization(orgManager, orgManager.organization.id, { features: [SERVICE_PROVIDER_PROFILE_FEATURE] })
+        })
     })
 })

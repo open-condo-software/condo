@@ -2616,6 +2616,7 @@ type OrganizationHistoryRecord {
   defaultEmployeeRoleStatusTransitions: JSON
   importRemoteSystem: String
   importId: String
+  features: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -2744,6 +2745,10 @@ input OrganizationHistoryRecordWhereInput {
   importId_not_ends_with_i: String
   importId_in: [String]
   importId_not_in: [String]
+  features: JSON
+  features_not: JSON
+  features_in: [JSON]
+  features_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -2866,6 +2871,7 @@ input OrganizationHistoryRecordUpdateInput {
   defaultEmployeeRoleStatusTransitions: JSON
   importRemoteSystem: String
   importId: String
+  features: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -2896,6 +2902,7 @@ input OrganizationHistoryRecordCreateInput {
   defaultEmployeeRoleStatusTransitions: JSON
   importRemoteSystem: String
   importId: String
+  features: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -2931,6 +2938,10 @@ input OrganizationLinkRelateToManyInput {
   connect: [OrganizationLinkWhereUniqueInput]
   disconnect: [OrganizationLinkWhereUniqueInput]
   disconnectAll: Boolean
+}
+
+enum OrganizationFeature {
+  SPP
 }
 
 """ B2B customer of the service, a legal entity or an association of legal entities (holding/group) 
@@ -2983,6 +2994,10 @@ type Organization {
 
   """ External system organization id. Used for integrations """
   importId: String
+
+  """ List of the organization's features connected by a particular integration 
+  """
+  features: [OrganizationFeature!]!
   id: ID!
   v: Int
   createdAt: String
@@ -3129,6 +3144,10 @@ input OrganizationWhereInput {
   importId_not_ends_with_i: String
   importId_in: [String]
   importId_not_in: [String]
+  features: [OrganizationFeature!]
+  features_not: [OrganizationFeature!]
+  features_in: [[OrganizationFeature!]]
+  features_not_in: [[OrganizationFeature!]]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3237,6 +3256,7 @@ input OrganizationUpdateInput {
   relatedOrganizations: OrganizationLinkRelateToManyInput
   importRemoteSystem: String
   importId: String
+  features: [OrganizationFeature!]
   v: Int
   createdAt: String
   updatedAt: String
@@ -3264,6 +3284,7 @@ input OrganizationCreateInput {
   relatedOrganizations: OrganizationLinkRelateToManyInput
   importRemoteSystem: String
   importId: String
+  features: [OrganizationFeature!]
   v: Int
   createdAt: String
   updatedAt: String

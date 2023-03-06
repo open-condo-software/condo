@@ -2,7 +2,7 @@ const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/organization/access/RegisterNewOrganizationService')
 const { createConfirmedEmployee, createOrganization, createDefaultRoles, pushOrganizationToSalesCRM } = require('@condo/domains/organization/utils/serverSchema/Organization')
-const { PropertyScope, createDefaultPropertyScopeForNewOrganization } = require('@condo/domains/scope/utils/serverSchema')
+const { createDefaultPropertyScopeForNewOrganization } = require('@condo/domains/scope/utils/serverSchema')
 const { createTrialSubscription } = require('@condo/domains/subscription/utils/serverSchema/ServiceSubscription')
 const { TicketOrganizationSetting } = require('@condo/domains/ticket/utils/serverSchema')
 
@@ -21,7 +21,7 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                 summary: 'Registers new Organization for current user',
                 description: 'Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole, creates trial ServiceSubscription for organization',
             },
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data } = args
                 const dvSenderData = { dv: data.dv, sender: data.sender }
                 const organization = await createOrganization(context, data)
