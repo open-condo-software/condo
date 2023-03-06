@@ -7,7 +7,7 @@ function getRange (length) {
     return ({ min: Math.pow(10,length - 1), max: Math.pow(10, length) - 1 })
 }
 
-function createValidRuBankAccount (extra = {}) {
+function bulidValidRequisitesForRuBankAccount (extra = {}) {
     const tin = createValidRuTin10()
     const routingNumber = createValidRuRoutingNumber()
     const number = createValidRuNumber(routingNumber)
@@ -66,7 +66,7 @@ function createValidRuTin12 () {
 
 
 module.exports = {
-    createValidRuBankAccount,
+    bulidValidRequisitesForRuBankAccount,
     createValidRuNumber,
     createValidRuRoutingNumber,
     createValidRuTin10,

@@ -3,7 +3,7 @@
  */
 
 const { Text, DateTimeUtc, Select, Relationship } = require('@keystonejs/fields')
-const { get, map } = require('lodash')
+const { get } = require('lodash')
 
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -31,20 +31,14 @@ const BankAccount = new GQLListSchema('BankAccount', {
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
             hooks: {
                 validateInput: async ({ existingItem, resolvedData, addFieldValidationError, operation }) => {
-                    const newItem = { ...existingItem, ...resolvedData }
-                    const bankIntegrationContext = await getById('BankIntegrationContext', get(newItem, 'integrationContext'))
-                    const existingBankAccounts = await find('BankAccount', { integrationContext: { id: bankIntegrationContext.id } })
-                    const alreadyHaveIntegrationContext = get(existingItem, 'integrationContext')
-                    if (operation === 'update' && alreadyHaveIntegrationContext) {
+                    if (operation === 'update' && existingItem.integrationContext) {
                         return addFieldValidationError(`Integration reassignment is not allowed for BankAccount with id="${existingItem.id}"`)
                     }
-                    if (existingBankAccounts.length > 1) {
-                        return addFieldValidationError(`Multiple BankAccount with ids "[${map(existingBankAccounts, 'id').join(', ')}]" are connected to BankIntegrationContext(id="${bankIntegrationContext.id}")`)
-                    }
-                    if (operation === 'create') {
-                        if (existingBankAccounts.length > 0) {
-                            return addFieldValidationError(`Cannot connect to BankIntegrationContext, used by another BankAccount(id="${existingBankAccounts[0].id}")`)
-                        }
+                    const resolvedFields = { ...existingItem, ...resolvedData }
+                    const bankIntegrationContext = await getById('BankIntegrationContext', get(resolvedFields, 'integrationContext'))
+                    const alreadyConnectedBankAccounts = await find('BankAccount', { integrationContext: { id: bankIntegrationContext.id } })
+                    if (alreadyConnectedBankAccounts.length > 0) {
+                        return addFieldValidationError(`Cannot connect to BankIntegrationContext, used by another BankAccount(id="${alreadyConnectedBankAccounts[0].id}")`)
                     }
                 },
             },

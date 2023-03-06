@@ -6,7 +6,7 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 
-const { createValidRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccount')
+const { bulidValidRequisitesForRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccount')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { BankCategory: BankCategoryGQL } = require('@condo/domains/banking/gql')
@@ -96,13 +96,13 @@ async function createTestBankAccount (client, organization, extraAttrs = {}) {
     if (!organization || !organization.id) throw new Error('no organization')
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const bankAccount = createValidRuBankAccount()
+    const requisitesForRuBankAccount = bulidValidRequisitesForRuBankAccount()
     const attrs = {
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
         importId: faker.datatype.uuid(),
-        ...bankAccount,
+        ...requisitesForRuBankAccount,
         ...extraAttrs,
     }
     const obj = await BankAccount.create(client, attrs)
