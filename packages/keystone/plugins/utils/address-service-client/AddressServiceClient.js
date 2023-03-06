@@ -59,7 +59,7 @@ class AddressServiceClient {
 
     /**
      * @typedef {Object} AddressServiceSuggestParams
-     * @property {string} [geo]
+     * @property {number} [count]
      * @property {boolean} [bypass]
      * @property {string} [context]
      * @property {AddressServiceSuggestHelpersParams} [helpers]
