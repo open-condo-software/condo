@@ -57,7 +57,7 @@ const TicketChange = new GQLListSchema('TicketChange', {
             keysOfLocalizedTextFields,
         ),
         changedByRole: {
-            schemaDoc: 'Type of employee who changed the ticket, can be employee role from same organization or related, resident or deleted employee',
+            schemaDoc: 'Type of user who changed the ticket, can be employee role from same organization or related, resident or deleted employee',
             type: Virtual,
             resolver: async (item, args, context) => {
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
@@ -77,32 +77,36 @@ const TicketChange = new GQLListSchema('TicketChange', {
                 const orgEmployees = await find('OrganizationEmployee', {
                     organization: { id: orgId },
                     user: { id: userId },
+                    deletedAt: null,
+                    isBlocked: false,
                 })
-                if (orgEmployees.length) {
-                    const existingEmployee = orgEmployees.filter(employee => !employee.deletedAt && !employee.isBlocked)
-                    if (existingEmployee.length) {
-                        const roleID = existingEmployee[0].role
-                        const role = await getById('OrganizationEmployeeRole', roleID)
+                let changedByEmployeeMessage
 
-                        return getTranslation(translations, role.name)
-                    } else {
-                        return getTranslation(translations, 'DeletedEmployee')
-                    }
-                } else {
+                if (orgEmployees.length) {
+                    const roleID = orgEmployees[0].role
+                    const role = await getById('OrganizationEmployeeRole', roleID)
+
+                    changedByEmployeeMessage = getTranslation(translations, role.name)
+                }
+
+                if (!changedByEmployeeMessage) {
                     const links = await find('OrganizationLink', {
                         to: { id: orgId },
                     })
                     const relatedOrgIds = links.map(link => link.from).filter(Boolean)
-                    if (!relatedOrgIds.length) return getTranslation('DeletedEmployee')
-
                     const relatedOrgEmployees = await find('OrganizationEmployee', {
                         organization: { id_in: relatedOrgIds },
                         user: { id: userId },
+                        deletedAt: null,
+                        isBlocked: false,
                     })
 
-                    const translationKey = relatedOrgEmployees.length ? 'ContactCenterEmployee' : 'DeletedEmployee'
-                    return getTranslation(translations, translationKey)
+                    if (relatedOrgEmployees.length) {
+                        changedByEmployeeMessage = getTranslation(translations, 'ContactCenterEmployee')
+                    }
                 }
+
+                return changedByEmployeeMessage || getTranslation(translations, 'DeletedEmployee')
             },
         },
     },
