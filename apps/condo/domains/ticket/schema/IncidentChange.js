@@ -52,7 +52,7 @@ const IncidentChange = new GQLListSchema('IncidentChange', {
 
         // TODO(DOMA-2567) duplicate from TicketChange
         changedByRole: {
-            schemaDoc: 'Type of employee who changed the incident, can be employee role from same organization or related, resident or deleted employee',
+            schemaDoc: 'Type of user who changed the incident, can be employee role from same organization or related, resident or deleted employee',
             type: 'Virtual',
             resolver: async (item, args, context) => {
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
@@ -72,32 +72,36 @@ const IncidentChange = new GQLListSchema('IncidentChange', {
                 const orgEmployees = await find('OrganizationEmployee', {
                     organization: { id: orgId },
                     user: { id: userId },
+                    deletedAt: null,
+                    isBlocked: false,
                 })
+
                 if (orgEmployees.length) {
-                    const existingEmployee = orgEmployees.filter(employee => !employee.deletedAt && !employee.isBlocked)
-                    if (existingEmployee.length) {
-                        const roleID = existingEmployee[0].role
-                        const role = await getById('OrganizationEmployeeRole', roleID)
+                    const roleID = orgEmployees[0].role
+                    const role = await getById('OrganizationEmployeeRole', roleID)
 
-                        return getTranslation(translations, role.name)
-                    } else {
-                        return getTranslation(translations, 'DeletedEmployee')
-                    }
-                } else {
-                    const links = await find('OrganizationLink', {
-                        to: { id: orgId },
-                    })
-                    const relatedOrgIds = links.map(link => link.from).filter(Boolean)
-                    if (!relatedOrgIds.length) return getTranslation('DeletedEmployee')
-
-                    const relatedOrgEmployees = await find('OrganizationEmployee', {
-                        organization: { id_in: relatedOrgIds },
-                        user: { id: userId },
-                    })
-
-                    const translationKey = relatedOrgEmployees.length ? 'ContactCenterEmployee' : 'DeletedEmployee'
-                    return getTranslation(translations, translationKey)
+                    return getTranslation(translations, role.name)
                 }
+
+                const links = await find('OrganizationLink', {
+                    to: { id: orgId },
+                })
+                const relatedOrgIds = links.map(link => link.from).filter(Boolean)
+                const relatedOrgEmployees = await find('OrganizationEmployee', {
+                    organization: { id_in: relatedOrgIds },
+                    user: { id: userId },
+                    deletedAt: null,
+                    isBlocked: false,
+                })
+
+                if (relatedOrgEmployees.length) {
+                    const roleID = relatedOrgEmployees[0].role
+                    const role = await getById('OrganizationEmployeeRole', roleID)
+
+                    return getTranslation(translations, role.name)
+                }
+
+                return getTranslation(translations, 'DeletedEmployee')
             },
         },
 

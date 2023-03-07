@@ -80,33 +80,33 @@ const TicketChange = new GQLListSchema('TicketChange', {
                     deletedAt: null,
                     isBlocked: false,
                 })
-                let changedByEmployeeMessage
 
                 if (orgEmployees.length) {
                     const roleID = orgEmployees[0].role
                     const role = await getById('OrganizationEmployeeRole', roleID)
 
-                    changedByEmployeeMessage = getTranslation(translations, role.name)
+                    return getTranslation(translations, role.name)
                 }
 
-                if (!changedByEmployeeMessage) {
-                    const links = await find('OrganizationLink', {
-                        to: { id: orgId },
-                    })
-                    const relatedOrgIds = links.map(link => link.from).filter(Boolean)
-                    const relatedOrgEmployees = await find('OrganizationEmployee', {
-                        organization: { id_in: relatedOrgIds },
-                        user: { id: userId },
-                        deletedAt: null,
-                        isBlocked: false,
-                    })
+                const links = await find('OrganizationLink', {
+                    to: { id: orgId },
+                })
+                const relatedOrgIds = links.map(link => link.from).filter(Boolean)
+                const relatedOrgEmployees = await find('OrganizationEmployee', {
+                    organization: { id_in: relatedOrgIds },
+                    user: { id: userId },
+                    deletedAt: null,
+                    isBlocked: false,
+                })
 
-                    if (relatedOrgEmployees.length) {
-                        changedByEmployeeMessage = getTranslation(translations, 'ContactCenterEmployee')
-                    }
+                if (relatedOrgEmployees.length) {
+                    const roleID = relatedOrgEmployees[0].role
+                    const role = await getById('OrganizationEmployeeRole', roleID)
+
+                    return getTranslation(translations, role.name)
                 }
 
-                return changedByEmployeeMessage || getTranslation(translations, 'DeletedEmployee')
+                return getTranslation(translations, 'DeletedEmployee')
             },
         },
     },

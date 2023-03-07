@@ -397,7 +397,7 @@ describe('TicketChange', () => {
         })
 
         test('ticket changed by related from organization employee', async () => {
-            const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization({
+            const { clientFrom, organizationTo, propertyTo, role } = await createTestOrganizationWithAccessToAnotherOrganization({
                 roleExtraAttrs: { canManageTickets: true },
             })
             const [ticket] = await createTestTicket(clientFrom, organizationTo, propertyTo)
@@ -409,7 +409,7 @@ describe('TicketChange', () => {
             const obj = await TicketChange.getOne(clientFrom, {
                 ticket: { id: ticket.id },
             })
-            expect(obj.changedByRole).toEqual(i18n('ContactCenterEmployee'))
+            expect(obj.changedByRole).toEqual(i18n(role.name))
         })
 
         test('ticket changed by deleted organization employee', async () => {
@@ -461,7 +461,7 @@ describe('TicketChange', () => {
             const obj = await TicketChange.getOne(admin, {
                 ticket: { id: ticket.id },
             })
-            expect(obj.changedByRole).toEqual(i18n('ContactCenterEmployee'))
+            expect(obj.changedByRole).toEqual(i18n(role.name))
         })
 
         test('ticket changed by user with deleted related from organization employee and existing organization employee', async () => {

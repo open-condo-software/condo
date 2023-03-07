@@ -907,7 +907,6 @@
   "employee.role.Technician.description": "The technician works with the tasks and performs the work. The technician does not have access to other sections and features of the system, except for applications.\nThe technician works according to the chosen specializations and at the assigned houses.\nYou can assign houses in the «Property scopes» in the «Settings».",
   "employee.isBlocked": "blocked",
   "DeletedEmployee": "Deleted employee",
-  "ContactCenterEmployee": "Contact center employee",
   "meterReadingSource.Call.name": "Call",
   "meterReadingSource.MobileApp.name": "Resident's mobile app",
   "meterReadingSource.Billing.name": "Billing",

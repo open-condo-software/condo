@@ -218,7 +218,7 @@ async function updateTestOrganizationLink (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestOrganizationWithAccessToAnotherOrganization ({ roleExtraAttrs = {} }) {
+async function createTestOrganizationWithAccessToAnotherOrganization ({ roleExtraAttrs = {} } = {}) {
     const admin = await makeLoggedInAdminClient()
     // createClientWithProperty creates an employee inside himself, this behavior is not needed here
     const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -237,7 +237,7 @@ async function createTestOrganizationWithAccessToAnotherOrganization ({ roleExtr
     return {
         clientFrom, propertyFrom, employeeFrom, organizationFrom,
         clientTo, propertyTo, employeeTo, organizationTo,
-        link,
+        link, role
     }
 }
 

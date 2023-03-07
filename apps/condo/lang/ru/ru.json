@@ -907,7 +907,6 @@
   "employee.role.Technician.description": "Техник работает с задачами и выполняет работы по выбранным специализациям в назначенных домах. Кроме заявок, у него нет доступа к другим разделам и возможностям системы. Назначить дома можно в «Настройках», в разделе «Области видимости».",
   "employee.isBlocked": "заблокирован",
   "DeletedEmployee": "Удаленный сотрудник",
-  "ContactCenterEmployee": "Сотрудник КЦ",
   "meterReadingSource.Call.name": "Звонок",
   "meterReadingSource.MobileApp.name": "Мобильное приложение жителя",
   "meterReadingSource.Billing.name": "Биллинг",
