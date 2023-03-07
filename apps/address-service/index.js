@@ -5,6 +5,7 @@ const { Keystone } = require('@keystonejs/keystone')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 const identity = require('lodash/identity')
 const nextCookie = require('next-cookies')
+const { v4 } = require('uuid')
 
 const conf = require('@open-condo/config')
 const access = require('@open-condo/keystone/access')
@@ -96,6 +97,14 @@ module.exports = {
     ].filter(identity),
     configureExpress: (app) => {
         app.set('trust proxy', 1) // trust first proxy
+
+        const requestIdHeaderName = 'X-Request-Id'
+        app.use(function reqId (req, res, next) {
+            const reqId = req.headers[requestIdHeaderName.toLowerCase()] || v4()
+            req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = reqId
+            res.setHeader(requestIdHeaderName, reqId)
+            next()
+        })
 
         app.use('/admin/', (req, res, next) => {
             if (req.url === '/api') return next()
