@@ -37,6 +37,7 @@ const {
 const {
     RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
@@ -291,6 +292,35 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
     }
 }
 
+async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentContext) {
+    try {
+        const [recurrentContext] = await getItems({
+            context,
+            listKey: 'RecurrentPaymentContext',
+            where: { id: recurrentPaymentContext.id },
+            returnFields: 'serviceConsumer { resident { user { id } } }',
+        })
+        const {
+            serviceConsumer: { resident: { user: { id: userId } } },
+        } = recurrentContext
+
+        const date = dayjs()
+        const uniqKey = `rp_tp_${recurrentPaymentContext.id}_${date.toISOString()}`
+        await sendMessage(context, {
+            ...dvAndSender,
+            to: { user: { id: userId } },
+            type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
+            uniqKey,
+            meta: {
+                dv: 1,
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            },
+        })
+    } catch (error) {
+        logger.error({ msg: 'sendMessage error', error })
+    }
+}
+
 async function setRecurrentPaymentAsSuccess (context, recurrentPayment) {
     const {
         id,
@@ -347,4 +377,5 @@ module.exports = {
     registerMultiPayment,
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,
+    sendTomorrowPaymentNotificationSafely,
 }

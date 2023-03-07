@@ -62,7 +62,7 @@ async function process () {
     while (hasMorePages) {
         logger.info({ msg: `Processing recurrent payment context page #${Math.floor(offset / pageSize)}` })
         // get page (can be empty)
-        const page = await getReadyForProcessingContextPage(context, pageSize, offset)
+        const page = await getReadyForProcessingContextPage(context, date, pageSize, offset)
 
         // process each page in parallel
         await processArrayOf(page).inParallelWith(async (recurrentPaymentContext) => {
