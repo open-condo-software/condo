@@ -15,6 +15,27 @@ const { getSuggestionsProvider } = require('@address-service/domains/common/util
 
 const ALLOWED_METHODS = ['GET', 'POST']
 
+/**
+ * @param {Request} req express request
+ * @param {string} param Parameter to extract from body or query
+ * @param {*} [defaultValue] Default value
+ */
+const getReqParam = (req, param, defaultValue) => {
+    const reqQuery = get(req, 'query', {})
+    const reqBody = get(req, 'body', {})
+    return get(reqBody, param, get(reqQuery, param, defaultValue))
+}
+
+const getReqJson = (req, param, defaultValue) => {
+    const val = getReqParam(req, param)
+    if (!val || typeof val !== 'string') return defaultValue
+    try {
+        return JSON.parse(val)
+    } catch (e) {
+        return defaultValue
+    }
+}
+
 class SuggestionKeystoneApp {
     constructor () {
         this.logger = getLogger(this.constructor.name)
@@ -38,44 +59,35 @@ class SuggestionKeystoneApp {
                 res.send(404)
             }
 
-            const reqQuery = get(req, 'query', {})
-            const reqBody = get(req, 'body', {})
-
-            /**
-             * @param {string} param Parameter to extract from body or query
-             * @param {*} [defaultValue] Default value
-             */
-            const getParam = (param, defaultValue) => get(reqBody, param, get(reqQuery, param, defaultValue))
-
             /**
              * User's search string
              * @type {?string}
              */
-            const s = getParam('s')
+            const s = getReqParam(req, 's')
 
             /**
              * To skip normalization of results. If true - returns raw provider's result
              * @type {boolean}
              */
-            const bypass = Boolean(getParam('bypass', false))
+            const bypass = Boolean(getReqParam(req,'bypass', false))
 
             /**
              * Sometimes we need to use different query parameters to providers
              * depending on different clients (mobile app, backend job, user runtime)
              * @type {string}
              */
-            const context = String(getParam('context', ''))
+            const context = String(getReqParam(req, 'context', ''))
 
             /**
              * Number of results to return
              * @type {number|NaN}
              */
-            const count = Number(getParam('count'))
+            const count = Number(getReqParam(req,'count'))
 
             /**
              * Additional parameters for improving of the searching
              */
-            const helpers = getParam('helpers', {})
+            const helpers = getReqJson(req, 'helpers', {})
 
             if (!s) {
                 res.send(400)
