@@ -1,11 +1,10 @@
-const conf = require('@open-condo/config')
 
 const { AcquiringIntegrationContext: AcquiringContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BillingIntegrationOrganizationContext: BillingContext } = require('@condo/domains/billing/utils/serverSchema')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
 
-const SPP_CONFIG = JSON.parse(conf['SPP_CONFIG'] || '{}')
+const { getSPPConfig } = require('./config')
 
 /**
  * Connects billing and acquiring miniapps for SPP clients
@@ -15,12 +14,13 @@ const SPP_CONFIG = JSON.parse(conf['SPP_CONFIG'] || '{}')
  */
 async function syncServiceProviderProfileState ({ context, organization }) {
     const { context: adminContext } = context
-    if (!('BillingIntegrationId' in SPP_CONFIG && 'AcquiringIntegrationId' in SPP_CONFIG)) {
+    const config = getSPPConfig()
+    if (!('BillingIntegrationId' in config && 'AcquiringIntegrationId' in config)) {
         return
     }
 
-    const billingId = SPP_CONFIG.BillingIntegrationId
-    const acquiringId = SPP_CONFIG.AcquiringIntegrationId
+    const billingId = config.BillingIntegrationId
+    const acquiringId = config.AcquiringIntegrationId
 
     const [existingBillingContext] = await BillingContext.getAll(adminContext, {
         integration: { id: billingId },
