@@ -3,6 +3,7 @@
  */
 
 const { Relationship, Integer, Select, File } = require('@keystonejs/fields')
+const Ajv = require('ajv')
 const { values } = require('lodash')
 
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
@@ -12,6 +13,7 @@ const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/banking/access/BankSyncTask')
 const { BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
+const { getValidator } = require('@condo/domains/common/schema/json.utils')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
@@ -118,6 +120,19 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
         meta: {
             schemaDoc: 'Additional data, specific to used integration',
             type: Json,
+            hooks: {
+                validateInput: getValidator(new Ajv().compile({
+                    type: 'object',
+                    properties: {
+                        duplicatedTransactions: {
+                            type: 'array',
+                            items: { type: 'string' },
+                            minItems: 1,
+                        },
+                    },
+                    additionalProperties: false,
+                })),
+            },
         },
     },
     hooks: {
