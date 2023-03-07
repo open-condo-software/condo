@@ -40,6 +40,11 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const {
+    RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
+} = require('@condo/domains/notification/constants/constants')
+const {
     Message,
 } = require('@condo/domains/notification/utils/serverSchema')
 const {
@@ -65,6 +70,7 @@ const {
     registerMultiPayment,
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,
+    sendTomorrowPaymentNotificationSafely,
 } = require('./queries')
 
 const pageSize = 10000
@@ -1108,6 +1114,7 @@ describe('recurrent payments queries', () => {
             expect(result.tryCount).toEqual(recurrentPayment.tryCount + 1)
 
             const notification = await Message.getOne(adminContext, {
+                type: RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
                 uniqKey: `rp_${recurrentPayment.id}_1_true`,
             })
             expect(notification).toBeDefined()
@@ -1182,6 +1189,7 @@ describe('recurrent payments queries', () => {
             })
 
             const notification = await Message.getOne(adminContext, {
+                type: RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
             })
             expect(notification).toBeDefined()
@@ -1226,6 +1234,7 @@ describe('recurrent payments queries', () => {
             })
 
             const notification = await Message.getOne(adminContext, {
+                type: RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
             })
             expect(notification).toBeDefined()
@@ -1271,6 +1280,7 @@ describe('recurrent payments queries', () => {
             })
 
             const notification = await Message.getOne(adminContext, {
+                type: RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
             })
             expect(notification).toBeDefined()
@@ -1280,6 +1290,53 @@ describe('recurrent payments queries', () => {
             expect(notification).toHaveProperty('meta')
             expect(notification.meta).toHaveProperty('errorCode')
             expect(notification.meta.errorCode).toEqual(errorCode)
+        })
+    })
+
+    describe('sendTomorrowPaymentNotificationSafely', () => {
+        let admin,
+            getContextRequest,
+            serviceConsumerBatch,
+            recurrentPaymentContext
+
+        beforeEach( async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            serviceConsumerBatch = batches[0]
+            recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest(serviceConsumerBatch)))[0]
+        })
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+
+            getContextRequest = (batch) => ({
+                enabled: true,
+                limit: '100000000',
+                autoPayReceipts: false,
+                paymentDay: 10,
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batch.serviceConsumer.id } },
+                billingCategory: { connect: { id: batch.billingReceipts[0].category.id } },
+            })
+        })
+
+        it('should send notification', async () => {
+            // send notification
+            await sendTomorrowPaymentNotificationSafely(adminContext, recurrentPaymentContext)
+
+            const [notification] = await Message.getAll(adminContext, {
+                type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
+                user: { id: serviceConsumerBatch.resident.user.id },
+            }, {
+                sortBy: 'createdAt_DESC',
+            })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
+            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
+            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
         })
     })
 })
