@@ -18,7 +18,6 @@ import {
     getTableCellRenderer,
 } from '@condo/domains/common/components/Table/Renders'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { RE_FETCH_TICKETS_IN_CONTROL_ROOM } from '@condo/domains/common/constants/featureflags'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -136,8 +135,6 @@ export function useTableColumns <T> (
         updateContext({ organization: organization.id })
     }, [organization, updateContext])
 
-    const isRefetchTicketsFeatureEnabled = useFlag(RE_FETCH_TICKETS_IN_CONTROL_ROOM)
-
     const refetch = useCallback(async () => {
         await refetchTickets()
         await refetchUserTicketCommentReadTimes()
@@ -145,17 +142,15 @@ export function useTableColumns <T> (
     }, [refetchTickets, refetchTicketsCommentsTimes, refetchUserTicketCommentReadTimes])
 
     useEffect(() => {
-        if (isRefetchTicketsFeatureEnabled) {
-            const handler = setInterval(async () => {
-                setIsRefetching(true)
-                await refetch()
-                setIsRefetching(false)
-            }, TICKETS_RE_FETCH_INTERVAL)
-            return () => {
-                clearInterval(handler)
-            }
+        const handler = setInterval(async () => {
+            setIsRefetching(true)
+            await refetch()
+            setIsRefetching(false)
+        }, TICKETS_RE_FETCH_INTERVAL)
+        return () => {
+            clearInterval(handler)
         }
-    }, [isRefetchTicketsFeatureEnabled, refetch, setIsRefetching])
+    }, [refetch, setIsRefetching])
 
     return useMemo(() => ({
         columns: [

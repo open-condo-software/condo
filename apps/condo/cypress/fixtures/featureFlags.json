@@ -14,21 +14,6 @@
       }
     ]
   },
-  "refetch-tickets-in-control-room": {
-    "defaultValue": false,
-    "rules": [
-      {
-        "condition": {
-          "organization": {
-            "$in": [
-              "ids"
-            ]
-          }
-        },
-        "force": true
-      }
-    ]
-  },
   "send-submit-meter-readings-push-notifications-task": {
     "defaultValue": false
   },
