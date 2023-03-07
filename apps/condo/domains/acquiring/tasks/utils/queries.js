@@ -284,6 +284,7 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
             uniqKey,
             meta: {
                 dv: 1,
+                recurrentPaymentContext: { id: recurrentContextId },
                 ...meta,
             },
         })
