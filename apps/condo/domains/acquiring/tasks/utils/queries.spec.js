@@ -1121,6 +1121,10 @@ describe('recurrent payments queries', () => {
             expect(notification).toHaveProperty('user')
             expect(notification.user).toHaveProperty('id')
             expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
+            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
+            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
         })
     })
 
@@ -1199,6 +1203,9 @@ describe('recurrent payments queries', () => {
             expect(notification).toHaveProperty('meta')
             expect(notification.meta).toHaveProperty('errorCode')
             expect(notification.meta.errorCode).toEqual(errorCode)
+            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
+            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
+            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
         })
 
         const retryCases = [
@@ -1244,6 +1251,9 @@ describe('recurrent payments queries', () => {
             expect(notification).toHaveProperty('meta')
             expect(notification.meta).toHaveProperty('errorCode')
             expect(notification.meta.errorCode).toEqual(errorCode)
+            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
+            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
+            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
         })
 
         const noRetryCases = [
@@ -1290,6 +1300,9 @@ describe('recurrent payments queries', () => {
             expect(notification).toHaveProperty('meta')
             expect(notification.meta).toHaveProperty('errorCode')
             expect(notification.meta.errorCode).toEqual(errorCode)
+            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
+            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
+            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
         })
     })
 

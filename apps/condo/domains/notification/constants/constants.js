@@ -421,9 +421,15 @@ const MESSAGE_META = {
     },
     [RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE]: {
         dv: { required: true },
+        recurrentPaymentContext: {
+            id: { required: true },
+        },
     },
     [RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE]: {
         dv: { required: true },
+        recurrentPaymentContext: {
+            id: { required: true },
+        },
         errorCode: { required: true },
     },
     [RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE]: {
