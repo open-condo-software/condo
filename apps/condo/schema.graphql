@@ -20890,7 +20890,7 @@ type TicketChange {
   sourceDisplayNameTo: String
   sourceDisplayNameToNonLocalized: String
 
-  """ Type of employee who changed the ticket, can be employee role from same organization or related, resident or deleted employee 
+  """ Type of user who changed the ticket, can be employee role from same organization or related, resident or deleted employee 
   """
   changedByRole: String
   id: ID!
@@ -28602,7 +28602,7 @@ type IncidentChange {
   """
   organizationDisplayNameTo: String
 
-  """ Type of employee who changed the incident, can be employee role from same organization or related, resident or deleted employee 
+  """ Type of user who changed the incident, can be employee role from same organization or related, resident or deleted employee 
   """
   changedByRole: String
   id: ID!

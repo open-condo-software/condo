@@ -18112,7 +18112,7 @@ export type IncidentChange = {
   organizationDisplayNameFrom?: Maybe<Scalars['String']>;
   /**  New display name of related entity. Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organizationDisplayNameTo?: Maybe<Scalars['String']>;
-  /**  Type of employee who changed the incident, can be employee role from same organization or related, resident or deleted employee  */
+  /**  Type of user who changed the incident, can be employee role from same organization or related, resident or deleted employee  */
   changedByRole?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -57842,7 +57842,7 @@ export type TicketChange = {
   /**  New display name of related entity. Ticket source channel/system. Examples: call, email, visit, ...  */
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
   sourceDisplayNameToNonLocalized?: Maybe<Scalars['String']>;
-  /**  Type of employee who changed the ticket, can be employee role from same organization or related, resident or deleted employee  */
+  /**  Type of user who changed the ticket, can be employee role from same organization or related, resident or deleted employee  */
   changedByRole?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
