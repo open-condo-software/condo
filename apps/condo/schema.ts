@@ -50149,6 +50149,7 @@ export type ResetUserInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   user: UserWhereUniqueInput;
+  saveName?: Maybe<Scalars['Boolean']>;
 };
 
 export type ResetUserOutput = {

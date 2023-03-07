@@ -194,4 +194,54 @@ describe('ResetUserService', () => {
 
         expect(foundIdentity).toHaveLength(0)
     })
+
+    test('save user name if saveName true is provided', async () => {
+        const [user] = await registerNewUser(await makeClient())
+
+        const payload = {
+            user: { id: user.id },
+            saveName: true,
+        }
+
+        await resetUserByTestClient(support, payload)
+
+        const [resetUser] = await UserAdmin.getAll(admin, { id: user.id })
+
+        expect(resetUser.id).toEqual(user.id)
+        expect(resetUser.name).toEqual(user.name)
+        expect(resetUser.phone).toBeNull()
+        expect(resetUser.email).toBeNull()
+        expect(resetUser.isAdmin).toBeFalsy()
+        expect(resetUser.isSupport).toBeFalsy()
+        expect(resetUser.isPhoneVerified).toEqual(false)
+        expect(resetUser.isEmailVerified).toEqual(false)
+    })
+
+    test('clear user name if saveName false is provided or saveName is not provided', async () => {
+        const [user1] = await registerNewUser(await makeClient())
+        const [user2] = await registerNewUser(await makeClient())
+
+        const payload1 = {
+            user: { id: user1.id },
+            saveName: false,
+        }
+
+        const payload2 = {
+            user: { id: user2.id },
+        }
+
+        await resetUserByTestClient(support, payload1)
+        await resetUserByTestClient(support, payload2)
+
+        const resetUser1 = await UserAdmin.getOne(admin, { id: user1.id })
+        const resetUser2 = await UserAdmin.getOne(admin, { id: user2.id })
+
+        expect(resetUser1.name).toEqual(DELETED_USER_NAME)
+        expect(resetUser1.phone).toBeNull()
+        expect(resetUser1.email).toBeNull()
+
+        expect(resetUser2.name).toEqual(DELETED_USER_NAME)
+        expect(resetUser2.phone).toBeNull()
+        expect(resetUser2.email).toBeNull()
+    })
 })

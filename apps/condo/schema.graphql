@@ -53102,6 +53102,7 @@ input ResetUserInput {
   dv: Int!
   sender: SenderFieldInput!
   user: UserWhereUniqueInput!
+  saveName: Boolean
 }
 
 type ResetUserOutput {
