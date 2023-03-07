@@ -58,7 +58,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
     types: [
         {
             access: true,
-            type: 'input ResetUserInput { dv: Int! sender: SenderFieldInput! user: UserWhereUniqueInput! }',
+            type: 'input ResetUserInput { dv: Int! sender: SenderFieldInput! user: UserWhereUniqueInput!, saveName: Boolean }',
         },
         {
             access: true,
@@ -76,7 +76,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, user } = data
+                const { dv, sender, user, saveName } = data
                 if (!user.id) throw new Error('resetUser(): no user.id')
 
                 if (dv !== 1) {
@@ -92,18 +92,23 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                     throw new GQLError(ERRORS.CANNOT_RESET_ADMIN_USER, context)
                 }
 
-                await User.update(context, user.id, {
+                const newUserData = {
                     dv: 1,
                     sender,
                     phone: null,
                     email: null,
                     password: null,
-                    name: DELETED_USER_NAME,
                     isPhoneVerified: false,
                     isEmailVerified: false,
                     isAdmin: false,
                     isSupport: false,
-                })
+                }
+
+                if (!saveName) {
+                    newUserData.name = DELETED_USER_NAME
+                }
+
+                await User.update(context, user.id, newUserData)
 
                 const employees = await OrganizationEmployee.getAll(context, { user: { id: user.id } })
                 for (const employee of employees) {
