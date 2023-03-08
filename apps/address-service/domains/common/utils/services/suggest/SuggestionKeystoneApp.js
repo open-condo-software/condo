@@ -69,7 +69,7 @@ class SuggestionKeystoneApp {
              * To skip normalization of results. If true - returns raw provider's result
              * @type {boolean}
              */
-            const bypass = Boolean(getReqParam(req,'bypass', false))
+            const bypass = Boolean(getReqParam(req, 'bypass', false))
 
             /**
              * Sometimes we need to use different query parameters to providers
@@ -82,7 +82,7 @@ class SuggestionKeystoneApp {
              * Number of results to return
              * @type {number|NaN}
              */
-            const count = Number(getReqParam(req,'count'))
+            const count = Number(getReqParam(req, 'count'))
 
             /**
              * Additional parameters for improving of the searching

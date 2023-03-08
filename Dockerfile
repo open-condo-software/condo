@@ -48,7 +48,7 @@ RUN yarn install --immutable
 RUN set -ex \
     && turbo build --filter="./apps/*" \
     && rm -rf /app/.env  \
-    && rm -rf /app/.yarn /app/.cache  \
+    && rm -rf /app/.config /app/.cache /app/.docker  \
     && ls -lah /app/
 
 # Runtime container
