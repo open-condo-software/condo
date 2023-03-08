@@ -328,9 +328,10 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
                 })
                 cache.logEvent({ event: cacheEvent })
 
+                const cachedResponse = cloneDeep(cached.response)
+
                 // TODO
                 // DELETE THIS!
-                // const cachedResponse = cloneDeep(cached.response)
                 // const realResponse = await f.apply(listAdapter, args)
                 // const diff = !isEqual(realResponse, cachedResponse)
                 // if (diff) {
