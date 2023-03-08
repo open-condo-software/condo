@@ -29,14 +29,13 @@
  *  1. update state on this list to the update time of the updated/created/deleted object
  */
 
-const { get, cloneDeep, isEqual, isPlainObject, findKey } = require('lodash')
+const { get, cloneDeep, isEqual } = require('lodash')
 
 const { getLogger } = require('./logging')
 const { getRedisClient } = require('./redis')
 
 const UPDATED_AT_FIELD = 'updatedAt'
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
-const KEY_SEPARATOR = '_'
 
 const logger = getLogger('🔴 adapterCache')
 
@@ -122,21 +121,16 @@ class AdapterCache {
 
     /**
      * Returns last updated time by list from Redis
-     * @param {list} listName -- List names
+     * @param {string} listName -- List name
      * @returns {Promise<Date>}
      */
-    async getState (listNames) {
-        const result = {}
-        for (const listName of listNames) {
-            const serializedTime = await this.redisClient.get(`${STATE_REDIS_KEY_PREFIX}:${listName}`)
-            if (serializedTime) {
-                const parsedTime = parseInt(serializedTime)
-                if (!isNaN(parsedTime)) {
-                    result[listName] = new Date(parsedTime)
-                }
-            }
+    async getState (listName) {
+        const serializedTime = await this.redisClient.get(`${STATE_REDIS_KEY_PREFIX}:${listName}`)
+        if (serializedTime) {
+            const parsedTime = parseInt(serializedTime)
+            if (!isNaN(parsedTime)) { return new Date(parsedTime) }
         }
-        return result
+        return null
     }
 
     getCacheEvent ({ type, functionName, key, list, result }) {
@@ -192,8 +186,8 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
 
     const manyToManyLists = {}
     const connectedLists = {}
-    const relations = {}
 
+    const relations = {}
     for (const listAdapter of listAdapters) {
         const listName = listAdapter.key
 
@@ -243,57 +237,19 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
 
         const originalItemsQuery = listAdapter.itemsQuery
         const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, 'from', null)}_${JSON.stringify(get(opts, ['context', 'authedItem']))}`
-        const getRelatedListsFromItemsQuery = (args, relations, listName) => {
-            const result = []
-            for (const relatedList of get(relations, listName)) {
-                const whereQuery = get(args, [0, 'where'],  [])
-                if (objHasFieldDeep(whereQuery, relatedList.toLowerCase())) {
-                    result.push(relatedList)
-                }
-            }
-            return result
-        }
-        listAdapter.itemsQuery = patchAdapterQueryFunction(
-            listName,
-            'itemsQuery',
-            originalItemsQuery,
-            listAdapter,
-            middleware,
-            getItemsQueryKey,
-            relations,
-            getRelatedListsFromItemsQuery
-        )
+        listAdapter.itemsQuery = patchAdapterQueryFunction(listName, 'itemsQuery', originalItemsQuery, listAdapter, middleware, getItemsQueryKey)
 
         const originalFind = listAdapter.find
-        const getRelatedListsFromFind = (args, relations, listName) => {
-            const result = []
-            for (const relatedList of get(relations, listName)) {
-                const whereQuery = get(args, [0],  [])
-                if (objHasFieldDeep(whereQuery, relatedList.toLowerCase())) {
-                    result.push(relatedList)
-                }
-            }
-            return result
-        }
         const getFindKey = ([condition]) => `${JSON.stringify(condition)}`
-        listAdapter.find = patchAdapterQueryFunction(
-            listName,
-            'find',
-            originalFind,
-            listAdapter,
-            middleware,
-            getFindKey,
-            relations,
-            getRelatedListsFromFind
-        )
+        listAdapter.find = patchAdapterQueryFunction(listName, 'find', originalFind, listAdapter, middleware, getFindKey)
 
         const originalFindById = listAdapter.findById
         const getFindByIdKey = ([id]) => `${id}`
-        listAdapter.findById = patchAdapterQueryFunction(listName, 'findById', originalFindById, listAdapter, middleware, getFindByIdKey, relations)
+        listAdapter.findById = patchAdapterQueryFunction(listName, 'findById', originalFindById, listAdapter, middleware, getFindByIdKey)
 
         const originalFindOne = listAdapter.findOne
         const getFindOneKey = ([condition]) => `${JSON.stringify(condition)}`
-        listAdapter.findOne = patchAdapterQueryFunction(listName, 'findOne', originalFindOne, listAdapter, middleware, getFindOneKey, relations)
+        listAdapter.findOne = patchAdapterQueryFunction(listName, 'findOne', originalFindOne, listAdapter, middleware, getFindOneKey)
 
         // Patch mutations:
 
@@ -306,17 +262,6 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         const originalDelete = listAdapter.delete
         listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, middleware, connectedLists, manyToManyLists)
     }
-}
-
-function checkKeyFromWhereQuery (query, listName, relations, state) {
-    const result = [query]
-    const relatedLists = get(relations, listName)
-    relatedLists.forEach(relatedList => {
-        if (objHasFieldDeep(query, relatedList.toLowerCase())) {
-            result.push([relatedList, get(state, relatedList)].join(KEY_SEPARATOR))
-        }
-    })
-    return result.join(KEY_SEPARATOR)
 }
 
 /**
@@ -355,7 +300,7 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
     }
 }
 
-function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cache, getKey, relations, getRelatedLists = (args, rels, listName) => []) {
+function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cache, getKey) {
     return async ( ...args ) => {
         cache.totalRequests++
 
@@ -366,40 +311,23 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
 
         let response = []
         const cached = key ? cache.cache[listName][key] : null
-
-        const relatedLists = getRelatedLists(args, relations, listName)
-
-        // Get state for list and its related lists
-        const lists = [...[listName], ...relatedLists]
-        const state = await cache.getState(lists)
+        const listLastUpdate = await cache.getState(listName)
 
         if (cached) {
-            // lastUpdate is an object, containing lists related to this cached item, and their lastUpdate times
             const cacheLastUpdate = cached.lastUpdate
-
-            let cacheIsUpToDate = true
-            for (const [listName, lastUpdatedFromCache] of Object.entries(cacheLastUpdate)) {
-                const lastUpdatedFromState = get(state, listName, null)
-                if (!lastUpdatedFromState || lastUpdatedFromState.getTime() !== lastUpdatedFromCache.getTime()) {
-                    cacheIsUpToDate = false
-                }
-            }
-
-            //const cacheIsUpToDate = cacheLastUpdate && cacheLastUpdate.getTime() === listLastUpdate.getTime()
-
-            if (cacheIsUpToDate) {
+            if (cacheLastUpdate && cacheLastUpdate.getTime() === listLastUpdate.getTime()) {
                 cache.cacheHits++
                 const cacheEvent = cache.getCacheEvent({
                     type: 'HIT',
                     functionName,
                     list: listName,
                     key,
-                    result: cached,
+                    result: JSON.stringify(cached.response),
                 })
                 cache.logEvent({ event: cacheEvent })
 
-                // TODO // //
-                // DELETE THIS!!!!
+                // TODO
+                // DELETE THIS!
                 const cachedResponse = cloneDeep(cached.response)
                 const realResponse = await f.apply(listAdapter, args)
 
@@ -415,7 +343,7 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
                     })
                     cache.logEvent({ event: cacheEvent })
                 }
-                // // //
+                //
 
                 return cachedResponse
             }
@@ -425,13 +353,8 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
 
         let copiedResponse = cloneDeep(response)
 
-        const lastUpdate = {}
-        for (const relatedList of lists) {
-            lastUpdate[relatedList] = get(state, relatedList)
-        }
-
         cache.cache[listName][key] = {
-            lastUpdate: lastUpdate,
+            lastUpdate: listLastUpdate,
             response: copiedResponse,
         }
 
@@ -447,56 +370,6 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
         return response
     }
 }
-
-
-function objHasFieldDeep (obj, field) {
-    return _queryHasSoftDeletedFieldDeep(obj, field)
-}
-
-
-/**
- * Checks if query has the soft deleted property on first level of depth
- * @param {Object} whereQuery
- * @param {string} deletedAtField
- * @return {boolean}
- */
-function queryHasSoftDeletedField (whereQuery, deletedAtField) {
-    return Object.keys(whereQuery).find((x) => x.startsWith(deletedAtField))
-}
-
-/**
- * Checks if query has the soft deleted property on any level of depth
- * todo(toplenboren) learn how to process very complex queries:
- * todo(toplenboren) see https://github.com/open-condo-software/condo/pull/232/files#r664256921
- * @param {Object} whereQuery
- * @param {string} deletedAtField
- * @return {boolean}
- */
-function _queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
-    // undefined case
-    if (!whereQuery) return false
-    // { deletedAt: null } case
-    if (queryHasSoftDeletedField(whereQuery, deletedAtField)) {
-        return true
-    }
-    for (const queryValue of Object.values(whereQuery)) {
-        // OR: [ { deletedAt: null }, { ... } ] case
-        if (Array.isArray(queryValue)) {
-            for (const innerQuery of queryValue) {
-                if (_queryHasSoftDeletedFieldDeep(innerQuery, deletedAtField))
-                    return true
-            }
-            // property: { deletedAt: null } case
-        } else if (isPlainObject(queryValue)){
-            if (_queryHasSoftDeletedFieldDeep(queryValue, deletedAtField)) {
-                return true
-            }
-        }
-    }
-    return false
-}
-
-
 
 module.exports = {
     AdapterCache,
