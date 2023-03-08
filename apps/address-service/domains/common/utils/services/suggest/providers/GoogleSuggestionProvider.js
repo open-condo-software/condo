@@ -7,6 +7,11 @@ const conf = require('@open-condo/config')
 const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/AbstractSuggestionProvider')
 
+// https://developers.google.com/maps/faq#languagesupport
+const SUPPORTED_LANGUAGES = ['af', 'ja', 'sq', 'kn', 'am', 'kk', 'ar', 'km', 'hy', 'ko', 'az', 'ky', 'eu', 'lo', 'be', 'lv', 'bn', 'lt', 'bs', 'mk', 'bg', 'ms', 'my', 'ml', 'ca', 'mr', 'zh', 'mn', 'zh-CN', 'ne', 'zh-HK', 'no', 'zh-TW', 'pl', 'hr', 'pt', 'cs', 'pt-BR', 'da', 'pt-PT', 'nl', 'pa', 'en', 'ro', 'en-AU', 'ru', 'en-GB', 'sr', 'et', 'si', 'fa', 'sk', 'fi', 'sl', 'fil', 'es', 'fr', 'es-419', 'fr-CA', 'sw', 'gl', 'sv', 'ka', 'ta', 'de', 'te', 'el', 'th', 'gu', 'tr', 'iw', 'uk', 'hi', 'ur', 'hu', 'uz', 'is', 'vi', 'id', 'zu', 'it']
+const DEFAULT_LOCALE = get(conf, 'DEFAULT_LOCALE', 'en')
+const LANGUAGE = SUPPORTED_LANGUAGES.includes(DEFAULT_LOCALE) ? DEFAULT_LOCALE : 'en'
+
 /**
  * @typedef {Object} GooglePredictionObjectStructuredFormatting
  * @property {string} main_text
@@ -28,7 +33,6 @@ const { AbstractSuggestionProvider } = require('@address-service/domains/common/
 const CONFIG_KEY = 'GOOGLE_API_KEY'
 
 class GoogleSuggestionProvider extends AbstractSuggestionProvider {
-
     constructor () {
         super()
 
@@ -49,32 +53,48 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
      */
     async get ({ query, context = null, count = 20, helpers = {} }) {
         const sessionToken = uuid()
+        const params = new URLSearchParams({
+            input: query,
+            language: LANGUAGE,
+            sessiontoken: sessionToken,
+            key: this.apiKey,
+            ...helpers,
+        })
 
-        const autocompleteResults = await fetch(`https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${query}&language=ru&sessiontoken=${sessionToken}&key=${this.apiKey}`)
+        const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?${params.toString()}`
+        this.logger.info({ msg: 'request googleapis', url })
 
-        /**
-         * @see https://developers.google.com/maps/documentation/places/web-service/autocomplete#place_autocomplete_responses
-         */
-        const status = autocompleteResults.status
+        try {
+            const autocompleteResults = await fetch(url)
 
-        if (status === 200) {
             /**
-             * @type {{status: string, predictions: GooglePredictionObject[]}}
+             * @see https://developers.google.com/maps/documentation/places/web-service/autocomplete#place_autocomplete_responses
              */
-            const result = await autocompleteResults.json()
+            const status = autocompleteResults.status
 
-            /**
-             * @see https://developers.google.com/maps/documentation/places/web-service/autocomplete#PlacesAutocompleteStatus
-             * Autocomplete results are too poor to extract any data into the internal format.
-             * Maybe we need to call GoogleSearchProvider.getByPlaceId() to get full info
-             */
-            if (result.status === 'OK') {
-                return result.predictions
-            } else if (result.status === 'ZERO_RESULTS') {
-                return []
-            } else if (result.status === 'REQUEST_DENIED') {
-                this.logger.error('Request to google place autocomplete was denied.')
+            if (status === 200) {
+                /**
+                 * @type {{status: string, predictions: GooglePredictionObject[]}}
+                 */
+                const result = await autocompleteResults.json()
+                this.logger.info({ msg: 'response googleapis', url, result, status: result.status, statusCode: status })
+
+                /**
+                 * @see https://developers.google.com/maps/documentation/places/web-service/autocomplete#PlacesAutocompleteStatus
+                 * Autocomplete results are too poor to extract any data into the internal format.
+                 * Maybe we need to call GoogleSearchProvider.getByPlaceId() to get full info
+                 */
+                if (result.status === 'OK') {
+                    return result.predictions
+                } else if (result.status === 'ZERO_RESULTS') {
+                    return []
+                }
+            } else {
+                const result = await autocompleteResults.text()
+                this.logger.info({ msg: 'response googleapis', url, result, status: result.status, statusCode: status })
             }
+        } catch (err) {
+            this.logger.error({ msg: 'googleapis error', url, err })
         }
 
         return []
