@@ -29,7 +29,7 @@
  *  1. update state on this list to the update time of the updated/created/deleted object
  */
 
-const { get, cloneDeep, isEqual } = require('lodash')
+const { get, cloneDeep, isEqual, isPlainObject } = require('lodash')
 
 const { getLogger } = require('./logging')
 const { getRedisClient } = require('./redis')
@@ -236,12 +236,14 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         // Patch public queries from BaseKeystoneList:
 
         const originalItemsQuery = listAdapter.itemsQuery
-        const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, 'from', null)}_${JSON.stringify(get(opts, ['context', 'authedItem']))}`
-        listAdapter.itemsQuery = patchAdapterQueryFunction(listName, 'itemsQuery', originalItemsQuery, listAdapter, middleware, getItemsQueryKey)
+        const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, 'from', null)}_${JSON.stringify(get(opts, ['context', 'authedItem', 'id']))}`
+        const getItemsQueryCondition = ([args]) => get(args, ['where'])
+        listAdapter.itemsQuery = patchAdapterQueryFunction(listName, 'itemsQuery', originalItemsQuery, listAdapter, middleware, getItemsQueryKey, getItemsQueryCondition, relations)
 
         const originalFind = listAdapter.find
         const getFindKey = ([condition]) => `${JSON.stringify(condition)}`
-        listAdapter.find = patchAdapterQueryFunction(listName, 'find', originalFind, listAdapter, middleware, getFindKey)
+        const getFindCondition = ([condition]) => condition
+        listAdapter.find = patchAdapterQueryFunction(listName, 'find', originalFind, listAdapter, middleware, getFindKey, getFindCondition, relations)
 
         const originalFindById = listAdapter.findById
         const getFindByIdKey = ([id]) => `${id}`
@@ -249,7 +251,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
 
         const originalFindOne = listAdapter.findOne
         const getFindOneKey = ([condition]) => `${JSON.stringify(condition)}`
-        listAdapter.findOne = patchAdapterQueryFunction(listName, 'findOne', originalFindOne, listAdapter, middleware, getFindOneKey)
+        listAdapter.findOne = patchAdapterQueryFunction(listName, 'findOne', originalFindOne, listAdapter, middleware, getFindOneKey, getFindCondition, relations)
 
         // Patch mutations:
 
@@ -300,7 +302,7 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
     }
 }
 
-function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cache, getKey) {
+function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cache, getKey, getQuery = () => null, relations = {}) {
     return async ( ...args ) => {
         cache.totalRequests++
 
@@ -328,21 +330,19 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
 
                 // TODO
                 // DELETE THIS!
-                const cachedResponse = cloneDeep(cached.response)
-                const realResponse = await f.apply(listAdapter, args)
-
-                const diff = !isEqual(realResponse, cachedResponse)
-
-                if (diff) {
-                    const cacheEvent = cache.getCacheEvent({
-                        type: 'ALERT-EQUAL',
-                        functionName,
-                        key,
-                        list: listName,
-                        result: { cached: JSON.stringify(cachedResponse), real: JSON.stringify(realResponse), diff: diff },
-                    })
-                    cache.logEvent({ event: cacheEvent })
-                }
+                // const cachedResponse = cloneDeep(cached.response)
+                // const realResponse = await f.apply(listAdapter, args)
+                // const diff = !isEqual(realResponse, cachedResponse)
+                // if (diff) {
+                //     const cacheEvent = cache.getCacheEvent({
+                //         type: 'ALERT-EQUAL',
+                //         functionName,
+                //         key,
+                //         list: listName,
+                //         result: { cached: JSON.stringify(cachedResponse), real: JSON.stringify(realResponse), diff: diff },
+                //     })
+                //     cache.logEvent({ event: cacheEvent })
+                // }
                 //
 
                 return cachedResponse
@@ -350,12 +350,14 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
         }
 
         response = await f.apply(listAdapter, args)
+        const copiedResponse = cloneDeep(response)
 
-        let copiedResponse = cloneDeep(response)
-
-        cache.cache[listName][key] = {
-            lastUpdate: listLastUpdate,
-            response: copiedResponse,
+        const shouldCache = !queryIsComplex(getQuery(args), listName, relations)
+        if (shouldCache) {
+            cache.cache[listName][key] = {
+                lastUpdate: listLastUpdate,
+                response: copiedResponse,
+            }
         }
 
         const cacheEvent = cache.getCacheEvent({
@@ -363,13 +365,74 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
             functionName,
             key,
             list: listName,
-            result: copiedResponse,
+            result: { copiedResponse, cached: shouldCache },
         })
         cache.logEvent({ event: cacheEvent })
 
         return response
     }
 }
+
+function queryIsComplex (query, list, relations) {
+
+    if (!query) { return false }
+
+    const relsForList = get(relations, list)
+    for (const rel of relsForList) {
+        if (objHasFieldDeep(query, rel. toLowerCase())) {
+            return true
+        }
+    }
+
+    return false
+}
+
+function objHasFieldDeep (obj, field) {
+    return _queryHasSoftDeletedFieldDeep(obj, field)
+}
+
+/**
+ * Checks if query has the soft deleted property on first level of depth
+ * @param {Object} whereQuery
+ * @param {string} deletedAtField
+ * @return {boolean}
+ */
+function queryHasSoftDeletedField (whereQuery, deletedAtField) {
+    return Object.keys(whereQuery).find((x) => x.startsWith(deletedAtField))
+}
+
+/**
+ * Checks if query has the soft deleted property on any level of depth
+ * todo(toplenboren) learn how to process very complex queries:
+ * todo(toplenboren) see https://github.com/open-condo-software/condo/pull/232/files#r664256921
+ * @param {Object} whereQuery
+ * @param {string} deletedAtField
+ * @return {boolean}
+ */
+function _queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
+    // undefined case
+    if (!whereQuery) return false
+    // { deletedAt: null } case
+    if (queryHasSoftDeletedField(whereQuery, deletedAtField)) {
+        return true
+    }
+    for (const queryValue of Object.values(whereQuery)) {
+        // OR: [ { deletedAt: null }, { ... } ] case
+        if (Array.isArray(queryValue)) {
+            for (const innerQuery of queryValue) {
+                if (_queryHasSoftDeletedFieldDeep(innerQuery, deletedAtField))
+                    return true
+            }
+            // property: { deletedAt: null } case
+        } else if (isPlainObject(queryValue)){
+            if (_queryHasSoftDeletedFieldDeep(queryValue, deletedAtField)) {
+                return true
+            }
+        }
+    }
+    return false
+}
+
 
 module.exports = {
     AdapterCache,
