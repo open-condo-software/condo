@@ -312,9 +312,9 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
         // Drop global state
         await cache.setState(listName, functionResult[UPDATED_AT_FIELD])
 
-        if (connectedLists[listName]) {
-            await cache.setState(connectedLists[listName], functionResult[UPDATED_AT_FIELD])
-        }
+        // if (connectedLists[listName]) {
+        //     await cache.setState(connectedLists[listName], functionResult[UPDATED_AT_FIELD])
+        // }
 
         // if (manyToManyLists[listName]) {
         //     await cache.setState(manyToManyLists[listName], functionResult[UPDATED_AT_FIELD])
