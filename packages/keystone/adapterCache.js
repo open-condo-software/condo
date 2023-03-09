@@ -29,7 +29,7 @@
  *  1. update state on this list to the update time of the updated/created/deleted object
  */
 
-const { get, cloneDeep, isPlainObject } = require('lodash')
+const { get, cloneDeep } = require('lodash')
 
 const { getLogger } = require('./logging')
 const { queryHasField } = require('./queryHasField')
@@ -145,12 +145,6 @@ class AdapterCache {
                 hits: this.cacheHits,
                 total: this.totalRequests,
             },
-            string: `
-            STAT: ${this.cacheHits}/${this.totalRequests}\r\n
-            RKEY: ${key}\r\n
-            TYPE: ${type}\r\n
-            RESP: ${result}\r\n
-            `,
         })
     }
 
