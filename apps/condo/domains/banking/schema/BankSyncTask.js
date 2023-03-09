@@ -60,7 +60,7 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
                     if (newItem.property) {
                         const property = await getById('Property', newItem.property)
                         const propertyOrganization = await getById('Organization', property.organization)
-                        if (propertyOrganization !== newItem.organization) {
+                        if (propertyOrganization.id !== newItem.organization) {
                             addFieldValidationError(`Specified property with id="${property.id}" should belong to the same organization with id="${newItem.organization}" as specified in "organization"`)
                         }
                     }

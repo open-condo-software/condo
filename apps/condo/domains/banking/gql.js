@@ -32,7 +32,7 @@ const BankIntegrationContext = generateGqlQueries('BankIntegrationContext', BANK
 const BANK_TRANSACTION_FIELDS = `{ account { id } contractorAccount { id } costItem { id } integrationContext { id enabled } organization { id } number date amount isOutcome currencyCode purpose meta importId importRemoteSystem ${COMMON_FIELDS} }`
 const BankTransaction = generateGqlQueries('BankTransaction', BANK_TRANSACTION_FIELDS)
 
-const BANK_SYNC_TASK_FIELDS = `{ account { id } integrationContext { id } organization { id } status file { id originalFilename publicUrl mimetype } user { id } totalCount processedCount meta ${COMMON_FIELDS} }`
+const BANK_SYNC_TASK_FIELDS = `{ account { id } integrationContext { id } organization { id } property { id } status file { id originalFilename publicUrl mimetype } user { id } totalCount processedCount meta ${COMMON_FIELDS} }`
 
 const BankSyncTask = generateGqlQueries('BankSyncTask', BANK_SYNC_TASK_FIELDS)
 /* AUTOGENERATE MARKER <CONST> */
