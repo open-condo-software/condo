@@ -37,7 +37,6 @@
     color: @condo-global-color-black;
     background-color: transparent;
     transform: translateY(-50%);
-    transition: @condo-global-transition-duration-default;
   }
 
   &-clear {
@@ -52,6 +51,14 @@
     transform: translateY(-50%) rotate(180deg);
   }
 
+  .condo-select-selection-item {
+    color: @condo-global-color-black;
+  }
+
+  .condo-select-selection-placeholder {
+    color: @condo-global-color-gray-7;
+  }
+
   &:not(.condo-select-customize-input) .condo-select-selector {
     box-sizing: border-box;
     width: auto;
@@ -60,26 +67,20 @@
     border-radius: @condo-global-border-radius-medium;
 
     .condo-select-selection-search-input {
+      .condo-typography-text-large();
+
       color: @condo-global-color-black;
-      font-weight: @condo-global-typography-text-m-font-weight;
-      font-size: @condo-global-font-size-text-m;
-      font-family: @condo-global-typography-text-m-font-family;
-      letter-spacing: @condo-global-typography-text-m-letter-spacing;
     }
 
     .condo-select-selection-item,
     .condo-select-selection-placeholder {
+      .condo-typography-text-large();
+
       display: inline-flex;
       align-items: center;
       width: calc(100% - @select-padding-right - @select-padding-left);
       padding-right: 0;
       overflow: hidden;
-      color: @condo-global-color-black;
-      font-weight: @condo-global-typography-text-m-font-weight;
-      font-size: @condo-global-font-size-text-m;
-      font-family: @condo-global-typography-text-m-font-family;
-      line-height: @condo-global-typography-text-m-line-height;
-      letter-spacing: @condo-global-typography-text-m-letter-spacing;
       text-overflow: ellipsis;
     }
   }
@@ -105,7 +106,9 @@
       display: flex;
       align-items: center;
 
-      span {
+      .condo-typography {
+        .condo-typography-text-large();
+
         flex: 1;
         overflow: hidden;
         font-weight: normal;
@@ -144,13 +147,10 @@
       }
 
       .condo-typography {
+        .condo-typography-text-medium();
+
         overflow: hidden;
         color: @condo-global-color-black;
-        font-weight: @condo-global-typography-text-s-font-weight;
-        font-size: @condo-global-font-size-text-s;
-        font-family: @condo-global-typography-text-s-font-family;
-        line-height: @condo-global-typography-text-s-line-height;
-        letter-spacing: @condo-global-typography-text-s-letter-spacing;
         white-space: pre;
         text-overflow: ellipsis;
       }
@@ -165,6 +165,10 @@
     .condo-select-selection-placeholder {
       left: 12px;
       display: inline-block;
+    }
+
+    .condo-select-selection-search-mirror {
+      .condo-typography-text-large();
     }
   }
 
@@ -285,13 +289,11 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-
-    * {
-      color: @condo-global-color-gray-7;
-    }
+    color: @condo-global-color-gray-7;
 
     .condo-typography {
       margin-left: 8px;
+      color: @condo-global-color-gray-7;
     }
   }
 
