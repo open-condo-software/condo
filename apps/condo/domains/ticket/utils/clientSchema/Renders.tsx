@@ -30,10 +30,34 @@ const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { padding: '24px' }
 const NEW_COMMENTS_INDICATOR_STYLES: CSSProperties = { backgroundColor: 'red', borderRadius: '100px', width: '8px', height: '8px' }
 const ADDRESS_RENDER_POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
-export const getTicketNumberRender = (intl, breakpoints, userTicketsCommentReadTime, ticketsCommentsTime, search: FilterValue) => {
+export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes }) => {
+    const NewResidentCommentMessage = intl.formatMessage({ id: 'ticket.newResidentComment' })
+
+    return function render (ticket: Ticket) {
+        const currentTicketUserTicketCommentReadTimes = userTicketCommentReadTimes.find(obj => obj.ticket.id === ticket.id)
+        const currentTicketCommentTimes = ticketsCommentTimes.find(obj => obj.ticket.id === ticket.id)
+
+        const readResidentCommentByUserAt = get(currentTicketUserTicketCommentReadTimes, 'readResidentCommentAt')
+        const lastResidentCommentAt = get(currentTicketCommentTimes, 'lastResidentCommentAt')
+        const lastCommentAt = get(currentTicketCommentTimes, 'lastCommentAt')
+
+        return hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt) && (
+            <div style={breakpoints.xl ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL : {}}>
+                <Tooltip title={NewResidentCommentMessage} placement='topRight'>
+                    <Typography.Text title={NewResidentCommentMessage}>
+                        <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES} >
+                            <div style={NEW_COMMENTS_INDICATOR_STYLES} />
+                        </div>
+                    </Typography.Text>
+                </Tooltip>
+            </div>
+        )
+    }
+}
+
+export const getTicketNumberRender = (intl, search: FilterValue) => {
     const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' })
     const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' })
-    const NewResidentCommentMessage = intl.formatMessage({ id: 'ticket.newResidentComment' })
 
     return function render (number: string, ticket: Ticket) {
         const deadline = dayjs(get(ticket, 'deadline'))
@@ -63,26 +87,7 @@ export const getTicketNumberRender = (intl, breakpoints, userTicketsCommentReadT
             }
         }
 
-        const userTicketCommentRead = userTicketsCommentReadTime.find(obj => obj.ticket.id === ticket.id)
-        const ticketCommentsTime = ticketsCommentsTime.find(obj => obj.ticket.id === ticket.id)
-
-        const readResidentCommentByUserAt = get(userTicketCommentRead, 'readResidentCommentAt')
-        const lastResidentCommentAt = get(ticketCommentsTime, 'lastResidentCommentAt')
-        const lastCommentAt = get(ticketCommentsTime, 'lastCommentAt')
-
-        const postfix = hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt) && (
-            <div style={breakpoints.xl ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL : {}}>
-                <Tooltip title={NewResidentCommentMessage} placement='topRight'>
-                    <Typography.Text title={NewResidentCommentMessage}>
-                        <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES} >
-                            <div style={NEW_COMMENTS_INDICATOR_STYLES} />
-                        </div>
-                    </Typography.Text>
-                </Tooltip>
-            </div>
-        )
-
-        return getTableCellRenderer(search, false, postfix, extraHighlighterProps, null, extraTitle, href)(number)
+        return getTableCellRenderer(search, false, null, extraHighlighterProps, null, extraTitle, href)(number)
     }
 }
 

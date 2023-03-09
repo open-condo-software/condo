@@ -5,12 +5,14 @@ import get from 'lodash/get'
 import map from 'lodash/map'
 import { identity } from 'lodash/util'
 import { useRouter } from 'next/router'
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { Star } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
@@ -26,7 +28,7 @@ import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '@condo/domains/ticket/utils/clientSchema'
 import {
-    getClassifierRender,
+    getClassifierRender, getCommentsIndicatorRender,
     getStatusRender,
     getTicketDetailsRender,
     getTicketNumberRender,
@@ -38,7 +40,9 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 
 const COLUMNS_WIDTH = {
-    number: '8%',
+    commentsIndicator: '0%',
+    favorite: '4%',
+    number: '6%',
     createdAt: '8%',
     status: '8%',
     address: '14%',
@@ -158,8 +162,34 @@ export function useTableColumns <T> (
         }
     }, [isRefetchTicketsFeatureEnabled, refetch, setIsRefetching])
 
+    const [a, setA] = useState<boolean>()
+
     return useMemo(() => ({
         columns: [
+            {
+                key: 'commentsIndicator',
+                width: COLUMNS_WIDTH.commentsIndicator,
+                render: getCommentsIndicatorRender({
+                    intl, ticketsCommentTimes, userTicketCommentReadTimes, breakpoints,
+                }),
+                align: 'center',
+            },
+            {
+                key: 'favorite',
+                width: COLUMNS_WIDTH.favorite,
+                render: (ticket) => {
+                    return (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Star color={colors.gray[7]} onClick={(e) => {
+                                e.stopPropagation()
+                                console.log(ticket.number)
+                            }} />
+                        </div>
+                    )
+                },
+                align: 'center',
+                className: 'favorite-column',
+            },
             {
                 title: NumberMessage,
                 sortOrder: get(sorterMap, 'number'),
@@ -170,8 +200,9 @@ export function useTableColumns <T> (
                 width: COLUMNS_WIDTH.number,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'number'),
                 filterIcon: getFilterIcon,
-                render: getTicketNumberRender(intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes, search),
-                align: 'center',
+                render: getTicketNumberRender(intl, search),
+                align: 'left',
+                className: 'number-column',
             },
             {
                 title: DateMessage,
@@ -284,5 +315,5 @@ export function useTableColumns <T> (
             },
         ],
         loading: userTicketCommentReadTimesLoading || ticketCommentTimesLoading || statusesLoading,
-    }), [NumberMessage, sorterMap, filters, filterMetas, intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes, search, DateMessage, StatusMessage, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading, statusesLoading])
+    }), [NumberMessage, sorterMap, filters, filterMetas, intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes, search, DateMessage, StatusMessage, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading, statusesLoading])
 }

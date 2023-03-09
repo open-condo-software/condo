@@ -87,6 +87,9 @@ const StyledTable = styled(Table)`
   .ant-table-scroll-horizontal .ant-checkbox-input {
     width: 40px;
   }
+  .number-column {
+    padding-left: 0;
+  }
 `
 
 const getInitialSelectedTicketKeys = (router: NextRouter) => {
