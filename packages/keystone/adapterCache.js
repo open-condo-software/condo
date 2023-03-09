@@ -212,9 +212,11 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
 
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
 
+    // Step 1: Calculate relations and connected lists.
+    // Lists are connected if both of them have a relation to one another. Example: Books -> Author and Author -> Books
     const connectedLists = {}
-
     const relations = {}
+
     for (const listAdapter of listAdapters) {
         const listName = listAdapter.key
 
@@ -236,6 +238,8 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
     }
 
     logger.info({ connectedLists })
+
+    // Step 2: Iterate over lists, patch mutations and queries inside list.
 
     for (const listAdapter of listAdapters) {
 
@@ -296,6 +300,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
  * @param {function} f
  * @param {Object} listAdapter
  * @param {AdapterCache} cache
+ * @param {Object} connectedLists
  * @returns {function(...[*]): Promise<*>}
  */
 function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, connectedLists ) {
@@ -304,15 +309,17 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
         // Get mutation value
         const functionResult = await f.apply(listAdapter, args)
 
-        // Drop global state
+        // Drop global state and local cache
         await cache.setState(listName, functionResult[UPDATED_AT_FIELD])
+        cache.dropCacheByList(listName)
 
+        // Handle connected lists if there are any.
+        // If one side of connected list is updated, then we drop the other side cache too.
+        // If Author -> Books and Books -> Author, then if Author is updated, Books is dropped. And vice-versa
         if (connectedLists[listName]) {
             await cache.setState(connectedLists[listName], functionResult[UPDATED_AT_FIELD])
+            cache.dropCacheByList(listName)
         }
-
-        // Drop local cache
-        cache.dropCacheByList(listName)
 
         const cacheEvent = cache.getCacheEvent({
             type: 'DROP',
@@ -327,6 +334,18 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
     }
 }
 
+/**
+ * Patch adapter query function, adding cache functionality
+ * @param {string} listName
+ * @param {string} functionName
+ * @param {function} f
+ * @param {Object} listAdapter
+ * @param {AdapterCache} cache
+ * @param {function} getKey get key function. Called with arguments of f
+ * @param {function} getQuery get query from args. Called with arguments of f
+ * @param {Object} relations
+ * @returns {(function(...[*]): Promise<*|*[]>)|*}
+ */
 function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cache, getKey, getQuery = () => null, relations = {}) {
     return async ( ...args ) => {
         cache.totalRequests++
@@ -360,6 +379,7 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
         response = await f.apply(listAdapter, args)
         const copiedResponse = cloneDeep(response)
 
+        // Note: do not cache complex requests. Check queryIsComplex docstring for details
         const shouldCache = !queryIsComplex(getQuery(args), listName, relations)
         if (shouldCache) {
             cache.cache[listName][key] = {
@@ -382,23 +402,19 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
 }
 
 /**
- * Query is complex if
+ * Query is complex if it searches on a relation. Example: allBooks(where: {author: { id: ...}})
  * @param {object} query - A Keystone GraphQL search query. Like { id: "1" }
  * @param {string} list - a name of the list
  * @param {object} relations - an object describing all relations in the project
  * @returns {boolean}
  */
 function queryIsComplex (query, list, relations) {
-
     if (!query) { return false }
-
     const relsForList = get(relations, list)
     for (const rel of relsForList) {
-        if (queryHasField(query, rel. toLowerCase())) {
+        if (queryHasField(query, rel. toLowerCase()))
             return true
-        }
     }
-
     return false
 }
 
