@@ -212,7 +212,6 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
 
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
 
-    const manyToManyLists = {}
     const connectedLists = {}
 
     const relations = {}
@@ -223,9 +222,6 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         for (const field of listAdapter.fieldAdapters) {
             if (field.fieldName === 'Relationship') {
                 relations[listName].push(field.refListKey)
-                if (field.field.many) {
-                    manyToManyLists[listName] = field.refListKey
-                }
             }
         }
     }
@@ -240,7 +236,6 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
     }
 
     logger.info({ connectedLists })
-    logger.info({ manyToManyLists })
 
     for (const listAdapter of listAdapters) {
 
@@ -284,13 +279,13 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         // Patch mutations:
 
         const originalUpdate = listAdapter.update
-        listAdapter.update = patchAdapterFunction(listName, 'update', originalUpdate, listAdapter, middleware, connectedLists, manyToManyLists)
+        listAdapter.update = patchAdapterFunction(listName, 'update', originalUpdate, listAdapter, middleware, connectedLists )
 
         const originalCreate = listAdapter.create
-        listAdapter.create = patchAdapterFunction(listName, 'create', originalCreate, listAdapter, middleware, connectedLists, manyToManyLists)
+        listAdapter.create = patchAdapterFunction(listName, 'create', originalCreate, listAdapter, middleware, connectedLists )
 
         const originalDelete = listAdapter.delete
-        listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, middleware, connectedLists, manyToManyLists)
+        listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, middleware, connectedLists )
     }
 }
 
@@ -303,7 +298,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
  * @param {AdapterCache} cache
  * @returns {function(...[*]): Promise<*>}
  */
-function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, connectedLists, manyToManyLists) {
+function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, connectedLists ) {
     return async ( ...args ) => {
 
         // Get mutation value
@@ -312,13 +307,9 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
         // Drop global state
         await cache.setState(listName, functionResult[UPDATED_AT_FIELD])
 
-        // if (connectedLists[listName]) {
-        //     await cache.setState(connectedLists[listName], functionResult[UPDATED_AT_FIELD])
-        // }
-
-        // if (manyToManyLists[listName]) {
-        //     await cache.setState(manyToManyLists[listName], functionResult[UPDATED_AT_FIELD])
-        // }
+        if (connectedLists[listName]) {
+            await cache.setState(connectedLists[listName], functionResult[UPDATED_AT_FIELD])
+        }
 
         // Drop local cache
         cache.dropCacheByList(listName)
