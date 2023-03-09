@@ -380,6 +380,7 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
         const copiedResponse = cloneDeep(response)
 
         // Note: do not cache complex requests. Check queryIsComplex docstring for details
+        // Todo (@toplenboren) (DOMA-2681) Sometimes listName !== fieldName. Think about these cases!
         const shouldCache = !queryIsComplex(getQuery(args), listName, relations)
         if (shouldCache) {
             cache.cache[listName][key] = {
