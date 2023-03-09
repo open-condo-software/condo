@@ -87,8 +87,8 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
             adapter: BankSyncTaskFileAdapter,
             access: {
                 read: true,
-                create: canOnlyServerSideWithoutUserRequest,
-                update: canOnlyServerSideWithoutUserRequest,
+                create: true,
+                update: false,
             },
         },
 
