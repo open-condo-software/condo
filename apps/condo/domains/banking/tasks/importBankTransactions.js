@@ -9,7 +9,7 @@ const { BANK_INTEGRATION_IDS, _1C_CLIENT_BANK_EXCHANGE } = require('@condo/domai
 const {
     BankIntegration,
     BankAccount,
-    BankIntegrationContext,
+    BankIntegrationAccountContext,
     BankTransaction,
     BankContractorAccount,
     BankSyncTask,
@@ -60,7 +60,7 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils) => {
         if (!integration) {
             throw new Error('Cannot find BankIntegration with id "61e3d767-bd62-40e3-a503-f885b242d262" corresponding to import from file in "1CClientBankExchange" format')
         }
-        integrationContext = await BankIntegrationContext.create(context, {
+        integrationContext = await BankIntegrationAccountContext.create(context, {
             ...DV_SENDER,
             integration: { connect: { id: integration.id } },
             organization: { connect: { id: organization.id } },
@@ -88,7 +88,7 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils) => {
             }
             integrationContext = bankAccount.integrationContext
         } else {
-            integrationContext = await BankIntegrationContext.create(context, {
+            integrationContext = await BankIntegrationAccountContext.create(context, {
                 ...DV_SENDER,
                 integration: { connect: { id: integration.id } },
                 organization: { connect: { id: organization.id } },

@@ -33,7 +33,7 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
         integrationContext: {
             schemaDoc: 'Data source from which this transaction was created',
             type: Relationship,
-            ref: 'BankIntegrationContext',
+            ref: 'BankIntegrationAccountContext',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },

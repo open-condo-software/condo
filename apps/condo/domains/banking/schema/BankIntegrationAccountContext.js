@@ -8,11 +8,11 @@ const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const access = require('@condo/domains/banking/access/BankIntegrationContext')
+const access = require('@condo/domains/banking/access/BankIntegrationAccountContext')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 
-const BankIntegrationContext = new GQLListSchema('BankIntegrationContext', {
+const BankIntegrationAccountContext = new GQLListSchema('BankIntegrationAccountContext', {
     schemaDoc: 'Usage of specific integration by specific organization. Contains summary information about last synchronization with data source (integration)',
     fields: {
 
@@ -41,14 +41,14 @@ const BankIntegrationContext = new GQLListSchema('BankIntegrationContext', {
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
-        read: access.canReadBankIntegrationContexts,
-        create: access.canManageBankIntegrationContexts,
-        update: access.canManageBankIntegrationContexts,
+        read: access.canReadBankIntegrationAccountContexts,
+        create: access.canManageBankIntegrationAccountContexts,
+        update: access.canManageBankIntegrationAccountContexts,
         delete: false,
         auth: true,
     },
 })
 
 module.exports = {
-    BankIntegrationContext,
+    BankIntegrationAccountContext,
 }

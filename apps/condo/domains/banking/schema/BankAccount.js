@@ -27,7 +27,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
         integrationContext: {
             schemaDoc: 'Used data source to obtain transactions from',
             type: Relationship,
-            ref: 'BankIntegrationContext',
+            ref: 'BankIntegrationAccountContext',
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
             hooks: {
                 validateInput: async ({ existingItem, resolvedData, addFieldValidationError, operation }) => {
@@ -35,10 +35,10 @@ const BankAccount = new GQLListSchema('BankAccount', {
                         return addFieldValidationError(`Integration reassignment is not allowed for BankAccount with id="${existingItem.id}"`)
                     }
                     const resolvedFields = { ...existingItem, ...resolvedData }
-                    const bankIntegrationContext = await getById('BankIntegrationContext', get(resolvedFields, 'integrationContext'))
-                    const alreadyConnectedBankAccounts = await find('BankAccount', { integrationContext: { id: bankIntegrationContext.id } })
+                    const bankIntegrationAccountContext = await getById('BankIntegrationAccountContext', get(resolvedFields, 'integrationContext'))
+                    const alreadyConnectedBankAccounts = await find('BankAccount', { integrationContext: { id: bankIntegrationAccountContext.id } })
                     if (alreadyConnectedBankAccounts.length > 0) {
-                        return addFieldValidationError(`Cannot connect to BankIntegrationContext, used by another BankAccount(id="${alreadyConnectedBankAccounts[0].id}")`)
+                        return addFieldValidationError(`Cannot connect to BankIntegrationAccountContext, used by another BankAccount(id="${alreadyConnectedBankAccounts[0].id}")`)
                     }
                 },
             },

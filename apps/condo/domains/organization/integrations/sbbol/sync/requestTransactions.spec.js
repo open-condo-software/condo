@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { createTestBankIntegrationContext, BankAccount, BankIntegrationContext, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
+const { createTestBankIntegrationAccountContext, BankAccount, BankIntegrationAccountContext, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { requestTransactions } = require('@condo/domains/organization/integrations/sbbol/sync/requestTransactions')
 const { createTestOrganization, Organization, generateTin } = require('@condo/domains/organization/utils/testSchema')
@@ -62,7 +62,7 @@ describe('syncBankTransaction from SBBOL', () => {
         const [createdOrganization] = await createTestOrganization(adminClient)
         commonOrganization = await Organization.update(adminClient, createdOrganization.id, { tin: generateTin(RUSSIA_COUNTRY).toString(), ...dvSenderFields })
         const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
-        const bankIntegrationContext = await BankIntegrationContext.create(adminClient, {
+        const bankIntegrationAccountContext = await BankIntegrationAccountContext.create(adminClient, {
             dv: 1,
             sender: { dv: 1, fingerprint: 'tests' },
             integration: { connect: { id: bankIntegration.id } },
@@ -75,7 +75,7 @@ describe('syncBankTransaction from SBBOL', () => {
             currencyCode: 'RUB',
             routingNumber: '044525225',
             organization: { connect: { id: commonOrganization.id } },
-            integrationContext: { connect: { id: bankIntegrationContext.id } },
+            integrationContext: { connect: { id: bankIntegrationAccountContext.id } },
             ...dvSenderFields,
         })
 
@@ -98,7 +98,7 @@ describe('syncBankTransaction from SBBOL', () => {
                 userId: commonClient.user.id,
                 organization: commonOrganization,
             })
-            const bankAccounts = await BankIntegrationContext.getAll(adminClient, {
+            const bankAccounts = await BankIntegrationAccountContext.getAll(adminClient, {
                 meta: { syncTransactionsTaskStatus: 'completed' },
             })
             expect(bankAccounts.length).toBeGreaterThanOrEqual(1)

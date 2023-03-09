@@ -8,10 +8,9 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('../../organization/utils/accessSchema')
-
-async function canReadBankIntegrationContexts ({ authentication: { item: user } }) {
+async function canReadBankIntegrationAccountContexts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -25,7 +24,7 @@ async function canReadBankIntegrationContexts ({ authentication: { item: user } 
     }
 }
 
-async function canManageBankIntegrationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageBankIntegrationAccountContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -35,11 +34,11 @@ async function canManageBankIntegrationContexts ({ authentication: { item: user 
         organizationId = get(originalInput, ['organization', 'connect', 'id'])
     }
     if (operation === 'update') {
-        const item = await getById('BankIntegrationContext', itemId)
+        const item = await getById('BankIntegrationAccountContext', itemId)
         organizationId = get(item, 'organization')
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageBankIntegrationContexts')
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageBankIntegrationAccountContexts')
 }
 
 /*
@@ -47,6 +46,6 @@ async function canManageBankIntegrationContexts ({ authentication: { item: user 
   all or no items are available) or a set of filters that limit the available items.
 */
 module.exports = {
-    canReadBankIntegrationContexts,
-    canManageBankIntegrationContexts,
+    canReadBankIntegrationAccountContexts,
+    canManageBankIntegrationAccountContexts,
 }

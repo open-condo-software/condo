@@ -18,7 +18,7 @@ const {
     createTestBankContractorAccount,
     createTestBankTransaction,
     updateTestBankTransaction,
-    createTestBankIntegrationContext,
+    createTestBankIntegrationAccountContext,
 } = require('@condo/domains/banking/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -43,7 +43,7 @@ describe('BankTransaction', () => {
         describe('create', () => {
             test('admin can', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -74,7 +74,7 @@ describe('BankTransaction', () => {
 
             test('support can\'t', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -92,7 +92,7 @@ describe('BankTransaction', () => {
                     canManageBankTransactions: true,
                 })
                 await createTestOrganizationEmployee(admin, organization, userClient.user, role)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -113,7 +113,7 @@ describe('BankTransaction', () => {
                     canManageBankTransactions: false,
                 })
                 await createTestOrganizationEmployee(admin, organization, userClient.user, role)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -132,7 +132,7 @@ describe('BankTransaction', () => {
                     canManageBankTransactions: true,
                 })
                 await createTestOrganizationEmployee(admin, anotherOrganization, userClient.user, role)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -152,7 +152,7 @@ describe('BankTransaction', () => {
                     canManageBankTransactions: true,
                 })
                 await createTestOrganizationEmployee(admin, parentOrganization, userClient.user, role, {})
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, childOrganization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, childOrganization)
                 const [account] = await createTestBankAccount(admin, childOrganization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -176,7 +176,7 @@ describe('BankTransaction', () => {
                 })
                 await createTestOrganizationEmployee(admin, parentOrganization, userClient.user, role, {})
 
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, childOrganization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, childOrganization)
                 const [account] = await createTestBankAccount(admin, childOrganization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -189,7 +189,7 @@ describe('BankTransaction', () => {
 
             test('anonymous can\'t', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -205,7 +205,7 @@ describe('BankTransaction', () => {
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -222,7 +222,7 @@ describe('BankTransaction', () => {
             test('support can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -241,7 +241,7 @@ describe('BankTransaction', () => {
                     canManageBankTransactions: true,
                 })
                 await createTestOrganizationEmployee(admin, organization, userClient.user, role)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -262,7 +262,7 @@ describe('BankTransaction', () => {
                     canManageBankTransactions: false,
                 })
                 await createTestOrganizationEmployee(admin, organization, userClient.user, role)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -282,7 +282,7 @@ describe('BankTransaction', () => {
                     canManageBankTransactions: true,
                 })
                 await createTestOrganizationEmployee(admin, anotherOrganization, userClient.user, role)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -303,7 +303,7 @@ describe('BankTransaction', () => {
                     canManageBankTransactions: true,
                 })
                 await createTestOrganizationEmployee(admin, parentOrganization, userClient.user, role, {})
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, childOrganization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, childOrganization)
                 const [account] = await createTestBankAccount(admin, childOrganization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -326,7 +326,7 @@ describe('BankTransaction', () => {
                     canManageBankTransactions: false,
                 })
                 await createTestOrganizationEmployee(admin, parentOrganization, userClient.user, role, {})
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, childOrganization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, childOrganization)
                 const [account] = await createTestBankAccount(admin, childOrganization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -340,7 +340,7 @@ describe('BankTransaction', () => {
 
             test('anonymous can\'t', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -356,7 +356,7 @@ describe('BankTransaction', () => {
         describe('hard delete', () => {
             test('admin can\'t', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -371,7 +371,7 @@ describe('BankTransaction', () => {
             test('user can\'t', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -385,7 +385,7 @@ describe('BankTransaction', () => {
 
             test('anonymous can\'t', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -401,7 +401,7 @@ describe('BankTransaction', () => {
         describe('read', () => {
             test('admin can', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -418,7 +418,7 @@ describe('BankTransaction', () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization)
                 await createTestOrganizationEmployee(admin, organization, userClient.user, role)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -438,7 +438,7 @@ describe('BankTransaction', () => {
                     canManageBankTransactions: true,
                 })
                 await createTestOrganizationEmployee(admin, anotherOrganization, userClient.user, role)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -458,7 +458,7 @@ describe('BankTransaction', () => {
                     canManageBankTransactions: true,
                 })
                 await createTestOrganizationEmployee(admin, parentOrganization, userClient.user, role, {})
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, childOrganization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, childOrganization)
                 const [account] = await createTestBankAccount(admin, childOrganization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -472,7 +472,7 @@ describe('BankTransaction', () => {
 
             test('anonymous can\'t', async () => {
                 const [organization] = await createTestOrganization(admin)
-                const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
                 const [account] = await createTestBankAccount(admin, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
@@ -489,7 +489,7 @@ describe('BankTransaction', () => {
     describe('Validation tests', () => {
         test('Should have correct dv field (=== 1)', async () => {
             const [organization] = await createTestOrganization(admin)
-            const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
             const [account] = await createTestBankAccount(admin, organization, {
                 integrationContext: { connect: { id: integrationContext.id } },
             })
@@ -502,7 +502,7 @@ describe('BankTransaction', () => {
 
         it('cannot be connected to BankCostItem with different values of "isOutcome" field', async () => {
             const [organization] = await createTestOrganization(admin)
-            const [integrationContext] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, organization)
             const [account] = await createTestBankAccount(admin, organization, {
                 integrationContext: { connect: { id: integrationContext.id } },
             })

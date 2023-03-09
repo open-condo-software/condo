@@ -5766,7 +5766,7 @@ export type BankAccount = {
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  Used data source to obtain transactions from  */
-  integrationContext?: Maybe<BankIntegrationContext>;
+  integrationContext?: Maybe<BankIntegrationAccountContext>;
   /**  Property to which this bank account is connected  */
   property?: Maybe<Property>;
   /**  Tax Identification Number  */
@@ -5818,7 +5818,7 @@ export enum BankAccountCountryType {
 
 export type BankAccountCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
-  integrationContext?: Maybe<BankIntegrationContextRelateToOneInput>;
+  integrationContext?: Maybe<BankIntegrationAccountContextRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   tin?: Maybe<Scalars['String']>;
   tinMeta?: Maybe<Scalars['JSON']>;
@@ -6237,7 +6237,7 @@ export type BankAccountRelateToOneInput = {
 
 export type BankAccountUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
-  integrationContext?: Maybe<BankIntegrationContextRelateToOneInput>;
+  integrationContext?: Maybe<BankIntegrationAccountContextRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   tin?: Maybe<Scalars['String']>;
   tinMeta?: Maybe<Scalars['JSON']>;
@@ -6268,7 +6268,7 @@ export type BankAccountWhereInput = {
   OR?: Maybe<Array<Maybe<BankAccountWhereInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
-  integrationContext?: Maybe<BankIntegrationContextWhereInput>;
+  integrationContext?: Maybe<BankIntegrationAccountContextWhereInput>;
   integrationContext_is_null?: Maybe<Scalars['Boolean']>;
   property?: Maybe<PropertyWhereInput>;
   property_is_null?: Maybe<Scalars['Boolean']>;
@@ -7902,14 +7902,14 @@ export type BankIntegration = {
 };
 
 /**  Usage of specific integration by specific organization. Contains summary information about last synchronization with data source (integration)  */
-export type BankIntegrationContext = {
-  __typename?: 'BankIntegrationContext';
+export type BankIntegrationAccountContext = {
+  __typename?: 'BankIntegrationAccountContext';
   /**
    * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the BankIntegrationContext List config, or
-   *  2. As an alias to the field set on 'labelField' in the BankIntegrationContext List config, or
-   *  3. As an alias to a 'name' field on the BankIntegrationContext List (if one exists), or
-   *  4. As an alias to the 'id' field on the BankIntegrationContext List.
+   *  1. Execution of 'labelResolver' set on the BankIntegrationAccountContext List config, or
+   *  2. As an alias to the field set on 'labelField' in the BankIntegrationAccountContext List config, or
+   *  3. As an alias to a 'name' field on the BankIntegrationAccountContext List (if one exists), or
+   *  4. As an alias to the 'id' field on the BankIntegrationAccountContext List.
    */
   _label_?: Maybe<Scalars['String']>;
   /**  Data source, used for this integration.  */
@@ -7936,7 +7936,7 @@ export type BankIntegrationContext = {
   sender?: Maybe<SenderField>;
 };
 
-export type BankIntegrationContextCreateInput = {
+export type BankIntegrationAccountContextCreateInput = {
   integration?: Maybe<BankIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   enabled?: Maybe<Scalars['Boolean']>;
@@ -7953,14 +7953,14 @@ export type BankIntegrationContextCreateInput = {
 };
 
 /**  A keystone list  */
-export type BankIntegrationContextHistoryRecord = {
-  __typename?: 'BankIntegrationContextHistoryRecord';
+export type BankIntegrationAccountContextHistoryRecord = {
+  __typename?: 'BankIntegrationAccountContextHistoryRecord';
   /**
    * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the BankIntegrationContextHistoryRecord List config, or
-   *  2. As an alias to the field set on 'labelField' in the BankIntegrationContextHistoryRecord List config, or
-   *  3. As an alias to a 'name' field on the BankIntegrationContextHistoryRecord List (if one exists), or
-   *  4. As an alias to the 'id' field on the BankIntegrationContextHistoryRecord List.
+   *  1. Execution of 'labelResolver' set on the BankIntegrationAccountContextHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the BankIntegrationAccountContextHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the BankIntegrationAccountContextHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the BankIntegrationAccountContextHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
   integration?: Maybe<Scalars['String']>;
@@ -7978,11 +7978,11 @@ export type BankIntegrationContextHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<BankIntegrationContextHistoryRecordHistoryActionType>;
+  history_action?: Maybe<BankIntegrationAccountContextHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
 };
 
-export type BankIntegrationContextHistoryRecordCreateInput = {
+export type BankIntegrationAccountContextHistoryRecordCreateInput = {
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   enabled?: Maybe<Scalars['Boolean']>;
@@ -7997,17 +7997,17 @@ export type BankIntegrationContextHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<BankIntegrationContextHistoryRecordHistoryActionType>;
+  history_action?: Maybe<BankIntegrationAccountContextHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
 };
 
-export enum BankIntegrationContextHistoryRecordHistoryActionType {
+export enum BankIntegrationAccountContextHistoryRecordHistoryActionType {
   C = 'c',
   U = 'u',
   D = 'd'
 }
 
-export type BankIntegrationContextHistoryRecordUpdateInput = {
+export type BankIntegrationAccountContextHistoryRecordUpdateInput = {
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   enabled?: Maybe<Scalars['Boolean']>;
@@ -8022,13 +8022,13 @@ export type BankIntegrationContextHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<BankIntegrationContextHistoryRecordHistoryActionType>;
+  history_action?: Maybe<BankIntegrationAccountContextHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
 };
 
-export type BankIntegrationContextHistoryRecordWhereInput = {
-  AND?: Maybe<Array<Maybe<BankIntegrationContextHistoryRecordWhereInput>>>;
-  OR?: Maybe<Array<Maybe<BankIntegrationContextHistoryRecordWhereInput>>>;
+export type BankIntegrationAccountContextHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<BankIntegrationAccountContextHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<BankIntegrationAccountContextHistoryRecordWhereInput>>>;
   integration?: Maybe<Scalars['String']>;
   integration_not?: Maybe<Scalars['String']>;
   integration_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -8111,37 +8111,37 @@ export type BankIntegrationContextHistoryRecordWhereInput = {
   history_date_gte?: Maybe<Scalars['String']>;
   history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_action?: Maybe<BankIntegrationContextHistoryRecordHistoryActionType>;
-  history_action_not?: Maybe<BankIntegrationContextHistoryRecordHistoryActionType>;
-  history_action_in?: Maybe<Array<Maybe<BankIntegrationContextHistoryRecordHistoryActionType>>>;
-  history_action_not_in?: Maybe<Array<Maybe<BankIntegrationContextHistoryRecordHistoryActionType>>>;
+  history_action?: Maybe<BankIntegrationAccountContextHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<BankIntegrationAccountContextHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<BankIntegrationAccountContextHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<BankIntegrationAccountContextHistoryRecordHistoryActionType>>>;
   history_id?: Maybe<Scalars['String']>;
   history_id_not?: Maybe<Scalars['String']>;
   history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
-export type BankIntegrationContextHistoryRecordWhereUniqueInput = {
+export type BankIntegrationAccountContextHistoryRecordWhereUniqueInput = {
   id: Scalars['ID'];
 };
 
-export type BankIntegrationContextHistoryRecordsCreateInput = {
-  data?: Maybe<BankIntegrationContextHistoryRecordCreateInput>;
+export type BankIntegrationAccountContextHistoryRecordsCreateInput = {
+  data?: Maybe<BankIntegrationAccountContextHistoryRecordCreateInput>;
 };
 
-export type BankIntegrationContextHistoryRecordsUpdateInput = {
+export type BankIntegrationAccountContextHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
-  data?: Maybe<BankIntegrationContextHistoryRecordUpdateInput>;
+  data?: Maybe<BankIntegrationAccountContextHistoryRecordUpdateInput>;
 };
 
-export type BankIntegrationContextRelateToOneInput = {
-  create?: Maybe<BankIntegrationContextCreateInput>;
-  connect?: Maybe<BankIntegrationContextWhereUniqueInput>;
-  disconnect?: Maybe<BankIntegrationContextWhereUniqueInput>;
+export type BankIntegrationAccountContextRelateToOneInput = {
+  create?: Maybe<BankIntegrationAccountContextCreateInput>;
+  connect?: Maybe<BankIntegrationAccountContextWhereUniqueInput>;
+  disconnect?: Maybe<BankIntegrationAccountContextWhereUniqueInput>;
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
-export type BankIntegrationContextUpdateInput = {
+export type BankIntegrationAccountContextUpdateInput = {
   integration?: Maybe<BankIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   enabled?: Maybe<Scalars['Boolean']>;
@@ -8157,9 +8157,9 @@ export type BankIntegrationContextUpdateInput = {
   sender?: Maybe<SenderFieldInput>;
 };
 
-export type BankIntegrationContextWhereInput = {
-  AND?: Maybe<Array<Maybe<BankIntegrationContextWhereInput>>>;
-  OR?: Maybe<Array<Maybe<BankIntegrationContextWhereInput>>>;
+export type BankIntegrationAccountContextWhereInput = {
+  AND?: Maybe<Array<Maybe<BankIntegrationAccountContextWhereInput>>>;
+  OR?: Maybe<Array<Maybe<BankIntegrationAccountContextWhereInput>>>;
   integration?: Maybe<BankIntegrationWhereInput>;
   integration_is_null?: Maybe<Scalars['Boolean']>;
   organization?: Maybe<OrganizationWhereInput>;
@@ -8228,17 +8228,17 @@ export type BankIntegrationContextWhereInput = {
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
 };
 
-export type BankIntegrationContextWhereUniqueInput = {
+export type BankIntegrationAccountContextWhereUniqueInput = {
   id: Scalars['ID'];
 };
 
-export type BankIntegrationContextsCreateInput = {
-  data?: Maybe<BankIntegrationContextCreateInput>;
+export type BankIntegrationAccountContextsCreateInput = {
+  data?: Maybe<BankIntegrationAccountContextCreateInput>;
 };
 
-export type BankIntegrationContextsUpdateInput = {
+export type BankIntegrationAccountContextsUpdateInput = {
   id: Scalars['ID'];
-  data?: Maybe<BankIntegrationContextUpdateInput>;
+  data?: Maybe<BankIntegrationAccountContextUpdateInput>;
 };
 
 export type BankIntegrationCreateInput = {
@@ -8557,7 +8557,7 @@ export type BankSyncTask = {
   /**  Bank account for which current synchronization operation is performed  */
   account?: Maybe<BankAccount>;
   /**  Integration context of account for which current synchronization operation is performed  */
-  integrationContext?: Maybe<BankIntegrationContext>;
+  integrationContext?: Maybe<BankIntegrationAccountContext>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  Property to which sync operation in this task should be related. When property is specified, new BankAccount will be connected to it if it does not exists  */
@@ -8592,7 +8592,7 @@ export type BankSyncTask = {
 
 export type BankSyncTaskCreateInput = {
   account?: Maybe<BankAccountRelateToOneInput>;
-  integrationContext?: Maybe<BankIntegrationContextRelateToOneInput>;
+  integrationContext?: Maybe<BankIntegrationAccountContextRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   status?: Maybe<BankSyncTaskStatusType>;
@@ -8869,7 +8869,7 @@ export enum BankSyncTaskStatusType {
 
 export type BankSyncTaskUpdateInput = {
   account?: Maybe<BankAccountRelateToOneInput>;
-  integrationContext?: Maybe<BankIntegrationContextRelateToOneInput>;
+  integrationContext?: Maybe<BankIntegrationAccountContextRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   status?: Maybe<BankSyncTaskStatusType>;
@@ -8894,7 +8894,7 @@ export type BankSyncTaskWhereInput = {
   OR?: Maybe<Array<Maybe<BankSyncTaskWhereInput>>>;
   account?: Maybe<BankAccountWhereInput>;
   account_is_null?: Maybe<Scalars['Boolean']>;
-  integrationContext?: Maybe<BankIntegrationContextWhereInput>;
+  integrationContext?: Maybe<BankIntegrationAccountContextWhereInput>;
   integrationContext_is_null?: Maybe<Scalars['Boolean']>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
@@ -9015,7 +9015,7 @@ export type BankTransaction = {
   /**  Related BankAccount of Organization which payed  */
   account?: Maybe<BankAccount>;
   /**  Data source from which this transaction was created  */
-  integrationContext?: Maybe<BankIntegrationContext>;
+  integrationContext?: Maybe<BankIntegrationAccountContext>;
   /**  Related account of contractor, which has received the payment via this transaction  */
   contractorAccount?: Maybe<BankContractorAccount>;
   /**  Related costs class  */
@@ -9058,7 +9058,7 @@ export type BankTransaction = {
 
 export type BankTransactionCreateInput = {
   account?: Maybe<BankAccountRelateToOneInput>;
-  integrationContext?: Maybe<BankIntegrationContextRelateToOneInput>;
+  integrationContext?: Maybe<BankIntegrationAccountContextRelateToOneInput>;
   contractorAccount?: Maybe<BankContractorAccountRelateToOneInput>;
   costItem?: Maybe<BankCostItemRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
@@ -9414,7 +9414,7 @@ export type BankTransactionHistoryRecordsUpdateInput = {
 
 export type BankTransactionUpdateInput = {
   account?: Maybe<BankAccountRelateToOneInput>;
-  integrationContext?: Maybe<BankIntegrationContextRelateToOneInput>;
+  integrationContext?: Maybe<BankIntegrationAccountContextRelateToOneInput>;
   contractorAccount?: Maybe<BankContractorAccountRelateToOneInput>;
   costItem?: Maybe<BankCostItemRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
@@ -9443,7 +9443,7 @@ export type BankTransactionWhereInput = {
   OR?: Maybe<Array<Maybe<BankTransactionWhereInput>>>;
   account?: Maybe<BankAccountWhereInput>;
   account_is_null?: Maybe<Scalars['Boolean']>;
-  integrationContext?: Maybe<BankIntegrationContextWhereInput>;
+  integrationContext?: Maybe<BankIntegrationAccountContextWhereInput>;
   integrationContext_is_null?: Maybe<Scalars['Boolean']>;
   contractorAccount?: Maybe<BankContractorAccountWhereInput>;
   contractorAccount_is_null?: Maybe<Scalars['Boolean']>;
@@ -25939,30 +25939,30 @@ export type Mutation = {
   deleteBankIntegration?: Maybe<BankIntegration>;
   /**  Delete multiple BankIntegration items by ID.  */
   deleteBankIntegrations?: Maybe<Array<Maybe<BankIntegration>>>;
-  /**  Create a single BankIntegrationContextHistoryRecord item.  */
-  createBankIntegrationContextHistoryRecord?: Maybe<BankIntegrationContextHistoryRecord>;
-  /**  Create multiple BankIntegrationContextHistoryRecord items.  */
-  createBankIntegrationContextHistoryRecords?: Maybe<Array<Maybe<BankIntegrationContextHistoryRecord>>>;
-  /**  Update a single BankIntegrationContextHistoryRecord item by ID.  */
-  updateBankIntegrationContextHistoryRecord?: Maybe<BankIntegrationContextHistoryRecord>;
-  /**  Update multiple BankIntegrationContextHistoryRecord items by ID.  */
-  updateBankIntegrationContextHistoryRecords?: Maybe<Array<Maybe<BankIntegrationContextHistoryRecord>>>;
-  /**  Delete a single BankIntegrationContextHistoryRecord item by ID.  */
-  deleteBankIntegrationContextHistoryRecord?: Maybe<BankIntegrationContextHistoryRecord>;
-  /**  Delete multiple BankIntegrationContextHistoryRecord items by ID.  */
-  deleteBankIntegrationContextHistoryRecords?: Maybe<Array<Maybe<BankIntegrationContextHistoryRecord>>>;
-  /**  Create a single BankIntegrationContext item.  */
-  createBankIntegrationContext?: Maybe<BankIntegrationContext>;
-  /**  Create multiple BankIntegrationContext items.  */
-  createBankIntegrationContexts?: Maybe<Array<Maybe<BankIntegrationContext>>>;
-  /**  Update a single BankIntegrationContext item by ID.  */
-  updateBankIntegrationContext?: Maybe<BankIntegrationContext>;
-  /**  Update multiple BankIntegrationContext items by ID.  */
-  updateBankIntegrationContexts?: Maybe<Array<Maybe<BankIntegrationContext>>>;
-  /**  Delete a single BankIntegrationContext item by ID.  */
-  deleteBankIntegrationContext?: Maybe<BankIntegrationContext>;
-  /**  Delete multiple BankIntegrationContext items by ID.  */
-  deleteBankIntegrationContexts?: Maybe<Array<Maybe<BankIntegrationContext>>>;
+  /**  Create a single BankIntegrationAccountContextHistoryRecord item.  */
+  createBankIntegrationAccountContextHistoryRecord?: Maybe<BankIntegrationAccountContextHistoryRecord>;
+  /**  Create multiple BankIntegrationAccountContextHistoryRecord items.  */
+  createBankIntegrationAccountContextHistoryRecords?: Maybe<Array<Maybe<BankIntegrationAccountContextHistoryRecord>>>;
+  /**  Update a single BankIntegrationAccountContextHistoryRecord item by ID.  */
+  updateBankIntegrationAccountContextHistoryRecord?: Maybe<BankIntegrationAccountContextHistoryRecord>;
+  /**  Update multiple BankIntegrationAccountContextHistoryRecord items by ID.  */
+  updateBankIntegrationAccountContextHistoryRecords?: Maybe<Array<Maybe<BankIntegrationAccountContextHistoryRecord>>>;
+  /**  Delete a single BankIntegrationAccountContextHistoryRecord item by ID.  */
+  deleteBankIntegrationAccountContextHistoryRecord?: Maybe<BankIntegrationAccountContextHistoryRecord>;
+  /**  Delete multiple BankIntegrationAccountContextHistoryRecord items by ID.  */
+  deleteBankIntegrationAccountContextHistoryRecords?: Maybe<Array<Maybe<BankIntegrationAccountContextHistoryRecord>>>;
+  /**  Create a single BankIntegrationAccountContext item.  */
+  createBankIntegrationAccountContext?: Maybe<BankIntegrationAccountContext>;
+  /**  Create multiple BankIntegrationAccountContext items.  */
+  createBankIntegrationAccountContexts?: Maybe<Array<Maybe<BankIntegrationAccountContext>>>;
+  /**  Update a single BankIntegrationAccountContext item by ID.  */
+  updateBankIntegrationAccountContext?: Maybe<BankIntegrationAccountContext>;
+  /**  Update multiple BankIntegrationAccountContext items by ID.  */
+  updateBankIntegrationAccountContexts?: Maybe<Array<Maybe<BankIntegrationAccountContext>>>;
+  /**  Delete a single BankIntegrationAccountContext item by ID.  */
+  deleteBankIntegrationAccountContext?: Maybe<BankIntegrationAccountContext>;
+  /**  Delete multiple BankIntegrationAccountContext items by ID.  */
+  deleteBankIntegrationAccountContexts?: Maybe<Array<Maybe<BankIntegrationAccountContext>>>;
   /**  Create a single BankTransactionHistoryRecord item.  */
   createBankTransactionHistoryRecord?: Maybe<BankTransactionHistoryRecord>;
   /**  Create multiple BankTransactionHistoryRecord items.  */
@@ -30814,64 +30814,64 @@ export type MutationDeleteBankIntegrationsArgs = {
 };
 
 
-export type MutationCreateBankIntegrationContextHistoryRecordArgs = {
-  data?: Maybe<BankIntegrationContextHistoryRecordCreateInput>;
+export type MutationCreateBankIntegrationAccountContextHistoryRecordArgs = {
+  data?: Maybe<BankIntegrationAccountContextHistoryRecordCreateInput>;
 };
 
 
-export type MutationCreateBankIntegrationContextHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<BankIntegrationContextHistoryRecordsCreateInput>>>;
+export type MutationCreateBankIntegrationAccountContextHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<BankIntegrationAccountContextHistoryRecordsCreateInput>>>;
 };
 
 
-export type MutationUpdateBankIntegrationContextHistoryRecordArgs = {
+export type MutationUpdateBankIntegrationAccountContextHistoryRecordArgs = {
   id: Scalars['ID'];
-  data?: Maybe<BankIntegrationContextHistoryRecordUpdateInput>;
+  data?: Maybe<BankIntegrationAccountContextHistoryRecordUpdateInput>;
 };
 
 
-export type MutationUpdateBankIntegrationContextHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<BankIntegrationContextHistoryRecordsUpdateInput>>>;
+export type MutationUpdateBankIntegrationAccountContextHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<BankIntegrationAccountContextHistoryRecordsUpdateInput>>>;
 };
 
 
-export type MutationDeleteBankIntegrationContextHistoryRecordArgs = {
+export type MutationDeleteBankIntegrationAccountContextHistoryRecordArgs = {
   id: Scalars['ID'];
 };
 
 
-export type MutationDeleteBankIntegrationContextHistoryRecordsArgs = {
+export type MutationDeleteBankIntegrationAccountContextHistoryRecordsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
 
-export type MutationCreateBankIntegrationContextArgs = {
-  data?: Maybe<BankIntegrationContextCreateInput>;
+export type MutationCreateBankIntegrationAccountContextArgs = {
+  data?: Maybe<BankIntegrationAccountContextCreateInput>;
 };
 
 
-export type MutationCreateBankIntegrationContextsArgs = {
-  data?: Maybe<Array<Maybe<BankIntegrationContextsCreateInput>>>;
+export type MutationCreateBankIntegrationAccountContextsArgs = {
+  data?: Maybe<Array<Maybe<BankIntegrationAccountContextsCreateInput>>>;
 };
 
 
-export type MutationUpdateBankIntegrationContextArgs = {
+export type MutationUpdateBankIntegrationAccountContextArgs = {
   id: Scalars['ID'];
-  data?: Maybe<BankIntegrationContextUpdateInput>;
+  data?: Maybe<BankIntegrationAccountContextUpdateInput>;
 };
 
 
-export type MutationUpdateBankIntegrationContextsArgs = {
-  data?: Maybe<Array<Maybe<BankIntegrationContextsUpdateInput>>>;
+export type MutationUpdateBankIntegrationAccountContextsArgs = {
+  data?: Maybe<Array<Maybe<BankIntegrationAccountContextsUpdateInput>>>;
 };
 
 
-export type MutationDeleteBankIntegrationContextArgs = {
+export type MutationDeleteBankIntegrationAccountContextArgs = {
   id: Scalars['ID'];
 };
 
 
-export type MutationDeleteBankIntegrationContextsArgs = {
+export type MutationDeleteBankIntegrationAccountContextsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -36899,7 +36899,7 @@ export type OrganizationEmployeeRole = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
-  canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
+  canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
@@ -36942,7 +36942,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
-  canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
+  canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
@@ -36991,7 +36991,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
-  canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
+  canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
@@ -37034,7 +37034,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
-  canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
+  canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
@@ -37082,7 +37082,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
-  canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
+  canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
@@ -37203,8 +37203,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManagePropertyScopes_not?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts_not?: Maybe<Scalars['Boolean']>;
-  canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
-  canManageBankIntegrationContexts_not?: Maybe<Scalars['Boolean']>;
+  canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
+  canManageBankIntegrationAccountContexts_not?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts_not?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
@@ -37322,7 +37322,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
-  canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
+  canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
@@ -37420,8 +37420,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManagePropertyScopes_not?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts_not?: Maybe<Scalars['Boolean']>;
-  canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
-  canManageBankIntegrationContexts_not?: Maybe<Scalars['Boolean']>;
+  canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
+  canManageBankIntegrationAccountContexts_not?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts_not?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
@@ -42125,22 +42125,22 @@ export type Query = {
   _allBankIntegrationsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the BankIntegration list.  */
   _BankIntegrationsMeta?: Maybe<_ListMeta>;
-  /**  Search for all BankIntegrationContextHistoryRecord items which match the where clause.  */
-  allBankIntegrationContextHistoryRecords?: Maybe<Array<Maybe<BankIntegrationContextHistoryRecord>>>;
-  /**  Search for the BankIntegrationContextHistoryRecord item with the matching ID.  */
-  BankIntegrationContextHistoryRecord?: Maybe<BankIntegrationContextHistoryRecord>;
-  /**  Perform a meta-query on all BankIntegrationContextHistoryRecord items which match the where clause.  */
-  _allBankIntegrationContextHistoryRecordsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the BankIntegrationContextHistoryRecord list.  */
-  _BankIntegrationContextHistoryRecordsMeta?: Maybe<_ListMeta>;
-  /**  Search for all BankIntegrationContext items which match the where clause.  */
-  allBankIntegrationContexts?: Maybe<Array<Maybe<BankIntegrationContext>>>;
-  /**  Search for the BankIntegrationContext item with the matching ID.  */
-  BankIntegrationContext?: Maybe<BankIntegrationContext>;
-  /**  Perform a meta-query on all BankIntegrationContext items which match the where clause.  */
-  _allBankIntegrationContextsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the BankIntegrationContext list.  */
-  _BankIntegrationContextsMeta?: Maybe<_ListMeta>;
+  /**  Search for all BankIntegrationAccountContextHistoryRecord items which match the where clause.  */
+  allBankIntegrationAccountContextHistoryRecords?: Maybe<Array<Maybe<BankIntegrationAccountContextHistoryRecord>>>;
+  /**  Search for the BankIntegrationAccountContextHistoryRecord item with the matching ID.  */
+  BankIntegrationAccountContextHistoryRecord?: Maybe<BankIntegrationAccountContextHistoryRecord>;
+  /**  Perform a meta-query on all BankIntegrationAccountContextHistoryRecord items which match the where clause.  */
+  _allBankIntegrationAccountContextHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the BankIntegrationAccountContextHistoryRecord list.  */
+  _BankIntegrationAccountContextHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all BankIntegrationAccountContext items which match the where clause.  */
+  allBankIntegrationAccountContexts?: Maybe<Array<Maybe<BankIntegrationAccountContext>>>;
+  /**  Search for the BankIntegrationAccountContext item with the matching ID.  */
+  BankIntegrationAccountContext?: Maybe<BankIntegrationAccountContext>;
+  /**  Perform a meta-query on all BankIntegrationAccountContext items which match the where clause.  */
+  _allBankIntegrationAccountContextsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the BankIntegrationAccountContext list.  */
+  _BankIntegrationAccountContextsMeta?: Maybe<_ListMeta>;
   /**  Search for all BankTransactionHistoryRecord items which match the where clause.  */
   allBankTransactionHistoryRecords?: Maybe<Array<Maybe<BankTransactionHistoryRecord>>>;
   /**  Search for the BankTransactionHistoryRecord item with the matching ID.  */
@@ -44651,50 +44651,50 @@ export type Query_AllBankIntegrationsMetaArgs = {
 };
 
 
-export type QueryAllBankIntegrationContextHistoryRecordsArgs = {
-  where?: Maybe<BankIntegrationContextHistoryRecordWhereInput>;
+export type QueryAllBankIntegrationAccountContextHistoryRecordsArgs = {
+  where?: Maybe<BankIntegrationAccountContextHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBankIntegrationContextHistoryRecordsBy>>;
+  sortBy?: Maybe<Array<SortBankIntegrationAccountContextHistoryRecordsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
 };
 
 
-export type QueryBankIntegrationContextHistoryRecordArgs = {
-  where: BankIntegrationContextHistoryRecordWhereUniqueInput;
+export type QueryBankIntegrationAccountContextHistoryRecordArgs = {
+  where: BankIntegrationAccountContextHistoryRecordWhereUniqueInput;
 };
 
 
-export type Query_AllBankIntegrationContextHistoryRecordsMetaArgs = {
-  where?: Maybe<BankIntegrationContextHistoryRecordWhereInput>;
+export type Query_AllBankIntegrationAccountContextHistoryRecordsMetaArgs = {
+  where?: Maybe<BankIntegrationAccountContextHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBankIntegrationContextHistoryRecordsBy>>;
+  sortBy?: Maybe<Array<SortBankIntegrationAccountContextHistoryRecordsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
 };
 
 
-export type QueryAllBankIntegrationContextsArgs = {
-  where?: Maybe<BankIntegrationContextWhereInput>;
+export type QueryAllBankIntegrationAccountContextsArgs = {
+  where?: Maybe<BankIntegrationAccountContextWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBankIntegrationContextsBy>>;
+  sortBy?: Maybe<Array<SortBankIntegrationAccountContextsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
 };
 
 
-export type QueryBankIntegrationContextArgs = {
-  where: BankIntegrationContextWhereUniqueInput;
+export type QueryBankIntegrationAccountContextArgs = {
+  where: BankIntegrationAccountContextWhereUniqueInput;
 };
 
 
-export type Query_AllBankIntegrationContextsMetaArgs = {
-  where?: Maybe<BankIntegrationContextWhereInput>;
+export type Query_AllBankIntegrationAccountContextsMetaArgs = {
+  where?: Maybe<BankIntegrationAccountContextWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBankIntegrationContextsBy>>;
+  sortBy?: Maybe<Array<SortBankIntegrationAccountContextsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -52372,7 +52372,7 @@ export enum SortBankCostItemsBy {
   DvDesc = 'dv_DESC'
 }
 
-export enum SortBankIntegrationContextHistoryRecordsBy {
+export enum SortBankIntegrationAccountContextHistoryRecordsBy {
   EnabledAsc = 'enabled_ASC',
   EnabledDesc = 'enabled_DESC',
   IdAsc = 'id_ASC',
@@ -52393,7 +52393,7 @@ export enum SortBankIntegrationContextHistoryRecordsBy {
   HistoryActionDesc = 'history_action_DESC'
 }
 
-export enum SortBankIntegrationContextsBy {
+export enum SortBankIntegrationAccountContextsBy {
   IntegrationAsc = 'integration_ASC',
   IntegrationDesc = 'integration_DESC',
   OrganizationAsc = 'organization_ASC',
@@ -54750,8 +54750,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManagePropertyScopesDesc = 'canManagePropertyScopes_DESC',
   CanManageBankAccountsAsc = 'canManageBankAccounts_ASC',
   CanManageBankAccountsDesc = 'canManageBankAccounts_DESC',
-  CanManageBankIntegrationContextsAsc = 'canManageBankIntegrationContexts_ASC',
-  CanManageBankIntegrationContextsDesc = 'canManageBankIntegrationContexts_DESC',
+  CanManageBankIntegrationAccountContextsAsc = 'canManageBankIntegrationAccountContexts_ASC',
+  CanManageBankIntegrationAccountContextsDesc = 'canManageBankIntegrationAccountContexts_DESC',
   CanManageBankContractorAccountsAsc = 'canManageBankContractorAccounts_ASC',
   CanManageBankContractorAccountsDesc = 'canManageBankContractorAccounts_DESC',
   CanManageBankTransactionsAsc = 'canManageBankTransactions_ASC',
@@ -54823,8 +54823,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManagePropertyScopesDesc = 'canManagePropertyScopes_DESC',
   CanManageBankAccountsAsc = 'canManageBankAccounts_ASC',
   CanManageBankAccountsDesc = 'canManageBankAccounts_DESC',
-  CanManageBankIntegrationContextsAsc = 'canManageBankIntegrationContexts_ASC',
-  CanManageBankIntegrationContextsDesc = 'canManageBankIntegrationContexts_DESC',
+  CanManageBankIntegrationAccountContextsAsc = 'canManageBankIntegrationAccountContexts_ASC',
+  CanManageBankIntegrationAccountContextsDesc = 'canManageBankIntegrationAccountContexts_DESC',
   CanManageBankContractorAccountsAsc = 'canManageBankContractorAccounts_ASC',
   CanManageBankContractorAccountsDesc = 'canManageBankContractorAccounts_DESC',
   CanManageBankTransactionsAsc = 'canManageBankTransactions_ASC',

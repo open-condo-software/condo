@@ -21,7 +21,7 @@ const {
 const { importBankTransactionsWorker } = require('@condo/domains/banking/tasks/importBankTransactions')
 const {
     BankIntegration,
-    createTestBankIntegrationContext,
+    createTestBankIntegrationAccountContext,
     createTestBankAccount,
 } = require('@condo/domains/banking/utils/testSchema')
 const { PARSED_TRANSACTIONS_TO_COMPARE } = require('@condo/domains/banking/utils/testSchema/assets/1CClientBankExchangeToKeystoneObjects')
@@ -65,7 +65,7 @@ describe('importBankTransactionsWorker', () => {
         adminClient = await makeLoggedInAdminClient()
     })
 
-    it('creates BankAccount, BankIntegrationContext, BankTransaction and BankContractorAccount records', async () => {
+    it('creates BankAccount, BankIntegrationAccountContext, BankTransaction and BankContractorAccount records', async () => {
         const [organization] = await createTestOrganization(adminClient)
 
         const task = {
@@ -112,7 +112,7 @@ describe('importBankTransactionsWorker', () => {
         expectCorrectBankTransaction(transactions[3], PARSED_TRANSACTIONS_TO_COMPARE[3], organization, createdBankAccount)
     })
 
-    it('creates BankIntegrationContext for existing BankAccount, that does not have it', async () => {
+    it('creates BankIntegrationAccountContext for existing BankAccount, that does not have it', async () => {
         const [organization] = await createTestOrganization(adminClient)
         const [existingBankAccount] = await createTestBankAccount(adminClient, organization, {
             number: '40702810801500116391',
@@ -141,14 +141,14 @@ describe('importBankTransactionsWorker', () => {
         expect(transactions).toHaveLength(4)
     })
 
-    it('reuses existing BankAccount and BankIntegrationContext when it has the same integration', async () => {
+    it('reuses existing BankAccount and BankIntegrationAccountContext when it has the same integration', async () => {
         const [organization] = await createTestOrganization(adminClient)
         const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS['1CClientBankExchange'] })
-        const [bankIntegrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+        const [BankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
         const [existingBankAccount] = await createTestBankAccount(adminClient, organization, {
             number: '40702810801500116391',
             routingNumber: '044525999',
-            integrationContext: { connect: { id: bankIntegrationContext.id } },
+            integrationContext: { connect: { id: BankIntegrationAccountContext.id } },
         })
 
         const task = {
@@ -170,7 +170,7 @@ describe('importBankTransactionsWorker', () => {
             number: '40702810801500116391',
             routingNumber: '044525999',
             integrationContext: {
-                id: bankIntegrationContext.id,
+                id: BankIntegrationAccountContext.id,
             },
             meta: {
                 amount: '135394.23',
@@ -221,11 +221,11 @@ describe('importBankTransactionsWorker', () => {
     it('throws error when another integration of different type exist', async () => {
         const [organization] = await createTestOrganization(adminClient)
         const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
-        const [bankIntegrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+        const [BankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
         await createTestBankAccount(adminClient, organization, {
             number: '40702810801500116391',
             routingNumber: '044525999',
-            integrationContext: { connect: { id: bankIntegrationContext.id } },
+            integrationContext: { connect: { id: BankIntegrationAccountContext.id } },
         })
 
         const task = {
