@@ -17,7 +17,7 @@ const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = r
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
-const { BankIntegration, createTestBankIntegrationContext } = require('../utils/testSchema')
+const { BankIntegration, createTestBankIntegrationAccountContext } = require('../utils/testSchema')
 
 const ISO_8601_FULL = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?$/i
 
@@ -36,9 +36,9 @@ describe('BankAccount', () => {
         describe('create', () => {
             test('admin can', async () => {
                 const [organization] = await createTestOrganization(adminClient)
-                const [bankIntegrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [bankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
                 const [objCreated] = await createTestBankAccount(adminClient, organization, {
-                    integrationContext: { connect: { id: bankIntegrationContext.id } },
+                    integrationContext: { connect: { id: bankIntegrationAccountContext.id } },
                 })
 
                 expect(objCreated.organization.id).toEqual(organization.id)
@@ -47,7 +47,7 @@ describe('BankAccount', () => {
                 expect(objCreated.routingNumber).toBeDefined()
                 expect(objCreated.number).toBeDefined()
                 expect(objCreated.currencyCode).toEqual('RUB')
-                expect(objCreated.integrationContext).toMatchObject(pick(bankIntegrationContext, ['id', 'enabled']))
+                expect(objCreated.integrationContext).toMatchObject(pick(bankIntegrationAccountContext, ['id', 'enabled']))
             })
 
             test('support can', async () => {
@@ -382,46 +382,46 @@ describe('BankAccount', () => {
             expect(firstBankAccount.id).not.toEqual(secondBankAccount.id)
         })
 
-        test('can\'t connect new BankAccount to BankIntegrationContext used by another BankAccount', async () => {
+        test('can\'t connect new BankAccount to BankIntegrationAccountContext used by another BankAccount', async () => {
             const [organization] = await createTestOrganization(adminClient)
 
-            const [bankIntegrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+            const [bankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
 
             const [anotherBankAccount] = await createTestBankAccount(adminClient, organization, {
-                integrationContext: { connect: { id: bankIntegrationContext.id } },
+                integrationContext: { connect: { id: bankIntegrationAccountContext.id } },
             })
             await expectToThrowValidationFailureError(async () => {
                 await createTestBankAccount(adminClient, organization, {
                     integrationContext: { connect: { id: anotherBankAccount.integrationContext.id } },
                 })
-            }, `Cannot connect to BankIntegrationContext, used by another BankAccount(id="${anotherBankAccount.id}")`)
+            }, `Cannot connect to BankIntegrationAccountContext, used by another BankAccount(id="${anotherBankAccount.id}")`)
         })
 
-        test('can\'t connect existing BankAccount without BankIntegrationContext to BankIntegrationContext used by another BankAccount', async () => {
+        test('can\'t connect existing BankAccount without BankIntegrationAccountContext to BankIntegrationAccountContext used by another BankAccount', async () => {
             const [organization] = await createTestOrganization(adminClient)
             const [bankAccount] = await createTestBankAccount(adminClient, organization)
-            const [anotherBankIntegrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+            const [anotherBankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
             const [anotherBankAccount] = await createTestBankAccount(adminClient, organization, {
-                integrationContext: { connect: { id: anotherBankIntegrationContext.id } },
+                integrationContext: { connect: { id: anotherBankIntegrationAccountContext.id } },
             })
             await expectToThrowValidationFailureError(async () => {
                 await updateTestBankAccount(adminClient, bankAccount.id, {
                     integrationContext: {
-                        connect: { id: anotherBankIntegrationContext.id },
+                        connect: { id: anotherBankIntegrationAccountContext.id },
                     },
                 })
-            }, `Cannot connect to BankIntegrationContext, used by another BankAccount(id="${anotherBankAccount.id}")`)
+            }, `Cannot connect to BankIntegrationAccountContext, used by another BankAccount(id="${anotherBankAccount.id}")`)
 
         })
 
-        test('cannot connect BankIntegrationContext if BankAccount is already connected to some integrationContext', async () => {
+        test('cannot connect BankIntegrationAccountContext if BankAccount is already connected to some integrationContext', async () => {
             const [organization] = await createTestOrganization(adminClient)
 
-            const [bankIntegrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
-            const [anotherIntegrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+            const [BankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
+            const [anotherIntegrationContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
 
             const [bankAccount] = await createTestBankAccount(adminClient, organization, {
-                integrationContext: { connect: { id: bankIntegrationContext.id } },
+                integrationContext: { connect: { id: BankIntegrationAccountContext.id } },
             })
 
             await expectToThrowValidationFailureError(async () => {

@@ -7,7 +7,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask, createCronTask } = require('@open-condo/keystone/tasks')
 
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { BankIntegration, BankIntegrationContext } = require('@condo/domains/banking/utils/serverSchema')
+const { BankIntegration, BankIntegrationAccountContext } = require('@condo/domains/banking/utils/serverSchema')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { requestTransactions } = require('@condo/domains/organization/integrations/sbbol/sync/requestTransactions')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')

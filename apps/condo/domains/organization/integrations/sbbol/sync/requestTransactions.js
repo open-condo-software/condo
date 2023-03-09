@@ -6,7 +6,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { BankAccount, BankTransaction, BankContractorAccount, BankIntegrationContext } = require('@condo/domains/banking/utils/serverSchema')
+const { BankAccount, BankTransaction, BankContractorAccount, BankIntegrationAccountContext } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
@@ -40,8 +40,8 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
 
     for (const bankAccount of bankAccounts) {
         // ---------------------------------
-        const bankIntegrationContext = await BankIntegrationContext.getOne(context, { id: bankAccount.integrationContext.id })
-        await BankIntegrationContext.update(context, bankIntegrationContext.id, {
+        const bankIntegrationAccountContext = await BankIntegrationAccountContext.getOne(context, { id: bankAccount.integrationContext.id })
+        await BankIntegrationAccountContext.update(context, bankIntegrationAccountContext.id, {
             meta: {
                 syncTransactionsTaskStatus: IN_PROGRESS_STATUS,
             },
@@ -80,7 +80,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 receivedTransactions.map( transaction => transactions.push(transaction))
             } else {
                 // ---------------------------------
-                await BankIntegrationContext.update(context, bankIntegrationContext.id, {
+                await BankIntegrationAccountContext.update(context, bankIntegrationAccountContext.id, {
                     meta: {
                         syncTransactionsTaskStatus: FAILED_STATUS,
                     },
@@ -153,11 +153,11 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 }
 
                 if (!foundTransaction) {
-                    const bankIntegrationContextId = get(bankAccount, 'integrationContext.id')
+                    const bankIntegrationAccountContextId = get(bankAccount, 'integrationContext.id')
                     const createdTransaction = await BankTransaction.create(context, {
                         organization: { connect: { id: organizationId } },
                         account: { connect: { id: bankAccount.id } },
-                        integrationContext: { connect: { id: bankIntegrationContextId } },
+                        integrationContext: { connect: { id: bankIntegrationAccountContextId } },
                         contractorAccount: bankContractorAccount ? { connect: { id: bankContractorAccount.id } } : undefined,
                         meta: { sbbol: transaction },
                         ...whereTransactionConditions,
@@ -168,7 +168,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
 
             } else {
                 // ---------------------------------
-                await BankIntegrationContext.update(context, bankIntegrationContext.id, {
+                await BankIntegrationAccountContext.update(context, bankIntegrationAccountContext.id, {
                     meta: {
                         syncTransactionsTaskStatus: FAILED_STATUS,
                     },
@@ -179,7 +179,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             }
         }
         // ---------------------------------
-        await BankIntegrationContext.update(context, bankIntegrationContext.id, {
+        await BankIntegrationAccountContext.update(context, bankIntegrationAccountContext.id, {
             meta: {
                 syncTransactionsTaskStatus: COMPLETED_STATUS,
             },

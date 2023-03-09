@@ -8,7 +8,7 @@ export * as BankCategory from './BankCategory'
 export * as BankCostItem from './BankCostItem'
 export * as BankContractorAccount from './BankContractorAccount'
 export * as BankIntegration from './BankIntegration'
-export * as BankIntegrationContext from './BankIntegrationContext'
+export * as BankIntegrationAccountContext from './BankIntegrationAccountContext'
 export * as BankTransaction from './BankTransaction'
 export * as BankSyncTask from './BankSyncTask'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

@@ -8,7 +8,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { BankIntegrationContext, createTestBankIntegrationContext, updateTestBankIntegrationContext } = require('@condo/domains/banking/utils/testSchema')
+const { BankIntegrationAccountContext, createTestBankIntegrationAccountContext, updateTestBankIntegrationAccountContext } = require('@condo/domains/banking/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -21,7 +21,7 @@ let supportClient
 let anonymousClient
 let bankIntegration
 
-describe('BankIntegrationContext', () => {
+describe('BankIntegrationAccountContext', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
@@ -33,7 +33,7 @@ describe('BankIntegrationContext', () => {
         describe('create', () => {
             test('admin can', async () => {
                 const [organization] = await createTestOrganization(adminClient)
-                const [obj, attrs] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [obj, attrs] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -50,7 +50,7 @@ describe('BankIntegrationContext', () => {
 
             test('support can', async () => {
                 const [organization] = await createTestOrganization(adminClient)
-                const [obj, attrs] = await createTestBankIntegrationContext(supportClient, bankIntegration, organization)
+                const [obj, attrs] = await createTestBankIntegrationAccountContext(supportClient, bankIntegration, organization)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -58,15 +58,15 @@ describe('BankIntegrationContext', () => {
                 expect(obj.createdBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
             })
 
-            test('user can if it is an employee of organization with "canManageBankIntegrationContexts" ability', async () => {
+            test('user can if it is an employee of organization with "canManageBankIntegrationAccountContexts" ability', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(adminClient)
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                    canManageBankIntegrationContexts: true,
+                    canManageBankIntegrationAccountContexts: true,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
-                const [obj, attrs] = await createTestBankIntegrationContext(userClient, bankIntegration, organization)
+                const [obj, attrs] = await createTestBankIntegrationAccountContext(userClient, bankIntegration, organization)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -74,16 +74,16 @@ describe('BankIntegrationContext', () => {
                 expect(obj.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
             })
 
-            test('user cannot if it is an employee of organization without "canManageBankIntegrationContexts" ability', async () => {
+            test('user cannot if it is an employee of organization without "canManageBankIntegrationAccountContexts" ability', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(adminClient)
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                    canManageBankIntegrationContexts: false,
+                    canManageBankIntegrationAccountContexts: false,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestBankIntegrationContext(userClient, bankIntegration, organization)
+                    await createTestBankIntegrationAccountContext(userClient, bankIntegration, organization)
                 })
             })
 
@@ -92,20 +92,20 @@ describe('BankIntegrationContext', () => {
                 const [organization] = await createTestOrganization(adminClient)
                 const [anotherOrganization] = await createTestOrganization(adminClient)
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, anotherOrganization, {
-                    canManageBankIntegrationContexts: true,
+                    canManageBankIntegrationAccountContexts: true,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                    await createTestBankIntegrationContext(userClient, bankIntegration, organization)
+                    await createTestBankIntegrationAccountContext(userClient, bankIntegration, organization)
                 })
             })
 
             test('anonymous can\'t', async () => {
                 const [organization] = await createTestOrganization(adminClient)
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestBankIntegrationContext(anonymousClient, bankIntegration, organization)
+                    await createTestBankIntegrationAccountContext(anonymousClient, bankIntegration, organization)
                 })
             })
         })
@@ -113,8 +113,8 @@ describe('BankIntegrationContext', () => {
         describe('update', () => {
             test('admin can', async () => {
                 const [organization] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
-                const [obj, attrs] = await updateTestBankIntegrationContext(adminClient, objCreated.id, {
+                const [objCreated] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
+                const [obj, attrs] = await updateTestBankIntegrationAccountContext(adminClient, objCreated.id, {
                     enabled: !objCreated.enabled,
                 })
 
@@ -126,8 +126,8 @@ describe('BankIntegrationContext', () => {
 
             test('support can', async () => {
                 const [organization] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
-                const [obj, attrs] = await updateTestBankIntegrationContext(supportClient, objCreated.id, {
+                const [objCreated] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
+                const [obj, attrs] = await updateTestBankIntegrationAccountContext(supportClient, objCreated.id, {
                     enabled: !objCreated.enabled,
                 })
 
@@ -139,16 +139,16 @@ describe('BankIntegrationContext', () => {
                 expect(obj.enabled).toEqual(attrs.enabled)
             })
 
-            test('user can if it is an employee of organization with "canManageBankIntegrationContexts" ability', async () => {
+            test('user can if it is an employee of organization with "canManageBankIntegrationAccountContexts" ability', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [objCreated] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                    canManageBankIntegrationContexts: true,
+                    canManageBankIntegrationAccountContexts: true,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
-                const [obj, attrs] = await updateTestBankIntegrationContext(userClient, objCreated.id, {
+                const [obj, attrs] = await updateTestBankIntegrationAccountContext(userClient, objCreated.id, {
                     enabled: !objCreated.enabled,
                 })
                 expect(obj.id).toMatch(UUID_RE)
@@ -159,17 +159,17 @@ describe('BankIntegrationContext', () => {
                 expect(obj.enabled).toEqual(attrs.enabled)
             })
 
-            test('user cannot if it is an employee of organization without "canManageBankIntegrationContexts" ability', async () => {
+            test('user cannot if it is an employee of organization without "canManageBankIntegrationAccountContexts" ability', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [objCreated] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                    canManageBankIntegrationContexts: false,
+                    canManageBankIntegrationAccountContexts: false,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestBankIntegrationContext(userClient, objCreated.id, {
+                    await updateTestBankIntegrationAccountContext(userClient, objCreated.id, {
                         enabled: !objCreated.enabled,
                     })
                 })
@@ -179,14 +179,14 @@ describe('BankIntegrationContext', () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(adminClient)
                 const [anotherOrganization] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [objCreated] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, anotherOrganization, {
-                    canManageBankIntegrationContexts: false,
+                    canManageBankIntegrationAccountContexts: false,
                 })
                 await createTestOrganizationEmployee(adminClient, anotherOrganization, userClient.user, role)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestBankIntegrationContext(userClient, objCreated.id, {
+                    await updateTestBankIntegrationAccountContext(userClient, objCreated.id, {
                         enabled: !objCreated.enabled,
                     })
                 })
@@ -194,10 +194,10 @@ describe('BankIntegrationContext', () => {
 
             test('anonymous can\'t', async () => {
                 const [organization] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [objCreated] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestBankIntegrationContext(anonymousClient, objCreated.id)
+                    await updateTestBankIntegrationAccountContext(anonymousClient, objCreated.id)
                 })
             })
         })
@@ -205,28 +205,28 @@ describe('BankIntegrationContext', () => {
         describe('hard delete', () => {
             test('admin can\'t', async () => {
                 const [organization] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [objCreated] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BankIntegrationContext.delete(adminClient, objCreated.id)
+                    await BankIntegrationAccountContext.delete(adminClient, objCreated.id)
                 })
             })
 
             test('user can\'t', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [objCreated] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BankIntegrationContext.delete(userClient, objCreated.id)
+                    await BankIntegrationAccountContext.delete(userClient, objCreated.id)
                 })
             })
 
             test('anonymous can\'t', async () => {
                 const [organization] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [objCreated] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await BankIntegrationContext.delete(anonymousClient, objCreated.id)
+                    await BankIntegrationAccountContext.delete(anonymousClient, objCreated.id)
                 })
             })
         })
@@ -234,9 +234,9 @@ describe('BankIntegrationContext', () => {
         describe('read', () => {
             test('admin can', async () => {
                 const [organization] = await createTestOrganization(adminClient)
-                const [obj] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [obj] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
 
-                const objs = await BankIntegrationContext.getAll(adminClient, { id: obj.id }, { sortBy: ['updatedAt_DESC'] })
+                const objs = await BankIntegrationAccountContext.getAll(adminClient, { id: obj.id }, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs.length).toBeGreaterThanOrEqual(1)
                 expect(objs).toEqual(expect.arrayContaining([
@@ -250,12 +250,12 @@ describe('BankIntegrationContext', () => {
             test('user can if it is an employee of organization', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(adminClient)
-                const [obj] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [obj] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
                 // Ability to read does not requires specific role ability flag
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, organization)
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
-                const objs = await BankIntegrationContext.getAll(userClient, { id: obj.id }, { sortBy: ['updatedAt_DESC'] })
+                const objs = await BankIntegrationAccountContext.getAll(userClient, { id: obj.id }, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs).toHaveLength(1)
                 expect(objs[0]).toMatchObject({
@@ -268,21 +268,21 @@ describe('BankIntegrationContext', () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(adminClient)
                 const [anotherOrganization] = await createTestOrganization(adminClient)
-                const [obj] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [obj] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
                 // Ability to read does not requires specific role ability flag
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, anotherOrganization)
                 await createTestOrganizationEmployee(adminClient, anotherOrganization, userClient.user, role)
 
-                const objs = await BankIntegrationContext.getAll(userClient, { id: obj.id }, { sortBy: ['updatedAt_DESC'] })
+                const objs = await BankIntegrationAccountContext.getAll(userClient, { id: obj.id }, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs).toHaveLength(0)
             })
 
             test('anonymous can\'t', async () => {
                 const [organization] = await createTestOrganization(adminClient)
-                const [obj] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [obj] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await BankIntegrationContext.getAll(anonymousClient, { id: obj.id }, { sortBy: ['updatedAt_DESC'] })
+                    await BankIntegrationAccountContext.getAll(anonymousClient, { id: obj.id }, { sortBy: ['updatedAt_DESC'] })
                 })
             })
         })

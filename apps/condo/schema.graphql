@@ -3994,7 +3994,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
   canManageBankAccounts: Boolean
-  canManageBankIntegrationContexts: Boolean
+  canManageBankIntegrationAccountContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
@@ -4116,8 +4116,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManagePropertyScopes_not: Boolean
   canManageBankAccounts: Boolean
   canManageBankAccounts_not: Boolean
-  canManageBankIntegrationContexts: Boolean
-  canManageBankIntegrationContexts_not: Boolean
+  canManageBankIntegrationAccountContexts: Boolean
+  canManageBankIntegrationAccountContexts_not: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankContractorAccounts_not: Boolean
   canManageBankTransactions: Boolean
@@ -4241,8 +4241,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManagePropertyScopes_DESC
   canManageBankAccounts_ASC
   canManageBankAccounts_DESC
-  canManageBankIntegrationContexts_ASC
-  canManageBankIntegrationContexts_DESC
+  canManageBankIntegrationAccountContexts_ASC
+  canManageBankIntegrationAccountContexts_DESC
   canManageBankContractorAccounts_ASC
   canManageBankContractorAccounts_DESC
   canManageBankTransactions_ASC
@@ -4291,7 +4291,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
   canManageBankAccounts: Boolean
-  canManageBankIntegrationContexts: Boolean
+  canManageBankIntegrationAccountContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
@@ -4338,7 +4338,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
   canManageBankAccounts: Boolean
-  canManageBankIntegrationContexts: Boolean
+  canManageBankIntegrationAccountContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
@@ -4414,7 +4414,7 @@ type OrganizationEmployeeRole {
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
   canManageBankAccounts: Boolean
-  canManageBankIntegrationContexts: Boolean
+  canManageBankIntegrationAccountContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
@@ -4524,8 +4524,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManagePropertyScopes_not: Boolean
   canManageBankAccounts: Boolean
   canManageBankAccounts_not: Boolean
-  canManageBankIntegrationContexts: Boolean
-  canManageBankIntegrationContexts_not: Boolean
+  canManageBankIntegrationAccountContexts: Boolean
+  canManageBankIntegrationAccountContexts_not: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankContractorAccounts_not: Boolean
   canManageBankTransactions: Boolean
@@ -4631,8 +4631,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManagePropertyScopes_DESC
   canManageBankAccounts_ASC
   canManageBankAccounts_DESC
-  canManageBankIntegrationContexts_ASC
-  canManageBankIntegrationContexts_DESC
+  canManageBankIntegrationAccountContexts_ASC
+  canManageBankIntegrationAccountContexts_DESC
   canManageBankContractorAccounts_ASC
   canManageBankContractorAccounts_DESC
   canManageBankTransactions_ASC
@@ -4680,7 +4680,7 @@ input OrganizationEmployeeRoleUpdateInput {
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
   canManageBankAccounts: Boolean
-  canManageBankIntegrationContexts: Boolean
+  canManageBankIntegrationAccountContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
@@ -4723,7 +4723,7 @@ input OrganizationEmployeeRoleCreateInput {
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
   canManageBankAccounts: Boolean
-  canManageBankIntegrationContexts: Boolean
+  canManageBankIntegrationAccountContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
@@ -13661,10 +13661,10 @@ input BankAccountHistoryRecordsCreateInput {
   data: BankAccountHistoryRecordCreateInput
 }
 
-input BankIntegrationContextRelateToOneInput {
-  create: BankIntegrationContextCreateInput
-  connect: BankIntegrationContextWhereUniqueInput
-  disconnect: BankIntegrationContextWhereUniqueInput
+input BankIntegrationAccountContextRelateToOneInput {
+  create: BankIntegrationAccountContextCreateInput
+  connect: BankIntegrationAccountContextWhereUniqueInput
+  disconnect: BankIntegrationAccountContextWhereUniqueInput
   disconnectAll: Boolean
 }
 
@@ -13697,7 +13697,7 @@ type BankAccount {
   organization: Organization
 
   """ Used data source to obtain transactions from """
-  integrationContext: BankIntegrationContext
+  integrationContext: BankIntegrationAccountContext
 
   """ Property to which this bank account is connected """
   property: Property
@@ -13771,7 +13771,7 @@ input BankAccountWhereInput {
   OR: [BankAccountWhereInput]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
-  integrationContext: BankIntegrationContextWhereInput
+  integrationContext: BankIntegrationAccountContextWhereInput
   integrationContext_is_null: Boolean
   property: PropertyWhereInput
   property_is_null: Boolean
@@ -14022,7 +14022,7 @@ enum SortBankAccountsBy {
 
 input BankAccountUpdateInput {
   organization: OrganizationRelateToOneInput
-  integrationContext: BankIntegrationContextRelateToOneInput
+  integrationContext: BankIntegrationAccountContextRelateToOneInput
   property: PropertyRelateToOneInput
   tin: String
   tinMeta: JSON
@@ -14055,7 +14055,7 @@ input BankAccountsUpdateInput {
 
 input BankAccountCreateInput {
   organization: OrganizationRelateToOneInput
-  integrationContext: BankIntegrationContextRelateToOneInput
+  integrationContext: BankIntegrationAccountContextRelateToOneInput
   property: PropertyRelateToOneInput
   tin: String
   tinMeta: JSON
@@ -16050,20 +16050,20 @@ input BankIntegrationsCreateInput {
   data: BankIntegrationCreateInput
 }
 
-enum BankIntegrationContextHistoryRecordHistoryActionType {
+enum BankIntegrationAccountContextHistoryRecordHistoryActionType {
   c
   u
   d
 }
 
 """ A keystone list """
-type BankIntegrationContextHistoryRecord {
+type BankIntegrationAccountContextHistoryRecord {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the BankIntegrationContextHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the BankIntegrationContextHistoryRecord List config, or
-   3. As an alias to a 'name' field on the BankIntegrationContextHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the BankIntegrationContextHistoryRecord List.
+   1. Execution of 'labelResolver' set on the BankIntegrationAccountContextHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the BankIntegrationAccountContextHistoryRecord List config, or
+   3. As an alias to a 'name' field on the BankIntegrationAccountContextHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the BankIntegrationAccountContextHistoryRecord List.
   """
   _label_: String
   integration: String
@@ -16081,13 +16081,13 @@ type BankIntegrationContextHistoryRecord {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: BankIntegrationContextHistoryRecordHistoryActionType
+  history_action: BankIntegrationAccountContextHistoryRecordHistoryActionType
   history_id: String
 }
 
-input BankIntegrationContextHistoryRecordWhereInput {
-  AND: [BankIntegrationContextHistoryRecordWhereInput]
-  OR: [BankIntegrationContextHistoryRecordWhereInput]
+input BankIntegrationAccountContextHistoryRecordWhereInput {
+  AND: [BankIntegrationAccountContextHistoryRecordWhereInput]
+  OR: [BankIntegrationAccountContextHistoryRecordWhereInput]
   integration: String
   integration_not: String
   integration_in: [String]
@@ -16170,21 +16170,21 @@ input BankIntegrationContextHistoryRecordWhereInput {
   history_date_gte: String
   history_date_in: [String]
   history_date_not_in: [String]
-  history_action: BankIntegrationContextHistoryRecordHistoryActionType
-  history_action_not: BankIntegrationContextHistoryRecordHistoryActionType
-  history_action_in: [BankIntegrationContextHistoryRecordHistoryActionType]
-  history_action_not_in: [BankIntegrationContextHistoryRecordHistoryActionType]
+  history_action: BankIntegrationAccountContextHistoryRecordHistoryActionType
+  history_action_not: BankIntegrationAccountContextHistoryRecordHistoryActionType
+  history_action_in: [BankIntegrationAccountContextHistoryRecordHistoryActionType]
+  history_action_not_in: [BankIntegrationAccountContextHistoryRecordHistoryActionType]
   history_id: String
   history_id_not: String
   history_id_in: [String]
   history_id_not_in: [String]
 }
 
-input BankIntegrationContextHistoryRecordWhereUniqueInput {
+input BankIntegrationAccountContextHistoryRecordWhereUniqueInput {
   id: ID!
 }
 
-enum SortBankIntegrationContextHistoryRecordsBy {
+enum SortBankIntegrationAccountContextHistoryRecordsBy {
   enabled_ASC
   enabled_DESC
   id_ASC
@@ -16205,7 +16205,7 @@ enum SortBankIntegrationContextHistoryRecordsBy {
   history_action_DESC
 }
 
-input BankIntegrationContextHistoryRecordUpdateInput {
+input BankIntegrationAccountContextHistoryRecordUpdateInput {
   integration: String
   organization: String
   enabled: Boolean
@@ -16220,16 +16220,16 @@ input BankIntegrationContextHistoryRecordUpdateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: BankIntegrationContextHistoryRecordHistoryActionType
+  history_action: BankIntegrationAccountContextHistoryRecordHistoryActionType
   history_id: String
 }
 
-input BankIntegrationContextHistoryRecordsUpdateInput {
+input BankIntegrationAccountContextHistoryRecordsUpdateInput {
   id: ID!
-  data: BankIntegrationContextHistoryRecordUpdateInput
+  data: BankIntegrationAccountContextHistoryRecordUpdateInput
 }
 
-input BankIntegrationContextHistoryRecordCreateInput {
+input BankIntegrationAccountContextHistoryRecordCreateInput {
   integration: String
   organization: String
   enabled: Boolean
@@ -16244,12 +16244,12 @@ input BankIntegrationContextHistoryRecordCreateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: BankIntegrationContextHistoryRecordHistoryActionType
+  history_action: BankIntegrationAccountContextHistoryRecordHistoryActionType
   history_id: String
 }
 
-input BankIntegrationContextHistoryRecordsCreateInput {
-  data: BankIntegrationContextHistoryRecordCreateInput
+input BankIntegrationAccountContextHistoryRecordsCreateInput {
+  data: BankIntegrationAccountContextHistoryRecordCreateInput
 }
 
 input BankIntegrationRelateToOneInput {
@@ -16261,13 +16261,13 @@ input BankIntegrationRelateToOneInput {
 
 """ Usage of specific integration by specific organization. Contains summary information about last synchronization with data source (integration) 
 """
-type BankIntegrationContext {
+type BankIntegrationAccountContext {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the BankIntegrationContext List config, or
-   2. As an alias to the field set on 'labelField' in the BankIntegrationContext List config, or
-   3. As an alias to a 'name' field on the BankIntegrationContext List (if one exists), or
-   4. As an alias to the 'id' field on the BankIntegrationContext List.
+   1. Execution of 'labelResolver' set on the BankIntegrationAccountContext List config, or
+   2. As an alias to the field set on 'labelField' in the BankIntegrationAccountContext List config, or
+   3. As an alias to a 'name' field on the BankIntegrationAccountContext List (if one exists), or
+   4. As an alias to the 'id' field on the BankIntegrationAccountContext List.
   """
   _label_: String
 
@@ -16308,9 +16308,9 @@ type BankIntegrationContext {
   sender: SenderField
 }
 
-input BankIntegrationContextWhereInput {
-  AND: [BankIntegrationContextWhereInput]
-  OR: [BankIntegrationContextWhereInput]
+input BankIntegrationAccountContextWhereInput {
+  AND: [BankIntegrationAccountContextWhereInput]
+  OR: [BankIntegrationAccountContextWhereInput]
   integration: BankIntegrationWhereInput
   integration_is_null: Boolean
   organization: OrganizationWhereInput
@@ -16379,11 +16379,11 @@ input BankIntegrationContextWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input BankIntegrationContextWhereUniqueInput {
+input BankIntegrationAccountContextWhereUniqueInput {
   id: ID!
 }
 
-enum SortBankIntegrationContextsBy {
+enum SortBankIntegrationAccountContextsBy {
   integration_ASC
   integration_DESC
   organization_ASC
@@ -16408,7 +16408,7 @@ enum SortBankIntegrationContextsBy {
   dv_DESC
 }
 
-input BankIntegrationContextUpdateInput {
+input BankIntegrationAccountContextUpdateInput {
   integration: BankIntegrationRelateToOneInput
   organization: OrganizationRelateToOneInput
   enabled: Boolean
@@ -16424,12 +16424,12 @@ input BankIntegrationContextUpdateInput {
   sender: SenderFieldInput
 }
 
-input BankIntegrationContextsUpdateInput {
+input BankIntegrationAccountContextsUpdateInput {
   id: ID!
-  data: BankIntegrationContextUpdateInput
+  data: BankIntegrationAccountContextUpdateInput
 }
 
-input BankIntegrationContextCreateInput {
+input BankIntegrationAccountContextCreateInput {
   integration: BankIntegrationRelateToOneInput
   organization: OrganizationRelateToOneInput
   enabled: Boolean
@@ -16445,8 +16445,8 @@ input BankIntegrationContextCreateInput {
   sender: SenderFieldInput
 }
 
-input BankIntegrationContextsCreateInput {
-  data: BankIntegrationContextCreateInput
+input BankIntegrationAccountContextsCreateInput {
+  data: BankIntegrationAccountContextCreateInput
 }
 
 enum BankTransactionHistoryRecordHistoryActionType {
@@ -16843,7 +16843,7 @@ type BankTransaction {
   account: BankAccount
 
   """ Data source from which this transaction was created """
-  integrationContext: BankIntegrationContext
+  integrationContext: BankIntegrationAccountContext
 
   """ Related account of contractor, which has received the payment via this transaction 
   """
@@ -16913,7 +16913,7 @@ input BankTransactionWhereInput {
   OR: [BankTransactionWhereInput]
   account: BankAccountWhereInput
   account_is_null: Boolean
-  integrationContext: BankIntegrationContextWhereInput
+  integrationContext: BankIntegrationAccountContextWhereInput
   integrationContext_is_null: Boolean
   contractorAccount: BankContractorAccountWhereInput
   contractorAccount_is_null: Boolean
@@ -17114,7 +17114,7 @@ enum SortBankTransactionsBy {
 
 input BankTransactionUpdateInput {
   account: BankAccountRelateToOneInput
-  integrationContext: BankIntegrationContextRelateToOneInput
+  integrationContext: BankIntegrationAccountContextRelateToOneInput
   contractorAccount: BankContractorAccountRelateToOneInput
   costItem: BankCostItemRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -17145,7 +17145,7 @@ input BankTransactionsUpdateInput {
 
 input BankTransactionCreateInput {
   account: BankAccountRelateToOneInput
-  integrationContext: BankIntegrationContextRelateToOneInput
+  integrationContext: BankIntegrationAccountContextRelateToOneInput
   contractorAccount: BankContractorAccountRelateToOneInput
   costItem: BankCostItemRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -17470,7 +17470,7 @@ type BankSyncTask {
 
   """ Integration context of account for which current synchronization operation is performed 
   """
-  integrationContext: BankIntegrationContext
+  integrationContext: BankIntegrationAccountContext
 
   """ Ref to the organization. The object will be deleted if the organization ceases to exist 
   """
@@ -17527,7 +17527,7 @@ input BankSyncTaskWhereInput {
   OR: [BankSyncTaskWhereInput]
   account: BankAccountWhereInput
   account_is_null: Boolean
-  integrationContext: BankIntegrationContextWhereInput
+  integrationContext: BankIntegrationAccountContextWhereInput
   integrationContext_is_null: Boolean
   organization: OrganizationWhereInput
   organization_is_null: Boolean
@@ -17662,7 +17662,7 @@ enum SortBankSyncTasksBy {
 
 input BankSyncTaskUpdateInput {
   account: BankAccountRelateToOneInput
-  integrationContext: BankIntegrationContextRelateToOneInput
+  integrationContext: BankIntegrationAccountContextRelateToOneInput
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   status: BankSyncTaskStatusType
@@ -17689,7 +17689,7 @@ input BankSyncTasksUpdateInput {
 
 input BankSyncTaskCreateInput {
   account: BankAccountRelateToOneInput
-  integrationContext: BankIntegrationContextRelateToOneInput
+  integrationContext: BankIntegrationAccountContextRelateToOneInput
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   status: BankSyncTaskStatusType
@@ -54213,35 +54213,36 @@ type Query {
   """ Retrieve the meta-data for the BankIntegration list. """
   _BankIntegrationsMeta: _ListMeta
 
-  """ Search for all BankIntegrationContextHistoryRecord items which match the where clause. 
+  """ Search for all BankIntegrationAccountContextHistoryRecord items which match the where clause. 
   """
-  allBankIntegrationContextHistoryRecords(where: BankIntegrationContextHistoryRecordWhereInput, search: String, sortBy: [SortBankIntegrationContextHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [BankIntegrationContextHistoryRecord]
+  allBankIntegrationAccountContextHistoryRecords(where: BankIntegrationAccountContextHistoryRecordWhereInput, search: String, sortBy: [SortBankIntegrationAccountContextHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [BankIntegrationAccountContextHistoryRecord]
 
-  """ Search for the BankIntegrationContextHistoryRecord item with the matching ID. 
+  """ Search for the BankIntegrationAccountContextHistoryRecord item with the matching ID. 
   """
-  BankIntegrationContextHistoryRecord(where: BankIntegrationContextHistoryRecordWhereUniqueInput!): BankIntegrationContextHistoryRecord
+  BankIntegrationAccountContextHistoryRecord(where: BankIntegrationAccountContextHistoryRecordWhereUniqueInput!): BankIntegrationAccountContextHistoryRecord
 
-  """ Perform a meta-query on all BankIntegrationContextHistoryRecord items which match the where clause. 
+  """ Perform a meta-query on all BankIntegrationAccountContextHistoryRecord items which match the where clause. 
   """
-  _allBankIntegrationContextHistoryRecordsMeta(where: BankIntegrationContextHistoryRecordWhereInput, search: String, sortBy: [SortBankIntegrationContextHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allBankIntegrationAccountContextHistoryRecordsMeta(where: BankIntegrationAccountContextHistoryRecordWhereInput, search: String, sortBy: [SortBankIntegrationAccountContextHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the BankIntegrationContextHistoryRecord list. 
+  """ Retrieve the meta-data for the BankIntegrationAccountContextHistoryRecord list. 
   """
-  _BankIntegrationContextHistoryRecordsMeta: _ListMeta
+  _BankIntegrationAccountContextHistoryRecordsMeta: _ListMeta
 
-  """ Search for all BankIntegrationContext items which match the where clause. 
+  """ Search for all BankIntegrationAccountContext items which match the where clause. 
   """
-  allBankIntegrationContexts(where: BankIntegrationContextWhereInput, search: String, sortBy: [SortBankIntegrationContextsBy!], orderBy: String, first: Int, skip: Int): [BankIntegrationContext]
+  allBankIntegrationAccountContexts(where: BankIntegrationAccountContextWhereInput, search: String, sortBy: [SortBankIntegrationAccountContextsBy!], orderBy: String, first: Int, skip: Int): [BankIntegrationAccountContext]
 
-  """ Search for the BankIntegrationContext item with the matching ID. """
-  BankIntegrationContext(where: BankIntegrationContextWhereUniqueInput!): BankIntegrationContext
-
-  """ Perform a meta-query on all BankIntegrationContext items which match the where clause. 
+  """ Search for the BankIntegrationAccountContext item with the matching ID. 
   """
-  _allBankIntegrationContextsMeta(where: BankIntegrationContextWhereInput, search: String, sortBy: [SortBankIntegrationContextsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  BankIntegrationAccountContext(where: BankIntegrationAccountContextWhereUniqueInput!): BankIntegrationAccountContext
 
-  """ Retrieve the meta-data for the BankIntegrationContext list. """
-  _BankIntegrationContextsMeta: _ListMeta
+  """ Perform a meta-query on all BankIntegrationAccountContext items which match the where clause. 
+  """
+  _allBankIntegrationAccountContextsMeta(where: BankIntegrationAccountContextWhereInput, search: String, sortBy: [SortBankIntegrationAccountContextsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the BankIntegrationAccountContext list. """
+  _BankIntegrationAccountContextsMeta: _ListMeta
 
   """ Search for all BankTransactionHistoryRecord items which match the where clause. 
   """
@@ -57177,41 +57178,45 @@ type Mutation {
   """ Delete multiple BankIntegration items by ID. """
   deleteBankIntegrations(ids: [ID!]): [BankIntegration]
 
-  """ Create a single BankIntegrationContextHistoryRecord item. """
-  createBankIntegrationContextHistoryRecord(data: BankIntegrationContextHistoryRecordCreateInput): BankIntegrationContextHistoryRecord
+  """ Create a single BankIntegrationAccountContextHistoryRecord item. """
+  createBankIntegrationAccountContextHistoryRecord(data: BankIntegrationAccountContextHistoryRecordCreateInput): BankIntegrationAccountContextHistoryRecord
 
-  """ Create multiple BankIntegrationContextHistoryRecord items. """
-  createBankIntegrationContextHistoryRecords(data: [BankIntegrationContextHistoryRecordsCreateInput]): [BankIntegrationContextHistoryRecord]
+  """ Create multiple BankIntegrationAccountContextHistoryRecord items. """
+  createBankIntegrationAccountContextHistoryRecords(data: [BankIntegrationAccountContextHistoryRecordsCreateInput]): [BankIntegrationAccountContextHistoryRecord]
 
-  """ Update a single BankIntegrationContextHistoryRecord item by ID. """
-  updateBankIntegrationContextHistoryRecord(id: ID!, data: BankIntegrationContextHistoryRecordUpdateInput): BankIntegrationContextHistoryRecord
+  """ Update a single BankIntegrationAccountContextHistoryRecord item by ID. 
+  """
+  updateBankIntegrationAccountContextHistoryRecord(id: ID!, data: BankIntegrationAccountContextHistoryRecordUpdateInput): BankIntegrationAccountContextHistoryRecord
 
-  """ Update multiple BankIntegrationContextHistoryRecord items by ID. """
-  updateBankIntegrationContextHistoryRecords(data: [BankIntegrationContextHistoryRecordsUpdateInput]): [BankIntegrationContextHistoryRecord]
+  """ Update multiple BankIntegrationAccountContextHistoryRecord items by ID. 
+  """
+  updateBankIntegrationAccountContextHistoryRecords(data: [BankIntegrationAccountContextHistoryRecordsUpdateInput]): [BankIntegrationAccountContextHistoryRecord]
 
-  """ Delete a single BankIntegrationContextHistoryRecord item by ID. """
-  deleteBankIntegrationContextHistoryRecord(id: ID!): BankIntegrationContextHistoryRecord
+  """ Delete a single BankIntegrationAccountContextHistoryRecord item by ID. 
+  """
+  deleteBankIntegrationAccountContextHistoryRecord(id: ID!): BankIntegrationAccountContextHistoryRecord
 
-  """ Delete multiple BankIntegrationContextHistoryRecord items by ID. """
-  deleteBankIntegrationContextHistoryRecords(ids: [ID!]): [BankIntegrationContextHistoryRecord]
+  """ Delete multiple BankIntegrationAccountContextHistoryRecord items by ID. 
+  """
+  deleteBankIntegrationAccountContextHistoryRecords(ids: [ID!]): [BankIntegrationAccountContextHistoryRecord]
 
-  """ Create a single BankIntegrationContext item. """
-  createBankIntegrationContext(data: BankIntegrationContextCreateInput): BankIntegrationContext
+  """ Create a single BankIntegrationAccountContext item. """
+  createBankIntegrationAccountContext(data: BankIntegrationAccountContextCreateInput): BankIntegrationAccountContext
 
-  """ Create multiple BankIntegrationContext items. """
-  createBankIntegrationContexts(data: [BankIntegrationContextsCreateInput]): [BankIntegrationContext]
+  """ Create multiple BankIntegrationAccountContext items. """
+  createBankIntegrationAccountContexts(data: [BankIntegrationAccountContextsCreateInput]): [BankIntegrationAccountContext]
 
-  """ Update a single BankIntegrationContext item by ID. """
-  updateBankIntegrationContext(id: ID!, data: BankIntegrationContextUpdateInput): BankIntegrationContext
+  """ Update a single BankIntegrationAccountContext item by ID. """
+  updateBankIntegrationAccountContext(id: ID!, data: BankIntegrationAccountContextUpdateInput): BankIntegrationAccountContext
 
-  """ Update multiple BankIntegrationContext items by ID. """
-  updateBankIntegrationContexts(data: [BankIntegrationContextsUpdateInput]): [BankIntegrationContext]
+  """ Update multiple BankIntegrationAccountContext items by ID. """
+  updateBankIntegrationAccountContexts(data: [BankIntegrationAccountContextsUpdateInput]): [BankIntegrationAccountContext]
 
-  """ Delete a single BankIntegrationContext item by ID. """
-  deleteBankIntegrationContext(id: ID!): BankIntegrationContext
+  """ Delete a single BankIntegrationAccountContext item by ID. """
+  deleteBankIntegrationAccountContext(id: ID!): BankIntegrationAccountContext
 
-  """ Delete multiple BankIntegrationContext items by ID. """
-  deleteBankIntegrationContexts(ids: [ID!]): [BankIntegrationContext]
+  """ Delete multiple BankIntegrationAccountContext items by ID. """
+  deleteBankIntegrationAccountContexts(ids: [ID!]): [BankIntegrationAccountContext]
 
   """ Create a single BankTransactionHistoryRecord item. """
   createBankTransactionHistoryRecord(data: BankTransactionHistoryRecordCreateInput): BankTransactionHistoryRecord

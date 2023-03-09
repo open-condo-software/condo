@@ -39,7 +39,7 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
         integrationContext: {
             schemaDoc: 'Integration context of account for which current synchronization operation is performed',
             type: Relationship,
-            ref: 'BankIntegrationContext',
+            ref: 'BankIntegrationAccountContext',
             // Can be unknown when account does not exist during import
             isRequired: false,
             knexOptions: { isNotNullable: true }, // Required relationship only!

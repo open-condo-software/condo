@@ -40,7 +40,7 @@ describe('OrganizationEmployeeRole', () => {
             expect(obj.canReadBillingReceipts).toBeFalsy()
             expect(obj.canManageBankAccounts).toBeFalsy()
             expect(obj.canManageBankContractorAccounts).toBeFalsy()
-            expect(obj.canManageBankIntegrationContexts).toBeFalsy()
+            expect(obj.canManageBankIntegrationAccountContexts).toBeFalsy()
             expect(obj.canManageBankTransactions).toBeFalsy()
             expect(obj.canManageIncidents).toBeFalsy()
             expect(obj.nameNonLocalized).toEqual(obj.name)

@@ -5,7 +5,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { BankAccount } = require('@condo/domains/banking/utils/serverSchema')
-const { BankIntegrationContext, BankIntegration } = require('@condo/domains/banking/utils/serverSchema')
+const { BankIntegrationAccountContext, BankIntegration } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES_FOR_SBBOL } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
@@ -40,7 +40,7 @@ const _syncBankAccounts = async (accounts, organization) => {
         if (!integration) throw new Error(`Cannot find SBBOL integration by id=" ${BANK_INTEGRATION_IDS.SBBOL}"`)
 
         if (!foundAccount) {
-            const bankIntegrationContext = await BankIntegrationContext.create(context, {
+            const bankIntegrationAccountContext = await BankIntegrationAccountContext.create(context, {
                 ...dvSenderFields,
                 integration: { connect: { id: integration.id } },
                 organization: { connect: { id: organization.id } },
@@ -60,7 +60,7 @@ const _syncBankAccounts = async (accounts, organization) => {
                     },
                     ...bankAccountDetails,
                     ...dvSenderFields,
-                    integrationContext: { connect: { id: bankIntegrationContext.id } },
+                    integrationContext: { connect: { id: bankIntegrationAccountContext.id } },
                     organization: { connect: { id: organization.id } },
                 }
             )
@@ -71,18 +71,18 @@ const _syncBankAccounts = async (accounts, organization) => {
             if (!alreadyHaveIntegrationContext) {
                 logger.info({ msg: 'Found BankAccount does not have integrationContext' })
 
-                const createdBankIntegrationContext = await BankIntegrationContext.create(context, {
+                const createdBankIntegrationAccountContext = await BankIntegrationAccountContext.create(context, {
                     ...dvSenderFields,
                     integration: { connect: { id: integration.id } },
                     organization: { connect: { id: organization.id } },
                 })
 
                 await BankAccount.update(context, foundAccount.id, {
-                    integrationContext: { connect: { id: createdBankIntegrationContext.id } },
+                    integrationContext: { connect: { id: createdBankIntegrationAccountContext.id } },
                     ...dvSenderFields,
                 })
 
-                logger.info({ msg: `Connected BankIntegrationContext { id: ${createdBankIntegrationContext.id}, integration: { name: 'SBBOL' } } to BankAccount { id: ${foundAccount.id} }` })
+                logger.info({ msg: `Connected BankIntegrationAccountContext { id: ${createdBankIntegrationAccountContext.id}, integration: { name: 'SBBOL' } } to BankAccount { id: ${foundAccount.id} }` })
             }
         }
     }

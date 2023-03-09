@@ -14,7 +14,7 @@ const { BankCostItem: BankCostItemGQL } = require('@condo/domains/banking/gql')
 const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 const { BankContractorAccount: BankContractorAccountGQL } = require('@condo/domains/banking/gql')
 const { BankIntegration: BankIntegrationGQL, CREATE_BANK_ACCOUNT_REQUEST_MUTATION } = require('@condo/domains/banking/gql')
-const { BankIntegrationContext: BankIntegrationContextGQL } = require('@condo/domains/banking/gql')
+const { BankIntegrationAccountContext: BankIntegrationAccountContextGQL } = require('@condo/domains/banking/gql')
 const { BankTransaction: BankTransactionGQL } = require('@condo/domains/banking/gql')
 const { BankSyncTask: BankSyncTaskGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -25,7 +25,7 @@ const BankAccount = generateGQLTestUtils(BankAccountGQL)
 const BankContractorAccount = generateGQLTestUtils(BankContractorAccountGQL)
 
 const BankIntegration = generateGQLTestUtils(BankIntegrationGQL)
-const BankIntegrationContext = generateGQLTestUtils(BankIntegrationContextGQL)
+const BankIntegrationAccountContext = generateGQLTestUtils(BankIntegrationAccountContextGQL)
 const BankTransaction = generateGQLTestUtils(BankTransactionGQL)
 const BankSyncTask = generateGQLTestUtils(BankSyncTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
@@ -194,7 +194,7 @@ async function updateTestBankIntegration (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBankIntegrationContext (client, integration, organization, extraAttrs = {}) {
+async function createTestBankIntegrationAccountContext (client, integration, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!integration || !integration.id) throw new Error('no integration.id')
     if (!organization || !organization.id) throw new Error('no organization.id')
@@ -207,11 +207,11 @@ async function createTestBankIntegrationContext (client, integration, organizati
         organization: { connect: { id: organization.id } },
         ...extraAttrs,
     }
-    const obj = await BankIntegrationContext.create(client, attrs)
+    const obj = await BankIntegrationAccountContext.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestBankIntegrationContext (client, id, extraAttrs = {}) {
+async function updateTestBankIntegrationAccountContext (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -221,7 +221,7 @@ async function updateTestBankIntegrationContext (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await BankIntegrationContext.update(client, id, attrs)
+    const obj = await BankIntegrationAccountContext.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -337,7 +337,7 @@ module.exports = {
     BankAccount, createTestBankAccount, updateTestBankAccount,
     BankContractorAccount, createTestBankContractorAccount, updateTestBankContractorAccount,
     BankIntegration, createTestBankIntegration, updateTestBankIntegration,
-    BankIntegrationContext, createTestBankIntegrationContext, updateTestBankIntegrationContext,
+    BankIntegrationAccountContext, createTestBankIntegrationAccountContext, updateTestBankIntegrationAccountContext,
     BankTransaction, createTestBankTransaction, updateTestBankTransaction,
     BankSyncTask, createTestBankSyncTask, updateTestBankSyncTask,
     createBankAccountRequestByTestClient,
