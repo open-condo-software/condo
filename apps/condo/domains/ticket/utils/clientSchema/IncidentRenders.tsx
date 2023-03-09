@@ -44,7 +44,8 @@ type GetRenderClassifiersType = (incidentClassifiers: IIncidentClassifierInciden
 const MAX_CELL_CONTENT_LENGTH = 150
 
 
-export const getRenderNumber: GetRenderNumberType = () => getTableCellRenderer()
+export const getRenderNumber: GetRenderNumberType = () => (number, incident) =>
+    getTableCellRenderer(null, false, null, null, null, null, `/incident/${incident.id}`)(number)
 
 export const getRenderOrganization: GetRenderOrganizationType = () => getTableCellRenderer()
 
