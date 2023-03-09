@@ -134,6 +134,10 @@ class AdapterCache {
         return null
     }
 
+    dropCacheByList (listName) {
+        this.cache[listName] = {}
+    }
+
     getCacheEvent ({ type, functionName, key, list, result }) {
         return ({
             type: type,
@@ -282,16 +286,20 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
 function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, connectedLists, manyToManyLists) {
     return async ( ...args ) => {
 
+        // Get mutation value
         const functionResult = await f.apply(listAdapter, args)
 
+        // Drop global state
         await cache.setState(listName, functionResult[UPDATED_AT_FIELD])
         if (connectedLists[listName]) {
             await cache.setState(connectedLists[listName], functionResult[UPDATED_AT_FIELD])
         }
-
         if (manyToManyLists[listName]) {
             await cache.setState(manyToManyLists[listName], functionResult[UPDATED_AT_FIELD])
         }
+
+        // Drop local cache
+        cache.dropCacheByList(listName)
 
         const cacheEvent = cache.getCacheEvent({
             type: 'DROP',
