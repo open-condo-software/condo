@@ -58,9 +58,10 @@ import {
     TicketChange,
     TicketComment,
     TicketCommentFile,
-    TicketCommentsTime,
+    TicketCommentsTime, UserFavoriteTicket,
     UserTicketCommentReadTime,
 } from '@condo/domains/ticket/utils/clientSchema'
+import { FavoriteTicketIndicator } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import {
     getTicketCreateMessage,
     getTicketTitleMessage,
@@ -74,6 +75,7 @@ const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 60]
 const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
 const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 20]
+const BIG_HORIZONTAL_GUTTER: RowProps['gutter'] = [40, 0]
 
 const TicketContent = ({ ticket }) => {
     return (
@@ -216,6 +218,17 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         user: { connect: {  id: user.id } },
         ticket: { connect: { id } },
     }, () => refetchUserTicketCommentReadTime())
+
+    const {
+        objs: userFavoriteTickets,
+        refetch: refetchFavoriteTickets,
+        loading: favoriteTicketsLoading,
+    } = UserFavoriteTicket.useObjects({
+        where: {
+            user: { id: user.id },
+            ticket: { id },
+        },
+    })
 
     const canShareTickets = get(employee, 'role.canShareTickets')
     const ticketVisibilityType = get(employee, 'role.ticketVisibilityType')
@@ -360,7 +373,15 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                 <Col xl={11} md={13} xs={24}>
                                     <Row justify={isSmall ? 'center' : 'end'} gutter={SMALL_VERTICAL_GUTTER}>
                                         <Col span={24}>
-                                            <Row justify='end'>
+                                            <Row justify='end' align='middle' gutter={BIG_HORIZONTAL_GUTTER}>
+                                                <Col>
+                                                    <FavoriteTicketIndicator
+                                                        ticketId={id}
+                                                        userFavoriteTickets={userFavoriteTickets}
+                                                        refetchFavoriteTickets={refetchFavoriteTickets}
+                                                        loading={favoriteTicketsLoading}
+                                                    />
+                                                </Col>
                                                 <Col>
                                                     <TicketStatusSelect
                                                         organization={organization}

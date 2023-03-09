@@ -1,12 +1,18 @@
 import { Property, Ticket } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
-import { isEmpty } from 'lodash'
+import debounce from 'lodash/debounce'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
+
+import { Star, StarFilled } from '@open-condo/icons'
+import { useAuth } from '@open-condo/next/auth'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
@@ -22,18 +28,128 @@ import {
     TicketDeadlineType,
 } from '../helpers'
 
+import { UserFavoriteTicket } from './index'
+
 
 const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = {
     position: 'absolute', left: '-102px', top: '50%', transform: 'translateY(-50%)', zIndex: 999,
 }
 const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { padding: '24px' }
-const NEW_COMMENTS_INDICATOR_STYLES: CSSProperties = { backgroundColor: 'red', borderRadius: '100px', width: '8px', height: '8px' }
+const NEW_COMMENTS_INDICATOR_STYLES: CSSProperties = {
+    backgroundColor: 'red',
+    borderRadius: '100px',
+    width: '8px',
+    height: '8px',
+}
 const ADDRESS_RENDER_POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
-export const getTicketNumberRender = (intl, breakpoints, userTicketsCommentReadTime, ticketsCommentsTime, search: FilterValue) => {
+export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes }) => {
+    const NewResidentCommentMessage = intl.formatMessage({ id: 'ticket.newResidentComment' })
+
+    return function render (ticket: Ticket) {
+        const currentTicketUserTicketCommentReadTimes = userTicketCommentReadTimes.find(obj => obj.ticket.id === ticket.id)
+        const currentTicketCommentTimes = ticketsCommentTimes.find(obj => obj.ticket.id === ticket.id)
+
+        const readResidentCommentByUserAt = get(currentTicketUserTicketCommentReadTimes, 'readResidentCommentAt')
+        const lastResidentCommentAt = get(currentTicketCommentTimes, 'lastResidentCommentAt')
+        const lastCommentAt = get(currentTicketCommentTimes, 'lastCommentAt')
+
+        return hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt) && (
+            <div style={breakpoints.xl && NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL}>
+                <Tooltip title={NewResidentCommentMessage} placement='topRight'>
+                    <Typography.Text title={NewResidentCommentMessage}>
+                        <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES}>
+                            <div style={NEW_COMMENTS_INDICATOR_STYLES}/>
+                        </div>
+                    </Typography.Text>
+                </Tooltip>
+            </div>
+        )
+    }
+}
+
+const FavoriteTicketIconContainer = styled.div`
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+const DEBOUNCE_TIMEOUT_IN_MS = 800
+
+export const FavoriteTicketIndicator = ({ ticketId, userFavoriteTickets, refetchFavoriteTickets, loading }) => {
+    const { user } = useAuth()
+
+    const [isFavorite, setIsFavorite] = useState<boolean>()
+    const [debouncedIsFavorite, setDebouncedIsFavorite] = useState<boolean>()
+
+    const handleSetDebouncedIsFavorite = useRef(debounce((state) => {
+        setDebouncedIsFavorite(state)
+    }, DEBOUNCE_TIMEOUT_IN_MS))
+
+    const initialIsFavorite = !!userFavoriteTickets.find(favoriteTicket => favoriteTicket.ticket.id === ticketId)
+    useEffect(() => {
+        if (isFavorite === undefined && !loading) {
+            setIsFavorite(initialIsFavorite)
+        }
+    }, [initialIsFavorite, isFavorite, loading])
+
+    const createUserFavoriteTicketAction = UserFavoriteTicket.useCreate({
+        user: { connect: { id: user.id } },
+        ticket: { connect: { id: ticketId } },
+    }, () => refetchFavoriteTickets())
+    const deleteUserFavoriteTicketAction = UserFavoriteTicket.useSoftDelete(() => refetchFavoriteTickets())
+
+    useEffect(() => {
+        if (debouncedIsFavorite !== undefined && debouncedIsFavorite !== initialIsFavorite) {
+            if (debouncedIsFavorite) {
+                createUserFavoriteTicketAction({})
+            } else {
+                const favoriteTicket = userFavoriteTickets.find(favoriteTicket => favoriteTicket.ticket.id === ticketId)
+                deleteUserFavoriteTicketAction(favoriteTicket)
+            }
+        }
+    }, [debouncedIsFavorite])
+
+    const handleClick = useCallback((e) => {
+        e.stopPropagation()
+
+        setIsFavorite(prev => !prev)
+        handleSetDebouncedIsFavorite.current(!isFavorite)
+    }, [isFavorite])
+
+    return (
+        <FavoriteTicketIconContainer onClick={handleClick}>
+            {
+                isFavorite ? (
+                    <StarFilled color={colors.yellow[5]}/>
+                ) : (
+                    <Star color={colors.gray[7]}/>
+                )
+            }
+        </FavoriteTicketIconContainer>
+    )
+}
+
+export const getTicketFavoriteRender = ({
+    userFavoriteTickets,
+    refetchFavoriteTickets,
+    favoriteTicketsLoading,
+}) => {
+    return (ticket) => {
+        return (
+            <FavoriteTicketIndicator
+                ticketId={ticket.id}
+                userFavoriteTickets={userFavoriteTickets}
+                refetchFavoriteTickets={refetchFavoriteTickets}
+                loading={favoriteTicketsLoading}
+            />
+        )
+    }
+}
+
+export const getTicketNumberRender = (intl, search: FilterValue) => {
     const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' })
     const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' })
-    const NewResidentCommentMessage = intl.formatMessage({ id: 'ticket.newResidentComment' })
 
     return function render (number: string, ticket: Ticket) {
         const deadline = dayjs(get(ticket, 'deadline'))
@@ -63,31 +179,11 @@ export const getTicketNumberRender = (intl, breakpoints, userTicketsCommentReadT
             }
         }
 
-        const userTicketCommentRead = userTicketsCommentReadTime.find(obj => obj.ticket.id === ticket.id)
-        const ticketCommentsTime = ticketsCommentsTime.find(obj => obj.ticket.id === ticket.id)
-
-        const readResidentCommentByUserAt = get(userTicketCommentRead, 'readResidentCommentAt')
-        const lastResidentCommentAt = get(ticketCommentsTime, 'lastResidentCommentAt')
-        const lastCommentAt = get(ticketCommentsTime, 'lastCommentAt')
-
-        const postfix = hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt) && (
-            <div style={breakpoints.xl ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL : {}}>
-                <Tooltip title={NewResidentCommentMessage} placement='topRight'>
-                    <Typography.Text title={NewResidentCommentMessage}>
-                        <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES} >
-                            <div style={NEW_COMMENTS_INDICATOR_STYLES} />
-                        </div>
-                    </Typography.Text>
-                </Tooltip>
-            </div>
-        )
-
-        return getTableCellRenderer({ search, postfix, extraHighlighterProps, extraTitle, href })(number)
+        return getTableCellRenderer({ search, extraHighlighterProps, extraTitle, href })(number)
     }
 }
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
-
 
 const getUnitPostfix = (unit, sectionNameMessage, floorNameMessage) => {
     let postfixMessage = unit ? '\n' : ''

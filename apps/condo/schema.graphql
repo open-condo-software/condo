@@ -31439,6 +31439,375 @@ input IncidentClassifierIncidentsCreateInput {
   data: IncidentClassifierIncidentCreateInput
 }
 
+enum UserFavoriteTicketHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type UserFavoriteTicketHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the UserFavoriteTicketHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the UserFavoriteTicketHistoryRecord List config, or
+   3. As an alias to a 'name' field on the UserFavoriteTicketHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the UserFavoriteTicketHistoryRecord List.
+  """
+  _label_: String
+  user: String
+  ticket: String
+  organization: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserFavoriteTicketHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserFavoriteTicketHistoryRecordWhereInput {
+  AND: [UserFavoriteTicketHistoryRecordWhereInput]
+  OR: [UserFavoriteTicketHistoryRecordWhereInput]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  ticket: String
+  ticket_not: String
+  ticket_in: [String]
+  ticket_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: UserFavoriteTicketHistoryRecordHistoryActionType
+  history_action_not: UserFavoriteTicketHistoryRecordHistoryActionType
+  history_action_in: [UserFavoriteTicketHistoryRecordHistoryActionType]
+  history_action_not_in: [UserFavoriteTicketHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input UserFavoriteTicketHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortUserFavoriteTicketHistoryRecordsBy {
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input UserFavoriteTicketHistoryRecordUpdateInput {
+  user: String
+  ticket: String
+  organization: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserFavoriteTicketHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserFavoriteTicketHistoryRecordsUpdateInput {
+  id: ID!
+  data: UserFavoriteTicketHistoryRecordUpdateInput
+}
+
+input UserFavoriteTicketHistoryRecordCreateInput {
+  user: String
+  ticket: String
+  organization: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserFavoriteTicketHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserFavoriteTicketHistoryRecordsCreateInput {
+  data: UserFavoriteTicketHistoryRecordCreateInput
+}
+
+""" Ticket that user has added to favorites """
+type UserFavoriteTicket {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the UserFavoriteTicket List config, or
+   2. As an alias to the field set on 'labelField' in the UserFavoriteTicket List config, or
+   3. As an alias to a 'name' field on the UserFavoriteTicket List (if one exists), or
+   4. As an alias to the 'id' field on the UserFavoriteTicket List.
+  """
+  _label_: String
+  user: User
+  ticket: Ticket
+
+  """ Ref to the organization. It is filled in on the server and is read-only 
+  """
+  organization: Organization
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input UserFavoriteTicketWhereInput {
+  AND: [UserFavoriteTicketWhereInput]
+  OR: [UserFavoriteTicketWhereInput]
+  user: UserWhereInput
+  user_is_null: Boolean
+  ticket: TicketWhereInput
+  ticket_is_null: Boolean
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input UserFavoriteTicketWhereUniqueInput {
+  id: ID!
+}
+
+enum SortUserFavoriteTicketsBy {
+  user_ASC
+  user_DESC
+  ticket_ASC
+  ticket_DESC
+  organization_ASC
+  organization_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input UserFavoriteTicketUpdateInput {
+  user: UserRelateToOneInput
+  ticket: TicketRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input UserFavoriteTicketsUpdateInput {
+  id: ID!
+  data: UserFavoriteTicketUpdateInput
+}
+
+input UserFavoriteTicketCreateInput {
+  user: UserRelateToOneInput
+  ticket: TicketRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input UserFavoriteTicketsCreateInput {
+  data: UserFavoriteTicketCreateInput
+}
+
 enum MessageHistoryRecordHistoryActionType {
   c
   u
@@ -56785,6 +57154,35 @@ type Query {
   """ Retrieve the meta-data for the IncidentClassifierIncident list. """
   _IncidentClassifierIncidentsMeta: _ListMeta
 
+  """ Search for all UserFavoriteTicketHistoryRecord items which match the where clause. 
+  """
+  allUserFavoriteTicketHistoryRecords(where: UserFavoriteTicketHistoryRecordWhereInput, search: String, sortBy: [SortUserFavoriteTicketHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [UserFavoriteTicketHistoryRecord]
+
+  """ Search for the UserFavoriteTicketHistoryRecord item with the matching ID. 
+  """
+  UserFavoriteTicketHistoryRecord(where: UserFavoriteTicketHistoryRecordWhereUniqueInput!): UserFavoriteTicketHistoryRecord
+
+  """ Perform a meta-query on all UserFavoriteTicketHistoryRecord items which match the where clause. 
+  """
+  _allUserFavoriteTicketHistoryRecordsMeta(where: UserFavoriteTicketHistoryRecordWhereInput, search: String, sortBy: [SortUserFavoriteTicketHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the UserFavoriteTicketHistoryRecord list. """
+  _UserFavoriteTicketHistoryRecordsMeta: _ListMeta
+
+  """ Search for all UserFavoriteTicket items which match the where clause. 
+  """
+  allUserFavoriteTickets(where: UserFavoriteTicketWhereInput, search: String, sortBy: [SortUserFavoriteTicketsBy!], orderBy: String, first: Int, skip: Int): [UserFavoriteTicket]
+
+  """ Search for the UserFavoriteTicket item with the matching ID. """
+  UserFavoriteTicket(where: UserFavoriteTicketWhereUniqueInput!): UserFavoriteTicket
+
+  """ Perform a meta-query on all UserFavoriteTicket items which match the where clause. 
+  """
+  _allUserFavoriteTicketsMeta(where: UserFavoriteTicketWhereInput, search: String, sortBy: [SortUserFavoriteTicketsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the UserFavoriteTicket list. """
+  _UserFavoriteTicketsMeta: _ListMeta
+
   """ Search for all MessageHistoryRecord items which match the where clause. 
   """
   allMessageHistoryRecords(where: MessageHistoryRecordWhereInput, search: String, sortBy: [SortMessageHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MessageHistoryRecord]
@@ -60125,6 +60523,42 @@ type Mutation {
 
   """ Delete multiple IncidentClassifierIncident items by ID. """
   deleteIncidentClassifierIncidents(ids: [ID!]): [IncidentClassifierIncident]
+
+  """ Create a single UserFavoriteTicketHistoryRecord item. """
+  createUserFavoriteTicketHistoryRecord(data: UserFavoriteTicketHistoryRecordCreateInput): UserFavoriteTicketHistoryRecord
+
+  """ Create multiple UserFavoriteTicketHistoryRecord items. """
+  createUserFavoriteTicketHistoryRecords(data: [UserFavoriteTicketHistoryRecordsCreateInput]): [UserFavoriteTicketHistoryRecord]
+
+  """ Update a single UserFavoriteTicketHistoryRecord item by ID. """
+  updateUserFavoriteTicketHistoryRecord(id: ID!, data: UserFavoriteTicketHistoryRecordUpdateInput): UserFavoriteTicketHistoryRecord
+
+  """ Update multiple UserFavoriteTicketHistoryRecord items by ID. """
+  updateUserFavoriteTicketHistoryRecords(data: [UserFavoriteTicketHistoryRecordsUpdateInput]): [UserFavoriteTicketHistoryRecord]
+
+  """ Delete a single UserFavoriteTicketHistoryRecord item by ID. """
+  deleteUserFavoriteTicketHistoryRecord(id: ID!): UserFavoriteTicketHistoryRecord
+
+  """ Delete multiple UserFavoriteTicketHistoryRecord items by ID. """
+  deleteUserFavoriteTicketHistoryRecords(ids: [ID!]): [UserFavoriteTicketHistoryRecord]
+
+  """ Create a single UserFavoriteTicket item. """
+  createUserFavoriteTicket(data: UserFavoriteTicketCreateInput): UserFavoriteTicket
+
+  """ Create multiple UserFavoriteTicket items. """
+  createUserFavoriteTickets(data: [UserFavoriteTicketsCreateInput]): [UserFavoriteTicket]
+
+  """ Update a single UserFavoriteTicket item by ID. """
+  updateUserFavoriteTicket(id: ID!, data: UserFavoriteTicketUpdateInput): UserFavoriteTicket
+
+  """ Update multiple UserFavoriteTicket items by ID. """
+  updateUserFavoriteTickets(data: [UserFavoriteTicketsUpdateInput]): [UserFavoriteTicket]
+
+  """ Delete a single UserFavoriteTicket item by ID. """
+  deleteUserFavoriteTicket(id: ID!): UserFavoriteTicket
+
+  """ Delete multiple UserFavoriteTicket items by ID. """
+  deleteUserFavoriteTickets(ids: [ID!]): [UserFavoriteTicket]
 
   """ Create a single MessageHistoryRecord item. """
   createMessageHistoryRecord(data: MessageHistoryRecordCreateInput): MessageHistoryRecord

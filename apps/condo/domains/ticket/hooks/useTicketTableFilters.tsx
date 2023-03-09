@@ -9,6 +9,7 @@ import {
 import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
@@ -30,6 +31,7 @@ import {
 } from '@condo/domains/scope/utils/clientSchema/search'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
+import { TicketCategoryClassifier, TicketSource, TicketStatus, UserFavoriteTicket } from '@condo/domains/ticket/utils/clientSchema'
 
 import {
     FilterModalCategoryClassifierSelect,
@@ -37,7 +39,6 @@ import {
     FilterModalProblemClassifierSelect,
 } from './useModalFilterClassifiers'
 
-import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import {
     searchEmployeeUser,
     searchOrganizationProperty,
@@ -47,7 +48,7 @@ import {
     getFilterAddressForSearch,
     getIsResidentContactFilter,
     getPropertyScopeFilter,
-    getTicketAttributesFilter,
+    getTicketAttributesFilter, getTicketTypeFilter,
 } from '../utils/tables.utils'
 
 
@@ -127,6 +128,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const IsNotResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
     const LastCommentAtMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.lastCommentAt' })
     const PropertyScopeMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope' })
+    const TicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType' })
+    const CommonTicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.common' })
+    const FavoriteTicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.favorite' })
 
     const { objs: statuses } = TicketStatus.useObjects({})
     const statusOptions = useMemo(() => convertToOptions<TicketStatusType>(statuses, 'name', 'id'), [statuses])
@@ -163,6 +167,25 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+    const { user } = useAuth()
+
+    const { objs: userFavoriteTickets } = UserFavoriteTicket.useAllObjects({
+        where: {
+            user: { id: user.id },
+            ticket: { organization: { id: userOrganizationId } },
+        },
+    }, {
+        fetchPolicy: 'network-only',
+    })
+    const ticketTypeOptions = useMemo(
+        () => [{ label: FavoriteTicketTypeMessage, value: 'favorite' }, { label: CommonTicketTypeMessage, value: 'common' }],
+        [CommonTicketTypeMessage, FavoriteTicketTypeMessage]
+    )
+    const filterTicketType = useMemo(
+        () => getTicketTypeFilter(userFavoriteTickets.map(favoriteTicket => favoriteTicket.ticket.id)),
+        [userFavoriteTickets]
+    )
 
     return useMemo(() => {
         return [
@@ -287,7 +310,24 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     modalFilterComponentWrapper: {
                         label: UnitMessage,
                         size: FilterComponentSize.Small,
-                        spaceSizeAfter: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'type',
+                filters: [filterTicketType],
+                component: {
+                    type: ComponentType.Select,
+                    options: ticketTypeOptions,
+                    props: {
+                        loading: false,
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: TicketTypeMessage,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -582,5 +622,5 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                 filters: [filterTicketContact],
             },
         ]
-    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, StartDateMessage, EndDateMessage, LastCommentAtMessage, reviewValueOptions, ReviewValueMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
+    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, filterTicketType, ticketTypeOptions, TicketTypeMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, StartDateMessage, EndDateMessage, LastCommentAtMessage, reviewValueOptions, ReviewValueMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
 }

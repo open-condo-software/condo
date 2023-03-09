@@ -220,6 +220,9 @@ const IncidentClassifier = generateGqlQueries('IncidentClassifier', INCIDENT_CLA
 const INCIDENT_CLASSIFIER_INCIDENT_FIELDS = `{ organization { id } incident { id } classifier { id problem { id name } category { id name } } ${COMMON_FIELDS} }`
 const IncidentClassifierIncident = generateGqlQueries('IncidentClassifierIncident', INCIDENT_CLASSIFIER_INCIDENT_FIELDS)
 
+const USER_FAVORITE_TICKET_FIELDS = `{ user { id } ticket { id } ${COMMON_FIELDS} }`
+const UserFavoriteTicket = generateGqlQueries('UserFavoriteTicket', USER_FAVORITE_TICKET_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -253,5 +256,6 @@ module.exports = {
     EXPORT_INCIDENTS_TO_EXCEL_QUERY,
     IncidentClassifier,
     IncidentClassifierIncident,
+    UserFavoriteTicket,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
