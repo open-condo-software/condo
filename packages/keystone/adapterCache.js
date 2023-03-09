@@ -388,6 +388,13 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
     }
 }
 
+/**
+ * Query is complex if
+ * @param {object} query - A Keystone GraphQL search query. Like { id: "1" }
+ * @param {string} list - a name of the list
+ * @param {object} relations - an object describing all relations in the project
+ * @returns {boolean}
+ */
 function queryIsComplex (query, list, relations) {
 
     if (!query) { return false }
