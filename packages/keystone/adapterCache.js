@@ -144,7 +144,7 @@ class AdapterCache {
             meta: {
                 hits: this.cacheHits,
                 total: this.totalRequests,
-                totalKeys: size(this.cache),
+                totalKeys: this.getCacheSize(),
             },
         })
     }
@@ -152,6 +152,14 @@ class AdapterCache {
     logEvent ({ event }) {
         if (!this.logging) return
         logger.info(event)
+    }
+
+    getCacheSize = () => {
+        let result = 0
+        Object.entries(this.cache).forEach(([_, keysByList]) => {
+            result += size(keysByList)
+        })
+        return result
     }
 
     async prepareMiddleware ({ keystone, dev, distDir }) {
