@@ -29,9 +29,10 @@
  *  1. update state on this list to the update time of the updated/created/deleted object
  */
 
-const { get, cloneDeep, isEqual, isPlainObject } = require('lodash')
+const { get, cloneDeep, isPlainObject } = require('lodash')
 
 const { getLogger } = require('./logging')
+const { queryHasField } = require('./queryHasField')
 const { getRedisClient } = require('./redis')
 
 const UPDATED_AT_FIELD = 'updatedAt'
@@ -328,25 +329,7 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
                 })
                 cache.logEvent({ event: cacheEvent })
 
-                const cachedResponse = cloneDeep(cached.response)
-
-                // TODO
-                // DELETE THIS!
-                // const realResponse = await f.apply(listAdapter, args)
-                // const diff = !isEqual(realResponse, cachedResponse)
-                // if (diff) {
-                //     const cacheEvent = cache.getCacheEvent({
-                //         type: 'ALERT-EQUAL',
-                //         functionName,
-                //         key,
-                //         list: listName,
-                //         result: { cached: JSON.stringify(cachedResponse), real: JSON.stringify(realResponse), diff: diff },
-                //     })
-                //     cache.logEvent({ event: cacheEvent })
-                // }
-                //
-
-                return cachedResponse
+                return cloneDeep(cached.response)
             }
         }
 
@@ -380,60 +363,13 @@ function queryIsComplex (query, list, relations) {
 
     const relsForList = get(relations, list)
     for (const rel of relsForList) {
-        if (objHasFieldDeep(query, rel. toLowerCase())) {
+        if (queryHasField(query, rel. toLowerCase())) {
             return true
         }
     }
 
     return false
 }
-
-function objHasFieldDeep (obj, field) {
-    return _queryHasSoftDeletedFieldDeep(obj, field)
-}
-
-/**
- * Checks if query has the soft deleted property on first level of depth
- * @param {Object} whereQuery
- * @param {string} deletedAtField
- * @return {boolean}
- */
-function queryHasSoftDeletedField (whereQuery, deletedAtField) {
-    return Object.keys(whereQuery).find((x) => x.startsWith(deletedAtField))
-}
-
-/**
- * Checks if query has the soft deleted property on any level of depth
- * todo(toplenboren) learn how to process very complex queries:
- * todo(toplenboren) see https://github.com/open-condo-software/condo/pull/232/files#r664256921
- * @param {Object} whereQuery
- * @param {string} deletedAtField
- * @return {boolean}
- */
-function _queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
-    // undefined case
-    if (!whereQuery) return false
-    // { deletedAt: null } case
-    if (queryHasSoftDeletedField(whereQuery, deletedAtField)) {
-        return true
-    }
-    for (const queryValue of Object.values(whereQuery)) {
-        // OR: [ { deletedAt: null }, { ... } ] case
-        if (Array.isArray(queryValue)) {
-            for (const innerQuery of queryValue) {
-                if (_queryHasSoftDeletedFieldDeep(innerQuery, deletedAtField))
-                    return true
-            }
-            // property: { deletedAt: null } case
-        } else if (isPlainObject(queryValue)){
-            if (_queryHasSoftDeletedFieldDeep(queryValue, deletedAtField)) {
-                return true
-            }
-        }
-    }
-    return false
-}
-
 
 module.exports = {
     AdapterCache,
