@@ -491,6 +491,7 @@ describe('BankSyncTask', () => {
         it('should be connected to property from the same organization', async () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                 canManageBankAccounts: true,
             })
@@ -499,6 +500,16 @@ describe('BankSyncTask', () => {
             const [account] = await createTestBankAccount(adminClient, organization, {
                 integrationContext: { connect: { id: integrationContext.id } },
             })
+
+            const [obj] = await createTestBankSyncTask(adminClient, organization, {
+                account: { connect: { id: account.id } },
+                integrationContext: { connect: { id: integrationContext.id } },
+                property: { connect: { id: property.id } },
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.property).toBeDefined()
+            expect(obj.property.id).toEqual(property.id)
 
             const [anotherOrganization] = await createTestOrganization(adminClient)
             const [propertyFromAnotherOrganization] = await createTestProperty(adminClient, anotherOrganization)
