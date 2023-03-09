@@ -20,9 +20,9 @@ function queryHasField (whereQuery, fieldName) {
                 if (queryHasField(innerQuery, fieldName))
                     return true
             }
-            // property: { deletedAt: null } case
+        // property: { deletedAt: null } case
         } else if (isPlainObject(queryValue)){
-            if (Object.keys(queryValue).find((x) => x.startsWith(fieldName))) {
+            if (queryHasField(queryValue, fieldName)) {
                 return true
             }
         }
