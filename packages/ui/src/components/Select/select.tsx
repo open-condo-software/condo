@@ -3,7 +3,7 @@ import classNames from 'classnames'
 import compact from 'lodash/compact'
 import React, { useCallback } from 'react'
 
-import { ChevronDown, Close, XCircle, Check, Inbox } from '@open-condo/icons'
+import { ChevronDown, Close, Check, Inbox } from '@open-condo/icons'
 import { Typography } from '@open-condo/ui/src'
 import type { TypographyTextProps } from '@open-condo/ui/src'
 import { sendAnalyticsSelectEvent, extractChildrenContent } from '@open-condo/ui/src/components/_utils/analytics'
@@ -83,7 +83,7 @@ const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueT
             suffixIcon={<ChevronDown size='small' />}
             onChange={handleChange}
             removeIcon={<Close size='small' />}
-            clearIcon={<XCircle size='small' />}
+            clearIcon={<Close size='small' />}
             menuItemSelectedIcon={<Check size='small' />}
             showArrow
             notFoundContent={
