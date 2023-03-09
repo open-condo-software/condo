@@ -10,6 +10,7 @@ type SafeUserMentionBaseProps = {
     changeValue: {
         createdBy?: User
         changedByRole?: string
+        changedByName?: string
     }
 }
 
@@ -19,9 +20,9 @@ export const SafeUserMention: React.FC<SafeUserMentionBaseProps> = ({ changeValu
     const DeletedCreatedAtNoticeDescription = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description' })
 
     return (
-        changeValue.createdBy ? (
+        changeValue.changedByName ? (
             <>
-                {changeValue.changedByRole} {changeValue.createdBy.name}
+                {changeValue.changedByRole} {changeValue.changedByName}
             </>
         ) : (
             <Tooltip placement='top' title={DeletedCreatedAtNoticeDescription}>

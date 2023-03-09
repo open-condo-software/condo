@@ -10,7 +10,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name type } updatedBy { id name } createdAt updatedAt'
-const COMMON_CHANGE_HISTORY_FIELDS = 'changedByRole id dv sender { dv fingerprint } v createdBy { id name type } updatedBy { id name } createdAt updatedAt'
+const COMMON_CHANGE_HISTORY_FIELDS = 'changedByName changedByRole id dv sender { dv fingerprint } v createdBy { id name type } updatedBy { id name } createdAt updatedAt'
 
 const TICKET_CLASSIFIER_ATTRIBUTES_FIELDS = ' classifier { id place { id name } category { id name } problem { id name } }'
 const TICKET_PROPERTY_FIELDS = `id name address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} }`

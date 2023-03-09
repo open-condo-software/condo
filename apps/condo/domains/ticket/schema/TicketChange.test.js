@@ -489,4 +489,24 @@ describe('TicketChange', () => {
             expect(obj.changedByRole).toEqual(i18n(role.name))
         })
     })
+
+    describe('changedByName field', () => {
+        test('save user name in changedByName field', async () => {
+            const client = await makeClientWithProperty()
+            const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+            const payload = {
+                details: faker.lorem.sentence(),
+            }
+
+            await updateTestTicket(client, ticket.id, payload)
+
+            const objs = await TicketChange.getAll(client, {
+                ticket: { id: ticket.id },
+            })
+
+            expect(objs).toHaveLength(1)
+            expect(objs[0].changedByName).toEqual(client.user.name)
+        })
+    })
 })

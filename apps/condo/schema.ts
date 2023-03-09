@@ -18112,6 +18112,8 @@ export type IncidentChange = {
   organizationDisplayNameFrom?: Maybe<Scalars['String']>;
   /**  New display name of related entity. Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organizationDisplayNameTo?: Maybe<Scalars['String']>;
+  /**  Freeze name of user who made incident change (read-only)  */
+  changedByName?: Maybe<Scalars['String']>;
   /**  Type of user who changed the incident, can be employee role from same organization or related, resident or deleted employee  */
   changedByRole?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -18146,6 +18148,7 @@ export type IncidentChangeCreateInput = {
   organizationIdTo?: Maybe<Scalars['ID']>;
   organizationDisplayNameFrom?: Maybe<Scalars['String']>;
   organizationDisplayNameTo?: Maybe<Scalars['String']>;
+  changedByName?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18183,6 +18186,7 @@ export type IncidentChangeUpdateInput = {
   organizationIdTo?: Maybe<Scalars['ID']>;
   organizationDisplayNameFrom?: Maybe<Scalars['String']>;
   organizationDisplayNameTo?: Maybe<Scalars['String']>;
+  changedByName?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -18361,6 +18365,24 @@ export type IncidentChangeWhereInput = {
   organizationDisplayNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
   organizationDisplayNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organizationDisplayNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  changedByName?: Maybe<Scalars['String']>;
+  changedByName_not?: Maybe<Scalars['String']>;
+  changedByName_contains?: Maybe<Scalars['String']>;
+  changedByName_not_contains?: Maybe<Scalars['String']>;
+  changedByName_starts_with?: Maybe<Scalars['String']>;
+  changedByName_not_starts_with?: Maybe<Scalars['String']>;
+  changedByName_ends_with?: Maybe<Scalars['String']>;
+  changedByName_not_ends_with?: Maybe<Scalars['String']>;
+  changedByName_i?: Maybe<Scalars['String']>;
+  changedByName_not_i?: Maybe<Scalars['String']>;
+  changedByName_contains_i?: Maybe<Scalars['String']>;
+  changedByName_not_contains_i?: Maybe<Scalars['String']>;
+  changedByName_starts_with_i?: Maybe<Scalars['String']>;
+  changedByName_not_starts_with_i?: Maybe<Scalars['String']>;
+  changedByName_ends_with_i?: Maybe<Scalars['String']>;
+  changedByName_not_ends_with_i?: Maybe<Scalars['String']>;
+  changedByName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  changedByName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -53591,6 +53613,8 @@ export enum SortIncidentChangesBy {
   OrganizationDisplayNameFromDesc = 'organizationDisplayNameFrom_DESC',
   OrganizationDisplayNameToAsc = 'organizationDisplayNameTo_ASC',
   OrganizationDisplayNameToDesc = 'organizationDisplayNameTo_DESC',
+  ChangedByNameAsc = 'changedByName_ASC',
+  ChangedByNameDesc = 'changedByName_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -55979,6 +56003,8 @@ export enum SortTicketChangesBy {
   SourceDisplayNameFromDesc = 'sourceDisplayNameFrom_DESC',
   SourceDisplayNameToAsc = 'sourceDisplayNameTo_ASC',
   SourceDisplayNameToDesc = 'sourceDisplayNameTo_DESC',
+  ChangedByNameAsc = 'changedByName_ASC',
+  ChangedByNameDesc = 'changedByName_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -57842,6 +57868,8 @@ export type TicketChange = {
   /**  New display name of related entity. Ticket source channel/system. Examples: call, email, visit, ...  */
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
   sourceDisplayNameToNonLocalized?: Maybe<Scalars['String']>;
+  /**  Freeze name of user who made ticket change (read-only)  */
+  changedByName?: Maybe<Scalars['String']>;
   /**  Type of user who changed the ticket, can be employee role from same organization or related, resident or deleted employee  */
   changedByRole?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -57948,6 +57976,7 @@ export type TicketChangeCreateInput = {
   sourceIdTo?: Maybe<Scalars['ID']>;
   sourceDisplayNameFrom?: Maybe<Scalars['String']>;
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
+  changedByName?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -58059,6 +58088,7 @@ export type TicketChangeUpdateInput = {
   sourceIdTo?: Maybe<Scalars['ID']>;
   sourceDisplayNameFrom?: Maybe<Scalars['String']>;
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
+  changedByName?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -58989,6 +59019,24 @@ export type TicketChangeWhereInput = {
   sourceDisplayNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
   sourceDisplayNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sourceDisplayNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  changedByName?: Maybe<Scalars['String']>;
+  changedByName_not?: Maybe<Scalars['String']>;
+  changedByName_contains?: Maybe<Scalars['String']>;
+  changedByName_not_contains?: Maybe<Scalars['String']>;
+  changedByName_starts_with?: Maybe<Scalars['String']>;
+  changedByName_not_starts_with?: Maybe<Scalars['String']>;
+  changedByName_ends_with?: Maybe<Scalars['String']>;
+  changedByName_not_ends_with?: Maybe<Scalars['String']>;
+  changedByName_i?: Maybe<Scalars['String']>;
+  changedByName_not_i?: Maybe<Scalars['String']>;
+  changedByName_contains_i?: Maybe<Scalars['String']>;
+  changedByName_not_contains_i?: Maybe<Scalars['String']>;
+  changedByName_starts_with_i?: Maybe<Scalars['String']>;
+  changedByName_not_starts_with_i?: Maybe<Scalars['String']>;
+  changedByName_ends_with_i?: Maybe<Scalars['String']>;
+  changedByName_not_ends_with_i?: Maybe<Scalars['String']>;
+  changedByName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  changedByName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

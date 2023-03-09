@@ -20890,6 +20890,9 @@ type TicketChange {
   sourceDisplayNameTo: String
   sourceDisplayNameToNonLocalized: String
 
+  """ Freeze name of user who made ticket change (read-only) """
+  changedByName: String
+
   """ Type of user who changed the ticket, can be employee role from same organization or related, resident or deleted employee 
   """
   changedByRole: String
@@ -21835,6 +21838,24 @@ input TicketChangeWhereInput {
   sourceDisplayNameTo_not_ends_with_i: String
   sourceDisplayNameTo_in: [String]
   sourceDisplayNameTo_not_in: [String]
+  changedByName: String
+  changedByName_not: String
+  changedByName_contains: String
+  changedByName_not_contains: String
+  changedByName_starts_with: String
+  changedByName_not_starts_with: String
+  changedByName_ends_with: String
+  changedByName_not_ends_with: String
+  changedByName_i: String
+  changedByName_not_i: String
+  changedByName_contains_i: String
+  changedByName_not_contains_i: String
+  changedByName_starts_with_i: String
+  changedByName_not_starts_with_i: String
+  changedByName_ends_with_i: String
+  changedByName_not_ends_with_i: String
+  changedByName_in: [String]
+  changedByName_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -22052,6 +22073,8 @@ enum SortTicketChangesBy {
   sourceDisplayNameFrom_DESC
   sourceDisplayNameTo_ASC
   sourceDisplayNameTo_DESC
+  changedByName_ASC
+  changedByName_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -22158,6 +22181,7 @@ input TicketChangeUpdateInput {
   sourceIdTo: ID
   sourceDisplayNameFrom: String
   sourceDisplayNameTo: String
+  changedByName: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -22262,6 +22286,7 @@ input TicketChangeCreateInput {
   sourceIdTo: ID
   sourceDisplayNameFrom: String
   sourceDisplayNameTo: String
+  changedByName: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -28602,6 +28627,9 @@ type IncidentChange {
   """
   organizationDisplayNameTo: String
 
+  """ Freeze name of user who made incident change (read-only) """
+  changedByName: String
+
   """ Type of user who changed the incident, can be employee role from same organization or related, resident or deleted employee 
   """
   changedByRole: String
@@ -28795,6 +28823,24 @@ input IncidentChangeWhereInput {
   organizationDisplayNameTo_not_ends_with_i: String
   organizationDisplayNameTo_in: [String]
   organizationDisplayNameTo_not_in: [String]
+  changedByName: String
+  changedByName_not: String
+  changedByName_contains: String
+  changedByName_not_contains: String
+  changedByName_starts_with: String
+  changedByName_not_starts_with: String
+  changedByName_ends_with: String
+  changedByName_not_ends_with: String
+  changedByName_i: String
+  changedByName_not_i: String
+  changedByName_contains_i: String
+  changedByName_not_contains_i: String
+  changedByName_starts_with_i: String
+  changedByName_not_starts_with_i: String
+  changedByName_ends_with_i: String
+  changedByName_not_ends_with_i: String
+  changedByName_in: [String]
+  changedByName_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -28880,6 +28926,8 @@ enum SortIncidentChangesBy {
   organizationDisplayNameFrom_DESC
   organizationDisplayNameTo_ASC
   organizationDisplayNameTo_DESC
+  changedByName_ASC
+  changedByName_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -28914,6 +28962,7 @@ input IncidentChangeUpdateInput {
   organizationIdTo: ID
   organizationDisplayNameFrom: String
   organizationDisplayNameTo: String
+  changedByName: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -28946,6 +28995,7 @@ input IncidentChangeCreateInput {
   organizationIdTo: ID
   organizationDisplayNameFrom: String
   organizationDisplayNameTo: String
+  changedByName: String
   v: Int
   createdAt: String
   updatedAt: String
