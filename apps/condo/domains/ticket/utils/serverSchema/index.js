@@ -35,6 +35,7 @@ const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket
 const { EXPORT_INCIDENTS_TO_EXCEL_QUERY } = require('@condo/domains/ticket/gql')
 const { IncidentClassifier: IncidentClassifierGQL } = require('@condo/domains/ticket/gql')
 const { IncidentClassifierIncident: IncidentClassifierIncidentGQL } = require('@condo/domains/ticket/gql')
+const { UserFavoriteTicket: UserFavoriteTicketGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -93,6 +94,7 @@ async function exportIncidentsToExcel (context, data) {
 
 const IncidentClassifier = generateServerUtils(IncidentClassifierGQL)
 const IncidentClassifierIncident = generateServerUtils(IncidentClassifierIncidentGQL)
+const UserFavoriteTicket = generateServerUtils(UserFavoriteTicketGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -316,5 +318,6 @@ module.exports = {
     loadIncidentClassifiersForExcelExport,
     IncidentClassifier,
     IncidentClassifierIncident,
+    UserFavoriteTicket,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

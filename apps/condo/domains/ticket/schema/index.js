@@ -29,6 +29,7 @@ const { TicketPropertyHint } = require('./TicketPropertyHint')
 const { TicketPropertyHintProperty } = require('./TicketPropertyHintProperty')
 const { TicketSource } = require('./TicketSource')
 const { TicketStatus } = require('./TicketStatus')
+const { UserFavoriteTicket } = require('./UserFavoriteTicket')
 const { UserTicketCommentReadTime } = require('./UserTicketCommentReadTime')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
@@ -59,5 +60,6 @@ module.exports = {
     ExportIncidentsToExcelService,
     IncidentClassifier,
     IncidentClassifierIncident,
+    UserFavoriteTicket,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

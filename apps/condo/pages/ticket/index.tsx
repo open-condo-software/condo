@@ -87,6 +87,12 @@ const StyledTable = styled(Table)`
   .ant-table-scroll-horizontal .ant-checkbox-input {
     width: 40px;
   }
+  .number-column {
+    padding-left: 0;
+  }
+  .favorite-column {
+    padding-left: 0;
+  }
 `
 
 const getInitialSelectedTicketKeys = (router: NextRouter) => {
@@ -235,22 +241,6 @@ const TicketTable = ({
         },
     }), [tooltipData, filters, tickets, total])
 
-    const TicketTableContent = useMemo(() => (
-        <Col span={24}>
-            <StyledTable
-                totalRows={total}
-                loading={loading}
-                dataSource={loading ? null : tickets}
-                columns={columns}
-                onRow={handleRowAction}
-                components={tableComponents}
-                data-cy='ticket__table'
-                rowSelection={rowSelection}
-                sticky
-            />
-        </Col>
-    ), [columns, handleRowAction, loading, rowSelection, tableComponents, tickets, total])
-
     useDeepCompareEffect(() => {
         if (total === null) return
         setSelectedTicketKeys([])
@@ -258,7 +248,19 @@ const TicketTable = ({
 
     return (
         <>
-            {TicketTableContent}
+            <Col span={24}>
+                <StyledTable
+                    totalRows={total}
+                    loading={loading}
+                    dataSource={loading ? null : tickets}
+                    columns={columns}
+                    onRow={handleRowAction}
+                    components={tableComponents}
+                    data-cy='ticket__table'
+                    rowSelection={rowSelection}
+                    sticky
+                />
+            </Col>
             <ActionBar hidden={loading || ticketsWithFiltersCount === 0}>
                 {selectedTicketKeys.length > 0 && (
                     <Typography.Text strong>
@@ -285,29 +287,20 @@ const TicketTable = ({
 }
 
 const TicketsTableContainer = ({
+    tickets,
+    refetch,
     filterMetas,
+    isTicketsFetching,
+    useTableColumns,
+    total,
     sortBy,
     searchTicketsQuery,
-    useTableColumns,
     baseQueryLoading,
 }) => {
     const { count: ticketsWithFiltersCount } = Ticket.useCount({ where: searchTicketsQuery })
 
     const router = useRouter()
-    const { filters, offset } = parseQuery(router.query)
-    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-
-    const {
-        loading: isTicketsFetching,
-        count: total,
-        objs: tickets,
-        refetch,
-    } = Ticket.useObjects({
-        sortBy,
-        where: searchTicketsQuery,
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    })
+    const { filters } = useMemo(() => parseQuery(router.query), [router.query])
 
     const [isRefetching, setIsRefetching] = useState(false)
 
@@ -510,7 +503,7 @@ export const TicketsPageContent = ({
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     const router = useRouter()
-    const { filters, sorters } = parseQuery(router.query)
+    const { filters, sorters, offset } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
     const searchTicketsQuery = useMemo(() => ({ ...baseTicketsQuery,  ...filtersToWhere(filters), ...{ deletedAt: null } }),
         [baseTicketsQuery, filters, filtersToWhere])
@@ -521,6 +514,20 @@ export const TicketsPageContent = ({
         loading: ticketsWithoutFiltersCountLoading,
         error,
     } = Ticket.useCount({ where: baseTicketsQuery })
+
+    const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE), [offset])
+
+    const {
+        loading: isTicketsFetching,
+        count: total,
+        objs: tickets,
+        refetch,
+    } = Ticket.useObjects({
+        sortBy,
+        where: searchTicketsQuery,
+        first: DEFAULT_PAGE_SIZE,
+        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+    })
 
     const { useFlag } = useFeatureFlags()
     const isTicketImportFeatureEnabled = useFlag(TICKET_IMPORT)
@@ -580,8 +587,12 @@ export const TicketsPageContent = ({
                 />
             </Col>
             <TicketsTableContainer
-                useTableColumns={useTableColumns}
+                tickets={tickets}
+                refetch={refetch}
                 filterMetas={filterMetas}
+                useTableColumns={useTableColumns}
+                isTicketsFetching={isTicketsFetching}
+                total={total}
                 sortBy={sortBy}
                 searchTicketsQuery={searchTicketsQuery}
                 baseQueryLoading={baseQueryLoading || ticketsWithoutFiltersCountLoading}
@@ -610,9 +621,9 @@ const TicketsPage: ITicketIndexPage = () => {
                 <TablePageContent>
                     <MultipleFilterContextProvider>
                         <TicketsPageContent
-                            useTableColumns={useTableColumns}
                             baseTicketsQuery={ticketFilterQuery}
                             baseQueryLoading={ticketFilterQueryLoading}
+                            useTableColumns={useTableColumns}
                             filterMetas={filterMetas}
                             sortableProperties={SORTABLE_PROPERTIES}
                             showImport

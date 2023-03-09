@@ -41,6 +41,7 @@ const { IncidentChange: IncidentChangeGQL } = require('@condo/domains/ticket/gql
 const { EXPORT_INCIDENTS_TO_EXCEL_QUERY } = require('@condo/domains/ticket/gql')
 const { IncidentClassifier: IncidentClassifierGQL } = require('@condo/domains/ticket/gql')
 const { IncidentClassifierIncident: IncidentClassifierIncidentGQL } = require('@condo/domains/ticket/gql')
+const { UserFavoriteTicket: UserFavoriteTicketGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -70,6 +71,7 @@ const IncidentProperty = generateGQLTestUtils(IncidentPropertyGQL)
 const IncidentChange = generateGQLTestUtils(IncidentChangeGQL)
 const IncidentClassifier = generateGQLTestUtils(IncidentClassifierGQL)
 const IncidentClassifierIncident = generateGQLTestUtils(IncidentClassifierIncidentGQL)
+const UserFavoriteTicket = generateGQLTestUtils(UserFavoriteTicketGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -820,6 +822,37 @@ async function updateTestIncidentClassifierIncident (client, id, extraAttrs = {}
     return [obj, attrs]
 }
 
+async function createTestUserFavoriteTicket (client, user, ticket, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    if (!ticket || !ticket.id) throw new Error('no ticket.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        ticket: { connect: { id: ticket.id } },
+        ...extraAttrs,
+    }
+    const obj = await UserFavoriteTicket.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestUserFavoriteTicket (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await UserFavoriteTicket.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -870,5 +903,6 @@ module.exports = {
     exportIncidentsToExcelByTestClient,
     IncidentClassifier, createTestIncidentClassifier, updateTestIncidentClassifier,
     IncidentClassifierIncident, createTestIncidentClassifierIncident, updateTestIncidentClassifierIncident,
+    UserFavoriteTicket, createTestUserFavoriteTicket, updateTestUserFavoriteTicket,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

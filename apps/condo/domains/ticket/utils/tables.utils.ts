@@ -75,6 +75,17 @@ export const getPropertyScopeFilter = () => {
     }
 }
 
+export const getTicketTypeFilter = (favoriteTicketIds) => {
+    return function getWhereQuery (options) {
+        const hasCommon = options.includes('common')
+        const hasFavourite = options.includes('favourite')
+
+        if (hasCommon && hasFavourite) return {}
+        if (hasCommon) return { id_not_in: favoriteTicketIds }
+        if (hasFavourite) return { id_in: favoriteTicketIds }
+    }
+}
+
 export const getClientNameFilter = () => {
     return function getWhereQuery (search): TicketWhereInput {
         if (isEmpty(search)) return

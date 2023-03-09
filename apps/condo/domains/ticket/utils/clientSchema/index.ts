@@ -26,4 +26,5 @@ export * as IncidentProperty from './IncidentProperty'
 export * as IncidentChange from './IncidentChange'
 export * as IncidentClassifier from './IncidentClassifier'
 export * as IncidentClassifierIncident from './IncidentClassifierIncident'
+export * as UserFavoriteTicket from './UserFavoriteTicket'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
