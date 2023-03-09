@@ -27,6 +27,9 @@
  *     2. update cache
  * If request to this list is Mutation (anything that mutates the data):
  *  1. update state on this list to the update time of the updated/created/deleted object
+ *
+ *  Notes:
+ *  - Adapter level cache do not cache complex requests. A request is considered complex, if Where query contains other relationships
  */
 
 const { get, size, cloneDeep } = require('lodash')
@@ -134,10 +137,23 @@ class AdapterCache {
         return null
     }
 
+    /**
+     * Drops local cache on list
+     * @param {string} listName
+     */
     dropCacheByList (listName) {
         this.cache[listName] = {}
     }
 
+    /**
+     * Gets a serialized cache event item for logging
+     * @param {string} type
+     * @param {string} functionName
+     * @param {string} key
+     * @param {string} list
+     * @param {object} result
+     * @returns {{response, meta: {hits: number, total: number, totalKeys: number}, function, type, list, key}}
+     */
     getCacheEvent ({ type, functionName, key, list, result }) {
         return ({
             type: type,
@@ -158,6 +174,10 @@ class AdapterCache {
         logger.info(event)
     }
 
+    /**
+     * Calculate total size of items held in cache
+     * @returns {number}
+     */
     getCacheSize = () => {
         let result = 0
         Object.entries(this.cache).forEach(([_, keysByList]) => {
