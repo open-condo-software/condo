@@ -29,7 +29,7 @@
  *  1. update state on this list to the update time of the updated/created/deleted object
  */
 
-const { get, cloneDeep } = require('lodash')
+const { get, size, cloneDeep } = require('lodash')
 
 const { getLogger } = require('./logging')
 const { queryHasField } = require('./queryHasField')
@@ -144,6 +144,7 @@ class AdapterCache {
             meta: {
                 hits: this.cacheHits,
                 total: this.totalRequests,
+                totalKeys: size(this.cache),
             },
         })
     }
