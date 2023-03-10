@@ -32,7 +32,7 @@
  *  - Adapter level cache do not cache complex requests. A request is considered complex, if Where query contains other relationships
  */
 
-const { get, size, cloneDeep } = require('lodash')
+const { get, size, cloneDeep, floor } = require('lodash')
 
 const { getLogger } = require('./logging')
 const { queryHasField } = require('./queryHasField')
@@ -164,6 +164,7 @@ class AdapterCache {
             meta: {
                 hits: this.cacheHits,
                 total: this.totalRequests,
+                hitrate: floor(this.cacheHits / this.totalRequests, 2),
                 totalKeys: this.getCacheSize(),
             },
         })
