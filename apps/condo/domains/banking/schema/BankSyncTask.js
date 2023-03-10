@@ -27,23 +27,19 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
     fields: {
 
         account: {
-            schemaDoc: 'Bank account for which current synchronization operation is performed',
+            schemaDoc: 'Bank account for which current synchronization operation is performed. Can be unknown when account does not exist before import',
             type: Relationship,
             ref: 'BankAccount',
-            // Can be unknown when account does not exist during import
             isRequired: false,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
         integrationContext: {
-            schemaDoc: 'Integration context of account for which current synchronization operation is performed',
+            schemaDoc: 'Integration context of account for which current synchronization operation is performed. Can be unknown when account and integration does not exist before import',
             type: Relationship,
             ref: 'BankIntegrationAccountContext',
-            // Can be unknown when account does not exist during import
             isRequired: false,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
         organization: ORGANIZATION_OWNED_FIELD,
@@ -82,7 +78,7 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
         },
 
         file: {
-            schemaDoc: 'Uploaded file form which transactions should be ',
+            schemaDoc: 'File from which transactions should be imported. Currently only 1CClientBankExchange format is supported',
             type: File,
             adapter: BankSyncTaskFileAdapter,
             access: {

@@ -66,6 +66,26 @@ describe('BankSyncTask', () => {
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
                 expect(obj.createdAt).toMatch(DATETIME_RE)
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expect(obj.account.id).toMatch(account.id)
+                expect(obj.integrationContext.id).toMatch(integrationContext.id)
+                expect(obj.file).toBeDefined()
+            })
+
+            it('should be created with minimal set of fields', async () => {
+                const [organization] = await createTestOrganization(adminClient)
+
+                const [obj, attrs] = await createTestBankSyncTask(adminClient, organization)
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(1)
+                expect(obj.newId).toEqual(null)
+                expect(obj.deletedAt).toEqual(null)
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+                expect(obj.createdAt).toMatch(DATETIME_RE)
+                expect(obj.updatedAt).toMatch(DATETIME_RE)
             })
 
             test('user can if it is an employee of organization with "canManageBankAccounts" permission', async () => {
@@ -263,7 +283,7 @@ describe('BankSyncTask', () => {
 
             test('no update input for "file" field', async () => {
                 const [organization] = await createTestOrganization(adminClient)
-                const [integrationContext] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
                 const [account] = await createTestBankAccount(adminClient, organization, {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })

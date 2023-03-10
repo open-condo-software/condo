@@ -8554,9 +8554,9 @@ export type BankSyncTask = {
    *  4. As an alias to the 'id' field on the BankSyncTask List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Bank account for which current synchronization operation is performed  */
+  /**  Bank account for which current synchronization operation is performed. Can be unknown when account does not exist before import  */
   account?: Maybe<BankAccount>;
-  /**  Integration context of account for which current synchronization operation is performed  */
+  /**  Integration context of account for which current synchronization operation is performed. Can be unknown when account and integration does not exist before import  */
   integrationContext?: Maybe<BankIntegrationAccountContext>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
@@ -8564,7 +8564,7 @@ export type BankSyncTask = {
   property?: Maybe<Property>;
   /**  Status of current synchronization operation  */
   status?: Maybe<BankSyncTaskStatusType>;
-  /**  Uploaded file form which transactions should be   */
+  /**  File from which transactions should be imported. Currently only 1CClientBankExchange format is supported  */
   file?: Maybe<File>;
   /**  Count of transactions to import. Can be unknown in advance  */
   totalCount?: Maybe<Scalars['Int']>;
