@@ -37,13 +37,13 @@ export const TextHighlighter: React.FC<TTextHighlighterProps> = (props) => {
     } else {
         let symbolsPassed = 0
         const parts = text.split(searchRegexp)
-        result = parts.map((part) => {
+        result = parts.map((part, index) => {
             const startSymbolIndex = symbolsPassed
             const isMatch = searchRegexp.test(part)
 
             symbolsPassed += part.length
 
-            return renderPart(part, startSymbolIndex, isMatch, type)
+            return <React.Fragment key={index}>{renderPart(part, startSymbolIndex, isMatch, type)}</React.Fragment>
         })
     }
 
