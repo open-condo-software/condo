@@ -38,12 +38,6 @@ const UserFavoriteTicket = new GQLListSchema('UserFavoriteTicket', {
                 condition: 'Q(deletedAt__isnull=True)',
                 name: 'user_favorite_ticket_unique_user_and_ticket',
             },
-            {
-                type: 'models.UniqueConstraint',
-                fields: ['user', 'organization'],
-                condition: 'Q(deletedAt__isnull=True)',
-                name: 'user_favorite_ticket_unique_user_and_organization',
-            },
         ],
     },
     plugins: [
