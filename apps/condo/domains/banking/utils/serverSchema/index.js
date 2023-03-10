@@ -13,6 +13,7 @@ const { BankContractorAccount: BankContractorAccountGQL } = require('@condo/doma
 const { BankIntegration: BankIntegrationGQL } = require('@condo/domains/banking/gql')
 const { CREATE_BANK_ACCOUNT_REQUEST_MUTATION } = require('@condo/domains/banking/gql')
 const { BankIntegrationAccountContext: BankIntegrationAccountContextGQL } = require('@condo/domains/banking/gql')
+const { BankIntegrationOrganizationContext: BankIntegrationOrganizationContextGQL } = require('@condo/domains/banking/gql')
 const { BankTransaction: BankTransactionGQL } = require('@condo/domains/banking/gql')
 const { BankSyncTask: BankSyncTaskGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -23,6 +24,7 @@ const BankCostItem = generateServerUtils(BankCostItemGQL)
 const BankContractorAccount = generateServerUtils(BankContractorAccountGQL)
 const BankIntegration = generateServerUtils(BankIntegrationGQL)
 const BankIntegrationAccountContext = generateServerUtils(BankIntegrationAccountContextGQL)
+const BankIntegrationOrganizationContext = generateServerUtils(BankIntegrationOrganizationContextGQL)
 const BankTransaction = generateServerUtils(BankTransactionGQL)
 const BankSyncTask = generateServerUtils(BankSyncTaskGQL)
 
@@ -47,6 +49,7 @@ module.exports = {
     BankContractorAccount,
     BankIntegration,
     BankIntegrationAccountContext,
+    BankIntegrationOrganizationContext,
     BankTransaction,
     BankSyncTask,
     createBankAccountRequest,

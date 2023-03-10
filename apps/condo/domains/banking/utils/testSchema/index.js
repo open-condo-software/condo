@@ -17,6 +17,7 @@ const { BankIntegration: BankIntegrationGQL, CREATE_BANK_ACCOUNT_REQUEST_MUTATIO
 const { BankIntegrationAccountContext: BankIntegrationAccountContextGQL } = require('@condo/domains/banking/gql')
 const { BankTransaction: BankTransactionGQL } = require('@condo/domains/banking/gql')
 const { BankSyncTask: BankSyncTaskGQL } = require('@condo/domains/banking/gql')
+const { BankIntegrationOrganizationContext: BankIntegrationOrganizationContextGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BankCategory = generateGQLTestUtils(BankCategoryGQL)
@@ -28,6 +29,7 @@ const BankIntegration = generateGQLTestUtils(BankIntegrationGQL)
 const BankIntegrationAccountContext = generateGQLTestUtils(BankIntegrationAccountContextGQL)
 const BankTransaction = generateGQLTestUtils(BankTransactionGQL)
 const BankSyncTask = generateGQLTestUtils(BankSyncTaskGQL)
+const BankIntegrationOrganizationContext = generateGQLTestUtils(BankIntegrationOrganizationContextGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBankCategory (client, extraAttrs = {}) {
@@ -329,6 +331,37 @@ async function importBankTransactionsByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors, { query: IMPORT_BANK_TRANSACTIONS_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
+async function createTestBankIntegrationOrganizationContext (client, integration, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!integration || !integration.id) throw new Error('no integration.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        integration: { connect: { id: integration.id } },
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await BankIntegrationOrganizationContext.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBankIntegrationOrganizationContext (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BankIntegrationOrganizationContext.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -342,5 +375,6 @@ module.exports = {
     BankSyncTask, createTestBankSyncTask, updateTestBankSyncTask,
     createBankAccountRequestByTestClient,
     importBankTransactionsByTestClient,
+    BankIntegrationOrganizationContext, createTestBankIntegrationOrganizationContext, updateTestBankIntegrationOrganizationContext,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

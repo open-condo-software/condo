@@ -26,8 +26,8 @@ const BankAccount = generateGqlQueries('BankAccount', BANK_ACCOUNT_FIELDS)
 const BANK_CONTRACTOR_ACCOUNT_FIELDS = `{ name organization { id } costItem { id } tin country routingNumber number currencyCode importId territoryCode bankName meta ${COMMON_FIELDS} }`
 const BankContractorAccount = generateGqlQueries('BankContractorAccount', BANK_CONTRACTOR_ACCOUNT_FIELDS)
 
-const BANK_INTEGRATION_CONTEXT_FIELDS = `{ integration { id } organization { id } enabled ${COMMON_FIELDS} }`
-const BankIntegrationAccountContext = generateGqlQueries('BankIntegrationAccountContext', BANK_INTEGRATION_CONTEXT_FIELDS)
+const BANK_INTEGRATION_ACCOUNT_CONTEXT_FIELDS = `{ integration { id } organization { id } enabled ${COMMON_FIELDS} }`
+const BankIntegrationAccountContext = generateGqlQueries('BankIntegrationAccountContext', BANK_INTEGRATION_ACCOUNT_CONTEXT_FIELDS)
 
 const BANK_TRANSACTION_FIELDS = `{ account { id } contractorAccount { id } costItem { id } integrationContext { id enabled } organization { id } number date amount isOutcome currencyCode purpose meta importId importRemoteSystem ${COMMON_FIELDS} }`
 const BankTransaction = generateGqlQueries('BankTransaction', BANK_TRANSACTION_FIELDS)
@@ -49,6 +49,9 @@ const IMPORT_BANK_TRANSACTIONS_MUTATION = gql`
     }
 `
 
+const BANK_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id } organization { id, deletedAt } deletedAt ${COMMON_FIELDS} }`
+const BankIntegrationOrganizationContext = generateGqlQueries('BankIntegrationOrganizationContext', BANK_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -58,6 +61,7 @@ module.exports = {
     BankContractorAccount,
     BankIntegration,
     BankIntegrationAccountContext,
+    BankIntegrationOrganizationContext,
     BankTransaction,
     BankSyncTask,
     CREATE_BANK_ACCOUNT_REQUEST_MUTATION,

@@ -16,14 +16,14 @@ const {
 
 const { BankSyncTask, createTestBankSyncTask, updateTestBankSyncTask } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBankIntegrationAccountContext, createTestBankAccount, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee, createTestOrganizationLink,
-} = require('../../organization/utils/testSchema')
+} = require('@condo/domains/organization/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
 const { BANK_INTEGRATION_IDS, BANK_SYNC_TASK_STATUS } = require('../constants')
 
 
