@@ -11,6 +11,7 @@ const { BankIntegration, BankIntegrationAccountContext } = require('@condo/domai
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { requestTransactions } = require('@condo/domains/organization/integrations/sbbol/sync/requestTransactions')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/common')
 const { User, UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
 
 
@@ -27,7 +28,7 @@ async function syncSbbolTransactions (date, userId = '', organization = {}) {
     const { keystone: context } = await getSchemaCtx('User')
     // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
     const usersWithSBBOLExternalIdentity = await UserExternalIdentity.getAll(context, {
-        importRemoteSystem: SBBOL_IMPORT_NAME,
+        identityType: SBBOL_IDP_TYPE,
         deletedAt: null,
     })
     if (isEmpty(usersWithSBBOLExternalIdentity)) return logger.info('No users imported from SBBOL found. Cancel sync transactions')
@@ -35,7 +36,7 @@ async function syncSbbolTransactions (date, userId = '', organization = {}) {
     for (const identity of usersWithSBBOLExternalIdentity) {
         const userId = identity.user.id
         const [employee] = await OrganizationEmployee.getAll(context, {
-            user: userId,
+            user: { id: userId },
             organization: {
                 importRemoteSystem: SBBOL_IMPORT_NAME,
                 deletedAt: null,
