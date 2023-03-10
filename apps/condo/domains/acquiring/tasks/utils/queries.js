@@ -90,7 +90,7 @@ async function getServiceConsumer (context, id) {
     return consumer
 }
 
-async function getReceiptsForServiceConsumer (context, date, { id: serviceConsumerId }, billingCategory) {
+async function getReceiptsForServiceConsumer (context, date, { id: serviceConsumerId }, billingCategory, extraArgs = {}) {
     const periodDate = dayjs(date)
     const period = periodDate.format('YYYY-MM-01')
     const serviceConsumer = await getServiceConsumer(context, serviceConsumerId)
@@ -112,7 +112,7 @@ async function getReceiptsForServiceConsumer (context, date, { id: serviceConsum
     const billingCategoryCondition = billingCategoryId ? { category: { id: billingCategoryId } } : {}
     const billingAccountCondition = { account: { number: billingAccountNumber } }
     const billingIntegrationContextCondition = { context: { id: billingIntegrationContextId } }
-    const periodCondition = { period }
+    const periodCondition = { period_in: [period] }
 
     // select data
     return await BillingReceipt.getAll(context, {
@@ -120,6 +120,7 @@ async function getReceiptsForServiceConsumer (context, date, { id: serviceConsum
         ...billingAccountCondition,
         ...billingIntegrationContextCondition,
         ...periodCondition,
+        ...extraArgs,
     })
 }
 

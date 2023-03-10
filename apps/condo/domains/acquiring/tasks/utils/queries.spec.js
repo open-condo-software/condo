@@ -73,7 +73,7 @@ const {
     sendTomorrowPaymentNotificationSafely,
 } = require('./queries')
 
-const pageSize = 10000
+const pageSize = 10
 const { keystone } = index
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'test-fingerprint-alphanumeric-value' } }
 
@@ -108,23 +108,23 @@ describe('recurrent payments queries', () => {
 
             // create 3 contexts:
             // deleted, disabled and regular one
-            const [{ id }] = await createTestRecurrentPaymentContext(admin, getContextRequest(batches[0]))
-            await updateTestRecurrentPaymentContext(admin, id, {
+            const [{ id: id1 }] = await createTestRecurrentPaymentContext(admin, getContextRequest(batches[0]))
+            await updateTestRecurrentPaymentContext(admin, id1, {
                 deletedAt: dayjs().toISOString(),
             })
-            await createTestRecurrentPaymentContext(admin, {
+            const [{ id: id2 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[1]),
                 enabled: false,
             })
-            await createTestRecurrentPaymentContext(admin, {
+            const [{ id: id3 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[2]),
                 enabled: true,
             })
 
             const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
-                createdBy: { id: admin.user.id },
+                id_in: [id1, id2, id3],
             })
-            expect(objs.length).toBeGreaterThanOrEqual(1)
+            expect(objs).toHaveLength(1)
             expect(objs).toEqual(expect.arrayContaining([
                 expect.objectContaining({
                     enabled: true,
@@ -135,11 +135,11 @@ describe('recurrent payments queries', () => {
 
         it('should return with autoPayReceipts=false only', async () => {
             const { batches } = await makePayerWithMultipleConsumers(2, 1)
-            await createTestRecurrentPaymentContext(admin, {
+            const [{ id: id1 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[0]),
                 enabled: true,
             })
-            await createTestRecurrentPaymentContext(admin, {
+            const [{ id: id2 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[1]),
                 enabled: true,
                 autoPayReceipts: true,
@@ -147,9 +147,9 @@ describe('recurrent payments queries', () => {
             })
 
             const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
-                createdBy: { id: admin.user.id },
+                id_in: [id1, id2],
             })
-            expect(objs.length).toBeGreaterThanOrEqual(1)
+            expect(objs).toHaveLength(1)
             expect(objs).toEqual(expect.arrayContaining([
                 expect.objectContaining({
                     autoPayReceipts: false,
@@ -161,27 +161,27 @@ describe('recurrent payments queries', () => {
         it('should return with expected paymentDay only', async () => {
             const { batches } = await makePayerWithMultipleConsumers(3, 1)
 
-            await createTestRecurrentPaymentContext(admin, {
+            const [{ id: id1 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[0]),
                 enabled: true,
                 paymentDay: date.date() + 1,
             })
 
-            await createTestRecurrentPaymentContext(admin, {
+            const [{ id: id2 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[1]),
                 enabled: true,
                 paymentDay: date.date() - 1,
             })
-            await createTestRecurrentPaymentContext(admin, {
+            const [{ id: id3 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[2]),
                 paymentDay: date.date(),
                 enabled: true,
             })
 
             const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
-                createdBy: { id: admin.user.id },
+                id_in: [id1, id2, id3],
             })
-            expect(objs.length).toBeGreaterThanOrEqual(1)
+            expect(objs).toHaveLength(1)
             expect(objs).toEqual(expect.arrayContaining([
                 expect.objectContaining({
                     enabled: true,
@@ -191,23 +191,24 @@ describe('recurrent payments queries', () => {
         })
 
         it('should return with paymentDay is greater (for last day of month)', async () => {
+            const admin = await makeLoggedInAdminClient()
             const { batches } = await makePayerWithMultipleConsumers(4, 1)
-            await createTestRecurrentPaymentContext(admin, {
+            const [{ id: id1 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[0]),
                 enabled: true,
                 paymentDay: 28,
             })
-            await createTestRecurrentPaymentContext(admin, {
+            const [{ id: id2 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[1]),
                 enabled: true,
                 paymentDay: 29,
             })
-            await createTestRecurrentPaymentContext(admin, {
+            const [{ id: id3 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[2]),
                 enabled: true,
                 paymentDay: 30,
             })
-            await createTestRecurrentPaymentContext(admin, {
+            const [{ id: id4 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[3]),
                 enabled: true,
                 paymentDay: 31,
@@ -215,13 +216,39 @@ describe('recurrent payments queries', () => {
 
             const date = dayjs('2023-02-28')
             const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
-                createdBy: { id: admin.user.id },
+                id_in: [id1, id2, id3, id4],
             })
-            expect(objs.length).toBeGreaterThanOrEqual(4)
-
+            expect(objs).toHaveLength(4)
             objs.forEach(obj => {
                 expect(obj.paymentDay).toBeGreaterThanOrEqual(28)
             })
+        })
+
+        it('should return with extraArgs', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { batches } = await makePayerWithMultipleConsumers(2, 1)
+            const [{ id: id1 }] = await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest(batches[0]),
+                enabled: true,
+            })
+            const [{ id: id2 }] = await createTestRecurrentPaymentContext(admin, {
+                ...getContextRequest(batches[1]),
+                enabled: true,
+                autoPayReceipts: true,
+                paymentDay: null,
+            })
+
+            const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
+                id_in: [id1, id2],
+                paymentDay: null,
+                autoPayReceipts: true,
+            })
+            expect(objs).toHaveLength(1)
+            expect(objs).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    autoPayReceipts: true,
+                }),
+            ]))
         })
     })
 
