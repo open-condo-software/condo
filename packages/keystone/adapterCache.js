@@ -170,6 +170,22 @@ class AdapterCache {
         })
     }
 
+    getTotal () {
+        return this.totalRequests
+    }
+
+    getHits () {
+        return this.cacheHits
+    }
+
+    incrementHit () {
+        return this.cache.cacheHits++
+    }
+
+    incrementTotal () {
+        return this.cache.totalRequests++
+    }
+
     logEvent ({ event }) {
         if (!this.logging) return
         logger.info(event)
@@ -349,7 +365,7 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
  */
 function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cache, getKey, getQuery = () => null, relations = {}) {
     return async ( ...args ) => {
-        cache.totalRequests++
+        cache.incrementTotal()
 
         let key = getKey(args)
         if (key) {
@@ -363,7 +379,7 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
         if (cached) {
             const cacheLastUpdate = cached.lastUpdate
             if (cacheLastUpdate && cacheLastUpdate.getTime() === listLastUpdate.getTime()) {
-                cache.cacheHits++
+                cache.incrementHit()
                 const cacheEvent = cache.getCacheEvent({
                     type: 'HIT',
                     functionName,
