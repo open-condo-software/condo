@@ -142,8 +142,7 @@ export const getUnitRender = (intl, search: FilterValue) => {
     return function render (unit, ticket) {
         const sectionName = get(ticket, 'sectionName')
         const floorName = get(ticket, 'floorName')
-        const unitType = get(ticket, 'unitType', 'flat')
-        console.log({ ticket, unitType })
+        const unitType = get(ticket, 'unitType', 'flat') || 'flat'
 
         let unitNamePrefix = null
         const sectionNameMessage = sectionName ? `${ShortSectionNameMessage} ${ticket.sectionName}` : ''
