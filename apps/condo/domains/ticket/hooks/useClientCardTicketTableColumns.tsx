@@ -4,10 +4,7 @@ import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import {
-    getDateRender,
-    getTableCellRenderer,
-} from '@condo/domains/common/components/Table/Renders'
+import { getDateRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -18,6 +15,10 @@ import {
     getTicketDetailsRender,
 } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
+
+const renderCell = getTableCellRenderer()
+const renderTicketDetails = getTicketDetailsRender()
 
 export function useClientCardTicketTableColumns (tickets) {
     const intl = useIntl()
@@ -59,14 +60,14 @@ export function useClientCardTicketTableColumns (tickets) {
             dataIndex: ['property', 'address'],
             key: 'property',
             sorter: true,
-            render: getTableCellRenderer(),
+            render: renderCell,
             filterIcon: getFilterIcon,
         },
         {
             title: NumberMessage,
             dataIndex: 'number',
             key: 'number',
-            render: getTableCellRenderer(),
+            render: renderCell,
             align: 'center',
             width: '10%',
         },
@@ -97,12 +98,12 @@ export function useClientCardTicketTableColumns (tickets) {
             title: DescriptionMessage,
             dataIndex: 'details',
             key: 'details',
-            render: getTicketDetailsRender(),
+            render: renderTicketDetails,
         },
         {
             title: LastCommentMessage,
             key: 'lastComment',
             render: renderLastComment,
         },
-    ]), [AddressMessage, NumberMessage, DateMessage, filters, intl, StatusMessage, sorterMap, ClassifierTitle, DescriptionMessage])
+    ]), [AddressMessage, NumberMessage, DateMessage, filters, intl, StatusMessage, sorterMap, ClassifierTitle, DescriptionMessage, LastCommentMessage, renderLastComment])
 }

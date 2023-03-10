@@ -27,7 +27,7 @@ export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<Filter
     const { filters } = parseQuery(router.query)
     const search = getFilteredValue(filters, 'search')
 
-    const render = useMemo(() => getTableCellRenderer(search), [search])
+    const render = useMemo(() => getTableCellRenderer({ search }), [search])
 
     const ticketPropertyHintIds = useMemo(() => map(ticketPropertyHints, 'id'), [ticketPropertyHints])
     const { objs: ticketPropertyHintsProperties } = TicketPropertyHintProperty.useObjects({

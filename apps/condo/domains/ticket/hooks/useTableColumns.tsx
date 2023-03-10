@@ -96,11 +96,11 @@ export function useTableColumns <T> (
         [DeletedMessage, search])
 
     const renderExecutor = useCallback(
-        (executor) => getTableCellRenderer(search)(get(executor, ['name'])),
+        (executor) => getTableCellRenderer({ search })(get(executor, ['name'])),
         [search])
 
     const renderAssignee = useCallback(
-        (assignee) => getTableCellRenderer(search)(get(assignee, ['name'])),
+        (assignee) => getTableCellRenderer({ search })(get(assignee, ['name'])),
         [search])
 
     const { user } = useAuth()

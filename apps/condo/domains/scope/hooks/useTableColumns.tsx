@@ -66,7 +66,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     const { filters } = parseQuery(router.query)
     const search = getFilteredValue(filters, 'search')
 
-    const render = useMemo(() => getTableCellRenderer(search), [search])
+    const render = useMemo(() => getTableCellRenderer({ search }), [search])
 
     const renderPropertyScopeProperties = useCallback((intl, propertyScope) => {
         if (get(propertyScope, 'hasAllProperties')) {
@@ -91,7 +91,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
             .filter(Boolean)
 
         return getManyEmployeesNameRender()(intl, employees, organizationEmployeeSpecializations)
-    }, [AllEmployeesMessage, propertyScopeEmployees, search, organizationEmployeeSpecializations])
+    }, [AllEmployeesMessage, propertyScopeEmployees, organizationEmployeeSpecializations])
 
     return useMemo(() => ({
         loading: propertiesLoading || employeesLoading || organizationEmployeeSpecializationsLoading,

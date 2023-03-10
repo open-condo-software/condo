@@ -4,9 +4,9 @@ import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import { isEmpty } from 'lodash'
 
-
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
+
 
 const ADDRESS_RENDER_POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
@@ -15,10 +15,10 @@ export const getAddressCellRender = (property: Property, DeletedMessage?: string
 
     if (shortAddress) {
         const addressWithoutComma = text.substring(0, text.length - 1)
-        return getTableCellRenderer(search, false, null, null, ADDRESS_RENDER_POSTFIX_PROPS)(addressWithoutComma)
+        return getTableCellRenderer({ search, extraPostfixProps: ADDRESS_RENDER_POSTFIX_PROPS })(addressWithoutComma)
     }
 
-    return getTableCellRenderer(search, false, postfix, extraProps, ADDRESS_RENDER_POSTFIX_PROPS)(text)
+    return getTableCellRenderer({ search, postfix, extraHighlighterProps: extraProps, extraPostfixProps: ADDRESS_RENDER_POSTFIX_PROPS })(text)
 }
 
 export const getManyPropertiesAddressRender = (search: FilterValue) => {
