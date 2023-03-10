@@ -17464,11 +17464,11 @@ type BankSyncTask {
   """
   _label_: String
 
-  """ Bank account for which current synchronization operation is performed 
+  """ Bank account for which current synchronization operation is performed. Can be unknown when account does not exist before import 
   """
   account: BankAccount
 
-  """ Integration context of account for which current synchronization operation is performed 
+  """ Integration context of account for which current synchronization operation is performed. Can be unknown when account and integration does not exist before import 
   """
   integrationContext: BankIntegrationAccountContext
 
@@ -17483,7 +17483,8 @@ type BankSyncTask {
   """ Status of current synchronization operation """
   status: BankSyncTaskStatusType
 
-  """ Uploaded file form which transactions should be  """
+  """ File from which transactions should be imported. Currently only 1CClientBankExchange format is supported 
+  """
   file: File
 
   """ Count of transactions to import. Can be unknown in advance """
