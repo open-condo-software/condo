@@ -3,7 +3,7 @@ const {
     paginationConfiguration,
 } = require('@condo/domains/acquiring/tasks/utils/constants')
 
-describe('recurrent-payments-context constants ', () => {
+describe('recurrent-payments-context constants', () => {
     it('should return proper dvAndSender', async () => {
         expect(dvAndSender).toHaveProperty('dv')
         expect(dvAndSender).toHaveProperty('sender')
