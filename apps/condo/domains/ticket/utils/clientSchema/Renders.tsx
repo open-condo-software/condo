@@ -6,7 +6,10 @@ import dayjs from 'dayjs'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import isString from 'lodash/isString'
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useState } from 'react'
+
+import { Star, StarFilled } from '@open-condo/icons'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
@@ -55,6 +58,38 @@ export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommen
     }
 }
 
+const STAR_ICON_WRAPPER_STYLES = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
+
+const FavoriteTicketIndicator = () => {
+    const [isFavorite, setIsFavorite] = useState<boolean>()
+
+    return (
+        <div style={STAR_ICON_WRAPPER_STYLES}>
+            {
+                isFavorite ? (
+                    <StarFilled color={colors.yellow[5]} onClick={(e) => {
+                        e.stopPropagation()
+                        setIsFavorite(false)
+                    }}/>
+                ) : (
+                    <Star color={colors.gray[7]} onClick={(e) => {
+                        e.stopPropagation()
+                        setIsFavorite(true)
+                    }}/>
+                )
+            }
+        </div>
+    )
+}
+
+export const getTicketFavoriteRender = () => {
+    return () => {
+        return (
+            <FavoriteTicketIndicator />
+        )
+    }
+}
+
 export const getTicketNumberRender = (intl, search: FilterValue) => {
     const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' })
     const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' })
@@ -92,7 +127,6 @@ export const getTicketNumberRender = (intl, search: FilterValue) => {
 }
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
-
 
 const getUnitPostfix = (unit, sectionNameMessage, floorNameMessage) => {
     let postfixMessage = unit ? '\n' : ''

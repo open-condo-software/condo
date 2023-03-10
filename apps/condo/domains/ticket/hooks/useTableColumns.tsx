@@ -8,7 +8,7 @@ import { useRouter } from 'next/router'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Star } from '@open-condo/icons'
+import { Star, StarFilled } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -30,7 +30,7 @@ import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '@co
 import {
     getClassifierRender, getCommentsIndicatorRender,
     getStatusRender,
-    getTicketDetailsRender,
+    getTicketDetailsRender, getTicketFavoriteRender,
     getTicketNumberRender,
     getTicketUserNameRender,
     getUnitRender,
@@ -56,7 +56,7 @@ const COLUMNS_WIDTH = {
 
 const TICKETS_RE_FETCH_INTERVAL = 60 * 1000
 
-export function useTableColumns <T> (
+export function useTableColumns<T> (
     filterMetas: Array<FiltersMeta<T>>,
     tickets: Ticket[],
     refetchTickets: () => Promise<undefined>,
@@ -162,8 +162,6 @@ export function useTableColumns <T> (
         }
     }, [isRefetchTicketsFeatureEnabled, refetch, setIsRefetching])
 
-    const [a, setA] = useState<boolean>()
-
     return useMemo(() => ({
         columns: [
             {
@@ -177,16 +175,7 @@ export function useTableColumns <T> (
             {
                 key: 'favorite',
                 width: COLUMNS_WIDTH.favorite,
-                render: (ticket) => {
-                    return (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Star color={colors.gray[7]} onClick={(e) => {
-                                e.stopPropagation()
-                                console.log(ticket.number)
-                            }} />
-                        </div>
-                    )
-                },
+                render: getTicketFavoriteRender(),
                 align: 'center',
                 className: 'favorite-column',
             },
