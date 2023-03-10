@@ -9,24 +9,25 @@ import isBoolean from 'lodash/isBoolean'
 import isNull from 'lodash/isNull'
 import isString from 'lodash/isString'
 import Link from 'next/link'
-import React, { useMemo } from 'react'
+import React from 'react'
 
 import { TTextHighlighterRenderPartFN } from '@condo/domains/common/components/TextHighlighter'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { LOCALES } from '@condo/domains/common/constants/locale'
+import { ELLIPSIS_ROWS } from '@condo/domains/common/constants/style'
+import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
 
 import { EmptyTableCell } from './EmptyTableCell'
 
-import { LOCALES } from '../../constants/locale'
-import { ELLIPSIS_ROWS } from '../../constants/style'
-import { getAddressDetails } from '../../utils/helpers'
 import { TextHighlighter, TTextHighlighterProps } from '../TextHighlighter'
+
 
 export type RenderReturnType = string | React.ReactNode
 
 const DEFAULT_CURRENCY_CODE = 'RUB'
-const ELLIPSIS_SETTINGS = { rows: ELLIPSIS_ROWS, expandable: false }
-const ELLIPSIS_STYLES = { marginBottom: 0 }
+const ELLIPSIS_SETTINGS: EllipsisConfig = { rows: ELLIPSIS_ROWS, expandable: false }
+const ELLIPSIS_STYLES: React.CSSProperties = { marginBottom: 0 }
 const DATE_FORMAT = 'DD.MM.YYYY'
 const TIME_FORMAT = 'HH:mm'
 const STATUS_STYLES = {
@@ -38,11 +39,14 @@ const DIM_TEXT_STYLE: React.CSSProperties = {
     color: 'inherit',
 }
 
+
 /**
  * Marks text according to marked flag
  * @param part
  * @param startIndex
  * @param marked
+ * @param type
+ * @param style
  */
 export const renderHighlightedPart: TTextHighlighterRenderPartFN = (
     part,
@@ -56,10 +60,39 @@ export const renderHighlightedPart: TTextHighlighterRenderPartFN = (
     </Typography.Text>
 )
 
+
+type GetTitleMessageType = (props: {
+    text?: string,
+    extraTitle?: string,
+    postfix?: string | React.ReactElement,
+}) => string | null
+
+const getTitleMessage: GetTitleMessageType = ({ text, extraTitle, postfix }) => {
+    if (extraTitle || isNull(extraTitle)) {
+        return extraTitle
+    }
+
+    if (text) {
+        if (postfix && isString(postfix)) {
+            return `${text} ${postfix}`
+        }
+        return `${text}`
+    }
+
+    return null
+}
+
+
 /**
  * Type for getHighlightedContents fn
  */
-type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string | React.ReactElement, extraProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps, extraTitle?: string) => (text?: string) => React.ReactElement | string
+type GetHighlightedContentsType = (props: {
+    search?: FilterValue | string,
+    postfix?: string | React.ReactElement,
+    extraProps?: Partial<TTextHighlighterProps>,
+    extraPostfixProps?: TextProps,
+    extraTitle?: string,
+}) => (text?: string) => React.ReactElement | string
 
 /**
  * Returned function renders provided text with highlighted parts according to search value
@@ -69,10 +102,16 @@ type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string | Reac
  * @param extraPostfixProps
  * @param extraTitle
  */
-export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extraProps, extraPostfixProps = {}, extraTitle) => (text) => {
+export const getHighlightedContents: GetHighlightedContentsType = ({
+    search,
+    postfix,
+    extraProps,
+    extraPostfixProps = {},
+    extraTitle,
+} = {}) => (text) => {
     // Sometimes we can receive null/undefined as text
     const renderText = text ? String(text) : ''
-    const title = extraTitle || isNull(extraTitle) ? extraTitle : `${text} ${isString(postfix) && postfix || ''}`
+    const title = getTitleMessage({ text, extraTitle, postfix })
 
     const getPostfix = () => (
         <Typography.Text title={title} {...extraPostfixProps}>
@@ -93,7 +132,10 @@ export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extra
     )
 }
 
-const renderLink = (content: JSX.Element | string, href: string) => {
+
+type renderLinkType = (props: { content: JSX.Element | string, href: string }) => React.ReactElement
+
+const renderLink: renderLinkType = ({ content, href }) => {
     const handleStopPropagation = (e) => e.stopPropagation()
 
     return (
@@ -105,10 +147,19 @@ const renderLink = (content: JSX.Element | string, href: string) => {
     )
 }
 
+
 /**
  * Type for getTableCellRenderer fn
  */
-type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean | EllipsisConfig, postfix?: string | React.ReactElement, extraHighlighterProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps, extraTitle?: string, href?: string) => (text?: string) => React.ReactElement
+type GetTableCellRendererType = (props?: {
+    search?: FilterValue | string,
+    ellipsis?: boolean | EllipsisConfig,
+    postfix?: string | React.ReactElement,
+    extraHighlighterProps?: Partial<TTextHighlighterProps>,
+    extraPostfixProps?: TextProps,
+    extraTitle?: string,
+    href?: string,
+}) => (text?: string) => React.ReactElement
 
 /**
  * Returned function renders provided text as a cell with highlighted search and multi row ellipsis (if requested)
@@ -122,18 +173,24 @@ type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean |
  * @param href
  * @return cell contents renderer fn
  */
-export const getTableCellRenderer: TTableCellRendererFN = (
+export const getTableCellRenderer: GetTableCellRendererType = ({
     search,
     ellipsis = false,
     postfix = '',
     extraHighlighterProps,
     extraPostfixProps,
     extraTitle,
-    href?: string,
-) =>
+    href,
+} = {}) =>
     (text) => {
-        const title = extraTitle ? extraTitle : text ? `${text} ${postfix || ''}` : null
-        const highlightedContent = getHighlightedContents(search, postfix, extraHighlighterProps, extraPostfixProps, null)(text)
+        const title = getTitleMessage({ text, extraTitle, postfix })
+        const highlightedContent = getHighlightedContents({
+            search,
+            postfix,
+            extraProps: extraHighlighterProps,
+            extraPostfixProps,
+            extraTitle: null,
+        })(text)
 
         const ellipsisConfig = isBoolean(ellipsis) ? ELLIPSIS_SETTINGS : ellipsis
 
@@ -155,7 +212,7 @@ export const getTableCellRenderer: TTableCellRendererFN = (
                 <span>
                     {
                         href
-                            ? renderLink(cellContent, href)
+                            ? renderLink({ content: cellContent, href })
                             : cellContent
                     }
                 </span>
@@ -163,14 +220,6 @@ export const getTableCellRenderer: TTableCellRendererFN = (
         )
     }
 
-/**
- * Renders provided text as a table cell with highlighted search contents
- * @param search
- * @param text
- */
-export const renderCellWithHighlightedContents = (search?: FilterValue | string, text?: string) => (
-    <EmptyTableCell>{getHighlightedContents(search)(text)}</EmptyTableCell>
-)
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
@@ -181,7 +230,12 @@ export const getAddressRender = (property: Property, DeletedMessage?: string, se
     const deletedMessage = isDeleted && DeletedMessage ? `(${DeletedMessage})\n` : '\n'
     const postfix = renderPostfix + ' ' + deletedMessage
 
-    return getTableCellRenderer(search, false, postfix, extraProps, POSTFIX_PROPS)(streetPart)
+    return getTableCellRenderer({
+        search,
+        postfix,
+        extraHighlighterProps: extraProps,
+        extraPostfixProps: POSTFIX_PROPS,
+    })(streetPart)
 }
 
 export const getUnitNameRender = <T extends Record<string, unknown>>(intl, text: string, record: T, search?: FilterValue | string) => {
@@ -198,7 +252,7 @@ export const getUnitNameRender = <T extends Record<string, unknown>>(intl, text:
 
     const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
 
-    return getTableCellRenderer(search, false, null, null, null, extraTitle)(unitName)
+    return getTableCellRenderer({ search, extraTitle })(unitName)
 }
 
 export const getDateRender = (intl, search?: FilterValue | string) => {
@@ -210,13 +264,13 @@ export const getDateRender = (intl, search?: FilterValue | string) => {
         const text = `${date.format(DATE_FORMAT)}`
         const postfix = `\n${date.format(TIME_FORMAT)}`
 
-        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
+        return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(text)
     }
 }
 
 export const getTextRender = (search?: FilterValue | string) => {
     return function render (text: string): RenderReturnType {
-        return getTableCellRenderer(search)(text)
+        return getTableCellRenderer({ search })(text)
     }
 }
 
@@ -263,7 +317,7 @@ export const getStatusRender = (intl, openStatusDescModal, search?: FilterValue 
 
         return (
             <div onClick={() => openStatusDescModal(statusType)}>
-                {getTableCellRenderer(search, false, null, extraProps)(nameStatus)}
+                {getTableCellRenderer({ search, extraHighlighterProps: extraProps })(nameStatus)}
             </div>
         )
     }

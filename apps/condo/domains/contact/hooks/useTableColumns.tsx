@@ -41,7 +41,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         (text, contact) => getUnitNameRender<Contact>(intl, text, contact, search)
         , [search])
 
-    const render = useMemo(() => getTableCellRenderer(search), [search])
+    const render = useMemo(() => getTableCellRenderer({ search }), [search])
 
     return useMemo(() => {
         return [
@@ -121,5 +121,5 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render,
             },
         ]
-    }, [AddressMessage, EmailMessage, NameMessage, PhoneMessage, RoleMessage, filterMetas, filters, render, renderAddress, sorterMap, renderUnitName])
+    }, [NameMessage, sorterMap, filters, filterMetas, render, AddressMessage, renderAddress, RoleMessage, UnitMessage, renderUnitName, PhoneMessage, EmailMessage])
 }

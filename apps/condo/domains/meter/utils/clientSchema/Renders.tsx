@@ -22,7 +22,7 @@ export const getUnitRender = (intl, search: FilterValue) => {
             }
         }
         const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
-        return getTableCellRenderer(search, true, null, null, POSTFIX_PROPS, extraTitle)(unitName)
+        return getTableCellRenderer({ search, ellipsis: true, extraPostfixProps: POSTFIX_PROPS, extraTitle })(unitName)
     }
 }
 
@@ -39,6 +39,6 @@ export const getResourceRender = (intl, search?: FilterValue | string) => {
             </Typography.Text>
         ) : null
 
-        return getTableCellRenderer(search, true, postfix,  null, POSTFIX_PROPS )(value)
+        return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(value)
     }
 }

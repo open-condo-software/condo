@@ -82,7 +82,7 @@ export const getTicketNumberRender = (intl, breakpoints, userTicketsCommentReadT
             </div>
         )
 
-        return getTableCellRenderer(search, false, postfix, extraHighlighterProps, null, extraTitle, href)(number)
+        return getTableCellRenderer({ search, postfix, extraHighlighterProps, extraTitle, href })(number)
     }
 }
 
@@ -143,6 +143,7 @@ export const getUnitRender = (intl, search: FilterValue) => {
         const sectionName = get(ticket, 'sectionName')
         const floorName = get(ticket, 'floorName')
         const unitType = get(ticket, 'unitType', 'flat')
+        console.log({ ticket, unitType })
 
         let unitNamePrefix = null
         const sectionNameMessage = sectionName ? `${ShortSectionNameMessage} ${ticket.sectionName}` : ''
@@ -159,7 +160,7 @@ export const getUnitRender = (intl, search: FilterValue) => {
         const extraTitle = getUnitExtraTitle(unit, unitType, sectionName, sectionType, floorName, intl)
         const unitName = getUnitMessage(unit, unitNamePrefix, postfix)
 
-        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS, extraTitle)(unitName)
+        return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS, extraTitle })(unitName)
     }
 }
 
@@ -168,7 +169,7 @@ export const getClassifierRender = (intl, search?: FilterValue) => {
         const placeClassifier = get(record, ['classifier', 'place', 'name'])
         const postfix = `\n(${placeClassifier})`
 
-        return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)
+        return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(text)
     }
 }
 
@@ -178,7 +179,7 @@ export const getTicketDetailsRender = (search?: FilterValue) => {
         const maxDetailsLength = address ? address.length : details.length
         const trimmedDetails = details.length > maxDetailsLength ? `${details.substring(0, maxDetailsLength)}…` : details
 
-        return getTableCellRenderer(search, false, null, null, null, details)(trimmedDetails)
+        return getTableCellRenderer({ search, extraTitle: details })(trimmedDetails)
     }
 }
 
@@ -192,7 +193,7 @@ export const getStatusRender = (intl, search?: FilterValue) => {
         const { primary: backgroundColor, secondary: color } = status.colors
         const extraProps = { style: { color } }
         // TODO(DOMA-1518) find solution for cases where no status received
-        const highlightedContent = getHighlightedContents(search, null, extraProps, null,  null)(status.name)
+        const highlightedContent = getHighlightedContents({ search, extraProps })(status.name)
 
         return (
             <Space direction='vertical' size={7}>
@@ -246,7 +247,7 @@ export const getTicketClientNameRender = (search: FilterValue) => {
         const maxClientNameLength = address ? address.length : clientNameLength
         const trimmedClientName = clientNameLength > maxClientNameLength ? `${clientName.substring(0, maxClientNameLength)}…` : clientName
 
-        return getTableCellRenderer(search, false, null, null, null, clientName)(trimmedClientName)
+        return getTableCellRenderer({ search, extraTitle: clientName })(trimmedClientName)
     }
 }
 
@@ -259,7 +260,7 @@ export const getTicketUserNameRender = (search: FilterValue) => {
         const maxUserNameLength = address ? address.length : userNameLength
         const trimmedUserName = userNameLength > maxUserNameLength ? `${name.substring(0, maxUserNameLength)}…` : name
 
-        return getTableCellRenderer(search, false, null, null, null, name)(trimmedUserName)
+        return getTableCellRenderer({ search, extraTitle: name })(trimmedUserName)
     }
 }
 

@@ -45,13 +45,13 @@ const MAX_CELL_CONTENT_LENGTH = 150
 
 
 export const getRenderNumber: GetRenderNumberType = () => (number, incident) =>
-    getTableCellRenderer(null, false, null, null, null, null, `/incident/${incident.id}`)(number)
+    getTableCellRenderer({ href: `/incident/${incident.id}` })(number)
 
 export const getRenderOrganization: GetRenderOrganizationType = () => getTableCellRenderer()
 
 export const getRenderDetails: GetRenderDetailsType = () => (details) =>  {
     const trimmedText = String(details).length > MAX_CELL_CONTENT_LENGTH ? `${String(details).substring(0, MAX_CELL_CONTENT_LENGTH)}…` : details
-    return getTableCellRenderer(null, false, null, null, null, details)(trimmedText)
+    return getTableCellRenderer({ extraTitle: details })(trimmedText)
 }
 
 export const getRenderStatus: GetRenderStatusType = (intl) => (status, incident) => {
@@ -139,7 +139,7 @@ export const getManyIncidentClassifiersGroupByPlaceRender = () => {
         const text = `${categoriesPart}${problemsPart}`
         const trimmedText = text.length > MAX_CELL_CONTENT_LENGTH ? `${text.substring(0, MAX_CELL_CONTENT_LENGTH)}…` : text
 
-        return getTableCellRenderer(null, false, null, null, null, text)(trimmedText)
+        return getTableCellRenderer({ extraTitle: text })(trimmedText)
     }
 }
 

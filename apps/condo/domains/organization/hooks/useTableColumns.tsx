@@ -38,7 +38,7 @@ export const useTableColumns = (
     const { filters } = parseQuery(router.query)
     const search = getFilteredValue(filters, 'search')
 
-    const render = getTableCellRenderer(search)
+    const render = useMemo(() => getTableCellRenderer({ search }), [search])
 
     const { objs: organizationEmployeeSpecializations } = OrganizationEmployeeSpecialization.useObjects({
         where: {
@@ -63,7 +63,7 @@ export const useTableColumns = (
         )
     }, [intl, organizationEmployeeSpecializations])
 
-    const columns = useMemo(() => {
+    return useMemo(() => {
         return [
             {
                 title: NameMessage,
@@ -118,6 +118,4 @@ export const useTableColumns = (
             },
         ]
     }, [NameMessage, PhoneMessage, PositionMessage, RoleMessage, SpecializationsMessage, filterMetas, filters, render, renderCheckboxFilterDropdown, renderSpecializations])
-
-    return columns
 }
