@@ -62,7 +62,7 @@ export const getAddressDetails = (property: ObjectWithAddressInfo) => {
     const regionName = get(addressMeta, 'region')
     const regionWithType = get(addressMeta, 'region_with_type')
     const regionNamePosition = regionWithType && regionWithType.split(' ')[0] === regionName ? 0 : 1
-    const regionWithFullType = regionNamePosition === 0 ? `${regionName} ${regionType}` : `${regionType} ${regionName}`
+    const regionWithFullType = (regionType) ? (regionNamePosition === 0 ? `${regionName} ${regionType}` : `${regionType} ${regionName}`) : `${regionName}`
 
     const cityWithType = get(addressMeta, 'city_with_type')
     const cityName = get(addressMeta, 'city')
