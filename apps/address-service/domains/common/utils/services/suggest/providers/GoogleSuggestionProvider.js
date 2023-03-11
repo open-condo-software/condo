@@ -107,7 +107,13 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
     normalize (data) {
         return data.map((item) => ({
             value: item.description,
+            unrestricted_value: item.description,
             rawValue: `googlePlaceId:${item.place_id}`,
+            data: {},
+            provider: {
+                name: GOOGLE_PROVIDER,
+                rawData: item,
+            },
         }))
     }
 }
