@@ -22,9 +22,6 @@ import { ELLIPSIS_ROWS } from '../../constants/style'
 import { getAddressDetails } from '../../utils/helpers'
 import { TextHighlighter, TTextHighlighterProps } from '../TextHighlighter'
 
-
-
-
 export type RenderReturnType = string | React.ReactNode
 
 const DEFAULT_CURRENCY_CODE = 'RUB'

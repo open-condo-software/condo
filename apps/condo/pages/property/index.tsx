@@ -12,7 +12,6 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useState } from 'react'
 
-
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
@@ -28,11 +27,6 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import BuildingsTable from '@condo/domains/property/components/BuildingsTable'
 import { useTableColumns as usePropertiesTableColumns } from '@condo/domains/property/hooks/useTableColumns'
 import { useTableFilters as usePropertyTableFilters } from '@condo/domains/property/hooks/useTableFilters'
-
-
-
-
-
 
 type PropertiesType = 'buildings'
 
@@ -141,7 +135,6 @@ export default function PropertiesPage (props: PropertiesPageProps) {
             searchPropertiesQuery={searchPropertiesQuery}
             propertiesTableColumns={propertiesTableColumns}
             sortPropertiesBy={sortersToSortPropertiesBy(sorters) as SortPropertiesBy[]}
-
             role={role}
         />
     )
