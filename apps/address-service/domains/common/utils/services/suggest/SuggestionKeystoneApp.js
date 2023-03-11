@@ -74,9 +74,17 @@ class SuggestionKeystoneApp {
             /**
              * Sometimes we need to use different query parameters to providers
              * depending on different clients (mobile app, backend job, user runtime)
+             * Examples:
+             *   - `suggestHouse` -- used for create property from web
              * @type {string}
              */
             const context = String(getReqParam(req, 'context', ''))
+
+            /**
+             * Providers can improve results if they can connect multiple queries related to one client
+             * @type {string}
+             */
+            const session = String(getReqParam(req, 'session', ''))
 
             /**
              * Number of results to return
@@ -101,7 +109,7 @@ class SuggestionKeystoneApp {
 
             // 2. Get suggestions array
             if (suggestionProvider) {
-                const denormalizedSuggestions = await suggestionProvider.get({ query: s, context, count, helpers })
+                const denormalizedSuggestions = await suggestionProvider.get({ query: s, session, context, count, helpers })
                 suggestions = bypass ? denormalizedSuggestions : suggestionProvider.normalize(denormalizedSuggestions)
             }
 

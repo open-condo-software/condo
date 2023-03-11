@@ -24,11 +24,11 @@ class AbstractSuggestionProvider {
 
     /**
      * Returns the context object
-     * @param {?string} context
+     * @param {string} context
      * @returns {Object}
      * @protected
      */
-    getContext (context = null) {
+    getContext (context = '') {
         return {
             ...get(suggestionContexts, ['default', this.getProviderName()], {}),
             ...(
@@ -47,14 +47,15 @@ class AbstractSuggestionProvider {
     /**
      * Sends search string to external suggestions service
      * @param {string} query
-     * @param {?string} context {@see suggestionContexts}
+     * @param {string} session
+     * @param {string} context {@see suggestionContexts}
      * @param {number|NaN} count
      * @param {SuggestionHelpersType} helpers
      * @returns {Promise<Array>} the array of denormalized suggestions
      * @abstract
      * @public
      */
-    async get ({ query, context = null, count = NaN, helpers = {} }) {
+    async get ({ query, session = '', context = '', count = NaN, helpers = {} }) {
         throw new Error('Method still not implemented.')
     }
 
