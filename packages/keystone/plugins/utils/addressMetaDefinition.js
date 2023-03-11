@@ -173,6 +173,7 @@ const ADDRESS_META_FIELD = {
     extendGraphQLTypes: [ADDRESS_META_FIELD_GRAPHQL_TYPES],
     graphQLReturnType: 'AddressMetaField',
     graphQLAdminFragment: `{ ${ADDRESS_META_SUBFIELDS_QUERY_LIST} }`,
+    // TODO(pahaz): DOMA-5536 addressMeta should be read only and not required
     isRequired: true,
     kmigratorOptions: { null: false },
     hooks: {
