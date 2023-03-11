@@ -1,6 +1,8 @@
 import { AddressMetaField } from '@app/condo/schema'
 import getConfig from 'next/config'
 
+import { getCurrentUserId } from './userid.utils'
+
 type TSuggestion = AddressMetaField & {
     rawValue: string,
 }
@@ -19,7 +21,8 @@ export class AddressApi implements IAddressApi {
     }
 
     public getSuggestions (query: string): SuggestionsResponse {
-        return fetch(`${this.suggestionsUrl}?s=${query}&context=suggestHouse`, {
+        const session = getCurrentUserId()
+        return fetch(`${this.suggestionsUrl}?s=${query}&context=suggestHouse&session=${session}`, {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',

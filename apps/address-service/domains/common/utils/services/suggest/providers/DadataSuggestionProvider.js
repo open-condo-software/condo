@@ -256,7 +256,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
     /**
      * @returns {Promise<DadataObject[]>}
      */
-    async get ({ query, context = null, count = 20, helpers = {} }) {
+    async get ({ query, context = '', count = 20, helpers = {} }) {
         const { tin = null } = helpers
 
         const body = {
