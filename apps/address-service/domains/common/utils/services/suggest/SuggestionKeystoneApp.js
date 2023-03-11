@@ -87,6 +87,13 @@ class SuggestionKeystoneApp {
             const session = String(getReqParam(req, 'session', ''))
 
             /**
+             * The language code, indicating in which language the results should be returned, if possible.
+             * Searches are also biased to the selected language; results in the selected language may be given a higher ranking.
+             * If language is not supplied, the Places service will attempt to use the native language of the domain from which the request is sent.
+             */
+            const language = String(getReqParam(req, 'language', ''))
+
+            /**
              * Number of results to return
              * @type {number|NaN}
              */
@@ -109,7 +116,7 @@ class SuggestionKeystoneApp {
 
             // 2. Get suggestions array
             if (suggestionProvider) {
-                const denormalizedSuggestions = await suggestionProvider.get({ query: s, session, context, count, helpers })
+                const denormalizedSuggestions = await suggestionProvider.get({ query: s, session, context, language, count, helpers })
                 suggestions = bypass ? denormalizedSuggestions : suggestionProvider.normalize(denormalizedSuggestions)
             }
 
