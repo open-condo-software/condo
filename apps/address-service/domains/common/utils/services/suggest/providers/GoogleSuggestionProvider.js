@@ -4,6 +4,7 @@ const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 
+const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
 const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/AbstractSuggestionProvider')
 
@@ -114,6 +115,7 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
                 name: GOOGLE_PROVIDER,
                 rawData: item,
             },
+            type: BUILDING_ADDRESS_TYPE,
         }))
     }
 }

@@ -59,10 +59,12 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
             try {
                 const { suggestions } = await addressApi.getSuggestions(query)
                 return suggestions.map(suggestion => {
+                    // TODO(pahaz): we should remove isHouse and use only suggestion.type
+                    // TODO(pahaz): we should drop backward compatibility check by house_type_full. Because we add `suggestion.type` check!
                     return {
                         text: suggestion.value,
                         value: suggestion.rawValue,
-                        isHouse: validHouseTypes.includes(suggestion.data.house_type_full),
+                        isHouse: suggestion.type === 'building' || validHouseTypes.includes(suggestion.data.house_type_full),
                     }
                 })
             } catch (e) {

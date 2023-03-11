@@ -5,6 +5,7 @@ import { getCurrentUserId } from './userid.utils'
 
 type TSuggestion = AddressMetaField & {
     rawValue: string,
+    type: 'building' | 'village' | null
 }
 
 type SuggestionsResponse = Promise<{ suggestions: Array<TSuggestion> }>
