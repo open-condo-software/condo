@@ -49,13 +49,14 @@ class AbstractSuggestionProvider {
      * @param {string} query
      * @param {string} session
      * @param {string} context {@see suggestionContexts}
+     * @param {string} language
      * @param {number|NaN} count
      * @param {SuggestionHelpersType} helpers
      * @returns {Promise<Array>} the array of denormalized suggestions
      * @abstract
      * @public
      */
-    async get ({ query, session = '', context = '', count = NaN, helpers = {} }) {
+    async get ({ query, session = '', context = '', language = '', count = NaN, helpers = {} }) {
         throw new Error('Method still not implemented.')
     }
 
