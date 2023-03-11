@@ -59,7 +59,7 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
             language: LANGUAGE,
             sessiontoken: sessionToken,
             key: this.apiKey,
-            ...helpers,
+            ...this.getContext(context),
         })
 
         const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?${params.toString()}`

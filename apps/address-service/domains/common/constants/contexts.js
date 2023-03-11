@@ -15,7 +15,9 @@ const suggestionContexts = {
             restrict_value: true,
             count: 20,
         },
-        [GOOGLE_PROVIDER]: {},
+        [GOOGLE_PROVIDER]: {
+            types: 'geocode',
+        },
         [YANDEX_PROVIDER]: {},
     },
 
@@ -28,7 +30,9 @@ const suggestionContexts = {
             from_bound: { value: 'city' },
             to_bound: { value: 'house' },
         },
-        [GOOGLE_PROVIDER]: {},
+        [GOOGLE_PROVIDER]: {
+            types: 'geocode',
+        },
         [YANDEX_PROVIDER]: {},
     },
     suggestHouse: {
@@ -36,12 +40,17 @@ const suggestionContexts = {
             from_bound: { value: 'city' },
             to_bound: { value: 'house' },
         },
+        [GOOGLE_PROVIDER]: {
+            types: 'geocode',
+        },
     },
     userRuntime: {
         [DADATA_PROVIDER]: {
             from_bound: { value: 'country' },
         },
-        [GOOGLE_PROVIDER]: {},
+        [GOOGLE_PROVIDER]: {
+            types: 'geocode',
+        },
         [YANDEX_PROVIDER]: {},
     },
     /**
