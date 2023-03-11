@@ -124,6 +124,12 @@ const addressService = ({ fieldsHooks = {}, resolveAddressFields = ({ addressFie
                 addressFields['addressKey'] = get(result, 'addressKey')
                 addressFields['addressSources'] = get(result, 'addressSources', [])
             }
+        } else {
+            // NOTE(pahaz): if you don't need to change the address you want to prevent any changes
+            delete resolvedData['address']
+            delete resolvedData['addressMeta']
+            delete resolvedData['addressKey']
+            delete resolvedData['addressSources']
         }
 
         return { ...resolvedData, ...resolveAddressFields({ addressFields, operation }) }
