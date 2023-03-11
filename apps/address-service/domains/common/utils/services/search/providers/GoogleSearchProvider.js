@@ -54,20 +54,37 @@ class GoogleSearchProvider extends AbstractSearchProvider {
      * @returns {Promise<GooglePlace[]>}
      */
     async get ({ query, context = null }) {
-        const answer = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&key=${this.apiKey}`)
+        const params = new URLSearchParams({
+            query,
+            key: this.apiKey,
+        })
 
-        if (answer.status === 200) {
-            /**
-             * @type {{html_attributions: string[], results: GooglePlace[], status: string, [error_message]: string, [info_messages]: string[], [next_page_token]: string}}
-             */
-            const result = await answer.json()
+        const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?${params.toString()}`
+        this.logger.info({ msg: 'request textsearch googleapis', url })
 
-            /**
-             * @see https://developers.google.com/maps/documentation/places/web-service/search-text#PlacesSearchStatus
-             */
-            if (result.status === 'OK') {
-                return result.results
+        try {
+            const answer = await fetch(url)
+
+            if (answer.status === 200) {
+                /**
+                 * @type {{html_attributions: string[], results: GooglePlace[], status: string, [error_message]: string, [info_messages]: string[], [next_page_token]: string}}
+                 */
+                const result = await answer.json()
+                this.logger.info({ msg: 'response textsearch googleapis', url, result, status: result.status, statusCode: status })
+
+                /**
+                 * @see https://developers.google.com/maps/documentation/places/web-service/search-text#PlacesSearchStatus
+                 */
+                if (result.status === 'OK') {
+                    return result.results
+                }
+            } else {
+                const result = await answer.text()
+                this.logger.info({ msg: 'response textsearch googleapis', url, result, status: result.status, statusCode: status })
             }
+        } catch (err) {
+            this.logger.error({ msg: 'googleapis textsearch error', url, err })
+            throw err
         }
 
         return []
@@ -82,12 +99,18 @@ class GoogleSearchProvider extends AbstractSearchProvider {
         // Some fields billed in higher rates. Try to use Basic fields.
         // Which fields to return see https://developers.google.com/maps/documentation/places/web-service/details#fields
         const fields = [
-            'address_component',
+            'address_components',
             'formatted_address',
+            'geometry',
             'name',
+            'photo',
             'place_id',
+            'plus_code',
             'type',
+            'url',
+            'utc_offset',
             'vicinity',
+            'wheelchair_accessible_entrance',
         ].join(',')
 
         const placeDetailsResult = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${this.apiKey}`)
@@ -139,7 +162,7 @@ class GoogleSearchProvider extends AbstractSearchProvider {
                 data: {
                     postal_code: get(components, ['postal_code', 'long_name']),
                     country: get(components, ['country', 'long_name']),
-                    country_iso_code: undefined,
+                    country_iso_code: get(components, ['country', 'short_name']),
                     federal_district: undefined,
                     region_fias_id: undefined,
                     region_kladr_id: undefined,
