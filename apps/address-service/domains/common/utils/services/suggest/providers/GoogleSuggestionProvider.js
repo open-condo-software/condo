@@ -33,6 +33,16 @@ const LANGUAGE = SUPPORTED_LANGUAGES.includes(DEFAULT_LOCALE) ? DEFAULT_LOCALE :
 
 const CONFIG_KEY = 'GOOGLE_API_KEY'
 
+function normalizedGoogleAddressValue (item) {
+    const main_text = get(item, ['structured_formatting', 'main_text'], '')
+    const secondary_text = get(item, ['structured_formatting', 'secondary_text'], '')
+    const description = item.description
+    if (!main_text || !secondary_text) return description
+    const parts1 = secondary_text.split(', ')
+    parts1.reverse()
+    return `${parts1.join(', ')}, ${main_text}`
+}
+
 class GoogleSuggestionProvider extends AbstractSuggestionProvider {
     constructor () {
         super()
@@ -107,7 +117,7 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
      */
     normalize (data) {
         return data.map((item) => ({
-            value: item.description,
+            value: normalizedGoogleAddressValue(item),
             unrestricted_value: item.description,
             rawValue: `googlePlaceId:${item.place_id}`,
             data: {},
