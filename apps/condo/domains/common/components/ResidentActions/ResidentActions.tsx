@@ -125,13 +125,13 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
         <div id={DROPDOWN_POPUP_CONTAINER_ID}>
             <Dropdown
                 overlay={Overlay}
-                placement={minified ? 'bottomRight' : 'bottomCenter'}
+                placement='bottomRight'
                 getPopupContainer={getPopupContainer}
                 trigger={trigger}
                 visible={dropdownVisible}
                 onVisibleChange={setDropdownVisible}
             >
-                {
+                <div>{
                     minified
                         ? (<StyledButton type='sberGradient' icon={<PlusOutlined />} shape='circle'/>)
                         : (
@@ -139,7 +139,7 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
                                 {ResidentAppealMessage}
                             </StyledButton>
                         )
-                }
+                }</div>
             </Dropdown>
             {SearchByPhoneModal}
         </div>

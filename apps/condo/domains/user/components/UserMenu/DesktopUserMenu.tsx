@@ -86,7 +86,7 @@ export const DesktopUserMenu: React.FC = () => {
             {
                 auth.isAuthenticated
                     ? (
-                        <Dropdown overlay={DropdownOverlay} placement='bottomCenter'>
+                        <Dropdown overlay={DropdownOverlay} placement='bottom'>
                             <UserMenuContainer>
                                 <Button
                                     type='link'

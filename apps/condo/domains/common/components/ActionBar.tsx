@@ -34,7 +34,7 @@ const ActionBar: React.FC<IActionBarProps> = (props) => {
     return (
         <Affix offsetBottom={48} style={barWidthStyle}>
             <Space wrap={true} size={[24, 24]} css={actionBar} style={barWidthStyle}>
-                { children }
+                {children}
             </Space>
         </Affix>
     )

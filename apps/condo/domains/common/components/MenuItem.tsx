@@ -170,5 +170,5 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
 
     const nextjsLink = !path || disabled ? menuItem : makeLink(menuItem, path)
 
-    return toolTipDecorator ? toolTipDecorator({ element: nextjsLink, placement: 'right' }) : nextjsLink
+    return <div>{toolTipDecorator ? toolTipDecorator({ element: nextjsLink, placement: 'right' }) : nextjsLink}</div>
 }
