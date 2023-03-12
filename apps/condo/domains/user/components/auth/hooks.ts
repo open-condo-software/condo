@@ -32,13 +32,14 @@ export const useRegisterFormValidators = () => {
                     type: 'string',
                 }, {
                     message: NameContainsOnlyMsg,
-                    pattern: /^([a-zA-Zа-яА-ЯЁё\s][-'’`]?)+$/,
+                    // NOTE(pahaz): test it here https://regex101.com/r/sIntkL/1
+                    pattern: /^([\p{L}-][ ]?)+$/ug,
                 }, {
                     message: NameMustContainMsg,
-                    pattern: /[a-zA-Zа-яА-ЯЁё]+/,
+                    pattern: /\p{L}+/u,
                 }, {
                     message: NameMustNotStartOrAndMsg,
-                    validator: (_, value) => !/^[-'’`]|[-'’`]$/.test(value && value.trim()) ? Promise.resolve() : Promise.reject(),
+                    validator: (_, value) => !/[-]\s|\s[-]/.test(value && value.trim()) ? Promise.resolve() : Promise.reject(),
                 },
             ],
             email: [
