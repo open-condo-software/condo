@@ -52,11 +52,11 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
     /**
      * @returns {Promise<GooglePredictionObject[]>}
      */
-    async get ({ query, session = '', context = '', count = 20, helpers = {} }) {
+    async get ({ query, session = '', context = '', language = '', count = 20, helpers = {} }) {
         const sessionToken = session || uuid()
         const params = new URLSearchParams({
             input: query,
-            language: LANGUAGE,
+            language: SUPPORTED_LANGUAGES.includes(language) ? language : LANGUAGE,
             sessiontoken: sessionToken,
             key: this.apiKey,
             ...this.getContext(context),
