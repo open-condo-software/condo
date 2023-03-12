@@ -882,7 +882,7 @@
   "employee.Position": "Position",
   "employee.Specializations": "Specializations",
   "employee.Role": "Role",
-  "employee.Role.whoIs": "Кто такой {roleName}",
+  "employee.Role.whoIs": "Who is {roleName}",
   "employee.AddEmployee": "Add employee",
   "employee.AllSpecializations": "all specializations",
   "employee.SpecializationsCount": "and more specializations: ",
