@@ -16,32 +16,33 @@ const { getSbbolUserInfoErrors } = require('./utils/getSbbolUserInfoErrors')
 const logger = getLogger('sbbol/routes')
 
 class SbbolRoutes {
-
     async startAuth (req, res, next) {
-        const sbbolAuthApi = await initializeSbbolAuthApi()
-        const query = get(req, 'query', {})
-        const redirectUrl = get(query, 'redirectUrl')
-        const queryFeatures = get(query, 'features', [])
-        const features = Array.isArray(queryFeatures) ? queryFeatures : [queryFeatures]
-
-        if (redirectUrl && !isSafeUrl(redirectUrl)) throw new Error('redirectUrl is incorrect')
-        // nonce: to prevent several callbacks from same request
-        // state: to validate user browser on callback
-        const checks = { nonce: generators.nonce(), state: generators.state() }
-        req.session[SBBOL_SESSION_KEY] = { checks, redirectUrl, features }
-        await req.session.save()
+        const reqId = req.id
         try {
-            const redirectUrl = sbbolAuthApi.authorizationUrlWithParams(checks)
-            return res.redirect(redirectUrl)
+            const sbbolAuthApi = await initializeSbbolAuthApi()
+            const query = get(req, 'query', {})
+            const redirectUrl = get(query, 'redirectUrl')
+            const queryFeatures = get(query, 'features', [])
+            const features = Array.isArray(queryFeatures) ? queryFeatures : [queryFeatures]
+
+            if (redirectUrl && !isSafeUrl(redirectUrl)) throw new Error('redirectUrl is incorrect')
+            // nonce: to prevent several callbacks from same request
+            // state: to validate user browser on callback
+            const checks = { nonce: generators.nonce(), state: generators.state() }
+            req.session[SBBOL_SESSION_KEY] = { checks, redirectUrl, features }
+            await req.session.save()
+            const authUrl = sbbolAuthApi.authorizationUrlWithParams(checks)
+            return res.redirect(authUrl)
         } catch (error) {
+            logger.error({ msg: 'SBBOL start-auth error', err: error, reqId })
             return next(error)
         }
     }
 
     async completeAuth (req, res, next) {
         const reqId = req.id
-        const sbbolAuthApi = await initializeSbbolAuthApi()
         try {
+            const sbbolAuthApi = await initializeSbbolAuthApi()
             const checks = get(req, ['session', SBBOL_SESSION_KEY, 'checks'])
             if (!isObject(checks)) {
                 logger.info({ msg: 'SBBOL invalid nonce and state', reqId })
