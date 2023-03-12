@@ -116,17 +116,20 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
      * @returns {NormalizedSuggestion[]}
      */
     normalize (data) {
-        return data.map((item) => ({
-            value: normalizedGoogleAddressValue(item),
-            unrestricted_value: item.description,
-            rawValue: `googlePlaceId:${item.place_id}`,
-            data: {},
-            provider: {
-                name: GOOGLE_PROVIDER,
-                rawData: item,
-            },
-            type: (get(item, 'types', []).includes('street_address')) ? BUILDING_ADDRESS_TYPE : null,
-        }))
+        return data.map((item) => {
+            const types = get(item, 'types', [])
+            return {
+                value: normalizedGoogleAddressValue(item),
+                unrestricted_value: item.description,
+                rawValue: `googlePlaceId:${item.place_id}`,
+                data: {},
+                provider: {
+                    name: GOOGLE_PROVIDER,
+                    rawData: item,
+                },
+                type: (types.includes('street_address') || types.includes('premise')) ? BUILDING_ADDRESS_TYPE : null,
+            }
+        })
     }
 }
 
