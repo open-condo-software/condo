@@ -125,7 +125,7 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
                 name: GOOGLE_PROVIDER,
                 rawData: item,
             },
-            type: BUILDING_ADDRESS_TYPE,
+            type: (get(item, 'types', []).includes('street_address')) ? BUILDING_ADDRESS_TYPE : null,
         }))
     }
 }
