@@ -1,6 +1,7 @@
 const { isObject, get } = require('lodash')
 const { generators } = require('openid-client') // certified openid client will all checks
 
+const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
@@ -13,12 +14,15 @@ const { getOnBoardingStatus } = require('./sync/getOnBoadringStatus')
 const { initializeSbbolAuthApi } = require('./utils')
 const { getSbbolUserInfoErrors } = require('./utils/getSbbolUserInfoErrors')
 
+const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
+
 const logger = getLogger('sbbol/routes')
 
 class SbbolRoutes {
     async startAuth (req, res, next) {
         const reqId = req.id
         try {
+            if (!SBBOL_AUTH_CONFIG.client_id) throw new Error('SBBOL_AUTH_CONFIG.client_id is not configured')
             const sbbolAuthApi = await initializeSbbolAuthApi()
             const query = get(req, 'query', {})
             const redirectUrl = get(query, 'redirectUrl')
@@ -42,6 +46,7 @@ class SbbolRoutes {
     async completeAuth (req, res, next) {
         const reqId = req.id
         try {
+            if (!SBBOL_AUTH_CONFIG.client_id) throw new Error('SBBOL_AUTH_CONFIG.client_id is not configured')
             const sbbolAuthApi = await initializeSbbolAuthApi()
             const checks = get(req, ['session', SBBOL_SESSION_KEY, 'checks'])
             if (!isObject(checks)) {

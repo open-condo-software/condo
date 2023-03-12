@@ -1,6 +1,7 @@
 const { isNil } = require('lodash')
 const { generators } = require('openid-client')
 
+const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
@@ -19,11 +20,7 @@ const {
     User,
 } = require('@condo/domains/user/utils/serverSchema')
 
-// get sber id configuration params
-const SBER_ID_CONFIG = process.env.SBER_ID_CONFIG ? JSON.parse(process.env.SBER_ID_CONFIG) : {}
-const {
-    residentRedirectUri,
-} = SBER_ID_CONFIG
+const SBER_ID_CONFIG = conf.SBER_ID_CONFIG ? JSON.parse(conf.SBER_ID_CONFIG) : {}
 
 // init constants
 const integration = new SberIdIdentityIntegration()
@@ -32,6 +29,7 @@ const logger = getLogger('sberid/routes')
 class SberIdRoutes {
     async startAuth (req, res, next) {
         try {
+            if (!SBER_ID_CONFIG.clientId) throw new Error('SBER_ID_CONFIG.clientId is not configured')
             const redirectUrl = getRedirectUrl(req)
             const userType = getUserType(req)
 
@@ -55,6 +53,7 @@ class SberIdRoutes {
     async completeAuth (req, res, next) {
         const reqId = req.id
         try {
+            if (!SBER_ID_CONFIG.clientId) throw new Error('SBER_ID_CONFIG.clientId is not configured')
             const { keystone: context } = await getSchemaCtx('User')
             const redirectUrl = getRedirectUrl(req)
             const userType = getUserType(req)
@@ -120,7 +119,7 @@ class SberIdRoutes {
         // redirect
         if (isNil(redirectUrl) && RESIDENT === user.type) {
             // resident entry page
-            return res.redirect(residentRedirectUri || '/')
+            return res.redirect(SBER_ID_CONFIG.residentRedirectUri || '/')
         } else if (isNil(redirectUrl)) {
             // staff entry page
             return res.redirect(finished ? '/' : '/onboarding')
