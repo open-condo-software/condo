@@ -7,6 +7,7 @@ import { Tooltip } from '@condo/domains/common/components/Tooltip'
 
 
 export interface INoOrganizationToolTipWrapper {
+    key: string,
     element: JSX.Element,
     placement: TooltipPlacement,
 }
@@ -22,6 +23,7 @@ export const useNoOrganizationToolTip = (): INoOrganizationToolTipHook => {
     const wrapElementIntoNoOrganizationToolTip = (params: INoOrganizationToolTipWrapper): JSX.Element => {
         return (
             <Tooltip
+                key={params.key}
                 title={CreateOrgWarning}
                 placement={params.placement}
                 trigger='click'
