@@ -2,6 +2,7 @@ import { BaseQueryOptions } from '@apollo/client'
 import { Form, Typography } from 'antd'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
+import getConfig from 'next/config'
 import React, { useState, Dispatch, SetStateAction, useCallback } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
@@ -10,7 +11,6 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
-import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { TIN_LENGTH } from '@condo/domains/organization/constants/common'
 import { EMPTY_NAME_ERROR, TIN_TOO_SHORT_ERROR, TIN_VALUE_INVALID } from '@condo/domains/organization/constants/errors'
@@ -30,7 +30,8 @@ interface IUseCreateOrganizationModalFormProps {
 const MODAL_VALIDATE_TRIGGERS = ['onBlur', 'onSubmit']
 const FORM_ITEM_STYLES = { width: '60%' }
 const FETCH_OPTIONS: BaseQueryOptions = { fetchPolicy: 'network-only' }
-const MUTATION_EXTRA_DATA = { country: RUSSIA_COUNTRY }
+const { publicRuntimeConfig: { defaultLocale } } = getConfig()
+const MUTATION_EXTRA_DATA = { country: defaultLocale }
 
 const adaptOrganizationMeta = (values) => {
     const { name, tin } = values
@@ -71,12 +72,13 @@ const prepareValidationErrorsMapping = ({ ValueIsTooShortMsg, TinTooShortMsg, Ti
         errors: [TinValueIsInvalid],
     },
 })
-const prepareValidators = ({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator }) => ({
+const prepareValidators = ({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator, locale }) => ({
     name: [requiredValidator],
     tin: [
         requiredValidator,
+        // TODO(pahaz): DOMA-663 probably you need to remove the line length check
         changeMessage(minLengthValidator(TIN_LENGTH), TinTooShortMsg),
-        tinValidator(MUTATION_EXTRA_DATA.country),
+        tinValidator(locale),
     ],
 })
 
@@ -99,14 +101,15 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     )
 
     const [isVisible, setIsVisible] = useState<boolean>(false)
-    const { selectLink } = useOrganization()
+    const { selectLink, organization } = useOrganization()
     const { user } = useAuth()
     const userId = get(user, 'id')
+    const locale = get(organization, 'country', defaultLocale)
 
     const { requiredValidator, minLengthValidator, changeMessage, tinValidator } = useValidations()
     const validators = React.useMemo(
-        () => prepareValidators({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator }),
-        [requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator]
+        () => prepareValidators({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator, locale }),
+        [requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator, locale]
     )
 
     const fetchParams = React.useMemo(() => ({ where: userId ? prepareFetchParams(userId) : {} }), [userId])

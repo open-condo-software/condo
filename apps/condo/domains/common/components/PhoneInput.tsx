@@ -1,6 +1,7 @@
 import { ConfigProvider } from 'antd'
 import { SizeType } from 'antd/es/config-provider/SizeContext'
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import React, {
     useRef,
     useImperativeHandle,
@@ -40,6 +41,8 @@ type PhoneInputRef = {
     } & ComponentProps<'input'>,
 }
 
+const { publicRuntimeConfig: { defaultLocale } } = getConfig()
+
 const getPhoneInputStyles = (style, size: SizeType, block?: boolean) => {
     let height = '32px'
 
@@ -64,7 +67,7 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
     const { value, placeholder, style, disabled, block, showCountryPrefix = true, ...otherProps } = props
     const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
     const { organization } = useOrganization()
-    const userOrganizationCountry = showCountryPrefix && get(organization, 'country', 'ru')
+    const userOrganizationCountry = showCountryPrefix && get(organization, 'country', defaultLocale)
     const inputRef = useRef<PhoneInputRef>()
 
     /*
