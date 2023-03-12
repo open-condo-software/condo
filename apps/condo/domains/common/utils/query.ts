@@ -3,7 +3,9 @@ import qs from 'qs'
 
 export const getObjectValueFromQuery = (router, path = []) => {
     try {
-        const initialValuesFromQuery = JSON.parse(get(router, ['query', ...path]))
+        const query = get(router, ['query', ...path])
+        if (!query) return {}
+        const initialValuesFromQuery = JSON.parse(query)
 
         if (initialValuesFromQuery) {
             return qs.parse(initialValuesFromQuery)
