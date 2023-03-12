@@ -103,6 +103,7 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
 
                                                 return type === OnBoardingStepType.DISABLED
                                                     ? wrapElementIntoNoOrganizationToolTip({
+                                                        key: id,
                                                         element: content,
                                                         placement: 'topLeft',
                                                     })
