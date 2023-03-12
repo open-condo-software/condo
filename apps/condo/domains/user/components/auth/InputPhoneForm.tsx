@@ -50,7 +50,8 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+    const SMSTooManyRequestsErrorMsg = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+    const WrongPhoneFormatErrorMsg = intl.formatMessage({ id: 'api.common.WRONG_PHONE_FORMAT' })
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const LoginBySBBOLMsg = intl.formatMessage({ id: 'LoginBySBBOL' })
     const ConsentContent = intl.formatMessage({ id: 'pages.auth.register.info.ConsentContent' })
@@ -61,7 +62,6 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
 
     const { setToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
-    const [smsSendError, setSmsSendError] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
     const [startPhoneVerify] = useMutation(START_CONFIRM_PHONE_MUTATION)
 
@@ -70,30 +70,33 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
         return {
             [TOO_MANY_REQUESTS]: {
                 name: 'phone',
-                errors: [SMSTooManyRequestsError],
+                errors: [SMSTooManyRequestsErrorMsg],
             },
         }
     }, [intl])
 
-    const PHONE_VALIDATOR = useCallback(() => ({
-        validator () {
-            if (!smsSendError) {
-                return Promise.resolve()
-            }
-            return Promise.reject(smsSendError)
-        },
-    }), [smsSendError])
+    const REGISTER_PHONE_RULES = useMemo(
+        () => [{ required: true, message: FieldIsRequiredMsg }],
+        [FieldIsRequiredMsg]
+    )
 
-    const REGISTER_PHONE_RULES = useMemo(() => [
-        { required: true, message: FieldIsRequiredMsg }, PHONE_VALIDATOR], [FieldIsRequiredMsg, PHONE_VALIDATOR])
-
-    const startConfirmPhone = useCallback(async () => {
+    const startConfirmPhone = useCallback(async (...args) => {
         const registerExtraData = {
             dv: 1,
             sender: getClientSideSenderInfo(),
         }
         const { phone: inputPhone } = form.getFieldsValue(['phone'])
         const phone = normalizePhone(inputPhone)
+        if (!phone) {
+            form.setFields([
+                {
+                    name: 'phone',
+                    errors: [WrongPhoneFormatErrorMsg],
+                },
+            ])
+            return
+        }
+
         setPhone(phone)
         const captcha = await handleReCaptchaVerify('start_confirm_phone')
         const variables = { data: { ...registerExtraData, phone, captcha } }
@@ -103,6 +106,15 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
         return runMutation({
             mutation: startPhoneVerify,
             variables,
+            onError: (error) => {
+                form.setFields([
+                    {
+                        name: 'phone',
+                        // NOTE(pahaz): `friendlyDescription` is the last GQLError.messageForUser!
+                        errors: [(error.friendlyDescription) ? error.friendlyDescription : SMSTooManyRequestsErrorMsg],
+                    },
+                ])
+            },
             onCompleted: (data) => {
                 const { data: { result: { token } } } = data
                 setToken(token)
@@ -117,10 +129,8 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
             intl,
             form,
             ErrorToFormFieldMsgMapping,
-        }).catch(() => {
-            setIsLoading(false)
         })
-    }, [intl, form, handleReCaptchaVerify])
+    }, [intl, form, handleReCaptchaVerify, WrongPhoneFormatErrorMsg, setPhone, setIsLoading, onFinish])
 
     return (
         <Row justify='center'>
@@ -148,7 +158,6 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                         <PhoneInput
                                             style={FORM_PHONE_STYLES}
                                             placeholder={ExamplePhoneMsg}
-                                            onChange={() => setSmsSendError(null)}
                                             block
                                         />
                                     </Form.Item>
