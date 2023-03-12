@@ -117,7 +117,7 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
             isAssignedVisibilityType={isAssignedVisibilityType}
             setDropdownVisible={setDropdownVisible}
         />
-    ), [setIsSearchByPhoneModalVisible, isAssignedVisibilityType])
+    ), [setIsSearchByPhoneModalVisible, isAssignedVisibilityType, setDropdownVisible])
 
     const trigger: DropDownProps['trigger'] = useMemo(() => isMobile ? ['click'] : ['hover'], [isMobile])
 
