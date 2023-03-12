@@ -76,8 +76,6 @@ const prepareValidators = ({ requiredValidator, changeMessage, minLengthValidato
     name: [requiredValidator],
     tin: [
         requiredValidator,
-        // TODO(pahaz): DOMA-663 probably you need to remove the line length check
-        changeMessage(minLengthValidator(TIN_LENGTH), TinTooShortMsg),
         tinValidator(locale),
     ],
 })
