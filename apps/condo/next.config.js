@@ -38,6 +38,7 @@ const TinyMceApiKey = conf['TINY_MCE_API_KEY']
 const UseDeskWidgetId = conf['USE_DESK_WIDGET_ID']
 const HelpRequisites = (conf['HELP_REQUISITES'] && JSON.parse(conf['HELP_REQUISITES'])) || {}
 const popupSmartUrl = conf['POPUP_SMART_URL']
+const hasSbbolAuth = Boolean((conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}).client_id)
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -59,6 +60,7 @@ module.exports = withTM(withLess(withCSS({
         UseDeskWidgetId,
         HelpRequisites,
         popupSmartUrl,
+        hasSbbolAuth,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
