@@ -1,4 +1,5 @@
 import { Col, Form, Row, RowProps, Typography } from 'antd'
+import getConfig from 'next/config'
 import Router from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 
@@ -56,6 +57,8 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const PrivacyPolicyContent = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
 
     const REGISTER_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
+
+    const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
 
     const { setToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
     const [smsSendError, setSmsSendError] = useState(null)
@@ -193,23 +196,28 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                         </Button>
                                     </Form.Item>
                                 </Col>
-                                <Col span={24} style={FORM_TYPOGRAPHY_STYLES}>
-                                    <FormattedMessage id='Or'/>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item>
-                                        <Button
-                                            key='submit'
-                                            type='sberAction'
-                                            secondary
-                                            icon={<SberIconWithoutLabel/>}
-                                            href='/api/sbbol/auth'
-                                            block
-                                        >
-                                            {LoginBySBBOLMsg}
-                                        </Button>
-                                    </Form.Item>
-                                </Col>
+                                {(hasSbbolAuth) ?
+                                    <>
+                                        <Col span={24} style={FORM_TYPOGRAPHY_STYLES}>
+                                            <FormattedMessage id='Or'/>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item>
+                                                <Button
+                                                    key='submit'
+                                                    type='sberAction'
+                                                    secondary
+                                                    icon={<SberIconWithoutLabel/>}
+                                                    href='/api/sbbol/auth'
+                                                    block
+                                                >
+                                                    {LoginBySBBOLMsg}
+                                                </Button>
+                                            </Form.Item>
+                                        </Col>
+                                    </>
+                                    : null
+                                }
                             </Row>
                         </ResponsiveCol>
                     </Row>

@@ -1,4 +1,5 @@
 import { Col, Form, Row, RowProps, Typography } from 'antd'
+import getConfig from 'next/config'
 import Router, { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
@@ -44,6 +45,8 @@ export const SignInForm = (): React.ReactElement => {
 
     const LOGIN_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
     const PASSWORD_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PasswordMsg}</label>
+
+    const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
 
     const [form] = Form.useForm()
     const router = useRouter()
@@ -161,23 +164,28 @@ export const SignInForm = (): React.ReactElement => {
                                 </Button>
                             </Form.Item>
                         </Col>
-                        <Col span={24} style={FORM_TYPOGRAPHY_STYLES}>
-                            <FormattedMessage id='Or'/>
-                        </Col>
-                        <Col span={24}>
-                            <Form.Item>
-                                <Button
-                                    key='submit'
-                                    type='sberAction'
-                                    secondary
-                                    icon={<SberIconWithoutLabel/>}
-                                    href='/api/sbbol/auth'
-                                    block
-                                >
-                                    {LoginBySBBOLMsg}
-                                </Button>
-                            </Form.Item>
-                        </Col>
+                        {(hasSbbolAuth) ?
+                            <>
+                                <Col span={24} style={FORM_TYPOGRAPHY_STYLES}>
+                                    <FormattedMessage id='Or'/>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item>
+                                        <Button
+                                            key='submit'
+                                            type='sberAction'
+                                            secondary
+                                            icon={<SberIconWithoutLabel/>}
+                                            href='/api/sbbol/auth'
+                                            block
+                                        >
+                                            {LoginBySBBOLMsg}
+                                        </Button>
+                                    </Form.Item>
+                                </Col>
+                            </>
+                            : null
+                        }
                     </Row>
                 </ResponsiveCol>
             </Row>
