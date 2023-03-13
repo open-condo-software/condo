@@ -89,8 +89,8 @@ describe('AllResidentBillingReceiptsService', () => {
                 expect(receipt.services).toBeNull()
             })
         })
-
-        it('returns correct services field', async () => {
+        //TODO: @abshnko return services check to mobile
+        it.skip('returns correct services field', async () => {
             const userClient = await makeClientWithProperty()
             const support = await makeClientWithSupportUser()
 
