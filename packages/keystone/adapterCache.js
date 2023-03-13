@@ -28,11 +28,19 @@
  * If request to this list is Mutation (anything that mutates the data):
  *  1. update state on this list to the update time of the updated/created/deleted object
  *
- *  Notes:
+ * Statistics:
+ *  - If cache logging is turned on, then statistics is shown on any log event.
+ *
+ * Garbage collection:
+ *  - Every request total number of keys in cache is checked. If total number of keys is greater than maxCacheKeys, keysToDelete with lowest score are deleted from cache.
+ *
+ * Notes:
  *  - Adapter level cache do not cache complex requests. A request is considered complex, if Where query contains other relationships
+ *
  */
 
-const { get, size, cloneDeep, floor } = require('lodash')
+const { get, size, cloneDeep, sortBy, floor } = require('lodash')
+const LRUCache = require('lru-cache')
 
 const { getLogger } = require('./logging')
 const { queryHasField } = require('./queryHasField')
@@ -52,29 +60,25 @@ class AdapterCache {
 
             this.enabled = !!get(parsedConfig, 'enable', false)
 
-            // Cache: listName -> queryKey -> { response, lastUpdate }
-            this.cache = {}
-
             // Redis is used as State:
-            // State: listName -> lastUpdate
+            // Note: Redis installation is modified with custom commands. Check getStateRedisClient for details
+            // State: { listName -> lastUpdate }
             this.redisClient = this.getStateRedisClient()
 
             // This mechanism allows to skip caching some lists.
             // Useful for hotfixes or disabling cache for business critical lists
-            //
-            // includeAllLists is Bool:
-            // If includeAllLists is True:
-            // ==> "includedLists" is ignored.
-            // ==> all lists, that are not in "excludedLists" are cached.
-            // Else:
-            // ==> only lists, that are in "includedLists" are cached.
-            // ==> lists that are in "excludedLists" are NOT cached.
-            this.includeAllLists = !!get(parsedConfig, 'includeAllLists', false)
-            this.includedLists = get(parsedConfig, 'includedLists', [])
             this.excludedLists = get(parsedConfig, 'excludedLists', [])
+
+            // This mechanism allows to control garbage collection.
+            this.maxCacheKeys = get(parsedConfig, 'maxCacheKeys', 1000)
+
+            // Cache: { listName -> queryKey -> { response, lastUpdate, score } }
+            //this.cache = new LRUCache({ maxSize: this.maxCacheKeys, sizeCalculation: () => this.getCacheSize() })
+            this.cache = {}
 
             // Logging allows to get the percentage of cache hits
             this.logging = get(parsedConfig, 'logging', false)
+
             this.totalRequests = 0
             this.cacheHits = 0
 
@@ -137,12 +141,53 @@ class AdapterCache {
         return null
     }
 
+    setCache (listName, key, value) {
+        value.listName = listName
+        this.cache[listName][key] = value
+    }
+
+    getCache (listName, key) {
+        return this.cache[listName][key]
+    }
+
     /**
      * Drops local cache on list
      * @param {string} listName
      */
     dropCacheByList (listName) {
         this.cache[listName] = {}
+    }
+
+    /**
+     * Get total number of requests
+     * @returns {number}
+     */
+    getTotal () {
+        return this.totalRequests
+    }
+
+    /**
+     * Get total number of cache hits
+     * @returns {number}
+     */
+    getHits () {
+        return this.cacheHits
+    }
+
+    /**
+     * Scores cache hit
+     * @returns {number}
+     */
+    incrementHit () {
+        return this.cacheHits++
+    }
+
+    /**
+     * Used to score total requests
+     * @returns {number}
+     */
+    incrementTotal () {
+        return this.totalRequests++
     }
 
     /**
@@ -162,30 +207,18 @@ class AdapterCache {
             key: key,
             response: result,
             meta: {
-                hits: this.cacheHits,
-                total: this.totalRequests,
-                hitrate: floor(this.cacheHits / this.totalRequests, 2),
+                hits: this.getHits(),
+                total: this.getTotal(),
+                hitrate: floor(this.getHits() / this.getTotal(), 2),
                 totalKeys: this.getCacheSize(),
             },
         })
     }
 
-    getTotal () {
-        return this.totalRequests
-    }
-
-    getHits () {
-        return this.cacheHits
-    }
-
-    incrementHit () {
-        return this.cache.cacheHits++
-    }
-
-    incrementTotal () {
-        return this.cache.totalRequests++
-    }
-
+    /**
+     * Logs cache event. Cache event could be obtained via getCacheEvent
+     * @param event
+     */
     logEvent ({ event }) {
         if (!this.logging) return
         logger.info(event)
@@ -216,16 +249,14 @@ class AdapterCache {
 /**
  * Patches an internal keystone adapter adding cache functionality
  * @param keystone
- * @param {AdapterCache} middleware
+ * @param {AdapterCache} cacheAPI
  * @returns {Promise<void>}
  */
-async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
+async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
     const keystoneAdapter = keystone.adapter
 
-    const cache = middleware.cache
-    const includeAllLists = middleware.includeAllLists
-    const excludedLists = middleware.excludedLists
-    const includedLists = middleware.includedLists
+    const cache = cacheAPI.cache
+    const excludedLists = cacheAPI.excludedLists
 
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
 
@@ -269,8 +300,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
             continue
         }
 
-        if (excludedLists.includes(listName) ||
-            !includeAllLists && !includedLists.includes(listName)) {
+        if (excludedLists.includes(listName)) {
             logger.info(`ADAPTER_CACHE: Cache is NOT enabled for list: ${listName} -> Cache is not included by config`)
             continue
         }
@@ -282,31 +312,31 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         const originalItemsQuery = listAdapter.itemsQuery
         const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, 'from', null)}_${JSON.stringify(get(opts, ['context', 'authedItem', 'id']))}`
         const getItemsQueryCondition = ([args]) => get(args, ['where'])
-        listAdapter.itemsQuery = patchAdapterQueryFunction(listName, 'itemsQuery', originalItemsQuery, listAdapter, middleware, getItemsQueryKey, getItemsQueryCondition, relations)
+        listAdapter.itemsQuery = patchAdapterQueryFunction(listName, 'itemsQuery', originalItemsQuery, listAdapter, cacheAPI, getItemsQueryKey, getItemsQueryCondition, relations)
 
         const originalFind = listAdapter.find
         const getFindKey = ([condition]) => `${JSON.stringify(condition)}`
         const getFindCondition = ([condition]) => condition
-        listAdapter.find = patchAdapterQueryFunction(listName, 'find', originalFind, listAdapter, middleware, getFindKey, getFindCondition, relations)
+        listAdapter.find = patchAdapterQueryFunction(listName, 'find', originalFind, listAdapter, cacheAPI, getFindKey, getFindCondition, relations)
 
         const originalFindById = listAdapter.findById
         const getFindByIdKey = ([id]) => `${id}`
-        listAdapter.findById = patchAdapterQueryFunction(listName, 'findById', originalFindById, listAdapter, middleware, getFindByIdKey)
+        listAdapter.findById = patchAdapterQueryFunction(listName, 'findById', originalFindById, listAdapter, cacheAPI, getFindByIdKey)
 
         const originalFindOne = listAdapter.findOne
         const getFindOneKey = ([condition]) => `${JSON.stringify(condition)}`
-        listAdapter.findOne = patchAdapterQueryFunction(listName, 'findOne', originalFindOne, listAdapter, middleware, getFindOneKey, getFindCondition, relations)
+        listAdapter.findOne = patchAdapterQueryFunction(listName, 'findOne', originalFindOne, listAdapter, cacheAPI, getFindOneKey, getFindCondition, relations)
 
         // Patch mutations:
 
         const originalUpdate = listAdapter.update
-        listAdapter.update = patchAdapterFunction(listName, 'update', originalUpdate, listAdapter, middleware, connectedLists )
+        listAdapter.update = patchAdapterFunction(listName, 'update', originalUpdate, listAdapter, cacheAPI, connectedLists )
 
         const originalCreate = listAdapter.create
-        listAdapter.create = patchAdapterFunction(listName, 'create', originalCreate, listAdapter, middleware, connectedLists )
+        listAdapter.create = patchAdapterFunction(listName, 'create', originalCreate, listAdapter, cacheAPI, connectedLists )
 
         const originalDelete = listAdapter.delete
-        listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, middleware, connectedLists )
+        listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, cacheAPI, connectedLists )
     }
 }
 
@@ -357,15 +387,15 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
  * @param {string} functionName
  * @param {function} f
  * @param {Object} listAdapter
- * @param {AdapterCache} cache
+ * @param {AdapterCache} cacheAPI
  * @param {function} getKey get key function. Called with arguments of f
  * @param {function} getQuery get query from args. Called with arguments of f
  * @param {Object} relations
  * @returns {(function(...[*]): Promise<*|*[]>)|*}
  */
-function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cache, getKey, getQuery = () => null, relations = {}) {
+function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cacheAPI, getKey, getQuery = () => null, relations = {}) {
     return async ( ...args ) => {
-        cache.incrementTotal()
+        cacheAPI.incrementTotal()
 
         let key = getKey(args)
         if (key) {
@@ -373,21 +403,21 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
         }
 
         let response = []
-        const cached = key ? cache.cache[listName][key] : null
-        const listLastUpdate = await cache.getState(listName)
+        const cached = key ? cacheAPI.getCache(listName, key) : null
+        const listLastUpdate = await cacheAPI.getState(listName)
 
         if (cached) {
             const cacheLastUpdate = cached.lastUpdate
             if (cacheLastUpdate && cacheLastUpdate.getTime() === listLastUpdate.getTime()) {
-                cache.incrementHit()
-                const cacheEvent = cache.getCacheEvent({
+                cacheAPI.incrementHit()
+                const cacheEvent = cacheAPI.getCacheEvent({
                     type: 'HIT',
                     functionName,
                     list: listName,
                     key,
-                    result: JSON.stringify(cached.response),
+                    result: { response: JSON.stringify(cached.response), score: cached.score },
                 })
-                cache.logEvent({ event: cacheEvent })
+                cacheAPI.logEvent({ event: cacheEvent })
 
                 return cloneDeep(cached.response)
             }
@@ -400,20 +430,20 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
         // Todo (@toplenboren) (DOMA-2681) Sometimes listName !== fieldName. Think about these cases!
         const shouldCache = !queryIsComplex(getQuery(args), listName, relations)
         if (shouldCache) {
-            cache.cache[listName][key] = {
+            cacheAPI.setCache(listName, key, {
                 lastUpdate: listLastUpdate,
                 response: copiedResponse,
-            }
+            })
         }
 
-        const cacheEvent = cache.getCacheEvent({
+        const cacheEvent = cacheAPI.getCacheEvent({
             type: 'MISS',
             functionName,
             key,
             list: listName,
             result: { copiedResponse, cached: shouldCache },
         })
-        cache.logEvent({ event: cacheEvent })
+        cacheAPI.logEvent({ event: cacheEvent })
 
         return response
     }
