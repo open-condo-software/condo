@@ -1,3 +1,4 @@
+const fetch = require('isomorphic-fetch')
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -29,8 +30,15 @@ const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'importBankTransactions
 
 const logger = getLogger('importBankTransactions')
 
-
-const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils) => {
+/**
+ * Worker function for import bank transaction using BankSyncTask
+ * Can be executed either in worker (separate process) or in tests (same process).
+ * @param taskId
+ * @param bankSyncTaskUtils - either real server utils for BankSyncTask, or a mock for tests
+ * @param fetchContent - either real function that will fetch a file, or a function that will return mocked data
+ * @returns {Promise<{integrationContext, transactions: *[], account: *}>}
+ */
+const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils, fetchContent) => {
     if (!taskId) throw new Error('taskId is undefined')
     const { keystone: context } = await getSchemaCtx('BankSyncTask')
     let task = await bankSyncTaskUtils.getOne(context, { id: taskId })
@@ -42,10 +50,8 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils) => {
 
     let conversionResult
     try {
-        const fileUpload = await Promise.resolve(file)
-        const fileStream = fileUpload.createReadStream()
+        const fileStream = await fetchContent(file)
         conversionResult = await convertFrom1CExchangeToSchema(fileStream)
-        fileStream.close()
     } catch (error) {
         throw new Error(`Cannot parse uploaded file in 1CClientBankExchange format. Error: ${error.message}`)
     }
@@ -120,7 +126,7 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils) => {
     let lastProgress = Date.now()
     const transactions = []
     let duplicatedTransactions = []
-    
+
     for (let i = 0; i < bankTransactionsData.length; i++) {
 
         // User can cancel the task at any time, in this all operations should be stopped
@@ -130,7 +136,7 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils) => {
             logger.info({ msg: 'status != processing. Aborting processing bank transactions loop', taskStatus, taskSchemaName: bankSyncTaskUtils.gql.SINGULAR_FORM, taskId })
             return
         }
-        
+
         const transactionData = bankTransactionsData[i]
         const existingTransaction = await BankTransaction.getOne(context, {
             number: transactionData.number,
@@ -210,9 +216,17 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils) => {
     }
 }
 
+const fetchContentUsingFileAdapter = async (file) => {
+    const response = await fetch(file.publicUrl)
+    if (response.status >= 400) {
+        throw new Error('Could not fetch file')
+    }
+    return response.body
+}
+
 module.exports = {
     importBankTransactionsTask: createTask('bankSyncTask', async (taskId) => {
-        await importBankTransactionsWorker(taskId, BankSyncTask)
+        await importBankTransactionsWorker(taskId, BankSyncTask, fetchContentUsingFileAdapter)
     }),
     importBankTransactionsWorker,
 }
