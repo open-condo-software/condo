@@ -28,29 +28,20 @@ const suggestionContexts = {
     mobileApp: {
         [DADATA_PROVIDER]: {
             from_bound: { value: 'city' },
-            to_bound: { value: 'house' },
         },
-        [GOOGLE_PROVIDER]: {
-            types: 'geocode',
-        },
+        [GOOGLE_PROVIDER]: {},
         [YANDEX_PROVIDER]: {},
     },
     suggestHouse: {
         [DADATA_PROVIDER]: {
             from_bound: { value: 'city' },
-            to_bound: { value: 'house' },
         },
-        [GOOGLE_PROVIDER]: {
-            types: 'geocode',
-        },
+        [GOOGLE_PROVIDER]: {},
+        [YANDEX_PROVIDER]: {},
     },
     userRuntime: {
-        [DADATA_PROVIDER]: {
-            from_bound: { value: 'country' },
-        },
-        [GOOGLE_PROVIDER]: {
-            types: 'geocode',
-        },
+        [DADATA_PROVIDER]: {},
+        [GOOGLE_PROVIDER]: {},
         [YANDEX_PROVIDER]: {},
     },
     /**
@@ -61,8 +52,6 @@ const suggestionContexts = {
             // NOTE: Used search from house to house for preventing results for country only etc.
             // Since we don't need such suggestions on server side
             from_bound: { value: 'house' },
-            to_bound: { value: 'house' },
-            restrict_value: true,
         },
         [GOOGLE_PROVIDER]: {},
         [YANDEX_PROVIDER]: {},
