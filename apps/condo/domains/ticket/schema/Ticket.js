@@ -10,6 +10,7 @@ const isNull = require('lodash/isNull')
 const { Json, AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition, getById } = require('@open-condo/keystone/schema')
+const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const {
     PROPERTY_REQUIRED_ERROR,
@@ -399,7 +400,7 @@ const Ticket = new GQLListSchema('Ticket', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
     hooks: {
         resolveInput: async ({ operation, context, resolvedData, existingItem }) => {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
