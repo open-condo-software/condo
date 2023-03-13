@@ -11,13 +11,9 @@ const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/ut
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadBankIntegrationAccountContexts ({ authentication: { item: user } }) {
-const { checkBankIntegrationsAccessRights } = require('./BankIntegrationAccessRight')
-
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('../../organization/utils/accessSchema')
 const { BANK_INTEGRATION_IDS } = require('../constants')
 
-async function canReadBankIntegrationContexts ({ authentication: { item: user }, context }) {
+async function canReadBankIntegrationAccountContexts ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -35,7 +31,7 @@ async function canReadBankIntegrationContexts ({ authentication: { item: user },
     }
 }
 
-async function canManageBankIntegrationAccountContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageBankIntegrationAccountContexts ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
