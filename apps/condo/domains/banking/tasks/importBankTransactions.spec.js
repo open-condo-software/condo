@@ -42,6 +42,15 @@ const mockBankSyncTaskUtilsFor = (task) => ({
     },
 })
 
+/**
+ * @param {UploadingFile} file
+ * @returns readable stream
+ */
+const downloadFileMock = async (file) => {
+    const fileUpload = await file
+    return fileUpload.createReadStream()
+}
+
 const expectCorrectBankTransaction = (obj, transactionDataToCompare, organization, bankAccount) => {
     expect(obj.id).toMatch(UUID_RE)
     expect(obj.dv).toEqual(1)
@@ -77,7 +86,7 @@ describe('importBankTransactionsWorker', () => {
 
         const bankSyncTaskUtilsMock = mockBankSyncTaskUtilsFor(task)
 
-        const { account: createdBankAccount, transactions } = await importBankTransactionsWorker(task.id, bankSyncTaskUtilsMock)
+        const { account: createdBankAccount, transactions } = await importBankTransactionsWorker(task.id, bankSyncTaskUtilsMock, downloadFileMock)
 
         expect(createdBankAccount).toBeDefined()
         expect(createdBankAccount.dv).toEqual(1)
@@ -130,7 +139,7 @@ describe('importBankTransactionsWorker', () => {
         const {
             account: reusedBankAccount,
             transactions,
-        } = await importBankTransactionsWorker(task.id, bankSyncTaskUtilsMock)
+        } = await importBankTransactionsWorker(task.id, bankSyncTaskUtilsMock, downloadFileMock)
 
         expect(reusedBankAccount.id).toEqual(existingBankAccount.id)
 
@@ -162,7 +171,7 @@ describe('importBankTransactionsWorker', () => {
         const {
             account: reusedBankAccount,
             transactions,
-        } = await importBankTransactionsWorker(task.id, bankSyncTaskUtilsMock)
+        } = await importBankTransactionsWorker(task.id, bankSyncTaskUtilsMock, downloadFileMock)
 
         expect(reusedBankAccount).toBeDefined()
         expect(reusedBankAccount.id).toEqual(existingBankAccount.id)
@@ -197,7 +206,7 @@ describe('importBankTransactionsWorker', () => {
         }
         const bankSyncTaskUtilsMock1 = mockBankSyncTaskUtilsFor(task1)
 
-        const { account: createdBankAccount, transactions } = await importBankTransactionsWorker(task1.id, bankSyncTaskUtilsMock1)
+        const { account: createdBankAccount, transactions } = await importBankTransactionsWorker(task1.id, bankSyncTaskUtilsMock1, downloadFileMock)
         expect(createdBankAccount).toBeDefined()
         expect(transactions).toHaveLength(4)
 
@@ -209,7 +218,7 @@ describe('importBankTransactionsWorker', () => {
         }
         const bankSyncTaskUtilsMock2 = mockBankSyncTaskUtilsFor(task2)
 
-        const { transactions: createdTransactions } = await importBankTransactionsWorker(task2.id, bankSyncTaskUtilsMock2)
+        const { transactions: createdTransactions } = await importBankTransactionsWorker(task2.id, bankSyncTaskUtilsMock2, downloadFileMock)
 
         expect(createdTransactions).toHaveLength(0)
 
@@ -238,7 +247,7 @@ describe('importBankTransactionsWorker', () => {
 
 
         await catchErrorFrom(async () => {
-            await importBankTransactionsWorker(task.id, bankSyncTaskUtilsMock)
+            await importBankTransactionsWorker(task.id, bankSyncTaskUtilsMock, downloadFileMock)
         }, ({ message }) => {
             expect(message).toEqual('Another integration is used for this bank account, that fetches transactions in a different way. You cannot import transactions from file in this case')
         })
@@ -256,7 +265,7 @@ describe('importBankTransactionsWorker', () => {
         const bankSyncTaskUtilsMock = mockBankSyncTaskUtilsFor(task)
 
         await catchErrorFrom(async () => {
-            await importBankTransactionsWorker(task.id, bankSyncTaskUtilsMock)
+            await importBankTransactionsWorker(task.id, bankSyncTaskUtilsMock, downloadFileMock)
         }, ({ message }) => {
             expect(message).toEqual('Cannot parse uploaded file in 1CClientBankExchange format. Error: Invalid node "СекцияРасчСчет" at line 14')
         })
