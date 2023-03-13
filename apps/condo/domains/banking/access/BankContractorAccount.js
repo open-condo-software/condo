@@ -19,7 +19,9 @@ async function canReadBankContractorAccounts ({ authentication: { item: user }, 
 
     if (user.isAdmin || user.isSupport) return true
 
-    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
+    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
+        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+    }
 
     return {
         OR: [
@@ -35,7 +37,9 @@ async function canManageBankContractorAccounts (args) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
+    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
+        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+    }
 
     return canManageBankEntityWithOrganization(args, 'canManageBankContractorAccounts')
 }

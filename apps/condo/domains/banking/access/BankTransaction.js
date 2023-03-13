@@ -22,7 +22,9 @@ async function canReadBankTransactions ({ authentication: { item: user }, contex
 
     if (user.isAdmin) return {}
 
-    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
+    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
+        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+    }
 
     return {
         OR: [
@@ -39,7 +41,9 @@ async function canManageBankTransactions (args) {
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
+    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
+        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+    }
 
     let organizationId
 

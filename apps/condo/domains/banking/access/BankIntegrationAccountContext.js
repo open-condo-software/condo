@@ -21,9 +21,11 @@ async function canReadBankIntegrationContexts ({ authentication: { item: user },
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
 
-    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
+    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
+        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+    }
 
     return {
         OR: [

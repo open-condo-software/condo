@@ -22,7 +22,9 @@ async function canReadBankAccounts ({ authentication: { item: user }, context })
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
+    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
+        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+    }
 
     return {
         OR: [
@@ -42,7 +44,9 @@ async function canManageBankAccounts (args) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
+    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
+        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+    }
 
     return canManageBankEntityWithOrganization(args, 'canManageBankAccounts')
 }
