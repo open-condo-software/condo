@@ -1,8 +1,8 @@
 import Ajv from 'ajv'
 import get from 'lodash/get'
 import omit from 'lodash/omit'
-import getConfig from 'next/config'
 import React, { useEffect, createContext, useState, useContext, useCallback } from 'react'
+import { v4 as uuidV4 } from 'uuid'
 
 import { ERROR_CODES } from './errors'
 import {
@@ -26,19 +26,12 @@ import type {
 import type { ValidatorsType } from './validators'
 import type { ValidateFunction } from 'ajv'
 
-
-const {
-    publicRuntimeConfig: {
-        serverUrl,
-        frontendUrl,
-    },
-} = getConfig()
-
-type HandlerOrigin = '*' | string
+type HandlerId = '*' | 'parent' | string
+type FrameId = string
 type OriginHandlers = Partial<{ [Method in AllRequestMethods]: RequestHandler<Method> }>
 type RegisterHandler = <Method extends AllRequestMethods>(
     event: Method,
-    origin: '*' | string,
+    frameId: HandlerId,
     handler: RequestHandler<Method>
 ) => void
 
@@ -46,10 +39,10 @@ type RegisterHandler = <Method extends AllRequestMethods>(
  * Context definitions
  */
 type IPostMessageContext = {
-    allowedOrigins: Readonly<Array<string>>
-    addOrigin: (origin: string) => void
-    removeOrigin: (origin: string) => void
-    handlers: Readonly<Record<HandlerOrigin, OriginHandlers>>
+    registeredFrames: Readonly<Record<FrameId, React.Ref<HTMLIFrameElement>>>
+    addFrame: (ref: React.Ref<HTMLIFrameElement>) => FrameId
+    removeFrame: (id: FrameId) => void
+    handlers: Readonly<Record<HandlerId, OriginHandlers>>
     addEventHandler: RegisterHandler
     validators: Readonly<ValidatorsType>
 }
@@ -58,17 +51,17 @@ type IPostMessageContext = {
  * Mocks in case Provider was not provided by DOM
  */
 const PostMessageContext = createContext<IPostMessageContext>({
-    allowedOrigins: [serverUrl],
-    addOrigin: () => ({}),
-    removeOrigin: () => ({}),
+    registeredFrames: {},
+    addFrame: () => null,
+    removeFrame: () => ({}),
     handlers: {},
     addEventHandler: () => ({}),
     validators,
 })
+
 /**
  * Common incoming message pattern and its schema
  */
-
 type MessageType = {
     handler: string
     params: RequestId & Record<string, unknown>
@@ -108,7 +101,7 @@ function getClientErrorMessage<Method extends AllRequestMethods> (
     }
 }
 
-const initialHandlers: Record<HandlerOrigin, OriginHandlers> = {
+const initialHandlers: Record<HandlerId, OriginHandlers> = {
     '*': {
         CondoWebAppShowNotification: handleNotification,
     },
@@ -116,16 +109,17 @@ const initialHandlers: Record<HandlerOrigin, OriginHandlers> = {
 
 /**
  * Single place to handle all incoming postMessages from condo and its miniapps.
- * You can register global handler for all origins by specifying "*" as origin (Example: notification)
- * Or pass "per origin" handler (Example: window resize)
+ * You can register global handler for all iframes by specifying "*" as id (Example: notification)
+ * You can also register handler for parent window itself by specifying "parent" as id (Example: notification)
+ * Or pass "per frame" handler (Example: window resize)
  * Provider takes care of 3 things:
- * 1. Making sure messages are trusted and coming from allowed Windows
+ * 1. Making sure messages are trusted and coming from allowed Windows instances
  * 2. Making sure message can be handled and passing parameters are valid
  * 3. Handling errors thrown by individual handlers and converting it to corresponding postMessage response
  */
 export const PostMessageProvider: React.FC = ({ children }) => {
-    const [allowedOrigins, setAllowedOrigins] = useState<Array<string>>([frontendUrl || serverUrl])
-    const [registeredHandlers, setRegisteredHandlers] = useState<Record<HandlerOrigin, OriginHandlers>>(initialHandlers)
+    const [registeredFrames, setRegisteredFrames] = useState<Record<FrameId, React.Ref<HTMLIFrameElement>>>({})
+    const [registeredHandlers, setRegisteredHandlers] = useState<Record<HandlerId, OriginHandlers>>(initialHandlers)
     const isOnClient = typeof window !== 'undefined'
 
     const addEventHandler: RegisterHandler = useCallback((event, origin, handler) => {
@@ -166,13 +160,16 @@ export const PostMessageProvider: React.FC = ({ children }) => {
         addEventHandler('CondoWebAppRedirect', '*', redirectHandler)
     }, [addEventHandler, redirectHandler])
 
-    const addOrigin = useCallback((origin: string) => {
-        setAllowedOrigins((prev) => prev.includes(origin) ? prev : [...prev, origin])
+    const addFrame = useCallback((ref: React.Ref<HTMLIFrameElement>) => {
+        const frameId = uuidV4()
+        setRegisteredFrames((prev) => ({ ...prev, [frameId]: ref }))
+        
+        return frameId
     }, [])
 
-    const removeOrigin = useCallback((origin: string) => {
-        setAllowedOrigins((prev) => prev.filter(element => element !== origin))
-        setRegisteredHandlers((prev) => omit(prev, origin))
+    const removeFrame = useCallback((frameId: string) => {
+        setRegisteredFrames((prev) => omit(prev, frameId))
+        setRegisteredHandlers((prev) => omit(prev, frameId))
     }, [])
 
     const handleMessage = useCallback((event: MessageEvent) => {
@@ -200,14 +197,24 @@ export const PostMessageProvider: React.FC = ({ children }) => {
                 )
             }
 
-            if (!allowedOrigins.includes(origin)) {
-                return event.source.postMessage(
-                    getClientErrorMessage('ACCESS_DENIED', 'Message was received from unregistered origin', requestId),
-                    event.origin,
-                )
+            const sourceWindow = event.source
+            let frameId = 'parent'
+
+            if (typeof window !== 'undefined' && sourceWindow !== window) {
+                const registeredFrame = Object.entries(registeredFrames)
+                    .find(([, ref]) => get(ref, ['current', 'contentWindow']) === sourceWindow)
+
+                if (!registeredFrame) {
+                    return event.source.postMessage(
+                        getClientErrorMessage('ACCESS_DENIED', 'Message was received from unregistered origin', requestId),
+                        event.origin,
+                    )
+                }
+
+                frameId = registeredFrame[0]
             }
 
-            const localHandler = get(registeredHandlers, [origin, method])
+            const localHandler = get(registeredHandlers, [frameId, method])
             const globalHandler = get(registeredHandlers, ['*', method])
             const handler = localHandler || globalHandler as RequestHandler<typeof method>
             if (!handler) {
@@ -241,7 +248,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
                 )
             }
         }
-    }, [allowedOrigins, registeredHandlers])
+    }, [registeredHandlers, registeredFrames])
 
     useEffect(() => {
         if (isOnClient) {
@@ -253,9 +260,9 @@ export const PostMessageProvider: React.FC = ({ children }) => {
 
     return (
         <PostMessageContext.Provider value={{
-            allowedOrigins,
-            addOrigin,
-            removeOrigin,
+            registeredFrames,
+            addFrame,
+            removeFrame,
             handlers: registeredHandlers,
             addEventHandler,
             validators,

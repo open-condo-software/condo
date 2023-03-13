@@ -1,5 +1,5 @@
 import get from 'lodash/get'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -52,6 +52,16 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
     const LoadingErrorOccurredTitle = intl.formatMessage({ id: 'miniapp.loadingError.title' })
     const LoadingErrorOccurredMessage = intl.formatMessage({ id: 'miniapp.loadingError.message' })
 
+    // Inner ref needed for managing postMessages, outer for managing multiple frames
+    const innerRef = useRef(null)
+    const handleRefChange = useCallback((el: HTMLIFrameElement) => {
+        if (typeof ref === 'function') {
+            ref(el)
+        }
+
+        innerRef.current = el
+    }, [ref])
+
     const [isLoading, setIsLoading] = useState(true)
     const [isError, setIsError] = useState(false)
     const [frameHeight, setFrameHeight] = useState(DEFAULT_FRAME_HEIGHT)
@@ -59,7 +69,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
 
     const { user } = useAuth()
     const { organization } = useOrganization()
-    const { addOrigin, addEventHandler, removeOrigin } = usePostMessageContext()
+    const { addFrame, addEventHandler, removeFrame } = usePostMessageContext()
 
     const userId = get(user, 'id', null)
     const organizationId = get(organization, 'id', null)
@@ -118,15 +128,15 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
     useEffect(() => {
         const srcOrigin = extractOrigin(src)
         if (srcOrigin) {
-            addOrigin(srcOrigin)
+            const frameId = addFrame(innerRef)
 
             if (withResize) {
-                addEventHandler('CondoWebAppResizeWindow', srcOrigin, resizeFrame)
+                addEventHandler('CondoWebAppResizeWindow', frameId, resizeFrame)
             }
 
-            return () => removeOrigin(srcOrigin)
+            return () => removeFrame(frameId)
         }
-    }, [src, withResize, addOrigin, removeOrigin, addEventHandler, resizeFrame])
+    }, [src, withResize, addEventHandler, resizeFrame, ref, addFrame, removeFrame])
 
     return (
         <>
@@ -149,7 +159,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
                 style={IFRAME_STYLES}
                 onLoad={handleLoad}
                 hidden={isLoading || isError || hidden}
-                ref={ref}
+                ref={handleRefChange}
                 height={frameHeight}
                 // NOTE: Deprecated, but overflow: hidden still not works in Chrome :)
                 scrolling='no'
