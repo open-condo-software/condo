@@ -46,6 +46,7 @@ RUN yarn install --immutable
 
 # yarn workspaces foreach -pt run build
 RUN set -ex \
+    && turbo build --filter="./packages/*" \
     && turbo build --filter="./apps/*" \
     && rm -rf /app/.env  \
     && rm -rf /app/.config /app/.cache /app/.docker  \
