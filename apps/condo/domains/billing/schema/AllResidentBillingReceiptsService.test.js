@@ -86,7 +86,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 expect(receipt.category).not.toBeNull()
 
                 expect(receipt).toHaveProperty('services')
-                expect(receipt.services).toBeNull()
+                expect(receipt.services).not.toBeNull()
             })
         })
         //TODO: @abshnko return services check to mobile
