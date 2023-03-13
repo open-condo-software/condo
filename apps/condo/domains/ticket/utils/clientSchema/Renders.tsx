@@ -4,9 +4,10 @@ import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import { isEmpty } from 'lodash'
+import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import isString from 'lodash/isString'
-import React, { CSSProperties, useState } from 'react'
+import React, { CSSProperties, useMemo, useRef, useState } from 'react'
 
 import { Star, StarFilled } from '@open-condo/icons'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -60,32 +61,48 @@ export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommen
 
 const STAR_ICON_WRAPPER_STYLES = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
 
-const FavoriteTicketIndicator = () => {
-    const [isFavorite, setIsFavorite] = useState<boolean>()
+export const FavoriteTicketIndicator = ({ ticketId, userFavoriteTickets, createUserFavoriteTicketAction, deleteUserFavoriteTicketAction }) => {
+    const favoriteTicket = userFavoriteTickets.find(favoriteTicket => favoriteTicket.ticket.id === ticketId)
+
+    const debouncedCreateOrDeleteFavoriteTicket = useMemo(() => debounce(() => {
+        if (favoriteTicket) {
+            deleteUserFavoriteTicketAction(favoriteTicket)
+        } else {
+            createUserFavoriteTicketAction({
+                ticket: { connect: { id: ticketId } },
+            })
+        }
+    }, 800), [createUserFavoriteTicketAction, deleteUserFavoriteTicketAction, favoriteTicket, ticketId])
 
     return (
-        <div style={STAR_ICON_WRAPPER_STYLES}>
+        <div style={STAR_ICON_WRAPPER_STYLES} onClick={(e) => {
+            e.stopPropagation()
+            debouncedCreateOrDeleteFavoriteTicket()
+        }}>
             {
-                isFavorite ? (
-                    <StarFilled color={colors.yellow[5]} onClick={(e) => {
-                        e.stopPropagation()
-                        setIsFavorite(false)
-                    }}/>
+                favoriteTicket ? (
+                    <StarFilled color={colors.yellow[5]}/>
                 ) : (
-                    <Star color={colors.gray[7]} onClick={(e) => {
-                        e.stopPropagation()
-                        setIsFavorite(true)
-                    }}/>
+                    <Star color={colors.gray[7]}/>
                 )
             }
         </div>
     )
 }
 
-export const getTicketFavoriteRender = () => {
-    return () => {
+export const getTicketFavoriteRender = ({
+    userFavoriteTickets,
+    createUserFavoriteTicketAction,
+    deleteUserFavoriteTicketAction,
+}) => {
+    return (ticket) => {
         return (
-            <FavoriteTicketIndicator />
+            <FavoriteTicketIndicator
+                ticketId={ticket.id}
+                userFavoriteTickets={userFavoriteTickets}
+                createUserFavoriteTicketAction={createUserFavoriteTicketAction}
+                deleteUserFavoriteTicketAction={deleteUserFavoriteTicketAction}
+            />
         )
     }
 }

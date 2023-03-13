@@ -1,4 +1,5 @@
 import { Ticket } from '@app/condo/schema'
+import debounce from 'lodash/debounce'
 import { ColumnsType } from 'antd/lib/table'
 import { ColumnType } from 'antd/lib/table/interface'
 import get from 'lodash/get'
@@ -26,7 +27,8 @@ import { RE_FETCH_TICKETS_IN_CONTROL_ROOM } from '@condo/domains/common/constant
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '@condo/domains/ticket/utils/clientSchema'
+
+import { TicketCommentsTime, TicketStatus, UserFavoriteTicket, UserTicketCommentReadTime } from '../utils/clientSchema'
 import {
     getClassifierRender, getCommentsIndicatorRender,
     getStatusRender,
@@ -133,6 +135,18 @@ export function useTableColumns<T> (
             },
         },
     })
+    const { objs: userFavoriteTickets, refetch: refetchFavoriteTickets } = UserFavoriteTicket.useObjects({
+        where: {
+            user: { id: user.id },
+            ticket: {
+                id_in: ticketIds,
+            },
+        },
+    })
+    const createUserFavoriteTicketAction = UserFavoriteTicket.useCreate({
+        user: { connect: { id: user.id } },
+    }, () => refetchFavoriteTickets())
+    const deleteUserFavoriteTicketAction = UserFavoriteTicket.useSoftDelete(() => refetchFavoriteTickets())
 
     const { useFlag, updateContext } = useFeatureFlags()
     const { organization } = useOrganization()
@@ -175,7 +189,11 @@ export function useTableColumns<T> (
             {
                 key: 'favorite',
                 width: COLUMNS_WIDTH.favorite,
-                render: getTicketFavoriteRender(),
+                render: getTicketFavoriteRender({
+                    userFavoriteTickets,
+                    createUserFavoriteTicketAction,
+                    deleteUserFavoriteTicketAction,
+                }),
                 align: 'center',
                 className: 'favorite-column',
             },
@@ -304,5 +322,5 @@ export function useTableColumns<T> (
             },
         ],
         loading: userTicketCommentReadTimesLoading || ticketCommentTimesLoading || statusesLoading,
-    }), [NumberMessage, sorterMap, filters, filterMetas, intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes, search, DateMessage, StatusMessage, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading, statusesLoading])
+    }), [ticketsCommentTimes, userTicketCommentReadTimes, userFavoriteTickets, sorterMap, filters, filterMetas, userTicketCommentReadTimesLoading, ticketCommentTimesLoading, statusesLoading])
 }

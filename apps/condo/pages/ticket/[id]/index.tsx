@@ -58,9 +58,10 @@ import {
     TicketChange,
     TicketComment,
     TicketCommentFile,
-    TicketCommentsTime,
+    TicketCommentsTime, UserFavoriteTicket,
     UserTicketCommentReadTime,
 } from '@condo/domains/ticket/utils/clientSchema'
+import { FavoriteTicketIndicator } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import {
     getTicketCreateMessage,
     getTicketTitleMessage,
@@ -217,6 +218,17 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         ticket: { connect: { id } },
     }, () => refetchUserTicketCommentReadTime())
 
+    const { objs: userFavoriteTickets, refetch: refetchFavoriteTickets } = UserFavoriteTicket.useObjects({
+        where: {
+            user: { id: user.id },
+            ticket: { id },
+        },
+    })
+    const createUserFavoriteTicketAction = UserFavoriteTicket.useCreate({
+        user: { connect: { id: user.id } },
+    }, () => refetchFavoriteTickets())
+    const deleteUserFavoriteTicketAction = UserFavoriteTicket.useSoftDelete(() => refetchFavoriteTickets())
+
     const canShareTickets = get(employee, 'role.canShareTickets')
     const ticketVisibilityType = get(employee, 'role.ticketVisibilityType')
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
@@ -360,7 +372,15 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                 <Col xl={11} md={13} xs={24}>
                                     <Row justify={isSmall ? 'center' : 'end'} gutter={SMALL_VERTICAL_GUTTER}>
                                         <Col span={24}>
-                                            <Row justify='end'>
+                                            <Row justify='end' align='middle' gutter={[40, 0]}>
+                                                <Col>
+                                                    <FavoriteTicketIndicator
+                                                        ticketId={id}
+                                                        userFavoriteTickets={userFavoriteTickets}
+                                                        createUserFavoriteTicketAction={createUserFavoriteTicketAction}
+                                                        deleteUserFavoriteTicketAction={deleteUserFavoriteTicketAction}
+                                                    />
+                                                </Col>
                                                 <Col>
                                                     <TicketStatusSelect
                                                         organization={organization}
