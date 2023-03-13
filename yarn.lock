@@ -9296,6 +9296,7 @@ __metadata:
     graphql-tag: ^2.12.6
     ioredis: ^4.28.5
     lodash: ^4.17.21
+    lru-cache: ^7.18.3
     minimatch: ^5.1.1
     node-fetch: ^2.6.7
     ow: ^0.19.0
@@ -30336,6 +30337,13 @@ __metadata:
   dependencies:
     yallist: ^3.0.2
   checksum: c154ae1cbb0c2206d1501a0e94df349653c92c8cbb25236d7e85190bcaf4567a03ac6eb43166fabfa36fd35623694da7233e88d9601fbf411a9a481d85dbd2cb
+  languageName: node
+  linkType: hard
+
+"lru-cache@npm:^7.18.3":
+  version: 7.18.3
+  resolution: "lru-cache@npm:7.18.3"
+  checksum: e550d772384709deea3f141af34b6d4fa392e2e418c1498c078de0ee63670f1f46f5eee746e8ef7e69e1c895af0d4224e62ee33e66a543a14763b0f2e74c1356
   languageName: node
   linkType: hard
 

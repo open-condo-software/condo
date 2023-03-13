@@ -39,7 +39,7 @@
  *
  */
 
-const { get, size, cloneDeep, sortBy, floor } = require('lodash')
+const { get, size, cloneDeep, floor } = require('lodash')
 const LRUCache = require('lru-cache')
 
 const { getLogger } = require('./logging')
@@ -73,8 +73,7 @@ class AdapterCache {
             this.maxCacheKeys = get(parsedConfig, 'maxCacheKeys', 1000)
 
             // Cache: { listName -> queryKey -> { response, lastUpdate, score } }
-            //this.cache = new LRUCache({ maxSize: this.maxCacheKeys, sizeCalculation: () => this.getCacheSize() })
-            this.cache = {}
+            this.cache = new LRUCache({ max: this.maxCacheKeys })
 
             // Logging allows to get the percentage of cache hits
             this.logging = get(parsedConfig, 'logging', false)
@@ -143,11 +142,11 @@ class AdapterCache {
 
     setCache (listName, key, value) {
         value.listName = listName
-        this.cache[listName][key] = value
+        this.cache.set(key, value)
     }
 
-    getCache (listName, key) {
-        return this.cache[listName][key]
+    getCache (key) {
+        return this.cache.get(key)
     }
 
     /**
@@ -155,7 +154,13 @@ class AdapterCache {
      * @param {string} listName
      */
     dropCacheByList (listName) {
-        this.cache[listName] = {}
+
+        // We drop all cached items, that are associated with certain list!
+        this.cache.entries().forEach(([key, cachedItem]) => {
+            if (get(cachedItem, 'listName') === listName) {
+                this.cache.delete(key)
+            }
+        })
     }
 
     /**
@@ -229,11 +234,7 @@ class AdapterCache {
      * @returns {number}
      */
     getCacheSize = () => {
-        let result = 0
-        Object.entries(this.cache).forEach(([_, keysByList]) => {
-            result += size(keysByList)
-        })
-        return result
+        return this.cache.size
     }
 
     async prepareMiddleware ({ keystone, dev, distDir }) {
@@ -403,11 +404,11 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
         }
 
         let response = []
-        const cached = key ? cacheAPI.getCache(listName, key) : null
+        const cachedItem = key ? cacheAPI.getCache(key) : null
         const listLastUpdate = await cacheAPI.getState(listName)
 
-        if (cached) {
-            const cacheLastUpdate = cached.lastUpdate
+        if (cachedItem) {
+            const cacheLastUpdate = cachedItem.lastUpdate
             if (cacheLastUpdate && cacheLastUpdate.getTime() === listLastUpdate.getTime()) {
                 cacheAPI.incrementHit()
                 const cacheEvent = cacheAPI.getCacheEvent({
@@ -415,11 +416,11 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
                     functionName,
                     list: listName,
                     key,
-                    result: { response: JSON.stringify(cached.response), score: cached.score },
+                    result: JSON.stringify(cachedItem),
                 })
                 cacheAPI.logEvent({ event: cacheEvent })
 
-                return cloneDeep(cached.response)
+                return cloneDeep(cachedItem.response)
             }
         }
 
