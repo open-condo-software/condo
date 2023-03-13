@@ -57,7 +57,8 @@ async function process () {
     logger.info({ msg: 'Start processing recurrent payment tasks' })
 
     // prepare context
-    const { keystone: context } = await getSchemaCtx('RecurrentPayment')
+    const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
+    const context = await keystone.createContext({ skipAccessControl: true })
 
     // prepare vars
     const { pageSize } = paginationConfiguration

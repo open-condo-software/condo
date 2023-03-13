@@ -50,7 +50,8 @@ async function process () {
     logger.info({ msg: 'Start processing recurrent payment context' })
 
     // prepare context
-    const { keystone: context } = await getSchemaCtx('RecurrentPaymentContext')
+    const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
+    const context = await keystone.createContext({ skipAccessControl: true })
 
     // prepare vars
     const date = dayjs()
@@ -61,6 +62,7 @@ async function process () {
     // retrieve RecurrentPaymentContext page by page
     while (hasMorePages) {
         logger.info({ msg: `Processing recurrent payment context page #${Math.floor(offset / pageSize)}` })
+
         // get page (can be empty)
         const page = await getReadyForProcessingContextPage(context, date, pageSize, offset)
 

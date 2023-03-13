@@ -20,7 +20,7 @@ const {
 const { getStartDates } = require('@condo/domains/common/utils/date')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
-const logger = getLogger('recurrent-payment-seeking-for-new-receipt')
+const logger = getLogger('recurrent-payments-seeking-for-new-receipt')
 
 const REDIS_LAST_DATE_KEY = 'LAST_RECURRENT_PAYMENT_SEEKING_RECEIPTS_CREATED_AT'
 
@@ -67,7 +67,8 @@ async function process () {
     logger.info({ msg: 'Start processing new billing receipts for recurrentPaymentContext tasks' })
 
     // prepare context
-    const { keystone: context } = await getSchemaCtx('RecurrentPaymentContext')
+    const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
+    const context = await keystone.createContext({ skipAccessControl: true })
 
     // prepare vars
     const { pageSize } = paginationConfiguration
@@ -90,7 +91,7 @@ async function process () {
             paymentDay: null,
             autoPayReceipts: true,
         }
-        const page = await getReadyForProcessingContextPage(context, pageSize, offset, extraArgs)
+        const page = await getReadyForProcessingContextPage(context, dayjs(), pageSize, offset, extraArgs)
 
         // process each page in parallel
         await processArrayOf(page).inParallelWith(async (recurrentPaymentContext) => {
