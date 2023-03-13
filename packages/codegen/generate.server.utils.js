@@ -142,6 +142,8 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
 }
 
 function generateServerUtils (gql) {
+    if (!gql) throw new Error('you are trying to generateServerUtils without gql argument')
+
     async function getAll (context, where, { sortBy, first, skip } = {}, options = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
