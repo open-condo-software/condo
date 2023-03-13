@@ -9,9 +9,15 @@ const conf = require('@open-condo/config')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { throwIfError, generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/constants')
+const {
+    PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, VOIP_INCOMING_CALL_MESSAGE_TYPE,
+    MESSAGE_BATCH_TYPE_OPTIONS, PUSH_TRANSPORT_FIREBASE, PUSH_FAKE_TOKEN_SUCCESS,
+    B2C_APP_MESSAGE_PUSH_TYPE,
+} = require('@condo/domains/notification/constants/constants')
 
 const {
     ALL_MINI_APPS_QUERY,
+    SEND_APP_PUSH_MESSAGE_MUTATION,
     B2BApp: B2BAppGQL,
     B2BAppContext: B2BAppContextGQL,
     B2BAppAccessRight: B2BAppAccessRightGQL,
@@ -21,6 +27,7 @@ const {
     B2CAppAccessRight: B2CAppAccessRightGQL,
     B2CAppBuild: B2CAppBuildGQL,
 } = require('@condo/domains/miniapp/gql')
+const { MessageAppBlackList: MessageAppBlackListGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice(options) {
@@ -40,6 +47,7 @@ const B2CAppAccessRight = generateGQLTestUtils(B2CAppAccessRightGQL)
 const B2CAppBuild = generateGQLTestUtils(B2CAppBuildGQL)
 const B2CAppProperty = generateGQLTestUtils(B2CAppPropertyGQL)
 const B2BAppPromoBlock = generateGQLTestUtils(B2BAppPromoBlockGQL)
+const MessageAppBlackList = generateGQLTestUtils(MessageAppBlackListGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -324,6 +332,55 @@ async function updateTestB2BAppPromoBlock (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function sendAppPushMessageByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        data: { 
+            body: `testBody ${faker.random.alphaNumeric(8)}`,
+        },
+        ...extraAttrs,
+    }
+
+    const { data, errors } = await client.mutate(SEND_APP_PUSH_MESSAGE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+async function createTestMessageAppBlackList (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const description = faker.random.alphaNumeric(8)
+    const type = B2C_APP_MESSAGE_PUSH_TYPE
+
+    const attrs = {
+        dv: 1,
+        description,
+        sender,
+        type,
+        ...extraAttrs,
+    }
+    const obj = await MessageAppBlackList.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMessageAppBlackList (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MessageAppBlackList.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 function getFakeAddress(validAddress = true, validHouse = true) {
     const cityPart = `город ${faker.name.firstName()}`
@@ -345,6 +402,8 @@ module.exports = {
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild,
     B2CAppProperty, createTestB2CAppProperty, updateTestB2CAppProperty,
     B2BAppPromoBlock, createTestB2BAppPromoBlock, updateTestB2BAppPromoBlock,
+    sendAppPushMessageByTestClient,
+    MessageAppBlackList, createTestMessageAppBlackList, updateTestMessageAppBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
     getFakeAddress,
 }
