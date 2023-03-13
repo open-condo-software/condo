@@ -28,7 +28,9 @@ const Select = <T extends SelectValueType> (props: CustomSelectProps<T>) => {
         if (eventName) {
             let selectedValue = null
 
-            if (isArray(option)) {
+            if (restProps.mode === 'tags' && isArray(value)) {
+                selectedValue = compact(value)
+            } else if (isArray(option)) {
                 selectedValue = compact(option.map(opt => get(opt, 'title', false) || get(opt, 'label')))
             } else {
                 selectedValue = get(option, 'title')
