@@ -237,6 +237,16 @@ class AdapterCache {
     }
 }
 
+const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, 'from', null)}_${JSON.stringify(get(opts, ['context', 'authedItem', 'id']))}`
+const getItemsQueryCondition = ([args]) => get(args, ['where'])
+
+const getFindKey = ([condition]) => `${JSON.stringify(condition)}`
+const getFindCondition = ([condition]) => condition
+
+const getFindByIdKey = ([id]) => `${id}`
+
+const getFindOneKey = ([condition]) => `${JSON.stringify(condition)}`
+
 /**
  * Patches an internal keystone adapter adding cache functionality
  * @param keystone
@@ -301,21 +311,15 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
         // Patch public queries from BaseKeystoneList:
 
         const originalItemsQuery = listAdapter.itemsQuery
-        const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, 'from', null)}_${JSON.stringify(get(opts, ['context', 'authedItem', 'id']))}`
-        const getItemsQueryCondition = ([args]) => get(args, ['where'])
         listAdapter.itemsQuery = patchAdapterQueryFunction(listName, 'itemsQuery', originalItemsQuery, listAdapter, cacheAPI, getItemsQueryKey, getItemsQueryCondition, relations)
 
         const originalFind = listAdapter.find
-        const getFindKey = ([condition]) => `${JSON.stringify(condition)}`
-        const getFindCondition = ([condition]) => condition
         listAdapter.find = patchAdapterQueryFunction(listName, 'find', originalFind, listAdapter, cacheAPI, getFindKey, getFindCondition, relations)
 
         const originalFindById = listAdapter.findById
-        const getFindByIdKey = ([id]) => `${id}`
         listAdapter.findById = patchAdapterQueryFunction(listName, 'findById', originalFindById, listAdapter, cacheAPI, getFindByIdKey)
 
         const originalFindOne = listAdapter.findOne
-        const getFindOneKey = ([condition]) => `${JSON.stringify(condition)}`
         listAdapter.findOne = patchAdapterQueryFunction(listName, 'findOne', originalFindOne, listAdapter, cacheAPI, getFindOneKey, getFindCondition, relations)
 
         // Patch mutations:
