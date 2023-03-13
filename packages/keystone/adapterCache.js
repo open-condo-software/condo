@@ -196,37 +196,27 @@ class AdapterCache {
     }
 
     /**
-     * Gets a serialized cache event item for logging
-     * @param {string} type
-     * @param {string} functionName
-     * @param {string} key
-     * @param {string} list
-     * @param {object} result
-     * @returns {{response, meta: {hits: number, total: number, totalKeys: number}, function, type, list, key}}
+     * Logs cache event.
+     * @param {Object} event
      */
-    getCacheEvent ({ type, functionName, key, list, result }) {
-        return ({
-            type: type,
-            function: functionName,
-            list: list,
-            key: key,
-            response: result,
+    logEvent ( { type, functionName, listName, key, result } ) {
+        if (!this.logging) return
+
+        const cacheEvent = {
+            type,
+            functionName,
+            listName,
+            key,
+            result,
             meta: {
                 hits: this.getHits(),
                 total: this.getTotal(),
                 hitrate: floor(this.getHits() / this.getTotal(), 2),
                 totalKeys: this.getCacheSize(),
             },
-        })
-    }
+        }
 
-    /**
-     * Logs cache event. Cache event could be obtained via getCacheEvent
-     * @param event
-     */
-    logEvent ({ event }) {
-        if (!this.logging) return
-        logger.info(event)
+        logger.info(cacheEvent)
     }
 
     /**
@@ -369,14 +359,13 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
             cache.dropCacheByList(listName)
         }
 
-        const cacheEvent = cache.getCacheEvent({
+        cache.logEvent({
             type: 'DROP',
             functionName,
-            list: listName,
+            listName,
             key: listName,
             result: functionResult,
         })
-        cache.logEvent({ event: cacheEvent })
 
         return functionResult
     }
@@ -411,14 +400,14 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
             const cacheLastUpdate = cachedItem.lastUpdate
             if (cacheLastUpdate && cacheLastUpdate.getTime() === listLastUpdate.getTime()) {
                 cacheAPI.incrementHit()
-                const cacheEvent = cacheAPI.getCacheEvent({
+
+                cacheAPI.logEvent({
                     type: 'HIT',
                     functionName,
-                    list: listName,
+                    listName,
                     key,
                     result: JSON.stringify(cachedItem),
                 })
-                cacheAPI.logEvent({ event: cacheEvent })
 
                 return cloneDeep(cachedItem.response)
             }
@@ -436,15 +425,14 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
                 response: copiedResponse,
             })
         }
-
-        const cacheEvent = cacheAPI.getCacheEvent({
+        
+        cacheAPI.logEvent({
             type: 'MISS',
             functionName,
             key,
-            list: listName,
+            listName,
             result: { copiedResponse, cached: shouldCache },
         })
-        cacheAPI.logEvent({ event: cacheEvent })
 
         return response
     }
