@@ -39,7 +39,7 @@
  *
  */
 
-const { get, size, cloneDeep, floor } = require('lodash')
+const { get, cloneDeep, floor } = require('lodash')
 const LRUCache = require('lru-cache')
 
 const { getLogger } = require('./logging')
@@ -156,9 +156,9 @@ class AdapterCache {
     dropCacheByList (listName) {
 
         // We drop all cached items, that are associated with certain list!
-        this.cache.entries().forEach(([key, cachedItem]) => {
+        this.cache.forEach((cachedItem, key) => {
             if (get(cachedItem, 'listName') === listName) {
-                this.cache.delete(key)
+                this.cache.del(key)
             }
         })
     }
