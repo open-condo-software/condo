@@ -1,19 +1,16 @@
 import { Ticket } from '@app/condo/schema'
-import debounce from 'lodash/debounce'
 import { ColumnsType } from 'antd/lib/table'
 import { ColumnType } from 'antd/lib/table/interface'
 import get from 'lodash/get'
 import map from 'lodash/map'
 import { identity } from 'lodash/util'
 import { useRouter } from 'next/router'
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Star, StarFilled } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { colors } from '@open-condo/ui/dist/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
@@ -27,8 +24,7 @@ import { RE_FETCH_TICKETS_IN_CONTROL_ROOM } from '@condo/domains/common/constant
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-
-import { TicketCommentsTime, TicketStatus, UserFavoriteTicket, UserTicketCommentReadTime } from '../utils/clientSchema'
+import { TicketCommentsTime, TicketStatus, UserFavoriteTicket, UserTicketCommentReadTime } from '@condo/domains/ticket/utils/clientSchema'
 import {
     getClassifierRender, getCommentsIndicatorRender,
     getStatusRender,
@@ -135,7 +131,7 @@ export function useTableColumns<T> (
             },
         },
     })
-    const { objs: userFavoriteTickets, refetch: refetchFavoriteTickets } = UserFavoriteTicket.useObjects({
+    const { objs: userFavoriteTickets, refetch: refetchFavoriteTickets, loading: favoriteTicketsLoading } = UserFavoriteTicket.useObjects({
         where: {
             user: { id: user.id },
             ticket: {
@@ -143,10 +139,6 @@ export function useTableColumns<T> (
             },
         },
     })
-    const createUserFavoriteTicketAction = UserFavoriteTicket.useCreate({
-        user: { connect: { id: user.id } },
-    }, () => refetchFavoriteTickets())
-    const deleteUserFavoriteTicketAction = UserFavoriteTicket.useSoftDelete(() => refetchFavoriteTickets())
 
     const { useFlag, updateContext } = useFeatureFlags()
     const { organization } = useOrganization()
@@ -191,11 +183,10 @@ export function useTableColumns<T> (
                 width: COLUMNS_WIDTH.favorite,
                 render: getTicketFavoriteRender({
                     userFavoriteTickets,
-                    createUserFavoriteTicketAction,
-                    deleteUserFavoriteTicketAction,
+                    refetchFavoriteTickets,
+                    favoriteTicketsLoading,
                 }),
                 align: 'center',
-                className: 'favorite-column',
             },
             {
                 title: NumberMessage,
@@ -321,6 +312,6 @@ export function useTableColumns<T> (
                 ellipsis: true,
             },
         ],
-        loading: userTicketCommentReadTimesLoading || ticketCommentTimesLoading || statusesLoading,
-    }), [ticketsCommentTimes, userTicketCommentReadTimes, userFavoriteTickets, sorterMap, filters, filterMetas, userTicketCommentReadTimesLoading, ticketCommentTimesLoading, statusesLoading])
+        loading: userTicketCommentReadTimesLoading || ticketCommentTimesLoading,
+    }), [intl, ticketsCommentTimes, userTicketCommentReadTimes, breakpoints, userFavoriteTickets, refetchFavoriteTickets, favoriteTicketsLoading, NumberMessage, sorterMap, filters, filterMetas, search, DateMessage, StatusMessage, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading])
 }

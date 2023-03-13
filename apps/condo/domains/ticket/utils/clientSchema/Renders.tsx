@@ -1,4 +1,5 @@
 import { Property, Ticket } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
@@ -7,9 +8,10 @@ import { isEmpty } from 'lodash'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import isString from 'lodash/isString'
-import React, { CSSProperties, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Star, StarFilled } from '@open-condo/icons'
+import { useAuth } from '@open-condo/next/auth'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
@@ -26,12 +28,19 @@ import {
     TicketDeadlineType,
 } from '../helpers'
 
+import { UserFavoriteTicket } from './index'
+
 
 const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = {
     position: 'absolute', left: '-102px', top: '50%', transform: 'translateY(-50%)', zIndex: 999,
 }
 const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { padding: '24px' }
-const NEW_COMMENTS_INDICATOR_STYLES: CSSProperties = { backgroundColor: 'red', borderRadius: '100px', width: '8px', height: '8px' }
+const NEW_COMMENTS_INDICATOR_STYLES: CSSProperties = {
+    backgroundColor: 'red',
+    borderRadius: '100px',
+    width: '8px',
+    height: '8px',
+}
 const ADDRESS_RENDER_POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
 export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes }) => {
@@ -49,8 +58,8 @@ export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommen
             <div style={breakpoints.xl ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL : {}}>
                 <Tooltip title={NewResidentCommentMessage} placement='topRight'>
                     <Typography.Text title={NewResidentCommentMessage}>
-                        <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES} >
-                            <div style={NEW_COMMENTS_INDICATOR_STYLES} />
+                        <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES}>
+                            <div style={NEW_COMMENTS_INDICATOR_STYLES}/>
                         </div>
                     </Typography.Text>
                 </Tooltip>
@@ -59,49 +68,82 @@ export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommen
     }
 }
 
-const STAR_ICON_WRAPPER_STYLES = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
+const FavoriteTicketIconContainer = styled.div`
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+const DEBOUNCE_TIMEOUT_IN_MS = 800
 
-export const FavoriteTicketIndicator = ({ ticketId, userFavoriteTickets, createUserFavoriteTicketAction, deleteUserFavoriteTicketAction }) => {
-    const favoriteTicket = userFavoriteTickets.find(favoriteTicket => favoriteTicket.ticket.id === ticketId)
+export const FavoriteTicketIndicator = ({ ticketId, userFavoriteTickets, refetchFavoriteTickets, loading }) => {
+    const { user } = useAuth()
 
-    const debouncedCreateOrDeleteFavoriteTicket = useMemo(() => debounce(() => {
-        if (favoriteTicket) {
-            deleteUserFavoriteTicketAction(favoriteTicket)
-        } else {
-            createUserFavoriteTicketAction({
-                ticket: { connect: { id: ticketId } },
-            })
+    const [isFavorite, setIsFavorite] = useState<boolean>()
+    const [debouncedIsFavorite, setDebouncedIsFavorite] = useState<boolean>()
+
+    const handleSetDebouncedIsFavorite = useRef(debounce((state) => {
+        setDebouncedIsFavorite(state)
+    }, DEBOUNCE_TIMEOUT_IN_MS))
+
+    const initialIsFavorite = !!userFavoriteTickets.find(favoriteTicket => favoriteTicket.ticket.id === ticketId)
+    useEffect(() => {
+        if (isFavorite === undefined && !loading) {
+            setIsFavorite(initialIsFavorite)
         }
-    }, 800), [createUserFavoriteTicketAction, deleteUserFavoriteTicketAction, favoriteTicket, ticketId])
+    }, [initialIsFavorite, isFavorite, loading])
+
+    const createUserFavoriteTicketAction = UserFavoriteTicket.useCreate({
+        user: { connect: { id: user.id } },
+        ticket: { connect: { id: ticketId } },
+    }, () => refetchFavoriteTickets())
+    const deleteUserFavoriteTicketAction = UserFavoriteTicket.useSoftDelete(() => refetchFavoriteTickets())
+
+    useEffect(() => {
+        if (debouncedIsFavorite !== undefined && debouncedIsFavorite !== initialIsFavorite) {
+            if (debouncedIsFavorite) {
+                createUserFavoriteTicketAction({})
+            } else {
+                const favoriteTicket = userFavoriteTickets.find(favoriteTicket => favoriteTicket.ticket.id === ticketId)
+                deleteUserFavoriteTicketAction(favoriteTicket)
+            }
+        }
+    }, [debouncedIsFavorite])
+
+    const handleClick = useCallback((e) => {
+        e.stopPropagation()
+
+        setIsFavorite(prev => !prev)
+        handleSetDebouncedIsFavorite.current(!isFavorite)
+    }, [isFavorite])
 
     return (
-        <div style={STAR_ICON_WRAPPER_STYLES} onClick={(e) => {
-            e.stopPropagation()
-            debouncedCreateOrDeleteFavoriteTicket()
-        }}>
+        <FavoriteTicketIconContainer
+            onClick={handleClick}
+        >
             {
-                favoriteTicket ? (
+                isFavorite ? (
                     <StarFilled color={colors.yellow[5]}/>
                 ) : (
                     <Star color={colors.gray[7]}/>
                 )
             }
-        </div>
+        </FavoriteTicketIconContainer>
     )
 }
 
 export const getTicketFavoriteRender = ({
     userFavoriteTickets,
-    createUserFavoriteTicketAction,
-    deleteUserFavoriteTicketAction,
+    refetchFavoriteTickets,
+    favoriteTicketsLoading,
 }) => {
     return (ticket) => {
         return (
             <FavoriteTicketIndicator
                 ticketId={ticket.id}
                 userFavoriteTickets={userFavoriteTickets}
-                createUserFavoriteTicketAction={createUserFavoriteTicketAction}
-                deleteUserFavoriteTicketAction={deleteUserFavoriteTicketAction}
+                refetchFavoriteTickets={refetchFavoriteTickets}
+                loading={favoriteTicketsLoading}
             />
         )
     }
@@ -248,7 +290,7 @@ export const getStatusRender = (intl, search?: FilterValue) => {
         const { primary: backgroundColor, secondary: color } = status.colors
         const extraProps = { style: { color } }
         // TODO(DOMA-1518) find solution for cases where no status received
-        const highlightedContent = getHighlightedContents(search, null, extraProps, null,  null)(status.name)
+        const highlightedContent = getHighlightedContents(search, null, extraProps, null, null)(status.name)
 
         return (
             <Space direction='vertical' size={7}>
