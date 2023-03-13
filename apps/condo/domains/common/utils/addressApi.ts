@@ -1,6 +1,7 @@
 import { AddressMetaField } from '@app/condo/schema'
 import getConfig from 'next/config'
 
+import { makeId } from './makeid.utils'
 import { getCurrentUserId } from './userid.utils'
 
 type TSuggestion = AddressMetaField & {
@@ -19,11 +20,11 @@ export interface IAddressApi {
 export class AddressApi implements IAddressApi {
     constructor () {
         this.setAddressSuggestionsConfig()
+        this.setSessionConfig()
     }
 
     public getSuggestions (query: string): SuggestionsResponse {
-        const session = getCurrentUserId()
-        return fetch(`${this.suggestionsUrl}?s=${query}&context=suggestHouse&session=${session}`, {
+        return fetch(`${this.suggestionsUrl}?s=${query}&context=suggestHouse&session=${this.session}`, {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -54,6 +55,13 @@ export class AddressApi implements IAddressApi {
         this.suggestionsUrl = `${apiUrl}/suggest`
     }
 
+    private setSessionConfig () {
+        const user = getCurrentUserId()
+        const session = makeId(8)
+        this.session = `${user}-${session}`
+    }
+
     private suggestionsUrl: string
+    private session: string
     private rawAddressCache: Map<string, string> = new Map()
 }
