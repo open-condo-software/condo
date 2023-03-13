@@ -131,6 +131,7 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
                 visible={dropdownVisible}
                 onVisibleChange={setDropdownVisible}
             >
+                {/* NOTE: you need to use `dev` wrapper because of warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef() */}
                 <div>{
                     minified
                         ? (<StyledButton type='sberGradient' icon={<PlusOutlined />} shape='circle'/>)
