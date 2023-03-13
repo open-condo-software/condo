@@ -63,8 +63,7 @@ async function canManageOrganizationNewsItems ({ authentication: { item: user },
 
     if (!organizationId) return false
 
-    const permission = await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageNews')
-    if (!permission) return false
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageNews')
 }
 
 /*
