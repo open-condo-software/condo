@@ -28,11 +28,11 @@ const {
 
 const {
     processContext,
-} = require('./recurrent-payment-seeking-for-new-receipt')
+} = require('./recurrent-payments-seeking-for-new-receipt')
 
 const { keystone } = index
 
-describe('recurrent-payment-seeking-for-new-receipt', () => {
+describe('recurrent-payments-seeking-for-new-receipt', () => {
     let adminContext, admin, getContextRequest
     setFakeClientMode(index)
 
