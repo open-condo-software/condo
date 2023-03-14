@@ -30,9 +30,6 @@ describe('RecurrentPaymentContext', () => {
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
-        support = await makeClientWithSupportUser()
-        user = await makeClientWithNewRegisteredAndLoggedInUser()
-        anonymous = await makeClient()
         billingCategory = (await createTestBillingCategory(admin, { name: `Category ${new Date()}` }))[0]
 
         getContextRequest = async () => ({
@@ -187,7 +184,7 @@ describe('RecurrentPaymentContext', () => {
         describe('read', () => {
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestRecurrentPaymentContext(admin, await getContextRequest())
+                const [obj] = await createTestRecurrentPaymentContext(admin, await getContextRequest())
 
                 const objs = await RecurrentPaymentContext.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -200,8 +197,7 @@ describe('RecurrentPaymentContext', () => {
             })
 
             test('user can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestRecurrentPaymentContext(serviceConsumerClient, await getContextRequest())
+                const [obj] = await createTestRecurrentPaymentContext(serviceConsumerClient, await getContextRequest())
 
                 const objs = await RecurrentPaymentContext.getAll(serviceConsumerClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -213,7 +209,7 @@ describe('RecurrentPaymentContext', () => {
 
             test('user1 can\'t read recurrentPaymentContext for user2', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestRecurrentPaymentContext(admin, await getContextRequest())
+                await createTestRecurrentPaymentContext(admin, await getContextRequest())
 
                 const client2 = await makeClientWithServiceConsumer()
                 const objs = await RecurrentPaymentContext.getAll(client2, {}, { sortBy: ['updatedAt_DESC'] })
@@ -224,7 +220,7 @@ describe('RecurrentPaymentContext', () => {
 
             test('anonymous can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestRecurrentPaymentContext(admin, await getContextRequest())
+                await createTestRecurrentPaymentContext(admin, await getContextRequest())
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {

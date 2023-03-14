@@ -51,7 +51,7 @@ async function processContext (context, date, recurrentPaymentContext) {
 
 async function process () {
     const jobId = uuid()
-    logger.info({ msg: 'Start processing recurrent payment context', jobId})
+    logger.info({ msg: 'Start processing recurrent payment context', jobId })
 
     // prepare context
     const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
@@ -65,7 +65,7 @@ async function process () {
 
     // retrieve RecurrentPaymentContext page by page
     while (hasMorePages) {
-        logger.info({ msg: `Processing recurrent payment context page #${Math.floor(offset / pageSize)}`, jobId})
+        logger.info({ msg: `Processing recurrent payment context page #${Math.floor(offset / pageSize)}`, jobId })
 
         // get page (can be empty)
         const page = await getAllReadyToPayRecurrentPaymentContexts(context, date, pageSize, offset)
@@ -83,7 +83,7 @@ async function process () {
         hasMorePages = page.length > 0
         offset += pageSize
     }
-    logger.info({ msg: 'End processing recurrent payment context', jobId})
+    logger.info({ msg: 'End processing recurrent payment context', jobId })
 }
 
 module.exports = {

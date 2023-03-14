@@ -44,9 +44,6 @@ describe('RecurrentPayment', () => {
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
-        support = await makeClientWithSupportUser()
-        user = await makeClientWithNewRegisteredAndLoggedInUser()
-        anonymous = await makeClient()
         billingCategory = (await createTestBillingCategory(admin, { name: `Category ${new Date()}` }))[0]
 
         getContextRequest = () => ({
