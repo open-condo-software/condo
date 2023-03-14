@@ -9,7 +9,7 @@ const {
     paginationConfiguration,
 } = require('@condo/domains/acquiring/tasks/utils/constants')
 const {
-    getReadyForProcessingContextPage,
+    getAllReadyToPayRecurrentPaymentContexts,
     getReceiptsForServiceConsumer,
 } = require('@condo/domains/acquiring/tasks/utils/queries')
 const {
@@ -65,7 +65,7 @@ async function process () {
         logger.info(`Processing recurrent payment context page #${Math.floor(offset / pageSize)}`)
 
         // get page (can be empty)
-        const page = await getReadyForProcessingContextPage(context, date, pageSize, offset)
+        const page = await getAllReadyToPayRecurrentPaymentContexts(context, date, pageSize, offset)
 
         // process each page in parallel
         await processArrayOf(page).inParallelWith(async (recurrentPaymentContext) => {

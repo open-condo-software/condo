@@ -43,7 +43,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 
 const logger = getLogger('recurrent-payment-processing-queries')
 
-async function getReadyForProcessingContextPage (context, date, pageSize, offset, extraArgs = {}) {
+async function getAllReadyToPayRecurrentPaymentContexts (context, date, pageSize, offset, extraArgs = {}) {
     // calculate payment day
     const paymentDay = dayjs(date).date()
     const endOfMonthPaymentDay = dayjs(date).endOf('month').date()
@@ -377,7 +377,7 @@ async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMess
 }
 
 module.exports = {
-    getReadyForProcessingContextPage,
+    getAllReadyToPayRecurrentPaymentContexts,
     getServiceConsumer,
     getReceiptsForServiceConsumer,
     filterPaidBillingReceipts,

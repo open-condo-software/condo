@@ -62,7 +62,7 @@ const {
     PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
 } = require('./constants')
 const {
-    getReadyForProcessingContextPage,
+    getAllReadyToPayRecurrentPaymentContexts,
     getServiceConsumer,
     getReceiptsForServiceConsumer,
     filterPaidBillingReceipts,
@@ -85,7 +85,7 @@ describe('recurrent payments queries', () => {
         adminContext = await keystone.createContext({ skipAccessControl: true })
     })
 
-    describe('getReadyForProcessingContextPage', () => {
+    describe('getAllReadyToPayRecurrentPaymentContexts', () => {
         let admin, getContextRequest, date
 
         beforeAll(async () => {
@@ -121,7 +121,7 @@ describe('recurrent payments queries', () => {
                 enabled: true,
             })
 
-            const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
+            const objs = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, pageSize, 0, {
                 id_in: [id1, id2, id3],
             })
             expect(objs).toHaveLength(1)
@@ -146,7 +146,7 @@ describe('recurrent payments queries', () => {
                 paymentDay: null,
             })
 
-            const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
+            const objs = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, pageSize, 0, {
                 id_in: [id1, id2],
             })
             expect(objs).toHaveLength(1)
@@ -178,7 +178,7 @@ describe('recurrent payments queries', () => {
                 enabled: true,
             })
 
-            const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
+            const objs = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, pageSize, 0, {
                 id_in: [id1, id2, id3],
             })
             expect(objs).toHaveLength(1)
@@ -215,7 +215,7 @@ describe('recurrent payments queries', () => {
             })
 
             const date = dayjs('2023-02-28')
-            const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
+            const objs = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, pageSize, 0, {
                 id_in: [id1, id2, id3, id4],
             })
             expect(objs).toHaveLength(4)
@@ -238,7 +238,7 @@ describe('recurrent payments queries', () => {
                 paymentDay: null,
             })
 
-            const objs = await getReadyForProcessingContextPage(adminContext, date, pageSize, 0, {
+            const objs = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, pageSize, 0, {
                 id_in: [id1, id2],
                 paymentDay: null,
                 autoPayReceipts: true,
