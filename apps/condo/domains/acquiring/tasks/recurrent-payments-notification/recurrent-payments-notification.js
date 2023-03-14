@@ -17,7 +17,7 @@ const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 const logger = getLogger('recurrent-payment-context-notification')
 
 async function process () {
-    logger.info({ msg: 'Start processing recurrent payment notifications tasks' })
+    logger.info('Start processing recurrent payment notifications tasks')
 
     // prepare context
     const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
@@ -31,7 +31,7 @@ async function process () {
 
     // retrieve RecurrentPaymentContext page by page
     while (hasMorePages) {
-        logger.info({ msg: `Processing recurrent payment notification page #${Math.floor(offset / pageSize)}` })
+        logger.info(`Processing recurrent payment notification page #${Math.floor(offset / pageSize)}`)
 
         // get page (can be empty)
         const page = await getReadyForProcessingContextPage(context, tomorrowDate, pageSize, offset)
@@ -49,7 +49,7 @@ async function process () {
         hasMorePages = page.length > 0
         offset += pageSize
     }
-    logger.info({ msg: 'End processing recurrent payment notifications' })
+    logger.info('End processing recurrent payment notifications')
 }
 
 module.exports = {

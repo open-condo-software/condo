@@ -48,7 +48,7 @@ async function processContext (context, date, recurrentPaymentContext) {
 }
 
 async function process () {
-    logger.info({ msg: 'Start processing recurrent payment context' })
+    logger.info('Start processing recurrent payment context')
 
     // prepare context
     const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
@@ -62,7 +62,7 @@ async function process () {
 
     // retrieve RecurrentPaymentContext page by page
     while (hasMorePages) {
-        logger.info({ msg: `Processing recurrent payment context page #${Math.floor(offset / pageSize)}` })
+        logger.info(`Processing recurrent payment context page #${Math.floor(offset / pageSize)}`)
 
         // get page (can be empty)
         const page = await getReadyForProcessingContextPage(context, date, pageSize, offset)
@@ -79,7 +79,7 @@ async function process () {
         hasMorePages = page.length > 0
         offset += pageSize
     }
-    logger.info({ msg: 'End processing recurrent payment context' })
+    logger.info('End processing recurrent payment context')
 }
 
 module.exports = {
