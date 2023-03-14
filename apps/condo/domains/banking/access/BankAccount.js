@@ -11,6 +11,7 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
 /**
  * BankAccount entity can be read either by:
@@ -22,8 +23,23 @@ async function canReadBankAccounts ({ authentication: { item: user }, context })
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
-        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+    if (user.type === SERVICE) {
+        if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
+            integrationContext: {
+                deletedAt: null,
+                integration: {
+                    deletedAt: null,
+                    accessRights_some: {
+                        deletedAt: null,
+                        user: {
+                            id: user.id,
+                        },
+                    },
+                },
+            },
+        }
+
+        return false
     }
 
     return {
@@ -44,8 +60,10 @@ async function canManageBankAccounts (args) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
-        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+    if (user.type === SERVICE) {
+        if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
+
+        return false
     }
 
     return canManageBankEntityWithOrganization(args, 'canManageBankAccounts')

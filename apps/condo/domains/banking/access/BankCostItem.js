@@ -4,19 +4,12 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/utils/accessSchema')
-
-const { BANK_INTEGRATION_IDS } = require('../constants')
 
 async function canReadBankCostItems ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin) return {}
-
-    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
-        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
-    }
 
     return {}
 }
@@ -25,10 +18,6 @@ async function canManageBankCostItems ({ authentication: { item: user }, origina
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
-
-    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
-        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
-    }
 
     return false
 }

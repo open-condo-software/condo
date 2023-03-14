@@ -8,18 +8,23 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
+const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/utils/accessSchema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 async function canReadBankIntegrationOrganizationContexts (args) {
-    const { authentication: { item: user }, originalInput, context } = args
+    const { authentication: { item: user }, context } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
     if (user.type === SERVICE) {
-        // TODO(VKislov): need to check access for service user with checkBankIntegrationsAccessRights(context, user.id, [bankIntegration])
+        if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
+            integration: { accessRights_some: { user: user.id }, deletedAt: null },
+        }
+
         return false
     }
 
@@ -38,7 +43,8 @@ async function canManageBankIntegrationOrganizationContexts (args) {
     if (user.isAdmin || user.isSupport) return true
 
     if (user.type === SERVICE) {
-        // TODO(VKislov): need to check access for service user with checkBankIntegrationsAccessRights(context, user.id, [bankIntegration])
+        if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
+
         return false
     }
 

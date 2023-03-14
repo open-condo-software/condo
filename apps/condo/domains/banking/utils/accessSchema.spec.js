@@ -3,14 +3,14 @@
  */
 const index = require('@app/condo/index')
 
-const { makeLoggedInAdminClient, catchErrorFrom, setFakeClientMode } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 
-const { BankIntegrationAccessRight } = require('@condo/domains/banking/utils/testSchema')
-const { createTestOrganization, Organization } = require('@condo/domains/organization/utils/testSchema')
+const { BankIntegrationAccessRight, createTestBankIntegrationOrganizationContext, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
-const { BankIntegration, createTestBankIntegrationContext } = require('./testSchema')
+const { BankIntegration, createTestBankIntegrationAccountContext } = require('./testSchema')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
 
@@ -31,19 +31,13 @@ describe('checkBankIntegrationsAccessRights', () => {
         })
     })
 
-    it('Service user can', async () => {
+    it('Service user can create instances of banking entities and connect organization to them', async () => {
         const [organization] = await createTestOrganization(adminClient)
 
-        const bankIntegrationContext = await createTestBankIntegrationContext(serviceClient, bankIntegration, organization)
+        await createTestBankIntegrationOrganizationContext(adminClient, bankIntegration, organization)
+
+        const [bankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(serviceClient, bankIntegration, organization)
         
-        expect(bankIntegrationContext).toBeDefined()
-    })
-    it('user can', async () => {
-        const [organization] = await createTestOrganization(adminClient)
-
-        const org = await Organization.getAll(serviceClient, {
-            id: organization.id,
-        })
-        expect(org.length).toBeGreaterThanOrEqual(1)
+        expect(bankIntegrationAccountContext).toBeDefined()
     })
 })

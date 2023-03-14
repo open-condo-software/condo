@@ -15,7 +15,7 @@ async function canReadBankIntegrations ({ authentication: { item: user }, contex
     if (user.isAdmin) return {}
 
     if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
-        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+        accessRights_some: { user: { id: user.id }, deletedAt: null }, deletedAt: null,
     }
 
     return true

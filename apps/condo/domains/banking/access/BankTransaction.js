@@ -12,7 +12,7 @@ const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
 } = require('@condo/domains/organization/utils/accessSchema')
-
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
 
@@ -22,8 +22,12 @@ async function canReadBankTransactions ({ authentication: { item: user }, contex
 
     if (user.isAdmin) return {}
 
-    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
-        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+    if (user.type === SERVICE) {
+        if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
+            integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+        }
+
+        return false
     }
 
     return {
@@ -41,8 +45,10 @@ async function canManageBankTransactions (args) {
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
-        integrationContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
+    if (user.type === SERVICE) {
+        if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
+
+        return false
     }
 
     let organizationId
