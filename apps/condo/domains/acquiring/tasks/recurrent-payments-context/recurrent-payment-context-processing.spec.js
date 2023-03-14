@@ -77,7 +77,7 @@ describe('recurrent-payment-context-processing', () => {
         expect(recurrentPayment).toHaveProperty('recurrentPaymentContext')
 
         expect(recurrentPayment.status).toEqual(RECURRENT_PAYMENT_INIT_STATUS)
-        expect(recurrentPayment.payAfter).toBeUndefined()
+        expect(recurrentPayment.payAfter).toBeNull()
         expect(recurrentPayment.tryCount).toEqual(0)
         expect(recurrentPayment.state).toBeDefined()
         expect(recurrentPayment.billingReceipts).toHaveLength(2)
