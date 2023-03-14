@@ -75,14 +75,17 @@ export const getPropertyScopeFilter = () => {
     }
 }
 
-export const getTicketTypeFilter = (favoriteTicketIds) => {
-    return function getWhereQuery (options) {
-        const hasCommon = options.includes('common')
-        const hasFavourite = options.includes('favourite')
+export const getTicketTypeFilter = (userId) => {
+    return function getWhereQuery (option) {
+        if (isEmpty(option)) return
 
-        if (hasCommon && hasFavourite) return {}
-        if (hasCommon) return { id_not_in: favoriteTicketIds }
-        if (hasFavourite) return { id_in: favoriteTicketIds }
+        if (option === 'own') {
+            return { OR: [{ executor: { id: userId }, assignee: { id: userId } }] }
+        }
+
+        if (option === 'favorite') {
+            return {}
+        }
     }
 }
 

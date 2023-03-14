@@ -25797,6 +25797,7 @@ type TicketFilter {
   contactIsNull: [String]
   completedAt: [String]
   lastCommentAt: [String]
+  type: String
 }
 
 """ Employee specific ticket filter template """

@@ -9,6 +9,7 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
 import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
+import { useIntl } from 'react-intl'
 
 import { Star, StarFilled } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
@@ -16,10 +17,12 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { getAddressCellRender } from '@condo/domains/property/utils/clientSchema/Renders'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
+import { useFavoriteTickets } from '@condo/domains/ticket/contexts/FavoriteTicketsContext'
 
 import {
     getDeadlineType,
@@ -33,6 +36,12 @@ import { UserFavoriteTicket } from './index'
 
 const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = {
     position: 'absolute', left: '-102px', top: '50%', transform: 'translateY(-50%)', zIndex: 999,
+}
+const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES_ON_SMALLER_THAN_XL: CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '8px',
 }
 const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { padding: '24px' }
 const NEW_COMMENTS_INDICATOR_STYLES: CSSProperties = {
@@ -55,10 +64,10 @@ export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommen
         const lastCommentAt = get(currentTicketCommentTimes, 'lastCommentAt')
 
         return hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt) && (
-            <div style={breakpoints.xl && NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL}>
+            <div style={breakpoints.xl ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL : {}}>
                 <Tooltip title={NewResidentCommentMessage} placement='topRight'>
                     <Typography.Text title={NewResidentCommentMessage}>
-                        <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES}>
+                        <div style={breakpoints.xl ? NEW_COMMENTS_INDICATOR_WRAPPER_STYLES : NEW_COMMENTS_INDICATOR_WRAPPER_STYLES_ON_SMALLER_THAN_XL}>
                             <div style={NEW_COMMENTS_INDICATOR_STYLES}/>
                         </div>
                     </Typography.Text>
@@ -68,16 +77,17 @@ export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommen
     }
 }
 
-const FavoriteTicketIconContainer = styled.div`
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
-const DEBOUNCE_TIMEOUT_IN_MS = 800
+const DEBOUNCE_TIMEOUT_IN_MS = 200
+const FAVORITE_TICKET_INDICATOR_CONTAINER_STYLE: CSSProperties = { cursor: 'pointer' }
 
-export const FavoriteTicketIndicator = ({ ticketId, userFavoriteTickets, refetchFavoriteTickets, loading }) => {
+export const FavoriteTicketIndicator = ({ ticketId, eventProperties }) => {
+    const intl = useIntl()
+    const AddToFavoriteMessage = intl.formatMessage({ id: 'pages.condo.ticket.favorite.addToFavorite' })
+    const RemoveFromFavoriteMessage = intl.formatMessage({ id: 'pages.condo.ticket.favorite.removeFromFavorite' })
+
     const { user } = useAuth()
+    const { userFavoriteTickets, refetchFavoriteTickets, loading } = useFavoriteTickets()
+    const { logEvent } = useTracking()
 
     const [isFavorite, setIsFavorite] = useState<boolean>()
     const [debouncedIsFavorite, setDebouncedIsFavorite] = useState<boolean>()
@@ -102,6 +112,7 @@ export const FavoriteTicketIndicator = ({ ticketId, userFavoriteTickets, refetch
     useEffect(() => {
         if (debouncedIsFavorite !== undefined && debouncedIsFavorite !== initialIsFavorite) {
             if (debouncedIsFavorite) {
+                logEvent({ eventName: 'AddFavoriteTicket', eventProperties })
                 createUserFavoriteTicketAction({})
             } else {
                 const favoriteTicket = userFavoriteTickets.find(favoriteTicket => favoriteTicket.ticket.id === ticketId)
@@ -118,33 +129,18 @@ export const FavoriteTicketIndicator = ({ ticketId, userFavoriteTickets, refetch
     }, [isFavorite])
 
     return (
-        <FavoriteTicketIconContainer onClick={handleClick}>
-            {
-                isFavorite ? (
-                    <StarFilled color={colors.yellow[5]}/>
-                ) : (
-                    <Star color={colors.gray[7]}/>
-                )
-            }
-        </FavoriteTicketIconContainer>
+        <Tooltip title={isFavorite ? RemoveFromFavoriteMessage : AddToFavoriteMessage} placement='bottomLeft'>
+            <div style={FAVORITE_TICKET_INDICATOR_CONTAINER_STYLE} onClick={handleClick}>
+                {
+                    isFavorite ? (
+                        <StarFilled size='medium' color={colors.yellow[5]}/>
+                    ) : (
+                        <Star size='medium' color={colors.gray[7]}/>
+                    )
+                }
+            </div>
+        </Tooltip>
     )
-}
-
-export const getTicketFavoriteRender = ({
-    userFavoriteTickets,
-    refetchFavoriteTickets,
-    favoriteTicketsLoading,
-}) => {
-    return (ticket) => {
-        return (
-            <FavoriteTicketIndicator
-                ticketId={ticket.id}
-                userFavoriteTickets={userFavoriteTickets}
-                refetchFavoriteTickets={refetchFavoriteTickets}
-                loading={favoriteTicketsLoading}
-            />
-        )
-    }
 }
 
 export const getTicketNumberRender = (intl, search: FilterValue) => {

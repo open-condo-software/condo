@@ -334,7 +334,7 @@ type ResetFiltersModalButtonProps = {
 const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     handleReset: handleResetFromProps,
     style,
-    size = 'large',
+    size = 'middle',
 }) => {
     const intl = useIntl()
     const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
@@ -359,8 +359,8 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
             size={size}
             data-cy='common__filters-button-reset'
         >
-            <Typography.Text strong type='secondary'>
-                {ClearAllFiltersMessage} <CloseOutlined style={CLEAR_ALL_MESSAGE_STYLE} />
+            <Typography.Text>
+                <CloseOutlined style={CLEAR_ALL_MESSAGE_STYLE} /> {ClearAllFiltersMessage}
             </Typography.Text>
         </Button>
     )
@@ -741,8 +741,8 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>,
         />
     ), [detailedLogging, eventNamePrefix, filterMetas, filtersSchemaGql, isMultipleFiltersModalVisible, onReset, onSubmit])
 
-    const ResetFilterButton = useCallback(() => (
-        <ResetFiltersModalButton handleReset={onReset} />
+    const ResetFilterButton = useCallback((props) => (
+        <ResetFiltersModalButton handleReset={onReset} {...props} />
     ), [onReset])
 
     return { MultipleFiltersModal, ResetFiltersModalButton: ResetFilterButton, setIsMultipleFiltersModalVisible }

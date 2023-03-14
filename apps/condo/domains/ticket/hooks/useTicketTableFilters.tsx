@@ -31,7 +31,7 @@ import {
 } from '@condo/domains/scope/utils/clientSchema/search'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
-import { TicketCategoryClassifier, TicketSource, TicketStatus, UserFavoriteTicket } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketCategoryClassifier, TicketSource, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 
 import {
     FilterModalCategoryClassifierSelect,
@@ -57,7 +57,7 @@ const filterCreatedAtRange = getDayRangeFilter('createdAt')
 const filterDeadlineRange = getDayRangeFilter('deadline')
 const filterCompletedAtRange = getDayRangeFilter('completedAt')
 const filterLastResidentCommentAtRange = getDayRangeFilter('lastResidentCommentAt')
-const filterStatus = getFilter(['status', 'id'], 'array', 'string', 'in')
+const filterStatus = getFilter(['status', 'type'], 'array', 'string', 'in')
 const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
 const filterAddress = getStringContainsFilter(['property', 'address'])
@@ -129,11 +129,13 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const LastCommentAtMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.lastCommentAt' })
     const PropertyScopeMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope' })
     const TicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType' })
-    const CommonTicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.common' })
+    const OwnTicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.own' })
     const FavoriteTicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.favorite' })
 
+    const { user } = useAuth()
+
     const { objs: statuses } = TicketStatus.useObjects({})
-    const statusOptions = useMemo(() => convertToOptions<TicketStatusType>(statuses, 'name', 'id'), [statuses])
+    const statusOptions = useMemo(() => convertToOptions<TicketStatusType>(statuses, 'name', 'type'), [statuses])
 
     const { objs: sources } = TicketSource.useObjects({
         where: { type_in: VISIBLE_TICKET_SOURCE_TYPES },
@@ -168,23 +170,16 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const { user } = useAuth()
-
-    const { objs: userFavoriteTickets } = UserFavoriteTicket.useAllObjects({
-        where: {
-            user: { id: user.id },
-            ticket: { organization: { id: userOrganizationId } },
-        },
-    }, {
-        fetchPolicy: 'network-only',
-    })
     const ticketTypeOptions = useMemo(
-        () => [{ label: FavoriteTicketTypeMessage, value: 'favorite' }, { label: CommonTicketTypeMessage, value: 'common' }],
-        [CommonTicketTypeMessage, FavoriteTicketTypeMessage]
+        () => [
+            { label: FavoriteTicketTypeMessage, value: 'favorite' },
+            { label: OwnTicketTypeMessage, value: 'own' },
+        ],
+        [FavoriteTicketTypeMessage, OwnTicketTypeMessage]
     )
     const filterTicketType = useMemo(
-        () => getTicketTypeFilter(userFavoriteTickets.map(favoriteTicket => favoriteTicket.ticket.id)),
-        [userFavoriteTickets]
+        () => getTicketTypeFilter(user.id),
+        [user.id]
     )
 
     return useMemo(() => {
@@ -321,7 +316,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     options: ticketTypeOptions,
                     props: {
                         loading: false,
-                        mode: 'multiple',
                         showArrow: true,
                         placeholder: SelectMessage,
                     },

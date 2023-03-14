@@ -1,3 +1,5 @@
+import { TicketStatusTypeType } from '@app/condo/schema'
+
 const { gql } = require('graphql-tag')
 const { isEmpty } = require('lodash')
 
@@ -258,3 +260,29 @@ export function getEmployeeWithEmail (organizationId) {
 export function searchContacts (client, { organizationId, propertyId, unitName, unitType }) {
     return _search(client, GET_ALL_CONTACTS_QUERY, { organizationId, propertyId, unitName, unitType })
 }
+
+export const GET_TICKETS_COUNT_QUERY = gql`
+     query selectTicketsCount ($where: TicketWhereInput, $whereWithoutStatuses: TicketWhereInput) {
+        all: _allTicketsMeta(where: $where) {
+            count
+        }
+        ${TicketStatusTypeType.NewOrReopened}: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: ${TicketStatusTypeType.NewOrReopened} } }]}) {
+            count
+        }
+        ${TicketStatusTypeType.Processing}: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: ${TicketStatusTypeType.Processing} } }]}) {
+            count
+        }
+        ${TicketStatusTypeType.Deferred}: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: ${TicketStatusTypeType.Deferred} } }]}) {
+            count
+        }
+        ${TicketStatusTypeType.Canceled}: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: ${TicketStatusTypeType.Canceled} } }]}) {
+            count
+        }
+        ${TicketStatusTypeType.Completed}: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: ${TicketStatusTypeType.Completed} } }]}) {
+            count
+        }
+        ${TicketStatusTypeType.Closed}: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: ${TicketStatusTypeType.Closed} } }]}) {
+            count
+        }
+    }
+`
