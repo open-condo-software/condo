@@ -7,10 +7,8 @@ import { identity } from 'lodash/util'
 import { useRouter } from 'next/router'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
@@ -20,15 +18,16 @@ import {
     getTableCellRenderer,
 } from '@condo/domains/common/components/Table/Renders'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { RE_FETCH_TICKETS_IN_CONTROL_ROOM } from '@condo/domains/common/constants/featureflags'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { TicketCommentsTime, TicketStatus, UserFavoriteTicket, UserTicketCommentReadTime } from '@condo/domains/ticket/utils/clientSchema'
+import { useAutoRefetchTickets } from '@condo/domains/ticket/contexts/AutoRefetchTicketsContext'
+import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '@condo/domains/ticket/utils/clientSchema'
 import {
+    FavoriteTicketIndicator,
     getClassifierRender, getCommentsIndicatorRender,
     getStatusRender,
-    getTicketDetailsRender, getTicketFavoriteRender,
+    getTicketDetailsRender,
     getTicketNumberRender,
     getTicketUserNameRender,
     getUnitRender,
@@ -51,8 +50,6 @@ const COLUMNS_WIDTH = {
     executor: '10%',
     assignee: '10%',
 }
-
-const TICKETS_RE_FETCH_INTERVAL = 60 * 1000
 
 export function useTableColumns<T> (
     filterMetas: Array<FiltersMeta<T>>,
@@ -131,23 +128,8 @@ export function useTableColumns<T> (
             },
         },
     })
-    const { objs: userFavoriteTickets, refetch: refetchFavoriteTickets, loading: favoriteTicketsLoading } = UserFavoriteTicket.useObjects({
-        where: {
-            user: { id: user.id },
-            ticket: {
-                id_in: ticketIds,
-            },
-        },
-    })
 
-    const { useFlag, updateContext } = useFeatureFlags()
-    const { organization } = useOrganization()
-
-    useEffect(() => {
-        updateContext({ organization: organization.id })
-    }, [organization, updateContext])
-
-    const isRefetchTicketsFeatureEnabled = useFlag(RE_FETCH_TICKETS_IN_CONTROL_ROOM)
+    const { isRefetchTicketsFeatureEnabled, refetchInterval } = useAutoRefetchTickets()
 
     const refetch = useCallback(async () => {
         await refetchTickets()
@@ -161,12 +143,21 @@ export function useTableColumns<T> (
                 setIsRefetching(true)
                 await refetch()
                 setIsRefetching(false)
-            }, TICKETS_RE_FETCH_INTERVAL)
+            }, refetchInterval)
             return () => {
                 clearInterval(handler)
             }
         }
-    }, [isRefetchTicketsFeatureEnabled, refetch, setIsRefetching])
+    }, [isRefetchTicketsFeatureEnabled, refetch, refetchInterval, setIsRefetching])
+
+    const renderIsFavoriteTicket = useCallback((ticket) => {
+        return (
+            <FavoriteTicketIndicator
+                eventProperties={{ page: 'ticket' }}
+                ticketId={ticket.id}
+            />
+        )
+    }, [])
 
     return useMemo(() => ({
         columns: [
@@ -177,15 +168,12 @@ export function useTableColumns<T> (
                     intl, ticketsCommentTimes, userTicketCommentReadTimes, breakpoints,
                 }),
                 align: 'center',
+                className: 'comments-column',
             },
             {
                 key: 'favorite',
                 width: COLUMNS_WIDTH.favorite,
-                render: getTicketFavoriteRender({
-                    userFavoriteTickets,
-                    refetchFavoriteTickets,
-                    favoriteTicketsLoading,
-                }),
+                render: renderIsFavoriteTicket,
                 align: 'center',
                 className: 'favorite-column',
             },
@@ -314,5 +302,5 @@ export function useTableColumns<T> (
             },
         ],
         loading: userTicketCommentReadTimesLoading || ticketCommentTimesLoading,
-    }), [intl, ticketsCommentTimes, userTicketCommentReadTimes, breakpoints, userFavoriteTickets, refetchFavoriteTickets, favoriteTicketsLoading, NumberMessage, sorterMap, filters, filterMetas, search, DateMessage, StatusMessage, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading])
+    }), [intl, ticketsCommentTimes, userTicketCommentReadTimes, breakpoints, NumberMessage, sorterMap, filters, filterMetas, search, DateMessage, StatusMessage, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading])
 }

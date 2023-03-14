@@ -66,6 +66,8 @@ export default function GlobalStyle () {
                 }
                 
                 .ant-checkbox {
+                  background-color: ${colors.white};
+                  
                   .ant-checkbox-inner {
                     background-color: inherit;
                     border: 1px solid ${colors.inputBorderGrey};

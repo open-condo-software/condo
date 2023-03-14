@@ -7,7 +7,7 @@ const isEmpty = require('lodash/isEmpty')
 const omit = require('lodash/omit')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById, getByCondition } = require('@open-condo/keystone/schema')
+const { getById, find } = require('@open-condo/keystone/schema')
 
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 
@@ -33,8 +33,6 @@ async function canManageUserFavoriteTickets ({ authentication: { item: user }, o
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    let organizationId
-
     if (operation === 'create') {
         const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
         const userId = get(originalInput, ['user', 'connect', 'id'])
@@ -43,34 +41,37 @@ async function canManageUserFavoriteTickets ({ authentication: { item: user }, o
         }
 
         const ticket = await getById('Ticket', ticketId)
-        organizationId = ticket.organization
+        const organizationId = ticket.organization
+
+        const organizationEmployees = await find('OrganizationEmployee', {
+            organization: {
+                id: organizationId,
+            },
+            user: { id: user.id },
+            deletedAt: null,
+        })
+
+        if (!isEmpty(organizationEmployees)) {
+            return true
+        }
+
+        const organizationLinks = await find('OrganizationLink', {
+            from: queryOrganizationEmployeeFor(user.id),
+            to: { id: organizationId },
+            deletedAt: null,
+        })
+
+        return !isEmpty(organizationLinks)
     } else if (operation === 'update') {
         if (!isEmpty(omit(originalInput, ['deletedAt', 'dv', 'sender']))) {
             return false
         }
 
         const userFavoriteTicket = await getById('UserFavoriteTicket', itemId)
-        if (userFavoriteTicket.user !== user.id) {
-            return false
-        }
-
-        organizationId = userFavoriteTicket.organization
+        return userFavoriteTicket.user === user.id
     }
 
-    const organizationEmployee = await getByCondition('OrganizationEmployee', {
-        organization: {
-            id: organizationId,
-            OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-            ],
-        },
-        user: { id: user.id },
-        deletedAt: null,
-        isBlocked: false,
-    })
-
-    return !!organizationEmployee
+    return false
 }
 
 /*

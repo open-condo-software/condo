@@ -20,6 +20,7 @@ const DesktopHeader = styled(Layout.Header)`
   z-index: 9;
   background: ${colors.white};
   width: 100%;
+  max-width: 1600px;
   padding: 20px 48px;
   display: flex;
   flex-direction: row;
@@ -35,6 +36,7 @@ const MobileHeader = styled(Layout.Header)`
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid ${colors.lightGrey[5]};
+  width: 100%;
 `
 
 interface IHeaderProps {

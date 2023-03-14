@@ -50,6 +50,7 @@ import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatu
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
+import { FavoriteTicketsContextProvider } from '@condo/domains/ticket/contexts/FavoriteTicketsContext'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
@@ -219,17 +220,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         ticket: { connect: { id } },
     }, () => refetchUserTicketCommentReadTime())
 
-    const {
-        objs: userFavoriteTickets,
-        refetch: refetchFavoriteTickets,
-        loading: favoriteTicketsLoading,
-    } = UserFavoriteTicket.useObjects({
-        where: {
-            user: { id: user.id },
-            ticket: { id },
-        },
-    })
-
     const canShareTickets = get(employee, 'role.canShareTickets')
     const ticketVisibilityType = get(employee, 'role.ticketVisibilityType')
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
@@ -377,9 +367,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                                 <Col>
                                                     <FavoriteTicketIndicator
                                                         ticketId={id}
-                                                        userFavoriteTickets={userFavoriteTickets}
-                                                        refetchFavoriteTickets={refetchFavoriteTickets}
-                                                        loading={favoriteTicketsLoading}
+                                                        eventProperties={{ page: 'ticketId' }}
                                                     />
                                                 </Col>
                                                 <Col>
@@ -593,14 +581,18 @@ const TicketIdPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <TicketPageContent
-                        ticket={ticket}
-                        loading={ticketLoading}
-                        refetchTicket={refetchTicket}
-                        organization={organization}
-                        employee={link}
-                        TicketContent={TicketContent}
-                    />
+                    <FavoriteTicketsContextProvider
+                        extraTicketsQuery={{ id }}
+                    >
+                        <TicketPageContent
+                            ticket={ticket}
+                            loading={ticketLoading}
+                            refetchTicket={refetchTicket}
+                            organization={organization}
+                            employee={link}
+                            TicketContent={TicketContent}
+                        />
+                    </FavoriteTicketsContextProvider>
                 </PageContent>
             </PageWrapper>
         </>
