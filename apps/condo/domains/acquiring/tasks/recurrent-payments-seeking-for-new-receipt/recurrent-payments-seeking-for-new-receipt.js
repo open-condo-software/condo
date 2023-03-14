@@ -65,7 +65,7 @@ async function processContext (context, recurrentPaymentContext, periods, lastDt
 }
 
 async function process () {
-    logger.info({ msg: 'Start processing new billing receipts for recurrentPaymentContext tasks' })
+    logger.info('Start processing new billing receipts for recurrentPaymentContext tasks')
 
     // prepare context
     const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
@@ -85,7 +85,7 @@ async function process () {
 
     // retrieve BillingReceipts page by page
     while (hasMorePages) {
-        logger.info({ msg: `Processing recurrentPaymentContext page #${Math.floor(offset / pageSize)}` })
+        logger.info(`Processing recurrentPaymentContext page #${Math.floor(offset / pageSize)}`)
 
         // get page (can be empty)
         const extraArgs = {
@@ -111,7 +111,7 @@ async function process () {
     // update watermark value
     await redisClient.set(REDIS_LAST_DATE_KEY, dayjs().toISOString())
 
-    logger.info({ msg: 'End processing new billing receipts for recurrentPaymentContext tasks' })
+    logger.info('End processing new billing receipts for recurrentPaymentContext tasks')
 }
 
 module.exports = {
