@@ -51,7 +51,7 @@ async function processContext (context, recurrentPaymentContext, periods, lastDt
     }
 
     // create payment proceeding tasks
-    await RecurrentPayment.create(context, {
+    const recurrentPayment = await RecurrentPayment.create(context, {
         ...dvAndSender,
         tryCount: 0,
         state: {},
@@ -61,7 +61,7 @@ async function processContext (context, recurrentPaymentContext, periods, lastDt
     })
 
     // send a message
-    await sendTomorrowPaymentNotificationSafely(context, recurrentPaymentContext)
+    await sendTomorrowPaymentNotificationSafely(context, recurrentPaymentContext, recurrentPayment)
 }
 
 async function process () {

@@ -1336,6 +1336,7 @@ describe('recurrent payments queries', () => {
     describe('sendTomorrowPaymentNotificationSafely', () => {
         let admin,
             getContextRequest,
+            getPaymentRequest,
             serviceConsumerBatch,
             recurrentPaymentContext
 
@@ -1357,6 +1358,15 @@ describe('recurrent payments queries', () => {
                 serviceConsumer: { connect: { id: batch.serviceConsumer.id } },
                 billingCategory: { connect: { id: batch.billingReceipts[0].category.id } },
             })
+
+            getPaymentRequest = (batch, recurrentPaymentContext) => ({
+                payAfter: null,
+                tryCount: 0,
+                status: RECURRENT_PAYMENT_INIT_STATUS,
+                state: {},
+                billingReceipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+                recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
+            })
         })
 
         it('should send notification', async () => {
@@ -1369,6 +1379,60 @@ describe('recurrent payments queries', () => {
             }, {
                 sortBy: 'createdAt_DESC',
             })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
+            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
+            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+        })
+
+        it('should send one notification for retry context processing', async () => {
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest(serviceConsumerBatch, recurrentPaymentContext),
+            )
+            expect(recurrentPayment).toBeDefined()
+            expect(recurrentPayment).toHaveProperty('id')
+
+            // send notification
+            await sendTomorrowPaymentNotificationSafely(adminContext, recurrentPaymentContext, recurrentPayment)
+            await sendTomorrowPaymentNotificationSafely(adminContext, recurrentPaymentContext, recurrentPayment)
+
+            const notifications = await Message.getAll(adminContext, {
+                type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
+                user: { id: serviceConsumerBatch.resident.user.id },
+            }, {
+                sortBy: 'createdAt_DESC',
+            })
+            expect(notifications).toHaveLength(1)
+            const [notification] = notifications
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
+            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
+            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+        })
+
+        it('should send one notification for retry payment processing', async () => {
+            // send notification
+            await sendTomorrowPaymentNotificationSafely(adminContext, recurrentPaymentContext)
+            await sendTomorrowPaymentNotificationSafely(adminContext, recurrentPaymentContext)
+
+            const notifications = await Message.getAll(adminContext, {
+                type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
+                user: { id: serviceConsumerBatch.resident.user.id },
+            }, {
+                sortBy: 'createdAt_DESC',
+            })
+            expect(notifications).toHaveLength(1)
+            const [notification] = notifications
             expect(notification).toBeDefined()
             expect(notification).toHaveProperty('user')
             expect(notification.user).toHaveProperty('id')
