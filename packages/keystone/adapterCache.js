@@ -335,7 +335,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
 
         // A Knex only stab!
         listAdapter._createOrUpdateField = async (args) => {
-            throw new Error('Create or update field is called!')
+            throw new Error(`Knex listAdapter._createOrUpdateField is called! This means, this cache works incorrectly! You should either disable caching for list ${listName} or check your code. You should not have editable many:true fields in your code!`)
         }
     }
 }
