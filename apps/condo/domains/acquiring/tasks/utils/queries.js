@@ -294,7 +294,7 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
     }
 }
 
-async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentContext) {
+async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentContext, recurrentPayment) {
     try {
         const [recurrentContext] = await getItems({
             context,
@@ -306,8 +306,14 @@ async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentC
             serviceConsumer: { resident: { user: { id: userId } } },
         } = recurrentContext
 
-        const date = dayjs()
-        const uniqKey = `rp_tp_${recurrentPaymentContext.id}_${date.toISOString()}`
+        // get trigger identifier
+        const recurrentPaymentId = get(recurrentPayment, 'id')
+        const previousMonthDate = dayjs().startOf('month').subtract(1, 'days')
+        const period = previousMonthDate.format('YYYY-MM-01')
+        const triggerIdentifier = recurrentPaymentId || period
+
+        // create unique key and send message
+        const uniqKey = `rp_tp_${recurrentPaymentContext.id}_${triggerIdentifier}`
         await sendMessage(context, {
             ...dvAndSender,
             to: { user: { id: userId } },
