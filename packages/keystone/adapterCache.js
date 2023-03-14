@@ -39,7 +39,7 @@
  *
  */
 
-const { get, cloneDeep, isEqual, floor } = require('lodash')
+const { get, cloneDeep, isEqual, floor, flatten } = require('lodash')
 const LRUCache = require('lru-cache')
 
 const { getLogger } = require('./logging')
@@ -261,52 +261,61 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
 
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
 
-    // Step 1: Calculate relations and connected lists.
-    // Lists are connected if both of them have a relation to one another. Example: Books -> Author and Author -> Books
-    const reversedRels = {}
+    // Step 1: Preprocess lists.
+    // Lists are reverse related if both of them have a relation to one another. Example: Books -> Author and Author -> Books
+    const manyRelations = {}
     const relations = {}
 
     for (const listAdapter of listAdapters) {
         const listName = listAdapter.key
-
-        relations[listName] = []
         for (const field of listAdapter.fieldAdapters) {
             if (field.fieldName === 'Relationship') {
+                if (!relations[listName]) { relations[listName] = [] }
                 relations[listName].push(field.refListKey)
+                if (get(field, ['field', 'many'])) {
+                    if (!manyRelations[listName]) { manyRelations[listName] = [] }
+                    manyRelations[listName].push(field.refListKey)
+                }
             }
         }
     }
 
-    for (const [listName, listRelations] of Object.entries(relations)) {
-        for (const relationName of listRelations) {
-            if (relations[relationName].includes(listName)) {
-                reversedRels[listName] = relationName
-                reversedRels[relationName] = listName
-            }
-        }
-    }
+    const dependantsOfManyRelations = new Set(flatten(Object.values(manyRelations)))
 
-    logger.info({ reversedRels })
+    logger.info({ relations, manyRelations })
 
     // Step 2: Iterate over lists, patch mutations and queries inside list.
+
+    const enabledLists = []
+    const disabledLists = []
 
     for (const listAdapter of listAdapters) {
 
         const listName = listAdapter.key
         cache[listName] = {}
 
+        // Skip patching of the list if:
+
+        // 1. No update at field!
         const fields = listAdapter.fieldAdaptersByPath
         if (!fields[UPDATED_AT_FIELD] || !fields[UPDATED_AT_FIELD]) {
-            logger.info(`ADAPTER_CACHE: Cache is NOT enabled for list: ${listName} -> No ${UPDATED_AT_FIELD} field`)
+            disabledLists.push({ listName, reason: `No ${UPDATED_AT_FIELD} field` })
             continue
         }
 
+        // 2. It is specified in config
         if (excludedLists.includes(listName)) {
-            logger.info(`ADAPTER_CACHE: Cache is NOT enabled for list: ${listName} -> Cache is not included by config`)
+            disabledLists.push({ listName, reason: 'Cache is excluded by config' })
             continue
         }
 
-        logger.info(`ADAPTER_CACHE: Cache is enabled for list: ${listName}`)
+        // 3. It is a dependent of many:true field.
+        if (dependantsOfManyRelations.has(listName)) {
+            disabledLists.push({ listName, reason: 'List is a dependant of many: true relation!' })
+            continue
+        }
+        
+        enabledLists.push(listName)
 
         // Patch public queries from BaseKeystoneList:
 
@@ -325,19 +334,24 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
         // Patch mutations:
 
         const originalUpdate = listAdapter.update
-        listAdapter.update = patchAdapterFunction(listName, 'update', originalUpdate, listAdapter, cacheAPI, reversedRels )
+        listAdapter.update = patchAdapterFunction(listName, 'update', originalUpdate, listAdapter, cacheAPI )
 
         const originalCreate = listAdapter.create
-        listAdapter.create = patchAdapterFunction(listName, 'create', originalCreate, listAdapter, cacheAPI, reversedRels )
+        listAdapter.create = patchAdapterFunction(listName, 'create', originalCreate, listAdapter, cacheAPI )
 
         const originalDelete = listAdapter.delete
-        listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, cacheAPI, reversedRels )
+        listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, cacheAPI )
 
         // A Knex only stab!
-        listAdapter._createOrUpdateField = async (args) => {
-            throw new Error(`Knex listAdapter._createOrUpdateField is called! This means, this cache works incorrectly! You should either disable caching for list ${listName} or check your code. You should not have editable many:true fields in your code!`)
-        }
+        // listAdapter._createOrUpdateField = async (args) => {
+        //     throw new Error(`Knex listAdapter._createOrUpdateField is called! This means, this cache works incorrectly! You should either disable caching for list ${listName} or check your code. You should not have editable many:true fields in your code!`)
+        // }
     }
+
+    logger.info({
+        enabledLists,
+        disabledLists,
+    })
 }
 
 /**
@@ -347,10 +361,9 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
  * @param {function} f
  * @param {Object} listAdapter
  * @param {AdapterCache} cache
- * @param {Object} reversedRels
  * @returns {function(...[*]): Promise<*>}
  */
-function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, reversedRels ) {
+function patchAdapterFunction ( listName, functionName, f, listAdapter, cache ) {
     return async ( ...args ) => {
 
         // Get mutation value
@@ -472,7 +485,7 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
  */
 function queryIsComplex (query, list, relations) {
     if (!query) { return false }
-    const relsForList = get(relations, list)
+    const relsForList = get(relations, list, [])
     for (const rel of relsForList) {
         if (queryHasField(query, rel. toLowerCase()))
             return true
