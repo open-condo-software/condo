@@ -19,8 +19,8 @@ async function canReadBankIntegrationOrganizationContexts (args) {
     if (user.isAdmin || user.isSupport) return true
 
     if (user.type === SERVICE) {
-        // const bankIntegration = get(originalInput, ['organization', 'connect', 'id'])
         // TODO(VKislov): need to check access for service user with checkBankIntegrationsAccessRights(context, user.id, [bankIntegration])
+        return false
     }
 
     return {
@@ -38,8 +38,8 @@ async function canManageBankIntegrationOrganizationContexts (args) {
     if (user.isAdmin || user.isSupport) return true
 
     if (user.type === SERVICE) {
-        const bankIntegration = get(originalInput, ['organization', 'connect', 'id'])
         // TODO(VKislov): need to check access for service user with checkBankIntegrationsAccessRights(context, user.id, [bankIntegration])
+        return false
     }
 
     let organizationId
