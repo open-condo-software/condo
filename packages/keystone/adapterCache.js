@@ -39,7 +39,7 @@
  *
  */
 
-const { get, cloneDeep, floor } = require('lodash')
+const { get, cloneDeep, isEqual, floor } = require('lodash')
 const LRUCache = require('lru-cache')
 
 const { getLogger } = require('./logging')
@@ -237,7 +237,7 @@ class AdapterCache {
     }
 }
 
-const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, 'from', null)}_${JSON.stringify(get(opts, ['context', 'authedItem', 'id']))}`
+const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, ['context', 'authedItem', 'id'])}`
 const getItemsQueryCondition = ([args]) => get(args, ['where'])
 
 const getFindKey = ([condition]) => `${JSON.stringify(condition)}`
@@ -263,7 +263,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
 
     // Step 1: Calculate relations and connected lists.
     // Lists are connected if both of them have a relation to one another. Example: Books -> Author and Author -> Books
-    const connectedLists = {}
+    const reversedRels = {}
     const relations = {}
 
     for (const listAdapter of listAdapters) {
@@ -280,13 +280,13 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
     for (const [listName, listRelations] of Object.entries(relations)) {
         for (const relationName of listRelations) {
             if (relations[relationName].includes(listName)) {
-                connectedLists[listName] = relationName
-                connectedLists[relationName] = listName
+                reversedRels[listName] = relationName
+                reversedRels[relationName] = listName
             }
         }
     }
 
-    logger.info({ connectedLists })
+    logger.info({ reversedRels })
 
     // Step 2: Iterate over lists, patch mutations and queries inside list.
 
@@ -325,13 +325,13 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
         // Patch mutations:
 
         const originalUpdate = listAdapter.update
-        listAdapter.update = patchAdapterFunction(listName, 'update', originalUpdate, listAdapter, cacheAPI, connectedLists )
+        listAdapter.update = patchAdapterFunction(listName, 'update', originalUpdate, listAdapter, cacheAPI, reversedRels )
 
         const originalCreate = listAdapter.create
-        listAdapter.create = patchAdapterFunction(listName, 'create', originalCreate, listAdapter, cacheAPI, connectedLists )
+        listAdapter.create = patchAdapterFunction(listName, 'create', originalCreate, listAdapter, cacheAPI, reversedRels )
 
         const originalDelete = listAdapter.delete
-        listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, cacheAPI, connectedLists )
+        listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, cacheAPI, reversedRels )
     }
 }
 
@@ -342,10 +342,10 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
  * @param {function} f
  * @param {Object} listAdapter
  * @param {AdapterCache} cache
- * @param {Object} connectedLists
+ * @param {Object} reversedRels
  * @returns {function(...[*]): Promise<*>}
  */
-function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, connectedLists ) {
+function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, reversedRels ) {
     return async ( ...args ) => {
 
         // Get mutation value
@@ -358,10 +358,10 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, c
         // Handle connected lists if there are any.
         // If one side of connected list is updated, then we drop the other side cache too.
         // If Author -> Books and Books -> Author, then if Author is updated, Books is dropped. And vice-versa
-        if (connectedLists[listName]) {
-            await cache.setState(connectedLists[listName], functionResult[UPDATED_AT_FIELD])
-            cache.dropCacheByList(listName)
-        }
+        // if (reversedRels[listName]) {
+        //     await cache.setState(reversedRels[listName], functionResult[UPDATED_AT_FIELD])
+        //     cache.dropCacheByList(listName)
+        // }
 
         cache.logEvent({
             type: 'DROP',
@@ -410,8 +410,24 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
                     functionName,
                     listName,
                     key,
-                    result: JSON.stringify(cachedItem),
+                    result: cachedItem,
                 })
+
+                // TODO
+                // DELETE THIS!
+                const cachedResponse = cloneDeep(cachedItem.response)
+                const realResponse = await f.apply(listAdapter, args)
+                const diff = !isEqual(realResponse, cachedResponse)
+                if (diff) {
+                    cacheAPI.logEvent({
+                        type: 'ALERT-EQUAL',
+                        functionName,
+                        key,
+                        listName,
+                        result: { cached: JSON.stringify(cachedResponse), real: JSON.stringify(realResponse), diff: diff },
+                    })
+                }
+
 
                 return cloneDeep(cachedItem.response)
             }
