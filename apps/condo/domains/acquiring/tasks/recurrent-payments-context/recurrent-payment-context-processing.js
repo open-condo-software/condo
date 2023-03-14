@@ -2,6 +2,7 @@ const dayjs = require('dayjs')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
     dvAndSender,
@@ -84,4 +85,5 @@ async function process () {
 module.exports = {
     process,
     processContext,
+    recurrentPaymentsContextProcessingCron: createCronTask('recurrentPaymentsContextProcessing', '0 * * * *', process),
 }

@@ -4,6 +4,7 @@ const { get } = require('lodash')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
     dvAndSender,
@@ -116,4 +117,5 @@ async function process () {
 module.exports = {
     process,
     processContext,
+    recurrentPaymentsSeekingForNewReceiptCron: createCronTask('recurrentPaymentsSeekingForNewReceipt', '0 * * * *', process),
 }

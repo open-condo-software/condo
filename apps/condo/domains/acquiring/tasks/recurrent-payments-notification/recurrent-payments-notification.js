@@ -3,6 +3,7 @@ const { get } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
     paginationConfiguration,
@@ -53,4 +54,5 @@ async function process () {
 
 module.exports = {
     process,
+    recurrentPaymentsNotificationCron: createCronTask('recurrentPaymentsNotification', '0 * * * *', process),
 }

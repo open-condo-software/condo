@@ -1,9 +1,19 @@
-const recurrentPaymentContextProcessing = require('@condo/domains/acquiring/tasks/recurrent-payment-context-processing-task')
-const recurrentPaymentNotification = require('@condo/domains/acquiring/tasks/recurrent-payment-notification-task')
-const recurrentPaymentProcessing = require('@condo/domains/acquiring/tasks/recurrent-payment-processing-task')
+const {
+    recurrentPaymentsProcessingCron,
+} = require('@condo/domains/acquiring/tasks/recurrent-payments/recurrent-payment-processing')
+const {
+    recurrentPaymentsContextProcessingCron,
+} = require('@condo/domains/acquiring/tasks/recurrent-payments-context/recurrent-payment-context-processing')
+const {
+    recurrentPaymentsNotificationCron,
+} = require('@condo/domains/acquiring/tasks/recurrent-payments-notification/recurrent-payments-notification')
+const {
+    recurrentPaymentsSeekingForNewReceiptCron,
+} = require('@condo/domains/acquiring/tasks/recurrent-payments-seeking-for-new-receipt/recurrent-payments-seeking-for-new-receipt')
 
 module.exports = {
-    recurrentPaymentContextProcessing,
-    recurrentPaymentNotification,
-    recurrentPaymentProcessing,
+    recurrentPaymentsProcessingCron,
+    recurrentPaymentsContextProcessingCron,
+    recurrentPaymentsNotificationCron,
+    recurrentPaymentsSeekingForNewReceiptCron,
 }
