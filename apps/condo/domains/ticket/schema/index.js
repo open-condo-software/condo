@@ -29,8 +29,8 @@ const { TicketPropertyHint } = require('./TicketPropertyHint')
 const { TicketPropertyHintProperty } = require('./TicketPropertyHintProperty')
 const { TicketSource } = require('./TicketSource')
 const { TicketStatus } = require('./TicketStatus')
-const { UserTicketCommentReadTime } = require('./UserTicketCommentReadTime')
 const { UserFavoriteTicket } = require('./UserFavoriteTicket')
+const { UserTicketCommentReadTime } = require('./UserTicketCommentReadTime')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {

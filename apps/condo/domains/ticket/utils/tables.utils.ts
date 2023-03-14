@@ -75,6 +75,22 @@ export const getPropertyScopeFilter = () => {
     }
 }
 
+export const getTicketTypeFilter = (favoriteTicketIds) => {
+    return function getWhereQuery (options) {
+        if (isEmpty(options) || !Array.isArray(options)) return
+
+        if (options.includes('common') && options.includes('favorite')) {
+            return {}
+        }
+        if (options.includes('common')) {
+            return { id_not_in: favoriteTicketIds }
+        }
+        if (options.includes('favorite')) {
+            return { id_in: favoriteTicketIds }
+        }
+    }
+}
+
 export const getClientNameFilter = () => {
     return function getWhereQuery (search): TicketWhereInput {
         if (isEmpty(search)) return

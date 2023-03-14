@@ -187,6 +187,7 @@ export function useTableColumns<T> (
                     favoriteTicketsLoading,
                 }),
                 align: 'center',
+                className: 'favorite-column',
             },
             {
                 title: NumberMessage,

@@ -90,6 +90,9 @@ const StyledTable = styled(Table)`
   .number-column {
     padding-left: 0;
   }
+  .favorite-column {
+    padding-left: 0;
+  }
 `
 
 const getInitialSelectedTicketKeys = (router: NextRouter) => {
