@@ -7,18 +7,15 @@
 
 const path = require('path')
 
-const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 const { process: processTask } = require('@condo/domains/acquiring/tasks/recurrent-payments-seeking-for-new-receipt/recurrent-payments-seeking-for-new-receipt')
 
 async function main () {
-    const resolved = path.resolve('./index.js')
-    const { distDir, keystone, apps } = require(resolved)
-    const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
-
-    // we need only apollo
-    await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
-    await keystone.connect()
+    await prepareKeystoneExpressApp(
+        path.resolve('./index.js'),
+        { excludeApps: ['NextApp'] },
+    )
 
     await processTask()
     process.exit(0)
