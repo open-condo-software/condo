@@ -1,4 +1,6 @@
 const dayjs = require('dayjs')
+const { get } = require('lodash')
+const { v4: uuid } = require('uuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
@@ -48,7 +50,8 @@ async function processContext (context, date, recurrentPaymentContext) {
 }
 
 async function process () {
-    logger.info('Start processing recurrent payment context')
+    const jobId = uuid()
+    logger.info({ msg: 'Start processing recurrent payment context', jobId})
 
     // prepare context
     const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
@@ -62,7 +65,7 @@ async function process () {
 
     // retrieve RecurrentPaymentContext page by page
     while (hasMorePages) {
-        logger.info(`Processing recurrent payment context page #${Math.floor(offset / pageSize)}`)
+        logger.info({ msg: `Processing recurrent payment context page #${Math.floor(offset / pageSize)}`, jobId})
 
         // get page (can be empty)
         const page = await getAllReadyToPayRecurrentPaymentContexts(context, date, pageSize, offset)
@@ -72,14 +75,15 @@ async function process () {
             try {
                 await processContext(context, date, recurrentPaymentContext)
             } catch (error) {
-                logger.error({ msg: 'Process recurrent payment context error', error })
+                const message = get(error, 'errors[0].message') || get(error, 'message') || JSON.stringify(error)
+                logger.error({ msg: 'Process recurrent payment context error', message, jobId })
             }
         })
 
         hasMorePages = page.length > 0
         offset += pageSize
     }
-    logger.info('End processing recurrent payment context')
+    logger.info({ msg: 'End processing recurrent payment context', jobId})
 }
 
 module.exports = {

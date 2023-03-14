@@ -1,5 +1,6 @@
 const dayjs = require('dayjs')
 const { get } = require('lodash')
+const { v4: uuid } = require('uuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
@@ -65,7 +66,8 @@ async function processContext (context, recurrentPaymentContext, periods, lastDt
 }
 
 async function process () {
-    logger.info('Start processing new billing receipts for recurrentPaymentContext tasks')
+    const jobId = uuid()
+    logger.info({ msg: 'Start processing new billing receipts for recurrentPaymentContext tasks', jobId })
 
     // prepare context
     const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
@@ -81,11 +83,11 @@ async function process () {
 
     // prepare filter values
     const lastDt = await redisClient.get(REDIS_LAST_DATE_KEY) || thisMonthStart
-    logger.info({ msg: 'Seeking for new billing receipts', lastDt })
+    logger.info({ msg: `Seeking for new billing receipts at ${lastDt}`, jobId })
 
     // retrieve BillingReceipts page by page
     while (hasMorePages) {
-        logger.info(`Processing recurrentPaymentContext page #${Math.floor(offset / pageSize)}`)
+        logger.info({ msg: `Processing recurrentPaymentContext page #${Math.floor(offset / pageSize)}`, jobId })
 
         // get page (can be empty)
         const extraArgs = {
@@ -100,7 +102,7 @@ async function process () {
                 await processContext(context, recurrentPaymentContext, periods, lastDt)
             } catch (error) {
                 const message = get(error, 'errors[0].message') || get(error, 'message') || JSON.stringify(error)
-                logger.error({ msg: 'Process recurrentPaymentContext error', message })
+                logger.error({ msg: 'Process recurrentPaymentContext error', message, jobId })
             }
         })
 
@@ -111,7 +113,7 @@ async function process () {
     // update watermark value
     await redisClient.set(REDIS_LAST_DATE_KEY, dayjs().toISOString())
 
-    logger.info('End processing new billing receipts for recurrentPaymentContext tasks')
+    logger.info({ msg: 'End processing new billing receipts for recurrentPaymentContext tasks', jobId })
 }
 
 module.exports = {

@@ -1,5 +1,6 @@
 const dayjs = require('dayjs')
 const { get } = require('lodash')
+const { v4: uuid } = require('uuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
@@ -17,7 +18,8 @@ const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 const logger = getLogger('recurrent-payment-context-notification')
 
 async function process () {
-    logger.info('Start processing recurrent payment notifications tasks')
+    const jobId = uuid()
+    logger.info({ msg: 'Start processing recurrent payment notifications tasks', jobId })
 
     // prepare context
     const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
@@ -31,7 +33,7 @@ async function process () {
 
     // retrieve RecurrentPaymentContext page by page
     while (hasMorePages) {
-        logger.info(`Processing recurrent payment notification page #${Math.floor(offset / pageSize)}`)
+        logger.info({ msg: `Processing recurrent payment notification page #${Math.floor(offset / pageSize)}`, jobId })
 
         // get page (can be empty)
         const page = await getAllReadyToPayRecurrentPaymentContexts(context, tomorrowDate, pageSize, offset)
@@ -42,14 +44,14 @@ async function process () {
                 await sendTomorrowPaymentNotificationSafely(context, recurrentPaymentContext)
             } catch (error) {
                 const message = get(error, 'errors[0].message') || get(error, 'message') || JSON.stringify(error)
-                logger.error({ msg: 'Process recurrent payment notification error', message })
+                logger.error({ msg: 'Process recurrent payment notification error', message, jobId })
             }
         })
 
         hasMorePages = page.length > 0
         offset += pageSize
     }
-    logger.info('End processing recurrent payment notifications')
+    logger.info({ msg: 'End processing recurrent payment notifications' })
 }
 
 module.exports = {
