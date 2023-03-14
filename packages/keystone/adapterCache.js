@@ -280,7 +280,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
         }
     }
 
-    const dependantsOfManyRelations = new Set(flatten(Object.values(manyRelations)))
+    const dependantsOfManyRelations = new Set([...flatten(Object.values(manyRelations)), ...Object.keys(manyRelations)])
 
     logger.info({ relations, manyRelations })
 
@@ -343,9 +343,9 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
         listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, cacheAPI )
 
         // A Knex only stab!
-        // listAdapter._createOrUpdateField = async (args) => {
-        //     throw new Error(`Knex listAdapter._createOrUpdateField is called! This means, this cache works incorrectly! You should either disable caching for list ${listName} or check your code. You should not have editable many:true fields in your code!`)
-        // }
+        listAdapter._createOrUpdateField = async (args) => {
+            throw new Error(`Knex listAdapter._createOrUpdateField is called! This means, this cache works incorrectly! You should either disable caching for list ${listName} or check your code. You should not have editable many:true fields in your code!`)
+        }
     }
 
     logger.info({
@@ -372,14 +372,6 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache ) 
         // Drop global state and local cache
         await cache.setState(listName, functionResult[UPDATED_AT_FIELD])
         cache.dropCacheByList(listName)
-
-        // Handle connected lists if there are any.
-        // If one side of connected list is updated, then we drop the other side cache too.
-        // If Author -> Books and Books -> Author, then if Author is updated, Books is dropped. And vice-versa
-        // if (reversedRels[listName]) {
-        //     await cache.setState(reversedRels[listName], functionResult[UPDATED_AT_FIELD])
-        //     cache.dropCacheByList(listName)
-        // }
 
         cache.logEvent({
             type: 'DROP',
