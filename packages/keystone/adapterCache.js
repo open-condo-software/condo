@@ -332,6 +332,11 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
 
         const originalDelete = listAdapter.delete
         listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, cacheAPI, reversedRels )
+
+        // A Knex only stab!
+        listAdapter._createOrUpdateField = async (args) => {
+            throw new Error('Create or update field is called!')
+        }
     }
 }
 
