@@ -19,6 +19,7 @@ const WEB_SPECIFIC_METHODS: Array<AnyRequestMethodName> = [
     'CondoWebAppGetActiveProgressBars',
     'CondoWebAppGetLaunchParams',
     'CondoWebAppResizeWindow',
+    'CondoWebAppShowModalWindow',
     'CondoWebAppShowNotification',
     'CondoWebAppShowProgressBar',
     'CondoWebAppUpdateProgressBar',

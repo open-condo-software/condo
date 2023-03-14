@@ -3,6 +3,7 @@ import type { GetActiveProgressBarsParams, GetActiveProgressBarsData } from './G
 import type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
 import type { RedirectData, RedirectParams } from './Redirect'
 import type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
+import type { ShowModalWindowParams, ShowModalWindowData } from './ShowModalWindow'
 import type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
 import type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
 import type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdateProgressBar'
@@ -11,6 +12,7 @@ export type { GetActiveProgressBarsParams, GetActiveProgressBarData, GetActivePr
 export type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
 export type { RedirectData, RedirectParams } from './Redirect'
 export type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
+export type { ShowModalWindowParams, ShowModalWindowData } from './ShowModalWindow'
 export type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
 export type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
 export type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdateProgressBar'
@@ -24,6 +26,7 @@ export type RequestMethodsParamsMap = {
     CondoWebAppGetLaunchParams: GetLaunchParamsParams
     CondoWebAppRedirect: RedirectParams
     CondoWebAppResizeWindow: ResizeWindowParams
+    CondoWebAppShowModalWindow: ShowModalWindowParams
     CondoWebAppShowNotification: ShowNotificationParams
     CondoWebAppShowProgressBar: ShowProgressBarParams
     CondoWebAppUpdateProgressBar: UpdateProgressBarParams
@@ -37,6 +40,7 @@ export type ResultResponseDataMap = {
     CondoWebAppGetLaunchParams: GetLaunchParamsData
     CondoWebAppRedirect: RedirectData
     CondoWebAppResizeWindow: ResizeWindowData
+    CondoWebAppShowModalWindow: ShowModalWindowData
     CondoWebAppShowNotification: ShowNotificationData
     CondoWebAppShowProgressBar: ShowProgressBarData
     CondoWebAppUpdateProgressBar: UpdateProgressBarData
