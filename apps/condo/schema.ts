@@ -30087,6 +30087,39 @@ export type Mutation = {
    * 				"required": true
    * 			}
    * 		}
+   * 	},
+   * 	"RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"recurrentPaymentContext": {
+   * 			"id": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"recurrentPaymentContext": {
+   * 			"id": {
+   * 				"required": true
+   * 			}
+   * 		},
+   * 		"errorCode": {
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"recurrentPaymentContext": {
+   * 			"id": {
+   * 				"required": true
+   * 			}
+   * 		}
    * 	}
    * }`
    *
@@ -52581,7 +52614,10 @@ export enum SendMessageType {
   CustomContentMessagePush = 'CUSTOM_CONTENT_MESSAGE_PUSH',
   CustomContentMessageEmail = 'CUSTOM_CONTENT_MESSAGE_EMAIL',
   CustomContentMessageSms = 'CUSTOM_CONTENT_MESSAGE_SMS',
-  VoipIncomingCallMessage = 'VOIP_INCOMING_CALL_MESSAGE'
+  VoipIncomingCallMessage = 'VOIP_INCOMING_CALL_MESSAGE',
+  RecurrentPaymentProceedingSuccessResultMessage = 'RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE',
+  RecurrentPaymentProceedingFailureResultMessage = 'RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE',
+  RecurrentPaymentTomorrowPaymentMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE'
 }
 
 export type SenderField = {
