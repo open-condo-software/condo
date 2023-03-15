@@ -72,8 +72,8 @@ const prepareValidationErrorsMapping = ({ ValueIsTooShortMsg, TinTooShortMsg, Ti
         errors: [TinValueIsInvalid],
     },
 })
-const prepareValidators = ({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator, locale }) => ({
-    name: [requiredValidator],
+const prepareValidators = ({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator, trimValidator, locale }) => ({
+    name: [requiredValidator, trimValidator],
     tin: [
         requiredValidator,
         tinValidator(locale),
@@ -104,10 +104,18 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     const userId = get(user, 'id')
     const locale = get(organization, 'country', defaultLocale)
 
-    const { requiredValidator, minLengthValidator, changeMessage, tinValidator } = useValidations()
+    const { requiredValidator, minLengthValidator, changeMessage, tinValidator, trimValidator } = useValidations()
     const validators = React.useMemo(
-        () => prepareValidators({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator, locale }),
-        [requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator, locale]
+        () => prepareValidators({
+            requiredValidator,
+            changeMessage,
+            minLengthValidator,
+            TinTooShortMsg,
+            tinValidator,
+            trimValidator,
+            locale,
+        }),
+        [requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator, trimValidator, locale],
     )
 
     const fetchParams = React.useMemo(() => ({ where: userId ? prepareFetchParams(userId) : {} }), [userId])
