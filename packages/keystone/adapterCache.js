@@ -140,11 +140,22 @@ class AdapterCache {
         return null
     }
 
+    /**
+     * Set value to cache
+     * @param {string} listName
+     * @param {string} key
+     * @param {Object} value
+     */
     setCache (listName, key, value) {
         value.listName = listName
         this.cache.set(key, value)
     }
 
+    /**
+     * Get cached value. Returns undefined if value is not in cache
+     * @param {string} key
+     * @returns {Object || undefined}
+     */
     getCache (key) {
         return this.cache.get(key)
     }
@@ -369,20 +380,20 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
  * @param {string} functionName
  * @param {function} f
  * @param {Object} listAdapter
- * @param {AdapterCache} cache
+ * @param {AdapterCache} cacheAPI
  * @returns {function(...[*]): Promise<*>}
  */
-function patchAdapterFunction ( listName, functionName, f, listAdapter, cache ) {
+function patchAdapterFunction ( listName, functionName, f, listAdapter, cacheAPI ) {
     return async ( ...args ) => {
 
         // Get mutation value
         const functionResult = await f.apply(listAdapter, args)
 
         // Drop global state and local cache
-        await cache.setState(listName, functionResult[UPDATED_AT_FIELD])
-        cache.dropCacheByList(listName)
+        await cacheAPI.setState(listName, functionResult[UPDATED_AT_FIELD])
+        cacheAPI.dropCacheByList(listName)
 
-        cache.logEvent({
+        cacheAPI.logEvent({
             type: 'DROP',
             functionName,
             listName,
