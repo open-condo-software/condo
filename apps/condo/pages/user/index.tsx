@@ -6,8 +6,9 @@ import Link from 'next/link'
 import React, { useEffect, useMemo } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
-import { useIntl } from '@open-condo/next/intl'
+import { LocaleContext, useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Select } from '@open-condo/ui'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
@@ -23,6 +24,10 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const PasswordMessage = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
+    const InterfaceLanguageTitle = intl.formatMessage({ id: 'pages.condo.profile.interfaceLanguage' })
+    const ChooseInterfaceLanguageTitle = intl.formatMessage({ id: 'pages.condo.profile.chooseInterfaceLanguage' })
+    const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
+    const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
 
     const { user, refetch } = useAuth()
     const userOrganization = useOrganization()
@@ -34,6 +39,12 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
 
     const name = get(user, 'name')
     const email = get(user, 'email', '')
+    const locale = get(user, 'locale', intl.locale)
+
+    const possibleLocalesOptions = useMemo(() => ([
+        { label: RuTitle, value: 'ru' },
+        { label: EnTitle, value: 'en' },
+    ]), [EnTitle, RuTitle])
 
     return (
         <>
@@ -88,6 +99,27 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
                                                 </Col>
                                                 <Col lg={19} xs={10} offset={2}>
                                                     <NotDefinedField value='******'/>
+                                                </Col>
+                                                <Col lg={3} xs={10}>
+                                                    <Typography.Text type='secondary'>
+                                                        {InterfaceLanguageTitle}
+                                                    </Typography.Text>
+                                                </Col>
+                                                <Col lg={4} offset={2}>
+                                                    <LocaleContext.Consumer>
+                                                        {({ locale, setLocale }) => {
+                                                            return (
+                                                                <Select
+                                                                    options={possibleLocalesOptions}
+                                                                    value={locale}
+                                                                    placeholder={ChooseInterfaceLanguageTitle}
+                                                                    onChange={(value) => {
+                                                                        setLocale(value)
+                                                                    }}
+                                                                />
+                                                            )
+                                                        }}
+                                                    </LocaleContext.Consumer>
                                                 </Col>
                                             </Row>
                                         </Col>
