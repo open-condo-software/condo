@@ -23,7 +23,7 @@ const REGISTER_NEW_USER_MUTATION = gql`
     }
 `
 
-const OWN_USER_FIELDS = '{ id name avatar { publicUrl } phone email isAdmin isSupport }'
+const OWN_USER_FIELDS = '{ id name avatar { publicUrl } phone email isAdmin isSupport locale }'
 
 const USER_QUERY = gql`
     query {
