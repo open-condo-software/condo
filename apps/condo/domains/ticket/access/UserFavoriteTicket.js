@@ -67,6 +67,7 @@ async function canManageUserFavoriteTickets ({ authentication: { item: user }, o
         },
         user: { id: user.id },
         deletedAt: null,
+        isBlocked: false,
     })
 
     return !!organizationEmployee

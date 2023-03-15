@@ -4,11 +4,11 @@ import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
-import { isEmpty } from 'lodash'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
 
 import { Star, StarFilled } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
@@ -55,7 +55,7 @@ export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommen
         const lastCommentAt = get(currentTicketCommentTimes, 'lastCommentAt')
 
         return hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt) && (
-            <div style={breakpoints.xl ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL : {}}>
+            <div style={breakpoints.xl && NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL}>
                 <Tooltip title={NewResidentCommentMessage} placement='topRight'>
                     <Typography.Text title={NewResidentCommentMessage}>
                         <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES}>
@@ -118,9 +118,7 @@ export const FavoriteTicketIndicator = ({ ticketId, userFavoriteTickets, refetch
     }, [isFavorite])
 
     return (
-        <FavoriteTicketIconContainer
-            onClick={handleClick}
-        >
+        <FavoriteTicketIconContainer onClick={handleClick}>
             {
                 isFavorite ? (
                     <StarFilled color={colors.yellow[5]}/>

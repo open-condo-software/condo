@@ -75,6 +75,7 @@ const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 60]
 const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
 const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 20]
+const BIG_HORIZONTAL_GUTTER: RowProps['gutter'] = [40, 0]
 
 const TicketContent = ({ ticket }) => {
     return (
@@ -372,7 +373,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                 <Col xl={11} md={13} xs={24}>
                                     <Row justify={isSmall ? 'center' : 'end'} gutter={SMALL_VERTICAL_GUTTER}>
                                         <Col span={24}>
-                                            <Row justify='end' align='middle' gutter={[40, 0]}>
+                                            <Row justify='end' align='middle' gutter={BIG_HORIZONTAL_GUTTER}>
                                                 <Col>
                                                     <FavoriteTicketIndicator
                                                         ticketId={id}

@@ -31,6 +31,7 @@ import {
 } from '@condo/domains/scope/utils/clientSchema/search'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
+import { TicketCategoryClassifier, TicketSource, TicketStatus, UserFavoriteTicket } from '@condo/domains/ticket/utils/clientSchema'
 
 import {
     FilterModalCategoryClassifierSelect,
@@ -38,7 +39,6 @@ import {
     FilterModalProblemClassifierSelect,
 } from './useModalFilterClassifiers'
 
-import { TicketCategoryClassifier, TicketSource, TicketStatus, UserFavoriteTicket } from '../utils/clientSchema'
 import {
     searchEmployeeUser,
     searchOrganizationProperty,
@@ -170,7 +170,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
 
     const { user } = useAuth()
 
-    const { objs: userFavoriteTickets } = UserFavoriteTicket.useObjects({
+    const { objs: userFavoriteTickets } = UserFavoriteTicket.useAllObjects({
         where: {
             user: { id: user.id },
             ticket: { organization: { id: userOrganizationId } },

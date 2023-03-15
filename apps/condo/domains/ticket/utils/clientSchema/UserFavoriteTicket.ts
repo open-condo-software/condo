@@ -20,6 +20,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useAllObjects,
 } = generateReactHooks<UserFavoriteTicket, UserFavoriteTicketCreateInput, UserFavoriteTicketUpdateInput, QueryAllUserFavoriteTicketsArgs>(UserFavoriteTicketGQL)
 
 export {
@@ -28,4 +29,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useAllObjects,
 }
