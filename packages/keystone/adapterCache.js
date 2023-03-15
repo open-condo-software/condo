@@ -236,12 +236,12 @@ class AdapterCache {
         return this.cache.size
     }
 
-    async prepareMiddleware ({ keystone, dev, distDir }) {
+    async prepareMiddleware ({ keystone }) {
         if (this.enabled) {
             await patchKeystoneWithAdapterCache(keystone, this)
-            logger.info('ADAPTER_CACHE: Adapter level cache ENABLED')
+            logger.info('Adapter level cache ENABLED')
         } else {
-            logger.info('ADAPTER_CACHE: Adapter level cache NOT ENABLED')
+            logger.info('Adapter level cache NOT ENABLED')
         }
     }
 }
