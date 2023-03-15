@@ -13,7 +13,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const ORGANIZATION_FIELDS = `{ country name description avatar { publicUrl } meta tin features statusTransitions defaultEmployeeRoleStatusTransitions importId importRemoteSystem ${COMMON_FIELDS} }`
 const Organization = generateGqlQueries('Organization', ORGANIZATION_FIELDS)
 
-const ORGANIZATION_EMPLOYEE_ROLE_FIELDS = '{ organization { id } name nameNonLocalized description descriptionNonLocalized statusTransitions canManageOrganization canManageEmployees canInviteNewOrganizationEmployees canManageRoles canManageTicketPropertyHints canManageIntegrations canReadBillingReceipts canReadPayments canManageProperties canManageTickets canManageContacts canManageContactRoles canManageTicketComments canManagePropertyScopes canShareTickets canBeAssignedAsResponsible canBeAssignedAsExecutor canManageMeters canManageMeterReadings ticketVisibilityType canManageBankAccounts canManageBankContractorAccounts canManageBankIntegrationAccountContexts canManageBankIntegrationOrganizationContexts canManageBankTransactions canManageIncidents canManageNews id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
+const ORGANIZATION_EMPLOYEE_ROLE_FIELDS = '{ organization { id } name nameNonLocalized description descriptionNonLocalized statusTransitions canManageOrganization canManageEmployees canInviteNewOrganizationEmployees canManageRoles canManageTicketPropertyHints canManageIntegrations canReadBillingReceipts canReadPayments canManageProperties canManageTickets canManageContacts canManageContactRoles canManageTicketComments canManagePropertyScopes canShareTickets canBeAssignedAsResponsible canBeAssignedAsExecutor canManageMeters canManageMeterReadings ticketVisibilityType canManageBankAccounts canManageBankContractorAccounts canManageBankIntegrationAccountContexts canManageBankIntegrationOrganizationContexts canManageBankTransactions canManageIncidents id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const OrganizationEmployeeRole = generateGqlQueries('OrganizationEmployeeRole', ORGANIZATION_EMPLOYEE_ROLE_FIELDS)
 
 const ORGANIZATION_EMPLOYEE_FIELDS = `{ organization ${ORGANIZATION_FIELDS} user { id name } name email phone role ${ORGANIZATION_EMPLOYEE_ROLE_FIELDS} hasAllSpecializations isRejected isAccepted isBlocked id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } position createdAt deletedAt updatedAt }`
@@ -93,9 +93,6 @@ const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION = gql`
 const ORGANIZATION_EMPLOYEE_SPECIALIZATION_FIELDS = `{ employee { id } specialization { id name } ${COMMON_FIELDS} }`
 const OrganizationEmployeeSpecialization = generateGqlQueries('OrganizationEmployeeSpecialization', ORGANIZATION_EMPLOYEE_SPECIALIZATION_FIELDS)
 
-const ORGANIZATION_NEWS_ITEM_FIELDS = `{ organization { id } title body type receiversCriteria meta ${COMMON_FIELDS} }`
-const OrganizationNewsItem = generateGqlQueries('OrganizationNewsItem', ORGANIZATION_NEWS_ITEM_FIELDS)
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -113,6 +110,5 @@ module.exports = {
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION,
     OrganizationEmployeeSpecialization,
-    OrganizationNewsItem,
-/* AUTOGENERATE MARKER <EXPORTS> */
 }
+/* AUTOGENERATE MARKER <EXPORTS> */

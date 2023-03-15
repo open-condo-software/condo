@@ -85,5 +85,4 @@ export {
     OrganizationEmployeeSpecialization,
 }
 
-export * as OrganizationNewsItem from './OrganizationNewsItem'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
