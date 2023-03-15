@@ -62,7 +62,7 @@ const SUM_PAYMENTS_QUERY = gql`
     }
 `
 
-const RECURRENT_PAYMENT_CONTEXT_FIELDS = `{ enabled limit autoPayReceipts paymentDay settings { cardId } serviceConsumer { id } billingCategory { id } ${COMMON_FIELDS} }`
+const RECURRENT_PAYMENT_CONTEXT_FIELDS = `{ enabled limit autoPayReceipts paymentDay settings { cardId } serviceConsumer { id resident { id user { id } } } billingCategory { id } ${COMMON_FIELDS} }`
 const RecurrentPaymentContext = generateGqlQueries('RecurrentPaymentContext', RECURRENT_PAYMENT_CONTEXT_FIELDS)
 
 const RECURRENT_PAYMENT_FIELDS = `{ status tryCount state payAfter billingReceipts { id } recurrentPaymentContext { id } ${COMMON_FIELDS} }`

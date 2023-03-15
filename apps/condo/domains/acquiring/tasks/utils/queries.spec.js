@@ -266,9 +266,9 @@ describe('recurrent payments queries', () => {
 
             expect(serviceConsumer).toHaveProperty('id')
             expect(serviceConsumer).toHaveProperty('accountNumber')
-            expect(serviceConsumer).toHaveProperty('billingIntegrationContext')
+            expect(serviceConsumer).toHaveProperty('organization')
             expect(serviceConsumer).toHaveProperty('resident.user.id')
-            expect(serviceConsumer.billingIntegrationContext).toHaveProperty('id')
+            expect(serviceConsumer.organization).toHaveProperty('id')
         })
 
         it('should throw error for wrong id', async () => {
@@ -369,14 +369,12 @@ describe('recurrent payments queries', () => {
             })
         })
 
-        it('should validate that billingIntegrationContext for service consumer not empty', async () => {
+        it('should work with empty billingIntegrationContext', async () => {
             const { serviceConsumer } = await makeClientWithServiceConsumer()
 
-            await catchErrorFrom(async () => {
-                await getReceiptsForServiceConsumer(adminContext, dayjs(), serviceConsumer)
-            }, (error) => {
-                expect(error.message).toContain(`Can not retrieve billing receipts for service consumer ${serviceConsumer.id} since billingIntegrationContextId is empty`)
-            })
+            const receipts = await getReceiptsForServiceConsumer(adminContext, dayjs(), serviceConsumer)
+
+            expect(receipts).toHaveLength(0)
         })
     })
 
