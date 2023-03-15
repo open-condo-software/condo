@@ -30,8 +30,6 @@ const {
 } = require('./Organization')
 const { ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
-const { OrganizationNewsItem: OrganizationNewsItemGQL } = require('@condo/domains/organization/gql')
-const { NEWS_TYPE_COMMON } = require('@condo/domains/organization/constants')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -40,7 +38,6 @@ const OrganizationEmployee = generateGQLTestUtils(OrganizationEmployeeGQL)
 const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
 
 const OrganizationEmployeeSpecialization = generateGQLTestUtils(OrganizationEmployeeSpecializationGQL)
-const OrganizationNewsItem = generateGQLTestUtils(OrganizationNewsItemGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -335,42 +332,6 @@ async function updateTestOrganizationEmployeeSpecialization (client, id, extraAt
     return [obj, attrs]
 }
 
-async function createTestOrganizationNewsItem (client, organization, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const title = faker.lorem.words(3)
-    const body = faker.lorem.words(13)
-    const type = NEWS_TYPE_COMMON
-
-    const attrs = {
-        dv: 1,
-        sender,
-        title,
-        body,
-        type,
-        organization: { connect: { id: organization.id } },
-        ...extraAttrs,
-    }
-    const obj = await OrganizationNewsItem.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestOrganizationNewsItem (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await OrganizationNewsItem.update(client, id, attrs)
-    return [obj, attrs]
-}
-
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -395,6 +356,5 @@ module.exports = {
     makeClientWithRegisteredOrganization,
     generateTin,
     OrganizationEmployeeSpecialization, createTestOrganizationEmployeeSpecialization, updateTestOrganizationEmployeeSpecialization,
-        OrganizationNewsItem, createTestOrganizationNewsItem, updateTestOrganizationNewsItem,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }
