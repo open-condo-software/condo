@@ -47,7 +47,7 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
         setDisplayCount(prevState => prevState + CHANGES_PER_CHUNK)
     }, [])
 
-    if (loading) {
+    if (loading && items.length < 1) {
         return <Skeleton/>
     }
 
