@@ -39,7 +39,7 @@
  *
  */
 
-const { get, cloneDeep, isEqual, floor, flatten } = require('lodash')
+const { get, cloneDeep, isEqual, floor } = require('lodash')
 const LRUCache = require('lru-cache')
 
 const { getLogger } = require('./logging')
@@ -115,7 +115,7 @@ class AdapterCache {
     /**
      * Sets last updated list time to Redis storage
      * @param {string} listName -- List name
-     * @param {Date} value -- Last updated time
+     * @param {Date} time -- Last updated time
      * @returns {Promise<void>}
      */
     async setState (listName, time) {
@@ -238,7 +238,7 @@ class AdapterCache {
 
     async prepareMiddleware ({ keystone, dev, distDir }) {
         if (this.enabled) {
-            await patchKeystoneAdapterWithCacheMiddleware(keystone, this)
+            await patchKeystoneWithAdapterCache(keystone, this)
             logger.info('ADAPTER_CACHE: Adapter level cache ENABLED')
         } else {
             logger.info('ADAPTER_CACHE: Adapter level cache NOT ENABLED')
@@ -246,25 +246,13 @@ class AdapterCache {
     }
 }
 
-const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, ['context', 'authedItem', 'id'])}`
-const getItemsQueryCondition = ([args]) => get(args, ['where'])
-
-const getFindKey = ([condition]) => `${JSON.stringify(condition)}`
-const getFindCondition = ([condition]) => condition
-
-const getFindByIdKey = ([id]) => `${id}`
-
-const getFindAllKey = () => ''
-
-const getFindOneKey = ([condition]) => `${JSON.stringify(condition)}`
-
 /**
  * Patches an internal keystone adapter adding cache functionality
  * @param keystone
  * @param {AdapterCache} cacheAPI
  * @returns {Promise<void>}
  */
-async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
+async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
     const keystoneAdapter = keystone.adapter
 
     const cache = cacheAPI.cache
@@ -308,29 +296,37 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
     const enabledLists = []
     const disabledLists = []
 
+    const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, ['context', 'authedItem', 'id'])}`
+    const getItemsQueryCondition = ([args]) => get(args, ['where'])
+    const getFindKey = ([condition]) => `${JSON.stringify(condition)}`
+    const getFindCondition = ([condition]) => condition
+    const getFindByIdKey = ([id]) => `${id}`
+    const getFindAllKey = () => ''
+    const getFindOneKey = ([condition]) => `${JSON.stringify(condition)}`
+
     for (const listAdapter of listAdapters) {
 
         const listName = listAdapter.key
         cache[listName] = {}
 
-        // Skip patching of the list if:
+        // Skip patching list if:
 
-        // 1. No update at field!
+        // 1. No updatedAt field!
         const fields = listAdapter.fieldAdaptersByPath
         if (!fields[UPDATED_AT_FIELD] || !fields[UPDATED_AT_FIELD]) {
             disabledLists.push({ listName, reason: `No ${UPDATED_AT_FIELD} field` })
             continue
         }
 
-        // 2. It is specified in config
+        // 2. It is explicity specified in config that list should not be cached
         if (excludedLists.includes(listName)) {
             disabledLists.push({ listName, reason: 'Cache is excluded by config' })
             continue
         }
 
-        // 3. It is a dependent of many:true field.
+        // 3. It is a dependent of many:true field or has many:true relation.
         if (listsWithMany.has(listName)) {
-            disabledLists.push({ listName, reason: 'List is a dependant of many: true relation!' })
+            disabledLists.push({ listName, reason: 'List is a dependant of many: true relation or has many:true relation' })
             continue
         }
         
@@ -339,40 +335,45 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
         // Patch public queries from BaseKeystoneList:
 
         const originalItemsQuery = listAdapter.itemsQuery
-        listAdapter.itemsQuery = patchAdapterQueryFunction(listName, 'itemsQuery', originalItemsQuery, listAdapter, cacheAPI, getItemsQueryKey, getItemsQueryCondition, relations)
+        listAdapter.itemsQuery = getQueryFunctionWithCache(listName, 'itemsQuery', originalItemsQuery, listAdapter, cacheAPI, getItemsQueryKey, getItemsQueryCondition, relations)
 
         const originalFind = listAdapter.find
-        listAdapter.find = patchAdapterQueryFunction(listName, 'find', originalFind, listAdapter, cacheAPI, getFindKey, getFindCondition, relations)
+        listAdapter.find = getQueryFunctionWithCache(listName, 'find', originalFind, listAdapter, cacheAPI, getFindKey, getFindCondition, relations)
 
         const originalFindById = listAdapter.findById
-        listAdapter.findById = patchAdapterQueryFunction(listName, 'findById', originalFindById, listAdapter, cacheAPI, getFindByIdKey)
+        listAdapter.findById = getQueryFunctionWithCache(listName, 'findById', originalFindById, listAdapter, cacheAPI, getFindByIdKey)
 
         const originalFindOne = listAdapter.findOne
-        listAdapter.findOne = patchAdapterQueryFunction(listName, 'findOne', originalFindOne, listAdapter, cacheAPI, getFindOneKey, getFindCondition, relations)
+        listAdapter.findOne = getQueryFunctionWithCache(listName, 'findOne', originalFindOne, listAdapter, cacheAPI, getFindOneKey, getFindCondition, relations)
 
         const originalFindAll = listAdapter.findAll
-        listAdapter.findAll = patchAdapterQueryFunction(listName, 'findAll', originalFindAll, listAdapter, cacheAPI, getFindAllKey)
+        listAdapter.findAll = getQueryFunctionWithCache(listName, 'findAll', originalFindAll, listAdapter, cacheAPI, getFindAllKey)
 
         // Patch mutations:
 
         const originalUpdate = listAdapter.update
-        listAdapter.update = patchAdapterFunction(listName, 'update', originalUpdate, listAdapter, cacheAPI )
+        listAdapter.update = getMutationFunctionWithCache(listName, 'update', originalUpdate, listAdapter, cacheAPI )
 
         const originalCreate = listAdapter.create
-        listAdapter.create = patchAdapterFunction(listName, 'create', originalCreate, listAdapter, cacheAPI )
+        listAdapter.create = getMutationFunctionWithCache(listName, 'create', originalCreate, listAdapter, cacheAPI )
 
         const originalDelete = listAdapter.delete
-        listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, cacheAPI )
+        listAdapter.delete = getMutationFunctionWithCache(listName, 'delete', originalDelete, listAdapter, cacheAPI )
 
         // A Knex only stabs!
-        listAdapter._createOrUpdateField = async (args) => {
+        // Knex has internal functionality that updates database in implicit fashion.
+        // If any of these functions are called, cache becomes inconsistent and yields incorrect results.
+
+        listAdapter._createOrUpdateField = async () => {
             throw new Error(`Knex listAdapter._createOrUpdateField is called! This means, this cache works incorrectly! You should either disable caching for list ${listName} or check your code. You should not have editable many:true fields in your code!`)
         }
 
-        listAdapter._setNullByValue = async (args) => {
+        listAdapter._setNullByValue = async () => {
             throw new Error(`Knex listAdapter._setNullByValue is called! This means, this cache works incorrectly! You should either disable caching for list ${listName} or check your code.`)
         }
     }
+
+    // Step 3: Log results
 
     logger.info({
         enabledLists,
@@ -381,7 +382,8 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
 }
 
 /**
- * Patches a keystone mutation to add cache functionality
+ * Decorates keystone mutation functions to add cache functionality.
+ * This function is called on every create, update, delete, / many called inside adapter
  * @param {string} listName
  * @param {string} functionName
  * @param {function} f
@@ -389,7 +391,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
  * @param {AdapterCache} cacheAPI
  * @returns {function(...[*]): Promise<*>}
  */
-function patchAdapterFunction ( listName, functionName, f, listAdapter, cacheAPI ) {
+function getMutationFunctionWithCache ( listName, functionName, f, listAdapter, cacheAPI ) {
     return async ( ...args ) => {
 
         // Get mutation value
@@ -412,7 +414,7 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cacheAPI
 }
 
 /**
- * Patch adapter query function, adding cache functionality
+ * Decorates keystone adapter query function, adding cache functionality
  * @param {string} listName
  * @param {string} functionName
  * @param {function} f
@@ -423,7 +425,7 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cacheAPI
  * @param {Object} relations
  * @returns {(function(...[*]): Promise<*|*[]>)|*}
  */
-function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cacheAPI, getKey, getQuery = () => null, relations = {}) {
+function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cacheAPI, getKey, getQuery = () => null, relations = {}) {
     return async ( ...args ) => {
         cacheAPI.incrementTotal()
 
@@ -449,21 +451,6 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
                     result: cachedItem,
                 })
 
-                // TODO
-                // DELETE THIS!
-                const cachedResponse = cloneDeep(cachedItem.response)
-                const realResponse = await f.apply(listAdapter, args)
-                const diff = !isEqual(realResponse, cachedResponse)
-                if (diff) {
-                    cacheAPI.logEvent({
-                        type: 'ALERT-EQUAL',
-                        functionName,
-                        key,
-                        listName,
-                        result: { cached: JSON.stringify(cachedResponse), real: JSON.stringify(realResponse), diff: diff },
-                    })
-                }
-
                 return cloneDeep(cachedItem.response)
             }
         }
@@ -471,8 +458,9 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
         response = await f.apply(listAdapter, args)
         const copiedResponse = cloneDeep(response)
 
-        // Note: do not cache complex requests. Check queryIsComplex docstring for details
-        // Todo (@toplenboren) (DOMA-2681) Sometimes listName !== fieldName. Think about these cases!
+        // Note: This solution does not cache complex requests.
+        //       Request is considered complex if it has relations in its where query/condition.
+        //       Check queryIsComplex docstring for details
         const shouldCache = !queryIsComplex(getQuery(args), listName, relations)
         if (shouldCache) {
             cacheAPI.setCache(listName, key, {
