@@ -119,6 +119,7 @@ registerSchemas(keystone, [
     require('@condo/domains/miniapp/schema'),
     require('@condo/domains/analytics/schema'),
     require('@condo/domains/scope/schema'),
+    require('@condo/domains/news/schema'),
     getWebhookModels('@app/condo/schema.graphql'),
 ], [schemaDocPreprocessor, escapeSearchPreprocessor])
 
