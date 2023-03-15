@@ -25826,30 +25826,6 @@ export type Mutation = {
   deleteOrganizationEmployeeSpecialization?: Maybe<OrganizationEmployeeSpecialization>;
   /**  Delete multiple OrganizationEmployeeSpecialization items by ID.  */
   deleteOrganizationEmployeeSpecializations?: Maybe<Array<Maybe<OrganizationEmployeeSpecialization>>>;
-  /**  Create a single OrganizationNewsItemHistoryRecord item.  */
-  createOrganizationNewsItemHistoryRecord?: Maybe<OrganizationNewsItemHistoryRecord>;
-  /**  Create multiple OrganizationNewsItemHistoryRecord items.  */
-  createOrganizationNewsItemHistoryRecords?: Maybe<Array<Maybe<OrganizationNewsItemHistoryRecord>>>;
-  /**  Update a single OrganizationNewsItemHistoryRecord item by ID.  */
-  updateOrganizationNewsItemHistoryRecord?: Maybe<OrganizationNewsItemHistoryRecord>;
-  /**  Update multiple OrganizationNewsItemHistoryRecord items by ID.  */
-  updateOrganizationNewsItemHistoryRecords?: Maybe<Array<Maybe<OrganizationNewsItemHistoryRecord>>>;
-  /**  Delete a single OrganizationNewsItemHistoryRecord item by ID.  */
-  deleteOrganizationNewsItemHistoryRecord?: Maybe<OrganizationNewsItemHistoryRecord>;
-  /**  Delete multiple OrganizationNewsItemHistoryRecord items by ID.  */
-  deleteOrganizationNewsItemHistoryRecords?: Maybe<Array<Maybe<OrganizationNewsItemHistoryRecord>>>;
-  /**  Create a single OrganizationNewsItem item.  */
-  createOrganizationNewsItem?: Maybe<OrganizationNewsItem>;
-  /**  Create multiple OrganizationNewsItem items.  */
-  createOrganizationNewsItems?: Maybe<Array<Maybe<OrganizationNewsItem>>>;
-  /**  Update a single OrganizationNewsItem item by ID.  */
-  updateOrganizationNewsItem?: Maybe<OrganizationNewsItem>;
-  /**  Update multiple OrganizationNewsItem items by ID.  */
-  updateOrganizationNewsItems?: Maybe<Array<Maybe<OrganizationNewsItem>>>;
-  /**  Delete a single OrganizationNewsItem item by ID.  */
-  deleteOrganizationNewsItem?: Maybe<OrganizationNewsItem>;
-  /**  Delete multiple OrganizationNewsItem items by ID.  */
-  deleteOrganizationNewsItems?: Maybe<Array<Maybe<OrganizationNewsItem>>>;
   /**  Create a single PropertyHistoryRecord item.  */
   createPropertyHistoryRecord?: Maybe<PropertyHistoryRecord>;
   /**  Create multiple PropertyHistoryRecord items.  */
@@ -30080,68 +30056,6 @@ export type MutationDeleteOrganizationEmployeeSpecializationArgs = {
 
 
 export type MutationDeleteOrganizationEmployeeSpecializationsArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateOrganizationNewsItemHistoryRecordArgs = {
-  data?: Maybe<OrganizationNewsItemHistoryRecordCreateInput>;
-};
-
-
-export type MutationCreateOrganizationNewsItemHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<OrganizationNewsItemHistoryRecordsCreateInput>>>;
-};
-
-
-export type MutationUpdateOrganizationNewsItemHistoryRecordArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<OrganizationNewsItemHistoryRecordUpdateInput>;
-};
-
-
-export type MutationUpdateOrganizationNewsItemHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<OrganizationNewsItemHistoryRecordsUpdateInput>>>;
-};
-
-
-export type MutationDeleteOrganizationNewsItemHistoryRecordArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteOrganizationNewsItemHistoryRecordsArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateOrganizationNewsItemArgs = {
-  data?: Maybe<OrganizationNewsItemCreateInput>;
-};
-
-
-export type MutationCreateOrganizationNewsItemsArgs = {
-  data?: Maybe<Array<Maybe<OrganizationNewsItemsCreateInput>>>;
-};
-
-
-export type MutationUpdateOrganizationNewsItemArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<OrganizationNewsItemUpdateInput>;
-};
-
-
-export type MutationUpdateOrganizationNewsItemsArgs = {
-  data?: Maybe<Array<Maybe<OrganizationNewsItemsUpdateInput>>>;
-};
-
-
-export type MutationDeleteOrganizationNewsItemArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteOrganizationNewsItemsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -37383,7 +37297,6 @@ export type OrganizationEmployeeRole = {
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
-  canManageNews?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -37428,7 +37341,6 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
-  canManageNews?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37479,7 +37391,6 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
-  canManageNews?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -37524,7 +37435,6 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
-  canManageNews?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37574,7 +37484,6 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
-  canManageNews?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37702,8 +37611,6 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageBankTransactions_not?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents_not?: Maybe<Scalars['Boolean']>;
-  canManageNews?: Maybe<Scalars['Boolean']>;
-  canManageNews_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -37820,7 +37727,6 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
-  canManageNews?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37925,8 +37831,6 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageBankTransactions_not?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents_not?: Maybe<Scalars['Boolean']>;
-  canManageNews?: Maybe<Scalars['Boolean']>;
-  canManageNews_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -39105,450 +39009,6 @@ export type OrganizationLinksCreateInput = {
 export type OrganizationLinksUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<OrganizationLinkUpdateInput>;
-};
-
-/**  The news item created by the organization to show on resident's mobile devices  */
-export type OrganizationNewsItem = {
-  __typename?: 'OrganizationNewsItem';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the OrganizationNewsItem List config, or
-   *  2. As an alias to the field set on 'labelField' in the OrganizationNewsItem List config, or
-   *  3. As an alias to a 'name' field on the OrganizationNewsItem List (if one exists), or
-   *  4. As an alias to the 'id' field on the OrganizationNewsItem List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  /**  The organization the news item created by  */
-  organization?: Maybe<Organization>;
-  /**  The news item title  */
-  title?: Maybe<Scalars['String']>;
-  /**  The news item main body  */
-  body?: Maybe<Scalars['String']>;
-  /**  The news item type  */
-  type?: Maybe<OrganizationNewsItemTypeType>;
-  /**  The criteria to select users who will see this message (select by address, entrance number, account number, ...)  */
-  receiversCriteria?: Maybe<Scalars['JSON']>;
-  /**  Internal info for the news item  */
-  meta?: Maybe<Scalars['JSON']>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  createdBy?: Maybe<User>;
-  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  updatedBy?: Maybe<User>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
-};
-
-export type OrganizationNewsItemCreateInput = {
-  organization?: Maybe<OrganizationRelateToOneInput>;
-  title?: Maybe<Scalars['String']>;
-  body?: Maybe<Scalars['String']>;
-  type?: Maybe<OrganizationNewsItemTypeType>;
-  receiversCriteria?: Maybe<Scalars['JSON']>;
-  meta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-};
-
-/**  A keystone list  */
-export type OrganizationNewsItemHistoryRecord = {
-  __typename?: 'OrganizationNewsItemHistoryRecord';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the OrganizationNewsItemHistoryRecord List config, or
-   *  2. As an alias to the field set on 'labelField' in the OrganizationNewsItemHistoryRecord List config, or
-   *  3. As an alias to a 'name' field on the OrganizationNewsItemHistoryRecord List (if one exists), or
-   *  4. As an alias to the 'id' field on the OrganizationNewsItemHistoryRecord List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
-  title?: Maybe<Scalars['String']>;
-  body?: Maybe<Scalars['String']>;
-  type?: Maybe<Scalars['String']>;
-  receiversCriteria?: Maybe<Scalars['JSON']>;
-  meta?: Maybe<Scalars['JSON']>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<OrganizationNewsItemHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type OrganizationNewsItemHistoryRecordCreateInput = {
-  organization?: Maybe<Scalars['String']>;
-  title?: Maybe<Scalars['String']>;
-  body?: Maybe<Scalars['String']>;
-  type?: Maybe<Scalars['String']>;
-  receiversCriteria?: Maybe<Scalars['JSON']>;
-  meta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<OrganizationNewsItemHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export enum OrganizationNewsItemHistoryRecordHistoryActionType {
-  C = 'c',
-  U = 'u',
-  D = 'd'
-}
-
-export type OrganizationNewsItemHistoryRecordUpdateInput = {
-  organization?: Maybe<Scalars['String']>;
-  title?: Maybe<Scalars['String']>;
-  body?: Maybe<Scalars['String']>;
-  type?: Maybe<Scalars['String']>;
-  receiversCriteria?: Maybe<Scalars['JSON']>;
-  meta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<OrganizationNewsItemHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type OrganizationNewsItemHistoryRecordWhereInput = {
-  AND?: Maybe<Array<Maybe<OrganizationNewsItemHistoryRecordWhereInput>>>;
-  OR?: Maybe<Array<Maybe<OrganizationNewsItemHistoryRecordWhereInput>>>;
-  organization?: Maybe<Scalars['String']>;
-  organization_not?: Maybe<Scalars['String']>;
-  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  title?: Maybe<Scalars['String']>;
-  title_not?: Maybe<Scalars['String']>;
-  title_contains?: Maybe<Scalars['String']>;
-  title_not_contains?: Maybe<Scalars['String']>;
-  title_starts_with?: Maybe<Scalars['String']>;
-  title_not_starts_with?: Maybe<Scalars['String']>;
-  title_ends_with?: Maybe<Scalars['String']>;
-  title_not_ends_with?: Maybe<Scalars['String']>;
-  title_i?: Maybe<Scalars['String']>;
-  title_not_i?: Maybe<Scalars['String']>;
-  title_contains_i?: Maybe<Scalars['String']>;
-  title_not_contains_i?: Maybe<Scalars['String']>;
-  title_starts_with_i?: Maybe<Scalars['String']>;
-  title_not_starts_with_i?: Maybe<Scalars['String']>;
-  title_ends_with_i?: Maybe<Scalars['String']>;
-  title_not_ends_with_i?: Maybe<Scalars['String']>;
-  title_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  title_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  body?: Maybe<Scalars['String']>;
-  body_not?: Maybe<Scalars['String']>;
-  body_contains?: Maybe<Scalars['String']>;
-  body_not_contains?: Maybe<Scalars['String']>;
-  body_starts_with?: Maybe<Scalars['String']>;
-  body_not_starts_with?: Maybe<Scalars['String']>;
-  body_ends_with?: Maybe<Scalars['String']>;
-  body_not_ends_with?: Maybe<Scalars['String']>;
-  body_i?: Maybe<Scalars['String']>;
-  body_not_i?: Maybe<Scalars['String']>;
-  body_contains_i?: Maybe<Scalars['String']>;
-  body_not_contains_i?: Maybe<Scalars['String']>;
-  body_starts_with_i?: Maybe<Scalars['String']>;
-  body_not_starts_with_i?: Maybe<Scalars['String']>;
-  body_ends_with_i?: Maybe<Scalars['String']>;
-  body_not_ends_with_i?: Maybe<Scalars['String']>;
-  body_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  body_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  type?: Maybe<Scalars['String']>;
-  type_not?: Maybe<Scalars['String']>;
-  type_contains?: Maybe<Scalars['String']>;
-  type_not_contains?: Maybe<Scalars['String']>;
-  type_starts_with?: Maybe<Scalars['String']>;
-  type_not_starts_with?: Maybe<Scalars['String']>;
-  type_ends_with?: Maybe<Scalars['String']>;
-  type_not_ends_with?: Maybe<Scalars['String']>;
-  type_i?: Maybe<Scalars['String']>;
-  type_not_i?: Maybe<Scalars['String']>;
-  type_contains_i?: Maybe<Scalars['String']>;
-  type_not_contains_i?: Maybe<Scalars['String']>;
-  type_starts_with_i?: Maybe<Scalars['String']>;
-  type_not_starts_with_i?: Maybe<Scalars['String']>;
-  type_ends_with_i?: Maybe<Scalars['String']>;
-  type_not_ends_with_i?: Maybe<Scalars['String']>;
-  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  receiversCriteria?: Maybe<Scalars['JSON']>;
-  receiversCriteria_not?: Maybe<Scalars['JSON']>;
-  receiversCriteria_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  receiversCriteria_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta?: Maybe<Scalars['JSON']>;
-  meta_not?: Maybe<Scalars['JSON']>;
-  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<Scalars['String']>;
-  createdBy_not?: Maybe<Scalars['String']>;
-  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy?: Maybe<Scalars['String']>;
-  updatedBy_not?: Maybe<Scalars['String']>;
-  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['JSON']>;
-  newId_not?: Maybe<Scalars['JSON']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  history_date?: Maybe<Scalars['String']>;
-  history_date_not?: Maybe<Scalars['String']>;
-  history_date_lt?: Maybe<Scalars['String']>;
-  history_date_lte?: Maybe<Scalars['String']>;
-  history_date_gt?: Maybe<Scalars['String']>;
-  history_date_gte?: Maybe<Scalars['String']>;
-  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_action?: Maybe<OrganizationNewsItemHistoryRecordHistoryActionType>;
-  history_action_not?: Maybe<OrganizationNewsItemHistoryRecordHistoryActionType>;
-  history_action_in?: Maybe<Array<Maybe<OrganizationNewsItemHistoryRecordHistoryActionType>>>;
-  history_action_not_in?: Maybe<Array<Maybe<OrganizationNewsItemHistoryRecordHistoryActionType>>>;
-  history_id?: Maybe<Scalars['String']>;
-  history_id_not?: Maybe<Scalars['String']>;
-  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
-export type OrganizationNewsItemHistoryRecordWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type OrganizationNewsItemHistoryRecordsCreateInput = {
-  data?: Maybe<OrganizationNewsItemHistoryRecordCreateInput>;
-};
-
-export type OrganizationNewsItemHistoryRecordsUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<OrganizationNewsItemHistoryRecordUpdateInput>;
-};
-
-export enum OrganizationNewsItemTypeType {
-  Common = 'common',
-  Emergency = 'emergency'
-}
-
-export type OrganizationNewsItemUpdateInput = {
-  organization?: Maybe<OrganizationRelateToOneInput>;
-  title?: Maybe<Scalars['String']>;
-  body?: Maybe<Scalars['String']>;
-  type?: Maybe<OrganizationNewsItemTypeType>;
-  receiversCriteria?: Maybe<Scalars['JSON']>;
-  meta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-};
-
-export type OrganizationNewsItemWhereInput = {
-  AND?: Maybe<Array<Maybe<OrganizationNewsItemWhereInput>>>;
-  OR?: Maybe<Array<Maybe<OrganizationNewsItemWhereInput>>>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
-  title?: Maybe<Scalars['String']>;
-  title_not?: Maybe<Scalars['String']>;
-  title_contains?: Maybe<Scalars['String']>;
-  title_not_contains?: Maybe<Scalars['String']>;
-  title_starts_with?: Maybe<Scalars['String']>;
-  title_not_starts_with?: Maybe<Scalars['String']>;
-  title_ends_with?: Maybe<Scalars['String']>;
-  title_not_ends_with?: Maybe<Scalars['String']>;
-  title_i?: Maybe<Scalars['String']>;
-  title_not_i?: Maybe<Scalars['String']>;
-  title_contains_i?: Maybe<Scalars['String']>;
-  title_not_contains_i?: Maybe<Scalars['String']>;
-  title_starts_with_i?: Maybe<Scalars['String']>;
-  title_not_starts_with_i?: Maybe<Scalars['String']>;
-  title_ends_with_i?: Maybe<Scalars['String']>;
-  title_not_ends_with_i?: Maybe<Scalars['String']>;
-  title_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  title_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  body?: Maybe<Scalars['String']>;
-  body_not?: Maybe<Scalars['String']>;
-  body_contains?: Maybe<Scalars['String']>;
-  body_not_contains?: Maybe<Scalars['String']>;
-  body_starts_with?: Maybe<Scalars['String']>;
-  body_not_starts_with?: Maybe<Scalars['String']>;
-  body_ends_with?: Maybe<Scalars['String']>;
-  body_not_ends_with?: Maybe<Scalars['String']>;
-  body_i?: Maybe<Scalars['String']>;
-  body_not_i?: Maybe<Scalars['String']>;
-  body_contains_i?: Maybe<Scalars['String']>;
-  body_not_contains_i?: Maybe<Scalars['String']>;
-  body_starts_with_i?: Maybe<Scalars['String']>;
-  body_not_starts_with_i?: Maybe<Scalars['String']>;
-  body_ends_with_i?: Maybe<Scalars['String']>;
-  body_not_ends_with_i?: Maybe<Scalars['String']>;
-  body_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  body_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  type?: Maybe<OrganizationNewsItemTypeType>;
-  type_not?: Maybe<OrganizationNewsItemTypeType>;
-  type_in?: Maybe<Array<Maybe<OrganizationNewsItemTypeType>>>;
-  type_not_in?: Maybe<Array<Maybe<OrganizationNewsItemTypeType>>>;
-  receiversCriteria?: Maybe<Scalars['JSON']>;
-  receiversCriteria_not?: Maybe<Scalars['JSON']>;
-  receiversCriteria_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  receiversCriteria_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta?: Maybe<Scalars['JSON']>;
-  meta_not?: Maybe<Scalars['JSON']>;
-  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<UserWhereInput>;
-  createdBy_is_null?: Maybe<Scalars['Boolean']>;
-  updatedBy?: Maybe<UserWhereInput>;
-  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['String']>;
-  newId_not?: Maybe<Scalars['String']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-};
-
-export type OrganizationNewsItemWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type OrganizationNewsItemsCreateInput = {
-  data?: Maybe<OrganizationNewsItemCreateInput>;
-};
-
-export type OrganizationNewsItemsUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<OrganizationNewsItemUpdateInput>;
 };
 
 export type OrganizationRelateToOneInput = {
@@ -42788,22 +42248,6 @@ export type Query = {
   _allOrganizationEmployeeSpecializationsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the OrganizationEmployeeSpecialization list.  */
   _OrganizationEmployeeSpecializationsMeta?: Maybe<_ListMeta>;
-  /**  Search for all OrganizationNewsItemHistoryRecord items which match the where clause.  */
-  allOrganizationNewsItemHistoryRecords?: Maybe<Array<Maybe<OrganizationNewsItemHistoryRecord>>>;
-  /**  Search for the OrganizationNewsItemHistoryRecord item with the matching ID.  */
-  OrganizationNewsItemHistoryRecord?: Maybe<OrganizationNewsItemHistoryRecord>;
-  /**  Perform a meta-query on all OrganizationNewsItemHistoryRecord items which match the where clause.  */
-  _allOrganizationNewsItemHistoryRecordsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the OrganizationNewsItemHistoryRecord list.  */
-  _OrganizationNewsItemHistoryRecordsMeta?: Maybe<_ListMeta>;
-  /**  Search for all OrganizationNewsItem items which match the where clause.  */
-  allOrganizationNewsItems?: Maybe<Array<Maybe<OrganizationNewsItem>>>;
-  /**  Search for the OrganizationNewsItem item with the matching ID.  */
-  OrganizationNewsItem?: Maybe<OrganizationNewsItem>;
-  /**  Perform a meta-query on all OrganizationNewsItem items which match the where clause.  */
-  _allOrganizationNewsItemsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the OrganizationNewsItem list.  */
-  _OrganizationNewsItemsMeta?: Maybe<_ListMeta>;
   /**  Search for all PropertyHistoryRecord items which match the where clause.  */
   allPropertyHistoryRecords?: Maybe<Array<Maybe<PropertyHistoryRecord>>>;
   /**  Search for the PropertyHistoryRecord item with the matching ID.  */
@@ -44745,56 +44189,6 @@ export type Query_AllOrganizationEmployeeSpecializationsMetaArgs = {
   where?: Maybe<OrganizationEmployeeSpecializationWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortOrganizationEmployeeSpecializationsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllOrganizationNewsItemHistoryRecordsArgs = {
-  where?: Maybe<OrganizationNewsItemHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortOrganizationNewsItemHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryOrganizationNewsItemHistoryRecordArgs = {
-  where: OrganizationNewsItemHistoryRecordWhereUniqueInput;
-};
-
-
-export type Query_AllOrganizationNewsItemHistoryRecordsMetaArgs = {
-  where?: Maybe<OrganizationNewsItemHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortOrganizationNewsItemHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllOrganizationNewsItemsArgs = {
-  where?: Maybe<OrganizationNewsItemWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortOrganizationNewsItemsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryOrganizationNewsItemArgs = {
-  where: OrganizationNewsItemWhereUniqueInput;
-};
-
-
-export type Query_AllOrganizationNewsItemsMetaArgs = {
-  where?: Maybe<OrganizationNewsItemWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortOrganizationNewsItemsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -55878,8 +55272,6 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageBankTransactionsDesc = 'canManageBankTransactions_DESC',
   CanManageIncidentsAsc = 'canManageIncidents_ASC',
   CanManageIncidentsDesc = 'canManageIncidents_DESC',
-  CanManageNewsAsc = 'canManageNews_ASC',
-  CanManageNewsDesc = 'canManageNews_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -55955,8 +55347,6 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageBankTransactionsDesc = 'canManageBankTransactions_DESC',
   CanManageIncidentsAsc = 'canManageIncidents_ASC',
   CanManageIncidentsDesc = 'canManageIncidents_DESC',
-  CanManageNewsAsc = 'canManageNews_ASC',
-  CanManageNewsDesc = 'canManageNews_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -56111,58 +55501,6 @@ export enum SortOrganizationLinksBy {
   FromDesc = 'from_DESC',
   ToAsc = 'to_ASC',
   ToDesc = 'to_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  CreatedByAsc = 'createdBy_ASC',
-  CreatedByDesc = 'createdBy_DESC',
-  UpdatedByAsc = 'updatedBy_ASC',
-  UpdatedByDesc = 'updatedBy_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC'
-}
-
-export enum SortOrganizationNewsItemHistoryRecordsBy {
-  TitleAsc = 'title_ASC',
-  TitleDesc = 'title_DESC',
-  BodyAsc = 'body_ASC',
-  BodyDesc = 'body_DESC',
-  TypeAsc = 'type_ASC',
-  TypeDesc = 'type_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  HistoryDateAsc = 'history_date_ASC',
-  HistoryDateDesc = 'history_date_DESC',
-  HistoryActionAsc = 'history_action_ASC',
-  HistoryActionDesc = 'history_action_DESC'
-}
-
-export enum SortOrganizationNewsItemsBy {
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC',
-  TitleAsc = 'title_ASC',
-  TitleDesc = 'title_DESC',
-  BodyAsc = 'body_ASC',
-  BodyDesc = 'body_DESC',
-  TypeAsc = 'type_ASC',
-  TypeDesc = 'type_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
