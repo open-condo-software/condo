@@ -11,6 +11,11 @@
         "mask-composite",
         "background-clip"
       ]
+    }],
+    "function-no-unknown": [true, {
+      "ignoreFunctions": [
+        "fade"
+      ]
     }]
   },
   "overrides": [
