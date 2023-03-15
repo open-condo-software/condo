@@ -772,6 +772,7 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@open-condo/locales": "workspace:^"
     "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
     "@testing-library/react": ^11.2.5
     "@types/echarts": ^4.9.9
     "@types/jest": ^26.0.20
@@ -781,6 +782,7 @@ __metadata:
     "@welldone-software/why-did-you-render": ^5.0.0-alpha.1
     "@zeit/next-css": ^1.0.1
     "@zeit/next-less": ^1.0.1
+    ajv: 8.11.0
     antd: ^4.8.2
     apollo-boost: ^0.4.9
     apollo-cache-inmemory: ^1.6.6
@@ -823,6 +825,7 @@ __metadata:
     numeral: 2.0.6
     nunjucks: ^3.2.2
     qs: ^6.9.4
+    raw-loader: ^4.0.2
     rc-queue-anim: ^1.8.5
     rc-table: ~7.25.3
     react: ^16.13.1
@@ -1215,6 +1218,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
     "@property-importer/domains": "link:./domains"
     "@testing-library/react": ^11.2.5
     "@types/jest": ^26.0.20

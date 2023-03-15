@@ -68,7 +68,6 @@ const Modal: React.FC<ModalProps> = (props) => {
             centered
             closable
             className={classes}
-            // closeIcon={<Close size='small' color={colors.black}/>}
             closeIcon={<Cross/>}
             footer={footer || null}
             title={<Typography.Title level={3} ellipsis={{ rows: 2 }} children={title}/>}
