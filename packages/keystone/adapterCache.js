@@ -107,7 +107,7 @@ class AdapterCache {
             end
         ` }
 
-        const redis = getRedisClient('adapterCacheState')
+        const redis = getRedisClient('cache')
         redis.defineCommand('cacheUpdateStateTimestamp', updateTimeStampFunction)
         return redis
     }
