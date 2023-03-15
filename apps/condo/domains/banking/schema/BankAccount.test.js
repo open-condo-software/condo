@@ -21,21 +21,32 @@ const {
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
-const { BankIntegration, createTestBankIntegrationAccountContext } = require('../utils/testSchema')
+const { BankIntegration, createTestBankIntegrationAccountContext, BankIntegrationAccessRight, createTestBankIntegrationOrganizationContext } = require('../utils/testSchema')
 
 const ISO_8601_FULL = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?$/i
 
 let adminClient
 let supportClient
+let serviceClient
 let bankIntegration
+let SBBOLBankIntegration
 
 describe('BankAccount', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
         bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS['1CClientBankExchange'] })
+        SBBOLBankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
+        serviceClient = await makeClientWithServiceUser()
+        await BankIntegrationAccessRight.create(adminClient, {
+            user: { connect: { id: serviceClient.user.id } },
+            integration: { connect: { id: SBBOLBankIntegration.id } },
+            dv: 1,
+            sender: { dv: 1, fingerprint: 'tests' },
+        })
     })
 
     describe('CRUD tests', () => {
@@ -60,6 +71,20 @@ describe('BankAccount', () => {
             test('support can', async () => {
                 const [organization] = await createTestOrganization(supportClient)
                 const [bankAccount] = await createTestBankAccount(supportClient, organization)
+
+                expect(bankAccount.organization.id).toEqual(organization.id)
+                expect(bankAccount.tin).toBeDefined()
+                expect(bankAccount.country).toEqual('ru')
+                expect(bankAccount.routingNumber).toBeDefined()
+                expect(bankAccount.number).toBeDefined()
+                expect(bankAccount.currencyCode).toEqual('RUB')
+            })
+
+            test('service can', async () => {
+                const [organization] = await createTestOrganization(adminClient)
+                await createTestBankIntegrationOrganizationContext(adminClient, SBBOLBankIntegration, organization)
+
+                const [bankAccount] = await createTestBankAccount(serviceClient, organization)
 
                 expect(bankAccount.organization.id).toEqual(organization.id)
                 expect(bankAccount.tin).toBeDefined()
@@ -115,6 +140,39 @@ describe('BankAccount', () => {
 
                 const [createdObj] = await createTestBankAccount(adminClient, organization)
                 const [readObj] = await BankAccount.getAll(adminClient, { id: createdObj.id })
+
+                expect(createdObj.organization.id).toEqual(readObj.organization.id)
+                expect(createdObj.tin).toEqual(readObj.tin)
+                expect(createdObj.country).toEqual(readObj.country)
+                expect(createdObj.routingNumber).toEqual(readObj.routingNumber)
+                expect(createdObj.number).toEqual(readObj.number)
+                expect(createdObj.currencyCode).toEqual(readObj.currencyCode)
+            })
+
+            test('service can', async () => {
+                const [organization] = await createTestOrganization(adminClient)
+                await createTestBankIntegrationOrganizationContext(adminClient, SBBOLBankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(serviceClient, SBBOLBankIntegration, organization)
+
+                const [createdObj] = await createTestBankAccount(serviceClient, organization, {
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
+                const [readObj] = await BankAccount.getAll(serviceClient, { id: createdObj.id })
+
+                expect(createdObj.organization.id).toEqual(readObj.organization.id)
+                expect(createdObj.tin).toEqual(readObj.tin)
+                expect(createdObj.country).toEqual(readObj.country)
+                expect(createdObj.routingNumber).toEqual(readObj.routingNumber)
+                expect(createdObj.number).toEqual(readObj.number)
+                expect(createdObj.currencyCode).toEqual(readObj.currencyCode)
+            })
+
+            test('service can if BankAccount has no connected integration', async () => {
+                const [organization] = await createTestOrganization(adminClient)
+                await createTestBankIntegrationOrganizationContext(adminClient, SBBOLBankIntegration, organization)
+
+                const [createdObj] = await createTestBankAccount(adminClient, organization)
+                const [readObj] = await BankAccount.getAll(serviceClient, { id: createdObj.id })
 
                 expect(createdObj.organization.id).toEqual(readObj.organization.id)
                 expect(createdObj.tin).toEqual(readObj.tin)
