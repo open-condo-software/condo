@@ -1,12 +1,16 @@
 /**
  * Keystone database adapter level cache
  *
- * How it works:
+ *
+ * Problem:
  *
  * To understand how adapterCache works we need to understand the environment and the tasks that this feature solve
  * 1. Your web app has multiple instances, but single database
  * 2. You use Redis
  * 3. You need a mechanism to lower the number of SQL queries to your DB
+ *
+ *
+ * Algorithm:
  *
  * Adapter cache has two variables:
  *
@@ -14,7 +18,7 @@
  * State part example: { "User": "1669912192723" }
  *
  * Cache -- saved internally in instance.
- * Cache part example: { "User": { "where:{id:"1"},first:1": { result: <User>, updateTime: "1669912192723" } ] } }
+ * Cache part example: { "User_where:{id'1'}_first:1_sortBy:['createdAt']": { result: <User>, updateTime: '1669912192723', listName: 'User' } ] } }
  *
  * For every list patch listAdapter function:
  * If request to this list is Query:
@@ -28,15 +32,24 @@
  * If request to this list is Mutation (anything that mutates the data):
  *  1. update state on this list to the update time of the updated/created/deleted object
  *
- * Statistics:
- *  - If cache logging is turned on, then statistics is shown on any log event.
  *
- * Garbage collection:
- *  - Every request total number of keys in cache is checked. If total number of keys is greater than maxCacheKeys, keysToDelete with lowest score are deleted from cache.
+ * Implementation:
+ *
+ * Adapter cache gets initialized keystone database adapter and decorates all public methods, that are responsible for Query and Mutation operations adding caching functionality.
+ *
+ *
+ * Statistics:
+ *
+ * - If cache logging is turned on, then statistics is shown on any log event..
  *
  * Notes:
- *  - Adapter level cache do not cache complex requests. A request is considered complex, if Where query contains other relationships
  *
+ * - Adapter level cache do not cache complex requests. A request is considered complex, if Where query contains other relationships
+ *  - Knex implicitly (without calling .update()) performs updates on many:true fields.
+ *    Implicit updates are present in two private knex adapter methods: _createOrUpdateField() and _setNullByValue()
+ *    It happens in case of update/create on many:true field and leads to inconsistent cache state.
+ *    We overcome this by explicitly patching those two methods to raise exception whenever they are called.
+ *    We also do not cache lists that have many: true relations or are dependant of this relations.
  */
 
 const { get, cloneDeep, floor } = require('lodash')
@@ -159,12 +172,10 @@ class AdapterCache {
     }
 
     /**
-     * Drops local cache on list
+     * Drops all local cache items, that are associated with given list
      * @param {string} listName
      */
     dropCacheByList (listName) {
-
-        // We drop all cached items, that are associated with certain list!
         this.cache.forEach((cachedItem, key) => {
             if (get(cachedItem, 'listName') === listName) {
                 this.cache.del(key)
@@ -289,7 +300,7 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
 
     const listsWithMany = new Set([...manyLists, ...manyRefs])
 
-    logger.info({ relations, listsWithMany })
+    logger.info({ msg: 'Adapter cache preprocessing finished:', relations, listsWithMany })
 
     // Step 2: Iterate over lists, patch mutations and queries inside list.
 
@@ -318,7 +329,7 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
             continue
         }
 
-        // 2. It is explicity specified in config that list should not be cached
+        // 2. It is explicitly specified in config that list should not be cached
         if (excludedLists.includes(listName)) {
             disabledLists.push({ listName, reason: 'Cache is excluded by config' })
             continue
