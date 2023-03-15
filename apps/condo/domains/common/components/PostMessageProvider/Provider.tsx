@@ -7,11 +7,12 @@ import { v4 as uuidV4 } from 'uuid'
 import { ERROR_CODES } from './errors'
 import {
     handleNotification,
-    useLaunchParamsHandler,
-    useShowProgressBarHandler,
     useGetActiveProgressBarsHandler,
-    useUpdateProgressBarHandler,
+    useLaunchParamsHandler,
     useRedirectHandler,
+    useShowModalHandler,
+    useShowProgressBarHandler,
+    useUpdateProgressBarHandler,
 } from './globalHandlers'
 import { validators } from './validators'
 
@@ -139,26 +140,31 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     const getActiveProgressBarsHandler = useGetActiveProgressBarsHandler()
     const updateProgressBarHandler = useUpdateProgressBarHandler()
     const redirectHandler = useRedirectHandler()
-
-    useEffect(() => {
-        addEventHandler('CondoWebAppGetLaunchParams', '*', launchParamsHandler)
-    }, [addEventHandler, launchParamsHandler])
-
-    useEffect(() => {
-        addEventHandler('CondoWebAppShowProgressBar', '*', showProgressBarHandler)
-    }, [addEventHandler, showProgressBarHandler])
+    const [showModalHandler, ModalContainer] = useShowModalHandler()
 
     useEffect(() => {
         addEventHandler('CondoWebAppGetActiveProgressBars', '*', getActiveProgressBarsHandler)
     }, [addEventHandler, getActiveProgressBarsHandler])
 
     useEffect(() => {
-        addEventHandler('CondoWebAppUpdateProgressBar', '*', updateProgressBarHandler)
-    }, [addEventHandler, updateProgressBarHandler])
+        addEventHandler('CondoWebAppGetLaunchParams', '*', launchParamsHandler)
+    }, [addEventHandler, launchParamsHandler])
 
     useEffect(() => {
         addEventHandler('CondoWebAppRedirect', '*', redirectHandler)
     }, [addEventHandler, redirectHandler])
+
+    useEffect(() => {
+        addEventHandler('CondoWebAppShowModalWindow', '*', showModalHandler)
+    }, [addEventHandler, showModalHandler])
+
+    useEffect(() => {
+        addEventHandler('CondoWebAppShowProgressBar', '*', showProgressBarHandler)
+    }, [addEventHandler, showProgressBarHandler])
+
+    useEffect(() => {
+        addEventHandler('CondoWebAppUpdateProgressBar', '*', updateProgressBarHandler)
+    }, [addEventHandler, updateProgressBarHandler])
 
     const addFrame = useCallback((ref: React.Ref<HTMLIFrameElement>) => {
         const frameId = uuidV4()
@@ -268,6 +274,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
             validators,
         }}>
             {children}
+            {ModalContainer}
         </PostMessageContext.Provider>
     )
 }
