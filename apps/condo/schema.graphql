@@ -28,6 +28,7 @@ type UserHistoryRecord {
   isPhoneVerified: Boolean
   avatar: JSON
   meta: JSON
+  locale: String
   id: ID!
   v: Int
   createdAt: String
@@ -156,6 +157,24 @@ input UserHistoryRecordWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -257,6 +276,8 @@ enum SortUserHistoryRecordsBy {
   phone_DESC
   isPhoneVerified_ASC
   isPhoneVerified_DESC
+  locale_ASC
+  locale_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -288,6 +309,7 @@ input UserHistoryRecordUpdateInput {
   isPhoneVerified: Boolean
   avatar: JSON
   meta: JSON
+  locale: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -320,6 +342,7 @@ input UserHistoryRecordCreateInput {
   isPhoneVerified: Boolean
   avatar: JSON
   meta: JSON
+  locale: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -352,6 +375,11 @@ type File {
   mimetype: String
   encoding: String
   publicUrl: String
+}
+
+enum UserLocaleType {
+  ru
+  en
 }
 
 input UserRelateToOneInput {
@@ -417,6 +445,9 @@ type User {
 
   """ User metadata. Example: `city`, `country`, ... """
   meta: JSON
+
+  """ The user's locale """
+  locale: UserLocaleType
   id: ID!
   v: Int
   createdAt: String
@@ -518,6 +549,10 @@ input UserWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  locale: UserLocaleType
+  locale_not: UserLocaleType
+  locale_in: [UserLocaleType]
+  locale_not_in: [UserLocaleType]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -597,6 +632,8 @@ enum SortUsersBy {
   phone_DESC
   isPhoneVerified_ASC
   isPhoneVerified_DESC
+  locale_ASC
+  locale_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -627,6 +664,7 @@ input UserUpdateInput {
   isPhoneVerified: Boolean
   avatar: Upload
   meta: JSON
+  locale: UserLocaleType
   v: Int
   createdAt: String
   updatedAt: String
@@ -655,6 +693,7 @@ input UserCreateInput {
   isPhoneVerified: Boolean
   avatar: Upload
   meta: JSON
+  locale: UserLocaleType
   v: Int
   createdAt: String
   updatedAt: String
