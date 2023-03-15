@@ -9,9 +9,9 @@ const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
-const { SERVICE } = require('@condo/domains/user/constants/common')
 
 /**
  * BankAccount entity can be read either by:
@@ -25,18 +25,24 @@ async function canReadBankAccounts ({ authentication: { item: user }, context })
 
     if (user.type === SERVICE) {
         if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
-            integrationContext: {
-                deletedAt: null,
-                integration: {
+            OR: [{
+                integrationContext: {
                     deletedAt: null,
-                    accessRights_some: {
+                    integration: {
                         deletedAt: null,
-                        user: {
-                            id: user.id,
+                        accessRights_some: {
+                            deletedAt: null,
+                            user: {
+                                id: user.id,
+                            },
                         },
                     },
                 },
             },
+            {
+                integrationContext_is_null: true,
+            }],
+
         }
 
         return false
