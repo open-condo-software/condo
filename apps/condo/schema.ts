@@ -57435,6 +57435,8 @@ export enum SortUserHistoryRecordsBy {
   PhoneDesc = 'phone_DESC',
   IsPhoneVerifiedAsc = 'isPhoneVerified_ASC',
   IsPhoneVerifiedDesc = 'isPhoneVerified_DESC',
+  LocaleAsc = 'locale_ASC',
+  LocaleDesc = 'locale_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -57520,6 +57522,8 @@ export enum SortUsersBy {
   PhoneDesc = 'phone_DESC',
   IsPhoneVerifiedAsc = 'isPhoneVerified_ASC',
   IsPhoneVerifiedDesc = 'isPhoneVerified_DESC',
+  LocaleAsc = 'locale_ASC',
+  LocaleDesc = 'locale_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -66143,6 +66147,8 @@ export type User = {
   avatar?: Maybe<File>;
   /**  User metadata. Example: `city`, `country`, ...  */
   meta?: Maybe<Scalars['JSON']>;
+  /**  The user's locale  */
+  locale?: Maybe<UserLocaleType>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -66177,6 +66183,7 @@ export type UserCreateInput = {
   isPhoneVerified?: Maybe<Scalars['Boolean']>;
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<UserLocaleType>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -66597,6 +66604,7 @@ export type UserHistoryRecord = {
   isPhoneVerified?: Maybe<Scalars['Boolean']>;
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -66625,6 +66633,7 @@ export type UserHistoryRecordCreateInput = {
   isPhoneVerified?: Maybe<Scalars['Boolean']>;
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -66658,6 +66667,7 @@ export type UserHistoryRecordUpdateInput = {
   isPhoneVerified?: Maybe<Scalars['Boolean']>;
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -66785,6 +66795,24 @@ export type UserHistoryRecordWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  locale?: Maybe<Scalars['String']>;
+  locale_not?: Maybe<Scalars['String']>;
+  locale_contains?: Maybe<Scalars['String']>;
+  locale_not_contains?: Maybe<Scalars['String']>;
+  locale_starts_with?: Maybe<Scalars['String']>;
+  locale_not_starts_with?: Maybe<Scalars['String']>;
+  locale_ends_with?: Maybe<Scalars['String']>;
+  locale_not_ends_with?: Maybe<Scalars['String']>;
+  locale_i?: Maybe<Scalars['String']>;
+  locale_not_i?: Maybe<Scalars['String']>;
+  locale_contains_i?: Maybe<Scalars['String']>;
+  locale_not_contains_i?: Maybe<Scalars['String']>;
+  locale_starts_with_i?: Maybe<Scalars['String']>;
+  locale_not_starts_with_i?: Maybe<Scalars['String']>;
+  locale_ends_with_i?: Maybe<Scalars['String']>;
+  locale_not_ends_with_i?: Maybe<Scalars['String']>;
+  locale_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  locale_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -66875,6 +66903,11 @@ export type UserHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<UserHistoryRecordUpdateInput>;
 };
+
+export enum UserLocaleType {
+  Ru = 'ru',
+  En = 'en'
+}
 
 export type UserRelateToOneInput = {
   create?: Maybe<UserCreateInput>;
@@ -67254,6 +67287,7 @@ export type UserUpdateInput = {
   isPhoneVerified?: Maybe<Scalars['Boolean']>;
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<UserLocaleType>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -67343,6 +67377,10 @@ export type UserWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  locale?: Maybe<UserLocaleType>;
+  locale_not?: Maybe<UserLocaleType>;
+  locale_in?: Maybe<Array<Maybe<UserLocaleType>>>;
+  locale_not_in?: Maybe<Array<Maybe<UserLocaleType>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
