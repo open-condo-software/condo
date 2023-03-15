@@ -1,7 +1,6 @@
-const { getItems } = require('@keystonejs/server-side-graphql-client')
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { isNil, get } = require('lodash')
+const { get } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
