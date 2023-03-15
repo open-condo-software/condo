@@ -3,17 +3,19 @@ import dayjs from 'dayjs'
 import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
-import { useCallback, useContext } from 'react'
+import React, { useCallback, useContext } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Modal } from '@open-condo/ui'
 
 import { TASK_STATUS, TasksContext } from '@condo/domains/common/components/tasks'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
+import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { STAFF } from '@condo/domains/user/constants/common'
 
 import type { RequestHandler } from './types'
@@ -22,6 +24,40 @@ export const handleNotification: RequestHandler<'CondoWebAppShowNotification'> =
     const { type, ...restParams } = params
     notification[type](restParams)
     return { success: true }
+}
+
+export const useShowModalHandler: () => [RequestHandler<'CondoWebAppShowModalWindow'>, React.ReactElement] = () => {
+    const [show, ContextHandler] = Modal.useModal()
+
+    const handleShowModal = useCallback<RequestHandler<'CondoWebAppShowModalWindow'>>((params, origin) => {
+        const { title, url, size = 'small' } = params
+        if (extractOrigin(url) !== origin) {
+            throw new Error('Forbidden url. Url must have same origin as sender')
+        }
+        if (!isSafeUrl(url)) {
+            throw new Error('Forbidden url. Your url is probably injected')
+        }
+
+        // TODO(DOMA-5563): Pass this to onCancel to notify about modal closing
+        const modalId = uuidV4()
+
+        show({
+            title,
+            width: size,
+            children: (
+                <IFrame
+                    src={url}
+                    reloadScope='organization'
+                    withLoader
+                    withResize
+                />
+            ),
+        })
+
+        return { modalId }
+    }, [show])
+
+    return [handleShowModal, ContextHandler]
 }
 
 export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchParams'> = () => {
