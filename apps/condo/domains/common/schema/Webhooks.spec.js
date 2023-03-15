@@ -21,6 +21,11 @@ async function userCreator () {
     return client.user
 }
 
+async function userUpdater (client, user, payload) {
+    const [updated] = await updateTestUser(client, user.id, payload)
+    return updated
+}
+
 async function userDeleter (client, user) {
     const [updated] = await updateTestUser(client, user.id, {
         deletedAt: dayjs().toISOString(),
@@ -32,5 +37,5 @@ async function userDeleter (client, user) {
 // NOTE 2: Passing init function for actors, since their creation may differ from app to app
 // NOTE 3: Passing creator / deleter for testing sending objects with deletedAt
 describe('External webhook specifications', () => {
-    SendWebhookTests('Condo', initializeActors, userCreator, userDeleter, '@app/condo/index')
+    SendWebhookTests('Condo', initializeActors, userCreator, userUpdater, userDeleter, '@app/condo/index')
 })

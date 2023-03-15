@@ -1,7 +1,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     WebhookSubscription,
     createTestWebhook,
@@ -38,7 +38,20 @@ jest.spyOn(utils, 'trySendData').mockImplementation((url, objs) => {
 
 // eslint-disable-next-line import/order
 const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
-const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer, entryPointPath) => {
+
+const waitForWebhookSubscriptionUpdate = async (actors, subscription, firstSyncTime) => {
+    return await waitFor(async () => {
+        const updatedSubscription = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
+        expect(updatedSubscription).toHaveProperty('syncedAt')
+        const secondSyncTime = dayjs(updatedSubscription.syncedAt)
+        expect(secondSyncTime.isSame(firstSyncTime)).toEqual(false)
+        expect(secondSyncTime.isAfter(firstSyncTime)).toEqual(true)
+        expect(updatedSubscription).toHaveProperty('syncedAmount', 0)
+        return [updatedSubscription, secondSyncTime]
+    })
+}
+
+const SendWebhookTests = (appName, actorsInitializer, userCreator, userUpdater, userDestroyer, entryPointPath) => {
     describe(`sendWebhook task basic tests for ${appName} app`, () => {
         const appEntryPoint = require(entryPointPath)
         setFakeClientMode(appEntryPoint, { excludeApps: ['OIDCMiddleware'] })
@@ -48,37 +61,147 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
         let lastUser
         beforeAll(async () => {
             actors = await actorsInitializer()
+        })
+        beforeEach(async () => {
             firstUser = await userCreator()
             const secondUser = await userCreator()
             deletedUser = await userDestroyer(actors.admin, secondUser)
             lastUser = await userCreator()
         })
-        it('Must correctly send requests and update subscription state', async () => {
-            const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
-            const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
-                syncedAt: dayjs(firstUser.createdAt).subtract(10, 'millisecond'),
-                url: STABLE_URL,
+        afterEach(() => {
+            STABLE_CALLS.splice(0)
+        })
+        describe('Must correctly send requests and update subscription state', () => {
+            describe('with an "operations" equal to', async () => {
+                const cases = [
+                    [
+                        'null (default)',
+                        null,
+                        () => {
+                            // NOTE: DELETED USER MUST BE IN SENT DATA
+                            expect(STABLE_CALLS[0]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: firstUser.id }),
+                                expect.objectContaining({ id: deletedUser.id }),
+                                expect.objectContaining({ id: lastUser.id }),
+                            ]))
+                            expect(STABLE_CALLS[1]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: firstUser.id }),
+                            ]))
+                            expect(STABLE_CALLS[2]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: lastUser.id }),
+                            ]))
+                            expect(STABLE_CALLS.flat()).toHaveLength(5)
+                        },
+                    ],
+                    [
+                        'create',
+                        { create: true, update: false, delete: false },
+                        () => {
+                            // NOTE: DELETED USER MUST BE IN SENT DATA
+                            expect(STABLE_CALLS[0]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: firstUser.id }),
+                                expect.objectContaining({ id: deletedUser.id }),
+                                expect.objectContaining({ id: lastUser.id }),
+                            ]))
+                            expect(STABLE_CALLS.flat()).toHaveLength(3)
+                        },
+                    ],
+                    [
+                        'update',
+                        { create: false, update: true, delete: false },
+                        () => {
+                            // NOTE: DELETED USER MUST BE IN SENT DATA
+                            expect(STABLE_CALLS[0]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: firstUser.id }),
+                                expect.objectContaining({ id: deletedUser.id }),
+                                expect.objectContaining({ id: lastUser.id }),
+                            ]))
+                            expect(STABLE_CALLS[1]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: firstUser.id }),
+                            ]))
+                            expect(STABLE_CALLS[2]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: lastUser.id }),
+                            ]))
+                            expect(STABLE_CALLS.flat()).toHaveLength(5)
+                        },
+                    ],
+                    [
+                        'delete',
+                        { create: false, update: false, delete: true },
+                        () => {
+                            // NOTE: DELETED USER MUST BE IN SENT DATA
+                            expect(STABLE_CALLS[0]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: deletedUser.id }),
+                            ]))
+                            expect(STABLE_CALLS[1]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: lastUser.id }),
+                            ]))
+                            expect(STABLE_CALLS.flat()).toHaveLength(2)
+                        },
+                    ],
+                    [
+                        'create and delete',
+                        { create: true, update: false, delete: true },
+                        () => {
+                            // NOTE: DELETED USER MUST BE IN SENT DATA
+                            expect(STABLE_CALLS[0]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: firstUser.id }),
+                                expect.objectContaining({ id: deletedUser.id }),
+                                expect.objectContaining({ id: lastUser.id }),
+                            ]))
+                            expect(STABLE_CALLS[1]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: lastUser.id }),
+                            ]))
+                            expect(STABLE_CALLS.flat()).toHaveLength(4)
+                        },
+                    ],
+                    [
+                        'create and update',
+                        { create: true, update: true, delete: false },
+                        () => {
+                            // NOTE: DELETED USER MUST BE IN SENT DATA
+                            expect(STABLE_CALLS[0]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: firstUser.id }),
+                                expect.objectContaining({ id: deletedUser.id }),
+                                expect.objectContaining({ id: lastUser.id }),
+                            ]))
+                            expect(STABLE_CALLS[1]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: firstUser.id }),
+                            ]))
+                            expect(STABLE_CALLS[2]).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: lastUser.id }),
+                            ]))
+                            expect(STABLE_CALLS.flat()).toHaveLength(5)
+                        },
+                    ],
+                ]
+
+                it.each(cases)('%p', async (name, operations, specificTests) => {
+                    const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
+                    const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
+                        syncedAt: dayjs(firstUser.createdAt).subtract(10, 'millisecond'),
+                        url: STABLE_URL,
+                        operations,
+                    })
+                    expect(subscription).toHaveProperty('syncedAt')
+                    const initialSyncTime = dayjs(subscription.syncedAt)
+                    await sendWebhook.delay.fn(subscription.id)
+                    const [, firstSyncTime] = await waitForWebhookSubscriptionUpdate(actors, subscription, initialSyncTime)
+
+                    await userUpdater(actors.admin, firstUser, {
+                        name: faker.name.firstName(),
+                    })
+                    const [, secondSyncTime] = await waitForWebhookSubscriptionUpdate(actors, subscription, firstSyncTime)
+
+                    await userDestroyer(actors.admin, lastUser)
+                    await waitForWebhookSubscriptionUpdate(actors, subscription, secondSyncTime)
+
+                    await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+                    await softDeleteTestWebhook(actors.admin, hook.id)
+
+                    specificTests()
+                })
             })
-            expect(subscription).toHaveProperty('syncedAt')
-            const initialSyncTime = dayjs(subscription.syncedAt)
-            await sendWebhook.delay.fn(subscription.id)
-
-            const updated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
-            expect(updated).toHaveProperty('syncedAt')
-            const syncTime = dayjs(updated.syncedAt)
-            expect(syncTime.isSame(initialSyncTime)).toEqual(false)
-            expect(syncTime.isAfter(initialSyncTime)).toEqual(true)
-            expect(updated).toHaveProperty('syncedAmount', 0)
-
-            await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
-            await softDeleteTestWebhook(actors.admin, hook.id)
-
-            // NOTE: DELETED USER MUST BE IN SENT DATA
-            expect(STABLE_CALLS).toEqual(expect.arrayContaining([expect.arrayContaining([
-                expect.objectContaining({ id: firstUser.id }),
-                expect.objectContaining({ id: deletedUser.id }),
-                expect.objectContaining({ id: lastUser.id }),
-            ])]))
         })
         it('Must correctly save state on failures', async () => {
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
