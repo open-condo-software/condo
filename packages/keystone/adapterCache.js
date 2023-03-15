@@ -245,6 +245,8 @@ const getFindCondition = ([condition]) => condition
 
 const getFindByIdKey = ([id]) => `${id}`
 
+const getFindAllKey = () => ''
+
 const getFindOneKey = ([condition]) => `${JSON.stringify(condition)}`
 
 /**
@@ -330,6 +332,9 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
 
         const originalFindOne = listAdapter.findOne
         listAdapter.findOne = patchAdapterQueryFunction(listName, 'findOne', originalFindOne, listAdapter, cacheAPI, getFindOneKey, getFindCondition, relations)
+
+        const originalFindAll = listAdapter.findAll
+        listAdapter.findAll = patchAdapterQueryFunction(listName, 'findAll', originalFindAll, listAdapter, cacheAPI, getFindAllKey)
 
         // Patch mutations:
 
