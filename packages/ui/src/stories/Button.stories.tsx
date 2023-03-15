@@ -19,6 +19,7 @@ export default {
         disabled: false,
         danger: false,
         stateless: false,
+        block: false,
     },
     argTypes: {
         block: { type: 'boolean', default: false },

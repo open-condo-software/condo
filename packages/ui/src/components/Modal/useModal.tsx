@@ -1,3 +1,9 @@
+/**
+ * Original antd implementation: https://github.com/ant-design/ant-design/tree/4.x-stable/components/modal/useModal
+ * Replaced info / warn dialogs with simpler Modal component using onCancel prop
+ * Also added a bit more type safety and proper hook deps
+ */
+
 import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
 import { Modal } from './modal'
@@ -12,7 +18,7 @@ type ModalConfig = Omit<ModalProps, 'open'> & {
     onCancel?: (...args: AnyArgs) => any
 }
 
-let uuid = 0
+let modalCounter = 0
 
 interface ElementsHolderRef {
     patchElement: ReturnType<typeof usePatchElement>[1]
@@ -92,7 +98,7 @@ export function useModal (): [ShowModalFunc, React.ReactElement] {
 
 
     const show = useCallback((config: ModalConfig) => {
-        uuid++
+        modalCounter++
         const modalRef = React.createRef<HookModalRef>()
 
         // eslint-disable-next-line prefer-const
@@ -100,7 +106,7 @@ export function useModal (): [ShowModalFunc, React.ReactElement] {
 
         const modal = (
             <HookModal
-                key={uuid}
+                key={modalCounter}
                 afterClose={() => {
                     closeFn?.()
                 }}
