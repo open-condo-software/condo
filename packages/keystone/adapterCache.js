@@ -39,7 +39,7 @@
  *
  */
 
-const { get, cloneDeep, isEqual, floor } = require('lodash')
+const { get, cloneDeep, floor } = require('lodash')
 const LRUCache = require('lru-cache')
 
 const { getLogger } = require('./logging')
@@ -49,7 +49,7 @@ const { getRedisClient } = require('./redis')
 const UPDATED_AT_FIELD = 'updatedAt'
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 
-const logger = getLogger('🔴 adapterCache')
+const logger = getLogger('adapterCache')
 
 
 class AdapterCache {
