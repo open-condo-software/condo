@@ -17,7 +17,6 @@ const { BANK_INTEGRATION_IDS } = require('../constants')
 describe('checkBankIntegrationsAccessRights', () => {
     setFakeClientMode(index)
     let adminClient, serviceClient, bankIntegration
-    jest.setTimeout(300000)
 
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
