@@ -54,11 +54,9 @@ const logger = getLogger('🔴 adapterCache')
 
 class AdapterCache {
 
-    constructor (config) {
+    constructor ( { enabled, excludedLists, maxCacheKeys, logging } ) {
         try {
-            const parsedConfig = JSON.parse(config)
-
-            this.enabled = !!get(parsedConfig, 'enable', false)
+            this.enabled = !!enabled
 
             // Redis is used as State:
             // Note: Redis installation is modified with custom commands. Check getStateRedisClient for details
@@ -67,16 +65,16 @@ class AdapterCache {
 
             // This mechanism allows to skip caching some lists.
             // Useful for hotfixes or disabling cache for business critical lists
-            this.excludedLists = get(parsedConfig, 'excludedLists', [])
+            this.excludedLists = excludedLists || []
 
             // This mechanism allows to control garbage collection.
-            this.maxCacheKeys = get(parsedConfig, 'maxCacheKeys', 1000)
+            this.maxCacheKeys = maxCacheKeys || 1000
 
             // Cache: { listName -> queryKey -> { response, lastUpdate, score } }
             this.cache = new LRUCache({ max: this.maxCacheKeys })
 
             // Logging allows to get the percentage of cache hits
-            this.logging = get(parsedConfig, 'logging', false)
+            this.logging = !!logging
 
             this.totalRequests = 0
             this.cacheHits = 0
@@ -275,27 +273,35 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
 
     // Step 1: Preprocess lists.
-    // Lists are reverse related if both of them have a relation to one another. Example: Books -> Author and Author -> Books
-    const manyRelations = {}
-    const relations = {}
+    const relations = {}        // list -> [{list, path, many}]
+    const manyRefs = new Set()  // lists that are referenced in many: true relations
+    const manyLists = new Set() // lists that have many: true relations
 
-    for (const listAdapter of listAdapters) {
-        const listName = listAdapter.key
-        for (const field of listAdapter.fieldAdapters) {
-            if (field.fieldName === 'Relationship') {
+    listAdapters.forEach(({ key: listName, fieldAdapters }) => {
+        fieldAdapters.forEach(({ fieldName, refListKey, field }) => {
+            const path = get(field, 'path')
+
+            if (fieldName === 'Relationship') {
+                const many = get(field, 'many', false)
+
                 if (!relations[listName]) { relations[listName] = [] }
-                relations[listName].push(field.refListKey)
-                if (get(field, ['field', 'many'])) {
-                    if (!manyRelations[listName]) { manyRelations[listName] = [] }
-                    manyRelations[listName].push(field.refListKey)
+                relations[listName].push({
+                    path,
+                    many,
+                    list: refListKey,
+                })
+
+                if (many) {
+                    manyLists.add(listName)
+                    manyRefs.add(refListKey)
                 }
             }
-        }
-    }
+        })
+    })
 
-    const dependantsOfManyRelations = new Set([...flatten(Object.values(manyRelations)), ...Object.keys(manyRelations)])
+    const listsWithMany = new Set([...manyLists, ...manyRefs])
 
-    logger.info({ relations, manyRelations })
+    logger.info({ relations, listsWithMany })
 
     // Step 2: Iterate over lists, patch mutations and queries inside list.
 
@@ -323,7 +329,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
         }
 
         // 3. It is a dependent of many:true field.
-        if (dependantsOfManyRelations.has(listName)) {
+        if (listsWithMany.has(listName)) {
             disabledLists.push({ listName, reason: 'List is a dependant of many: true relation!' })
             continue
         }
@@ -458,7 +464,6 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
                     })
                 }
 
-
                 return cloneDeep(cachedItem.response)
             }
         }
@@ -498,8 +503,8 @@ function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cach
 function queryIsComplex (query, list, relations) {
     if (!query) { return false }
     const relsForList = get(relations, list, [])
-    for (const rel of relsForList) {
-        if (queryHasField(query, rel. toLowerCase()))
+    for (const { path } of relsForList) {
+        if (queryHasField(query, path))
             return true
     }
     return false
