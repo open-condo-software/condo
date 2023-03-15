@@ -347,9 +347,13 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, cacheAPI) {
         const originalDelete = listAdapter.delete
         listAdapter.delete = patchAdapterFunction(listName, 'delete', originalDelete, listAdapter, cacheAPI )
 
-        // A Knex only stab!
+        // A Knex only stabs!
         listAdapter._createOrUpdateField = async (args) => {
             throw new Error(`Knex listAdapter._createOrUpdateField is called! This means, this cache works incorrectly! You should either disable caching for list ${listName} or check your code. You should not have editable many:true fields in your code!`)
+        }
+
+        listAdapter._setNullByValue = async (args) => {
+            throw new Error(`Knex listAdapter._setNullByValue is called! This means, this cache works incorrectly! You should either disable caching for list ${listName} or check your code.`)
         }
     }
 
