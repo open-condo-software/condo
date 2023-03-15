@@ -68,8 +68,9 @@ const Incident = new GQLListSchema('Incident', {
             schemaDoc: 'Text that employees should say to residents',
             type: 'Text',
             hooks: {
-                resolveInput: async ({ resolvedData, fieldPath }) => {
-                    return normalizeText(resolvedData[fieldPath]) || ''
+                resolveInput: async ({ resolvedData, fieldPath, existingItem }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    return normalizeText(newItem[fieldPath]) || ''
                 },
             },
         },

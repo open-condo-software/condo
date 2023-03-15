@@ -476,7 +476,7 @@ const IncidentIdPage: IIncidentIdPage = () => {
         refetch,
     } = Incident.useObject({ where: { id } })
 
-    if (incidentLoading || !incident || error) {
+    if (!incident || error) {
         return (
             <LoadingOrErrorPage
                 title={ErrorPageTitle}
