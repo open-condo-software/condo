@@ -7,6 +7,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { DEFAULT_MAX_PACK_SIZE, DEFAULT_UNAVAILABILITY_THRESHOLD } = require('@open-condo/webhooks/constants')
 const { WebHookModelValidator, getModelValidator, setModelValidator } = require('@open-condo/webhooks/model-validator')
 const access = require('@open-condo/webhooks/schema/access/WebhookSubscription')
+const { WEBHOOK_SUBSCRIPTION_OPERATIONS_FIELD } = require('@open-condo/webhooks/schema/models/fields/WebhookSubscriptionOperations')
 
 const UNAVAILABILITY_THRESHOLD = (typeof conf['WEBHOOK_BLOCK_THRESHOLD'] === 'number' && conf['WEBHOOK_BLOCK_THRESHOLD'] > 0)
     ? conf['WEBHOOK_BLOCK_THRESHOLD']
@@ -172,6 +173,7 @@ function getWebhookSubscriptionModel (schemaPath) {
                     },
                 },
             },
+            operations: WEBHOOK_SUBSCRIPTION_OPERATIONS_FIELD,
         },
         plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
         access: {

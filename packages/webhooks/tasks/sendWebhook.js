@@ -1,4 +1,5 @@
 const dayjs = require('dayjs')
+const omit = require('lodash/omit')
 const { default: RedLock } = require('redlock')
 
 const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
@@ -48,11 +49,13 @@ async function sendWebhook (subscriptionId) {
                 url: originalUrl,
                 user,
             },
+            operations,
         } = subscription
 
         const url = overrideUrl || originalUrl
         const packSize = maxPackSize || DEFAULT_MAX_PACK_SIZE
         const query = buildQuery(model, fields)
+        const { create = true, update = true, delete: deleteOperation = true } = operations || {}
 
         let lastLoaded = packSize
         let lastSendSuccess = true
@@ -60,69 +63,96 @@ async function sendWebhook (subscriptionId) {
         let lastSyncTime = dayjs().toISOString()
         let lastSubscriptionUpdate = updatedAt
 
+        // Build where
         const where = {
-            ...filters,
-            updatedAt_gt: syncedAt,
+            ...omit(filters, ['OR', 'AND']),
+        }
+        const innerAND = []
+        const innerOR = []
+        if (update)  {
+            where.updatedAt_gt = syncedAt
+        } else {
+            if (create) {
+                innerOR.push({ createdAt_gt: syncedAt })
+            }
+            if (deleteOperation) {
+                innerOR.push({ deletedAt_gt: syncedAt })
+            }
+        }
+        if (innerOR.length > 0) {
+            innerAND.push({ OR: innerOR })
+        }
+        if (filters.AND) {
+            innerAND.push({ AND: filters.AND })
+        }
+        if (filters.OR) {
+            innerAND.push({ OR: filters.OR })
+        }
+        if (innerAND.length > 0) {
+            where.AND = innerAND
         }
 
-        while (lastLoaded === packSize) {
-            // Step 1: Receive another batch
-            const objs = await execGqlAsUser(keystone, user, {
-                query,
-                variables: {
-                    first: maxPackSize || DEFAULT_MAX_PACK_SIZE,
-                    skip: totalLoaded,
-                    where,
-                },
-                dataPath: 'objs',
-                deleted: true,
-            })
+        // If all operations is off then just update "syncedAt" in WebhookSubscription
+        if (create || update || deleteOperation) {
+            while (lastLoaded === packSize) {
+                // Step 1: Receive another batch
+                const objs = await execGqlAsUser(keystone, user, {
+                    query,
+                    variables: {
+                        first: maxPackSize || DEFAULT_MAX_PACK_SIZE,
+                        skip: totalLoaded,
+                        where,
+                    },
+                    dataPath: 'objs',
+                    deleted: true,
+                })
 
-            lastLoaded = objs.length
-            // time is measured by the time of the last response from our server received
-            lastSyncTime = dayjs().toISOString()
+                lastLoaded = objs.length
+                // time is measured by the time of the last response from our server received
+                lastSyncTime = dayjs().toISOString()
 
-            // No more objects -> GOTO final update syncedAt
-            if (lastLoaded === 0) {
-                break
-            }
-            // Step 2: Send batch to specified url
-            const response = await trySendData(url, objs)
-            lastSendSuccess = response.ok
+                // No more objects -> GOTO final update syncedAt
+                if (lastLoaded === 0) {
+                    break
+                }
+                // Step 2: Send batch to specified url
+                const response = await trySendData(url, objs)
+                lastSendSuccess = response.ok
 
-            // If not succeed - log and finish task
-            if (!lastSendSuccess) {
-                const noFailureIncrementInterval = dayjs().subtract(1, 'hour')
-                const lastUpdate = dayjs(lastSubscriptionUpdate)
-                // NOTE: If no failures before or > 1 hour since last failure passed -> increment failuresCount
-                if (failuresCount === 0 || noFailureIncrementInterval.isAfter(lastUpdate)) {
+                // If not succeed - log and finish task
+                if (!lastSendSuccess) {
+                    const noFailureIncrementInterval = dayjs().subtract(1, 'hour')
+                    const lastUpdate = dayjs(lastSubscriptionUpdate)
+                    // NOTE: If no failures before or > 1 hour since last failure passed -> increment failuresCount
+                    if (failuresCount === 0 || noFailureIncrementInterval.isAfter(lastUpdate)) {
+                        await WebhookSubscription.update(keystone, subscriptionId, {
+                            failuresCount: failuresCount + 1,
+                            dv: 1,
+                            sender: { dv: 1, fingerprint: 'sendWebhook' },
+                        })
+                    }
+
+                    if (response.status === 523) {
+                        logger.error({ message: 'Data was not sent. Reason: Unreachable resource', subscriptionId })
+                        return { status: NO_RESPONSE_STATUS }
+                    } else {
+                        logger.error({ message: 'Data was sent, but server response was not ok', status: response.status, subscriptionId })
+                        return { status: BAD_RESPONSE_STATUS }
+                    }
+
+                } else {
+                    totalLoaded += lastLoaded
+                    logger.info({ message: 'Data batch was sent', subscriptionId, batchSize: lastLoaded, total: totalLoaded, syncedAt })
+                }
+
+                // Step 3: Update subscription state if full batch received. Else condition will lead to final update
+                if (lastLoaded === packSize) {
                     await WebhookSubscription.update(keystone, subscriptionId, {
-                        failuresCount: failuresCount + 1,
+                        syncedAmount: totalLoaded,
                         dv: 1,
                         sender: { dv: 1, fingerprint: 'sendWebhook' },
                     })
                 }
-
-                if (response.status === 523) {
-                    logger.error({ message: 'Data was not sent. Reason: Unreachable resource', subscriptionId })
-                    return { status: NO_RESPONSE_STATUS }
-                } else {
-                    logger.error({ message: 'Data was sent, but server response was not ok', status: response.status, subscriptionId })
-                    return { status: BAD_RESPONSE_STATUS }
-                }
-
-            } else {
-                totalLoaded += lastLoaded
-                logger.info({ message: 'Data batch was sent', subscriptionId, batchSize: lastLoaded, total: totalLoaded, syncedAt })
-            }
-
-            // Step 3: Update subscription state if full batch received. Else condition will lead to final update
-            if (lastLoaded === packSize) {
-                await WebhookSubscription.update(keystone, subscriptionId, {
-                    syncedAmount: totalLoaded,
-                    dv: 1,
-                    sender: { dv: 1, fingerprint: 'sendWebhook' },
-                })
             }
         }
 

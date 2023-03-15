@@ -6,6 +6,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowValidationFailureError,
+    expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
 const { WebHookModelValidator } = require('@open-condo/webhooks/model-validator')
@@ -296,6 +297,54 @@ const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
                 expect(allSentUpdate).toHaveProperty('syncedAmount', 0)
                 expect(allSentUpdate).toHaveProperty('failuresCount', 0)
                 await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+            })
+            describe('"operations" field', () => {
+                describe('Must throw validation error on wrong operations', async () => {
+                    const cases = [
+                        ['Not all operations', { create: true }],
+                        ['Incorrect value in field', { create: null, update: false, delete: false }],
+                    ]
+                    test.each(cases)('%p', async (name, operations) => {
+                        await expectToThrowValidationFailureError(async () => {
+                            await createTestWebhookSubscription(actors.admin, hook, {
+                                operations,
+                            })
+                        }, 'JSON not in the correct format')
+                    })
+                    const cases2 = [
+                        ['String', 'some string'],
+                        ['Number', 213],
+                        ['Boolean', true],
+                        ['Incorrect field', { read: true }],
+                        ['Incorrect value in field (2)', { create: false, update: 123, delete: false }],
+                        ['Incorrect value in field (3)', { create: false, update: false, delete: 'true' }],
+                    ]
+                    test.each(cases2)('%p', async (name, operations) => {
+                        await expectToThrowGraphQLRequestError(async () => {
+                            await createTestWebhookSubscription(actors.admin, hook, {
+                                operations,
+                            })
+                        }, 'got invalid value')
+                    })
+                })
+                describe('Must pass validation with correct operations', async () => {
+                    const cases = [
+                        ['Null value (default)', null],
+                        ['All operations is true', { create: true, update: true, delete: true }],
+                        ['All operations is false', { create: false, update: false, delete: false }],
+                        ['Only create operation', { create: true, update: false, delete: false }],
+                    ]
+                    test.each(cases)('%p', async (name, operations) => {
+                        const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
+                            operations,
+                        })
+                        expect(subscription).toBeDefined()
+                        expect(subscription).toHaveProperty('operations')
+                        expect(subscription.operations).toEqual(operations)
+
+                        await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+                    })
+                })
             })
         })
     })

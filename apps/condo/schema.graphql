@@ -56991,6 +56991,7 @@ type WebhookSubscriptionHistoryRecord {
   fields: String
   filters: JSON
   maxPackSize: Int
+  operations: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -57103,6 +57104,10 @@ input WebhookSubscriptionHistoryRecordWhereInput {
   maxPackSize_gte: Int
   maxPackSize_in: [Int]
   maxPackSize_not_in: [Int]
+  operations: JSON
+  operations_not: JSON
+  operations_in: [JSON]
+  operations_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57228,6 +57233,7 @@ input WebhookSubscriptionHistoryRecordUpdateInput {
   fields: String
   filters: JSON
   maxPackSize: Int
+  operations: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -57257,6 +57263,7 @@ input WebhookSubscriptionHistoryRecordCreateInput {
   fields: String
   filters: JSON
   maxPackSize: Int
+  operations: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -57280,6 +57287,18 @@ input WebhookRelateToOneInput {
   connect: WebhookWhereUniqueInput
   disconnect: WebhookWhereUniqueInput
   disconnectAll: Boolean
+}
+
+type WebhookSubscriptionOperations {
+  create: Boolean
+  update: Boolean
+  delete: Boolean
+}
+
+input WebhookSubscriptionOperationsInput {
+  create: Boolean
+  update: Boolean
+  delete: Boolean
 }
 
 """ Determines which models the WebHook will be subscribed to. When model changes subscription task will be triggered to resolve changed data and send a webhook 
@@ -57327,6 +57346,10 @@ type WebhookSubscription {
   """ The maximum number of objects that the server can send in one request. The default is 100, and maxPackSize cannot be set beyond this value. In most cases, you do not need to override this field, but it is recommended to lower this value for requests with a large number of related fields or in case of external restrictions of the server accepting webhooks. 
   """
   maxPackSize: Int
+
+  """ The operations that the webhook is subscribed to.. Subscribed to all updates by default. But you can specify the ones you need (create, update, delete). (The "update" operation includes creating and deleting.) If nothing is specified, then subscribes to all operations. 
+  """
+  operations: WebhookSubscriptionOperations
   id: ID!
   v: Int
   createdAt: String
@@ -57431,6 +57454,10 @@ input WebhookSubscriptionWhereInput {
   maxPackSize_gte: Int
   maxPackSize_in: [Int]
   maxPackSize_not_in: [Int]
+  operations: WebhookSubscriptionOperationsInput
+  operations_not: WebhookSubscriptionOperationsInput
+  operations_in: [WebhookSubscriptionOperationsInput]
+  operations_not_in: [WebhookSubscriptionOperationsInput]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57538,6 +57565,7 @@ input WebhookSubscriptionUpdateInput {
   fields: String
   filters: JSON
   maxPackSize: Int
+  operations: WebhookSubscriptionOperationsInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -57564,6 +57592,7 @@ input WebhookSubscriptionCreateInput {
   fields: String
   filters: JSON
   maxPackSize: Int
+  operations: WebhookSubscriptionOperationsInput
   v: Int
   createdAt: String
   updatedAt: String
