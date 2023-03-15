@@ -40,6 +40,9 @@ const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const {
+    ServiceConsumer,
+} = require('@condo/domains/resident/utils/serverSchema')
 
 const logger = getLogger('recurrent-payment-processing-queries')
 
@@ -69,13 +72,8 @@ async function getAllReadyToPayRecurrentPaymentContexts (context, date, pageSize
 }
 
 async function getServiceConsumer (context, id) {
-    const consumers = await getItems({
-        context,
-        listKey: 'ServiceConsumer',
-        where: {
-            id,
-        },
-        returnFields: 'id accountNumber billingIntegrationContext { id } resident { user { id } } deletedAt',
+    const consumers = await ServiceConsumer.getAll(context, {
+        id,
     })
 
     if (consumers.length === 0) {
@@ -98,12 +96,9 @@ async function getReceiptsForServiceConsumer (context, date, { id: serviceConsum
     // select all ids
     const billingCategoryId = get(billingCategory, 'id')
     const billingAccountNumber = get(serviceConsumer, 'accountNumber')
-    const billingIntegrationContextId = get(serviceConsumer, 'billingIntegrationContext.id')
+    const organizationId = get(serviceConsumer, 'organization.id')
 
     // validate them
-    if (isNil(billingIntegrationContextId)) {
-        throw Error(`Can not retrieve billing receipts for service consumer ${serviceConsumerId} since billingIntegrationContextId is empty`)
-    }
     if (!billingAccountNumber) {
         throw Error(`Can not retrieve billing receipts for service consumer ${serviceConsumerId} since billingAccountNumber is empty`)
     }
@@ -111,7 +106,7 @@ async function getReceiptsForServiceConsumer (context, date, { id: serviceConsum
     // prepare conditions
     const billingCategoryCondition = billingCategoryId ? { category: { id: billingCategoryId } } : {}
     const billingAccountCondition = { account: { number: billingAccountNumber } }
-    const billingIntegrationContextCondition = { context: { id: billingIntegrationContextId } }
+    const billingIntegrationContextCondition = { context: { organization: { id: organizationId } } }
     const periodCondition = { period_in: [period] }
 
     // select data
@@ -268,15 +263,9 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
     const meta = success ? {} : { errorCode }
 
     try {
-        const [recurrentContext] = await getItems({
-            context,
-            listKey: 'RecurrentPaymentContext',
-            where: { id: recurrentContextId },
-            returnFields: 'serviceConsumer { resident { user { id } } }',
-        })
         const {
             serviceConsumer: { resident: { user: { id: userId } } },
-        } = recurrentContext
+        } = await RecurrentPaymentContext.getOne(context, { id: recurrentContextId })
 
         await sendMessage(context, {
             ...dvAndSender,
@@ -296,15 +285,9 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
 
 async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentContext, recurrentPayment) {
     try {
-        const [recurrentContext] = await getItems({
-            context,
-            listKey: 'RecurrentPaymentContext',
-            where: { id: recurrentPaymentContext.id },
-            returnFields: 'serviceConsumer { resident { user { id } } }',
-        })
         const {
             serviceConsumer: { resident: { user: { id: userId } } },
-        } = recurrentContext
+        } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id })
 
         // get trigger identifier
         const recurrentPaymentId = get(recurrentPayment, 'id')
