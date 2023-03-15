@@ -19,6 +19,10 @@ const MAX_SMS_FOR_PHONE_BY_DAY = 20
 
 const SBER_ID_SESSION_KEY = 'sberid'
 
+const LOCALE_RU = 'ru'
+const LOCALE_EN = 'en'
+const LOCALES = [LOCALE_RU, LOCALE_EN]
+
 module.exports = {
     MIN_PASSWORD_LENGTH,
     LOCK_TIMEOUT,
@@ -36,4 +40,5 @@ module.exports = {
     SBBOL_IDP_TYPE,
     IDP_TYPES,
     SBER_ID_SESSION_KEY,
+    LOCALES,
 }

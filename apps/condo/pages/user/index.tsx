@@ -3,7 +3,7 @@ import { Col, Row, Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { LocaleContext, useIntl } from '@open-condo/next/intl'
@@ -17,6 +17,7 @@ import { FeatureFlagsController } from '@condo/domains/common/components/contain
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
+import { User } from '@condo/domains/user/utils/clientSchema'
 
 export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
     const intl = useIntl()
@@ -35,16 +36,22 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
 
     useEffect(() => {
         refetch()
-    }, [])
+    }, [refetch])
 
     const name = get(user, 'name')
     const email = get(user, 'email', '')
-    const locale = get(user, 'locale', intl.locale)
 
     const possibleLocalesOptions = useMemo(() => ([
         { label: RuTitle, value: 'ru' },
         { label: EnTitle, value: 'en' },
     ]), [EnTitle, RuTitle])
+
+    const updateUser = User.useUpdate({})
+
+    const localeChangeHandler = useCallback((setLocale) => async (newLocale) => {
+        await updateUser({ locale: newLocale }, { id: user.id })
+        setLocale(newLocale)
+    }, [updateUser, user.id])
 
     return (
         <>
@@ -113,9 +120,7 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
                                                                     options={possibleLocalesOptions}
                                                                     value={locale}
                                                                     placeholder={ChooseInterfaceLanguageTitle}
-                                                                    onChange={(value) => {
-                                                                        setLocale(value)
-                                                                    }}
+                                                                    onChange={localeChangeHandler(setLocale)}
                                                                 />
                                                             )
                                                         }}

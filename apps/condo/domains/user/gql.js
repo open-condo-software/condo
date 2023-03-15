@@ -10,7 +10,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const USER_FIELDS = `type name avatar { publicUrl } meta isPhoneVerified isEmailVerified isAdmin isSupport ${COMMON_FIELDS}`
+const USER_FIELDS = `type name avatar { publicUrl } meta isPhoneVerified isEmailVerified isAdmin isSupport locale ${COMMON_FIELDS}`
 const User = generateGqlQueries('User', `{ ${USER_FIELDS} }`)
 const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} email phone }`)
 
