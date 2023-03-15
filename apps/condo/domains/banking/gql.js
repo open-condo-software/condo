@@ -29,6 +29,9 @@ const BankContractorAccount = generateGqlQueries('BankContractorAccount', BANK_C
 const BANK_INTEGRATION_ACCOUNT_CONTEXT_FIELDS = `{ integration { id } organization { id } enabled meta ${COMMON_FIELDS} }`
 const BankIntegrationAccountContext = generateGqlQueries('BankIntegrationAccountContext', BANK_INTEGRATION_ACCOUNT_CONTEXT_FIELDS)
 
+const BANK_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id } organization { id, deletedAt } deletedAt ${COMMON_FIELDS} }`
+const BankIntegrationOrganizationContext = generateGqlQueries('BankIntegrationOrganizationContext', BANK_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS)
+
 const BANK_TRANSACTION_FIELDS = `{ account { id number } contractorAccount { id name costItem { id } } costItem { id } integrationContext { id enabled } organization { id } number date amount isOutcome currencyCode purpose meta importId importRemoteSystem ${COMMON_FIELDS} }`
 const BankTransaction = generateGqlQueries('BankTransaction', BANK_TRANSACTION_FIELDS)
 
@@ -50,9 +53,6 @@ const IMPORT_BANK_TRANSACTIONS_MUTATION = gql`
         result: importBankTransactions(data: $data) { bankAccount ${BANK_ACCOUNT_FIELDS} }
     }
 `
-
-const BANK_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id } organization { id, deletedAt } deletedAt ${COMMON_FIELDS} }`
-const BankIntegrationOrganizationContext = generateGqlQueries('BankIntegrationOrganizationContext', BANK_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 

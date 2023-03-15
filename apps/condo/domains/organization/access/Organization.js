@@ -56,6 +56,7 @@ async function canReadOrganizations ({ authentication: { item: user } }) {
                     user: { id: user.id },
                     deletedAt: null,
                 },
+                deletedAt: null,
             },
             deletedAt: null,
         })

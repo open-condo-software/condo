@@ -26,6 +26,11 @@ const BankIntegration = new GQLListSchema('BankIntegration', {
             type: Relationship,
             ref: 'BankIntegrationAccessRight.integration',
             many: true,
+            access: {
+                read: access.canReadBankIntegrations,
+                create: false,
+                update: false,
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
