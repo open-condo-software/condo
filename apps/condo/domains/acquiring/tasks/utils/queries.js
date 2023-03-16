@@ -1,6 +1,6 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get } = require('lodash')
+const { get, isNil, isUndefined } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
@@ -46,6 +46,10 @@ const {
 const logger = getLogger('recurrent-payment-processing-queries')
 
 async function getAllReadyToPayRecurrentPaymentContexts (context, date, pageSize, offset, extraArgs = {}) {
+    if (isNil(date)) throw new Error('invalid date argument')
+    if (isNil(pageSize) || pageSize < 0) throw new Error('invalid pageSize argument')
+    if (isNil(offset) || offset < 0) throw new Error('invalid offset argument')
+
     // calculate payment day
     const paymentDay = dayjs(date).date()
     const endOfMonthPaymentDay = dayjs(date).endOf('month').date()
@@ -71,6 +75,8 @@ async function getAllReadyToPayRecurrentPaymentContexts (context, date, pageSize
 }
 
 async function getServiceConsumer (context, id) {
+    if (isNil(id)) throw new Error('invalid id argument')
+
     const consumers = await ServiceConsumer.getAll(context, {
         id,
     })
@@ -87,19 +93,24 @@ async function getServiceConsumer (context, id) {
     return consumer
 }
 
-async function getReceiptsForServiceConsumer (context, date, { id: serviceConsumerId }, billingCategory, extraArgs = {}) {
+async function getReceiptsForServiceConsumer (context, date, serviceConsumer, billingCategory, extraArgs = {}) {
+    if (isNil(date)) throw new Error('invalid date argument')
+    if (isNil(serviceConsumer) || isNil(get(serviceConsumer, 'id')))
+        throw new Error('invalid serviceConsumer argument')
+
     const periodDate = dayjs(date)
     const period = periodDate.format('YYYY-MM-01')
-    const serviceConsumer = await getServiceConsumer(context, serviceConsumerId)
 
     // select all ids
     const billingCategoryId = get(billingCategory, 'id')
-    const billingAccountNumber = get(serviceConsumer, 'accountNumber')
-    const organizationId = get(serviceConsumer, 'organization.id')
+    const {
+        accountNumber: billingAccountNumber,
+        organization: { id: organizationId },
+    } = await getServiceConsumer(context, serviceConsumer.id)
 
     // validate them
     if (!billingAccountNumber) {
-        throw Error(`Can not retrieve billing receipts for service consumer ${serviceConsumerId} since billingAccountNumber is empty`)
+        throw Error(`Can not retrieve billing receipts for service consumer ${serviceConsumer.id} since billingAccountNumber is empty`)
     }
 
     // prepare conditions
@@ -119,6 +130,8 @@ async function getReceiptsForServiceConsumer (context, date, { id: serviceConsum
 }
 
 async function filterPaidBillingReceipts (context, billingReceipts) {
+    if (isNil(billingReceipts)) throw new Error('invalid billingReceipts argument')
+
     if (billingReceipts.length === 0) {
         return billingReceipts
     }
@@ -142,6 +155,9 @@ async function filterPaidBillingReceipts (context, billingReceipts) {
 }
 
 async function getReadyForProcessingPaymentsPage (context, pageSize, offset, extraArgs) {
+    if (isNil(pageSize) || pageSize < 0) throw new Error('invalid pageSize argument')
+    if (isNil(offset) || offset < 0) throw new Error('invalid offset argument')
+
     return await RecurrentPayment.getAll(context, {
         OR: [ { payAfter: null }, { payAfter_lte: dayjs().toISOString() }],
         tryCount_lt: 5,
@@ -155,6 +171,12 @@ async function getReadyForProcessingPaymentsPage (context, pageSize, offset, ext
 }
 
 async function registerMultiPayment (context, recurrentPayment) {
+    if (isNil(recurrentPayment)
+        || isNil(get(recurrentPayment, 'id'))
+        || isNil(get(recurrentPayment, 'billingReceipts'))
+        || isNil(get(recurrentPayment, 'recurrentPaymentContext.id')))
+        throw new Error('invalid recurrentPayment argument')
+
     const {
         id,
         billingReceipts,
@@ -251,6 +273,12 @@ async function registerMultiPayment (context, recurrentPayment) {
 }
 
 async function sendResultMessageSafely (context, recurrentPayment, success, errorCode) {
+    if (isNil(recurrentPayment)
+        || isNil(get(recurrentPayment, 'id'))
+        || isNil(get(recurrentPayment, 'tryCount'))
+        || isNil(get(recurrentPayment, 'recurrentPaymentContext.id')))
+        throw new Error('invalid recurrentPayment argument')
+
     const {
         id,
         tryCount,
@@ -283,6 +311,12 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
 }
 
 async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentContext, recurrentPayment) {
+    if (isNil(recurrentPaymentContext) || isNil(get(recurrentPaymentContext, 'id')))
+        throw new Error('invalid recurrentPaymentContext argument')
+
+    if (!isUndefined(recurrentPayment) && isNil(get(recurrentPayment, 'id')))
+        throw new Error('invalid recurrentPayment argument')
+
     try {
         const {
             serviceConsumer: { resident: { user: { id: userId } } },
@@ -312,6 +346,8 @@ async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentC
 }
 
 async function setRecurrentPaymentAsSuccess (context, recurrentPayment) {
+    if (isNil(recurrentPayment) || isNil(get(recurrentPayment, 'id')) || isNil(get(recurrentPayment, 'tryCount')))
+        throw new Error('invalid recurrentPayment argument')
     const {
         id,
         tryCount,
@@ -327,6 +363,11 @@ async function setRecurrentPaymentAsSuccess (context, recurrentPayment) {
 }
 
 async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMessage, errorCode = PAYMENT_ERROR_UNKNOWN_CODE) {
+    if (isNil(recurrentPayment) || isNil(get(recurrentPayment, 'id')) || isNil(get(recurrentPayment, 'tryCount')))
+        throw new Error('invalid recurrentPayment argument')
+    if (isNil(errorMessage)) throw new Error('invalid errorMessage argument')
+    if (isNil(errorCode)) throw new Error('invalid errorCode argument')
+
     const {
         id,
         tryCount,
