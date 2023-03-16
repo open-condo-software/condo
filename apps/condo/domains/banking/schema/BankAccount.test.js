@@ -80,7 +80,7 @@ describe('BankAccount', () => {
                 expect(bankAccount.currencyCode).toEqual('RUB')
             })
 
-            test('service can', async () => {
+            test('service can if organization have context', async () => {
                 const [organization] = await createTestOrganization(adminClient)
                 await createTestBankIntegrationOrganizationContext(adminClient, SBBOLBankIntegration, organization)
 
@@ -93,6 +93,16 @@ describe('BankAccount', () => {
                 expect(bankAccount.number).toBeDefined()
                 expect(bankAccount.currencyCode).toEqual('RUB')
             })
+
+            test('service can\'t if organization without context', async () => {
+                const [organization] = await createTestOrganization(adminClient)
+                try {
+                    await createTestBankAccount(serviceClient, organization)
+                } catch (error) {
+                    expect(error.message).toContain('You do not have access to this resource')
+                }
+            })
+
 
             test('user can\'t', async () => {
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
