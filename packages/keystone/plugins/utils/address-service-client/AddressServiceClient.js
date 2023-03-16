@@ -35,14 +35,22 @@ class AddressServiceClient {
      * @private
      */
     async call (url, method = 'GET', body = undefined) {
-        const result = await fetch(url, {
+        const params = {
             method,
-            body,
             headers: {
-                'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
-        })
+        }
+
+        if (method === 'POST' && !!body) {
+            params.body = JSON.stringify(body)
+            params.headers = {
+                ...params.headers,
+                'Content-Type': 'application/json',
+            }
+        }
+
+        const result = await fetch(url, params)
         const status = result.status
         if (status === 200) {
             return await result.json()
@@ -76,7 +84,7 @@ class AddressServiceClient {
             throw new Error('The `s` parameter is mandatory')
         }
 
-        return this.call(`${this.url}/suggest?`, 'POST', { s, ...params })
+        return this.call(`${this.url}/suggest`, 'POST', { s, ...params })
     }
 
     /**
