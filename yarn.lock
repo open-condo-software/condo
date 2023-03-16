@@ -698,7 +698,7 @@ __metadata:
     openid-client: 4.7.4
     pdf-lib: ^1.17.1
     pdfmake: ^0.2.6
-    phone: 3.1.29
+    phone: 3.1.36
     pino: ^6.13.3
     pino-std-serializers: ^4.0.0
     pluralize: ^8.0.0
@@ -35117,10 +35117,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"phone@npm:3.1.29":
-  version: 3.1.29
-  resolution: "phone@npm:3.1.29"
-  checksum: 7477a7965b5cd15ffa9c9ebeb3ffc6551ae58d45bc63297e8ee6d09482cfd6e6c303bbed5b69b1be628a24a2bb9dfd1b05e6565808ae290ca256c68fce57d5fe
+"phone@npm:3.1.36":
+  version: 3.1.36
+  resolution: "phone@npm:3.1.36"
+  checksum: c61be152752acb70ca90ac2e629c26aab4e909812bd3d0646004903687483c3dafe4e7458030251f80f0888bcf935e3e7395aad8bfced547236e6ea7dcd5ed6d
   languageName: node
   linkType: hard
 
