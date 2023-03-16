@@ -5,7 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { setFakeClientMode, waitFor } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const {
     WebhookSubscription,
     createTestWebhook,
@@ -40,20 +40,70 @@ jest.spyOn(utils, 'trySendData').mockImplementation((url, objs) => {
     }
 })
 
+jest.mock('@open-condo/webhooks/tasks/sendModelWebhooks', () => {
+    const { find } = require('@open-condo/keystone/schema')
+    const { createTask } = require('@open-condo/keystone/tasks')
+    const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
+
+    async function sendModelWebhooks (modelName) {
+        const subscriptions = await find('WebhookSubscription', {
+            deletedAt: null,
+            model: modelName,
+            webhook: { deletedAt: null },
+        })
+
+        for (const subscription of subscriptions) {
+            await sendWebhook.delay.fn(subscription.id)
+        }
+    }
+
+    return {
+        sendModelWebhooks: createTask('sendModelWebhooks', sendModelWebhooks, { priority: 3 }),
+    }
+})
+
+jest.mock('@open-condo/webhooks/plugins/webHooked', () => {
+    const { composeNonResolveInputHook } = require('@open-condo/keystone/plugins/utils')
+    const { GQL_SCHEMA_PLUGIN } = require('@open-condo/keystone/plugins/utils/typing')
+    const { getModelValidator } = require('@open-condo/webhooks/model-validator')
+    const { sendModelWebhooks } = require('@open-condo/webhooks/tasks')
+
+    const plugin = (fn) => {
+        fn._type = GQL_SCHEMA_PLUGIN
+        return fn
+    }
+
+    const webHooked = () => plugin((schema, { schemaName }) => {
+        const validator = getModelValidator()
+        if (!validator || validator.models.includes(schemaName)) {
+            return schema
+        }
+
+        validator.registerModel(schemaName)
+        const { hooks: { afterChange: originalHook, ...restHooks }, ...rest } = schema
+
+        const syncAfterChange = async () => {
+            await sendModelWebhooks.delay.fn(schemaName)
+        }
+
+        const afterChange = composeNonResolveInputHook(originalHook, syncAfterChange)
+
+        return {
+            hooks: {
+                afterChange,
+                ...restHooks,
+            },
+            ...rest,
+        }
+    })
+
+    return {
+        webHooked,
+    }
+})
+
 // eslint-disable-next-line import/order
 const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
-
-const waitForWebhookSubscriptionUpdate = async (actors, subscription, firstSyncTime) => {
-    return await waitFor(async () => {
-        const updatedSubscription = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
-        expect(updatedSubscription).toHaveProperty('syncedAt')
-        const secondSyncTime = dayjs(updatedSubscription.syncedAt)
-        expect(secondSyncTime.isSame(firstSyncTime)).toEqual(false)
-        expect(secondSyncTime.isAfter(firstSyncTime)).toEqual(true)
-        expect(updatedSubscription).toHaveProperty('syncedAmount', 0)
-        return [updatedSubscription, secondSyncTime]
-    })
-}
 
 const SendWebhookTests = (appName, actorsInitializer, userCreator, userUpdater, userDestroyer, entryPointPath) => {
     describe(`sendWebhook task basic tests for ${appName} app`, () => {
@@ -190,15 +240,18 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userUpdater, 
                     expect(subscription).toHaveProperty('syncedAt')
                     const initialSyncTime = dayjs(subscription.syncedAt)
                     await sendWebhook.delay.fn(subscription.id)
-                    const [, firstSyncTime] = await waitForWebhookSubscriptionUpdate(actors, subscription, initialSyncTime)
+
+                    const updatedSubscription = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
+                    expect(updatedSubscription).toHaveProperty('syncedAt')
+                    const syncTime = dayjs(updatedSubscription.syncedAt)
+                    expect(syncTime.isSame(initialSyncTime)).toEqual(false)
+                    expect(syncTime.isAfter(initialSyncTime)).toEqual(true)
+                    expect(updatedSubscription).toHaveProperty('syncedAmount', 0)
 
                     await userUpdater(actors.admin, firstUser, {
                         name: faker.name.firstName(),
                     })
-                    const [, secondSyncTime] = await waitForWebhookSubscriptionUpdate(actors, subscription, firstSyncTime)
-
                     await userDestroyer(actors.admin, lastUser)
-                    await waitForWebhookSubscriptionUpdate(actors, subscription, secondSyncTime)
 
                     await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
                     await softDeleteTestWebhook(actors.admin, hook.id)
