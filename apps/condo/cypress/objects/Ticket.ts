@@ -46,11 +46,11 @@ class TicketCreate {
     chooseAddressForTicket (): this {
         cy.get('[data-cy=ticket__property-address-search-option').should('be.visible')
         cy.get('[data-cy=ticket__property-address-search-input] input').click().type('{downArrow}').type('{enter}')
+        cy.wait('@getAllProperties')
         return this
     }
 
     clickAndInputUnitName (unitName: string): this {
-        cy.wait('@getAllProperties')
         cy.get('[data-cy=unit-name-input-item] .ant-select-selection-search').should('be.visible')
         cy.get('[data-cy=unit-name-input-item] input')
             .click({ force: true })
@@ -75,24 +75,20 @@ class TicketCreate {
     selectProblemWithCategoryClassifier (): this {
         cy.get('[data-cy=ticket__place-select-item] .ant-select-selection-search')
             .click()
-
-        cy.get('[data-cy=ticket__classifier-option]')
-            .first()
-            .click()
-        cy.get('[data-cy=ticket__place-select-item] .ant-select-selection-search').should('not.have.class', '.ant-select-open')
+            .type('{downArrow}')
+            .type('{enter}')
 
         cy.get('[data-cy=ticket__category-select-item] .ant-select-selection-search')
             .click()
             .type('{downArrow}')
-        cy.get('.ant-select-dropdown:not(.ant-select-dropdown-hidden) [data-cy=ticket__classifier-option]')
-            .first()
-            .click()
+            .type('{enter}')
         return this
     }
 
     clickOnSubmitButton (): this {
         cy.get('[data-cy=ticket__submit-button]')
             .click()
+        cy.wait('@createTicket')
 
         cy.location('pathname').should('not.eq', TICKET_CREATE_URL)
         cy.location('pathname').should('contain', TICKET_VIEW_URL)

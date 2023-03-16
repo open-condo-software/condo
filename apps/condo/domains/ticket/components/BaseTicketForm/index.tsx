@@ -399,15 +399,20 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(get(initialValues, 'property', null))
     const selectPropertyIdRef = useRef(selectedPropertyId)
 
-    const propertyWhereQuery: PropertyWhereInput = useMemo(() => ({
-        organization: {
-            id: organization ? organization.id : null,
-        },
-        deletedAt: null,
-    }), [organization])
-    if (selectedPropertyId) {
-        propertyWhereQuery['id_in'] = [selectedPropertyId]
-    }
+    const propertyWhereQuery: PropertyWhereInput = useMemo(() => {
+        const where = {
+            organization: {
+                id: organization ? organization.id : null,
+            },
+            deletedAt: null,
+        }
+
+        if (selectedPropertyId) {
+            where['id_in'] = [selectedPropertyId]
+        }
+
+        return where
+    }, [organization, selectedPropertyId])
 
     const { loading: organizationPropertiesLoading, objs: organizationProperties, refetch } = Property.useObjects({
         where: propertyWhereQuery,
