@@ -3,7 +3,7 @@ import React from 'react'
 
 import { IconWrapper, IconProps } from '../wrappers'
 
-export const MoreVertical: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => {
+export const StarFilled: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => {
     return (
         <IconWrapper
             icon={
@@ -16,7 +16,9 @@ export const MoreVertical: React.FC<IconProps> = ({ svgProps: props, ...restProp
                     {...props}
                 >
                     <path
-                        d='M10 5a2 2 0 1 1 4 0 2 2 0 0 1-4 0ZM10 12a2 2 0 1 1 4 0 2 2 0 0 1-4 0ZM12 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z'
+                        fillRule='evenodd'
+                        clipRule='evenodd'
+                        d='M10.655 2.466c.55-1.115 2.14-1.115 2.69 0l2.41 4.88 5.388.788c1.23.18 1.72 1.692.83 2.559l-3.898 3.796.92 5.363c.21 1.226-1.077 2.16-2.177 1.581L12 18.9l-4.818 2.534c-1.1.578-2.387-.356-2.176-1.582l.92-5.363-3.898-3.796c-.89-.867-.4-2.38.83-2.559l5.388-.788 2.409-4.88Z'
                         fill='currentColor'
                     />
                 </svg>

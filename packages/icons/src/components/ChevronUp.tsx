@@ -18,7 +18,7 @@ export const ChevronUp: React.FC<IconProps> = ({ svgProps: props, ...restProps }
                     <path
                         fillRule='evenodd'
                         clipRule='evenodd'
-                        d='M11.293 8.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1-1.414 1.414L12 10.414l-5.293 5.293a1 1 0 0 1-1.414-1.414l6-6Z'
+                        d='M11.204 8.204c.44-.439 1.152-.439 1.591 0l6 6a1.125 1.125 0 0 1-1.59 1.591L12 10.591l-5.205 5.205a1.125 1.125 0 0 1-1.59-1.591l6-6Z'
                         fill='currentColor'
                     />
                 </svg>

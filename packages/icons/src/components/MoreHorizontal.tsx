@@ -16,9 +16,7 @@ export const MoreHorizontal: React.FC<IconProps> = ({ svgProps: props, ...restPr
                     {...props}
                 >
                     <path
-                        fillRule='evenodd'
-                        clipRule='evenodd'
-                        d='M5 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm5 2a2 2 0 1 1 4 0 2 2 0 0 1-4 0Zm7 0a2 2 0 1 1 4 0 2 2 0 0 1-4 0Z'
+                        d='M5 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM10 12a2 2 0 1 1 4 0 2 2 0 0 1-4 0ZM17 12a2 2 0 1 1 4 0 2 2 0 0 1-4 0Z'
                         fill='currentColor'
                     />
                 </svg>
