@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
