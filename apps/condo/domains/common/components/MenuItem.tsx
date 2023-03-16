@@ -2,8 +2,9 @@ import styled from '@emotion/styled'
 import classnames from 'classnames'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import type { IconProps } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from '@open-condo/ui'
@@ -79,6 +80,7 @@ interface IMenuItemProps {
     isCollapsed?: boolean
     onClick?: () => void
     eventName?: string
+    excludePaths?: Array<string>
 
     toolTipDecorator? (params: INoOrganizationToolTipWrapper): JSX.Element
 }
@@ -119,19 +121,23 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         toolTipDecorator = null,
         onClick,
         eventName,
+        excludePaths = [],
     } = props
     const { isSmall } = useLayoutContext()
-    const { route } = useRouter()
+    const { asPath } = useRouter()
     const intl = useIntl()
     const { getTrackingWrappedCallback } = useTracking()
     const { className: wrapperClassName, ...restWrapperProps } = menuItemWrapperProps
 
     const [isActive, setIsActive] = useState(false)
 
-    useEffect(() => {
-        const regex = new RegExp(`^${path}`)
-        setIsActive(path === '/' ? route === path : regex.test(route))
-    }, [route, path])
+    useDeepCompareEffect(() => {
+        const escapedPath = path ? path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : undefined
+        const regex = new RegExp(`^${escapedPath}`)
+        setIsActive(path === '/'
+            ? asPath === path
+            : regex.test(asPath) && excludePaths.every(exPath => !asPath.includes(exPath)))
+    }, [path, asPath, excludePaths])
 
     const handleClick = useMemo(
         () => getTrackingWrappedCallback(eventName, null, onClick),

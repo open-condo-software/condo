@@ -182,6 +182,7 @@
   "global.section.settings": "Настройки",
   "global.section.meters": "ИПУ",
   "global.section.miniapps": "Сервисы",
+  "global.section.SPP": "Платежи от физлиц",
   "global.available": "Есть",
   "global.notAvailable": "Отсутствует",
   "global.select.deletedEmployee": "Удаленный сотрудник",

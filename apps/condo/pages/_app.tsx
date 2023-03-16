@@ -10,7 +10,8 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
-import { FeatureFlagsProvider } from '@open-condo/featureflags/FeatureFlagsContext'
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { FeatureFlagsProvider, useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import {
     BarChartVertical,
     LayoutList,
@@ -22,6 +23,7 @@ import {
     Services,
     Settings,
     OnOff,
+    Sber,
 } from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { withApollo } from '@open-condo/next/apollo'
@@ -30,6 +32,7 @@ import { useIntl, withIntl } from '@open-condo/next/intl'
 import { useOrganization, withOrganization } from '@open-condo/next/organization'
 
 import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
+import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
@@ -46,6 +49,7 @@ import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
+import { SERVICE_PROVIDER_PROFILE } from '@condo/domains/common/constants/featureflags'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
@@ -63,6 +67,7 @@ import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 import { USER_QUERY } from '@condo/domains/user/gql'
+
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 
@@ -76,19 +81,35 @@ interface IMenuItemData {
     icon: React.FC,
     label: string,
     access?: () => boolean,
+    excludePaths?: Array<string>
 }
 
 const ANT_DEFAULT_LOCALE = enUS
 
+const { publicRuntimeConfig: { defaultLocale, sppConfig } } = getConfig()
+
 const MenuItems: React.FC = () => {
-    const { link } = useOrganization()
+    const { link, organization } = useOrganization()
     const { isExpired } = useServiceSubscriptionContext()
     const hasSubscriptionFeature = hasFeature('subscription')
     const disabled = !link || (hasSubscriptionFeature && isExpired)
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
+    const { updateContext, useFlag } = useFeatureFlags()
     const role = get(link, 'role', {})
+    const orgId = get(organization, 'id', null)
+    const orgFeatures = get(organization, 'features', [])
     const isAssignedVisibilityType = get(role, 'ticketVisibilityType') === ASSIGNED_TICKET_VISIBILITY
+    const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
+    const sppBillingId = get(sppConfig, 'BillingIntegrationId', null)
+    const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } })
+    const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
+    const hasAccessToBilling = (get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)) && !isAssignedVisibilityType
+    const sppPath = `miniapps/${sppBillingId}?type=BILLING`
+
+    useDeepCompareEffect(() => {
+        updateContext({ orgFeatures })
+    }, [updateContext, orgFeatures])
 
     const menuItemsData: IMenuItemData[] = useMemo(() => {
         const itemsConfigs = [{
@@ -123,7 +144,10 @@ const MenuItems: React.FC = () => {
             path: 'billing',
             icon: Wallet,
             label: 'global.section.accrualsAndPayments',
-            access: () => (get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)) && !isAssignedVisibilityType,
+            // NOTE: For SPP users billing is available after first receipts-load finished
+            access: () => isSPPOrg
+                ? hasAccessToBilling && anyReceiptsLoaded
+                : hasAccessToBilling,
         }, {
             path: 'meter',
             icon: Meters,
@@ -134,14 +158,23 @@ const MenuItems: React.FC = () => {
             icon: Services,
             label: 'global.section.miniapps',
             access: () => !isAssignedVisibilityType,
+            // NOTE: If user is not from SPP, url to miniapp should belong to services section
+            excludePaths: sppBillingId && isSPPOrg ? [sppPath] : [],
         }, {
             path: 'settings',
             icon: Settings,
             label: 'global.section.settings',
             access: () => !isAssignedVisibilityType,
-        }]
+        },
+        {
+            path: sppPath,
+            icon: Sber,
+            label: 'global.section.SPP',
+            access: () => sppBillingId && isSPPOrg,
+        },
+        ]
         return itemsConfigs.filter((item) => get(item, 'access', () => true)())
-    }, [role, isAssignedVisibilityType])
+    }, [isAssignedVisibilityType, hasAccessToBilling, anyReceiptsLoaded, isSPPOrg, sppBillingId, sppPath])
 
     return (
         <>
@@ -169,6 +202,7 @@ const MenuItems: React.FC = () => {
                         disabled={disabled}
                         isCollapsed={isCollapsed}
                         toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
+                        excludePaths={menuItemData.excludePaths}
                     />
                 ))}
             </div>
@@ -283,8 +317,6 @@ const MyApp = ({ Component, pageProps }) => {
         </>
     )
 }
-
-const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 
 /*
     Configuration for `InMemoryCache` of Apollo
