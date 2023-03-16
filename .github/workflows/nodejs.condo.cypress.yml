@@ -85,3 +85,11 @@ jobs:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
           DISABLE_LOGGING: true
+
+      - name: Upload screenshots artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshots
+          path: |
+            ./apps/condo/cypress/screenshots
+          retention-days: 2
