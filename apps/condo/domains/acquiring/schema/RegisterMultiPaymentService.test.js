@@ -982,7 +982,7 @@ describe('RegisterMultiPaymentService', () => {
             const delta = '1500.00000000'
 
             // Management company updates the receipt
-            updateTestBillingReceipt(admin, initialBillingReceipt.id, {
+            await updateTestBillingReceipt(admin, initialBillingReceipt.id, {
                 toPay: Big(initialToPay).plus(delta),
             })
 
