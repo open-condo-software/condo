@@ -73,6 +73,7 @@ const {
     sendTomorrowPaymentNotificationSafely,
 } = require('./queries')
 
+const offset = 0
 const pageSize = 10
 const { keystone } = index
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'test-fingerprint-alphanumeric-value' } }
@@ -250,6 +251,38 @@ describe('recurrent payments queries', () => {
                 }),
             ]))
         })
+
+        it('should validate inputs', async () => {
+            await catchErrorFrom(async () => {
+                await getAllReadyToPayRecurrentPaymentContexts(adminContext, null, pageSize, offset)
+            }, (error) => {
+                expect(error.message).toContain('invalid date argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, null, offset)
+            }, (error) => {
+                expect(error.message).toContain('invalid pageSize argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, -1, offset)
+            }, (error) => {
+                expect(error.message).toContain('invalid pageSize argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, pageSize, null)
+            }, (error) => {
+                expect(error.message).toContain('invalid offset argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, pageSize, -1)
+            }, (error) => {
+                expect(error.message).toContain('invalid offset argument')
+            })
+        })
     })
 
     describe('getServiceConsumer', () => {
@@ -288,6 +321,14 @@ describe('recurrent payments queries', () => {
                 await getServiceConsumer(adminContext, serviceConsumerId)
             }, (error) => {
                 expect(error.message).toContain('Found deleted serviceConsumer for id ')
+            })
+        })
+
+        it('should validate inputs', async () => {
+            await catchErrorFrom(async () => {
+                await getServiceConsumer(adminContext, null)
+            }, (error) => {
+                expect(error.message).toContain('invalid id argument')
             })
         })
     })
@@ -375,6 +416,28 @@ describe('recurrent payments queries', () => {
             const receipts = await getReceiptsForServiceConsumer(adminContext, dayjs(), serviceConsumer)
 
             expect(receipts).toHaveLength(0)
+        })
+
+        it('should validate inputs', async () => {
+            const { serviceConsumer } = await makeClientWithServiceConsumer()
+
+            await catchErrorFrom(async () => {
+                await getReceiptsForServiceConsumer(adminContext, null, serviceConsumer)
+            }, (error) => {
+                expect(error.message).toContain('invalid date argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await getReceiptsForServiceConsumer(adminContext, dayjs(), {})
+            }, (error) => {
+                expect(error.message).toContain('invalid serviceConsumer argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await getReceiptsForServiceConsumer(adminContext, dayjs(), null)
+            }, (error) => {
+                expect(error.message).toContain('invalid serviceConsumer argument')
+            })
         })
     })
 
@@ -591,6 +654,14 @@ describe('recurrent payments queries', () => {
 
             expect(receipts).toHaveLength(0)
         })
+
+        it('should validate inputs', async () => {
+            await catchErrorFrom(async () => {
+                await filterPaidBillingReceipts(adminContext, null)
+            }, (error) => {
+                expect(error.message).toContain('invalid billingReceipts argument')
+            })
+        })
     })
 
     describe('getReadyForProcessingPaymentsPage', () => {
@@ -774,7 +845,6 @@ describe('recurrent payments queries', () => {
             expect(recurrentPayments[0].id).toEqual(recurrentPayment.id)
         })
 
-
         it('should return payment only with RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS status', async () => {
             const payAfter = null
             const tryCount = 0
@@ -809,6 +879,32 @@ describe('recurrent payments queries', () => {
             expect(recurrentPayments).toHaveLength(1)
             expect(recurrentPayments[0]).toHaveProperty('id')
             expect(recurrentPayments[0].id).toEqual(recurrentPayment.id)
+        })
+
+        it('should validate inputs', async () => {
+            await catchErrorFrom(async () => {
+                await getReadyForProcessingPaymentsPage(adminContext, null, offset)
+            }, (error) => {
+                expect(error.message).toContain('invalid pageSize argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await getReadyForProcessingPaymentsPage(adminContext, -1, offset)
+            }, (error) => {
+                expect(error.message).toContain('invalid pageSize argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await getReadyForProcessingPaymentsPage(adminContext, pageSize, null)
+            }, (error) => {
+                expect(error.message).toContain('invalid offset argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await getReadyForProcessingPaymentsPage(adminContext, pageSize, -1)
+            }, (error) => {
+                expect(error.message).toContain('invalid offset argument')
+            })
         })
     })
 
@@ -1080,6 +1176,47 @@ describe('recurrent payments queries', () => {
             expect(response.errorMessage)
                 .toContain(`RecurrentPaymentContext not found for RecurrentPayment(${recurrentPayment.id})`)
         })
+
+        it('should validate inputs', async () => {
+            await catchErrorFrom(async () => {
+                await registerMultiPayment(adminContext, null)
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPayment argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await registerMultiPayment(adminContext, {})
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPayment argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await registerMultiPayment(adminContext, {
+                    id: uuid(),
+                })
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPayment argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await registerMultiPayment(adminContext, {
+                    id: uuid(),
+                    billingReceipts: [],
+                })
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPayment argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await registerMultiPayment(adminContext, {
+                    id: uuid(),
+                    billingReceipts: [],
+                    recurrentPaymentContext: {},
+                })
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPayment argument')
+            })
+        })
     })
 
     describe('setRecurrentPaymentAsSuccess', () => {
@@ -1150,6 +1287,28 @@ describe('recurrent payments queries', () => {
             expect(notification.meta).toHaveProperty('recurrentPaymentContext')
             expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
             expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+        })
+
+        it('should validate inputs', async () => {
+            await catchErrorFrom(async () => {
+                await setRecurrentPaymentAsSuccess(adminContext, null)
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPayment argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await setRecurrentPaymentAsSuccess(adminContext, {})
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPayment argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await setRecurrentPaymentAsSuccess(adminContext, {
+                    id: uuid(),
+                })
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPayment argument')
+            })
         })
     })
 
@@ -1329,6 +1488,51 @@ describe('recurrent payments queries', () => {
             expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
             expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
         })
+
+        it('should validate inputs', async () => {
+            const errorCode = PAYMENT_ERROR_LIMIT_EXCEEDED_CODE
+            const errorMessage = 'An error message'
+
+            await catchErrorFrom(async () => {
+                await setRecurrentPaymentAsFailed(adminContext, null, errorMessage, errorCode)
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPayment argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await setRecurrentPaymentAsFailed(adminContext, {}, errorMessage, errorCode)
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPayment argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await setRecurrentPaymentAsFailed(adminContext, { id: uuid() }, errorMessage, errorCode)
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPayment argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await setRecurrentPaymentAsFailed(
+                    adminContext,
+                    { id: uuid(), tryCount: 0 },
+                    null,
+                    errorCode,
+                )
+            }, (error) => {
+                expect(error.message).toContain('invalid errorMessage argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await setRecurrentPaymentAsFailed(
+                    adminContext,
+                    { id: uuid(), tryCount: 0 },
+                    errorMessage,
+                    null,
+                )
+            }, (error) => {
+                expect(error.message).toContain('invalid errorCode argument')
+            })
+        })
     })
 
     describe('sendTomorrowPaymentNotificationSafely', () => {
@@ -1439,6 +1643,40 @@ describe('recurrent payments queries', () => {
             expect(notification.meta).toHaveProperty('recurrentPaymentContext')
             expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
             expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+        })
+
+        it('should validate inputs', async () => {
+            await catchErrorFrom(async () => {
+                await sendTomorrowPaymentNotificationSafely(adminContext, null)
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPaymentContext argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await sendTomorrowPaymentNotificationSafely(adminContext, {})
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPaymentContext argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await sendTomorrowPaymentNotificationSafely(
+                    adminContext,
+                    recurrentPaymentContext,
+                    null,
+                )
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPayment argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await sendTomorrowPaymentNotificationSafely(
+                    adminContext,
+                    recurrentPaymentContext,
+                    {},
+                )
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPayment argument')
+            })
         })
     })
 })
