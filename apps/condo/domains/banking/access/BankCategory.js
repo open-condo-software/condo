@@ -6,7 +6,7 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 
-async function canReadBankCategories ({ authentication: { item: user }, context }) {
+async function canReadBankCategories ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 

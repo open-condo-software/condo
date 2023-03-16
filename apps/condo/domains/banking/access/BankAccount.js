@@ -30,12 +30,7 @@ async function canReadBankAccounts ({ authentication: { item: user }, context })
                     deletedAt: null,
                     integration: {
                         deletedAt: null,
-                        accessRights_some: {
-                            deletedAt: null,
-                            user: {
-                                id: user.id,
-                            },
-                        },
+                        id: BANK_INTEGRATION_IDS.SBBOL,
                     },
                 },
             },
