@@ -17,15 +17,25 @@ const {
 
 const { BILLING_INTEGRATION_WRONG_GROUP_FORMAT_ERROR } = require('@condo/domains/billing/constants/errors')
 const { BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
+
 
 describe('BillingIntegration', () => {
+    let admin
+    let support
+    let serviceUser
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
+        serviceUser = await makeClientWithServiceUser()
+    })
 
     describe('Validators', async () => {
         describe('Group', async () => {
             let billingIntegrationId
             let billingIntegration
-            let admin
             beforeAll(async () => {
                 admin = await makeLoggedInAdminClient()
                 billingIntegration = (await createTestBillingIntegration(admin))[0]
@@ -55,7 +65,6 @@ describe('BillingIntegration', () => {
         describe('Format', async () => {
 
             test('update format with wrong payload', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const billingIntegrationId = billingIntegration.id
 
@@ -76,7 +85,6 @@ describe('BillingIntegration', () => {
             })
 
             test('update format with right payload', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [billingIntegration] = await createTestBillingIntegration(admin)
                 const billingIntegrationId = billingIntegration.id
 
@@ -99,15 +107,25 @@ describe('BillingIntegration', () => {
 
     describe('Create', () => {
         test('admin can create BillingIntegration', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [integration, attrs] = await createTestBillingIntegration(admin)
             expect(integration).toEqual(expect.objectContaining({
                 name: attrs.name,
             }))
         })
 
+        test('admin can\'t create BillingIntegration.accessRights field', async () => {
+            const [integration] = await createTestBillingIntegration(admin)
+            const [accessRight] = await createTestBillingIntegrationAccessRight(admin, integration, serviceUser.user)
+            await catchErrorFrom(async () => {
+                await createTestBillingIntegration(support, {
+                    accessRights: { connect: accessRight.id },
+                })
+            }, (caught) => {
+                expect(caught.errors[0].message).toContain('Field "accessRights" is not defined by type "BillingIntegrationCreateInput"')
+            })
+        })
+
         test('support can create BillingIntegration', async () => {
-            const support = await makeClientWithSupportUser()
             const [integration, attrs] = await createTestBillingIntegration(support)
             expect(integration).toEqual(expect.objectContaining({
                 name: attrs.name,
@@ -130,10 +148,20 @@ describe('BillingIntegration', () => {
     })
 
     describe('Update', () => {
+        test('admin can\'t update BillingIntegration.accessRights field', async () => {
+            const [integration] = await createTestBillingIntegration(admin)
+            const [accessRight] = await createTestBillingIntegrationAccessRight(admin, integration, serviceUser.user)
+            await catchErrorFrom(async () => {
+                await updateTestBillingIntegration(support, integration.id, {
+                    accessRights: { connect: accessRight.id },
+                })
+            }, (caught) => {
+                expect(caught.errors[0].message).toContain('Field "accessRights" is not defined by type "BillingIntegrationUpdateInput"')
+            })
+        })
+        
         test('support can update BillingIntegration', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)
-            const support = await makeClientWithSupportUser()
             const payload = { name: 'super-billing!', currencyCode: 'EUR' }
             const [updatedIntegration] = await updateTestBillingIntegration(support, objCreated.id, payload)
             expect(updatedIntegration.id).toEqual(objCreated.id)
@@ -141,7 +169,6 @@ describe('BillingIntegration', () => {
         })
 
         test('user cannot update BillingIntegration', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)
 
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -152,7 +179,6 @@ describe('BillingIntegration', () => {
         })
 
         test('anonymous cannot update BillingIntegration', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)
 
             const client = await makeClient()
@@ -165,7 +191,6 @@ describe('BillingIntegration', () => {
 
     describe('Read', () => {
         test('user can read BillingIntegration', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [obj, attrs] = await createTestBillingIntegration(admin)
 
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -196,7 +221,6 @@ describe('BillingIntegration', () => {
 
     describe('Delete', () => {
         test('user cannot delete BillingIntegration', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)
 
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -206,7 +230,6 @@ describe('BillingIntegration', () => {
         })
 
         test('anonymous cannot delete BillingIntegration', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)
 
             const client = await makeClient()
@@ -218,7 +241,6 @@ describe('BillingIntegration', () => {
 
     describe('Cache', () => {
         test('cache resets if it detects mutation with itemQuery', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [integration] = await createTestBillingIntegration(admin)
 
             const [integration1] = await BillingIntegration.getAll(admin, { id: integration.id })
@@ -231,8 +253,6 @@ describe('BillingIntegration', () => {
         })
 
         test('cache resets if it detects mutation with listQuery', async () => {
-            const admin = await makeLoggedInAdminClient()
-
             const integrationName = v4()
 
             const [integration1] = await createTestBillingIntegration(admin, { name: integrationName })
