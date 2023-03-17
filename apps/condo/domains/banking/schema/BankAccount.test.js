@@ -25,7 +25,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
-const { BankIntegration, createTestBankIntegrationAccountContext, BankIntegrationAccessRight, createTestBankIntegrationOrganizationContext } = require('../utils/testSchema')
+const { BankIntegration, createTestBankIntegrationAccountContext, createTestBankIntegrationOrganizationContext } = require('../utils/testSchema')
 
 const ISO_8601_FULL = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?$/i
 
