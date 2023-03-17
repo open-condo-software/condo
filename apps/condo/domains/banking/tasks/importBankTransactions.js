@@ -14,7 +14,6 @@ const {
     BankTransaction,
     BankContractorAccount,
     BankSyncTask,
-    predictTransactionClassification,
 } = require('@condo/domains/banking/utils/serverSchema')
 const { convertFrom1CExchangeToSchema } = require('@condo/domains/banking/utils/serverSchema/converters/convertFrom1CExchangeToSchema')
 const { TASK_PROCESSING_STATUS, TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } = require('@condo/domains/common/constants/tasks')
@@ -33,37 +32,48 @@ const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'importBankTransactions
 const logger = getLogger('importBankTransactions')
 
 /**
- * Worker function for import bank transaction using BankSyncTask
- * Can be executed either in worker (separate process) or in tests (same process).
+ * Imports bank transactions according to specified BankSyncTask
  * @param taskId
- * @param bankSyncTaskUtils - either real server utils for BankSyncTask, or a mock for tests
- * @param fetchContent - either real function that will fetch a file, or a function that will return mocked data
  * @returns {Promise<{integrationContext, transactions: *[], account: *}>}
  */
-const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils, fetchContent) => {
+const importBankTransactionsWorker = async (taskId) => {
     if (!taskId) throw new Error('taskId is undefined')
     const { keystone: context } = await getSchemaCtx('BankSyncTask')
-    let task = await bankSyncTaskUtils.getOne(context, { id: taskId })
+    let task = await BankSyncTask.getOne(context, { id: taskId })
     if (!task) {
         throw new Error(`Cannot find BankSyncTask by id="${taskId}"`)
     }
 
-    const { file, organization, property } = task
+    const { file, organization, property, meta } = task
 
     const taskOrganization = await Organization.getOne(context, {
         id: organization.id,
     })
 
     let conversionResult
-    const fileStream = await fetchContent(file)
+    let response
+    try {
+        response = await fetch(file.publicUrl)
+    } catch (e) {
+        throw new Error(`Could not fetch file by url "${file.publicUrl}". Error: ${e.message}`)
+    }
+    if (!response.ok) {
+        throw new Error(`Could not fetch file by url "${file.publicUrl}". Response code: ${response.status} ${response.statusText}`)
+    }
+    const fileStream = response.body
     try {
         conversionResult = await convertFrom1CExchangeToSchema(fileStream)
     } catch (error) {
-        await bankSyncTaskUtils.update(context, taskId, {
-            status: TASK_ERROR_STATUS,
+        const errorMessage = `Cannot parse uploaded file in 1CClientBankExchange format. Error: ${error.message}`
+        await BankSyncTask.update(context, taskId, {
             ...DV_SENDER,
+            status: TASK_ERROR_STATUS,
+            meta: {
+                ...meta,
+                errorMessage,
+            },
         })
-        throw new Error(`Cannot parse uploaded file in 1CClientBankExchange format. Error: ${error.message}`)
+        throw new Error(errorMessage)
     }
     const { bankAccountData, bankTransactionsData } = conversionResult
     const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS['1CClientBankExchange'] })
@@ -103,7 +113,16 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils, fetchCont
         }
         if (bankAccount.integrationContext) {
             if (get(bankAccount, ['integrationContext', 'integration', 'id']) !== BANK_INTEGRATION_IDS['1CClientBankExchange']) {
-                throw new Error('Another integration is used for this bank account, that fetches transactions in a different way. You cannot import transactions from file in this case')
+                const errorMessage = 'Another integration is used for this bank account, that fetches transactions in a different way. You cannot import transactions from file in this case'
+                await BankSyncTask.update(context, taskId, {
+                    ...DV_SENDER,
+                    status: TASK_ERROR_STATUS,
+                    meta: {
+                        ...meta,
+                        errorMessage,
+                    },
+                })
+                throw new Error(errorMessage)
             }
             integrationContext = bankAccount.integrationContext
         } else {
@@ -134,7 +153,7 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils, fetchCont
     if (!task.integrationContext) {
         taskUpdatePayload.integrationContext = { connect: { id: integrationContext.id } }
     }
-    await bankSyncTaskUtils.update(context, taskId, taskUpdatePayload)
+    await BankSyncTask.update(context, taskId, taskUpdatePayload)
 
 
     let lastProgress = Date.now()
@@ -144,10 +163,10 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils, fetchCont
     for (let i = 0; i < bankTransactionsData.length; i++) {
 
         // User can cancel the task at any time, in this all operations should be stopped
-        task = await bankSyncTaskUtils.getOne(context, { id: taskId })
+        task = await BankSyncTask.getOne(context, { id: taskId })
         const taskStatus = get(task, 'status')
         if (!task || taskStatus !== TASK_PROCESSING_STATUS) {
-            logger.info({ msg: 'status != processing. Aborting processing bank transactions loop', taskStatus, taskSchemaName: bankSyncTaskUtils.gql.SINGULAR_FORM, taskId })
+            logger.info({ msg: 'status != processing. Aborting processing bank transactions loop', taskStatus, taskSchemaName: BankSyncTask.gql.SINGULAR_FORM, taskId })
             return
         }
 
@@ -163,14 +182,6 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils, fetchCont
             duplicatedTransactions.push(transactionData.number)
             continue
         }
-
-        let costItem
-        try {
-            costItem = await predictTransactionClassification(context, { purpose: transactionData.purpose })
-        } catch (error) {
-            logger.error({ msg: 'Can\'t get costItem from classification service', error })
-        }
-
         const payload = {
             ...DV_SENDER,
             number: transactionData.number,
@@ -185,7 +196,6 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils, fetchCont
             account: { connect: { id: bankAccount.id } },
             integrationContext: { connect: { id: integrationContext.id } },
             meta: transactionData.meta,
-            costItem: costItem ? { connect: { id: costItem.id } } : undefined,
         }
         if (transactionData.contractorAccount) {
             let existingContractorAccount = await BankContractorAccount.getOne(context, {
@@ -214,7 +224,7 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils, fetchCont
 
         if (Date.now() - lastProgress > TASK_PROGRESS_UPDATE_INTERVAL) {
             lastProgress = Date.now()
-            task = await bankSyncTaskUtils.update(context, taskId, {
+            task = await BankSyncTask.update(context, taskId, {
                 ...DV_SENDER,
                 processedCount: i,
             })
@@ -223,7 +233,7 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils, fetchCont
         await sleep(SLEEP_TIMEOUT)
     }
 
-    await bankSyncTaskUtils.update(context, taskId, {
+    await BankSyncTask.update(context, taskId, {
         ...DV_SENDER,
         processedCount: transactions.length,
         status: TASK_COMPLETED_STATUS,
@@ -237,23 +247,8 @@ const importBankTransactionsWorker = async (taskId, bankSyncTaskUtils, fetchCont
     }
 }
 
-const fetchContentUsingFileAdapter = async (file) => {
-    if (!file.publicUrl) throw new Error('Could not fetch file. Error: missing "publicUrl" property')
-    let response
-    try {
-        response = await fetch(file.publicUrl)
-    } catch (e) {
-        throw new Error(`Could not fetch file by url "${file.publicUrl}". Error: ${e.message}`)
-    }
-    if (!response.ok) {
-        throw new Error(`Could not fetch file by url "${file.publicUrl}". Response code: ${response.status} ${response.statusText}`)
-    }
-    return response.body
-}
-
 module.exports = {
     importBankTransactionsTask: createTask('bankSyncTask', async (taskId) => {
-        await importBankTransactionsWorker(taskId, BankSyncTask, fetchContentUsingFileAdapter)
+        await importBankTransactionsWorker(taskId)
     }),
-    importBankTransactionsWorker,
 }

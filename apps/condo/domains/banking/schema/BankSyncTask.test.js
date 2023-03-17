@@ -4,9 +4,12 @@
 
 const path = require('path')
 
+const dayjs = require('dayjs')
+const { pick } = require('lodash')
+
 const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowGQLError, catchErrorFrom,
-    expectToThrowValidationFailureError,
+    expectToThrowValidationFailureError, waitFor,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -25,9 +28,11 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { BANK_INTEGRATION_IDS, BANK_SYNC_TASK_STATUS } = require('../constants')
-
+const { BankAccount, BankTransaction } = require('../utils/testSchema')
+const { PARSED_TRANSACTIONS_TO_COMPARE } = require('../utils/testSchema/assets/1CClientBankExchangeToKeystoneObjects')
 
 const pathToCorrectFile = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/banking/utils/testSchema/assets/1CClientBankExchange.txt')
+const pathToInvalidFile = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/banking/utils/testSchema/assets/1CClientBankExchange-Invalid.txt')
 
 let adminClient
 let bankIntegration
@@ -579,10 +584,241 @@ describe('BankSyncTask', () => {
                 integrationContext: { connect: { id: integrationContext.id } },
                 meta: {
                     duplicatedTransactions: ['123', '456'],
+                    errorMessage: 'Test error message',
                 },
             })
             expect(obj.meta).toMatchObject({
                 duplicatedTransactions: ['123', '456'],
+                errorMessage: 'Test error message',
+            })
+        })
+    })
+
+    describe('importBankTransactionsWorker after change', () => {
+
+        const expectCorrectBankTransaction = (obj, transactionDataToCompare, organization, bankAccount) => {
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toMatchObject({ dv: 1, fingerprint: 'importBankTransactions' })
+            expect(parseFloat(obj.amount)).toBeCloseTo(parseFloat(transactionDataToCompare.amount), 2)
+            expect(obj.date).toEqual(dayjs(transactionDataToCompare.date).format('YYYY-MM-DD'))
+            expect(obj).toMatchObject(pick(transactionDataToCompare, ['number', 'isOutcome', 'purpose', 'currencyCode']))
+            expect(obj.importId).toEqual(transactionDataToCompare.number)
+            expect(obj.importRemoteSystem).toEqual('1CClientBankExchange')
+            expect(obj.organization.id).toEqual(organization.id)
+            expect(obj.account.id).toEqual(bankAccount.id)
+            expect(obj.integrationContext.id).toEqual(bankAccount.integrationContext.id)
+        }
+
+        beforeAll(async () => {
+            adminClient = await makeLoggedInAdminClient()
+        })
+
+        it('creates BankAccount, BankIntegrationAccountContext, BankTransaction and BankContractorAccount records', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+
+            await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+            })
+
+            await waitFor(async () => {
+                const createdBankAccount = await BankAccount.getOne(adminClient, {
+                    organization: { id: organization.id },
+                })
+                expect(createdBankAccount).toBeDefined()
+                expect(createdBankAccount.dv).toEqual(1)
+                expect(createdBankAccount.sender).toMatchObject({ dv: 1, fingerprint: 'importBankTransactions' })
+                expect(createdBankAccount.id).toMatch(UUID_RE)
+                expect(createdBankAccount).toMatchObject({
+                    number: '40702810801500116391',
+                    routingNumber: '044525999',
+                    meta: {
+                        amount: '135394.23',
+                        '1CClientBankExchange': {
+                            'v': '1.03',
+                            'data': {
+                                'ДатаНачала': '01.04.2022',
+                                'ДатаКонца': '27.10.2022',
+                                'РасчСчет': '40702810801500116391',
+                                'НачальныйОстаток': '8300.00',
+                                'ВсегоПоступило': '2681831.46',
+                                'ВсегоСписано': '2554737.23',
+                                'КонечныйОстаток': '135394.23',
+                            },
+                        },
+                    },
+                })
+                // TODO(antonal): Due to difference in time zone offset between localhost and CI/CD calendar days saved from dayjs objects to Keystone cannot be compared using hardcoded values
+                // expect(dayjs(createdBankAccount.meta.amountAt, 'YYYY-MM-DD').diff(dayjs('2022-10-27', 'YYYY-MM-DD'), 'day')).toEqual(0)
+
+                const transactions = await BankTransaction.getAll(adminClient, {
+                    account: { id: createdBankAccount.id },
+                }, { sortBy: 'createdAt_ASC' })
+                expect(transactions).toHaveLength(4)
+                expectCorrectBankTransaction(transactions[0], PARSED_TRANSACTIONS_TO_COMPARE[0], organization, createdBankAccount)
+                expectCorrectBankTransaction(transactions[1], PARSED_TRANSACTIONS_TO_COMPARE[1], organization, createdBankAccount)
+                expectCorrectBankTransaction(transactions[2], PARSED_TRANSACTIONS_TO_COMPARE[2], organization, createdBankAccount)
+                expectCorrectBankTransaction(transactions[3], PARSED_TRANSACTIONS_TO_COMPARE[3], organization, createdBankAccount)
+            })
+        })
+
+        it('creates BankIntegrationAccountContext for existing BankAccount, that does not have it', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const [existingBankAccount] = await createTestBankAccount(adminClient, organization, {
+                number: '40702810801500116391',
+                routingNumber: '044525999',
+            })
+
+            await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+            })
+
+            await waitFor(async () => {
+                const reusedBankAccount = await BankAccount.getOne(adminClient, {
+                    organization: { id: organization.id },
+                })
+
+                expect(reusedBankAccount.id).toEqual(existingBankAccount.id)
+
+                expect(reusedBankAccount.integrationContext).toBeDefined()
+                expect(reusedBankAccount.integrationContext.id).toMatch(UUID_RE)
+                expect(reusedBankAccount.integrationContext.integration).toBeDefined()
+                expect(reusedBankAccount.integrationContext.integration.id).toEqual(BANK_INTEGRATION_IDS['1CClientBankExchange'])
+
+                const transactions = await BankTransaction.getAll(adminClient, {
+                    account: { id: reusedBankAccount.id },
+                }, { sortBy: 'createdAt_ASC' })
+                expect(transactions).toHaveLength(4)
+            })
+        })
+
+        it('reuses existing BankAccount and BankIntegrationAccountContext when it has the same integration', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS['1CClientBankExchange'] })
+            const [BankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
+            const [existingBankAccount] = await createTestBankAccount(adminClient, organization, {
+                number: '40702810801500116391',
+                routingNumber: '044525999',
+                integrationContext: { connect: { id: BankIntegrationAccountContext.id } },
+            })
+
+            await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+            })
+
+            await waitFor(async () => {
+                const reusedBankAccount = await BankAccount.getOne(adminClient, {
+                    organization: { id: organization.id },
+                })
+
+                expect(reusedBankAccount).toBeDefined()
+                expect(reusedBankAccount.id).toEqual(existingBankAccount.id)
+                expect(reusedBankAccount).toMatchObject({
+                    number: '40702810801500116391',
+                    routingNumber: '044525999',
+                    integrationContext: {
+                        id: BankIntegrationAccountContext.id,
+                    },
+                    meta: {
+                        amount: '135394.23',
+                    },
+                })
+                // TODO(antonal): Due to difference in time zone offset between localhost and CI/CD calendar days saved from dayjs objects to Keystone cannot be compared using hardcoded values
+                // expect(dayjs(reusedBankAccount.meta.amountAt, 'YYYY-MM-DD').diff(dayjs('2022-10-27', 'YYYY-MM-DD'), 'day')).toEqual(0)
+
+                const transactions = await BankTransaction.getAll(adminClient, {
+                    account: { id: reusedBankAccount.id },
+                }, { sortBy: 'createdAt_ASC' })
+
+                expect(transactions).toHaveLength(4)
+                expectCorrectBankTransaction(transactions[0], PARSED_TRANSACTIONS_TO_COMPARE[0], organization, existingBankAccount)
+                expectCorrectBankTransaction(transactions[1], PARSED_TRANSACTIONS_TO_COMPARE[1], organization, existingBankAccount)
+                expectCorrectBankTransaction(transactions[2], PARSED_TRANSACTIONS_TO_COMPARE[2], organization, existingBankAccount)
+                expectCorrectBankTransaction(transactions[3], PARSED_TRANSACTIONS_TO_COMPARE[3], organization, existingBankAccount)
+            })
+        })
+
+        it('skips duplicated BankTransaction records by (number, date) uniqueness rule', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+
+            const [task1] = await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+            })
+
+            let transactions
+
+            await waitFor(async () => {
+                const createdBankAccount = await BankAccount.getOne(adminClient, {
+                    organization: { id: organization.id },
+                })
+                expect(createdBankAccount).toBeDefined()
+
+                transactions = await BankTransaction.getAll(adminClient, {
+                    account: { id: createdBankAccount.id },
+                }, { sortBy: 'createdAt_ASC' })
+
+                expect(transactions).toHaveLength(4)
+                expectCorrectBankTransaction(transactions[0], PARSED_TRANSACTIONS_TO_COMPARE[0], organization, createdBankAccount)
+                expectCorrectBankTransaction(transactions[1], PARSED_TRANSACTIONS_TO_COMPARE[1], organization, createdBankAccount)
+                expectCorrectBankTransaction(transactions[2], PARSED_TRANSACTIONS_TO_COMPARE[2], organization, createdBankAccount)
+                expectCorrectBankTransaction(transactions[3], PARSED_TRANSACTIONS_TO_COMPARE[3], organization, createdBankAccount)
+
+                const updatedTask1 = await BankSyncTask.getOne(adminClient, { id: task1.id })
+                expect(updatedTask1.meta).toBeNull()
+            })
+
+            const [task2] = await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+            })
+
+            await waitFor(async () => {
+                const createdTransactions = await BankTransaction.getAll(adminClient, {
+                    organization: { id: organization.id },
+                    id_not_in: transactions.map(t => t.id),
+                })
+                expect(createdTransactions).toHaveLength(0)
+
+                const updatedTask2 = await BankSyncTask.getOne(adminClient, { id: task2.id })
+                expect(updatedTask2.meta).toMatchObject({
+                    duplicatedTransactions: ['61298', '6032', '656731', '239'],
+                })
+            })
+        })
+
+        it('sets error to task when another integration of different type exist', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
+            const [BankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
+            await createTestBankAccount(adminClient, organization, {
+                number: '40702810801500116391',
+                routingNumber: '044525999',
+                integrationContext: { connect: { id: BankIntegrationAccountContext.id } },
+            })
+
+            const [task] = await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+            })
+
+            await waitFor(async () => {
+                const updatedTask = await BankSyncTask.getOne(adminClient, { id: task.id })
+                expect(updatedTask.meta).toMatchObject({
+                    errorMessage: 'Another integration is used for this bank account, that fetches transactions in a different way. You cannot import transactions from file in this case',
+                })
+            })
+        })
+
+        it('sets error to task in case of file parsing error', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+
+            const [task] = await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToInvalidFile),
+            })
+
+            await waitFor(async () => {
+                const updatedTask = await BankSyncTask.getOne(adminClient, { id: task.id })
+                expect(updatedTask.meta).toMatchObject({
+                    errorMessage: 'Cannot parse uploaded file in 1CClientBankExchange format. Error: Parse error at line 14: Unexpected key "НеизвестноеСвойство" in node "СекцияРасчСчет"',
+                })
             })
         })
     })

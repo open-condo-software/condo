@@ -125,6 +125,9 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
                             items: { type: 'string' },
                             minItems: 1,
                         },
+                        errorMessage: {
+                            type: 'string',
+                        },
                     },
                     additionalProperties: false,
                 })),
