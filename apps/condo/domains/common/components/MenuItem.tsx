@@ -1,6 +1,5 @@
 import styled from '@emotion/styled'
 import classnames from 'classnames'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useMemo, useState } from 'react'
 
@@ -12,8 +11,8 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { transitions } from '@condo/domains/common/constants/style'
+import { renderLink } from '@condo/domains/common/utils/Renders'
 import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
-
 
 import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
 import { useLayoutContext } from './LayoutContext'
@@ -83,16 +82,6 @@ interface IMenuItemProps {
     excludePaths?: Array<string>
 
     toolTipDecorator? (params: INoOrganizationToolTipWrapper): JSX.Element
-}
-
-const makeLink = (content: JSX.Element, path: string) => {
-    return (
-        <Link href={path}>
-            <a>
-                {content}
-            </a>
-        </Link>
-    )
 }
 
 const addToolTipForCollapsedMenu = (content: JSX.Element, Message: string) => (
@@ -174,7 +163,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         </MenuItemWrapper>
     )
 
-    const nextjsLink = !path || disabled ? menuItem : makeLink(menuItem, path)
+    const nextjsLink = !path || disabled ? menuItem : renderLink(menuItem, path)
 
     return toolTipDecorator ? toolTipDecorator({ element: nextjsLink, placement: 'right' }) : nextjsLink
 }
