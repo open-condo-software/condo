@@ -17,6 +17,7 @@ const {
     updateTestBankAccount,
     createTestBankContractorAccount,
     createTestBankTransaction,
+    createTestBankIntegrationAccessRight,
 } = require('@condo/domains/banking/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -41,12 +42,7 @@ describe('BankAccount', () => {
         bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS['1CClientBankExchange'] })
         SBBOLBankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
         serviceClient = await makeClientWithServiceUser()
-        await BankIntegrationAccessRight.create(adminClient, {
-            user: { connect: { id: serviceClient.user.id } },
-            integration: { connect: { id: SBBOLBankIntegration.id } },
-            dv: 1,
-            sender: { dv: 1, fingerprint: 'tests' },
-        })
+        await createTestBankIntegrationAccessRight(adminClient, SBBOLBankIntegration, serviceClient.user)
     })
 
     describe('CRUD tests', () => {
@@ -305,6 +301,22 @@ describe('BankAccount', () => {
                 expect(obj).toHaveProperty('dv', 1)
                 expect(obj).toHaveProperty('sender', attrs.sender)
                 expect(obj).toHaveProperty('v', 2)
+            })
+
+            test('service can', async () => {
+                const meta = { test: 'test' }
+                const [organization] = await createTestOrganization(adminClient)
+                await createTestBankIntegrationOrganizationContext(adminClient, SBBOLBankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(serviceClient, SBBOLBankIntegration, organization)
+
+                const [createdObj] = await createTestBankAccount(serviceClient, organization, {
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
+                const [updated] = await updateTestBankAccount(serviceClient, createdObj.id, { meta })
+
+                expect(createdObj.organization.id).toEqual(updated.organization.id)
+                expect(createdObj.id).toEqual(updated.id)
+                expect(updated.meta).toEqual(meta)
             })
 
             test('user can\'t', async () => {

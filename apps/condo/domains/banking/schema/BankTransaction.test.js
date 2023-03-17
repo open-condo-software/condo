@@ -25,7 +25,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
-const { createTestBankCategory, createTestBankCostItem, BankIntegrationAccessRight, createTestBankIntegrationOrganizationContext } = require('../utils/testSchema')
+const { createTestBankCategory, createTestBankCostItem, BankIntegrationAccessRight, createTestBankIntegrationOrganizationContext, createTestBankIntegrationAccessRight } = require('../utils/testSchema')
 
 let admin
 let support
@@ -42,12 +42,7 @@ describe('BankTransaction', () => {
         bankIntegration = await BankIntegration.getOne(admin, { id: BANK_INTEGRATION_IDS['1CClientBankExchange'] })
         SBBOLBankIntegration = await BankIntegration.getOne(admin, { id: BANK_INTEGRATION_IDS.SBBOL })
         serviceClient = await makeClientWithServiceUser()
-        await BankIntegrationAccessRight.create(admin, {
-            user: { connect: { id: serviceClient.user.id } },
-            integration: { connect: { id: SBBOLBankIntegration.id } },
-            dv: 1,
-            sender: { dv: 1, fingerprint: 'tests' },
-        })
+        await createTestBankIntegrationAccessRight(admin, SBBOLBankIntegration, serviceClient.user)
     })
 
     describe('CRUD tests', () => {

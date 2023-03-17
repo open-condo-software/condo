@@ -18,19 +18,22 @@ const { BANK_INTEGRATION_IDS } = require('../constants')
  * 1. By admin or support
  * 2. Organization employee
  */
-async function canReadBankAccounts ({ authentication: { item: user }, context }) {
+async function canReadBankAccounts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === SERVICE) {
-        if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
+        return {
             OR: [{
                 integrationContext: {
                     deletedAt: null,
                     integration: {
                         deletedAt: null,
-                        id: BANK_INTEGRATION_IDS.SBBOL,
+                        accessRights_some: {
+                            user: { id: user.id },
+                            deletedAt: null,
+                        },
                     },
                 },
             },
@@ -39,8 +42,6 @@ async function canReadBankAccounts ({ authentication: { item: user }, context })
             }],
 
         }
-
-        return false
     }
 
     return {

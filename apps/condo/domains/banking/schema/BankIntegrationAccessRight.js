@@ -16,7 +16,7 @@ const BankIntegrationAccessRight = new GQLListSchema('BankIntegrationAccessRight
     fields: {
 
         integration: {
-            schemaDoc: 'Integration',
+            schemaDoc: 'Specified integration, whose connected entities will be available for specified service user',
             type: Relationship,
             ref: 'BankIntegration.accessRights',
             isRequired: true,

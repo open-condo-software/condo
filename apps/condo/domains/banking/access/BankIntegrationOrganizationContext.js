@@ -15,17 +15,15 @@ const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrgani
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 async function canReadBankIntegrationOrganizationContexts (args) {
-    const { authentication: { item: user }, context } = args
+    const { authentication: { item: user } } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
     if (user.type === SERVICE) {
-        if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {
+        return {
             integration: { accessRights_some: { user: user.id }, deletedAt: null },
         }
-
-        return false
     }
 
     return {
