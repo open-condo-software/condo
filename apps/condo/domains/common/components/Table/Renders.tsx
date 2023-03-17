@@ -8,7 +8,6 @@ import get from 'lodash/get'
 import isBoolean from 'lodash/isBoolean'
 import isNull from 'lodash/isNull'
 import isString from 'lodash/isString'
-import Link from 'next/link'
 import React from 'react'
 
 import { TTextHighlighterRenderPartFN } from '@condo/domains/common/components/TextHighlighter'
@@ -16,6 +15,7 @@ import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { ELLIPSIS_ROWS } from '@condo/domains/common/constants/style'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
+import { renderLink } from '@condo/domains/common/utils/Renders'
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
 
 import { EmptyTableCell } from './EmptyTableCell'
@@ -133,21 +133,6 @@ export const getHighlightedContents: GetHighlightedContentsType = ({
 }
 
 
-type renderLinkType = (props: { content: JSX.Element | string, href: string }) => React.ReactElement
-
-const renderLink: renderLinkType = ({ content, href }) => {
-    const handleStopPropagation = (e) => e.stopPropagation()
-
-    return (
-        <Link href={href}>
-            <a onClick={handleStopPropagation}>
-                {content}
-            </a>
-        </Link>
-    )
-}
-
-
 /**
  * Type for getTableCellRenderer fn
  */
@@ -212,7 +197,7 @@ export const getTableCellRenderer: GetTableCellRendererType = ({
                 <span>
                     {
                         href
-                            ? renderLink({ content: cellContent, href })
+                            ? renderLink(cellContent, href)
                             : cellContent
                     }
                 </span>
