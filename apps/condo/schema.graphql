@@ -16373,7 +16373,8 @@ type BankIntegrationAccessRight {
   """
   _label_: String
 
-  """ Integration """
+  """ Specified integration, whose connected entities will be available for specified service user 
+  """
   integration: BankIntegration
 
   """ Link to user. Note, that user must be of "service" type """

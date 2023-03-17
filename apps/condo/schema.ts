@@ -7956,7 +7956,7 @@ export type BankIntegrationAccessRight = {
    *  4. As an alias to the 'id' field on the BankIntegrationAccessRight List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Integration  */
+  /**  Specified integration, whose connected entities will be available for specified service user  */
   integration?: Maybe<BankIntegration>;
   /**  Link to user. Note, that user must be of "service" type  */
   user?: Maybe<User>;
