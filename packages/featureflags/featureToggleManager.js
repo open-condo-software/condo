@@ -31,12 +31,14 @@ class FeatureToggleManager {
             this._static = {}
             logger.warn('No FEATURE_TOGGLE_CONFIG! Every features and values will be false!')
         }
+        this._redisKey = REDIS_FEATURES_KEY
+        this._redisExpires = FEATURES_EXPIRED_IN_SECONDS
     }
 
     async fetchFeatures () {
         if (this._url) {
             try {
-                const cachedFeatureFlags = await this.redis.get(REDIS_FEATURES_KEY)
+                const cachedFeatureFlags = await this.redis.get(this._redisKey)
                 if (cachedFeatureFlags) return JSON.parse(cachedFeatureFlags)
 
                 const fetchedFeatureFlags = await fetch(this._url)
@@ -45,12 +47,12 @@ class FeatureToggleManager {
                         return Promise.resolve(parsed.features)
                     })
 
-                await this.redis.set(REDIS_FEATURES_KEY, JSON.stringify(fetchedFeatureFlags), 'EX', FEATURES_EXPIRED_IN_SECONDS)
+                await this.redis.set(this._redisKey, JSON.stringify(fetchedFeatureFlags), 'EX', this._redisExpires)
                 return fetchedFeatureFlags
             } catch (err) {
                 logger.error({ msg: 'fetchFeatures error', err })
             }
-        } else if (FEATURE_TOGGLE_CONFIG.static) {
+        } else if (this._static) {
             return JSON.parse(JSON.stringify(this._static))
         }
 
