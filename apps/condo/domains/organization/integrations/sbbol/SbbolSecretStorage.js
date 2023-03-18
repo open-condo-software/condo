@@ -25,6 +25,8 @@ class SbbolSecretStorage {
      * @param clientId - Identifier of our integration (contour) in SBBOL
      */
     constructor (apiName, clientId) {
+        if (!apiName) throw new Error('SbbolSecretStorage: no apiName')
+        if (!clientId) throw new Error('SbbolSecretStorage: no clientId')
         this.keyStorage = getRedisClient()
         this.clientId = clientId
         this.apiName = apiName
