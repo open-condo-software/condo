@@ -19,6 +19,7 @@ function getRequestLoggingContext (requestContext) {
     const url = get(requestContext, 'context.req.originalUrl')
     const ip = get(requestContext, 'context.req.ip')
     const req = get(requestContext, 'context.req')
+    const fingerprint = get(requestContext, 'context.req.headers.cookie.userId')
     let user
     if (userId) {
         user = {
@@ -33,7 +34,7 @@ function getRequestLoggingContext (requestContext) {
     const operationName = get(requestContext, 'operationName')
     const queryHash = get(requestContext, 'queryHash')
 
-    return { reqId, authedItemId, sessionId, user, operationId, operationName, queryHash, url, ip, req }
+    return { reqId, authedItemId, sessionId, user, operationId, operationName, queryHash, url, ip, req, fingerprint }
 }
 
 /**

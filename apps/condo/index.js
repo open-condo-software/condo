@@ -151,9 +151,6 @@ class VersioningMiddleware {
     }
 }
 
-
-
-
 module.exports = {
     // NOTE(pahaz): please, check the `executeDefaultServer(..)` to understand how it works.
     // And you need to look at `keystone/lib/Keystone/index.js:602` it uses `{ origin: true, credentials: true }` as default value for cors!
@@ -225,8 +222,10 @@ module.exports = {
                     },
                 })
             if (!isSenderValid) {
-                res.cookie('sender', JSON.stringify({ fingerprint: cookies['userId'] || makeId(12), dv: 1 }))
-                res.cookie('dv', 1)
+                const fingerprint = cookies['userId'] || makeId(12)
+                res.cookie('sender', JSON.stringify({ fingerprint, dv: 1 }), { maxAge: 1707195600 })
+                res.cookie('dv', 1, { maxAge: 1707195600 })
+                res.cookie('userId', fingerprint, { maxAge: 1707195600 })
             }
             next()
         })
