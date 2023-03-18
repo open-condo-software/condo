@@ -22,7 +22,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { AdapterCache } = require('@open-condo/keystone/adapterCache')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
-const { GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
+const { GraphQLLoggerPlugin, getKeystonePinoOptions } = require('@open-condo/keystone/logging')
 const { escapeSearchPreprocessor } = require('@open-condo/keystone/preprocessors/escapeSearch')
 const { schemaDocPreprocessor } = require('@open-condo/keystone/preprocessors/schemaDoc')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
@@ -152,11 +152,12 @@ class VersioningMiddleware {
 }
 
 module.exports = {
+    keystone,
     // NOTE(pahaz): please, check the `executeDefaultServer(..)` to understand how it works.
     // And you need to look at `keystone/lib/Keystone/index.js:602` it uses `{ origin: true, credentials: true }` as default value for cors!
     // Examples: https://expressjs.com/en/resources/middleware/cors.html or check `node_modules/cors/README.md`
-    ...conf.CORS ? { cors: parseCorsSettings(JSON.parse(conf.CORS)) } : {},
-    keystone,
+    cors: (conf.CORS) ? parseCorsSettings(JSON.parse(conf.CORS)) : { origin: true, credentials: true },
+    pinoOptions: getKeystonePinoOptions(),
     apps: [
         new RequestCache(conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : {}),
         new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : {}),
