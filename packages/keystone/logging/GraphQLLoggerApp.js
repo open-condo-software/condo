@@ -29,9 +29,9 @@ function getGraphQLReqLoggerContext (requestContext) {
 function renderExecutableDefinitionNode (node) {
     if (!node) return ''
     if (node.kind === 'OperationDefinition') {
-        return `${node.operation} ${node.name ? `${node.name.value} ` : ''}`
+        return `${node.operation} ${node.name ? `${node.name.value}` : ''}`
     } else if (node.kind === 'FragmentDefinition') {
-        return `Fragment_${node.name ? `${node.name.value} ` : ''}`
+        return `Fragment_${node.name ? `${node.name.value}` : ''}`
     }
     return `${node.kind}`
 }
