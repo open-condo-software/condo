@@ -18,16 +18,21 @@ const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CO
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 
 async function changeClientSecret ({ clientId, currentClientSecret, newClientSecret }) {
+    if (!clientId) throw new Error('changeClientSecret: no clientId')
+    if (!newClientSecret) throw new Error('changeClientSecret: no newClientSecret')
+
     const sbbolSecretStorage = getSbbolSecretStorage()
+
     const { keystone: context } = await getSchemaCtx('User')
 
-    const user = await User.getOne(context, {
-        id: get(SBBOL_AUTH_CONFIG, 'serviceUserId'),
-    })
+    const serviceUserId = get(SBBOL_AUTH_CONFIG, 'serviceUserId')
+    if (!serviceUserId) throw new Error('changeClientSecret: no SBBOL_AUTH_CONFIG.serviceUserId')
 
+    const user = await User.getOne(context, { id: serviceUserId })
     if (!user) {
-        throw new Error(`Not found service User with id=${get(SBBOL_AUTH_CONFIG, 'serviceUserId')} to change Client Secret for SBBOL integration with clientId=${clientId }`)
+        throw new Error(`Not found service User with id=${serviceUserId} to change Client Secret for SBBOL integration with clientId=${clientId}`)
     }
+
     const accessToken = await getAccessTokenForUser(user.id)
 
     const requestApi = new SbbolRequestApi({
