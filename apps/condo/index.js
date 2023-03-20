@@ -16,17 +16,16 @@ const get = require('lodash/get')
 const nextCookie = require('next-cookies')
 const { v4 } = require('uuid')
 
-
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { AdapterCache } = require('@open-condo/keystone/adapterCache')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { KeystoneCacheMiddleware } = require('@open-condo/keystone/cache')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
 const { GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
 const { escapeSearchPreprocessor } = require('@open-condo/keystone/preprocessors/escapeSearch')
 const { schemaDocPreprocessor } = require('@open-condo/keystone/preprocessors/schemaDoc')
+const { RequestCache } = require('@open-condo/keystone/requestCache')
 const { prepareDefaultKeystoneConfig, getAdapter } = require('@open-condo/keystone/setup.utils')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 
@@ -48,7 +47,6 @@ const FINGERPRINT_FORMAT_REGEXP = /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
-const IS_ENABLE_CACHE = conf.ENABLE_CACHE === '1'
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_ON_WORKER = conf.PHASE === 'worker'
 
@@ -92,10 +90,10 @@ const keystone = new Keystone({
     },
 })
 
-let keystoneCacheApp = undefined
-if (IS_ENABLE_CACHE) {
-    keystoneCacheApp = new KeystoneCacheMiddleware(keystone)
-}
+let requestCache = new RequestCache(
+    keystone,
+    conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : {}
+)
 
 // Because Babel is used only for frontend to transpile and optimise code,
 // backend files will bring unnecessary workload to building stage.
@@ -168,7 +166,7 @@ module.exports = {
     ...conf.CORS ? { cors: parseCorsSettings(JSON.parse(conf.CORS)) } : {},
     keystone,
     apps: [
-        keystoneCacheApp,
+        requestCache,
         new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : {}),
         new VersioningMiddleware(),
         new OIDCMiddleware(),
