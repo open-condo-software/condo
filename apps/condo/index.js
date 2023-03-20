@@ -169,11 +169,11 @@ module.exports = {
     keystone,
     apps: [
         keystoneCacheApp,
+        new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : {}),
         new VersioningMiddleware(),
         new OIDCMiddleware(),
         new FeaturesMiddleware(),
         new PaymentLinkMiddleware(),
-        new AdapterCache(JSON.parse(conf.ADAPTER_CACHE_CONFIG | {})),
         new GraphQLApp({
             apollo: {
                 formatError,
