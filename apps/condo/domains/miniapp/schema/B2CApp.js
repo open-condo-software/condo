@@ -64,6 +64,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
             type: Relationship,
             ref: 'B2CAppAccessRight.app',
             many: true,
+            access: { create: false, update: false },
         },
     },
     hooks: {
