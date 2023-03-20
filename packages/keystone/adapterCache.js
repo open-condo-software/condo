@@ -67,7 +67,7 @@ const logger = getLogger('adapterCache')
 
 class AdapterCache {
 
-    constructor ( { enabled, excludedLists, maxCacheKeys, logging, logStatTime } ) {
+    constructor ( { enabled, excludedLists, maxCacheKeys, logging, logStatsEachSecs } ) {
         try {
             this.enabled = !!enabled
 
@@ -86,14 +86,13 @@ class AdapterCache {
             // Cache: { listName -> queryKey -> { response, lastUpdate, score } }
             this.cache = new LRUCache({ max: this.maxCacheKeys })
 
-            // Log statistics each <provided> seconds
-            this.logStatTime = logStatTime || 60
-
-            // Logging allows to get the percentage of cache hits
             this.logging = !!logging
 
+            // Log statistics each <provided> seconds
+            this.logStatsEachSecs = logStatsEachSecs || 60
             this.totalRequests = 0
             this.cacheHits = 0
+            this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 100)
 
         } catch (e) {
             this.enabled = false
@@ -188,27 +187,9 @@ class AdapterCache {
             listName,
             key,
             result,
-            meta: this.getStats(),
         }
 
         logger.info(cacheEvent)
-    }
-
-    /**
-     * Calculate total size of items held in cache
-     * @returns {number}
-     */
-    getCacheSize = () => {
-        return this.cache.size
-    }
-
-    getStats = () => {
-        return {
-            hits: this.cacheHits,
-            total: this.totalRequests,
-            hitrate: floor(this.cacheHits / this.totalRequests, 2),
-            totalKeys: this.getCacheSize(),
-        }
     }
 
     async prepareMiddleware ({ keystone }) {
@@ -218,6 +199,16 @@ class AdapterCache {
         } else {
             logger.info('Adapter level cache NOT ENABLED')
         }
+    }
+
+    _logStats = () => {
+        logger.info({ stats:{
+            hits: this.cacheHits,
+            total: this.totalRequests,
+            hitrate: floor(this.cacheHits / this.totalRequests, 2),
+            totalKeys: this.cache.size,
+        } }
+        )
     }
 }
 
