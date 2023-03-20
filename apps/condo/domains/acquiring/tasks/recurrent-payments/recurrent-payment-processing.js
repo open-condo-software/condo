@@ -6,9 +6,11 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
-    paginationConfiguration,
     PAYMENT_ERROR_UNKNOWN_CODE,
     PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+} = require('@condo/domains/acquiring/constants/recurrentPayment')
+const {
+    paginationConfiguration,
 } = require('@condo/domains/acquiring/tasks/utils/constants')
 const {
     PaymentAdapter,
@@ -56,8 +58,8 @@ async function processRecurrentPayment (context, recurrentPayment, paymentAdapte
 }
 
 async function process () {
-    const jobId = uuid()
-    logger.info({ msg: 'Start processing recurrent payment tasks', jobId })
+    const taskId = this.id || uuid()
+    logger.info({ msg: 'Start processing recurrent payment tasks', taskId })
 
     // prepare context
     const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
@@ -70,7 +72,7 @@ async function process () {
 
     // retrieve RecurrentPaymentContext page by page
     while (hasMorePages) {
-        logger.info({ msg: `Processing recurrent payment page #${Math.floor(offset / pageSize)}`, jobId })
+        logger.info({ msg: `Processing recurrent payment page #${Math.floor(offset / pageSize)}`, taskId })
         // get page (can be empty)
         const page = await getReadyForProcessingPaymentsPage(context, pageSize, offset)
 
@@ -107,9 +109,9 @@ async function process () {
                     // nothing to pay case
                     await setRecurrentPaymentAsSuccess(context, recurrentPayment)
                 }
-            } catch (error) {
-                const message = get(error, 'errors[0].message') || get(error, 'message') || JSON.stringify(error)
-                logger.error({ msg: 'Process recurrent payment error', message, jobId })
+            } catch (err) {
+                const message = get(err, 'errors[0].message') || get(err, 'message') || JSON.stringify(err)
+                logger.error({ msg: 'Process recurrent payment error', err, taskId })
                 await setRecurrentPaymentAsFailed(
                     context,
                     recurrentPayment,
@@ -122,7 +124,7 @@ async function process () {
         hasMorePages = page.length > 0
         offset += pageSize
     }
-    logger.info({ msg: 'End processing recurrent payment', jobId })
+    logger.info({ msg: 'End processing recurrent payment', taskId })
 }
 
 module.exports = {

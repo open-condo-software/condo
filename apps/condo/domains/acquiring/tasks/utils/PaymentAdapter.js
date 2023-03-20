@@ -6,7 +6,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const {
     PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
     PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
-} = require('@condo/domains/acquiring/tasks/utils/constants')
+} = require('@condo/domains/acquiring/constants/recurrentPayment')
 
 const logger = getLogger('PaymentAdapter')
 

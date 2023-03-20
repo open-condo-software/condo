@@ -13,16 +13,13 @@ const {
     RECURRENT_PAYMENT_DONE_STATUS,
     RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS,
     RECURRENT_PAYMENT_ERROR_STATUS,
-} = require('@condo/domains/acquiring/constants/recurrentPayment')
-const {
-    dvAndSender,
     PAYMENT_ERROR_UNKNOWN_CODE,
     PAYMENT_ERROR_LIMIT_EXCEEDED_CODE,
     PAYMENT_ERROR_CONTEXT_NOT_FOUND_CODE,
     PAYMENT_ERROR_CONTEXT_DISABLED_CODE,
     PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
     PAYMENT_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE,
-} = require('@condo/domains/acquiring/tasks/utils/constants')
+} = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     RecurrentPayment,
     RecurrentPaymentContext,
@@ -43,6 +40,7 @@ const {
     ServiceConsumer,
 } = require('@condo/domains/resident/utils/serverSchema')
 
+const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'recurrent-payment-queries' } }
 const logger = getLogger('recurrent-payment-processing-queries')
 
 async function getAllReadyToPayRecurrentPaymentContexts (context, date, pageSize, offset, extraArgs = {}) {
@@ -77,14 +75,13 @@ async function getAllReadyToPayRecurrentPaymentContexts (context, date, pageSize
 async function getServiceConsumer (context, id) {
     if (isNil(id)) throw new Error('invalid id argument')
 
-    const consumers = await ServiceConsumer.getAll(context, {
+    const consumer = await ServiceConsumer.getOne(context, {
         id,
     })
 
-    if (consumers.length === 0) {
+    if (!consumer) {
         throw Error(`ServiceConsumer not found for id ${id}`)
     }
-    const [consumer] = consumers
 
     if (consumer.deletedAt) {
         throw Error(`Found deleted serviceConsumer for id ${id}`)

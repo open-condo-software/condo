@@ -8,7 +8,6 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
-    dvAndSender,
     paginationConfiguration,
 } = require('@condo/domains/acquiring/tasks/utils/constants')
 const {
@@ -22,8 +21,8 @@ const {
 const { getStartDates } = require('@condo/domains/common/utils/date')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
+const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'recurrent-payments-seeking-for-new-receipt' } }
 const logger = getLogger('recurrent-payments-seeking-for-new-receipt')
-
 const REDIS_LAST_DATE_KEY = 'LAST_RECURRENT_PAYMENT_SEEKING_RECEIPTS_CREATED_AT'
 
 async function processContext (context, recurrentPaymentContext, periods, lastDt) {
@@ -66,8 +65,8 @@ async function processContext (context, recurrentPaymentContext, periods, lastDt
 }
 
 async function process () {
-    const jobId = uuid()
-    logger.info({ msg: 'Start processing new billing receipts for recurrentPaymentContext tasks', jobId })
+    const taskId = this.id || uuid()
+    logger.info({ msg: 'Start processing new billing receipts for recurrentPaymentContext tasks', taskId })
 
     // prepare context
     const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
@@ -83,11 +82,11 @@ async function process () {
 
     // prepare filter values
     const lastDt = await redisClient.get(REDIS_LAST_DATE_KEY) || thisMonthStart
-    logger.info({ msg: `Seeking for new billing receipts at ${lastDt}`, jobId })
+    logger.info({ msg: `Seeking for new billing receipts at ${lastDt}`, taskId })
 
     // retrieve BillingReceipts page by page
     while (hasMorePages) {
-        logger.info({ msg: `Processing recurrentPaymentContext page #${Math.floor(offset / pageSize)}`, jobId })
+        logger.info({ msg: `Processing recurrentPaymentContext page #${Math.floor(offset / pageSize)}`, taskId })
 
         // get page (can be empty)
         const extraArgs = {
@@ -100,9 +99,8 @@ async function process () {
         await processArrayOf(page).inParallelWith(async (recurrentPaymentContext) => {
             try {
                 await processContext(context, recurrentPaymentContext, periods, lastDt)
-            } catch (error) {
-                const message = get(error, 'errors[0].message') || get(error, 'message') || JSON.stringify(error)
-                logger.error({ msg: 'Process recurrentPaymentContext error', message, jobId })
+            } catch (err) {
+                logger.error({ msg: 'Process recurrentPaymentContext error', err, taskId })
             }
         })
 
@@ -113,7 +111,7 @@ async function process () {
     // update watermark value
     await redisClient.set(REDIS_LAST_DATE_KEY, dayjs().toISOString())
 
-    logger.info({ msg: 'End processing new billing receipts for recurrentPaymentContext tasks', jobId })
+    logger.info({ msg: 'End processing new billing receipts for recurrentPaymentContext tasks', taskId })
 }
 
 module.exports = {
