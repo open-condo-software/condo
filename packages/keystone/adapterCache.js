@@ -67,14 +67,14 @@ const logger = getLogger('adapterCache')
 
 class AdapterCache {
 
-    constructor ( { enabled, excludedLists, maxCacheKeys, logging } ) {
+    constructor ( { enabled, excludedLists, maxCacheKeys, logging, logStatTime } ) {
         try {
             this.enabled = !!enabled
 
             // Redis is used as State:
             // Note: Redis installation is modified with custom commands. Check getStateRedisClient for details
             // State: { listName -> lastUpdate }
-            this.redisClient = this.getStateRedisClient()
+            this.redisClient = getStateRedisClient()
 
             // This mechanism allows to skip caching some lists.
             // Useful for hotfixes or disabling cache for business critical lists
@@ -86,6 +86,9 @@ class AdapterCache {
             // Cache: { listName -> queryKey -> { response, lastUpdate, score } }
             this.cache = new LRUCache({ max: this.maxCacheKeys })
 
+            // Log statistics each <provided> seconds
+            this.logStatTime = logStatTime || 60
+
             // Logging allows to get the percentage of cache hits
             this.logging = !!logging
 
@@ -94,35 +97,8 @@ class AdapterCache {
 
         } catch (e) {
             this.enabled = false
-            logger.warn(`ADAPTER_CACHE: Bad config! reason ${e}`)
+            logger.warn({ msg: 'ADAPTER_CACHE: Bad config', err: e })
         }
-    }
-
-    /**
-     * Sometimes we might get a situation when two instances try to update state with different timestamp values.
-     * So, we might have two commands ordered to execute by internal redis queue:
-     * 1. SET some_key 1670000000010
-     * 2. SET some_key 1670000000009
-     * In result (GET some_key) will equal 1670000000009, but the correct value is 1670000000010!
-     * So to counter this we write custom redis function that will update value only if it is bigger!
-     */
-    getStateRedisClient () {
-        const updateTimeStampFunction = {
-            numberOfKeys: 1,
-            lua: `
-            local time = tonumber(ARGV[1])
-            local old_time = tonumber(redis.call('GET', KEYS[1]))
-            if (old_time == nil) then
-                return redis.call('SET', KEYS[1], ARGV[1])
-            end
-            if (time > old_time) then
-                return redis.call('SET', KEYS[1], ARGV[1])
-            end
-        ` }
-
-        const redis = getRedisClient('cache')
-        redis.defineCommand('cacheUpdateStateTimestamp', updateTimeStampFunction)
-        return redis
     }
 
     /**
@@ -134,7 +110,7 @@ class AdapterCache {
     async setState (listName, time) {
         const serializedTime = time.valueOf()
         const prefixedKey = `${STATE_REDIS_KEY_PREFIX}:${listName}`
-        await this.redisClient.cacheUpdateStateTimestamp(prefixedKey, serializedTime)
+        await this.redisClient.tryToUpdateCacheStateByNewTimestamp(prefixedKey, serializedTime)
     }
 
     /**
@@ -184,22 +160,6 @@ class AdapterCache {
     }
 
     /**
-     * Get total number of requests
-     * @returns {number}
-     */
-    getTotal () {
-        return this.totalRequests
-    }
-
-    /**
-     * Get total number of cache hits
-     * @returns {number}
-     */
-    getHits () {
-        return this.cacheHits
-    }
-
-    /**
      * Scores cache hit
      * @returns {number}
      */
@@ -228,12 +188,7 @@ class AdapterCache {
             listName,
             key,
             result,
-            meta: {
-                hits: this.getHits(),
-                total: this.getTotal(),
-                hitrate: floor(this.getHits() / this.getTotal(), 2),
-                totalKeys: this.getCacheSize(),
-            },
+            meta: this.getStats(),
         }
 
         logger.info(cacheEvent)
@@ -245,6 +200,15 @@ class AdapterCache {
      */
     getCacheSize = () => {
         return this.cache.size
+    }
+
+    getStats = () => {
+        return {
+            hits: this.cacheHits,
+            total: this.totalRequests,
+            hitrate: floor(this.cacheHits / this.totalRequests, 2),
+            totalKeys: this.getCacheSize(),
+        }
     }
 
     async prepareMiddleware ({ keystone }) {
@@ -307,7 +271,7 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
     const enabledLists = []
     const disabledLists = []
 
-    const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${get(opts, ['context', 'authedItem', 'id'])}`
+    const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}`
     const getItemsQueryCondition = ([args]) => get(args, ['where'])
     const getFindKey = ([condition]) => `${JSON.stringify(condition)}`
     const getFindCondition = ([condition]) => condition
@@ -491,6 +455,35 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
         return response
     }
 }
+
+
+/**
+ * Sometimes we might get a situation when two instances try to update state with different timestamp values.
+ * So, we might have two commands ordered to execute by internal redis queue:
+ * 1. SET some_key 1670000000010
+ * 2. SET some_key 1670000000009
+ * In result (GET some_key) will equal 1670000000009, but the correct value is 1670000000010!
+ * So to counter this we write custom redis function that will update value only if it is bigger!
+ */
+function getStateRedisClient () {
+    const updateTimeStampFunction = {
+        numberOfKeys: 1,
+        lua: `
+            local time = tonumber(ARGV[1])
+            local old_time = tonumber(redis.call('GET', KEYS[1]))
+            if (old_time == nil) then
+                return redis.call('SET', KEYS[1], ARGV[1])
+            end
+            if (time > old_time) then
+                return redis.call('SET', KEYS[1], ARGV[1])
+            end
+        ` }
+
+    const redis = getRedisClient('cache')
+    redis.defineCommand('tryToUpdateCacheStateByNewTimestamp', updateTimeStampFunction)
+    return redis
+}
+
 
 /**
  * Query is complex if it searches on a relation. Example: allBooks(where: {author: { id: ...}})
