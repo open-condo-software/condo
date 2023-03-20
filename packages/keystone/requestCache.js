@@ -114,7 +114,7 @@ const getRequestIdFromContext = (context) => {
     return get(context, ['req', 'headers', 'x-request-id'], null)
 }
 
-const patchMutation = (mutationContext, mutation, isUpdateMutation, requestCache) => {
+const getMutationFunctionWithCache = (mutationContext, mutation, isUpdateMutation, requestCache) => {
     return async (data, context, mutationState) => {
         let requestId
         if (isUpdateMutation) {
@@ -127,7 +127,7 @@ const patchMutation = (mutationContext, mutation, isUpdateMutation, requestCache
     }
 }
 
-const patchQuery = (queryContext, query, requestCache) => {
+const getQueryFunctionWithCache = (queryContext, query, requestCache) => {
     return async function (args, context, gqlName, info, from) {
         requestCache.incrementTotal()
 
@@ -176,17 +176,17 @@ const patchKeystoneWithRequestCache = (keystone, requestCache) => {
     keystone.listsArray.map((list) => {
         const patchedList = list
 
-        patchedList.createMutation = patchMutation(list, list.createMutation, false, requestCache)
-        patchedList.createManyMutation = patchMutation(list, list.createManyMutation, false, requestCache)
+        patchedList.createMutation = getMutationFunctionWithCache(list, list.createMutation, false, requestCache)
+        patchedList.createManyMutation = getMutationFunctionWithCache(list, list.createManyMutation, false, requestCache)
 
-        patchedList.updateMutation = patchMutation(list, list.updateMutation, true, requestCache)
-        patchedList.updateManyMutation = patchMutation(list, list.updateManyMutation, true, requestCache)
+        patchedList.updateMutation = getMutationFunctionWithCache(list, list.updateMutation, true, requestCache)
+        patchedList.updateManyMutation = getMutationFunctionWithCache(list, list.updateManyMutation, true, requestCache)
 
-        patchedList.deleteMutation = patchMutation(list, list.deleteMutation, true, requestCache)
-        patchedList.deleteManyMutation = patchMutation(list, list.deleteManyMutation, true, requestCache)
+        patchedList.deleteMutation = getMutationFunctionWithCache(list, list.deleteMutation, true, requestCache)
+        patchedList.deleteManyMutation = getMutationFunctionWithCache(list, list.deleteManyMutation, true, requestCache)
 
-        patchedList.listQuery = patchQuery(list, list.listQuery, requestCache)
-        patchedList.itemQuery = patchQuery(list, list.itemQuery, requestCache)
+        patchedList.listQuery = getQueryFunctionWithCache(list, list.listQuery, requestCache)
+        patchedList.itemQuery = getQueryFunctionWithCache(list, list.itemQuery, requestCache)
 
         return patchedList
     })
