@@ -37,11 +37,6 @@
  *
  * Adapter cache gets initialized keystone database adapter and decorates all public methods, that are responsible for Query and Mutation operations adding caching functionality.
  *
- *
- * Statistics:
- *
- * - If cache logging is turned on, then statistics is shown on any log event..
- *
  * Notes:
  *
  * - Adapter level cache do not cache complex requests. A request is considered complex, if Where query contains other relationships
@@ -181,15 +176,13 @@ class AdapterCache {
     logEvent ( { type, functionName, listName, key, result } ) {
         if (!this.logging) return
 
-        const cacheEvent = {
+        logger.info({
             type,
             functionName,
             listName,
             key,
             result,
-        }
-
-        logger.info(cacheEvent)
+        })
     }
 
     async prepareMiddleware ({ keystone }) {
