@@ -49,6 +49,8 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV 
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_ON_WORKER = conf.PHASE === 'worker'
+// NOTE(pahaz): it's a magic number tested by @arichiv at https://developer.chrome.com/blog/cookie-max-age-expires/
+const INFINITY_MAX_AGE_COOKIE = 1707195600
 
 // TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
 if (IS_BUILD_PHASE) {
@@ -224,9 +226,9 @@ module.exports = {
                 })
             if (!isSenderValid) {
                 const fingerprint = cookies['userId'] || makeId(12)
-                res.cookie('sender', JSON.stringify({ fingerprint, dv: 1 }), { maxAge: 1707195600 })
-                res.cookie('dv', 1, { maxAge: 1707195600 })
-                res.cookie('userId', fingerprint, { maxAge: 1707195600 })
+                res.cookie('sender', JSON.stringify({ fingerprint, dv: 1 }), { maxAge: INFINITY_MAX_AGE_COOKIE })
+                res.cookie('dv', 1, { maxAge: INFINITY_MAX_AGE_COOKIE })
+                res.cookie('userId', fingerprint, { maxAge: INFINITY_MAX_AGE_COOKIE })
             }
             next()
         })

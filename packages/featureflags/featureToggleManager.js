@@ -59,7 +59,7 @@ class FeatureToggleManager {
         throw new Error('FeatureToggleManager config error!')
     }
 
-    async #getFeaturesFromKeystoneContext (keystoneContext) {
+    async _getFeaturesFromKeystoneContext (keystoneContext) {
         const req = get(keystoneContext, 'req')
         let features = get(req, 'features')
 
@@ -72,8 +72,8 @@ class FeatureToggleManager {
         return features
     }
 
-    async #getGrowthBookInstance (keystoneContext, featuresContext) {
-        const features = await this.#getFeaturesFromKeystoneContext(keystoneContext)
+    async _getGrowthBookInstance (keystoneContext, featuresContext) {
+        const features = await this._getFeaturesFromKeystoneContext(keystoneContext)
         const growthbook = new GrowthBook()
         growthbook.setFeatures(features)
         if (featuresContext) growthbook.setAttributes(featuresContext)
@@ -87,7 +87,7 @@ class FeatureToggleManager {
             return headersFeatureFlags === 'true'
         }
 
-        const growthbook = await this.#getGrowthBookInstance(keystoneContext, featuresContext)
+        const growthbook = await this._getGrowthBookInstance(keystoneContext, featuresContext)
         return growthbook.isOn(featureName)
     }
 
@@ -101,7 +101,7 @@ class FeatureToggleManager {
             return defaultValue
         }
 
-        const growthbook = await this.#getGrowthBookInstance(keystoneContext, featuresContext)
+        const growthbook = await this._getGrowthBookInstance(keystoneContext, featuresContext)
         return growthbook.getFeatureValue(featureName, defaultValue)
     }
 }
