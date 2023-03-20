@@ -98,11 +98,7 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             type: Relationship,
             ref: 'BillingIntegrationAccessRight.integration',
             many: true,
-            access: {
-                create: false,
-                update: false,
-                delete: false,
-            },
+            access: { create: false, update: false },
         },
 
         isTrustedBankAccountSource: {

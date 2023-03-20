@@ -59,6 +59,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             type: Relationship,
             ref: 'AcquiringIntegrationAccessRight.integration',
             many: true,
+            access: { create: false, update: false },
         },
 
         canGroupReceipts: {

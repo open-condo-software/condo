@@ -69,6 +69,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
             type: Relationship,
             ref: 'B2BAppAccessRight.app',
             many: true,
+            access: { create: false, update: false },
         },
         features: GLOBAL_FEATURES_FIELD,
         displayPriority: DISPLAY_PRIORITY_FIELD,
