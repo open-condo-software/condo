@@ -90,11 +90,6 @@ const keystone = new Keystone({
     },
 })
 
-let requestCache = new RequestCache(
-    keystone,
-    conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : {}
-)
-
 // Because Babel is used only for frontend to transpile and optimise code,
 // backend files will bring unnecessary workload to building stage.
 // They can be safely ignored without impact on final executable code
@@ -166,7 +161,7 @@ module.exports = {
     ...conf.CORS ? { cors: parseCorsSettings(JSON.parse(conf.CORS)) } : {},
     keystone,
     apps: [
-        requestCache,
+        new RequestCache(conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : {}),
         new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : {}),
         new VersioningMiddleware(),
         new OIDCMiddleware(),

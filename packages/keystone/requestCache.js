@@ -35,7 +35,7 @@ const logger = getLogger('request-cache')
 
 class RequestCache {
 
-    constructor (keystone, { enabled, logging, logStatsEachSecs }) {
+    constructor ({ enabled, logging, logStatsEachSecs }) {
         this.cache = {}
 
         this.enabled = !!enabled
@@ -45,14 +45,15 @@ class RequestCache {
         this.totalRequests = 0
         this.cacheHits = 0
         this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 100)
-
-        if (this.enabled) { patchKeystoneWithRequestCache(keystone, this) }
     }
 
-    prepareMiddleware () {
-        // Add a middleware which resets cache after end of each request to avoid memory leak errors
+    // Add a middleware which resets cache after end of each request to avoid memory leak errors
+    prepareMiddleware ({ keystone }) {
         const app = express()
+
         if (this.enabled) {
+            patchKeystoneWithRequestCache(keystone, this)
+
             app.use((req, res, next) => {
                 const requestId = get(req, ['headers', 'x-request-id'])
                 res.on('close', () => {
@@ -172,26 +173,23 @@ const patchQuery = (queryContext, query, requestCache) => {
 }
 
 const patchKeystoneWithRequestCache = (keystone, requestCache) => {
+    keystone.listsArray.map((list) => {
+        const patchedList = list
 
-    const originalCreateList = keystone.createList
+        patchedList.createMutation = patchMutation(list, list.createMutation, false, requestCache)
+        patchedList.createManyMutation = patchMutation(list, list.createManyMutation, false, requestCache)
 
-    keystone.createList = async (...args) => {
-        const list = originalCreateList.apply(keystone, args)
+        patchedList.updateMutation = patchMutation(list, list.updateMutation, true, requestCache)
+        patchedList.updateManyMutation = patchMutation(list, list.updateManyMutation, true, requestCache)
 
-        list.createMutation = patchMutation(list, list.createMutation, false, requestCache)
-        list.createManyMutation = patchMutation(list, list.createManyMutation, false, requestCache)
+        patchedList.deleteMutation = patchMutation(list, list.deleteMutation, true, requestCache)
+        patchedList.deleteManyMutation = patchMutation(list, list.deleteManyMutation, true, requestCache)
 
-        list.updateMutation = patchMutation(list, list.updateMutation, true, requestCache)
-        list.updateManyMutation = patchMutation(list, list.updateManyMutation, true, requestCache)
+        patchedList.listQuery = patchQuery(list, list.listQuery, requestCache)
+        patchedList.itemQuery = patchQuery(list, list.itemQuery, requestCache)
 
-        list.deleteMutation = patchMutation(list, list.deleteMutation, true, requestCache)
-        list.deleteManyMutation = patchMutation(list, list.deleteManyMutation, true, requestCache)
-
-        list.listQuery = patchQuery(list, list.listQuery, requestCache)
-        list.itemQuery = patchQuery(list, list.itemQuery, requestCache)
-
-        return list
-    }
+        return patchedList
+    })
 }
 
 module.exports = {
