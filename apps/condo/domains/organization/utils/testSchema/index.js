@@ -30,6 +30,8 @@ const {
 } = require('./Organization')
 const { ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
+const { TokenAccessRight: TokenAccessRightGQL } = require('@condo/domains/organization/gql')
+const { INTEGRATIONS_NAME } = require('@condo/domains/organization/constants')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -38,6 +40,7 @@ const OrganizationEmployee = generateGQLTestUtils(OrganizationEmployeeGQL)
 const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
 
 const OrganizationEmployeeSpecialization = generateGQLTestUtils(OrganizationEmployeeSpecializationGQL)
+const TokenAccessRight = generateGQLTestUtils(TokenAccessRightGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -332,6 +335,38 @@ async function updateTestOrganizationEmployeeSpecialization (client, id, extraAt
     return [obj, attrs]
 }
 
+async function createTestTokenAccessRight (client, user, integrationName, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    if(!integrationName) throw new Error('no integrationName')
+    if (!INTEGRATIONS_NAME.includes(integrationName)) throw new Error('unknown integrationName')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        name: integrationName,
+        ...extraAttrs,
+    }
+    const obj = await TokenAccessRight.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTokenAccessRight (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TokenAccessRight.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -356,5 +391,6 @@ module.exports = {
     makeClientWithRegisteredOrganization,
     generateTin,
     OrganizationEmployeeSpecialization, createTestOrganizationEmployeeSpecialization, updateTestOrganizationEmployeeSpecialization,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+        TokenAccessRight, createTestTokenAccessRight, updateTestTokenAccessRight,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

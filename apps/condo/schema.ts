@@ -26233,6 +26233,30 @@ export type Mutation = {
   deleteOrganizationEmployeeSpecialization?: Maybe<OrganizationEmployeeSpecialization>;
   /**  Delete multiple OrganizationEmployeeSpecialization items by ID.  */
   deleteOrganizationEmployeeSpecializations?: Maybe<Array<Maybe<OrganizationEmployeeSpecialization>>>;
+  /**  Create a single TokenAccessRightHistoryRecord item.  */
+  createTokenAccessRightHistoryRecord?: Maybe<TokenAccessRightHistoryRecord>;
+  /**  Create multiple TokenAccessRightHistoryRecord items.  */
+  createTokenAccessRightHistoryRecords?: Maybe<Array<Maybe<TokenAccessRightHistoryRecord>>>;
+  /**  Update a single TokenAccessRightHistoryRecord item by ID.  */
+  updateTokenAccessRightHistoryRecord?: Maybe<TokenAccessRightHistoryRecord>;
+  /**  Update multiple TokenAccessRightHistoryRecord items by ID.  */
+  updateTokenAccessRightHistoryRecords?: Maybe<Array<Maybe<TokenAccessRightHistoryRecord>>>;
+  /**  Delete a single TokenAccessRightHistoryRecord item by ID.  */
+  deleteTokenAccessRightHistoryRecord?: Maybe<TokenAccessRightHistoryRecord>;
+  /**  Delete multiple TokenAccessRightHistoryRecord items by ID.  */
+  deleteTokenAccessRightHistoryRecords?: Maybe<Array<Maybe<TokenAccessRightHistoryRecord>>>;
+  /**  Create a single TokenAccessRight item.  */
+  createTokenAccessRight?: Maybe<TokenAccessRight>;
+  /**  Create multiple TokenAccessRight items.  */
+  createTokenAccessRights?: Maybe<Array<Maybe<TokenAccessRight>>>;
+  /**  Update a single TokenAccessRight item by ID.  */
+  updateTokenAccessRight?: Maybe<TokenAccessRight>;
+  /**  Update multiple TokenAccessRight items by ID.  */
+  updateTokenAccessRights?: Maybe<Array<Maybe<TokenAccessRight>>>;
+  /**  Delete a single TokenAccessRight item by ID.  */
+  deleteTokenAccessRight?: Maybe<TokenAccessRight>;
+  /**  Delete multiple TokenAccessRight items by ID.  */
+  deleteTokenAccessRights?: Maybe<Array<Maybe<TokenAccessRight>>>;
   /**  Create a single PropertyHistoryRecord item.  */
   createPropertyHistoryRecord?: Maybe<PropertyHistoryRecord>;
   /**  Create multiple PropertyHistoryRecord items.  */
@@ -30511,6 +30535,68 @@ export type MutationDeleteOrganizationEmployeeSpecializationArgs = {
 
 
 export type MutationDeleteOrganizationEmployeeSpecializationsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateTokenAccessRightHistoryRecordArgs = {
+  data?: Maybe<TokenAccessRightHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateTokenAccessRightHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<TokenAccessRightHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateTokenAccessRightHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<TokenAccessRightHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateTokenAccessRightHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<TokenAccessRightHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteTokenAccessRightHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteTokenAccessRightHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateTokenAccessRightArgs = {
+  data?: Maybe<TokenAccessRightCreateInput>;
+};
+
+
+export type MutationCreateTokenAccessRightsArgs = {
+  data?: Maybe<Array<Maybe<TokenAccessRightsCreateInput>>>;
+};
+
+
+export type MutationUpdateTokenAccessRightArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<TokenAccessRightUpdateInput>;
+};
+
+
+export type MutationUpdateTokenAccessRightsArgs = {
+  data?: Maybe<Array<Maybe<TokenAccessRightsUpdateInput>>>;
+};
+
+
+export type MutationDeleteTokenAccessRightArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteTokenAccessRightsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -43251,6 +43337,22 @@ export type Query = {
   _allOrganizationEmployeeSpecializationsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the OrganizationEmployeeSpecialization list.  */
   _OrganizationEmployeeSpecializationsMeta?: Maybe<_ListMeta>;
+  /**  Search for all TokenAccessRightHistoryRecord items which match the where clause.  */
+  allTokenAccessRightHistoryRecords?: Maybe<Array<Maybe<TokenAccessRightHistoryRecord>>>;
+  /**  Search for the TokenAccessRightHistoryRecord item with the matching ID.  */
+  TokenAccessRightHistoryRecord?: Maybe<TokenAccessRightHistoryRecord>;
+  /**  Perform a meta-query on all TokenAccessRightHistoryRecord items which match the where clause.  */
+  _allTokenAccessRightHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the TokenAccessRightHistoryRecord list.  */
+  _TokenAccessRightHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all TokenAccessRight items which match the where clause.  */
+  allTokenAccessRights?: Maybe<Array<Maybe<TokenAccessRight>>>;
+  /**  Search for the TokenAccessRight item with the matching ID.  */
+  TokenAccessRight?: Maybe<TokenAccessRight>;
+  /**  Perform a meta-query on all TokenAccessRight items which match the where clause.  */
+  _allTokenAccessRightsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the TokenAccessRight list.  */
+  _TokenAccessRightsMeta?: Maybe<_ListMeta>;
   /**  Search for all PropertyHistoryRecord items which match the where clause.  */
   allPropertyHistoryRecords?: Maybe<Array<Maybe<PropertyHistoryRecord>>>;
   /**  Search for the PropertyHistoryRecord item with the matching ID.  */
@@ -45224,6 +45326,56 @@ export type Query_AllOrganizationEmployeeSpecializationsMetaArgs = {
   where?: Maybe<OrganizationEmployeeSpecializationWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortOrganizationEmployeeSpecializationsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllTokenAccessRightHistoryRecordsArgs = {
+  where?: Maybe<TokenAccessRightHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTokenAccessRightHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryTokenAccessRightHistoryRecordArgs = {
+  where: TokenAccessRightHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllTokenAccessRightHistoryRecordsMetaArgs = {
+  where?: Maybe<TokenAccessRightHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTokenAccessRightHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllTokenAccessRightsArgs = {
+  where?: Maybe<TokenAccessRightWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTokenAccessRightsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryTokenAccessRightArgs = {
+  where: TokenAccessRightWhereUniqueInput;
+};
+
+
+export type Query_AllTokenAccessRightsMetaArgs = {
+  where?: Maybe<TokenAccessRightWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTokenAccessRightsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -58607,6 +58759,50 @@ export enum SortTicketsBy {
   DvDesc = 'dv_DESC'
 }
 
+export enum SortTokenAccessRightHistoryRecordsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortTokenAccessRightsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortUserExternalIdentitiesBy {
   UserAsc = 'user_ASC',
   UserDesc = 'user_DESC',
@@ -67349,6 +67545,333 @@ export type TicketsCreateInput = {
 export type TicketsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<TicketUpdateInput>;
+};
+
+/**  TODO DOC!  */
+export type TokenAccessRight = {
+  __typename?: 'TokenAccessRight';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the TokenAccessRight List config, or
+   *  2. As an alias to the field set on 'labelField' in the TokenAccessRight List config, or
+   *  3. As an alias to a 'name' field on the TokenAccessRight List (if one exists), or
+   *  4. As an alias to the 'id' field on the TokenAccessRight List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  TODO DOC!  */
+  name?: Maybe<TokenAccessRightNameType>;
+  /**  Link to user. Note, that user must be of "service" type  */
+  user?: Maybe<User>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type TokenAccessRightCreateInput = {
+  name?: Maybe<TokenAccessRightNameType>;
+  user?: Maybe<UserRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type TokenAccessRightHistoryRecord = {
+  __typename?: 'TokenAccessRightHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the TokenAccessRightHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the TokenAccessRightHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the TokenAccessRightHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the TokenAccessRightHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TokenAccessRightHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type TokenAccessRightHistoryRecordCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TokenAccessRightHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum TokenAccessRightHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type TokenAccessRightHistoryRecordUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TokenAccessRightHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type TokenAccessRightHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<TokenAccessRightHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<TokenAccessRightHistoryRecordWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<TokenAccessRightHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<TokenAccessRightHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<TokenAccessRightHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<TokenAccessRightHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type TokenAccessRightHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type TokenAccessRightHistoryRecordsCreateInput = {
+  data?: Maybe<TokenAccessRightHistoryRecordCreateInput>;
+};
+
+export type TokenAccessRightHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<TokenAccessRightHistoryRecordUpdateInput>;
+};
+
+export enum TokenAccessRightNameType {
+  Sbbol = 'sbbol'
+}
+
+export type TokenAccessRightUpdateInput = {
+  name?: Maybe<TokenAccessRightNameType>;
+  user?: Maybe<UserRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type TokenAccessRightWhereInput = {
+  AND?: Maybe<Array<Maybe<TokenAccessRightWhereInput>>>;
+  OR?: Maybe<Array<Maybe<TokenAccessRightWhereInput>>>;
+  name?: Maybe<TokenAccessRightNameType>;
+  name_not?: Maybe<TokenAccessRightNameType>;
+  name_in?: Maybe<Array<Maybe<TokenAccessRightNameType>>>;
+  name_not_in?: Maybe<Array<Maybe<TokenAccessRightNameType>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type TokenAccessRightWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type TokenAccessRightsCreateInput = {
+  data?: Maybe<TokenAccessRightCreateInput>;
+};
+
+export type TokenAccessRightsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<TokenAccessRightUpdateInput>;
 };
 
 
