@@ -4,6 +4,8 @@ import {
 } from 'antd'
 import React, { useCallback } from 'react'
 
+import { sendAnalyticsChangeEvent } from '../_utils/analytics'
+
 const TABS_CLASS_PREFIX = 'condo-tabs'
 
 export type TabItem = {
@@ -25,13 +27,15 @@ export type TabsProps = Pick<DefaultTabsProps,
 }
 
 export const Tabs: React.FC<TabsProps> = (props) => {
-    const { onChange, items = [], ...restProps } = props
+    const { onChange, id, items = [], ...restProps } = props
 
     const handleChange = useCallback((activeKey: string) => {
+        sendAnalyticsChangeEvent('Tabs', { activeKey, id })
+
         if (onChange) {
             onChange(activeKey)
         }
-    }, [onChange])
+    }, [onChange, id])
 
     const itemsWithIcons = items.map(item => ({
         ...item,
@@ -43,5 +47,5 @@ export const Tabs: React.FC<TabsProps> = (props) => {
         ),
     }))
 
-    return <DefaultTabs {...restProps} onChange={handleChange} items={itemsWithIcons} prefixCls={TABS_CLASS_PREFIX}/>
+    return <DefaultTabs {...restProps} id={id} onChange={handleChange} items={itemsWithIcons} prefixCls={TABS_CLASS_PREFIX}/>
 }
