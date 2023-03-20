@@ -56,6 +56,7 @@ const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueT
         [`${SELECT_CLASS_PREFIX}-${type}`]: !isMultiple && type,
     })
 
+    // TODO(DOMA-5597): Fix value types on multiple-select
     const handleChange = useCallback<OnChangeType>((value, option) => {
         let title
         if (Array.isArray(option)) {
@@ -65,6 +66,7 @@ const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueT
         }
 
         if (title) {
+            // TODO(DOMA-5597): Move it to change event; Also key should be used as well
             sendAnalyticsSelectEvent('Select', { label: title, value: String(value), id })
         }
 

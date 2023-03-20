@@ -6,17 +6,11 @@ import React from 'react'
 
 import { version } from '@open-condo/ui/package.json'
 
-type AnalyticsEvent = 'click' | 'check' | 'select'
+type AnalyticsEvent = 'click' | 'check' | 'select' | 'change'
 
-type ComponentCommonEventProps = {
+type CommonComponentProps = {
     id?: string
 }
-
-type CommonAnalyticsProps<Event extends AnalyticsEvent, K> = {
-    event: Event,
-    location: string,
-    component: K
-} & ComponentCommonEventProps
 
 type ComponentSpecificClickEventProps = {
     Banner: { title: string }
@@ -29,25 +23,46 @@ type ComponentSpecificCheckEventProps = {
     Checkbox: { value: string }
 }
 
+type ComponentSpecificChangeEventProps = {
+    Tabs: { activeKey: string }
+}
+
+// TODO(DOMA-5597): Remove this group, since it too specific and move it to change group
 type ComponentSpecificSelectEventProps = {
     Select: { value: string, label: string | Array<string> }
 }
 
-type ComponentClickData<K extends keyof ComponentSpecificClickEventProps> = ComponentSpecificClickEventProps[K] & ComponentCommonEventProps
-type ComponentCheckData<K extends keyof ComponentSpecificCheckEventProps> = ComponentSpecificCheckEventProps[K] & ComponentCommonEventProps
-type ComponentSelectData<K extends keyof ComponentSpecificSelectEventProps> = ComponentSpecificSelectEventProps[K] & ComponentCommonEventProps
+type ComponentNames = {
+    click: keyof ComponentSpecificClickEventProps
+    check: keyof ComponentSpecificCheckEventProps
+    change: keyof ComponentSpecificChangeEventProps
+    select: keyof ComponentSpecificSelectEventProps
+}
 
+type AnyComponentName = ComponentNames[AnalyticsEvent]
 
-type AnalyticsClickData<K extends keyof ComponentSpecificClickEventProps> = CommonAnalyticsProps<'click', K>
-& ComponentSpecificClickEventProps[K]
-type AnalyticsCheckData<K extends keyof ComponentSpecificCheckEventProps> = CommonAnalyticsProps<'check', K>
-& ComponentSpecificCheckEventProps[K]
-type AnalyticsSelectData<K extends keyof ComponentSpecificSelectEventProps> = CommonAnalyticsProps<'select', K>
-& ComponentSpecificSelectEventProps[K]
+type CommonAnalyticsProps<Event extends AnalyticsEvent, Component extends AnyComponentName> = {
+    event: Event,
+    location: string,
+    component: Component
+} & CommonComponentProps
 
-export type AnalyticsParams = AnalyticsClickData<keyof ComponentSpecificClickEventProps>
-| AnalyticsCheckData<keyof ComponentSpecificCheckEventProps>
-| AnalyticsSelectData<keyof ComponentSpecificSelectEventProps>
+type AnalyticsClickEventParams<Component extends ComponentNames['click']> = CommonAnalyticsProps<'click', Component>
+& ComponentSpecificClickEventProps[Component]
+
+type AnalyticsCheckEventParams<Component extends ComponentNames['check']> = CommonAnalyticsProps<'check', Component>
+& ComponentSpecificCheckEventProps[Component]
+
+type AnalyticsSelectEventParams<Component extends ComponentNames['select']> = CommonAnalyticsProps<'select', Component>
+& ComponentSpecificSelectEventProps[Component]
+
+type AnalyticsChangeEventParams<Component extends ComponentNames['change']> = CommonAnalyticsProps<'change', Component>
+& ComponentSpecificChangeEventProps[Component]
+
+export type AnalyticsParams = AnalyticsClickEventParams<ComponentNames['click']>
+| AnalyticsCheckEventParams<ComponentNames['check']>
+| AnalyticsSelectEventParams<ComponentNames['select']>
+| AnalyticsChangeEventParams<ComponentNames['change']>
 
 const ANALYTICS_HANDLER_NAME = 'CondoWebSendAnalyticsEvent'
 
@@ -67,10 +82,13 @@ export function extractChildrenContent (children: React.ReactNode): string | nul
     return null
 }
 
-export function sendAnalyticsClickEvent<K extends keyof ComponentSpecificClickEventProps> (component: K, data: ComponentClickData<K>): void {
+export function sendAnalyticsClickEvent<Component extends ComponentNames['click']> (
+    component: Component,
+    data: ComponentSpecificClickEventProps[Component] & CommonComponentProps
+): void {
     if (typeof window !== 'undefined') {
         const location = window.location.href
-        const params: AnalyticsClickData<K> = {
+        const params: AnalyticsClickEventParams<Component> = {
             event: 'click',
             location,
             component,
@@ -85,10 +103,13 @@ export function sendAnalyticsClickEvent<K extends keyof ComponentSpecificClickEv
     }
 }
 
-export function sendAnalyticsCheckEvent<K extends keyof ComponentSpecificCheckEventProps> (component: K, data: ComponentCheckData<K>): void {
+export function sendAnalyticsCheckEvent<Component extends ComponentNames['check']> (
+    component: Component,
+    data: ComponentSpecificCheckEventProps[Component] & CommonComponentProps
+): void {
     if (typeof window !== 'undefined') {
         const location = window.location.href
-        const params: AnalyticsCheckData<K> = {
+        const params: AnalyticsCheckEventParams<Component> = {
             event: 'check',
             location,
             component,
@@ -104,16 +125,40 @@ export function sendAnalyticsCheckEvent<K extends keyof ComponentSpecificCheckEv
     }
 }
 
-export function sendAnalyticsSelectEvent<K extends keyof ComponentSpecificSelectEventProps> (component: K, data: ComponentSelectData<K>): void {
-    if (typeof window !== undefined) {
+export function sendAnalyticsSelectEvent<Component extends ComponentNames['select']> (
+    component: Component,
+    data: ComponentSpecificSelectEventProps[Component] & CommonComponentProps
+): void {
+    if (typeof window !== 'undefined') {
         const location = window.location.href
-        const params: AnalyticsSelectData<K> = {
+        const params: AnalyticsSelectEventParams<Component> = {
             event: 'select',
             location,
             component,
             ...data,
         }
 
+        parent.postMessage({
+            handler: ANALYTICS_HANDLER_NAME,
+            params,
+            type: 'condo-ui',
+            version,
+        }, '*')
+    }
+}
+
+export function sendAnalyticsChangeEvent<Component extends ComponentNames['change']> (
+    component: Component,
+    data: ComponentSpecificChangeEventProps[Component] & CommonComponentProps
+): void {
+    if (typeof window !== 'undefined') {
+        const location = window.location.href
+        const params: AnalyticsChangeEventParams<Component> = {
+            event: 'change',
+            location,
+            component,
+            ...data,
+        }
         parent.postMessage({
             handler: ANALYTICS_HANDLER_NAME,
             params,
