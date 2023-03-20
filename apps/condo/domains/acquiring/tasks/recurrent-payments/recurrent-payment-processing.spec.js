@@ -14,6 +14,8 @@ const {
     RECURRENT_PAYMENT_DONE_STATUS,
     RECURRENT_PAYMENT_ERROR_STATUS,
     RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS,
+    PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+    PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     makePayerWithMultipleConsumers,
@@ -25,11 +27,6 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 
 const { processRecurrentPayment } = require('./recurrent-payment-processing')
-
-const {
-    PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
-    PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
-} = require('../utils/constants')
 
 const { keystone } = index
 

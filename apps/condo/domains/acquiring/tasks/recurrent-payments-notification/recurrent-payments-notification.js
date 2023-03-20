@@ -18,8 +18,8 @@ const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 const logger = getLogger('recurrent-payment-context-notification')
 
 async function process () {
-    const jobId = uuid()
-    logger.info({ msg: 'Start processing recurrent payment notifications tasks', jobId })
+    const taskId = this.id || uuid()
+    logger.info({ msg: 'Start processing recurrent payment notifications tasks', taskId })
 
     // prepare context
     const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
@@ -33,7 +33,7 @@ async function process () {
 
     // retrieve RecurrentPaymentContext page by page
     while (hasMorePages) {
-        logger.info({ msg: `Processing recurrent payment notification page #${Math.floor(offset / pageSize)}`, jobId })
+        logger.info({ msg: `Processing recurrent payment notification page #${Math.floor(offset / pageSize)}`, taskId })
 
         // get page (can be empty)
         const page = await getAllReadyToPayRecurrentPaymentContexts(context, tomorrowDate, pageSize, offset)
@@ -42,9 +42,8 @@ async function process () {
         await processArrayOf(page).inParallelWith(async (recurrentPaymentContext) => {
             try {
                 await sendTomorrowPaymentNotificationSafely(context, recurrentPaymentContext)
-            } catch (error) {
-                const message = get(error, 'errors[0].message') || get(error, 'message') || JSON.stringify(error)
-                logger.error({ msg: 'Process recurrent payment notification error', message, jobId })
+            } catch (err) {
+                logger.error({ msg: 'Process recurrent payment notification error', err, taskId })
             }
         })
 
