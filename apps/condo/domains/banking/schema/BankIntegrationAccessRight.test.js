@@ -50,11 +50,11 @@ describe('BankIntegrationAccessRight', () => {
         }))
     })
 
-    it('user: read BankIntegrationAccessRight', async () => {
+    it('user: can read BankIntegrationAccessRight if connected to it', async () => {
         const [right] = await createTestBankIntegrationAccessRight(adminClient, integration, serviceUserClient.user)
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
-            await BankIntegrationAccessRight.getAll(serviceUserClient, { id: right.id })
-        })
+        const [accessRight] = await BankIntegrationAccessRight.getAll(serviceUserClient, { id: right.id })
+
+        expect(accessRight.user.id).toEqual(serviceUserClient.user.id)
     })
 
     it('anonymous: read BankIntegrationAccessRight', async () => {
