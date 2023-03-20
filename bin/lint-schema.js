@@ -38,6 +38,10 @@ function verifySchema (keystone) {
             if (field.isRelationship && field.many && !excludedManyRelationshipCheckLists.includes(list.key)) {
                 const access = field.access.public
 
+                if (typeof access.create !== 'boolean' || typeof access.update !== 'boolean') {
+                    report(`${list.key}->${field.path} For many=true fields access.update and access.create should be simple boolean!`)
+                }
+
                 if (access.create || access.update) {
                     report(`${list.key}->${field.path} updatable many relation. Any many=true relationship should be readonly`)
                 }
