@@ -75,15 +75,6 @@ class RequestCache {
         return this.totalRequests++
     }
 
-    _logStats = () => {
-        logger.info({ stats:{
-            hits: this.cacheHits,
-            total: this.totalRequests,
-            hitrate: floor(this.cacheHits / this.totalRequests, 2),
-        } }
-        )
-    }
-
     logEvent ( { type, functionName, listName, key, result } ) {
         if (!this.logging) return
 
@@ -96,6 +87,15 @@ class RequestCache {
         }
 
         logger.info(cacheEvent)
+    }
+
+    _logStats = () => {
+        logger.info({ stats:{
+            hits: this.cacheHits,
+            total: this.totalRequests,
+            hitrate: floor(this.cacheHits / this.totalRequests, 2),
+        } }
+        )
     }
 }
 
