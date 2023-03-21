@@ -4,8 +4,8 @@ const { isNil, get } = require('lodash')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const {
-    PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
-    PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
 
 const logger = getLogger('PaymentAdapter')
@@ -43,7 +43,7 @@ class PaymentAdapter {
             if (status !== 200 || isNil(orderId)) {
                 return {
                     paid: false,
-                    errorCode: PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
+                    errorCode: RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
                     errorMessage: error,
                 }
             } else if (!isNil(url) && url.toLowerCase().indexOf('/api/payment/success') > -1) {
@@ -51,7 +51,7 @@ class PaymentAdapter {
             } else {
                 return {
                     paid: false,
-                    errorCode: PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+                    errorCode: RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
                     errorMessage: 'CardToken is not valid',
                 }
             }
@@ -59,7 +59,7 @@ class PaymentAdapter {
             const errorMessage = get(error, 'errors[0].message') || get(error, 'message') || JSON.stringify(error)
             return {
                 paid: false,
-                errorCode: PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
+                errorCode: RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
                 errorMessage,
             }
         }

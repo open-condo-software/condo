@@ -6,8 +6,8 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
-    PAYMENT_ERROR_UNKNOWN_CODE,
-    PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
 } = require('apps/condo/domains/acquiring/constants/recurrentPayment')
 const {
     paginationConfiguration,
@@ -42,7 +42,7 @@ async function processRecurrentPayment (context, recurrentPayment, paymentAdapte
             context,
             recurrentPayment,
             `Provided card token id is not valid ${cardId}`,
-            PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+            RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
         )
     }
 
@@ -116,7 +116,7 @@ async function process () {
                     context,
                     recurrentPayment,
                     message,
-                    PAYMENT_ERROR_UNKNOWN_CODE,
+                    RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE,
                 )
             }
         })

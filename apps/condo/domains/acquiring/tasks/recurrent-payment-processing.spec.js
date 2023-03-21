@@ -14,8 +14,8 @@ const {
     RECURRENT_PAYMENT_DONE_STATUS,
     RECURRENT_PAYMENT_ERROR_STATUS,
     RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS,
-    PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
-    PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
 } = require('apps/condo/domains/acquiring/constants/recurrentPayment')
 const {
     makePayerWithMultipleConsumers,
@@ -130,13 +130,13 @@ describe('recurrent-payment-processing', () => {
             expect(result.status).toEqual(RECURRENT_PAYMENT_ERROR_STATUS)
             expect(result.tryCount).toEqual(recurrentPayment.tryCount + 1)
             expect(result.state).toMatchObject({
-                errorCode: PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+                errorCode: RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
                 errorMessage: `Provided card token id is not valid ${cardId}`,
             })
         })
 
         it('shouldn\'t pay - failed to pay', async () => {
-            const errorCode = PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE
+            const errorCode = RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE
             const errorMessage = 'An error message'
 
             // mock payment adapter

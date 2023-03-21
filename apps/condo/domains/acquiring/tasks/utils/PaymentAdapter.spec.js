@@ -1,8 +1,8 @@
 const { v4: uuid } = require('uuid')
 
 const {
-    PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
-    PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
 const { PaymentAdapter } = require('@condo/domains/acquiring/tasks/utils/PaymentAdapter')
 
@@ -111,7 +111,7 @@ describe('PaymentAdapter', () => {
             expect(result).toHaveProperty('errorMessage')
             expect(result).toHaveProperty('errorCode')
             expect(result.paid).not.toBeTruthy()
-            expect(result.errorCode).toEqual(PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE)
+            expect(result.errorCode).toEqual(RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE)
             expect(result.errorMessage).toEqual('CardToken is not valid')
         })
 
@@ -134,7 +134,7 @@ describe('PaymentAdapter', () => {
             expect(result).toHaveProperty('errorMessage')
             expect(result).toHaveProperty('errorCode')
             expect(result.paid).not.toBeTruthy()
-            expect(result.errorCode).toEqual(PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE)
+            expect(result.errorCode).toEqual(RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE)
             expect(result.errorMessage).toEqual(error)
         })
 
@@ -157,7 +157,7 @@ describe('PaymentAdapter', () => {
             expect(result).toHaveProperty('errorMessage')
             expect(result).toHaveProperty('errorCode')
             expect(result.paid).not.toBeTruthy()
-            expect(result.errorCode).toEqual(PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE)
+            expect(result.errorCode).toEqual(RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE)
             expect(result.errorMessage).toEqual(error)
         })
     })
