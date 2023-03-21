@@ -11,7 +11,6 @@ const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.ut
 const { find } = require('@open-condo/keystone/schema')
 
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const { Payment } = require('@condo/domains/acquiring/gql')
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationContextGQL } = require('@condo/domains/billing/gql')
@@ -22,9 +21,7 @@ const { BillingMeterResource: BillingMeterResourceGQL } = require('@condo/domain
 const { BillingAccountMeter: BillingAccountMeterGQL } = require('@condo/domains/billing/gql')
 const { BillingAccountMeterReading: BillingAccountMeterReadingGQL } = require('@condo/domains/billing/gql')
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
-const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
-const { BillingCurrency: BillingCurrencyGQL } = require('@condo/domains/billing/gql')
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
 const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
@@ -40,14 +37,10 @@ const BillingMeterResource = generateServerUtils(BillingMeterResourceGQL)
 const BillingAccountMeter = generateServerUtils(BillingAccountMeterGQL)
 const BillingAccountMeterReading = generateServerUtils(BillingAccountMeterReadingGQL)
 const BillingReceipt = generateServerUtils(BillingReceiptGQL)
-const BillingOrganization = generateServerUtils(BillingOrganizationGQL)
 const ResidentBillingReceipt = generateServerUtils(ResidentBillingReceiptGQL)
-
-
-const BillingCurrency = generateServerUtils(BillingCurrencyGQL)
 const BillingRecipient = generateServerUtils(BillingRecipientGQL)
-
 const BillingCategory = generateServerUtils(BillingCategoryGQL)
+
 async function registerBillingReceipts (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
@@ -97,9 +90,7 @@ module.exports = {
     BillingAccountMeter,
     BillingAccountMeterReading,
     BillingReceipt,
-    BillingOrganization,
     ResidentBillingReceipt,
-    BillingCurrency,
     BillingRecipient,
     BillingCategory,
     registerBillingReceipts,
