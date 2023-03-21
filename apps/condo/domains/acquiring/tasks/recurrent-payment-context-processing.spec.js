@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-const index = require('@app/condo/index')
+const index = require('apps/condo/index')
 const dayjs = require('dayjs')
 const faker = require('faker')
 
@@ -12,12 +12,12 @@ const {
 
 const {
     RECURRENT_PAYMENT_INIT_STATUS,
-} = require('@condo/domains/acquiring/constants/recurrentPayment')
+} = require('apps/condo/domains/acquiring/constants/recurrentPayment')
 const {
     makePayerWithMultipleConsumers,
     createTestRecurrentPaymentContext,
     RecurrentPayment,
-} = require('@condo/domains/acquiring/utils/testSchema')
+} = require('apps/condo/domains/acquiring/utils/testSchema')
 
 const {
     processContext,

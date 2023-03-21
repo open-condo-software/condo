@@ -9,7 +9,7 @@ const path = require('path')
 
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
-const { process: processTask } = require('@condo/domains/acquiring/tasks/recurrent-payments-notification/recurrent-payments-notification')
+const { process: processTask } = require('@condo/domains/acquiring/tasks/recurrent-payments-notification')
 
 async function main () {
     await prepareKeystoneExpressApp(
