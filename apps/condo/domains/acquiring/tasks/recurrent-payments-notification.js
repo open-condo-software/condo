@@ -55,5 +55,5 @@ async function processAllRecurrentPaymentContextsBeforePaymentDate () {
 
 module.exports = {
     processAllRecurrentPaymentContextsBeforePaymentDate,
-    notifyBeforeRecurrentPaymentDate: createCronTask('notifyBeforeRecurrentPaymentDate', '0 * * * *', processAllRecurrentPaymentContextsBeforePaymentDate),
+    notifyBeforeRecurrentPaymentDate: createCronTask('notifyBeforeRecurrentPaymentDate', '0 10 * * *', processAllRecurrentPaymentContextsBeforePaymentDate),
 }
