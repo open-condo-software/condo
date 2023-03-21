@@ -1,4 +1,5 @@
 // Imports for usage here
+import type { CloseModalWindowParams, CloseModalWindowData } from './CloseModalWindow'
 import type { GetActiveProgressBarsParams, GetActiveProgressBarsData } from './GetActiveProgressBars'
 import type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
 import type { RedirectData, RedirectParams } from './Redirect'
@@ -8,6 +9,7 @@ import type { ShowNotificationParams, ShowNotificationData } from './ShowNotific
 import type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
 import type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdateProgressBar'
 // Reexports for accessibility from outside
+export type { CloseModalWindowParams, CloseModalWindowData } from './CloseModalWindow'
 export type { GetActiveProgressBarsParams, GetActiveProgressBarData, GetActiveProgressBarsData } from './GetActiveProgressBars'
 export type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
 export type { RedirectData, RedirectParams } from './Redirect'
@@ -21,6 +23,7 @@ export type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdatePro
  * Mapping for event -> request payload
  */
 export type RequestMethodsParamsMap = {
+    CondoWebAppCloseModalWindow: CloseModalWindowParams
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsParams
 
     CondoWebAppGetLaunchParams: GetLaunchParamsParams
@@ -36,6 +39,7 @@ export type RequestMethodsParamsMap = {
  * Mapping for event -> response data (what method returns unwrapped)
  */
 export type ResultResponseDataMap = {
+    CondoWebAppCloseModalWindow: CloseModalWindowData
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsData
     CondoWebAppGetLaunchParams: GetLaunchParamsData
     CondoWebAppRedirect: RedirectData
