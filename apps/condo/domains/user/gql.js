@@ -12,7 +12,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 
 const USER_FIELDS = `type name avatar { publicUrl } meta isPhoneVerified isEmailVerified isAdmin isSupport locale ${COMMON_FIELDS}`
 const User = generateGqlQueries('User', `{ ${USER_FIELDS} }`)
-const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} email phone customAccess }`)
+const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} email phone }`)
 
 const USER_EXTERNAL_IDENTITY_FIELDS = '{ id user { id } identityId identityType meta deletedAt }'
 const UserExternalIdentity = generateGqlQueries('UserExternalIdentity', USER_EXTERNAL_IDENTITY_FIELDS)
