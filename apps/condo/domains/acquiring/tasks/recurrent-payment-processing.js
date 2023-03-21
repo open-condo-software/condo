@@ -8,23 +8,23 @@ const { createCronTask } = require('@open-condo/keystone/tasks')
 const {
     RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE,
     RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
-} = require('apps/condo/domains/acquiring/constants/recurrentPayment')
+} = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     paginationConfiguration,
-} = require('apps/condo/domains/acquiring/constants/recurrentPaymentTask')
+} = require('@condo/domains/acquiring/constants/recurrentPaymentTask')
 const {
     PaymentAdapter,
-} = require('apps/condo/domains/acquiring/tasks/utils/PaymentAdapter')
+} = require('@condo/domains/acquiring/tasks/utils/PaymentAdapter')
 const {
     RecurrentPaymentContext,
-} = require('apps/condo/domains/acquiring/utils/serverSchema')
+} = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getReadyForProcessingPaymentsPage,
     registerMultiPayment,
     setRecurrentPaymentAsFailed,
     setRecurrentPaymentAsSuccess,
-} = require('apps/condo/domains/acquiring/utils/taskSchema')
-const { processArrayOf } = require('apps/condo/domains/common/utils/parallel')
+} = require('@condo/domains/acquiring/utils/taskSchema')
+const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
 const logger = getLogger('recurrent-payment-context-processing')
 

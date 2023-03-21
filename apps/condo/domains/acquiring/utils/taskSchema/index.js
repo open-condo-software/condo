@@ -14,13 +14,13 @@ const {
     RECURRENT_PAYMENT_DONE_STATUS,
     RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS,
     RECURRENT_PAYMENT_ERROR_STATUS,
-    PAYMENT_ERROR_UNKNOWN_CODE,
-    PAYMENT_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE,
-    PAYMENT_ERROR_LIMIT_EXCEEDED_CODE,
-    PAYMENT_ERROR_CONTEXT_NOT_FOUND_CODE,
-    PAYMENT_ERROR_CONTEXT_DISABLED_CODE,
-    PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
-    PAYMENT_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     RecurrentPayment,
@@ -83,7 +83,7 @@ async function getServiceConsumer (context, id) {
     }, {
         doesNotExistError: {
             code: BAD_USER_INPUT,
-            type: PAYMENT_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE,
+            type: RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE,
             message: `ServiceConsumer not found for id ${id}`,
         },
     })
@@ -193,13 +193,13 @@ async function registerMultiPayment (context, recurrentPayment) {
     if (!recurrentContext) {
         return {
             registered: false,
-            errorCode: PAYMENT_ERROR_CONTEXT_NOT_FOUND_CODE,
+            errorCode: RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE,
             errorMessage: `RecurrentPaymentContext not found for RecurrentPayment(${id})`,
         }
     } else if (!recurrentContext.enabled) {
         return {
             registered: false,
-            errorCode: PAYMENT_ERROR_CONTEXT_DISABLED_CODE,
+            errorCode: RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE,
             errorMessage: `RecurrentPaymentContext (${recurrentContext.id}) is disabled`,
         }
     }
@@ -244,7 +244,7 @@ async function registerMultiPayment (context, recurrentPayment) {
     if (!registerResponse || !registerResponse.multiPaymentId) {
         return {
             registered:false,
-            errorCode: PAYMENT_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE,
+            errorCode: RECURRENT_PAYMENT_PROCESS_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE,
             errorMessage: `Can not register multi payment: ${registerError}`,
         }
     }
@@ -259,7 +259,7 @@ async function registerMultiPayment (context, recurrentPayment) {
     if (recurrentContext.limit && Big(multiPayment.amount).gt(Big(recurrentContext.limit))) {
         return {
             registered: false,
-            errorCode: PAYMENT_ERROR_LIMIT_EXCEEDED_CODE,
+            errorCode: RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE,
             errorMessage: `RecurrentPaymentContext limit exceeded for multi payment ${multiPayment.id}`,
         }
     }
@@ -360,7 +360,7 @@ async function setRecurrentPaymentAsSuccess (context, recurrentPayment) {
     await sendResultMessageSafely(context, recurrentPayment, true)
 }
 
-async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMessage, errorCode = PAYMENT_ERROR_UNKNOWN_CODE) {
+async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMessage, errorCode = RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE) {
     if (isNil(recurrentPayment) || isNil(get(recurrentPayment, 'id')) || isNil(get(recurrentPayment, 'tryCount')))
         throw new Error('invalid recurrentPayment argument')
     if (isNil(errorMessage)) throw new Error('invalid errorMessage argument')
@@ -376,10 +376,10 @@ async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMess
 
     // cases when we have to deny retry
     if (nextTryCount >= 5
-        || errorCode === PAYMENT_ERROR_LIMIT_EXCEEDED_CODE
-        || errorCode === PAYMENT_ERROR_CONTEXT_NOT_FOUND_CODE
-        || errorCode === PAYMENT_ERROR_CONTEXT_DISABLED_CODE
-        || errorCode === PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE) {
+        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE
+        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE
+        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE
+        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE) {
         nextStatus = RECURRENT_PAYMENT_ERROR_STATUS
     }
 

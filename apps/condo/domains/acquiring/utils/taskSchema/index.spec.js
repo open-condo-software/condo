@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-const index = require('apps/condo/index')
+const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
@@ -16,7 +16,7 @@ const {
     PAYMENT_DONE_STATUS,
     PAYMENT_WITHDRAWN_STATUS,
     PAYMENT_PROCESSING_STATUS,
-} = require('apps/condo/domains/acquiring/constants/payment')
+} = require('@condo/domains/acquiring/constants/payment')
 const {
     RECURRENT_PAYMENT_INIT_STATUS,
     RECURRENT_PAYMENT_PROCESSING_STATUS,
@@ -24,40 +24,40 @@ const {
     RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS,
     RECURRENT_PAYMENT_ERROR_STATUS,
     RECURRENT_PAYMENT_CANCEL_STATUS,
-    PAYMENT_ERROR_UNKNOWN_CODE,
-    PAYMENT_ERROR_LIMIT_EXCEEDED_CODE,
-    PAYMENT_ERROR_CONTEXT_NOT_FOUND_CODE,
-    PAYMENT_ERROR_CONTEXT_DISABLED_CODE,
-    PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
-    PAYMENT_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE,
-    PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
-} = require('apps/condo/domains/acquiring/constants/recurrentPayment')
+    RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
+} = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     Payment,
-} = require('apps/condo/domains/acquiring/utils/serverSchema')
+} = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     makePayerWithMultipleConsumers,
     createTestRecurrentPaymentContext,
     registerMultiPaymentByTestClient,
     RecurrentPayment,
-} = require('apps/condo/domains/acquiring/utils/testSchema')
+} = require('@condo/domains/acquiring/utils/testSchema')
 const {
     createTestRecurrentPayment,
     updateTestRecurrentPaymentContext,
-} = require('apps/condo/domains/acquiring/utils/testSchema')
-const { createTestBillingCategory } = require('apps/condo/domains/billing/utils/testSchema')
+} = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
-} = require('apps/condo/domains/notification/constants/constants')
+} = require('@condo/domains/notification/constants/constants')
 const {
     Message,
-} = require('apps/condo/domains/notification/utils/serverSchema')
+} = require('@condo/domains/notification/utils/serverSchema')
 const {
     ServiceConsumer,
-} = require('apps/condo/domains/resident/utils/serverSchema')
-const { makeClientWithServiceConsumer } = require('apps/condo/domains/resident/utils/testSchema')
+} = require('@condo/domains/resident/utils/serverSchema')
+const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 
 const {
     getAllReadyToPayRecurrentPaymentContexts,
@@ -76,7 +76,7 @@ const pageSize = 10
 const { keystone } = index
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'test-fingerprint-alphanumeric-value' } }
 
-describe('recurrent payments queries', () => {
+describe('task schema queries', () => {
     let adminContext
     setFakeClientMode(index)
 
@@ -1058,7 +1058,7 @@ describe('recurrent payments queries', () => {
             expect(response).not.toHaveProperty('errorMessage')
         })
 
-        it('should return registered=false and PAYMENT_ERROR_LIMIT_EXCEEDED_CODE error', async () => {
+        it('should return registered=false and RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE error', async () => {
             // create test recurrent payment context
             const { batches } = await makePayerWithMultipleConsumers(1, 1)
             const recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, {
@@ -1081,11 +1081,11 @@ describe('recurrent payments queries', () => {
             expect(response).toHaveProperty('errorMessage')
 
             expect(response.registered).not.toBeTruthy()
-            expect(response.errorCode).toEqual(PAYMENT_ERROR_LIMIT_EXCEEDED_CODE)
+            expect(response.errorCode).toEqual(RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE)
             expect(response.errorMessage).toContain('RecurrentPaymentContext limit exceeded for multi payment')
         })
 
-        it('should return registered=false and PAYMENT_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE error', async () => {
+        it('should return registered=false and RECURRENT_PAYMENT_PROCESS_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE error', async () => {
             // create service consumer without set up acquiring integration context
             const serviceConsumerClient = await makeClientWithServiceConsumer()
 
@@ -1113,11 +1113,11 @@ describe('recurrent payments queries', () => {
             expect(response).toHaveProperty('errorMessage')
 
             expect(response.registered).not.toBeTruthy()
-            expect(response.errorCode).toEqual(PAYMENT_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE)
+            expect(response.errorCode).toEqual(RECURRENT_PAYMENT_PROCESS_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE)
             expect(response.errorMessage).toContain('Can not register multi payment: ')
         })
 
-        it('should return registered=false and PAYMENT_ERROR_CONTEXT_DISABLED_CODE error', async () => {
+        it('should return registered=false and RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE error', async () => {
             // create test recurrent payment context
             const { batches } = await makePayerWithMultipleConsumers(1, 1)
             const recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, {
@@ -1140,12 +1140,12 @@ describe('recurrent payments queries', () => {
             expect(response).toHaveProperty('errorMessage')
 
             expect(response.registered).not.toBeTruthy()
-            expect(response.errorCode).toEqual(PAYMENT_ERROR_CONTEXT_DISABLED_CODE)
+            expect(response.errorCode).toEqual(RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE)
             expect(response.errorMessage)
                 .toContain(`RecurrentPaymentContext (${recurrentPaymentContext.id}) is disabled`)
         })
 
-        it('should return registered=false and PAYMENT_ERROR_CONTEXT_NOT_FOUND_CODE error', async () => {
+        it('should return registered=false and RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE error', async () => {
             // create test recurrent payment context
             const { batches } = await makePayerWithMultipleConsumers(1, 1)
             const recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest(batches[0])))[0]
@@ -1170,7 +1170,7 @@ describe('recurrent payments queries', () => {
             expect(response).toHaveProperty('errorMessage')
 
             expect(response.registered).not.toBeTruthy()
-            expect(response.errorCode).toEqual(PAYMENT_ERROR_CONTEXT_NOT_FOUND_CODE)
+            expect(response.errorCode).toEqual(RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE)
             expect(response.errorMessage)
                 .toContain(`RecurrentPaymentContext not found for RecurrentPayment(${recurrentPayment.id})`)
         })
@@ -1347,7 +1347,7 @@ describe('recurrent payments queries', () => {
         })
 
         it('should set retry status and increase try count for empty errorCode', async () => {
-            const errorCode = PAYMENT_ERROR_UNKNOWN_CODE
+            const errorCode = RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE
             const errorMessage = 'An error message'
 
             // create test recurrent payment
@@ -1391,9 +1391,9 @@ describe('recurrent payments queries', () => {
         })
 
         const retryCases = [
-            [PAYMENT_ERROR_UNKNOWN_CODE],
-            [PAYMENT_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE],
-            [PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE],
+            [RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE],
+            [RECURRENT_PAYMENT_PROCESS_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE],
+            [RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE],
         ]
         test.each(retryCases)('should set retry status and increase try count for %s errorCode', async (errorCode) => {
             const errorMessage = 'An error message'
@@ -1439,10 +1439,10 @@ describe('recurrent payments queries', () => {
         })
 
         const noRetryCases = [
-            [PAYMENT_ERROR_LIMIT_EXCEEDED_CODE],
-            [PAYMENT_ERROR_CONTEXT_NOT_FOUND_CODE],
-            [PAYMENT_ERROR_CONTEXT_DISABLED_CODE],
-            [PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE],
+            [RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE],
+            [RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE],
+            [RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE],
+            [RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE],
         ]
         test.each(noRetryCases)('should set error status and increase try count for %s errorCode', async (errorCode) => {
             const errorMessage = 'An error message'
@@ -1488,7 +1488,7 @@ describe('recurrent payments queries', () => {
         })
 
         it('should validate inputs', async () => {
-            const errorCode = PAYMENT_ERROR_LIMIT_EXCEEDED_CODE
+            const errorCode = RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE
             const errorMessage = 'An error message'
 
             await catchErrorFrom(async () => {
