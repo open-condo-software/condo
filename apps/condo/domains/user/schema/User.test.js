@@ -477,8 +477,6 @@ describe('Custom access rights', () => {
         client.user = specialUser
         const regularClient = await makeLoggedInClient()
 
-        expect(client.user).toHaveProperty('customAccess', customAccess)
-
         const { data } = await UserAdmin.getAll(client, {
             id: user.id,
         }, { raw: true })
@@ -510,8 +508,6 @@ describe('Custom access rights', () => {
 
         const client = await makeLoggedInClient({ password: userAttrs.password, email: userAttrs.email })
         client.user = user
-
-        expect(user).toHaveProperty('customAccess', customAccess)
 
         const [createdUser] = await createTestUser(client)
 

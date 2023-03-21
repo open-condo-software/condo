@@ -76,7 +76,11 @@ const canAccessToIsPhoneVerifiedField = readByAnyUpdateByAdminField
 const canAccessToImportField = readByAnyUpdateByAdminField
 const canAccessToEmployeesField = readBySupportUpdateByAdminField
 const canAccessToRelatedOrganizationsField = readBySupportUpdateByAdminField
-const canAccessCustomAccessField = readByAnyUpdateByAdminField
+const canAccessCustomAccessField = {
+    create: access.userIsAdmin,
+    read: access.userIsAdmin,
+    update: access.userIsAdmin,
+}
 
 const canAccessToStaffUserField = {
     read: access.canReadOnlyIfUserIsActiveOrganizationEmployee,

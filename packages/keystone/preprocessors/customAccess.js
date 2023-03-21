@@ -4,41 +4,6 @@ const get = require('lodash/get')
 const { evaluateKeystoneAccessResult, evaluateKeystoneFieldAccessResult } = require('@open-condo/keystone/plugins/utils')
 const { GQL_LIST_SCHEMA_TYPE } = require('@open-condo/keystone/schema')
 
-const DEFAULT_PERMISSIONS = { read: false, update: false, create: false, delete: false }
-const DEFAULT_FIELD_PERMISSIONS = { read: true, update: true, create: true }
-
-/**
- *
- * @param user {Object} keystone user
- * @return {boolean}
- */
-function hasDefinedPermissions (user) {
-    return get(user, 'customAccess', null) !== null
-}
-
-/**
- * If there are some defined permissions for current user -> use it, otherwise return original one
- * @param user {Object} keystone user
- * @param permission {boolean} custom permission found for that user. False by default
- * @param originalAccessResult {boolean} access based on code of current schema
- * @return {*|boolean}
- */
-function getResultPermission (user, permission, originalAccessResult) {
-    if (hasDefinedPermissions(user)) {
-        return permission === true || originalAccessResult
-    }
-
-    return originalAccessResult
-}
-
-function getListPermissions (user, listKey) {
-    return get(user, ['customAccess', 'lists', listKey, 'access'], DEFAULT_PERMISSIONS)
-}
-
-function getFieldPermissions (user, listKey, field) {
-    return get(user, ['customAccess', 'lists', listKey, 'fields', field], DEFAULT_FIELD_PERMISSIONS)
-}
-
 function fieldAccessWrapperIfNeeded (access, fnWrapper) {
     // NOTE: you can use the same object in many places! you don't need to wrap it twice
     if (!fnWrapper.alreadyprocessedbycustomaccessplugin) fnWrapper.alreadyprocessedbycustomaccessplugin = true
@@ -75,11 +40,11 @@ const customAccessPostProcessor = (schemaType, name, schema) => {
 
     const access = schema.access
 
-    const customListAccess = async (args) => {
+    const customListAccess = (args) => {
         const { operation, authentication: { item: user }, listKey } = args
-        const originalAccessResult = await evaluateKeystoneAccessResult(access, operation, args)
-
-        return getResultPermission(user, getListPermissions(user, listKey)[operation], originalAccessResult)
+        const customAccess = get(user, ['customAccess', 'lists', listKey, 'access', operation])
+        if (customAccess === true || customAccess === false) return customAccess
+        return evaluateKeystoneAccessResult(access, operation, args)
     }
 
     schema.access = fieldAccessWrapperIfNeeded(access, customListAccess)
@@ -88,10 +53,11 @@ const customAccessPostProcessor = (schemaType, name, schema) => {
         const fieldAccess = schema.fields[field].access
 
         if (fieldAccess) {
-            const customFieldAccessWrapper = async (args) => {
+            const customFieldAccessWrapper = (args) => {
                 const { operation, authentication: { item: user }, listKey } = args
-                const originalAccessResult = await evaluateKeystoneFieldAccessResult(fieldAccess, operation, args)
-                return getResultPermission(user, getFieldPermissions(user, listKey, field)[operation], originalAccessResult)
+                const customAccess = get(user, ['customAccess', 'lists', listKey, 'fields', field, operation])
+                if (customAccess === true || customAccess === false) return customAccess
+                return evaluateKeystoneFieldAccessResult(fieldAccess, operation, args)
             }
 
             const fieldCustomAccessWrapper = fieldAccessWrapperIfNeeded(fieldAccess, customFieldAccessWrapper)
