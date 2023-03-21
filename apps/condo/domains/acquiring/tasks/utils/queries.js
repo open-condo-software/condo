@@ -2,6 +2,7 @@ const Big = require('big.js')
 const dayjs = require('dayjs')
 const { get, isNil, isUndefined } = require('lodash')
 
+const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const {
@@ -14,6 +15,7 @@ const {
     RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS,
     RECURRENT_PAYMENT_ERROR_STATUS,
     PAYMENT_ERROR_UNKNOWN_CODE,
+    PAYMENT_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE,
     PAYMENT_ERROR_LIMIT_EXCEEDED_CODE,
     PAYMENT_ERROR_CONTEXT_NOT_FOUND_CODE,
     PAYMENT_ERROR_CONTEXT_DISABLED_CODE,
@@ -77,15 +79,14 @@ async function getServiceConsumer (context, id) {
 
     const consumer = await ServiceConsumer.getOne(context, {
         id,
+        deletedAt: null,
+    }, {
+        doesNotExistError: {
+            code: BAD_USER_INPUT,
+            type: PAYMENT_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE,
+            message: `ServiceConsumer not found for id ${id}`,
+        },
     })
-
-    if (!consumer) {
-        throw Error(`ServiceConsumer not found for id ${id}`)
-    }
-
-    if (consumer.deletedAt) {
-        throw Error(`Found deleted serviceConsumer for id ${id}`)
-    }
 
     return consumer
 }
