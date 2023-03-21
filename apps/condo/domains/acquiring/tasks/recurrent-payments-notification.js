@@ -17,7 +17,7 @@ const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
 const logger = getLogger('recurrent-payment-context-notification')
 
-async function process () {
+async function processAllRecurrentPaymentContextsBeforePaymentDate () {
     const taskId = this.id || uuid()
     logger.info({ msg: 'Start processing recurrent payment notifications tasks', taskId })
 
@@ -54,6 +54,6 @@ async function process () {
 }
 
 module.exports = {
-    process,
-    notifyBeforeRecurrentPaymentDate: createCronTask('notifyBeforeRecurrentPaymentDate', '0 * * * *', process),
+    processAllRecurrentPaymentContextsBeforePaymentDate,
+    notifyBeforeRecurrentPaymentDate: createCronTask('notifyBeforeRecurrentPaymentDate', '0 * * * *', processAllRecurrentPaymentContextsBeforePaymentDate),
 }

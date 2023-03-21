@@ -25,7 +25,7 @@ const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'recurrent-payments-s
 const logger = getLogger('recurrent-payments-seeking-for-new-receipt')
 const REDIS_LAST_DATE_KEY = 'LAST_RECURRENT_PAYMENT_SEEKING_RECEIPTS_CREATED_AT'
 
-async function processContext (context, recurrentPaymentContext, periods, lastDt) {
+async function scanBillingReceiptsForRecurrentPaymentContext (context, recurrentPaymentContext, periods, lastDt) {
     // prepare vars
     const { serviceConsumer, billingCategory } = recurrentPaymentContext
     const previousMonthDate = dayjs().startOf('month').subtract(1, 'days')
@@ -64,7 +64,7 @@ async function processContext (context, recurrentPaymentContext, periods, lastDt
     await sendTomorrowPaymentNotificationSafely(context, recurrentPaymentContext, recurrentPayment)
 }
 
-async function process () {
+async function processAllAutoPayRecurrentPaymentContexts () {
     const taskId = this.id || uuid()
     logger.info({ msg: 'Start processing new billing receipts for recurrentPaymentContext tasks', taskId })
 
@@ -98,7 +98,7 @@ async function process () {
         // process each page in parallel
         await processArrayOf(page).inParallelWith(async (recurrentPaymentContext) => {
             try {
-                await processContext(context, recurrentPaymentContext, periods, lastDt)
+                await scanBillingReceiptsForRecurrentPaymentContext(context, recurrentPaymentContext, periods, lastDt)
             } catch (err) {
                 logger.error({ msg: 'Process recurrentPaymentContext error', err, taskId })
             }
@@ -115,7 +115,7 @@ async function process () {
 }
 
 module.exports = {
-    process,
-    processContext,
-    createRecurrentPaymentForNewBillingReceipt: createCronTask('createRecurrentPaymentForNewBillingReceipt', '0 * * * *', process),
+    scanBillingReceiptsForRecurrentPaymentContext,
+    processAllAutoPayRecurrentPaymentContexts,
+    createRecurrentPaymentForNewBillingReceipt: createCronTask('createRecurrentPaymentForNewBillingReceipt', '0 * * * *', processAllAutoPayRecurrentPaymentContexts),
 }

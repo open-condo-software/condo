@@ -27,7 +27,7 @@ const {
 } = require('@condo/domains/notification/utils/serverSchema')
 
 const {
-    processContext,
+    scanBillingReceiptsForRecurrentPaymentContext,
 } = require('./recurrent-payments-seeking-for-new-receipt')
 
 const { keystone } = index
@@ -70,7 +70,7 @@ describe('recurrent-payments-seeking-for-new-receipt', () => {
         })
 
         // create recurrent payments
-        await processContext(adminContext, recurrentPaymentContext, periods, lastDtString)
+        await scanBillingReceiptsForRecurrentPaymentContext(adminContext, recurrentPaymentContext, periods, lastDtString)
 
         const recurrentPayments = await RecurrentPayment.getAll(admin, {
             recurrentPaymentContext: { id: recurrentPaymentContext.id },
@@ -130,7 +130,7 @@ describe('recurrent-payments-seeking-for-new-receipt', () => {
         })
 
         // create recurrent payments
-        await processContext(adminContext, recurrentPaymentContext, periods, lastDtString)
+        await scanBillingReceiptsForRecurrentPaymentContext(adminContext, recurrentPaymentContext, periods, lastDtString)
 
         const recurrentPayments = await RecurrentPayment.getAll(admin, {
             recurrentPaymentContext: { id: recurrentPaymentContext.id },
@@ -191,7 +191,7 @@ describe('recurrent-payments-seeking-for-new-receipt', () => {
         })
 
         // create recurrent payments
-        await processContext(adminContext, recurrentPaymentContext, periods, lastDtString)
+        await scanBillingReceiptsForRecurrentPaymentContext(adminContext, recurrentPaymentContext, periods, lastDtString)
 
         const recurrentPayments = await RecurrentPayment.getAll(admin, {
             recurrentPaymentContext: { id: recurrentPaymentContext.id },
@@ -252,7 +252,7 @@ describe('recurrent-payments-seeking-for-new-receipt', () => {
         })
 
         // create recurrent payments
-        await processContext(adminContext, recurrentPaymentContext, periods, lastDtString)
+        await scanBillingReceiptsForRecurrentPaymentContext(adminContext, recurrentPaymentContext, periods, lastDtString)
 
         const recurrentPayments = await RecurrentPayment.getAll(admin, {
             recurrentPaymentContext: { id: recurrentPaymentContext.id },
@@ -313,7 +313,7 @@ describe('recurrent-payments-seeking-for-new-receipt', () => {
         })
 
         // create recurrent payments
-        await processContext(adminContext, recurrentPaymentContext, periods, lastDtString)
+        await scanBillingReceiptsForRecurrentPaymentContext(adminContext, recurrentPaymentContext, periods, lastDtString)
 
         const recurrentPayments = await RecurrentPayment.getAll(admin, {
             recurrentPaymentContext: { id: recurrentPaymentContext.id },
@@ -373,7 +373,7 @@ describe('recurrent-payments-seeking-for-new-receipt', () => {
         })
 
         // create recurrent payments
-        await processContext(adminContext, recurrentPaymentContext, periods, lastDtString)
+        await scanBillingReceiptsForRecurrentPaymentContext(adminContext, recurrentPaymentContext, periods, lastDtString)
 
         const recurrentPayments = await RecurrentPayment.getAll(admin, {
             recurrentPaymentContext: { id: recurrentPaymentContext.id },
@@ -399,7 +399,7 @@ describe('recurrent-payments-seeking-for-new-receipt', () => {
         })
 
         // create recurrent payments
-        await processContext(adminContext, recurrentPaymentContext, periods, lastDtString)
+        await scanBillingReceiptsForRecurrentPaymentContext(adminContext, recurrentPaymentContext, periods, lastDtString)
 
         const recurrentPayments = await RecurrentPayment.getAll(admin, {
             recurrentPaymentContext: { id: recurrentPaymentContext.id },

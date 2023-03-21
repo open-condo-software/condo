@@ -28,7 +28,7 @@ const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
 const logger = getLogger('recurrent-payment-context-processing')
 
-async function processRecurrentPayment (context, recurrentPayment, paymentAdapter) {
+async function chargeByRecurrentPaymentAndPaymentAdapter (context, recurrentPayment, paymentAdapter) {
     // prepare vars
     const { recurrentPaymentContext: { id: recurrentContextId } } = recurrentPayment
     const { settings: { cardId } } = await RecurrentPaymentContext.getOne(context, {
@@ -57,7 +57,7 @@ async function processRecurrentPayment (context, recurrentPayment, paymentAdapte
     }
 }
 
-async function process () {
+async function processReadyToChargeRecurrentPayments () {
     const taskId = this.id || uuid()
     logger.info({ msg: 'Start processing recurrent payment tasks', taskId })
 
@@ -99,7 +99,7 @@ async function process () {
                     })
 
                     // then proceed payment logic
-                    await processRecurrentPayment(context, recurrentPayment, adapter)
+                    await chargeByRecurrentPaymentAndPaymentAdapter(context, recurrentPayment, adapter)
                 } else if (errorCode) {
                     // error at registration
                     // - disabled recurrent payment context
@@ -128,7 +128,7 @@ async function process () {
 }
 
 module.exports = {
-    process,
-    processRecurrentPayment,
-    chargeRecurrentPayments: createCronTask('chargeRecurrentPayments', '0 * * * *', process),
+    chargeByRecurrentPaymentAndPaymentAdapter,
+    processReadyToChargeRecurrentPayments,
+    chargeRecurrentPayments: createCronTask('chargeRecurrentPayments', '0 * * * *', processReadyToChargeRecurrentPayments),
 }
