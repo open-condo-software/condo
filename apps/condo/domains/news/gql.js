@@ -10,12 +10,12 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ORGANIZATION_NEWS_ITEM_FIELDS = `{ organization { id } title body type ${COMMON_FIELDS} }`
-const OrganizationNewsItem = generateGqlQueries('OrganizationNewsItem', ORGANIZATION_NEWS_ITEM_FIELDS)
+const NEWS_ITEM_FIELDS = `{ organization { id } title body type ${COMMON_FIELDS} }`
+const NewsItem = generateGqlQueries('NewsItem', NEWS_ITEM_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    OrganizationNewsItem,
+    NewsItem,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

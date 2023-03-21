@@ -3,5 +3,5 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-export * as OrganizationNewsItem from './OrganizationNewsItem'
+export * as NewsItem from './NewsItem'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
