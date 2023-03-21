@@ -46,13 +46,15 @@ export const useModalHandler: () => [
 
         // TODO(DOMA-5563): Pass this to onCancel to notify about modal closing
         const modalId = uuidV4()
+        const urlWithMeta = new URL(url)
+        urlWithMeta.searchParams.set('modalId', modalId)
 
         const { destroy } = show({
             title,
             width: size,
             children: (
                 <IFrame
-                    src={url}
+                    src={urlWithMeta.toString()}
                     reloadScope='organization'
                     withLoader
                     withResize
