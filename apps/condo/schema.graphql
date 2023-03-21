@@ -4038,7 +4038,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
-  canManageOrganizationNews: Boolean
+  canManageNews: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4167,8 +4167,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageBankTransactions_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
-  canManageOrganizationNews: Boolean
-  canManageOrganizationNews_not: Boolean
+  canManageNews: Boolean
+  canManageNews_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4296,8 +4296,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageBankTransactions_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
-  canManageOrganizationNews_ASC
-  canManageOrganizationNews_DESC
+  canManageNews_ASC
+  canManageNews_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4345,7 +4345,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
-  canManageOrganizationNews: Boolean
+  canManageNews: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4394,7 +4394,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
-  canManageOrganizationNews: Boolean
+  canManageNews: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4472,7 +4472,7 @@ type OrganizationEmployeeRole {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
-  canManageOrganizationNews: Boolean
+  canManageNews: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4589,8 +4589,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageBankTransactions_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
-  canManageOrganizationNews: Boolean
-  canManageOrganizationNews_not: Boolean
+  canManageNews: Boolean
+  canManageNews_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4700,8 +4700,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageBankTransactions_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
-  canManageOrganizationNews_ASC
-  canManageOrganizationNews_DESC
+  canManageNews_ASC
+  canManageNews_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4748,7 +4748,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
-  canManageOrganizationNews: Boolean
+  canManageNews: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4793,7 +4793,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
-  canManageOrganizationNews: Boolean
+  canManageNews: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -51708,20 +51708,20 @@ input AssigneeScopesCreateInput {
   data: AssigneeScopeCreateInput
 }
 
-enum OrganizationNewsItemHistoryRecordHistoryActionType {
+enum NewsItemHistoryRecordHistoryActionType {
   c
   u
   d
 }
 
 """ A keystone list """
-type OrganizationNewsItemHistoryRecord {
+type NewsItemHistoryRecord {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the OrganizationNewsItemHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the OrganizationNewsItemHistoryRecord List config, or
-   3. As an alias to a 'name' field on the OrganizationNewsItemHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the OrganizationNewsItemHistoryRecord List.
+   1. Execution of 'labelResolver' set on the NewsItemHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the NewsItemHistoryRecord List config, or
+   3. As an alias to a 'name' field on the NewsItemHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the NewsItemHistoryRecord List.
   """
   _label_: String
   organization: String
@@ -51739,13 +51739,13 @@ type OrganizationNewsItemHistoryRecord {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: OrganizationNewsItemHistoryRecordHistoryActionType
+  history_action: NewsItemHistoryRecordHistoryActionType
   history_id: String
 }
 
-input OrganizationNewsItemHistoryRecordWhereInput {
-  AND: [OrganizationNewsItemHistoryRecordWhereInput]
-  OR: [OrganizationNewsItemHistoryRecordWhereInput]
+input NewsItemHistoryRecordWhereInput {
+  AND: [NewsItemHistoryRecordWhereInput]
+  OR: [NewsItemHistoryRecordWhereInput]
   organization: String
   organization_not: String
   organization_in: [String]
@@ -51872,21 +51872,21 @@ input OrganizationNewsItemHistoryRecordWhereInput {
   history_date_gte: String
   history_date_in: [String]
   history_date_not_in: [String]
-  history_action: OrganizationNewsItemHistoryRecordHistoryActionType
-  history_action_not: OrganizationNewsItemHistoryRecordHistoryActionType
-  history_action_in: [OrganizationNewsItemHistoryRecordHistoryActionType]
-  history_action_not_in: [OrganizationNewsItemHistoryRecordHistoryActionType]
+  history_action: NewsItemHistoryRecordHistoryActionType
+  history_action_not: NewsItemHistoryRecordHistoryActionType
+  history_action_in: [NewsItemHistoryRecordHistoryActionType]
+  history_action_not_in: [NewsItemHistoryRecordHistoryActionType]
   history_id: String
   history_id_not: String
   history_id_in: [String]
   history_id_not_in: [String]
 }
 
-input OrganizationNewsItemHistoryRecordWhereUniqueInput {
+input NewsItemHistoryRecordWhereUniqueInput {
   id: ID!
 }
 
-enum SortOrganizationNewsItemHistoryRecordsBy {
+enum SortNewsItemHistoryRecordsBy {
   title_ASC
   title_DESC
   body_ASC
@@ -51911,7 +51911,7 @@ enum SortOrganizationNewsItemHistoryRecordsBy {
   history_action_DESC
 }
 
-input OrganizationNewsItemHistoryRecordUpdateInput {
+input NewsItemHistoryRecordUpdateInput {
   organization: String
   title: String
   body: String
@@ -51926,16 +51926,16 @@ input OrganizationNewsItemHistoryRecordUpdateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: OrganizationNewsItemHistoryRecordHistoryActionType
+  history_action: NewsItemHistoryRecordHistoryActionType
   history_id: String
 }
 
-input OrganizationNewsItemHistoryRecordsUpdateInput {
+input NewsItemHistoryRecordsUpdateInput {
   id: ID!
-  data: OrganizationNewsItemHistoryRecordUpdateInput
+  data: NewsItemHistoryRecordUpdateInput
 }
 
-input OrganizationNewsItemHistoryRecordCreateInput {
+input NewsItemHistoryRecordCreateInput {
   organization: String
   title: String
   body: String
@@ -51950,28 +51950,28 @@ input OrganizationNewsItemHistoryRecordCreateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: OrganizationNewsItemHistoryRecordHistoryActionType
+  history_action: NewsItemHistoryRecordHistoryActionType
   history_id: String
 }
 
-input OrganizationNewsItemHistoryRecordsCreateInput {
-  data: OrganizationNewsItemHistoryRecordCreateInput
+input NewsItemHistoryRecordsCreateInput {
+  data: NewsItemHistoryRecordCreateInput
 }
 
-enum OrganizationNewsItemTypeType {
+enum NewsItemTypeType {
   common
   emergency
 }
 
 """ The news item created by the organization to show on resident's mobile devices 
 """
-type OrganizationNewsItem {
+type NewsItem {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the OrganizationNewsItem List config, or
-   2. As an alias to the field set on 'labelField' in the OrganizationNewsItem List config, or
-   3. As an alias to a 'name' field on the OrganizationNewsItem List (if one exists), or
-   4. As an alias to the 'id' field on the OrganizationNewsItem List.
+   1. Execution of 'labelResolver' set on the NewsItem List config, or
+   2. As an alias to the field set on 'labelField' in the NewsItem List config, or
+   3. As an alias to a 'name' field on the NewsItem List (if one exists), or
+   4. As an alias to the 'id' field on the NewsItem List.
   """
   _label_: String
 
@@ -51985,7 +51985,7 @@ type OrganizationNewsItem {
   body: String
 
   """ The news item type """
-  type: OrganizationNewsItemTypeType
+  type: NewsItemTypeType
   id: ID!
   v: Int
   createdAt: String
@@ -52009,9 +52009,9 @@ type OrganizationNewsItem {
   sender: SenderField
 }
 
-input OrganizationNewsItemWhereInput {
-  AND: [OrganizationNewsItemWhereInput]
-  OR: [OrganizationNewsItemWhereInput]
+input NewsItemWhereInput {
+  AND: [NewsItemWhereInput]
+  OR: [NewsItemWhereInput]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   title: String
@@ -52050,10 +52050,10 @@ input OrganizationNewsItemWhereInput {
   body_not_ends_with_i: String
   body_in: [String]
   body_not_in: [String]
-  type: OrganizationNewsItemTypeType
-  type_not: OrganizationNewsItemTypeType
-  type_in: [OrganizationNewsItemTypeType]
-  type_not_in: [OrganizationNewsItemTypeType]
+  type: NewsItemTypeType
+  type_not: NewsItemTypeType
+  type_in: [NewsItemTypeType]
+  type_not_in: [NewsItemTypeType]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -52112,11 +52112,11 @@ input OrganizationNewsItemWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input OrganizationNewsItemWhereUniqueInput {
+input NewsItemWhereUniqueInput {
   id: ID!
 }
 
-enum SortOrganizationNewsItemsBy {
+enum SortNewsItemsBy {
   organization_ASC
   organization_DESC
   title_ASC
@@ -52143,11 +52143,11 @@ enum SortOrganizationNewsItemsBy {
   dv_DESC
 }
 
-input OrganizationNewsItemUpdateInput {
+input NewsItemUpdateInput {
   organization: OrganizationRelateToOneInput
   title: String
   body: String
-  type: OrganizationNewsItemTypeType
+  type: NewsItemTypeType
   v: Int
   createdAt: String
   updatedAt: String
@@ -52159,16 +52159,16 @@ input OrganizationNewsItemUpdateInput {
   sender: SenderFieldInput
 }
 
-input OrganizationNewsItemsUpdateInput {
+input NewsItemsUpdateInput {
   id: ID!
-  data: OrganizationNewsItemUpdateInput
+  data: NewsItemUpdateInput
 }
 
-input OrganizationNewsItemCreateInput {
+input NewsItemCreateInput {
   organization: OrganizationRelateToOneInput
   title: String
   body: String
-  type: OrganizationNewsItemTypeType
+  type: NewsItemTypeType
   v: Int
   createdAt: String
   updatedAt: String
@@ -52180,8 +52180,8 @@ input OrganizationNewsItemCreateInput {
   sender: SenderFieldInput
 }
 
-input OrganizationNewsItemsCreateInput {
-  data: OrganizationNewsItemCreateInput
+input NewsItemsCreateInput {
+  data: NewsItemCreateInput
 }
 
 enum WebhookHistoryRecordHistoryActionType {
@@ -56934,35 +56934,32 @@ type Query {
   """ Retrieve the meta-data for the AssigneeScope list. """
   _AssigneeScopesMeta: _ListMeta
 
-  """ Search for all OrganizationNewsItemHistoryRecord items which match the where clause. 
+  """ Search for all NewsItemHistoryRecord items which match the where clause. 
   """
-  allOrganizationNewsItemHistoryRecords(where: OrganizationNewsItemHistoryRecordWhereInput, search: String, sortBy: [SortOrganizationNewsItemHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [OrganizationNewsItemHistoryRecord]
+  allNewsItemHistoryRecords(where: NewsItemHistoryRecordWhereInput, search: String, sortBy: [SortNewsItemHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [NewsItemHistoryRecord]
 
-  """ Search for the OrganizationNewsItemHistoryRecord item with the matching ID. 
+  """ Search for the NewsItemHistoryRecord item with the matching ID. """
+  NewsItemHistoryRecord(where: NewsItemHistoryRecordWhereUniqueInput!): NewsItemHistoryRecord
+
+  """ Perform a meta-query on all NewsItemHistoryRecord items which match the where clause. 
   """
-  OrganizationNewsItemHistoryRecord(where: OrganizationNewsItemHistoryRecordWhereUniqueInput!): OrganizationNewsItemHistoryRecord
+  _allNewsItemHistoryRecordsMeta(where: NewsItemHistoryRecordWhereInput, search: String, sortBy: [SortNewsItemHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Perform a meta-query on all OrganizationNewsItemHistoryRecord items which match the where clause. 
+  """ Retrieve the meta-data for the NewsItemHistoryRecord list. """
+  _NewsItemHistoryRecordsMeta: _ListMeta
+
+  """ Search for all NewsItem items which match the where clause. """
+  allNewsItems(where: NewsItemWhereInput, search: String, sortBy: [SortNewsItemsBy!], orderBy: String, first: Int, skip: Int): [NewsItem]
+
+  """ Search for the NewsItem item with the matching ID. """
+  NewsItem(where: NewsItemWhereUniqueInput!): NewsItem
+
+  """ Perform a meta-query on all NewsItem items which match the where clause. 
   """
-  _allOrganizationNewsItemHistoryRecordsMeta(where: OrganizationNewsItemHistoryRecordWhereInput, search: String, sortBy: [SortOrganizationNewsItemHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allNewsItemsMeta(where: NewsItemWhereInput, search: String, sortBy: [SortNewsItemsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the OrganizationNewsItemHistoryRecord list. 
-  """
-  _OrganizationNewsItemHistoryRecordsMeta: _ListMeta
-
-  """ Search for all OrganizationNewsItem items which match the where clause. 
-  """
-  allOrganizationNewsItems(where: OrganizationNewsItemWhereInput, search: String, sortBy: [SortOrganizationNewsItemsBy!], orderBy: String, first: Int, skip: Int): [OrganizationNewsItem]
-
-  """ Search for the OrganizationNewsItem item with the matching ID. """
-  OrganizationNewsItem(where: OrganizationNewsItemWhereUniqueInput!): OrganizationNewsItem
-
-  """ Perform a meta-query on all OrganizationNewsItem items which match the where clause. 
-  """
-  _allOrganizationNewsItemsMeta(where: OrganizationNewsItemWhereInput, search: String, sortBy: [SortOrganizationNewsItemsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the OrganizationNewsItem list. """
-  _OrganizationNewsItemsMeta: _ListMeta
+  """ Retrieve the meta-data for the NewsItem list. """
+  _NewsItemsMeta: _ListMeta
 
   """ Search for all WebhookHistoryRecord items which match the where clause. 
   """
@@ -60471,41 +60468,41 @@ type Mutation {
   """ Delete multiple AssigneeScope items by ID. """
   deleteAssigneeScopes(ids: [ID!]): [AssigneeScope]
 
-  """ Create a single OrganizationNewsItemHistoryRecord item. """
-  createOrganizationNewsItemHistoryRecord(data: OrganizationNewsItemHistoryRecordCreateInput): OrganizationNewsItemHistoryRecord
+  """ Create a single NewsItemHistoryRecord item. """
+  createNewsItemHistoryRecord(data: NewsItemHistoryRecordCreateInput): NewsItemHistoryRecord
 
-  """ Create multiple OrganizationNewsItemHistoryRecord items. """
-  createOrganizationNewsItemHistoryRecords(data: [OrganizationNewsItemHistoryRecordsCreateInput]): [OrganizationNewsItemHistoryRecord]
+  """ Create multiple NewsItemHistoryRecord items. """
+  createNewsItemHistoryRecords(data: [NewsItemHistoryRecordsCreateInput]): [NewsItemHistoryRecord]
 
-  """ Update a single OrganizationNewsItemHistoryRecord item by ID. """
-  updateOrganizationNewsItemHistoryRecord(id: ID!, data: OrganizationNewsItemHistoryRecordUpdateInput): OrganizationNewsItemHistoryRecord
+  """ Update a single NewsItemHistoryRecord item by ID. """
+  updateNewsItemHistoryRecord(id: ID!, data: NewsItemHistoryRecordUpdateInput): NewsItemHistoryRecord
 
-  """ Update multiple OrganizationNewsItemHistoryRecord items by ID. """
-  updateOrganizationNewsItemHistoryRecords(data: [OrganizationNewsItemHistoryRecordsUpdateInput]): [OrganizationNewsItemHistoryRecord]
+  """ Update multiple NewsItemHistoryRecord items by ID. """
+  updateNewsItemHistoryRecords(data: [NewsItemHistoryRecordsUpdateInput]): [NewsItemHistoryRecord]
 
-  """ Delete a single OrganizationNewsItemHistoryRecord item by ID. """
-  deleteOrganizationNewsItemHistoryRecord(id: ID!): OrganizationNewsItemHistoryRecord
+  """ Delete a single NewsItemHistoryRecord item by ID. """
+  deleteNewsItemHistoryRecord(id: ID!): NewsItemHistoryRecord
 
-  """ Delete multiple OrganizationNewsItemHistoryRecord items by ID. """
-  deleteOrganizationNewsItemHistoryRecords(ids: [ID!]): [OrganizationNewsItemHistoryRecord]
+  """ Delete multiple NewsItemHistoryRecord items by ID. """
+  deleteNewsItemHistoryRecords(ids: [ID!]): [NewsItemHistoryRecord]
 
-  """ Create a single OrganizationNewsItem item. """
-  createOrganizationNewsItem(data: OrganizationNewsItemCreateInput): OrganizationNewsItem
+  """ Create a single NewsItem item. """
+  createNewsItem(data: NewsItemCreateInput): NewsItem
 
-  """ Create multiple OrganizationNewsItem items. """
-  createOrganizationNewsItems(data: [OrganizationNewsItemsCreateInput]): [OrganizationNewsItem]
+  """ Create multiple NewsItem items. """
+  createNewsItems(data: [NewsItemsCreateInput]): [NewsItem]
 
-  """ Update a single OrganizationNewsItem item by ID. """
-  updateOrganizationNewsItem(id: ID!, data: OrganizationNewsItemUpdateInput): OrganizationNewsItem
+  """ Update a single NewsItem item by ID. """
+  updateNewsItem(id: ID!, data: NewsItemUpdateInput): NewsItem
 
-  """ Update multiple OrganizationNewsItem items by ID. """
-  updateOrganizationNewsItems(data: [OrganizationNewsItemsUpdateInput]): [OrganizationNewsItem]
+  """ Update multiple NewsItem items by ID. """
+  updateNewsItems(data: [NewsItemsUpdateInput]): [NewsItem]
 
-  """ Delete a single OrganizationNewsItem item by ID. """
-  deleteOrganizationNewsItem(id: ID!): OrganizationNewsItem
+  """ Delete a single NewsItem item by ID. """
+  deleteNewsItem(id: ID!): NewsItem
 
-  """ Delete multiple OrganizationNewsItem items by ID. """
-  deleteOrganizationNewsItems(ids: [ID!]): [OrganizationNewsItem]
+  """ Delete multiple NewsItem items by ID. """
+  deleteNewsItems(ids: [ID!]): [NewsItem]
 
   """ Create a single WebhookHistoryRecord item. """
   createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord
