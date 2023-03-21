@@ -24,6 +24,15 @@ const CondoWebSendAnalyticsEventParamsSchema = {
     additionalProperties: true,
 }
 
+const CondoWebAppCloseModalWindowParamsSchema = {
+    type: 'object',
+    properties: {
+        modalId: { type: 'string' },
+    },
+    required: ['modalId'],
+    additionalProperties: false,
+}
+
 const CondoWebAppRedirectParamsSchema = {
     type: 'object',
     properties: {
@@ -101,6 +110,7 @@ export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValida
 
 export const validators: ValidatorsType = {
     CondoWebSendAnalyticsEvent: ajv.compile(CondoWebSendAnalyticsEventParamsSchema),
+    CondoWebAppCloseModalWindow: ajv.compile(CondoWebAppCloseModalWindowParamsSchema),
     CondoWebAppGetActiveProgressBars: NoParamsValidator,
     CondoWebAppGetLaunchParams: NoParamsValidator,
     CondoWebAppRedirect: ajv.compile(CondoWebAppRedirectParamsSchema),
