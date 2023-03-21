@@ -104,6 +104,7 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
             logger.info({ msg: 'Executing task', name, data: { preparedArgs, preparedOpts } })
             result = await executeTask(name, preparedArgs, job)
             status = 'completed'
+            logger.info({ msg: 'Task result', name, status, data: { result, preparedArgs, preparedOpts } })
         } catch (e) {
             logger.error({ msg: 'Error executing task', name, error: e, data: { preparedArgs, preparedOpts } })
             status = 'error'

@@ -7,6 +7,7 @@ const { isEmpty, get } = require('lodash')
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { find } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
@@ -28,6 +29,7 @@ const {
 } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
+const logger = getLogger('notification/serverSchema')
 const Message = generateServerUtils(MessageGQL)
 
 async function sendMessage (context, data) {
@@ -42,6 +44,8 @@ async function sendMessage (context, data) {
     if (!LOCALES[data.lang]) throw new Error('unknown data.lang')
     if (!data.dv) data.dv = 1
 
+    const reqId = get(context, ['req', 'id'])
+    logger.info({ msg: 'sendMessage', type: data.type, reqId })
     return await execGqlWithoutAccess(context, {
         query: SEND_MESSAGE,
         variables: { data },
