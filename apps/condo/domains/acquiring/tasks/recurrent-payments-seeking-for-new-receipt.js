@@ -117,5 +117,5 @@ async function process () {
 module.exports = {
     process,
     processContext,
-    recurrentPaymentsSeekingForNewReceiptCron: createCronTask('recurrentPaymentsSeekingForNewReceipt', '0 * * * *', process),
+    createRecurrentPaymentForNewBillingReceipt: createCronTask('createRecurrentPaymentForNewBillingReceipt', '0 * * * *', process),
 }
