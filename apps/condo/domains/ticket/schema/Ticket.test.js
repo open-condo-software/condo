@@ -12,7 +12,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowValidationFailureError, expectToThrowGQLError,
+    expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
 
 const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
@@ -130,16 +130,8 @@ describe('Ticket', () => {
                 contact: { connect: { id: contact.id } },
             }
             const [obj, attrs] = await createTestTicket(client, client.organization, client.property, fields)
-            expect(obj.id).toMatch(UUID_RE)
-            expect(obj.dv).toEqual(1)
-            expect(obj.sender).toEqual(attrs.sender)
-            expect(obj.v).toEqual(1)
-            expect(obj.newId).toEqual(null)
-            expect(obj.deletedAt).toEqual(null)
-            expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            expect(obj.createdAt).toMatch(DATETIME_RE)
-            expect(obj.updatedAt).toMatch(DATETIME_RE)
+
+            expectValuesOfCommonFields(obj, attrs, client)
             expect(obj.organization).toEqual(expect.objectContaining({ id: client.organization.id }))
             expect(String(obj.number)).toMatch(NUMBER_RE)
             expect(obj.source).toEqual(expect.objectContaining({ id: attrs.source.connect.id }))

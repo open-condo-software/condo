@@ -659,6 +659,19 @@ const expectToThrowGraphQLRequestError = async (testFunc, message) => {
     })
 }
 
+const expectValuesOfCommonFields = (obj, attrs, client) => {
+    expect(obj.id).toMatch(UUID_RE)
+    expect(obj.dv).toEqual(1)
+    expect(obj.sender).toEqual(attrs.sender)
+    expect(obj.v).toEqual(1)
+    expect(obj.newId).toEqual(null)
+    expect(obj.deletedAt).toEqual(null)
+    expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+    expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+    expect(obj.createdAt).toMatch(DATETIME_RE)
+    expect(obj.updatedAt).toMatch(DATETIME_RE)
+}
+
 module.exports = {
     waitFor,
     isPostgres, isMongo,
@@ -693,4 +706,5 @@ module.exports = {
     expectToThrowInternalError,
     expectToThrowGQLError,
     expectToThrowGraphQLRequestError,
+    expectValuesOfCommonFields,
 }
