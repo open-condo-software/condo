@@ -130,5 +130,5 @@ async function processReadyToChargeRecurrentPayments () {
 module.exports = {
     chargeByRecurrentPaymentAndPaymentAdapter,
     processReadyToChargeRecurrentPayments,
-    chargeRecurrentPayments: createCronTask('chargeRecurrentPayments', '0 * * * *', processReadyToChargeRecurrentPayments),
+    chargeRecurrentPayments: createCronTask('chargeRecurrentPayments', '0 12 * * *', processReadyToChargeRecurrentPayments),
 }

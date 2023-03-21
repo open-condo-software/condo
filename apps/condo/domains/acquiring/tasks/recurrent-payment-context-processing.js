@@ -87,5 +87,5 @@ async function processAllReadyToPayRecurrentPaymentContext () {
 module.exports = {
     processAllReadyToPayRecurrentPaymentContext,
     createRecurrentPaymentForRecurrentPaymentContext,
-    createRecurrentPaymentForReadyToPayRecurrentPaymentContexts: createCronTask('createRecurrentPaymentForReadyToPayRecurrentPaymentContexts', '0 * * * *', processAllReadyToPayRecurrentPaymentContext),
+    createRecurrentPaymentForReadyToPayRecurrentPaymentContexts: createCronTask('createRecurrentPaymentForReadyToPayRecurrentPaymentContexts', '0 11 * * *', processAllReadyToPayRecurrentPaymentContext),
 }

@@ -117,5 +117,5 @@ async function processAllAutoPayRecurrentPaymentContexts () {
 module.exports = {
     scanBillingReceiptsForRecurrentPaymentContext,
     processAllAutoPayRecurrentPaymentContexts,
-    createRecurrentPaymentForNewBillingReceipt: createCronTask('createRecurrentPaymentForNewBillingReceipt', '0 * * * *', processAllAutoPayRecurrentPaymentContexts),
+    createRecurrentPaymentForNewBillingReceipt: createCronTask('createRecurrentPaymentForNewBillingReceipt', '0 10-14 * * *', processAllAutoPayRecurrentPaymentContexts),
 }
