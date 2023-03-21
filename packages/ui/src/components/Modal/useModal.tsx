@@ -107,6 +107,7 @@ export function useModal (): [ShowModalFunc, React.ReactElement] {
         const modal = (
             <HookModal
                 key={modalCounter}
+                ref={modalRef}
                 afterClose={() => {
                     closeFn?.()
                 }}
@@ -121,7 +122,6 @@ export function useModal (): [ShowModalFunc, React.ReactElement] {
                 function destroyAction () {
                     modalRef.current?.destroy()
                 }
-
                 if (modalRef.current) {
                     modalRef.current.destroy()
                 } else {
