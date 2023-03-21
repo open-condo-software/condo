@@ -4,7 +4,7 @@
 
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,
     expectToThrowAuthenticationErrorToObjects,
@@ -44,7 +44,7 @@ const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationWithAccessToAnotherOrganization,
     makeEmployeeUserClientWithAbilities,
-    updateTestOrganization, createTestOrganizationEmployee,
+    updateTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestProperty,
@@ -1224,6 +1224,26 @@ describe('MeterReading', () => {
                 expect(meterReading).toHaveProperty('clientName', null)
                 expect(meterReading).toHaveProperty('clientEmail', null)
                 expect(meterReading).toHaveProperty('clientPhone', null)
+            })
+        })
+
+        describe('Fields', () => {
+            describe('date', () => {
+                test('server side set date if it\'s not passed in resolvedData', async () => {
+                    const client = await makeEmployeeUserClientWithAbilities({
+                        canManageMeterReadings: true,
+                    })
+                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
+
+                    const [meterReading] = await createTestMeterReading(client, meter, source, {
+                        date: undefined,
+                    })
+
+                    expect(meterReading.id).toMatch(UUID_RE)
+                    expect(meterReading.date).toMatch(DATETIME_RE)
+                })
             })
         })
     })
