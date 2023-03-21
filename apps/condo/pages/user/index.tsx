@@ -24,7 +24,11 @@ const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
 const ROW_GUTTER_MID: [Gutter, Gutter] = [0, 40]
 const ROW_GUTTER_SMALL: [Gutter, Gutter] = [0, 24]
 
-export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
+interface IUserInfoPageContentProps {
+    organizationEmployeesQuery: { where: { user: { id: string }, isAccepted: boolean } },
+}
+
+export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organizationEmployeesQuery }) => {
     const intl = useIntl()
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
@@ -70,7 +74,7 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
                         <Col xs={10} lg={3}>
                             <UserAvatar borderRadius={24}/>
                         </Col>
-                        <Col xs={24} lg={20} offset={ isSmall ? 0 : 1}>
+                        <Col xs={24} lg={20} offset={isSmall ? 0 : 1}>
                             <Row gutter={ROW_GUTTER_BIG}>
                                 <Col span={24}>
                                     <Row gutter={ROW_GUTTER_MID}>
@@ -120,7 +124,7 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
                                                     color='green'
                                                     type='sberPrimary'
                                                     secondary
-                                                    icon={<EditFilled />}
+                                                    icon={<EditFilled/>}
                                                 >
                                                     {UpdateMessage}
                                                 </Button>
@@ -170,13 +174,13 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
     )
 }
 
-const UserInfoPage = () => {
+const UserInfoPage: React.FC & { requiredAccess?: React.FC } = () => {
     const { user } = useAuth()
     const userId = useMemo(() => get(user, 'id', null), [user])
     const organizationEmployeesQuery = useMemo(() => ({ where: { user: { id: userId }, isAccepted: true } }), [userId])
 
     return (
-        <UserInfoPageContent organizationEmployeesQuery={organizationEmployeesQuery} />
+        <UserInfoPageContent organizationEmployeesQuery={organizationEmployeesQuery}/>
     )
 }
 
