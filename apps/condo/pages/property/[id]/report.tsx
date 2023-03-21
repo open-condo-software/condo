@@ -199,7 +199,7 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
                             </DeprecatedButton>
                         )
                     }
-                    <FileImportButton type='secondary'>
+                    <FileImportButton type='secondary' hidden={!fileImportIntegration}>
                         {ImportFileTitle}
                     </FileImportButton>
                 </>

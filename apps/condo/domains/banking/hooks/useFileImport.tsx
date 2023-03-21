@@ -64,6 +64,7 @@ const useFileImport: IUseFileImport = ({ propertyId, bankAccount, organizationId
                 handleUpload={handleUpload}
                 type={props.type}
                 loading={loading}
+                hidden={props.hidden}
             >
                 {props.children}
             </FileImportButton>
