@@ -10,7 +10,7 @@ import {
     useGetActiveProgressBarsHandler,
     useLaunchParamsHandler,
     useRedirectHandler,
-    useShowModalHandler,
+    useModalHandler,
     useShowProgressBarHandler,
     useUpdateProgressBarHandler,
 } from './globalHandlers'
@@ -123,12 +123,12 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     const [registeredHandlers, setRegisteredHandlers] = useState<Record<HandlerId, OriginHandlers>>(initialHandlers)
     const isOnClient = typeof window !== 'undefined'
 
-    const addEventHandler: RegisterHandler = useCallback((event, origin, handler) => {
+    const addEventHandler: RegisterHandler = useCallback((event, frameId, handler) => {
         setRegisteredHandlers(prev => {
             return {
                 ...prev,
-                [origin]: {
-                    ...prev[origin],
+                [frameId]: {
+                    ...prev[frameId],
                     [event]: handler,
                 },
             }
@@ -140,7 +140,11 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     const getActiveProgressBarsHandler = useGetActiveProgressBarsHandler()
     const updateProgressBarHandler = useUpdateProgressBarHandler()
     const redirectHandler = useRedirectHandler()
-    const [showModalHandler, ModalContainer] = useShowModalHandler()
+    const [showModalHandler, closeModalHandler, ModalContainer] = useModalHandler()
+
+    useEffect(() => {
+        addEventHandler('CondoWebAppCloseModalWindow', '*', closeModalHandler)
+    }, [addEventHandler, closeModalHandler])
 
     useEffect(() => {
         addEventHandler('CondoWebAppGetActiveProgressBars', '*', getActiveProgressBarsHandler)

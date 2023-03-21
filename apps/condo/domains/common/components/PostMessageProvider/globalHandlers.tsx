@@ -1,9 +1,10 @@
 import { notification } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
+import omit from 'lodash/omit'
 import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
-import React, { useCallback, useContext } from 'react'
+import React, { useCallback, useContext, useState } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
 import { useAuth } from '@open-condo/next/auth'
@@ -26,7 +27,12 @@ export const handleNotification: RequestHandler<'CondoWebAppShowNotification'> =
     return { success: true }
 }
 
-export const useShowModalHandler: () => [RequestHandler<'CondoWebAppShowModalWindow'>, React.ReactElement] = () => {
+export const useModalHandler: () => [
+    RequestHandler<'CondoWebAppShowModalWindow'>,
+    RequestHandler<'CondoWebAppCloseModalWindow'>,
+    React.ReactElement,
+] = () => {
+    const [openModals, setOpenModals] = useState<{ [id: string]: { destroy: () => void } }>({})
     const [show, ContextHandler] = Modal.useModal()
 
     const handleShowModal = useCallback<RequestHandler<'CondoWebAppShowModalWindow'>>((params, origin) => {
@@ -41,7 +47,7 @@ export const useShowModalHandler: () => [RequestHandler<'CondoWebAppShowModalWin
         // TODO(DOMA-5563): Pass this to onCancel to notify about modal closing
         const modalId = uuidV4()
 
-        show({
+        const { destroy } = show({
             title,
             width: size,
             children: (
@@ -54,10 +60,22 @@ export const useShowModalHandler: () => [RequestHandler<'CondoWebAppShowModalWin
             ),
         })
 
+        setOpenModals(prev => ({ ...prev, [modalId]: { destroy } }))
+
         return { modalId }
     }, [show])
 
-    return [handleShowModal, ContextHandler]
+    const handleCloseModal = useCallback<RequestHandler<'CondoWebAppCloseModalWindow'>>(({ modalId }) => {
+        if (modalId in openModals) {
+            openModals[modalId].destroy()
+            setOpenModals(omit(openModals, modalId))
+            return { success: true }
+        }
+
+        throw new Error('Non-existent modalId')
+    }, [openModals])
+
+    return [handleShowModal, handleCloseModal, ContextHandler]
 }
 
 export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchParams'> = () => {
