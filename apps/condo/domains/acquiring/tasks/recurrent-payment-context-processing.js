@@ -8,15 +8,15 @@ const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
     paginationConfiguration,
-} = require('apps/condo/domains/acquiring/constants/recurrentPaymentTask')
+} = require('@condo/domains/acquiring/constants/recurrentPaymentTask')
 const {
     RecurrentPayment,
-} = require('apps/condo/domains/acquiring/utils/serverSchema')
+} = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getAllReadyToPayRecurrentPaymentContexts,
     getReceiptsForServiceConsumer,
-} = require('apps/condo/domains/acquiring/utils/taskSchema')
-const { processArrayOf } = require('apps/condo/domains/common/utils/parallel')
+} = require('@condo/domains/acquiring/utils/taskSchema')
+const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'recurrent-payment-context-processing' } }
 const logger = getLogger('recurrent-payment-context-processing')

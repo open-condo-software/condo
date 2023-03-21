@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-const index = require('apps/condo/index')
+const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 const faker = require('faker')
 
@@ -12,19 +12,19 @@ const {
 
 const {
     RECURRENT_PAYMENT_INIT_STATUS,
-} = require('apps/condo/domains/acquiring/constants/recurrentPayment')
+} = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     makePayerWithMultipleConsumers,
     createTestRecurrentPaymentContext,
     RecurrentPayment,
-} = require('apps/condo/domains/acquiring/utils/testSchema')
-const { DATE_FORMAT, DATE_FORMAT_Z } = require('apps/condo/domains/common/utils/date')
+} = require('@condo/domains/acquiring/utils/testSchema')
+const { DATE_FORMAT, DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
-} = require('apps/condo/domains/notification/constants/constants')
+} = require('@condo/domains/notification/constants/constants')
 const {
     Message,
-} = require('apps/condo/domains/notification/utils/serverSchema')
+} = require('@condo/domains/notification/utils/serverSchema')
 
 const {
     processContext,

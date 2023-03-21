@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-const index = require('apps/condo/index')
+const index = require('@app/condo/index')
 const faker = require('faker')
 
 const {
@@ -16,15 +16,15 @@ const {
     RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS,
     RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
     RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
-} = require('apps/condo/domains/acquiring/constants/recurrentPayment')
+} = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     makePayerWithMultipleConsumers,
     createTestRecurrentPaymentContext,
     RecurrentPayment,
-} = require('apps/condo/domains/acquiring/utils/testSchema')
+} = require('@condo/domains/acquiring/utils/testSchema')
 const {
     createTestRecurrentPayment,
-} = require('apps/condo/domains/acquiring/utils/testSchema')
+} = require('@condo/domains/acquiring/utils/testSchema')
 
 const { processRecurrentPayment } = require('./recurrent-payment-processing')
 
