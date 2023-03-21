@@ -55,5 +55,5 @@ async function process () {
 
 module.exports = {
     process,
-    recurrentPaymentsNotificationCron: createCronTask('recurrentPaymentsNotification', '0 * * * *', process),
+    notifyBeforeRecurrentPaymentDate: createCronTask('notifyBeforeRecurrentPaymentDate', '0 * * * *', process),
 }

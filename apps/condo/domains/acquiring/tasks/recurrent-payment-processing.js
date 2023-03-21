@@ -130,5 +130,5 @@ async function process () {
 module.exports = {
     process,
     processRecurrentPayment,
-    recurrentPaymentsProcessingCron: createCronTask('recurrentPaymentsProcessing', '0 * * * *', process),
+    chargeRecurrentPayments: createCronTask('chargeRecurrentPayments', '0 * * * *', process),
 }
