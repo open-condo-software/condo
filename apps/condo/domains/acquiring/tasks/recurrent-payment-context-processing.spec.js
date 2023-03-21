@@ -20,7 +20,7 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 
 const {
-    processContext,
+    createRecurrentPaymentForRecurrentPaymentContext,
 } = require('./recurrent-payment-context-processing')
 
 
@@ -61,7 +61,7 @@ describe('recurrent-payment-context-processing', () => {
         })
 
         // create recurrent payments
-        await processContext(adminContext, today, recurrentPaymentContext)
+        await createRecurrentPaymentForRecurrentPaymentContext(adminContext, today, recurrentPaymentContext)
 
         const recurrentPayments = await RecurrentPayment.getAll(admin, {
             recurrentPaymentContext: { id: recurrentPaymentContext.id },
@@ -103,7 +103,7 @@ describe('recurrent-payment-context-processing', () => {
         })
 
         // create recurrent payments
-        await processContext(adminContext, today, recurrentPaymentContext)
+        await createRecurrentPaymentForRecurrentPaymentContext(adminContext, today, recurrentPaymentContext)
 
         const recurrentPayments = await RecurrentPayment.getAll(admin, {
             recurrentPaymentContext: { id: recurrentPaymentContext.id },

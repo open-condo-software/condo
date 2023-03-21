@@ -26,7 +26,9 @@ const {
     createTestRecurrentPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
 
-const { processRecurrentPayment } = require('./recurrent-payment-processing')
+const {
+    chargeByRecurrentPaymentAndPaymentAdapter,
+} = require('./recurrent-payment-processing')
 
 const { keystone } = index
 
@@ -88,7 +90,7 @@ describe('recurrent-payment-processing', () => {
             )
 
             // proceed
-            await processRecurrentPayment(adminContext, recurrentPayment, adapter)
+            await chargeByRecurrentPaymentAndPaymentAdapter(adminContext, recurrentPayment, adapter)
 
             // retrieve updated recurrent payment
             const result = await RecurrentPayment.getOne(admin, { id: recurrentPayment.id })
@@ -118,7 +120,7 @@ describe('recurrent-payment-processing', () => {
             )
 
             // proceed
-            await processRecurrentPayment(adminContext, recurrentPayment, adapter)
+            await chargeByRecurrentPaymentAndPaymentAdapter(adminContext, recurrentPayment, adapter)
 
             // retrieve updated recurrent payment
             const result = await RecurrentPayment.getOne(admin, { id: recurrentPayment.id })
@@ -156,7 +158,7 @@ describe('recurrent-payment-processing', () => {
             )
 
             // proceed
-            await processRecurrentPayment(adminContext, recurrentPayment, adapter)
+            await chargeByRecurrentPaymentAndPaymentAdapter(adminContext, recurrentPayment, adapter)
 
             // retrieve updated recurrent payment
             const result = await RecurrentPayment.getOne(admin, { id: recurrentPayment.id })

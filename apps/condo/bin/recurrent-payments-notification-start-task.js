@@ -9,7 +9,9 @@ const path = require('path')
 
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
-const { process: processTask } = require('@condo/domains/acquiring/tasks/recurrent-payments-notification')
+const {
+    processAllRecurrentPaymentContextsBeforePaymentDate,
+} = require('@condo/domains/acquiring/tasks/recurrent-payments-notification')
 
 async function main () {
     await prepareKeystoneExpressApp(
@@ -17,7 +19,7 @@ async function main () {
         { excludeApps: ['NextApp'] },
     )
 
-    await processTask()
+    await processAllRecurrentPaymentContextsBeforePaymentDate()
     process.exit(0)
 }
 

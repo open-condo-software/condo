@@ -1,5 +1,4 @@
 const dayjs = require('dayjs')
-const { get } = require('lodash')
 const { v4: uuid } = require('uuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -21,7 +20,7 @@ const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'recurrent-payment-context-processing' } }
 const logger = getLogger('recurrent-payment-context-processing')
 
-async function processContext (context, date, recurrentPaymentContext) {
+async function createRecurrentPaymentForRecurrentPaymentContext (context, date, recurrentPaymentContext) {
     // prepare vars
     const { serviceConsumer, billingCategory } = recurrentPaymentContext
     const previousMonthDate = date.startOf('month').subtract(1, 'days')
@@ -49,7 +48,7 @@ async function processContext (context, date, recurrentPaymentContext) {
     })
 }
 
-async function process () {
+async function processAllReadyToPayRecurrentPaymentContext () {
     const taskId = this.id || uuid()
     logger.info({ msg: 'Start processing recurrent payment context', taskId })
 
@@ -73,7 +72,7 @@ async function process () {
         // process each page in parallel
         await processArrayOf(page).inParallelWith(async (recurrentPaymentContext) => {
             try {
-                await processContext(context, date, recurrentPaymentContext)
+                await createRecurrentPaymentForRecurrentPaymentContext(context, date, recurrentPaymentContext)
             } catch (err) {
                 logger.error({ msg: 'Process recurrent payment context error', err, taskId })
             }
@@ -86,7 +85,7 @@ async function process () {
 }
 
 module.exports = {
-    process,
-    processContext,
-    createRecurrentPaymentForReadyToPayRecurrentPaymentContexts: createCronTask('createRecurrentPaymentForReadyToPayRecurrentPaymentContexts', '0 * * * *', process),
+    processAllReadyToPayRecurrentPaymentContext,
+    createRecurrentPaymentForRecurrentPaymentContext,
+    createRecurrentPaymentForReadyToPayRecurrentPaymentContexts: createCronTask('createRecurrentPaymentForReadyToPayRecurrentPaymentContexts', '0 * * * *', processAllReadyToPayRecurrentPaymentContext),
 }
