@@ -6,13 +6,13 @@
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const { OrganizationNewsItem: OrganizationNewsItemGQL } = require('@condo/domains/news/gql')
+const { NewsItem: NewsItemGQL } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const OrganizationNewsItem = generateServerUtils(OrganizationNewsItemGQL)
+const NewsItem = generateServerUtils(NewsItemGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    OrganizationNewsItem,
+    NewsItem,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

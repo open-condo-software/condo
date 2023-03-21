@@ -15,7 +15,7 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadOrganizationNewsItems ({ authentication: { item: user } }) {
+async function canReadNewsItems ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -30,7 +30,7 @@ async function canReadOrganizationNewsItems ({ authentication: { item: user } })
         // TODO (DOMA-5526): check by news item access rules
         //
 
-        return true
+        return false
     }
 
     // access for stuff
@@ -45,7 +45,7 @@ async function canReadOrganizationNewsItems ({ authentication: { item: user } })
     }
 }
 
-async function canManageOrganizationNewsItems ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageNewsItems ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -57,13 +57,13 @@ async function canManageOrganizationNewsItems ({ authentication: { item: user },
         organizationId = get(originalInput, ['organization', 'connect', 'id'])
     } else if (operation === 'update') {
         if (!itemId) return false
-        const newsItem = await getById('OrganizationNewsItem', itemId)
+        const newsItem = await getById('NewsItem', itemId)
         organizationId = get(newsItem, 'organization', null)
     }
 
     if (!organizationId) return false
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageOrganizationNews')
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageNews')
 }
 
 /*
@@ -71,6 +71,6 @@ async function canManageOrganizationNewsItems ({ authentication: { item: user },
   all or no items are available) or a set of filters that limit the available items.
 */
 module.exports = {
-    canReadOrganizationNewsItems,
-    canManageOrganizationNewsItems,
+    canReadNewsItems,
+    canManageNewsItems,
 }

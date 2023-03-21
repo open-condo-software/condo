@@ -7,14 +7,14 @@ const faker = require('faker')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
-const { OrganizationNewsItem: OrganizationNewsItemGQL } = require('@condo/domains/news/gql')
+const { NewsItem: NewsItemGQL } = require('@condo/domains/news/gql')
 const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const OrganizationNewsItem = generateGQLTestUtils(OrganizationNewsItemGQL)
+const NewsItem = generateGQLTestUtils(NewsItemGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestOrganizationNewsItem (client, organization, extraAttrs = {}) {
+async function createTestNewsItem (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -32,11 +32,11 @@ async function createTestOrganizationNewsItem (client, organization, extraAttrs 
         organization: { connect: { id: organization.id } },
         ...extraAttrs,
     }
-    const obj = await OrganizationNewsItem.create(client, attrs)
+    const obj = await NewsItem.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestOrganizationNewsItem (client, id, extraAttrs = {}) {
+async function updateTestNewsItem (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -46,13 +46,13 @@ async function updateTestOrganizationNewsItem (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await OrganizationNewsItem.update(client, id, attrs)
+    const obj = await NewsItem.update(client, id, attrs)
     return [obj, attrs]
 }
 
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    OrganizationNewsItem, createTestOrganizationNewsItem, updateTestOrganizationNewsItem,
+    NewsItem, createTestNewsItem, updateTestNewsItem,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }

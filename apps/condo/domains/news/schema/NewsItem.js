@@ -7,10 +7,10 @@ const { Text, Relationship, Select } = require('@keystonejs/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const access = require('@condo/domains/news/access/OrganizationNewsItem')
+const access = require('@condo/domains/news/access/NewsItem')
 const { NEWS_TYPES } = require('@condo/domains/news/constants')
 
-const OrganizationNewsItem = new GQLListSchema('OrganizationNewsItem', {
+const NewsItem = new GQLListSchema('NewsItem', {
     schemaDoc: 'The news item created by the organization to show on resident\'s mobile devices',
     fields: {
 
@@ -45,14 +45,14 @@ const OrganizationNewsItem = new GQLListSchema('OrganizationNewsItem', {
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
-        read: access.canReadOrganizationNewsItems,
-        create: access.canManageOrganizationNewsItems,
-        update: access.canManageOrganizationNewsItems,
+        read: access.canReadNewsItems,
+        create: access.canManageNewsItems,
+        update: access.canManageNewsItems,
         delete: false,
         auth: true,
     },
 })
 
 module.exports = {
-    OrganizationNewsItem,
+    NewsItem,
 }

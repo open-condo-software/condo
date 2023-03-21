@@ -3,15 +3,15 @@
  */
 
 import {
-    OrganizationNewsItem,
-    OrganizationNewsItemCreateInput,
-    OrganizationNewsItemUpdateInput,
-    QueryAllOrganizationNewsItemsArgs,
+    NewsItem,
+    NewsItemCreateInput,
+    NewsItemUpdateInput,
+    QueryAllNewsItemsArgs,
 } from '@app/condo/schema'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
-import { OrganizationNewsItem as OrganizationNewsItemGQL } from '@condo/domains/news/gql'
+import { NewsItem as NewsItemGQL } from '@condo/domains/news/gql'
 
 // TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO
 
@@ -21,7 +21,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateReactHooks<OrganizationNewsItem, OrganizationNewsItemCreateInput, OrganizationNewsItemUpdateInput, QueryAllOrganizationNewsItemsArgs>(OrganizationNewsItemGQL)
+} = generateReactHooks<NewsItem, NewsItemCreateInput, NewsItemUpdateInput, QueryAllNewsItemsArgs>(NewsItemGQL)
 
 export {
     useObject,
