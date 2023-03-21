@@ -11,7 +11,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
-const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/organization/access/Organization')
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
@@ -53,11 +53,6 @@ const Organization = new GQLListSchema('Organization', {
 
                     if (!country || !tin) {
                         addFieldValidationError('Country and Tin fields can not be empty')
-                    }
-
-                    // TODO: DOMA-663 add tin validations for countries other than Russian Federation
-                    if (country !== RUSSIA_COUNTRY) {
-                        return
                     }
 
                     if (!isValidTin(tin, country)) {

@@ -4,7 +4,7 @@ Feature flags
 If you need to hide some functionality or give access to it to a certain group of users, 
 then you need to use feature flags.
 
-To use it you need to add `FeaturesMiddleware` to you `index.js`
+Add `const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')` to your `index.js`
 
 ## How to use feature flags in backend:
 To manage features on the server, use `featureToggleManager` as follows:  
@@ -52,11 +52,12 @@ if (enabled) {
 
 ## Use it locally:
 
-1) You can define a feature statically (only for local development)! Add follow local variable:
+1) 1) You can define a feature statically for local development only via adding following variables to `.env`
 
 `FEATURE_TOGGLE_CONFIG='{"url":null,"apiKey":null,"static": {"sms-after-ticket-creation":{"defaultValue":false,"rules":[{"condition":{"organization":{"$in":[]}},"force":true}]},"refetch-tickets-in-control-room":{"defaultValue":false,"rules":[{"force":true}]},"ticket-import":{"defaultValue":false,"rules":[{"condition":{"isSupport":true},"force":true}]},"send-billing-receipts-notifications-task":{"defaultValue":true},"max-count-completed-ticket-to-close-for-organization-task":{"defaultValue":100}}'`
 
-2) You can setUp a GrowBook service locally: 
+2) You can setup a GrowBook service locally:
+
    2.1) [Raise the GrowthBook locally](https://docs.growthbook.io/self-host) 
 
    2.2) Get API key from Settings -> API Keys in GrowthBook interface and pass it and API URL to `FEATURE_TOGGLE_CONFIG` in `.env`.
