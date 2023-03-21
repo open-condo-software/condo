@@ -17,11 +17,6 @@ const { SERVICE } = require('@condo/domains/user/constants/common')
 const { BANK_INTEGRATION_IDS } = require('../constants')
 
 
-/**
- * BankAccount entity can be read either by:
- * 1. By admin or support
- * 2. Organization employee
- */
 async function canReadBankAccounts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -74,9 +69,9 @@ async function canManageBankAccounts (args) {
                 const integrationContext = get(bankAccount, 'integrationContext')
 
                 if (integrationContext) {
-                    const bankIntegrationAccountCtx = await getById('BankIntegrationAccountContext', integrationContext)
+                    const accountContext = await getById('BankIntegrationAccountContext', integrationContext)
 
-                    if (bankIntegrationAccountCtx.integration !== BANK_INTEGRATION_IDS.SBBOL) return false
+                    if (accountContext.integration !== BANK_INTEGRATION_IDS.SBBOL) return false
                 }
 
             }

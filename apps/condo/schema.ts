@@ -7945,7 +7945,7 @@ export type BankIntegration_AccessRightsMetaArgs = {
   skip?: Maybe<Scalars['Int']>;
 };
 
-/**  Link between bank integrations and users. The existence of the object means that there is user has access to integration  */
+/**  Gives ability to service-user to access all schema records, connected to specified integration  */
 export type BankIntegrationAccessRight = {
   __typename?: 'BankIntegrationAccessRight';
   /**

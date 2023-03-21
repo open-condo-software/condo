@@ -90,7 +90,7 @@ describe('BankAccount', () => {
                 expect(bankAccount.currencyCode).toEqual('RUB')
             })
 
-            test('service can\'t if organization without context', async () => {
+            test('service can\'t if organization does not have context', async () => {
                 const [organization] = await createTestOrganization(adminClient)
                 try {
                     await createTestBankAccount(serviceClient, organization)
@@ -174,6 +174,9 @@ describe('BankAccount', () => {
             })
 
             test('service can if BankAccount has no connected integration', async () => {
+                // Billing uses BankAccount as an account directory.
+                // If you receive the same BankAccount from SBBOL, you must connect the SBBOL integration to this BankAccount, and not create a new one.
+                // Therefore, the service user must be able to read such BankAccount.
                 const [organization] = await createTestOrganization(adminClient)
                 await createTestBankIntegrationOrganizationContext(adminClient, SBBOLBankIntegration, organization)
 
