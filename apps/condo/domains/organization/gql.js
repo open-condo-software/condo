@@ -93,6 +93,12 @@ const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION = gql`
 const ORGANIZATION_EMPLOYEE_SPECIALIZATION_FIELDS = `{ employee { id } specialization { id name } ${COMMON_FIELDS} }`
 const OrganizationEmployeeSpecialization = generateGqlQueries('OrganizationEmployeeSpecialization', ORGANIZATION_EMPLOYEE_SPECIALIZATION_FIELDS)
 
+const GET_ACCESS_TOKEN_BY_USER_ID_QUERY = gql`
+    query getAccessTokenByUserId ($data: GetAccessTokenByUserIdInput!) {
+        result: getAccessTokenByUserId(data: $data) { accessToken, ttl }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -110,6 +116,7 @@ module.exports = {
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION,
     OrganizationEmployeeSpecialization,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    GET_ACCESS_TOKEN_BY_USER_ID_QUERY,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }
 

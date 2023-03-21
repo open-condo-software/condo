@@ -4,6 +4,7 @@
  */
 
 const { AcceptOrRejectOrganizationInviteService } = require('./AcceptOrRejectOrganizationInviteService')
+const { GetAccessTokenByUserIdService } = require('./GetAccessTokenByUserIdService')
 const { InviteNewOrganizationEmployeeService } = require('./InviteNewOrganizationEmployeeService')
 const { Organization } = require('./Organization')
 const { OrganizationEmployee } = require('./OrganizationEmployee')
@@ -22,5 +23,6 @@ module.exports = {
     AcceptOrRejectOrganizationInviteService,
     OrganizationLink,
     OrganizationEmployeeSpecialization,
+    GetAccessTokenByUserIdService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

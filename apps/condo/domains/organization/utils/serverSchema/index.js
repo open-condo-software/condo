@@ -11,6 +11,7 @@ const { OrganizationEmployee: OrganizationEmployeeGQL } = require('@condo/domain
 const { OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
 const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
+const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Organization = generateServerUtils(OrganizationGQL)
@@ -18,6 +19,19 @@ const OrganizationEmployee = generateServerUtils(OrganizationEmployeeGQL)
 const OrganizationEmployeeRole = generateServerUtils(OrganizationEmployeeRoleGQL)
 const OrganizationLink = generateServerUtils(OrganizationLinkGQL)
 const OrganizationEmployeeSpecialization = generateServerUtils(OrganizationEmployeeSpecializationGQL)
+async function getAccessTokenByUserId (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: GET_ACCESS_TOKEN_BY_USER_ID_QUERY,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to getAccessTokenByUserId',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -26,5 +40,6 @@ module.exports = {
     OrganizationEmployeeRole,
     OrganizationLink,
     OrganizationEmployeeSpecialization,
+    getAccessTokenByUserId,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
