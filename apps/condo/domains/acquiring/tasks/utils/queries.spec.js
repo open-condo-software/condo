@@ -318,7 +318,7 @@ describe('recurrent payments queries', () => {
             await catchErrorFrom(async () => {
                 await getServiceConsumer(adminContext, serviceConsumerId)
             }, (error) => {
-                expect(error.message).toContain('Found deleted serviceConsumer for id ')
+                expect(error.message).toContain('ServiceConsumer not found for id')
             })
         })
 
