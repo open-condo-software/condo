@@ -4,6 +4,7 @@
 
 const { Relationship, DateTimeUtc, Decimal } = require('@keystonejs/fields')
 const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -12,10 +13,9 @@ const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_FIELD
 const access = require('@condo/domains/meter/access/MeterReading')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
+const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-
-const { addClientInfoToResidentMeterReading } = require('../utils/serverSchema/resolveHelpers')
 
 
 const MeterReading = new GQLListSchema('MeterReading', {
@@ -24,7 +24,6 @@ const MeterReading = new GQLListSchema('MeterReading', {
         date: {
             schemaDoc: 'Date when the readings were taken',
             type: DateTimeUtc,
-            isRequired: true,
         },
 
         meter: {
@@ -76,6 +75,10 @@ const MeterReading = new GQLListSchema('MeterReading', {
     hooks: {
         resolveInput: async ({ operation, context, resolvedData, existingItem }) => {
             const user = get(context, ['req', 'user'])
+
+            if (operation === 'create' && isEmpty(resolvedData['date'])) {
+                resolvedData['date'] = new Date().toISOString()
+            }
 
             if (operation === 'create' && user.type === RESIDENT) {
                 await addClientInfoToResidentMeterReading(context, resolvedData)
