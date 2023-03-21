@@ -8,11 +8,11 @@ const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
     paginationConfiguration,
-} = require('@condo/domains/acquiring/tasks/utils/constants')
+} = require('@condo/domains/acquiring/constants/recurrentPaymentTask')
 const {
     getAllReadyToPayRecurrentPaymentContexts,
     sendTomorrowPaymentNotificationSafely,
-} = require('@condo/domains/acquiring/tasks/utils/queries')
+} = require('@condo/domains/acquiring/utils/taskSchema')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
 const logger = getLogger('recurrent-payment-context-notification')

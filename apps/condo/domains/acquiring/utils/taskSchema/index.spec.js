@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-const index = require('@app/condo/index')
+const index = require('apps/condo/index')
 const dayjs = require('dayjs')
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
@@ -16,7 +16,7 @@ const {
     PAYMENT_DONE_STATUS,
     PAYMENT_WITHDRAWN_STATUS,
     PAYMENT_PROCESSING_STATUS,
-} = require('@condo/domains/acquiring/constants/payment')
+} = require('apps/condo/domains/acquiring/constants/payment')
 const {
     RECURRENT_PAYMENT_INIT_STATUS,
     RECURRENT_PAYMENT_PROCESSING_STATUS,
@@ -31,33 +31,33 @@ const {
     PAYMENT_ERROR_CARD_TOKEN_NOT_VALID_CODE,
     PAYMENT_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE,
     PAYMENT_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
-} = require('@condo/domains/acquiring/constants/recurrentPayment')
+} = require('apps/condo/domains/acquiring/constants/recurrentPayment')
 const {
     Payment,
-} = require('@condo/domains/acquiring/utils/serverSchema')
+} = require('apps/condo/domains/acquiring/utils/serverSchema')
 const {
     makePayerWithMultipleConsumers,
     createTestRecurrentPaymentContext,
     registerMultiPaymentByTestClient,
     RecurrentPayment,
-} = require('@condo/domains/acquiring/utils/testSchema')
+} = require('apps/condo/domains/acquiring/utils/testSchema')
 const {
     createTestRecurrentPayment,
     updateTestRecurrentPaymentContext,
-} = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
+} = require('apps/condo/domains/acquiring/utils/testSchema')
+const { createTestBillingCategory } = require('apps/condo/domains/billing/utils/testSchema')
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
-} = require('@condo/domains/notification/constants/constants')
+} = require('apps/condo/domains/notification/constants/constants')
 const {
     Message,
-} = require('@condo/domains/notification/utils/serverSchema')
+} = require('apps/condo/domains/notification/utils/serverSchema')
 const {
     ServiceConsumer,
-} = require('@condo/domains/resident/utils/serverSchema')
-const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+} = require('apps/condo/domains/resident/utils/serverSchema')
+const { makeClientWithServiceConsumer } = require('apps/condo/domains/resident/utils/testSchema')
 
 const {
     getAllReadyToPayRecurrentPaymentContexts,
@@ -69,7 +69,7 @@ const {
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,
     sendTomorrowPaymentNotificationSafely,
-} = require('./queries')
+} = require('./index')
 
 const offset = 0
 const pageSize = 10

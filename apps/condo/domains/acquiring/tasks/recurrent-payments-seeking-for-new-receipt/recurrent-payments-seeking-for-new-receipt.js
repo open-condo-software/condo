@@ -9,15 +9,15 @@ const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
     paginationConfiguration,
-} = require('@condo/domains/acquiring/tasks/utils/constants')
+} = require('@condo/domains/acquiring/constants/recurrentPaymentTask')
+const {
+    RecurrentPayment,
+} = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getAllReadyToPayRecurrentPaymentContexts,
     getReceiptsForServiceConsumer,
     sendTomorrowPaymentNotificationSafely,
-} = require('@condo/domains/acquiring/tasks/utils/queries')
-const {
-    RecurrentPayment,
-} = require('@condo/domains/acquiring/utils/serverSchema')
+} = require('@condo/domains/acquiring/utils/taskSchema')
 const { getStartDates } = require('@condo/domains/common/utils/date')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
