@@ -107,25 +107,6 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
                                                 <Col lg={19} xs={10} offset={2}>
                                                     <NotDefinedField value='******'/>
                                                 </Col>
-                                                <Col lg={3} xs={10}>
-                                                    <Typography.Text type='secondary'>
-                                                        {InterfaceLanguageTitle}
-                                                    </Typography.Text>
-                                                </Col>
-                                                <Col lg={4} offset={2}>
-                                                    <LocaleContext.Consumer>
-                                                        {({ locale, setLocale }) => {
-                                                            return (
-                                                                <Select
-                                                                    options={possibleLocalesOptions}
-                                                                    value={locale}
-                                                                    placeholder={ChooseInterfaceLanguageTitle}
-                                                                    onChange={localeChangeHandler(setLocale)}
-                                                                />
-                                                            )
-                                                        }}
-                                                    </LocaleContext.Consumer>
-                                                </Col>
                                             </Row>
                                         </Col>
                                         <Col span={24}>
@@ -151,6 +132,29 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
                                             />)
                                             : null
                                     }
+                                </Col>
+                                <Col span={24}>
+                                    <Row gutter={[0, 40]}>
+                                        <Col lg={3} xs={10}>
+                                            <Typography.Text type='secondary'>
+                                                {InterfaceLanguageTitle}
+                                            </Typography.Text>
+                                        </Col>
+                                        <Col lg={5} offset={2}>
+                                            <LocaleContext.Consumer>
+                                                {({ locale, setLocale }) => {
+                                                    return (
+                                                        <Select
+                                                            options={possibleLocalesOptions}
+                                                            value={locale}
+                                                            placeholder={ChooseInterfaceLanguageTitle}
+                                                            onChange={localeChangeHandler(setLocale)}
+                                                        />
+                                                    )
+                                                }}
+                                            </LocaleContext.Consumer>
+                                        </Col>
+                                    </Row>
                                 </Col>
                             </Row>
                         </Col>
