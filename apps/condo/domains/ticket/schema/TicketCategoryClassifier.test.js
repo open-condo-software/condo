@@ -4,7 +4,7 @@
 
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, UUID_RE, DATETIME_RE, expectValuesOfCommonFields } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
 
 const { TicketCategoryClassifier, createTestTicketCategoryClassifier, updateTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
@@ -62,16 +62,7 @@ describe('TicketCategoryClassifier CRUD', () => {
         it('can create', async () => {
             const support = await makeClientWithSupportUser()
             const [obj, attrs] = await createTestTicketCategoryClassifier(support)
-            expect(obj.id).toMatch(UUID_RE)
-            expect(obj.dv).toEqual(1)
-            expect(obj.sender).toEqual(attrs.sender)
-            expect(obj.v).toEqual(1)
-            expect(obj.newId).toEqual(null)
-            expect(obj.deletedAt).toEqual(null)
-            expect(obj.createdBy).toEqual(expect.objectContaining({ id: support.user.id }))
-            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
-            expect(obj.createdAt).toMatch(DATETIME_RE)
-            expect(obj.updatedAt).toMatch(DATETIME_RE)
+            expectValuesOfCommonFields(obj, attrs, support)
         })
         it('can read', async () => {
             const admin = await makeLoggedInAdminClient()
