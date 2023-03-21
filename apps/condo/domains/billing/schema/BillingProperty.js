@@ -7,6 +7,8 @@ const { Virtual } = require('@keystonejs/fields')
 
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { addressService } = require(
+    '@open-condo/keystone/plugins/addressService')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { find } = require('@open-condo/keystone/schema')
 const { getById } = require('@open-condo/keystone/schema')
@@ -35,18 +37,6 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             },
         },
 
-        address: {
-            schemaDoc: 'The non-modified address from the `billing data source`. Used in `receipt template`',
-            type: Text,
-            isRequired: true,
-        },
-
-        normalizedAddress: {
-            schemaDoc: 'Normalized address from `billing data source`. Used to map Properties to BillingProperties',
-            type: Text,
-            isRequired: false,
-        },
-
         meta: {
             schemaDoc: 'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
                 'Examples of data keys: `total space of building`, `property beginning of exploitation year`, `has cultural heritage status`, `number of underground floors`, `number of above-ground floors`',
@@ -73,7 +63,7 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), addressService({ fieldsHooks: { address: {} } }), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadBillingProperties,
         create: access.canManageBillingProperties,
