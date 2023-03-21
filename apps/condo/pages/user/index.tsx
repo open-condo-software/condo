@@ -1,5 +1,6 @@
 import { EditFilled } from '@ant-design/icons'
 import { Col, Row, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -18,6 +19,10 @@ import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
 import { User } from '@condo/domains/user/utils/clientSchema'
+
+const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
+const ROW_GUTTER_MID: [Gutter, Gutter] = [0, 40]
+const ROW_GUTTER_SMALL: [Gutter, Gutter] = [0, 24]
 
 export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
     const intl = useIntl()
@@ -61,14 +66,14 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
             <FeatureFlagsController/>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]} justify='center'>
+                    <Row gutter={ROW_GUTTER_MID} justify='center'>
                         <Col xs={10} lg={3}>
                             <UserAvatar borderRadius={24}/>
                         </Col>
                         <Col xs={24} lg={20} offset={ isSmall ? 0 : 1}>
-                            <Row gutter={[0, 60]}>
+                            <Row gutter={ROW_GUTTER_BIG}>
                                 <Col span={24}>
-                                    <Row gutter={[0, 40]}>
+                                    <Row gutter={ROW_GUTTER_MID}>
                                         <Col span={24}>
                                             <Typography.Title
                                                 level={1}
@@ -78,7 +83,7 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
                                             </Typography.Title>
                                         </Col>
                                         <Col span={24}>
-                                            <Row gutter={[0, 24]}>
+                                            <Row gutter={ROW_GUTTER_SMALL}>
                                                 <Col lg={3} xs={10}>
                                                     <Typography.Text type='secondary'>
                                                         {PhoneMessage}
@@ -134,7 +139,7 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
                                     }
                                 </Col>
                                 <Col span={24}>
-                                    <Row gutter={[0, 40]}>
+                                    <Row gutter={ROW_GUTTER_MID}>
                                         <Col lg={3} xs={10}>
                                             <Typography.Text type='secondary'>
                                                 {InterfaceLanguageTitle}
