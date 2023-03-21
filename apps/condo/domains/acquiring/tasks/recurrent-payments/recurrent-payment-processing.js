@@ -11,19 +11,19 @@ const {
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     paginationConfiguration,
-} = require('@condo/domains/acquiring/tasks/utils/constants')
+} = require('@condo/domains/acquiring/constants/recurrentPaymentTask')
 const {
     PaymentAdapter,
 } = require('@condo/domains/acquiring/tasks/utils/PaymentAdapter')
+const {
+    RecurrentPaymentContext,
+} = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getReadyForProcessingPaymentsPage,
     registerMultiPayment,
     setRecurrentPaymentAsFailed,
     setRecurrentPaymentAsSuccess,
-} = require('@condo/domains/acquiring/tasks/utils/queries')
-const {
-    RecurrentPaymentContext,
-} = require('@condo/domains/acquiring/utils/serverSchema')
+} = require('@condo/domains/acquiring/utils/taskSchema')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
 const logger = getLogger('recurrent-payment-context-processing')

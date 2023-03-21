@@ -1,6 +1,6 @@
 const {
     paginationConfiguration,
-} = require('@condo/domains/acquiring/tasks/utils/constants')
+} = require('@condo/domains/acquiring/constants/recurrentPaymentTask')
 
 describe('recurrent-payments-context constants', () => {
     it('should return proper paginationConfiguration', async () => {
