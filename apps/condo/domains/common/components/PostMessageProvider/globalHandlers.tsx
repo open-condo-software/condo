@@ -46,6 +46,7 @@ export const useModalHandler: () => [
 
         // TODO(DOMA-5563): Pass this to onCancel to notify about modal closing
         const modalId = uuidV4()
+        // NOTE: Patch url with modalId, so it can be closed by itself as well as by sender window
         const urlWithMeta = new URL(url)
         urlWithMeta.searchParams.set('modalId', modalId)
 
