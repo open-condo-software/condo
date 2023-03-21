@@ -64,6 +64,8 @@ async function canManageBankAccounts (args) {
     if (user.type === SERVICE) {
         if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) {
 
+            if (operation === 'create') return true
+
             if (operation === 'update') {
                 const bankAccount = await getById('BankAccount', itemId)
                 const integrationContext = get(bankAccount, 'integrationContext')
@@ -71,16 +73,10 @@ async function canManageBankAccounts (args) {
                 if (integrationContext) {
                     const accountContext = await getById('BankIntegrationAccountContext', integrationContext)
 
-                    if (accountContext.integration !== BANK_INTEGRATION_IDS.SBBOL) return false
+                    if (accountContext.integration === BANK_INTEGRATION_IDS.SBBOL) return true
                 }
-
             }
-
-            return true
         }
-
-
-        return false
     }
 
     return canManageBankEntityWithOrganization(args, 'canManageBankAccounts')
