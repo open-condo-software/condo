@@ -178,7 +178,7 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
                                 icon={<SberIconWithoutLabel/>}
                                 onClick={handleOpenSbbolModal}
                                 block
-                                hidden={fileImportIntegration}
+                                {...(!isNull(bankAccount) && { hidden: fileImportIntegration })}
                                 disabled={fileImportLoading}
                             >
                                 {ImportSBBOLTitle}
@@ -192,14 +192,14 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
                                 icon={<SberIconWithoutLabel/>}
                                 href={`/api/sbbol/auth?redirectUrl=${asPath}?${SBBOL_SYNC_CALLBACK_QUERY}`}
                                 block
-                                hidden={fileImportIntegration}
+                                {...(!isNull(bankAccount) && { hidden: fileImportIntegration })}
                                 disabled={fileImportLoading}
                             >
                                 {LoginBySBBOLTitle}
                             </DeprecatedButton>
                         )
                     }
-                    <FileImportButton type='secondary' hidden={!fileImportIntegration}>
+                    <FileImportButton type='secondary' {...(!isNull(bankAccount) && { hidden: !fileImportIntegration })}>
                         {ImportFileTitle}
                     </FileImportButton>
                 </>
