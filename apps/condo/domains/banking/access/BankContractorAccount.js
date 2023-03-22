@@ -4,17 +4,26 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { canManageBankEntityWithOrganization } = require('@condo/domains/banking/utils/accessSchema')
+const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/utils/accessSchema')
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
-async function canReadBankContractorAccounts ({ authentication: { item: user } }) {
+const { BANK_INTEGRATION_IDS } = require('../constants')
+
+async function canReadBankContractorAccounts ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return true
 
+    if (user.type === SERVICE) {
+        if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return {}
+
+        return false
+    }
     return {
         OR: [
             { organization: queryOrganizationEmployeeFor(user.id) },
@@ -24,10 +33,16 @@ async function canReadBankContractorAccounts ({ authentication: { item: user } }
 }
 
 async function canManageBankContractorAccounts (args) {
-    const { authentication: { item: user } } = args
+    const { authentication: { item: user }, context } = args
     if (!user) throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
+
+    if (user.type === SERVICE) {
+        if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
+
+        return false
+    }
 
     return canManageBankEntityWithOrganization(args, 'canManageBankContractorAccounts')
 }

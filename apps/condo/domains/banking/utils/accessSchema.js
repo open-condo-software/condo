@@ -4,6 +4,9 @@ const { find, getById } = require('@open-condo/keystone/schema')
 
 const { checkPermissionsInUserOrganizationsOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
+const { BankIntegrationAccessRight } = require('./serverSchema')
+
+
 async function canManageBankEntityWithOrganization ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, listKey }, permission) {
     const isBulkRequest = isArray(originalInput)
 
@@ -40,6 +43,24 @@ async function canManageBankEntityWithOrganization ({ authentication: { item: us
     return await checkPermissionsInUserOrganizationsOrRelatedOrganizations(user.id, organizationIds, permission)
 }
 
+async function checkBankIntegrationsAccessRights (context, userId, integrationIds) {
+    if (!context) return false
+    if (!userId) return false
+    if (!Array.isArray(integrationIds) || !integrationIds.length || !integrationIds.every(Boolean)) return false
+
+    const rights = await BankIntegrationAccessRight.getAll(context, {
+        integration: { id_in: integrationIds },
+        user: { id: userId },
+        deletedAt: null,
+    }, { first: 100 })
+
+    const permittedIntegrations = new Set(rights.map(right => right.integration.id))
+    const nonPermittedIntegrations = integrationIds.filter(id => !permittedIntegrations.has(id))
+
+    return nonPermittedIntegrations.length === 0
+}
+
 module.exports = {
     canManageBankEntityWithOrganization,
+    checkBankIntegrationsAccessRights,
 }

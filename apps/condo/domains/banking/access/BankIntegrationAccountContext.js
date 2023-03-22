@@ -7,14 +7,24 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/utils/accessSchema')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
-async function canReadBankIntegrationAccountContexts ({ authentication: { item: user } }) {
+const { BANK_INTEGRATION_IDS } = require('../constants')
+
+async function canReadBankIntegrationAccountContexts ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
+
+    if (user.type === SERVICE) {
+        return {
+            integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } }, deletedAt: null,
+        }
+    }
 
     return {
         OR: [
@@ -24,10 +34,16 @@ async function canReadBankIntegrationAccountContexts ({ authentication: { item: 
     }
 }
 
-async function canManageBankIntegrationAccountContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageBankIntegrationAccountContexts ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
+
+    if (user.type === SERVICE) {
+        if (await checkBankIntegrationsAccessRights(context, user.id, [BANK_INTEGRATION_IDS.SBBOL])) return true
+
+        return false
+    }
 
     let organizationId
     if (operation === 'create') {

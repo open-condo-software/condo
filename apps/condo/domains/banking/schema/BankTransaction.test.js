@@ -22,14 +22,17 @@ const {
 } = require('@condo/domains/banking/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
-const { createTestBankCategory, createTestBankCostItem } = require('../utils/testSchema')
+const { createTestBankCategory, createTestBankCostItem, BankIntegrationAccessRight, createTestBankIntegrationOrganizationContext, createTestBankIntegrationAccessRight } = require('../utils/testSchema')
 
 let admin
 let support
+let serviceClient
 let anonymous
 let bankIntegration
+let SBBOLBankIntegration
 
 describe('BankTransaction', () => {
     beforeAll(async () => {
@@ -37,6 +40,9 @@ describe('BankTransaction', () => {
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
         bankIntegration = await BankIntegration.getOne(admin, { id: BANK_INTEGRATION_IDS['1CClientBankExchange'] })
+        SBBOLBankIntegration = await BankIntegration.getOne(admin, { id: BANK_INTEGRATION_IDS.SBBOL })
+        serviceClient = await makeClientWithServiceUser()
+        await createTestBankIntegrationAccessRight(admin, SBBOLBankIntegration, serviceClient.user)
     })
 
     describe('CRUD tests', () => {
@@ -69,6 +75,37 @@ describe('BankTransaction', () => {
                 expect(obj.importRemoteSystem).toEqual(attrs.importRemoteSystem)
                 expect(obj.meta).toEqual(attrs.meta)
                 expect(obj.integrationContext).toMatchObject(pick(integrationContext, ['id', 'enabled']))
+                expect(obj.isOutcome).toEqual(attrs.isOutcome)
+            })
+
+            test('service can', async () => {
+                const [organization] = await createTestOrganization(admin)
+                await createTestBankIntegrationOrganizationContext(admin, SBBOLBankIntegration, organization)
+                const [accountContext] = await createTestBankIntegrationAccountContext(serviceClient, SBBOLBankIntegration, organization)
+                const [contractorAccount] = await createTestBankContractorAccount(serviceClient, organization)
+                const [account] = await createTestBankAccount(serviceClient, organization, { integrationContext: { connect: { id: accountContext.id } } })
+
+                const [obj, attrs] = await createTestBankTransaction(serviceClient, account, contractorAccount, accountContext, organization)
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(1)
+                expect(obj.newId).toEqual(null)
+                expect(obj.deletedAt).toEqual(null)
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: serviceClient.user.id }))
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: serviceClient.user.id }))
+                expect(obj.createdAt).toMatch(DATETIME_RE)
+                expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expect(obj.number).toEqual(attrs.number)
+                expect(obj.date).toEqual(attrs.date)
+                expect(parseFloat(obj.amount)).toBeCloseTo(parseFloat(attrs.amount), 2)
+                expect(obj.currencyCode).toEqual(attrs.currencyCode)
+                expect(obj.purpose).toEqual(attrs.purpose)
+                expect(obj.importId).toEqual(attrs.importId)
+                expect(obj.importRemoteSystem).toEqual(attrs.importRemoteSystem)
+                expect(obj.meta).toEqual(attrs.meta)
+                expect(obj.integrationContext).toMatchObject(pick(accountContext, ['id', 'enabled']))
                 expect(obj.isOutcome).toEqual(attrs.isOutcome)
             })
 
@@ -408,6 +445,21 @@ describe('BankTransaction', () => {
                 const [contractorAccount] = await createTestBankContractorAccount(admin, organization)
                 const [objCreated] = await createTestBankTransaction(admin, account, contractorAccount, integrationContext, organization)
                 const objs = await BankTransaction.getAll(admin, { id: objCreated.id }, { sortBy: ['updatedAt_DESC'] })
+
+                expect(objs.length).toBeGreaterThanOrEqual(1)
+                expect(objs[0]).toMatchObject(objCreated)
+            })
+
+            test('service can', async () => {
+                const [organization] = await createTestOrganization(admin)
+                await createTestBankIntegrationOrganizationContext(admin, SBBOLBankIntegration, organization)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(serviceClient, SBBOLBankIntegration, organization)
+                const [account] = await createTestBankAccount(serviceClient, organization, {
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
+                const [contractorAccount] = await createTestBankContractorAccount(serviceClient, organization)
+                const [objCreated] = await createTestBankTransaction(serviceClient, account, contractorAccount, integrationContext, organization)
+                const objs = await BankTransaction.getAll(serviceClient, { id: objCreated.id }, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs.length).toBeGreaterThanOrEqual(1)
                 expect(objs[0]).toMatchObject(objCreated)

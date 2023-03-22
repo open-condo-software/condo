@@ -50,9 +50,20 @@ async function canReadOrganizations ({ authentication: { item: user } }) {
             },
             deletedAt: null,
         })
+        const bankIntegrationOrganizationContext = await find('BankIntegrationOrganizationContext', {
+            integration: {
+                accessRights_some: {
+                    user: { id: user.id },
+                    deletedAt: null,
+                },
+                deletedAt: null,
+            },
+            deletedAt: null,
+        })
         const serviceOrganizationIds = uniq(billingContexts
             .map(({ organization }) => organization )
             .concat(acquiringContexts.map(({ organization }) => organization )))
+            .concat(bankIntegrationOrganizationContext.map(({ organization }) => organization))
         if (serviceOrganizationIds.length) {
             accessConditions.push({ id_in: serviceOrganizationIds })
         }

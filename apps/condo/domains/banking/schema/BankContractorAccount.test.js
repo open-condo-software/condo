@@ -11,16 +11,22 @@ const {
 
 const { BankContractorAccount, createTestBankContractorAccount, updateTestBankContractorAccount } = require('@condo/domains/banking/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
 const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee, createTestOrganizationLink,
-} = require('../../organization/utils/testSchema')
+} = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
+
+const { BANK_INTEGRATION_IDS } = require('../constants')
+const { BankIntegration, createTestBankIntegrationOrganizationContext, BankIntegrationAccessRight, createTestBankIntegrationAccessRight } = require('../utils/testSchema')
+
 
 let admin
 let support
 let anonymous
+let serviceClient
+let SBBOLBankIntegration
 
 describe('BankContractorAccount', () => {
 
@@ -28,6 +34,9 @@ describe('BankContractorAccount', () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
+        SBBOLBankIntegration = await BankIntegration.getOne(admin, { id: BANK_INTEGRATION_IDS.SBBOL })
+        serviceClient = await makeClientWithServiceUser()
+        await createTestBankIntegrationAccessRight(admin, SBBOLBankIntegration, serviceClient.user)
     })
 
     describe('CRUD tests', () => {
@@ -66,6 +75,18 @@ describe('BankContractorAccount', () => {
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
                 expect(obj.createdBy).toEqual(expect.objectContaining({ id: support.user.id }))
+            })
+
+            test('service can', async () => {
+                const [organization] = await createTestOrganization(admin)
+                await createTestBankIntegrationOrganizationContext(admin, SBBOLBankIntegration, organization)
+
+                const [obj, attrs] = await createTestBankContractorAccount(serviceClient, organization)
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: serviceClient.user.id }))
             })
 
             test('user can\'t', async () => {
@@ -161,6 +182,34 @@ describe('BankContractorAccount', () => {
         describe('read', () => {
             test('admin can', async () => {
                 const [organization] = await createTestOrganization(admin)
+                const [obj] = await createTestBankContractorAccount(admin, organization)
+
+                const objs = await BankContractorAccount.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
+
+                expect(objs.length).toBeGreaterThanOrEqual(1)
+                expect(objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: obj.id,
+                        name: obj.name,
+                        organization: {
+                            id: organization.id,
+                        },
+                        tin: obj.tin,
+                        country: obj.country,
+                        routingNumber: obj.routingNumber,
+                        number: obj.number,
+                        currencyCode: obj.currencyCode,
+                        importId: obj.importId,
+                        territoryCode: obj.territoryCode,
+                        bankName: obj.bankName,
+                    }),
+                ]))
+            })
+
+            test('service can', async () => {
+                const [organization] = await createTestOrganization(admin)
+                await createTestBankIntegrationOrganizationContext(admin, SBBOLBankIntegration, organization)
+
                 const [obj] = await createTestBankContractorAccount(admin, organization)
 
                 const objs = await BankContractorAccount.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
