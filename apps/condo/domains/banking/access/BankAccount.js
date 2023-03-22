@@ -3,6 +3,7 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
+const { canManageBankEntityWithOrganization } = require('@condo/domains/banking/utils/accessSchema')
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
@@ -30,12 +31,13 @@ async function canReadBankAccounts ({ authentication: { item: user } }) {
  * BankAccount can be managed only by:
  * 1. Admin or support
  */
-async function canManageBankAccounts ({ authentication: { item: user } }) {
+async function canManageBankAccounts (args) {
+    const { authentication: { item: user } } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    return false
+    return canManageBankEntityWithOrganization(args, 'canManageBankAccounts')
 }
 
 /**

@@ -77,7 +77,7 @@ describe('convertFrom1CExchangeToSchema', () => {
         await catchErrorFrom(async () => {
             await convertFrom1CExchangeToSchema(readeableStream)
         }, e => {
-            expect(e.message).toEqual('Invalid node "СекцияРасчСчет" at line 14')
+            expect(e.message).toEqual('Parse error at line 14: Unexpected key "НеизвестноеСвойство" in node "СекцияРасчСчет"')
         })
     })
 
@@ -121,7 +121,7 @@ describe('convertFrom1CExchangeToSchema', () => {
         await catchErrorFrom(async () => {
             await convertFrom1CExchangeToSchema(readeableStream)
         }, e => {
-            expect(e.message).toEqual('Invalid node "СекцияДокумент" at line 25')
+            expect(e.message).toEqual('Parse error at line 25: Unexpected key "НеизвестноеСвойство" in node "СекцияДокумент"')
         })
     })
 

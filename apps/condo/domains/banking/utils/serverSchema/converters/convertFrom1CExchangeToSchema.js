@@ -30,8 +30,6 @@ class StreamNode {
     #body
     // Determines whether #end marker or #endBodyKey was faced
     #isFinished
-    // Determines, whether parser has extracted key from line, missing in #bodyKeys
-    #isValid
 
     // TODO(antonal): validate with Ajv after collecting all keys. Replace `bodyKeys` with Ajv validation schema
     /**
@@ -40,6 +38,7 @@ class StreamNode {
      * @param {String} [end] - line, that determines end-border of this entity (exact match)
      * @param {String} [endBodyKey] – some entities does not have end markers, but have last keys. After parsing this key, entity will be finished
      * @param {String[]} bodyKeys
+     * @param {Function} [converter] - mapper to JSON object as a result of parsing this stream node
      */
     constructor ({ begin, end, endBodyKey, bodyKeys, converter }) {
         this.#begin = begin
@@ -48,7 +47,6 @@ class StreamNode {
         this.#bodyKeys = bodyKeys
         this.#body = {}
         this.#isFinished = false
-        this.#isValid = true
         this.converter = converter
     }
 
@@ -63,7 +61,7 @@ class StreamNode {
                     this.#isFinished = true
                 }
             } else {
-                this.#isValid = false
+                throw new Error(`Unexpected key "${key}" in node "${this.name}"`)
             }
         }
     }
@@ -74,10 +72,6 @@ class StreamNode {
 
     get isFinished () {
         return this.#isFinished
-    }
-
-    get isValid () {
-        return this.#isValid
     }
 
     get name () {
@@ -162,6 +156,7 @@ function initNode (line) {
                 'ПолучательБанк2',
                 'ПолучательБИК',
                 'ПолучательКорсчет',
+                'ПоказательТипа',
                 'ВидПлатежа',
                 'ВидОплаты',
                 'Код',
@@ -239,10 +234,10 @@ async function convertFrom1CExchangeToSchema (fileStream) {
             }
         }
 
-        currentNode.parse(line)
-
-        if (!currentNode.isValid) {
-            throw new Error(`Invalid node "${currentNode.name}" at line ${i}`)
+        try {
+            currentNode.parse(line)
+        } catch (e) {
+            throw new Error(`Parse error at line ${i}: ${e.message}`)
         }
 
         if (currentNode.isFinished) {

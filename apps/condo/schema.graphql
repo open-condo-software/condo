@@ -13340,6 +13340,7 @@ type BankAccountHistoryRecord {
   territoryCode: String
   bankName: String
   meta: JSON
+  reportVisible: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -13538,6 +13539,8 @@ input BankAccountHistoryRecordWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  reportVisible: Boolean
+  reportVisible_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -13639,6 +13642,8 @@ enum SortBankAccountHistoryRecordsBy {
   territoryCode_DESC
   bankName_ASC
   bankName_DESC
+  reportVisible_ASC
+  reportVisible_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -13674,6 +13679,7 @@ input BankAccountHistoryRecordUpdateInput {
   territoryCode: String
   bankName: String
   meta: JSON
+  reportVisible: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -13710,6 +13716,7 @@ input BankAccountHistoryRecordCreateInput {
   territoryCode: String
   bankName: String
   meta: JSON
+  reportVisible: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -13810,6 +13817,9 @@ type BankAccount {
   """ Structured non-typed metadata, can be used by mini-apps or external services to store information 
   """
   meta: JSON
+
+  """ Determines visibility of the report for residents """
+  reportVisible: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -13980,6 +13990,8 @@ input BankAccountWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  reportVisible: Boolean
+  reportVisible_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -14069,6 +14081,8 @@ enum SortBankAccountsBy {
   territoryCode_DESC
   bankName_ASC
   bankName_DESC
+  reportVisible_ASC
+  reportVisible_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -14104,6 +14118,7 @@ input BankAccountUpdateInput {
   territoryCode: String
   bankName: String
   meta: JSON
+  reportVisible: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -14137,6 +14152,7 @@ input BankAccountCreateInput {
   territoryCode: String
   bankName: String
   meta: JSON
+  reportVisible: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -14969,6 +14985,7 @@ type BankContractorAccountHistoryRecord {
   territoryCode: String
   bankName: String
   meta: JSON
+  relatedTransactions: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -15161,6 +15178,10 @@ input BankContractorAccountHistoryRecordWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  relatedTransactions: JSON
+  relatedTransactions_not: JSON
+  relatedTransactions_in: [JSON]
+  relatedTransactions_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -15293,6 +15314,7 @@ input BankContractorAccountHistoryRecordUpdateInput {
   territoryCode: String
   bankName: String
   meta: JSON
+  relatedTransactions: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -15325,6 +15347,7 @@ input BankContractorAccountHistoryRecordCreateInput {
   territoryCode: String
   bankName: String
   meta: JSON
+  relatedTransactions: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -15402,6 +15425,10 @@ type BankContractorAccount {
   """ Structured non-typed metadata, can be used by mini-apps or external services to store information 
   """
   meta: JSON
+
+  """ Number of related transactions without costItem for this contractor account 
+  """
+  relatedTransactions: Int
   id: ID!
   v: Int
   createdAt: String

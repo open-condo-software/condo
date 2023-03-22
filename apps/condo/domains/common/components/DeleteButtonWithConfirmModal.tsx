@@ -3,17 +3,17 @@ import { Typography } from 'antd'
 import React, { useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Button, ButtonProps, Modal, Space } from '@open-condo/ui'
 
-import { Button, CustomButtonProps } from '@condo/domains/common/components/Button'
-import { Modal } from '@condo/domains/common/components/Modal'
+// import { Modal } from '@condo/domains/common/components/Modal'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 
 export interface IDeleteActionButtonWithConfirmModal {
     title: string
     message: string
     okButtonLabel: string
-    buttonCustomProps?: CustomButtonProps
-    buttonContent?: React.ReactNode
+    buttonCustomProps?: ButtonProps
+    buttonContent?: string
     action: () => Promise<any>
     showCancelButton?: boolean
 }
@@ -63,31 +63,35 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
             <Button
                 key='submit'
                 onClick={showConfirm}
-                type='sberDanger'
+                type='secondary'
                 loading={isDeleting}
-                secondary
+                danger
                 {...buttonCustomProps}
+                icon={buttonContent ? null : <DeleteFilled />}
             >
-                {buttonContent || <DeleteFilled/>}
+                {buttonContent}
             </Button>
             <Modal
                 title={title}
-                visible={isConfirmVisible}
+                open={isConfirmVisible}
                 onCancel={handleCancel}
-                footer={[
-                    showCancelButton && (
-                        <Button key='cancel' type='sberPrimary' secondary onClick={handleCancel}>
-                            {CancelMessage}
+                footer={
+                    <Space size={12}>
+                        <Button
+                            key='submit'
+                            type='secondary'
+                            danger
+                            onClick={handleDeleteButtonClick}
+                        >
+                            {okButtonLabel}
                         </Button>
-                    ),
-                    <Button
-                        key='submit'
-                        type='sberDanger'
-                        onClick={handleDeleteButtonClick}
-                    >
-                        {okButtonLabel}
-                    </Button>,
-                ]}
+                        {showCancelButton && (
+                            <Button key='cancel' type='secondary' onClick={handleCancel}>
+                                {CancelMessage}
+                            </Button>
+                        )}
+                    </Space>
+                }
             >
                 <Typography.Text>
                     {message}

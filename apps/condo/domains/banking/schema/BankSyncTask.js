@@ -20,7 +20,7 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const { importBankTransactionsTask } = require('../tasks/importBankTransactions')
 
 const BANK_SYNC_TASK_FOLDER_NAME = 'BankSyncTask'
-const BankSyncTaskFileAdapter = new FileAdapter(BANK_SYNC_TASK_FOLDER_NAME)
+const BankSyncTaskFileAdapter = new FileAdapter(BANK_SYNC_TASK_FOLDER_NAME, true)
 
 const BankSyncTask = new GQLListSchema('BankSyncTask', {
     schemaDoc: 'information about synchronization process of transactions with external source of from uploaded file',

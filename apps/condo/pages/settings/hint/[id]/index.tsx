@@ -24,10 +24,6 @@ import { TicketPropertyHintContent } from '@condo/domains/ticket/components/Tick
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
-const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
-    type: 'sberDangerGhost',
-}
-
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const PARAGRAPH_STYLES: CSSProperties = { margin: 0 }
@@ -79,8 +75,6 @@ const TicketPropertyHintIdPage = () => {
     }, [handleDeleteAction, ticketPropertyHint])
 
     const ticketPropertyHintContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
-
-    const deleteButtonContent = useMemo(() => <span>{DeleteMessage}</span>, [DeleteMessage])
 
     if (loading) {
         return <Loader />
@@ -135,8 +129,7 @@ const TicketPropertyHintIdPage = () => {
                                             message={ConfirmDeleteMessage}
                                             okButtonLabel={DeleteMessage}
                                             action={handleDeleteButtonClick}
-                                            buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
-                                            buttonContent={deleteButtonContent}
+                                            buttonContent={DeleteMessage}
                                         />
                                     </ActionBar>
                                 </Col>

@@ -23,11 +23,6 @@ import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/sett
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
-
-const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
-    type: 'sberDangerGhost',
-}
-
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 
@@ -61,8 +56,6 @@ const TheContactRolePage = (): JSX.Element => {
     const handleDeleteButtonClick = useCallback(async () => {
         await handleDeleteAction(contactRole)
     }, [handleDeleteAction, contactRole])
-
-    const deleteButtonContent = useMemo(() => <span>{DeleteMessage}</span>, [DeleteMessage])
 
     const isCustomRole = !!get(contactRole, 'organization', null)
 
@@ -126,8 +119,7 @@ const TheContactRolePage = (): JSX.Element => {
                                             message={ConfirmDeleteMessage}
                                             okButtonLabel={DeleteMessage}
                                             action={handleDeleteButtonClick}
-                                            buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
-                                            buttonContent={deleteButtonContent}
+                                            buttonContent={DeleteMessage}
                                         />
                                     </ActionBar>
                                 </Col>

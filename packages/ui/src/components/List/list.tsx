@@ -14,7 +14,7 @@ const ELLIPSIS_WORD_LENGTH = 80
 type ListDataSource = { label: string, value: string, valueTextType?: TypographyTextProps['type'], valueClick?: () => void }
 
 type CondoListProps = {
-    title: string
+    title?: string
 }
 
 export type ListProps = Omit<DefaultListProps<ListDataSource>, 'bordered' | 'pagination' | 'footer' | 'renderItem' | 'header'> & CondoListProps
@@ -61,7 +61,7 @@ const List: React.FC<ListProps> = (props) => {
     return (
         <DefaultList
             {...restProps}
-            header={<Typography.Title level={3}>{title}</Typography.Title>}
+            header={title ? <Typography.Title level={3}>{title}</Typography.Title> : null}
             prefixCls={LIST_CLASS_PREFIX}
             bordered={false}
             renderItem={(item, key) => (

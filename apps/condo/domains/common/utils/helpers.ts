@@ -128,7 +128,7 @@ export const updateQuery: UpdateQueryType = async (router, data, options) => {
         }
     }
 
-    const route = newRoute || router.route
+    const route = newRoute || router.asPath.split('?')[0]
     const query = qs.stringify(payload, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
     const url = route + query
 

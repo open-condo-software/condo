@@ -34,9 +34,6 @@ import {
 } from '@condo/domains/scope/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
-const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
-    type: 'sberDangerGhost',
-}
 
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
@@ -164,8 +161,6 @@ const PropertyScopeIdPage = () => {
         await handleDeleteAction(propertyScope)
     }, [handleDeleteAction, propertyScope])
 
-    const deleteButtonContent = useMemo(() => <span>{DeleteMessage}</span>, [DeleteMessage])
-
     if (loading) {
         return <Loader />
     }
@@ -218,8 +213,7 @@ const PropertyScopeIdPage = () => {
                                             message={ConfirmDeleteMessage}
                                             okButtonLabel={DeleteMessage}
                                             action={handleDeleteButtonClick}
-                                            buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
-                                            buttonContent={deleteButtonContent}
+                                            buttonContent={DeleteMessage}
                                         />
                                     </ActionBar>
                                 </Col>

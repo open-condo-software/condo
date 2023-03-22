@@ -222,6 +222,76 @@ export default function GlobalStyle () {
                   border-right: none;
                 }
               }
+              
+              .ant-table.ant-table-bordered .ant-table-thead > tr > th:not(.ant-table-selection-column):not(.ant-table-column-sort):not(.ant-table-column-has-sorters):not(:hover) {
+                background: ${colors.white};
+              }
+              
+              .ant-table.ant-table-bordered .ant-table-thead th.ant-table-column-sort,
+              .ant-table.ant-table-bordered .ant-table-thead th:hover {
+                background: ${colors.backgroundLightGrey};
+              }
+              .ant-table.ant-table-bordered .ant-table-tbody > tr > td.ant-table-column-sort {
+                background: inherit;
+              }
+              
+              .ant-table.ant-table-bordered > .ant-table-container {
+                border: 1px solid #E1E5ED;
+                border-radius: 12px;
+              }
+              .ant-table.ant-table-bordered .ant-table-thead > tr > th,
+              .ant-table.ant-table-bordered .ant-table-tbody > tr > td {
+                border-color: #E1E5ED;
+              }
+              .ant-table.ant-table-bordered .ant-table-sticky-holder {
+                border-radius: unset;
+                background-color: transparent;
+              }
+              
+              .ant-table .ant-table-container::before, .ant-table .ant-table-container::after {
+                display: none;
+              }
+              
+              .ant-table.ant-table-bordered .ant-table-tbody tr:last-of-type td {
+                border-bottom: none;
+              }
+              .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > thead > tr > th,
+              .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tbody > tr > td,
+              .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > tbody > tr > td,
+              .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > thead > tr > th {
+                border-right: none;
+              }
+              
+              .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table, .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table {
+                border: none;
+              }
+              
+              .ant-table.ant-table-bordered div::-webkit-scrollbar-track {
+                border: none;
+                border-radius: 12px;
+              }
+              
+              .ant-table.ant-table-bordered div::-webkit-scrollbar {
+                width: 14px;
+                border-right: 5px solid transparent;
+              }
+              .ant-table.ant-table-bordered div::-webkit-scrollbar-thumb {
+                background-color: ${colors.inputBorderGrey};
+                border-radius: 12px;
+                border: 4px solid transparent;
+                background-clip: padding-box;
+                width: 5px;
+              }
+              .ant-table.ant-table-bordered div::-webkit-scrollbar-thumb:hover {
+                border: 2px solid transparent;
+              }
+              .ant-table.ant-table-bordered div::-webkit-scrollbar-track {
+                border-radius: 12px;
+              }
+              .ant-table.ant-table-bordered div::-webkit-scrollbar-track,
+              .ant-table.ant-table-bordered div::-webkit-scrollbar-corner {
+                background-color: transparent;
+              }
 
               .ant-table-pagination.ant-pagination {
                 margin: 40px 0 16px;
@@ -243,9 +313,13 @@ export default function GlobalStyle () {
                 }
               }
 
-              .ant-table-thead > tr > th {
-                font-weight: 700;
-              }
+               .ant-table-thead > tr > th {
+                 font-size: 12px;
+                 line-height: 20px;
+                 letter-spacing: -0.01em;
+                 color: ${colors.textSecondary};
+                 font-weight: ${DEFAULT_STRONG_TEXT_FONT_WEIGHT};
+               }
 
               .ant-table-row {
                 &:hover {
@@ -255,6 +329,24 @@ export default function GlobalStyle () {
               
               .ant-table-row-expand-icon-spaced {
                 display: none;
+              }
+              
+              .ant-table-container {
+                border-bottom-left-radius: 12px;
+                border-bottom-right-radius: 12px;
+              }
+              .ant-table-tbody > tr > td {
+                vertical-align: top;
+                letter-spacing: -0.01em;
+                line-height: 22px;
+              }
+              
+              .ant-table-tbody > tr:last-child > td:first-child {
+                border-bottom-left-radius: 12px;
+              }
+              
+              .ant-table-tbody > tr:last-child > td:last-child {
+                border-bottom-right-radius: 12px;
               }
               
               h1.ant-typography {

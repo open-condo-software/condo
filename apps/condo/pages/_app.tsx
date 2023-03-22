@@ -31,6 +31,7 @@ import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
 import { useOrganization, withOrganization } from '@open-condo/next/organization'
 
+import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
 import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
@@ -61,8 +62,13 @@ import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoO
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { OnlyTicketPagesAccess } from '@condo/domains/scope/components/OnlyTicketPagesAccess'
-import { SubscriptionProvider, useServiceSubscriptionContext } from '@condo/domains/subscription/components/SubscriptionContext'
-import { useEndTrialSubscriptionReminderPopup } from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
+import {
+    SubscriptionProvider,
+    useServiceSubscriptionContext,
+} from '@condo/domains/subscription/components/SubscriptionContext'
+import {
+    useEndTrialSubscriptionReminderPopup,
+} from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
@@ -214,19 +220,29 @@ const TasksProvider = ({ children }) => {
     const { user } = useAuth()
     // Use UI interfaces for all tasks, that are supposed to be tracked
     const { TicketExportTask: TicketExportTaskUIInterface } = useTicketExportTaskUIInterface()
+    const { BankSyncTask: BankSyncTaskUIInterface } = useBankSyncTaskUIInterface()
     const { MiniAppTask: MiniAppTaskUIInterface } = useMiniappTaskUIInterface()
     // ... another interfaces of tasks should be used here
 
     // Load all tasks with 'processing' status
-    const { records: ticketExportTasks } = TicketExportTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING, today: true }, user)
-    const { records: miniAppTasks } = MiniAppTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING, today: true }, user)
+    const { records: ticketExportTasks } = TicketExportTaskUIInterface.storage.useTasks(
+        { status: TASK_STATUS.PROCESSING, today: true }, user
+    )
+    const { records: bankSyncTasks } = BankSyncTaskUIInterface.storage.useTasks(
+        { status: TASK_STATUS.PROCESSING, today: true }, user
+    )
+    const { records: miniAppTasks } = MiniAppTaskUIInterface.storage.useTasks(
+        { status: TASK_STATUS.PROCESSING, today: true }, user
+    )
     // ... another task records should be loaded here
 
-    const initialTaskRecords = useMemo(() => [...miniAppTasks, ...ticketExportTasks], [miniAppTasks, ticketExportTasks])
+    const initialTaskRecords = useMemo(() => [...miniAppTasks, ...ticketExportTasks, ...bankSyncTasks],
+        [miniAppTasks, ticketExportTasks, bankSyncTasks])
     const uiInterfaces = useMemo(() => ({
         MiniAppTask: MiniAppTaskUIInterface,
         TicketExportTask: TicketExportTaskUIInterface,
-    }), [MiniAppTaskUIInterface, TicketExportTaskUIInterface])
+        BankSyncTask: BankSyncTaskUIInterface,
+    }), [MiniAppTaskUIInterface, TicketExportTaskUIInterface, BankSyncTaskUIInterface])
 
     return (
         <TasksContextProvider
