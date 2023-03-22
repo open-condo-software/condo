@@ -74,7 +74,12 @@ describe('Organization', () => {
         const admin = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(admin)
 
-        const customAccess = { lists: { Organization: { access: { read: true, create: false, update: false, delete: false } } } }
+        const customAccess = {
+            accessRules: [{
+                list: 'Organization',
+                read: true,
+            }],
+        }
         const [user, userAttrs] = await createTestUser(admin, { customAccess })
 
         const client = await makeLoggedInClient({ password: userAttrs.password, email: userAttrs.email })

@@ -389,6 +389,29 @@ enum UserLocaleType {
   en
 }
 
+type CustomAccessFieldRule {
+  field: String!
+  create: Boolean
+  read: Boolean
+  update: Boolean
+}
+
+type CustomAccessOperationRule {
+  create: Boolean
+  read: Boolean
+  update: Boolean
+}
+
+type CustomAccessListRule {
+  list: String!
+  access: CustomAccessOperationRule!
+  fields: [CustomAccessFieldRule]
+}
+
+type CustomAccess {
+  accessRules: [CustomAccessListRule]
+}
+
 input UserRelateToOneInput {
   create: UserCreateInput
   connect: UserWhereUniqueInput
@@ -456,9 +479,9 @@ type User {
   """ The user's locale """
   locale: UserLocaleType
 
-  """ Override for business access rights for list or field of provided schema. Example: {"lists":{"User":{"access":{"read":true,"create":false,"update":false,"delete":false},"fields":{"email":{"create":false,"read":true,"update":false,"delete":false}}}}} 
+  """ Override for business access rights for list or field of provided schema 
   """
-  customAccess: JSON
+  customAccess: CustomAccess
   id: ID!
   v: Int
   createdAt: String

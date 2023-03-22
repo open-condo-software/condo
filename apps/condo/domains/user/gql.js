@@ -17,6 +17,31 @@ const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} email phone }`)
 const USER_EXTERNAL_IDENTITY_FIELDS = '{ id user { id } identityId identityType meta deletedAt }'
 const UserExternalIdentity = generateGqlQueries('UserExternalIdentity', USER_EXTERNAL_IDENTITY_FIELDS)
 
+const USER_CUSTOM_ACCESS_GRAPHQL_TYPES = `
+    type CustomAccessFieldRule {
+        field: String!
+        create: Boolean
+        read: Boolean
+        update: Boolean
+    }
+
+    type CustomAccessOperationRule {
+        create: Boolean
+        read: Boolean
+        update: Boolean
+    }
+    
+    type CustomAccessListRule {
+        list: String!
+        access: CustomAccessOperationRule!
+        fields: [CustomAccessFieldRule]
+    }
+    
+    type CustomAccess {
+        accessRules: [CustomAccessListRule]
+    }
+`
+
 const REGISTER_NEW_USER_MUTATION = gql`
     mutation registerNewUser($data: RegisterNewUserInput!) {
         user: registerNewUser(data: $data) { ${USER_FIELDS} }
@@ -171,5 +196,6 @@ module.exports = {
     RESET_USER_MUTATION,
     SEND_MESSAGE_TO_SUPPORT_MUTATION,
     OidcClient,
+    USER_CUSTOM_ACCESS_GRAPHQL_TYPES,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

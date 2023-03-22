@@ -17654,6 +17654,33 @@ export type CreateOnBoardingInput = {
   userId: Scalars['ID'];
 };
 
+export type CustomAccess = {
+  __typename?: 'CustomAccess';
+  accessRules?: Maybe<Array<Maybe<CustomAccessListRule>>>;
+};
+
+export type CustomAccessFieldRule = {
+  __typename?: 'CustomAccessFieldRule';
+  field: Scalars['String'];
+  create?: Maybe<Scalars['Boolean']>;
+  read?: Maybe<Scalars['Boolean']>;
+  update?: Maybe<Scalars['Boolean']>;
+};
+
+export type CustomAccessListRule = {
+  __typename?: 'CustomAccessListRule';
+  list: Scalars['String'];
+  access: CustomAccessOperationRule;
+  fields?: Maybe<Array<Maybe<CustomAccessFieldRule>>>;
+};
+
+export type CustomAccessOperationRule = {
+  __typename?: 'CustomAccessOperationRule';
+  create?: Maybe<Scalars['Boolean']>;
+  read?: Maybe<Scalars['Boolean']>;
+  update?: Maybe<Scalars['Boolean']>;
+};
+
 export enum DevicePlatformType {
   Android = 'android',
   Ios = 'ios',
@@ -67347,8 +67374,8 @@ export type User = {
   meta?: Maybe<Scalars['JSON']>;
   /**  The user's locale  */
   locale?: Maybe<UserLocaleType>;
-  /**  Override for business access rights for list or field of provided schema. Example: {"lists":{"User":{"access":{"read":true,"create":false,"update":false,"delete":false},"fields":{"email":{"create":false,"read":true,"update":false,"delete":false}}}}}  */
-  customAccess?: Maybe<Scalars['JSON']>;
+  /**  Override for business access rights for list or field of provided schema  */
+  customAccess?: Maybe<CustomAccess>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;

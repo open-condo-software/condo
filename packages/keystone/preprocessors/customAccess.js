@@ -1,4 +1,5 @@
 const { getType } = require('@keystonejs/utils')
+const find = require('lodash/find')
 const get = require('lodash/get')
 
 const { evaluateKeystoneAccessResult, evaluateKeystoneFieldAccessResult } = require('@open-condo/keystone/plugins/utils')
@@ -42,7 +43,7 @@ const customAccessPostProcessor = (schemaType, name, schema) => {
 
     const customListAccess = (args) => {
         const { operation, authentication: { item: user }, listKey } = args
-        const customAccess = get(user, ['customAccess', 'lists', listKey, 'access', operation])
+        const customAccess = get(find(get(user, 'customAccess.accessRules', []), { list: listKey }), operation)
         if (customAccess === true || customAccess === false) return customAccess
         return evaluateKeystoneAccessResult(access, operation, args)
     }
@@ -55,7 +56,11 @@ const customAccessPostProcessor = (schemaType, name, schema) => {
         if (fieldAccess) {
             const customFieldAccessWrapper = (args) => {
                 const { operation, authentication: { item: user }, listKey } = args
-                const customAccess = get(user, ['customAccess', 'lists', listKey, 'fields', field, operation])
+                const schemaFieldsAccess = get(find(get(user, 'customAccess.accessRules', []),
+                    { list: listKey } ), 'fields', []
+                )
+                const customAccess = get(find(schemaFieldsAccess, { field }), operation)
+
                 if (customAccess === true || customAccess === false) return customAccess
                 return evaluateKeystoneFieldAccessResult(fieldAccess, operation, args)
             }

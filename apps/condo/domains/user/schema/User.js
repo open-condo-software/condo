@@ -16,6 +16,7 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/User')
 const { STAFF, USER_TYPES, MIN_PASSWORD_LENGTH, LOCALES } = require('@condo/domains/user/constants/common')
 const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR, EMAIL_WRONG_FORMAT_ERROR, PHONE_WRONG_FORMAT_ERROR, PHONE_IS_REQUIRED_ERROR } = require('@condo/domains/user/constants/errors')
+const { USER_CUSTOM_ACCESS_GRAPHQL_TYPES } = require('@condo/domains/user/gql')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 
 
@@ -169,9 +170,11 @@ const User = new GQLListSchema('User', {
             options: LOCALES,
         },
         customAccess: {
-            schemaDoc: 'Override for business access rights for list or field of provided schema. Example: {"lists":{"User":{"access":{"read":true,"create":false,"update":false,"delete":false},"fields":{"email":{"create":false,"read":true,"update":false,"delete":false}}}}}',
+            schemaDoc: 'Override for business access rights for list or field of provided schema',
             type: Json,
             access: access.canAccessCustomAccessField,
+            extendGraphQLTypes: [USER_CUSTOM_ACCESS_GRAPHQL_TYPES],
+            graphQLReturnType: 'CustomAccess',
         },
     },
     kmigratorOptions: {

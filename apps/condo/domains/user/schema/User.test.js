@@ -470,7 +470,12 @@ describe('Custom access rights', () => {
 
         const [user, userAttrs] = await createTestUser(admin)
 
-        const customAccess = { lists: { User: { fields: { email: { read: true, create: false, update: false, delete: false } } } } }
+        const customAccess = {
+            accessRules: [{
+                list: 'User',
+                fields: [{ field: 'email', read: true }],
+            }],
+        }
 
         const [specialUser, specialUserAttrs] = await createTestUser(admin, { customAccess })
         const client = await makeLoggedInClient({ password: specialUserAttrs.password, email: specialUserAttrs.email })
@@ -496,14 +501,18 @@ describe('Custom access rights', () => {
     it('should grant access to a list if override rule was provided', async () => {
         const admin = await makeLoggedInAdminClient()
 
-        const customAccess = { lists: { User: {
-            access: { read: true, create: true, update: false, delete: false },
-            fields: {
-                password: { create: true, read: false, update: false, delete: false },
-                email: { create: true, read: true, update: false, delete: false },
-                phone: { create: true, read: true, update: false, delete: false },
-            },
-        } } }
+        const customAccess = {
+            accessRules: [{
+                list: 'User',
+                read: true,
+                create: true,
+                fields: [
+                    { field: 'password', create: true },
+                    { field: 'email', create: true, read: true },
+                    { field: 'phone', create: true, read: true },
+                ],
+            }],
+        }
         const [user, userAttrs] = await createTestUser(admin, { customAccess })
 
         const client = await makeLoggedInClient({ password: userAttrs.password, email: userAttrs.email })
