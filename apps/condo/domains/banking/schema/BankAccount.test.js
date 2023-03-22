@@ -55,7 +55,6 @@ describe('BankAccount', () => {
                 expect(objCreated.currencyCode).toEqual('RUB')
                 expect(objCreated.integrationContext).toMatchObject(pick(bankIntegrationAccountContext, ['id', 'enabled']))
                 expect(objCreated).toHaveProperty('reportVisible', false)
-                expect(objCreated).toHaveProperty('propertyBalance', '0')
             })
 
             test('support can', async () => {
@@ -387,40 +386,6 @@ describe('BankAccount', () => {
                         expect(msg).toContain('Field "approvedBy" is not defined by type "BankAccountUpdateInput"')
                     }
                 )
-            })
-        })
-
-        describe('propertyBalance', () => {
-            test('propertyBalance should be zero if no transactions found for account', async () => {
-                const [organization] = await createTestOrganization(adminClient)
-                const [bankAccount] = await createTestBankAccount(adminClient, organization)
-
-                expect(bankAccount).toHaveProperty('propertyBalance', '0')
-            })
-
-            test('should contain previous and current period of account transactions', async () => {
-                const [organization] = await createTestOrganization(adminClient)
-                const [bankAccount] = await createTestBankAccount(adminClient, organization)
-                const [contractorAccount] = await createTestBankContractorAccount(adminClient, organization)
-                const [bankIntegrationContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
-
-                const [incomeTransaction] = await createTestBankTransaction(adminClient, bankAccount, contractorAccount, bankIntegrationContext, organization, {
-                    date: dayjs().subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
-                    isOutcome: false,
-                })
-                const [withdrawTransaction] = await createTestBankTransaction(adminClient, bankAccount, contractorAccount, bankIntegrationContext, organization, {
-                    date: dayjs().subtract(1, 'month').endOf('month').format('YYYY-MM-DD'),
-                    isOutcome: true,
-                })
-
-                const propertyBalance = String(parseFloat(incomeTransaction.amount) - parseFloat(withdrawTransaction.amount))
-
-                const account = await BankAccount.getOne(adminClient, {
-                    id: bankAccount.id,
-                })
-
-                expect(account).toHaveProperty('propertyBalance', propertyBalance)
-
             })
         })
     })

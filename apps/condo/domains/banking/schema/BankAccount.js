@@ -185,47 +185,6 @@ const BankAccount = new GQLListSchema('BankAccount', {
             type: Checkbox,
             defaultValue: false,
         },
-
-        propertyBalance: {
-            schemaDoc: 'Total balance based on current account transactions for the previous period',
-            type: Virtual,
-            resolver: async (item, _, context) => {
-                const calculatedValue = get(item, 'meta.amount')
-
-                if (calculatedValue) {
-                    return calculatedValue
-                }
-
-                const accountFilter = { account: { id: item.id } }
-
-                const incomePreviousPeriod = await BankTransaction.getAll(context, {
-                    ...accountFilter,
-                    date_gte: dayjs().subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
-                    date_lte: dayjs().subtract(1, 'month').endOf('month').format('YYYY-MM-DD'),
-                    isOutcome: false,
-                })
-                const incomeCurrentPeriod = await BankTransaction.getAll(context, {
-                    ...accountFilter,
-                    date_gte: dayjs().startOf('month').format('YYYY-MM-DD'),
-                    isOutcome: false,
-                })
-
-                const withdrawPreviousPeriod = await BankTransaction.getAll(context, {
-                    ...accountFilter,
-                    date_gte: dayjs().subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
-                    date_lte: dayjs().subtract(1, 'month').endOf('month').format('YYYY-MM-DD'),
-                    isOutcome: true,
-                })
-                const withdrawCurrentPeriod = await BankTransaction.getAll(context, {
-                    ...accountFilter,
-                    date_gte: dayjs().startOf('month').format('YYYY-MM-DD'),
-                    isOutcome: true,
-                })
-
-                return (getTotalAmount(incomeCurrentPeriod) - getTotalAmount(withdrawCurrentPeriod)) + (getTotalAmount(incomePreviousPeriod) - getTotalAmount(withdrawPreviousPeriod))
-            },
-        },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

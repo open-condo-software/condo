@@ -90,7 +90,7 @@ const PropertyCardBalanceContent: IPropertyCardBalanceContent = ({ bankAccount, 
     const BalanceDescription = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportBalance.description' }, {
         dateUpdated: intl.formatDate(get(bankAccount, 'meta.amountAt', bankAccount.updatedAt), INTL_DATE_FORMAT),
     })
-    const BalanceValue = intl.formatNumber(bankAccount.propertyBalance, {
+    const BalanceValue = intl.formatNumber(get(bankAccount, 'meta.amount', 0), {
         style: 'currency',
         currency: bankAccount.currencyCode,
     })
