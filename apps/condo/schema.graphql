@@ -4078,7 +4078,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
-  canManageNews: Boolean
+  canManageNewsItems: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4207,8 +4207,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageBankTransactions_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
-  canManageNews: Boolean
-  canManageNews_not: Boolean
+  canManageNewsItems: Boolean
+  canManageNewsItems_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4336,8 +4336,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageBankTransactions_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
-  canManageNews_ASC
-  canManageNews_DESC
+  canManageNewsItems_ASC
+  canManageNewsItems_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4385,7 +4385,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
-  canManageNews: Boolean
+  canManageNewsItems: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4434,7 +4434,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
-  canManageNews: Boolean
+  canManageNewsItems: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4512,7 +4512,7 @@ type OrganizationEmployeeRole {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
-  canManageNews: Boolean
+  canManageNewsItems: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4629,8 +4629,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageBankTransactions_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
-  canManageNews: Boolean
-  canManageNews_not: Boolean
+  canManageNewsItems: Boolean
+  canManageNewsItems_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4740,8 +4740,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageBankTransactions_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
-  canManageNews_ASC
-  canManageNews_DESC
+  canManageNewsItems_ASC
+  canManageNewsItems_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4788,7 +4788,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
-  canManageNews: Boolean
+  canManageNewsItems: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4833,7 +4833,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
-  canManageNews: Boolean
+  canManageNewsItems: Boolean
   v: Int
   createdAt: String
   updatedAt: String
