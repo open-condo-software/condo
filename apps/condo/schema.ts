@@ -67547,7 +67547,7 @@ export type TicketsUpdateInput = {
   data?: Maybe<TicketUpdateInput>;
 };
 
-/**  TODO DOC!  */
+/**  The scheme regulates the access of the service user to the access tokens stored in the redis  */
 export type TokenAccessRight = {
   __typename?: 'TokenAccessRight';
   /**
@@ -67558,7 +67558,7 @@ export type TokenAccessRight = {
    *  4. As an alias to the 'id' field on the TokenAccessRight List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**  Which service token the user has access to  */
   name?: Maybe<TokenAccessRightNameType>;
   /**  Link to user. Note, that user must be of "service" type  */
   user?: Maybe<User>;

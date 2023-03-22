@@ -5798,7 +5798,8 @@ enum TokenAccessRightNameType {
   sbbol
 }
 
-""" TODO DOC! """
+""" The scheme regulates the access of the service user to the access tokens stored in the redis 
+"""
 type TokenAccessRight {
   """
   This virtual field will be resolved in one of the following ways (in this order):
@@ -5809,7 +5810,7 @@ type TokenAccessRight {
   """
   _label_: String
 
-  """ TODO DOC! """
+  """ Which service token the user has access to """
   name: TokenAccessRightNameType
 
   """ Link to user. Note, that user must be of "service" type """
