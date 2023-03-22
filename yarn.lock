@@ -29063,7 +29063,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knex@npm:^0.95.6":
+"knex@npm:0.95.15":
   version: 0.95.15
   resolution: "knex@npm:0.95.15"
   dependencies:
