@@ -49,15 +49,6 @@ async function canManageBankTransactions (args) {
         return false
     }
 
-    let organizationId
-
-    if (operation === 'create') {
-        organizationId = get(originalInput, ['organization', 'connect', 'id'])
-    }
-    if (operation === 'update') {
-        const bankTransaction = await getById('BankTransaction', itemId)
-        organizationId = get(bankTransaction, ['organization'])
-    }
     return canManageBankEntityWithOrganization(args, 'canManageBankTransactions')
 }
 

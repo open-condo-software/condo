@@ -74,6 +74,10 @@ async function canManageBankAccounts (args) {
                     const accountContext = await getById('BankIntegrationAccountContext', integrationContext)
 
                     if (accountContext.integration === BANK_INTEGRATION_IDS.SBBOL) return true
+
+                    return false
+                } else {
+                    return true
                 }
             }
         }
