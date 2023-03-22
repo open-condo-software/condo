@@ -78,16 +78,18 @@ class AdapterCache {
             // This mechanism allows to control garbage collection.
             this.maxCacheKeys = maxCacheKeys || 1000
 
-            // Cache: { listName -> queryKey -> { response, lastUpdate, score } }
-            this.cache = new LRUCache({ max: this.maxCacheKeys })
-
             this.logging = !!logging
 
             // Log statistics each <provided> seconds
             this.logStatsEachSecs = logStatsEachSecs || 60
             this.totalRequests = 0
             this.cacheHits = 0
+            this.totalDropsOnListChange = 0
+            this.totalDropsOnLRU = 0
             this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 100)
+
+            // Cache: { listName -> queryKey -> { response, lastUpdate, score } }
+            this.cache = new LRUCache({ max: this.maxCacheKeys, dispose: () => this.totalDropsOnLRU++ })
 
         } catch (e) {
             this.enabled = false
@@ -149,6 +151,7 @@ class AdapterCache {
         this.cache.forEach((cachedItem, key) => {
             if (get(cachedItem, 'listName') === listName) {
                 this.cache.del(key)
+                this.totalDropsOnListChange++
             }
         })
     }
@@ -200,6 +203,9 @@ class AdapterCache {
             total: this.totalRequests,
             hitrate: floor(this.cacheHits / this.totalRequests, 2),
             totalKeys: this.cache.size,
+            totalDrops: this.totalDropsOnLRU + this.totalDropsOnListChange,
+            totalDropsOnLRU: this.totalDropsOnLRU,
+            totalDropsOnListChange: this.totalDropsOnListChange,
         } }
         )
     }
