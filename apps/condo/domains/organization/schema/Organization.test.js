@@ -80,15 +80,14 @@ describe('Organization', () => {
                 read: true,
             }],
         }
-        const [user, userAttrs] = await createTestUser(admin, { customAccess })
+        const [, userAttrs] = await createTestUser(admin, { customAccess })
 
         const client = await makeLoggedInClient({ password: userAttrs.password, email: userAttrs.email })
-        client.user = user
 
-        const objs = await Organization.getAll(client, { id: organization.id })
+        const obj = await Organization.getOne(client, { id: organization.id })
 
-        expect(objs).toHaveLength(1)
-        expect(objs[0]).toHaveProperty('id', organization.id)
+        expect(obj).toBeDefined()
+        expect(obj).toHaveProperty('id', organization.id)
     })
 
     test('anonymous: read Organization', async () => {
