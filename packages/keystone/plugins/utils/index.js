@@ -42,9 +42,30 @@ async function evaluateKeystoneAccessResult (access, operation, args, keystone =
     )
 }
 
+async function evaluateKeystoneFieldAccessResult (access, operation, args, keystone = null) {
+    const type = getType(access)
+    if (type === 'Boolean') {
+        return access || false
+    } else if (type === 'Function') {
+        return access(args) || false
+    } else if (type === 'AsyncFunction') {
+        return await access(args) || false
+    } else if (type === 'Object') {
+        const innerAccess = access[operation]
+        if (innerAccess) return await evaluateKeystoneAccessResult(innerAccess, operation, args, keystone)
+        return get(keystone, ['defaultAccess', 'field'], true)
+    } else if (type === 'Undefined') {
+        return get(keystone, ['defaultAccess', 'field'], true)
+    }
+    throw new Error(
+        `evaluateKeystoneFieldAccessResult(), received ${type}.`,
+    )
+}
+
 module.exports = {
     composeResolveInputHook,
     composeNonResolveInputHook,
     isValidDate,
     evaluateKeystoneAccessResult,
+    evaluateKeystoneFieldAccessResult,
 }

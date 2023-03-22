@@ -29,6 +29,7 @@ type UserHistoryRecord {
   avatar: JSON
   meta: JSON
   locale: String
+  customAccess: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -175,6 +176,10 @@ input UserHistoryRecordWhereInput {
   locale_not_ends_with_i: String
   locale_in: [String]
   locale_not_in: [String]
+  customAccess: JSON
+  customAccess_not: JSON
+  customAccess_in: [JSON]
+  customAccess_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -310,6 +315,7 @@ input UserHistoryRecordUpdateInput {
   avatar: JSON
   meta: JSON
   locale: String
+  customAccess: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -343,6 +349,7 @@ input UserHistoryRecordCreateInput {
   avatar: JSON
   meta: JSON
   locale: String
+  customAccess: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -380,6 +387,29 @@ type File {
 enum UserLocaleType {
   ru
   en
+}
+
+type CustomAccessFieldRule {
+  field: String!
+  create: Boolean
+  read: Boolean
+  update: Boolean
+}
+
+type CustomAccessOperationRule {
+  create: Boolean
+  read: Boolean
+  update: Boolean
+}
+
+type CustomAccessListRule {
+  list: String!
+  access: CustomAccessOperationRule!
+  fields: [CustomAccessFieldRule]
+}
+
+type CustomAccess {
+  accessRules: [CustomAccessListRule]
 }
 
 input UserRelateToOneInput {
@@ -448,6 +478,10 @@ type User {
 
   """ The user's locale """
   locale: UserLocaleType
+
+  """ Override for business access rights for list or field of provided schema 
+  """
+  customAccess: CustomAccess
   id: ID!
   v: Int
   createdAt: String
@@ -553,6 +587,10 @@ input UserWhereInput {
   locale_not: UserLocaleType
   locale_in: [UserLocaleType]
   locale_not_in: [UserLocaleType]
+  customAccess: JSON
+  customAccess_not: JSON
+  customAccess_in: [JSON]
+  customAccess_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -665,6 +703,7 @@ input UserUpdateInput {
   avatar: Upload
   meta: JSON
   locale: UserLocaleType
+  customAccess: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -694,6 +733,7 @@ input UserCreateInput {
   avatar: Upload
   meta: JSON
   locale: UserLocaleType
+  customAccess: JSON
   v: Int
   createdAt: String
   updatedAt: String
