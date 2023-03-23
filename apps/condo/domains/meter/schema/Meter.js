@@ -106,36 +106,23 @@ const Meter = new GQLListSchema('Meter', {
             hooks: {
                 validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath, addFieldValidationError }) => {
                     const value = resolvedData[fieldPath]
-                    let metersWithSameAccountNumberInOtherUnit
-                    if (operation === 'create') {
-                        metersWithSameAccountNumberInOtherUnit = await MeterApi.getAll(context, {
+                    if (operation === 'create' || (operation === 'update' && resolvedData.accountNumber !== existingItem.accountNumber)) {
+                        const newItem = { ...existingItem, ...resolvedData }
+
+                        const metersWithSameAccountNumberInOtherUnit = await MeterApi.getAll(context, {
                             accountNumber: value,
-                            organization: { id: resolvedData.organization },
+                            organization: { id: newItem.organization },
                             deletedAt: null,
                             OR: [
-                                { unitName_not: resolvedData.unitName },
-                                { property: { id_not: resolvedData.property } },
+                                { unitName_not: newItem.unitName },
+                                { unitType_not: newItem.unitType },
+                                { property: { id_not: newItem.property } },
                             ],
                         })
-                    }
-                    else if (operation === 'update' && resolvedData.accountNumber !== existingItem.accountNumber) {
-                        const organization = resolvedData.organization ? resolvedData.organization : existingItem.organization
-                        const property = resolvedData.property ? resolvedData.property : existingItem.property
-                        const unitName = resolvedData.unitName ? resolvedData.unitName : existingItem.unitName
 
-                        metersWithSameAccountNumberInOtherUnit = await MeterApi.getAll(context, {
-                            accountNumber: value,
-                            organization: { id: organization },
-                            deletedAt: null,
-                            OR: [
-                                { unitName_not: unitName },
-                                { property: { id_not: property } },
-                            ],
-                        })
-                    }
-
-                    if (metersWithSameAccountNumberInOtherUnit && metersWithSameAccountNumberInOtherUnit.length > 0) {
-                        addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same account number exist in current organization in other unit`)
+                        if (metersWithSameAccountNumberInOtherUnit && metersWithSameAccountNumberInOtherUnit.length > 0) {
+                            addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same account number exist in current organization in other unit`)
+                        }
                     }
                 },
             },
