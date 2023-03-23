@@ -66,6 +66,8 @@
     "es5-ext": "0.10.53",
     "debuglog": "1.0.1",
     "debug": "4.3.4",
-    "knex": "0.95.15"
+    "resolve-url-loader/loader-utils": "1.4.2",
+    "styled-jsx/loader-utils": "1.4.2",
+    "adjust-sourcemap-loader/loader-utils": "1.4.2"
   }
 }
