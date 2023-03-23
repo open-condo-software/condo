@@ -4,15 +4,18 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
 const { NewsItem: NewsItemGQL } = require('@condo/domains/news/gql')
+const { NewsItemScope: NewsItemScopeGQL } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateServerUtils(NewsItemGQL)
+const NewsItemScope = generateServerUtils(NewsItemScopeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     NewsItem,
+    NewsItemScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -4,9 +4,11 @@
  */
 
 const { NewsItem } = require('./NewsItem')
+const { NewsItemScope } = require('./NewsItemScope')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     NewsItem,
+    NewsItemScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -9,9 +9,11 @@ const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/gene
 
 const { NewsItem: NewsItemGQL } = require('@condo/domains/news/gql')
 const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
+const { NewsItemScope: NewsItemScopeGQL } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateGQLTestUtils(NewsItemGQL)
+const NewsItemScope = generateGQLTestUtils(NewsItemScopeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestNewsItem (client, organization, extraAttrs = {}) {
@@ -50,9 +52,41 @@ async function updateTestNewsItem (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestNewsItemScope (client, newsItem, property, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!newsItem || !newsItem.id) throw new Error('no newsItem.id')
+    if (!property || !property.id) throw new Error('no property.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        newsItem: { connect: { id: newsItem.id } },
+        property: { connect: { id: property.id } },
+        ...extraAttrs,
+    }
+    const obj = await NewsItemScope.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestNewsItemScope (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await NewsItemScope.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     NewsItem, createTestNewsItem, updateTestNewsItem,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    NewsItemScope, createTestNewsItemScope, updateTestNewsItemScope,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }
