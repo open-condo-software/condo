@@ -9,7 +9,7 @@ const { expectToThrowAccessDeniedErrorToObj, expectToThrowInternalError } = requ
 
 const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 const {
-    createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, updateTestOrganizationEmployee,
+    createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, updateTestOrganizationEmployee, createTestOrganizationLink,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
@@ -22,6 +22,25 @@ describe('UserTicketCommentReadTime', () => {
             it('can create UserTicketCommentReadTime to comment in employee organization', async () => {
                 const userClient = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
+                const [userTicketCommentRead] = await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
+
+                expect(userTicketCommentRead.id).toMatch(UUID_RE)
+            })
+
+            it('can create UserTicketCommentReadTime to comment in employee related organization', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization1] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization1)
+                const [organization2] = await createTestOrganization(admin)
+
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization2, {
+                    canManageTickets: true,
+                })
+                await createTestOrganizationEmployee(admin, organization2, userClient.user, role)
+                await createTestOrganizationLink(admin, organization2, organization1)
+
+                const [ticket] = await createTestTicket(userClient, organization1, property)
                 const [userTicketCommentRead] = await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
 
                 expect(userTicketCommentRead.id).toMatch(UUID_RE)
