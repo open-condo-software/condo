@@ -23,6 +23,7 @@ const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql'
 const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
 const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 const { OidcClient: OidcClientGQL } = require('@condo/domains/user/gql')
+const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
@@ -83,6 +84,7 @@ async function sendMessageToSupport (context, data) {
 }
 
 const OidcClient = generateServerUtils(OidcClientGQL)
+const ExternalTokenAccessRight = generateServerUtils(ExternalTokenAccessRightGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
@@ -193,5 +195,6 @@ module.exports = {
     findTokenAndRelatedUser,
     markTokenAsUsed,
     OidcClient,
+    ExternalTokenAccessRight,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

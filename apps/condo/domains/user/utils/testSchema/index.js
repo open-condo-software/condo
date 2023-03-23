@@ -19,6 +19,7 @@ const {
     STAFF,
     SERVICE
 } = require('@condo/domains/user/constants/common')
+const { IDENTITY_TYPES, SBBOL_IDENTITY_TYPE } = require('@condo/domains/user/constants')
 const {
     ConfirmPhoneAction: ConfirmPhoneActionGQL,
     ForgotPasswordAction: ForgotPasswordActionGQL,
@@ -41,6 +42,7 @@ const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 const UserExternalIdentity = generateGQLTestUtils(UserExternalIdentityGQL)
 
+const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {
@@ -229,6 +231,7 @@ const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 const ForgotPasswordAction = generateGQLTestUtils(ForgotPasswordActionGQL)
 
 const OidcClient = generateGQLTestUtils(OidcClientGQL)
+const ExternalTokenAccessRight = generateGQLTestUtils(ExternalTokenAccessRightGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
@@ -444,6 +447,38 @@ async function updateTestOidcClient (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestExternalTokenAccessRight (client, user, identityType, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    if(!identityType) throw new Error('no identityType')
+    if (!IDENTITY_TYPES.includes(identityType)) throw new Error('unknown identityType')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        type: identityType,
+        ...extraAttrs,
+    }
+    const obj = await ExternalTokenAccessRight.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestExternalTokenAccessRight (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ExternalTokenAccessRight.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -482,5 +517,6 @@ module.exports = {
     changePhoneNumberResidentUserByTestClient,
     changePasswordWithTokenByTestClient,
     OidcClient, createTestOidcClient, updateTestOidcClient,
+    ExternalTokenAccessRight, createTestExternalTokenAccessRight, updateTestExternalTokenAccessRight,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
