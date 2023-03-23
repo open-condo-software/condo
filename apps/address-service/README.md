@@ -26,6 +26,8 @@ export SERVICE_LOCAL_PORT='3001'
 # create .env file!
 
 cat > .env << ENDOFFILE
+PROVIDER=dadata
+
 DATABASE_URL=postgresql://postgres:postgres@127.0.0.1/${DATABASE_NAME}
 NODE_ENV=development
 DISABLE_LOGGING=true
@@ -54,7 +56,7 @@ ENDOFFILE
 docker-compose up -d postgresdb redis
 
 # create database if not exists
-docker exec condo_postgresdb_1 bash -c "su postgres -c \"createdb ${DATABASE_NAME}\""
+docker exec condo-postgresdb-1 bash -c "su postgres -c \"createdb ${DATABASE_NAME}\""
 
 # install dependencies and link yarn workspaces
 yarn
