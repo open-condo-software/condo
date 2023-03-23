@@ -16,7 +16,7 @@ const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} email phone }`)
 
 const USER_EXTERNAL_IDENTITY_FIELDS = '{ id user { id } identityId identityType meta deletedAt }'
 const UserExternalIdentity = generateGqlQueries('UserExternalIdentity', USER_EXTERNAL_IDENTITY_FIELDS)
-const USER_ACCESS_RULE_FIELDS = 'list access { create read update } fields { field create read update }'
+const USER_ACCESS_RULE_FIELDS = 'list create read update fields { field create read update }'
 const USER_CUSTOM_ACCESS_FIELDS = `accessRules { ${USER_ACCESS_RULE_FIELDS} }`
 const USER_CUSTOM_ACCESS_GRAPHQL_TYPES = `
     type CustomAccessFieldRule {
@@ -25,16 +25,12 @@ const USER_CUSTOM_ACCESS_GRAPHQL_TYPES = `
         read: Boolean
         update: Boolean
     }
-
-    type CustomAccessOperationRule {
-        create: Boolean
-        read: Boolean
-        update: Boolean
-    }
     
     type CustomAccessListRule {
         list: String!
-        access: CustomAccessOperationRule!
+        create: Boolean
+        read: Boolean
+        update: Boolean
         fields: [CustomAccessFieldRule]
     }
     
@@ -49,19 +45,15 @@ const USER_CUSTOM_ACCESS_GRAPHQL_TYPES = `
         update: Boolean
     }
     
-    input CustomAccessOperationRuleInput {
+    input CustomAccessListRuleInput {
+        list: String!
         create: Boolean
         read: Boolean
         update: Boolean
+        fields: [CustomAccessFieldRuleInput]
     }
     
-    input CustomAccessListRuleInput {
-        list: String!
-        access: CustomAccessOperationRuleInput!
-        fields: CustomAccessFieldRuleInput
-    }
-    
-    input CustomAccessInput { accessRules: CustomAccessListRuleInput }
+    input CustomAccessInput { accessRules: [CustomAccessListRuleInput] }
 `
 
 const REGISTER_NEW_USER_MUTATION = gql`

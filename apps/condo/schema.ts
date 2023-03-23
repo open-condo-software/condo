@@ -17675,33 +17675,24 @@ export type CustomAccessFieldRuleInput = {
 };
 
 export type CustomAccessInput = {
-  accessRules?: Maybe<CustomAccessListRuleInput>;
+  accessRules?: Maybe<Array<Maybe<CustomAccessListRuleInput>>>;
 };
 
 export type CustomAccessListRule = {
   __typename?: 'CustomAccessListRule';
   list: Scalars['String'];
-  access: CustomAccessOperationRule;
+  create?: Maybe<Scalars['Boolean']>;
+  read?: Maybe<Scalars['Boolean']>;
+  update?: Maybe<Scalars['Boolean']>;
   fields?: Maybe<Array<Maybe<CustomAccessFieldRule>>>;
 };
 
 export type CustomAccessListRuleInput = {
   list: Scalars['String'];
-  access: CustomAccessOperationRuleInput;
-  fields?: Maybe<CustomAccessFieldRuleInput>;
-};
-
-export type CustomAccessOperationRule = {
-  __typename?: 'CustomAccessOperationRule';
   create?: Maybe<Scalars['Boolean']>;
   read?: Maybe<Scalars['Boolean']>;
   update?: Maybe<Scalars['Boolean']>;
-};
-
-export type CustomAccessOperationRuleInput = {
-  create?: Maybe<Scalars['Boolean']>;
-  read?: Maybe<Scalars['Boolean']>;
-  update?: Maybe<Scalars['Boolean']>;
+  fields?: Maybe<Array<Maybe<CustomAccessFieldRuleInput>>>;
 };
 
 export enum DevicePlatformType {
