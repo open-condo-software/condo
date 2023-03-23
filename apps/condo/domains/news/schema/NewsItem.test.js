@@ -35,7 +35,7 @@ const {
 
 let adminClient, supportClient, userClient, anonymousClient, sender
 
-describe('NewsItem', () => {
+describe('NewsItems', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
@@ -82,7 +82,7 @@ describe('NewsItem', () => {
             test('stuff with permission can', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [o10n] = await createTestOrganization(adminClient)
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNews: true })
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNewsItems: true })
                 await createTestOrganizationEmployee(adminClient, o10n, client.user, role)
 
                 const [obj, attrs] = await createTestNewsItem(client, o10n)
@@ -96,7 +96,7 @@ describe('NewsItem', () => {
             test('staff without permission can\'t', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [o10n] = await createTestOrganization(adminClient)
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNews: false })
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNewsItems: false })
                 await createTestOrganizationEmployee(adminClient, o10n, client.user, role)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -154,7 +154,7 @@ describe('NewsItem', () => {
 
                 const [o10n] = await createTestOrganization(adminClient)
                 const [objCreated] = await createTestNewsItem(adminClient, o10n)
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNews: true })
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNewsItems: true })
                 await createTestOrganizationEmployee(adminClient, o10n, client.user, role)
 
                 const body = faker.lorem.words(10)
@@ -173,7 +173,7 @@ describe('NewsItem', () => {
 
                 const [o10n] = await createTestOrganization(adminClient)
                 const [objCreated] = await createTestNewsItem(adminClient, o10n)
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNews: false })
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNewsItems: false })
                 await createTestOrganizationEmployee(adminClient, o10n, client.user, role)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -254,8 +254,8 @@ describe('NewsItem', () => {
             test('stuff can', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
                 const [objCreated] = await createTestNewsItem(adminClient, o10n)
-                const [roleWithAccess] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNews: true })
-                const [roleWithoutAccess] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNews: false })
+                const [roleWithAccess] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNewsItems: true })
+                const [roleWithoutAccess] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNewsItems: false })
 
                 const clientWithAccess = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationEmployee(adminClient, o10n, clientWithAccess.user, roleWithAccess)
