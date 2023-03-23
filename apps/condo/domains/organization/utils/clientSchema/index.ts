@@ -16,7 +16,6 @@ import * as OrganizationEmployee from './OrganizationEmployee'
 import * as OrganizationEmployeeRole from './OrganizationEmployeeRole'
 import * as OrganizationEmployeeSpecialization from './OrganizationEmployeeSpecialization'
 import * as OrganizationLink from './OrganizationLink'
-import * as TokenAccessRight from './TokenAccessRight'
 
 function convertGQLItemToUIState (item) {
     if (item.dv !== 1) throw new Error('unsupported item.dv')
@@ -84,7 +83,6 @@ export {
     OrganizationEmployeeRole,
     OrganizationLink,
     OrganizationEmployeeSpecialization,
-    TokenAccessRight,
 }
 
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
