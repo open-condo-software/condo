@@ -17667,18 +17667,32 @@ export type CustomAccessFieldRule = {
   update?: Maybe<Scalars['Boolean']>;
 };
 
-export type CustomAccessListRule = {
-  __typename?: 'CustomAccessListRule';
-  list: Scalars['String'];
-  access: CustomAccessOperationRule;
-  fields?: Maybe<Array<Maybe<CustomAccessFieldRule>>>;
-};
-
-export type CustomAccessOperationRule = {
-  __typename?: 'CustomAccessOperationRule';
+export type CustomAccessFieldRuleInput = {
+  field: Scalars['String'];
   create?: Maybe<Scalars['Boolean']>;
   read?: Maybe<Scalars['Boolean']>;
   update?: Maybe<Scalars['Boolean']>;
+};
+
+export type CustomAccessInput = {
+  accessRules?: Maybe<Array<Maybe<CustomAccessListRuleInput>>>;
+};
+
+export type CustomAccessListRule = {
+  __typename?: 'CustomAccessListRule';
+  list: Scalars['String'];
+  create?: Maybe<Scalars['Boolean']>;
+  read?: Maybe<Scalars['Boolean']>;
+  update?: Maybe<Scalars['Boolean']>;
+  fields?: Maybe<Array<Maybe<CustomAccessFieldRule>>>;
+};
+
+export type CustomAccessListRuleInput = {
+  list: Scalars['String'];
+  create?: Maybe<Scalars['Boolean']>;
+  read?: Maybe<Scalars['Boolean']>;
+  update?: Maybe<Scalars['Boolean']>;
+  fields?: Maybe<Array<Maybe<CustomAccessFieldRuleInput>>>;
 };
 
 export enum DevicePlatformType {
@@ -67411,7 +67425,7 @@ export type UserCreateInput = {
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
   locale?: Maybe<UserLocaleType>;
-  customAccess?: Maybe<Scalars['JSON']>;
+  customAccess?: Maybe<CustomAccessInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -68523,7 +68537,7 @@ export type UserUpdateInput = {
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
   locale?: Maybe<UserLocaleType>;
-  customAccess?: Maybe<Scalars['JSON']>;
+  customAccess?: Maybe<CustomAccessInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -68617,10 +68631,10 @@ export type UserWhereInput = {
   locale_not?: Maybe<UserLocaleType>;
   locale_in?: Maybe<Array<Maybe<UserLocaleType>>>;
   locale_not_in?: Maybe<Array<Maybe<UserLocaleType>>>;
-  customAccess?: Maybe<Scalars['JSON']>;
-  customAccess_not?: Maybe<Scalars['JSON']>;
-  customAccess_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  customAccess_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  customAccess?: Maybe<CustomAccessInput>;
+  customAccess_not?: Maybe<CustomAccessInput>;
+  customAccess_in?: Maybe<Array<Maybe<CustomAccessInput>>>;
+  customAccess_not_in?: Maybe<Array<Maybe<CustomAccessInput>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

@@ -396,20 +396,35 @@ type CustomAccessFieldRule {
   update: Boolean
 }
 
-type CustomAccessOperationRule {
+type CustomAccessListRule {
+  list: String!
   create: Boolean
   read: Boolean
   update: Boolean
-}
-
-type CustomAccessListRule {
-  list: String!
-  access: CustomAccessOperationRule!
   fields: [CustomAccessFieldRule]
 }
 
 type CustomAccess {
   accessRules: [CustomAccessListRule]
+}
+
+input CustomAccessFieldRuleInput {
+  field: String!
+  create: Boolean
+  read: Boolean
+  update: Boolean
+}
+
+input CustomAccessListRuleInput {
+  list: String!
+  create: Boolean
+  read: Boolean
+  update: Boolean
+  fields: [CustomAccessFieldRuleInput]
+}
+
+input CustomAccessInput {
+  accessRules: [CustomAccessListRuleInput]
 }
 
 input UserRelateToOneInput {
@@ -587,10 +602,10 @@ input UserWhereInput {
   locale_not: UserLocaleType
   locale_in: [UserLocaleType]
   locale_not_in: [UserLocaleType]
-  customAccess: JSON
-  customAccess_not: JSON
-  customAccess_in: [JSON]
-  customAccess_not_in: [JSON]
+  customAccess: CustomAccessInput
+  customAccess_not: CustomAccessInput
+  customAccess_in: [CustomAccessInput]
+  customAccess_not_in: [CustomAccessInput]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -703,7 +718,7 @@ input UserUpdateInput {
   avatar: Upload
   meta: JSON
   locale: UserLocaleType
-  customAccess: JSON
+  customAccess: CustomAccessInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -733,7 +748,7 @@ input UserCreateInput {
   avatar: Upload
   meta: JSON
   locale: UserLocaleType
-  customAccess: JSON
+  customAccess: CustomAccessInput
   v: Int
   createdAt: String
   updatedAt: String
