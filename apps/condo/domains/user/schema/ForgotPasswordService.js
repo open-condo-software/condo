@@ -5,7 +5,6 @@ const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
-const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { WRONG_PHONE_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -203,10 +202,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                         to: { email },
                     })
                 }
-                const lang = COUNTRIES[RUSSIA_COUNTRY].locale
                 await Promise.all(sendChannels.map(async channel => {
                     await sendMessage(context, {
-                        lang,
                         to: {
                             user: {
                                 id: userId,

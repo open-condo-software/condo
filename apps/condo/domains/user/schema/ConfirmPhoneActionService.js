@@ -7,7 +7,6 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
-const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
@@ -234,9 +233,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     expiresAt,
                 }
                 await ConfirmPhoneAction.create(context, variables)
-                const lang = COUNTRIES[RUSSIA_COUNTRY].locale
                 await sendMessage(context, {
-                    lang,
                     to: { phone },
                     type: SMS_VERIFY_CODE_MESSAGE_TYPE,
                     meta: {
@@ -292,9 +289,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     smsCodeExpiresAt: new Date(now + SMS_CODE_TTL * 1000).toISOString(),
                     smsCodeRequestedAt: new Date(now).toISOString(),
                 })
-                const lang = COUNTRIES[RUSSIA_COUNTRY].locale
                 await sendMessage(context, {
-                    lang,
                     to: { phone },
                     type: SMS_VERIFY_CODE_MESSAGE_TYPE,
                     meta: {
