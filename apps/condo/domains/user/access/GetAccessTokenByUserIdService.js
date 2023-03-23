@@ -14,13 +14,13 @@ async function canGetAccessTokenByUserId ({ authentication: { item: user }, data
     if (user.isAdmin) return true
 
     if (user.type === SERVICE) {
-        const tokenAccessRights = await ExternalTokenAccessRight.getAll(context, {
+        const tokenAccessRights = await ExternalTokenAccessRight.getOne(context, {
             deletedAt: null,
             type: get(data, 'type'),
             user: { id: user.id },
-        }, { first: 1 })
+        })
 
-        return tokenAccessRights.length > 0
+        return !!tokenAccessRights
     }
     
     return false
