@@ -24,6 +24,7 @@ const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
 const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 const { OidcClient: OidcClientGQL } = require('@condo/domains/user/gql')
 const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@condo/domains/user/gql')
+const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
@@ -31,6 +32,8 @@ const UserAdmin = generateServerUtils(UserAdminGQL)
 const UserExternalIdentity = generateServerUtils(UserExternalIdentityGQL)
 const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
 const ForgotPasswordAction = generateServerUtils(ForgotPasswordActionGQL)
+const OidcClient = generateServerUtils(OidcClientGQL)
+const ExternalTokenAccessRight = generateServerUtils(ExternalTokenAccessRightGQL)
 
 async function signinAsUser (context, data) {
     if (!context) throw new Error('no context')
@@ -83,8 +86,18 @@ async function sendMessageToSupport (context, data) {
     })
 }
 
-const OidcClient = generateServerUtils(OidcClientGQL)
-const ExternalTokenAccessRight = generateServerUtils(ExternalTokenAccessRightGQL)
+async function getAccessTokenByUserId (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+
+    return await execGqlWithoutAccess(context, {
+        query: GET_ACCESS_TOKEN_BY_USER_ID_QUERY,
+        variables: { data: { ...data } },
+        errorMessage: '[error] Unable to getAccessTokenByUserId',
+        dataPath: 'result',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
@@ -196,5 +209,6 @@ module.exports = {
     markTokenAsUsed,
     OidcClient,
     ExternalTokenAccessRight,
+    getAccessTokenByUserId,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

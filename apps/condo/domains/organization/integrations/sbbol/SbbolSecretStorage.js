@@ -43,10 +43,12 @@ class SbbolSecretStorage {
     }
 
     async getAccessToken (userId) {
-        return [
-            await this.#getValue(`user:${userId}:accessToken`),
-            await this.keyStorage.ttl(this.#scopedKey(`user:${userId}:accessToken`)),
-        ]
+        if (!userId) throw new Error('userId is required for setAccessToken')
+        const key = `user:${userId}:accessToken`
+        return {
+            accessToken: await this.#getValue(key),
+            ttl: await this.keyStorage.ttl(this.#scopedKey(key)),
+        }
     }
 
     async setAccessToken (

@@ -43,6 +43,7 @@ const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 const UserExternalIdentity = generateGQLTestUtils(UserExternalIdentityGQL)
 
 const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@condo/domains/user/gql')
+const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {
@@ -479,6 +480,17 @@ async function updateTestExternalTokenAccessRight (client, id, extraAttrs = {}) 
     return [obj, attrs]
 }
 
+
+async function getAccessTokenByUserIdByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const attrs = {
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.query(GET_ACCESS_TOKEN_BY_USER_ID_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -518,5 +530,6 @@ module.exports = {
     changePasswordWithTokenByTestClient,
     OidcClient, createTestOidcClient, updateTestOidcClient,
     ExternalTokenAccessRight, createTestExternalTokenAccessRight, updateTestExternalTokenAccessRight,
+    getAccessTokenByUserIdByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

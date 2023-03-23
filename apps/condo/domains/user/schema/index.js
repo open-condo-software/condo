@@ -10,6 +10,7 @@ const { ConfirmPhoneActionService } = require('./ConfirmPhoneActionService')
 const { ExternalTokenAccessRight } = require('./ExternalTokenAccessRight')
 const { ForgotPasswordAction  } = require('./ForgotPasswordAction')
 const { ForgotPasswordService } = require('./ForgotPasswordService')
+const { GetAccessTokenByUserIdService } = require('./GetAccessTokenByUserIdService')
 const { OidcClient } = require('./OidcClient')
 const { RegisterNewServiceUserService } = require('./RegisterNewServiceUserService')
 const { RegisterNewUserService } = require('./RegisterNewUserService')
@@ -38,5 +39,6 @@ module.exports = {
     OidcClient,
     UserExternalIdentity,
     ExternalTokenAccessRight,
+    GetAccessTokenByUserIdService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
