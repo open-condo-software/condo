@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } 
 
 import { Modal } from './modal'
 
-import { usePatchElement } from '../_utils/hooks/usePatchElement'
+import { usePatchElement } from '../_utils/hooks'
 
 import type { ModalProps } from './modal'
 

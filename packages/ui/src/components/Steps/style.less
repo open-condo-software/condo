@@ -1,0 +1,95 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import (reference) "@open-condo/ui/src/components/_utils/controls/style";
+
+@condo-carousel-default-arrow-offset: @condo-global-spacing-20;
+@condo-steps-padding-lg: @condo-global-spacing-24;
+@condo-steps-hor-padding-sm: @condo-global-spacing-20;
+@condo-steps-padding-sm: @condo-global-spacing-16 @condo-steps-hor-padding-sm;
+@condo-steps-gap: @condo-global-spacing-24;
+
+.condo-steps {
+  background: @condo-global-color-gray-1;
+  border-radius: @condo-global-border-radius-large;
+
+  &-large {
+    padding: @condo-steps-padding-lg;
+
+    .condo-carousel {
+      .slick-arrow.slick-next {
+        right: -@condo-steps-padding-lg - (@condo-control-lg-size / 2);
+      }
+
+      .slick-arrow.slick-prev {
+        left: -@condo-steps-padding-lg - (@condo-control-lg-size / 2);
+      }
+    }
+  }
+
+  &-small {
+    padding: @condo-steps-padding-sm;
+
+    .condo-carousel {
+      .slick-arrow.slick-next {
+        right: -@condo-steps-hor-padding-sm - (@condo-control-sm-size / 2);
+      }
+
+      .slick-arrow.slick-prev {
+        left: -@condo-steps-hor-padding-sm - (@condo-control-sm-size / 2);
+      }
+    }
+  }
+
+  .condo-carousel {
+    .slick-list {
+      margin: 0 (-@condo-steps-gap / 2);
+      padding: 0;
+    }
+
+    .slick-slide > div {
+      margin: 0 (@condo-steps-gap / 2);
+    }
+  }
+
+  &-step {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+    cursor: not-allowed;
+
+    .condo-steps-step-index {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: @condo-global-spacing-40;
+      height: @condo-global-spacing-40;
+      color: @condo-global-color-gray-7;
+      background: @condo-global-color-gray-5;
+      border-radius: 50%;
+    }
+
+    &-small {
+      .condo-steps-step-index {
+        width: @condo-global-spacing-32;
+        height: @condo-global-spacing-32;
+      }
+    }
+
+    &-active {
+      cursor: pointer;
+
+      .condo-steps-step-index {
+        color: @condo-global-color-white;
+        background: @condo-global-color-black;
+      }
+    }
+
+    &-done {
+      .condo-steps-step-index {
+        color: @condo-global-color-white;
+        background: @condo-global-color-brand-gradient-5;
+      }
+    }
+  }
+}

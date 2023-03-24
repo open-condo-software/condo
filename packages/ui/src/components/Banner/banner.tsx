@@ -1,8 +1,8 @@
 import classNames from 'classnames'
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback } from 'react'
 
 import { sendAnalyticsClickEvent } from '../_utils/analytics'
-import { useSize } from '../_utils/hooks'
+import { useContainerSize } from '../_utils/hooks'
 import { Button } from '../Button'
 import { Typography } from '../Typography'
 
@@ -48,8 +48,7 @@ export const Banner: React.FC<BannerProps> = ({
     invertText,
     id,
 }) => {
-    const ref = useRef<HTMLDivElement>(null)
-    const { width } = useSize(ref)
+    const [{ width }, setRef] = useContainerSize<HTMLDivElement>()
 
     const showImage = imgUrl && width >= MD_BARRIER
 
@@ -78,7 +77,7 @@ export const Banner: React.FC<BannerProps> = ({
             className={bannerClasses}
             style={{ background: backgroundColor }}
             onClick={handleClick}
-            ref={ref}
+            ref={setRef}
         >
             <div className={contentContainerClasses}>
                 <div className={`${CLASS_PREFIX}-text-container`}>

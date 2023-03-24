@@ -77,6 +77,13 @@ export default {
                 max: 4,
             },
         },
+        controlsSize: {
+            defaultValue: 'large',
+            options: ['large', 'small'],
+            control: {
+                type: 'select',
+            },
+        },
     },
 } as ComponentMeta<typeof Component>
 
