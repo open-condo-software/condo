@@ -40,7 +40,6 @@ const BankSyncTask = generateGqlQueries('BankSyncTask', BANK_SYNC_TASK_FIELDS)
 
 const BANK_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ integration { id } user { id } ${COMMON_FIELDS} }`
 const BankIntegrationAccessRight = generateGqlQueries('BankIntegrationAccessRight', BANK_INTEGRATION_ACCESS_RIGHT_FIELDS)
-/* AUTOGENERATE MARKER <CONST> */
 
 const CREATE_BANK_ACCOUNT_REQUEST_MUTATION = gql`
     mutation createBankAccountRequest ($data: CreateBankAccountRequestInput!) {
@@ -51,6 +50,12 @@ const CREATE_BANK_ACCOUNT_REQUEST_MUTATION = gql`
 const IMPORT_BANK_TRANSACTIONS_MUTATION = gql`
     mutation importBankTransactions ($data: ImportBankTransactionsInput!) {
         result: importBankTransactions(data: $data) { bankAccount ${BANK_ACCOUNT_FIELDS} }
+    }
+`
+
+const PREDICT_TRANSACTION_CLASSIFICATION_QUERY = gql`
+    query predictTransactionClassification ($data: PredictTransactionClassificationInput!) {
+        result: predictTransactionClassification(data: $data) { id name isOutcome category { id name } }
     }
 `
 
@@ -69,5 +74,6 @@ module.exports = {
     BankSyncTask,
     CREATE_BANK_ACCOUNT_REQUEST_MUTATION,
     IMPORT_BANK_TRANSACTIONS_MUTATION,
+    PREDICT_TRANSACTION_CLASSIFICATION_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

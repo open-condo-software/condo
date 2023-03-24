@@ -16247,6 +16247,12 @@ export enum CacheControlScope {
   Private = 'PRIVATE'
 }
 
+export type Category = {
+  __typename?: 'Category';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+};
+
 export type ChangePasswordWithTokenInput = {
   token: Scalars['String'];
   password: Scalars['String'];
@@ -41442,6 +41448,18 @@ export type PredictTicketClassificationInput = {
   details: Scalars['String'];
 };
 
+export type PredictTransactionClassificationInput = {
+  purpose: Scalars['String'];
+};
+
+export type PredictTransactionClassificationOutput = {
+  __typename?: 'PredictTransactionClassificationOutput';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  isOutcome: Scalars['Boolean'];
+  category?: Maybe<Category>;
+};
+
 export type PropertiesCreateInput = {
   data?: Maybe<PropertyCreateInput>;
 };
@@ -44697,6 +44715,7 @@ export type Query = {
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
+  predictTransactionClassification?: Maybe<PredictTransactionClassificationOutput>;
   predictTicketClassification?: Maybe<TicketClassifier>;
   exportIncidentsToExcel?: Maybe<ExportIncidentsToExcelOutput>;
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
@@ -49521,6 +49540,11 @@ export type QueryAllResidentBillingReceiptsArgs = {
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
   sortBy?: Maybe<Array<SortResidentBillingReceiptsBy>>;
+};
+
+
+export type QueryPredictTransactionClassificationArgs = {
+  data: PredictTransactionClassificationInput;
 };
 
 

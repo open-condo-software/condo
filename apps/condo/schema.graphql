@@ -54273,6 +54273,22 @@ type CreateBankAccountRequestOutput {
   id: ID!
 }
 
+input PredictTransactionClassificationInput {
+  purpose: String!
+}
+
+type Category {
+  id: ID!
+  name: String!
+}
+
+type PredictTransactionClassificationOutput {
+  id: ID!
+  name: String!
+  isOutcome: Boolean!
+  category: Category
+}
+
 input ShareTicketInput {
   sender: SenderFieldInput!
   employees: [ID!]!
@@ -57590,6 +57606,7 @@ type Query {
   checkPropertyWithAddressExist(data: CheckPropertyWithAddressExistInput!): CheckPropertyWithAddressExistOutput
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
+  predictTransactionClassification(data: PredictTransactionClassificationInput!): PredictTransactionClassificationOutput
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   exportIncidentsToExcel(data: ExportIncidentsToExcelInput!): ExportIncidentsToExcelOutput
   exportContactsToExcel(data: ExportContactsToExcelInput!): ExportContactsToExcelOutput
