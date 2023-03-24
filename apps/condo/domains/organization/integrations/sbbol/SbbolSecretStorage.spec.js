@@ -31,7 +31,7 @@ describe('SbbolSecretStorage', () => {
         const value = faker.datatype.uuid()
         const userId = faker.datatype.uuid()
         await storage.setAccessToken(value, userId)
-        const [accessToken, ttl] = await storage.getAccessToken(userId)
+        const { accessToken, ttl } = await storage.getAccessToken(userId)
         expect(accessToken).toEqual(value)
         expect(ttl).toBeTruthy()
     })
@@ -54,7 +54,7 @@ describe('SbbolSecretStorage', () => {
         await storage.setAccessToken(value, userId)
 
         const clientSecret = await storage.getClientSecret()
-        const [accessToken] = await storage.getAccessToken(userId)
+        const { accessToken } = await storage.getAccessToken(userId)
         const refreshToken = await storage.getRefreshToken(userId)
 
         const rowKeys = await storage.getRawKeyValues(userId)
