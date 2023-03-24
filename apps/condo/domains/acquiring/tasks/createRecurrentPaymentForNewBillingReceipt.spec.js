@@ -28,7 +28,7 @@ const {
 
 const {
     scanBillingReceiptsForRecurrentPaymentContext,
-} = require('./recurrent-payments-seeking-for-new-receipt')
+} = require('./createRecurrentPaymentForNewBillingReceipt')
 
 const { keystone } = index
 

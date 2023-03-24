@@ -2,7 +2,7 @@
  * Start recurrent payment context processing task
  *
  * Usage:
- *      yarn workspace @app/condo node bin/recurrent-payments-context-start-task
+ *      yarn workspace @app/condo node bin/createRecurrentPaymentForReadyToPayRecurrentPaymentContexts
  */
 
 const path = require('path')
@@ -10,8 +10,8 @@ const path = require('path')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 const {
-    processAllReadyToPayRecurrentPaymentContext,
-} = require('@condo/domains/acquiring/tasks/recurrent-payment-context-processing')
+    createRecurrentPaymentForReadyToPayRecurrentPaymentContexts,
+} = require('@condo/domains/acquiring/tasks/createRecurrentPaymentForReadyToPayRecurrentPaymentContexts')
 
 async function main () {
     await prepareKeystoneExpressApp(
@@ -19,7 +19,7 @@ async function main () {
         { excludeApps: ['NextApp'] },
     )
 
-    await processAllReadyToPayRecurrentPaymentContext()
+    await createRecurrentPaymentForReadyToPayRecurrentPaymentContexts()
     process.exit(0)
 }
 

@@ -1,10 +1,8 @@
 const dayjs = require('dayjs')
-const { get } = require('lodash')
 const { v4: uuid } = require('uuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
     paginationConfiguration,
@@ -17,7 +15,7 @@ const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
 const logger = getLogger('recurrent-payment-context-notification')
 
-async function processAllRecurrentPaymentContextsBeforePaymentDate () {
+async function notifyBeforeRecurrentPaymentDate () {
     const taskId = this.id || uuid()
     logger.info({ msg: 'Start processing recurrent payment notifications tasks', taskId })
 
@@ -54,6 +52,5 @@ async function processAllRecurrentPaymentContextsBeforePaymentDate () {
 }
 
 module.exports = {
-    processAllRecurrentPaymentContextsBeforePaymentDate,
-    notifyBeforeRecurrentPaymentDate: createCronTask('notifyBeforeRecurrentPaymentDate', '0 10 * * *', processAllRecurrentPaymentContextsBeforePaymentDate),
+    notifyBeforeRecurrentPaymentDate,
 }

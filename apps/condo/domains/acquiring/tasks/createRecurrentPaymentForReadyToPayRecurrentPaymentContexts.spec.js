@@ -21,7 +21,7 @@ const {
 
 const {
     createRecurrentPaymentForRecurrentPaymentContext,
-} = require('./recurrent-payment-context-processing')
+} = require('./createRecurrentPaymentForReadyToPayRecurrentPaymentContexts')
 
 
 const { keystone } = index

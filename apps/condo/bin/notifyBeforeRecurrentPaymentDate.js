@@ -2,7 +2,7 @@
  * Start recurrent payment notification processing task
  *
  * Usage:
- *      yarn workspace @app/condo node bin/recurrent-payments-notification-start-task
+ *      yarn workspace @app/condo node bin/notifyBeforeRecurrentPaymentDate
  */
 
 const path = require('path')
@@ -10,8 +10,8 @@ const path = require('path')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 const {
-    processAllRecurrentPaymentContextsBeforePaymentDate,
-} = require('@condo/domains/acquiring/tasks/recurrent-payments-notification')
+    notifyBeforeRecurrentPaymentDate,
+} = require('@condo/domains/acquiring/tasks/notifyBeforeRecurrentPaymentDate')
 
 async function main () {
     await prepareKeystoneExpressApp(
@@ -19,7 +19,7 @@ async function main () {
         { excludeApps: ['NextApp'] },
     )
 
-    await processAllRecurrentPaymentContextsBeforePaymentDate()
+    await notifyBeforeRecurrentPaymentDate()
     process.exit(0)
 }
 
