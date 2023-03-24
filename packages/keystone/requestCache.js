@@ -44,7 +44,7 @@ class RequestCache {
         this.logStatsEachSecs = logStatsEachSecs || 60
         this.totalRequests = 0
         this.cacheHits = 0
-        this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 100)
+        if (this.enabled) this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 1000)
     }
 
     // Add a middleware which resets cache after end of each request to avoid memory leak errors
@@ -76,7 +76,7 @@ class RequestCache {
         return this.totalRequests++
     }
 
-    logEvent ( { type, functionName, listName, key, result } ) {
+    logEvent ({ type, functionName, listName, key, result }) {
         if (!this.logging) return
 
         const cacheEvent = {
@@ -91,12 +91,13 @@ class RequestCache {
     }
 
     _logStats = () => {
-        logger.info({ stats:{
-            hits: this.cacheHits,
-            total: this.totalRequests,
-            hitrate: floor(this.cacheHits / this.totalRequests, 2),
-        } }
-        )
+        logger.info({
+            stats: {
+                hits: this.cacheHits,
+                total: this.totalRequests,
+                hitrate: floor(this.cacheHits / this.totalRequests, 2),
+            },
+        })
     }
 }
 
