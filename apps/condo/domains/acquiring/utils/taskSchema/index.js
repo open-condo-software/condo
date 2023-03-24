@@ -309,11 +309,8 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
 }
 
 async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentContext, recurrentPayment) {
-    if (isNil(recurrentPaymentContext) || isNil(get(recurrentPaymentContext, 'id')))
-        throw new Error('invalid recurrentPaymentContext argument')
-
-    if (!isUndefined(recurrentPayment) && isNil(get(recurrentPayment, 'id')))
-        throw new Error('invalid recurrentPayment argument')
+    if (isNil(recurrentPaymentContext) || isNil(get(recurrentPaymentContext, 'id'))) throw new Error('invalid recurrentPaymentContext argument')
+    if (!isUndefined(recurrentPayment) && isNil(get(recurrentPayment, 'id'))) throw new Error('invalid recurrentPayment argument')
 
     try {
         const {
