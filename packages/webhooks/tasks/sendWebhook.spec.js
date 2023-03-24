@@ -40,65 +40,35 @@ jest.spyOn(utils, 'trySendData').mockImplementation((url, objs) => {
     }
 })
 
-jest.mock('@open-condo/webhooks/tasks/sendModelWebhooks', () => {
-    const { find } = require('@open-condo/keystone/schema')
-    const { createTask } = require('@open-condo/keystone/tasks')
-    const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
+jest.mock('@open-condo/webhooks/tasks/sendWebhook', () => {
+    const originalModule = jest.requireActual('@open-condo/webhooks/tasks/sendWebhook')
+    const { sendWebhook: originalSendWebhook } = originalModule
 
-    async function sendModelWebhooks (modelName) {
-        const subscriptions = await find('WebhookSubscription', {
-            deletedAt: null,
-            model: modelName,
-            webhook: { deletedAt: null },
-        })
+    const fn = originalSendWebhook.delay.fn
 
-        for (const subscription of subscriptions) {
-            await sendWebhook.delay.fn(subscription.id)
-        }
-    }
+    originalSendWebhook.delay = fn
+    originalSendWebhook.delay.fn = fn
 
     return {
-        sendModelWebhooks: createTask('sendModelWebhooks', sendModelWebhooks, { priority: 3 }),
+        __esModule: true,
+        ...originalModule,
+        sendWebhook: originalSendWebhook,
     }
 })
 
-jest.mock('@open-condo/webhooks/plugins/webHooked', () => {
-    const { composeNonResolveInputHook } = require('@open-condo/keystone/plugins/utils')
-    const { GQL_SCHEMA_PLUGIN } = require('@open-condo/keystone/plugins/utils/typing')
-    const { getModelValidator } = require('@open-condo/webhooks/model-validator')
-    const { sendModelWebhooks } = require('@open-condo/webhooks/tasks')
+jest.mock('@open-condo/webhooks/tasks/sendModelWebhooks', () => {
+    const originalModule = jest.requireActual('@open-condo/webhooks/tasks/sendModelWebhooks')
+    const { sendModelWebhooks: originalSendModelWebhooks } = originalModule
 
-    const plugin = (fn) => {
-        fn._type = GQL_SCHEMA_PLUGIN
-        return fn
-    }
+    const fn = originalSendModelWebhooks.delay.fn
 
-    const webHooked = () => plugin((schema, { schemaName }) => {
-        const validator = getModelValidator()
-        if (!validator || validator.models.includes(schemaName)) {
-            return schema
-        }
-
-        validator.registerModel(schemaName)
-        const { hooks: { afterChange: originalHook, ...restHooks }, ...rest } = schema
-
-        const syncAfterChange = async () => {
-            await sendModelWebhooks.delay.fn(schemaName)
-        }
-
-        const afterChange = composeNonResolveInputHook(originalHook, syncAfterChange)
-
-        return {
-            hooks: {
-                afterChange,
-                ...restHooks,
-            },
-            ...rest,
-        }
-    })
+    originalSendModelWebhooks.delay = fn
+    originalSendModelWebhooks.delay.fn = fn
 
     return {
-        webHooked,
+        __esModule: true,
+        ...originalModule,
+        sendModelWebhooks: originalSendModelWebhooks,
     }
 })
 
