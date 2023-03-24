@@ -1,11 +1,9 @@
 const dayjs = require('dayjs')
-const { get } = require('lodash')
 const { v4: uuid } = require('uuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
     paginationConfiguration,
@@ -64,7 +62,7 @@ async function scanBillingReceiptsForRecurrentPaymentContext (context, recurrent
     await sendTomorrowPaymentNotificationSafely(context, recurrentPaymentContext, recurrentPayment)
 }
 
-async function processAllAutoPayRecurrentPaymentContexts () {
+async function createRecurrentPaymentForNewBillingReceipt () {
     const taskId = this.id || uuid()
     logger.info({ msg: 'Start processing new billing receipts for recurrentPaymentContext tasks', taskId })
 
@@ -116,6 +114,5 @@ async function processAllAutoPayRecurrentPaymentContexts () {
 
 module.exports = {
     scanBillingReceiptsForRecurrentPaymentContext,
-    processAllAutoPayRecurrentPaymentContexts,
-    createRecurrentPaymentForNewBillingReceipt: createCronTask('createRecurrentPaymentForNewBillingReceipt', '0 10-14 * * *', processAllAutoPayRecurrentPaymentContexts),
+    createRecurrentPaymentForNewBillingReceipt,
 }

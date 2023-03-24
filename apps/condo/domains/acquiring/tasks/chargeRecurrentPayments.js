@@ -3,7 +3,6 @@ const { v4: uuid } = require('uuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
     RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE,
@@ -57,7 +56,7 @@ async function chargeByRecurrentPaymentAndPaymentAdapter (context, recurrentPaym
     }
 }
 
-async function processReadyToChargeRecurrentPayments () {
+async function chargeRecurrentPayments () {
     const taskId = this.id || uuid()
     logger.info({ msg: 'Start processing recurrent payment tasks', taskId })
 
@@ -129,6 +128,5 @@ async function processReadyToChargeRecurrentPayments () {
 
 module.exports = {
     chargeByRecurrentPaymentAndPaymentAdapter,
-    processReadyToChargeRecurrentPayments,
-    chargeRecurrentPayments: createCronTask('chargeRecurrentPayments', '0 12 * * *', processReadyToChargeRecurrentPayments),
+    chargeRecurrentPayments,
 }

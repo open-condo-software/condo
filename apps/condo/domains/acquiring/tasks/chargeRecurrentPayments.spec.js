@@ -28,7 +28,7 @@ const {
 
 const {
     chargeByRecurrentPaymentAndPaymentAdapter,
-} = require('./recurrent-payment-processing')
+} = require('./chargeRecurrentPayments')
 
 const { keystone } = index
 

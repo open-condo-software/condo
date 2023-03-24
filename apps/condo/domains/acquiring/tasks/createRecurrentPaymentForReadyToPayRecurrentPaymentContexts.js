@@ -3,7 +3,6 @@ const { v4: uuid } = require('uuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
     paginationConfiguration,
@@ -48,7 +47,7 @@ async function createRecurrentPaymentForRecurrentPaymentContext (context, date, 
     })
 }
 
-async function processAllReadyToPayRecurrentPaymentContext () {
+async function createRecurrentPaymentForReadyToPayRecurrentPaymentContexts () {
     const taskId = this.id || uuid()
     logger.info({ msg: 'Start processing recurrent payment context', taskId })
 
@@ -85,7 +84,6 @@ async function processAllReadyToPayRecurrentPaymentContext () {
 }
 
 module.exports = {
-    processAllReadyToPayRecurrentPaymentContext,
+    createRecurrentPaymentForReadyToPayRecurrentPaymentContexts,
     createRecurrentPaymentForRecurrentPaymentContext,
-    createRecurrentPaymentForReadyToPayRecurrentPaymentContexts: createCronTask('createRecurrentPaymentForReadyToPayRecurrentPaymentContexts', '0 11 * * *', processAllReadyToPayRecurrentPaymentContext),
 }

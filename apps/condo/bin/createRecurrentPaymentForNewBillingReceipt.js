@@ -1,8 +1,8 @@
 /**
- * Start recurrent payment processing task
+ * Start recurrent payment seeking for new billing receipts processing task
  *
  * Usage:
- *      yarn workspace @app/condo node bin/recurrent-payments-start-task
+ *      yarn workspace @app/condo node bin/createRecurrentPaymentForNewBillingReceipt
  */
 
 const path = require('path')
@@ -10,8 +10,8 @@ const path = require('path')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 const {
-    processReadyToChargeRecurrentPayments,
-} = require('@condo/domains/acquiring/tasks/recurrent-payment-processing')
+    createRecurrentPaymentForNewBillingReceipt,
+} = require('@condo/domains/acquiring/tasks/createRecurrentPaymentForNewBillingReceipt')
 
 async function main () {
     await prepareKeystoneExpressApp(
@@ -19,7 +19,7 @@ async function main () {
         { excludeApps: ['NextApp'] },
     )
 
-    await processReadyToChargeRecurrentPayments()
+    await createRecurrentPaymentForNewBillingReceipt()
     process.exit(0)
 }
 
