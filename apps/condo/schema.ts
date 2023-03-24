@@ -44715,6 +44715,39 @@ export type Query = {
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
+  /**
+   * Returns id of BankCostItem corresponding to specified payment purpose string
+   *
+   * Matching is performed by empirical model, implemented in external microservice "condo-classifier-api"
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "query": "predictTransactionClassification",
+   *   "code": "INTERNAL_ERROR",
+   *   "type": "NOT_FOUND",
+   *   "message": "Bank cost item not found",
+   *   "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_NOT_FOUND"
+   * }`
+   *
+   * `{
+   *   "query": "predictTransactionClassification",
+   *   "code": "INTERNAL_ERROR",
+   *   "type": "NOT_FOUND",
+   *   "message": "ML server response is not successful",
+   *   "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_NOT_FOUND"
+   * }`
+   *
+   * `{
+   *   "query": "predictTransactionClassification",
+   *   "code": "INTERNAL_ERROR",
+   *   "type": "NOT_FOUND",
+   *   "message": "ML_SPACE_TRANSACTION_CLASSIFIER env variable needs to have endpoint, authKey, workspace",
+   *   "messageForUser": "api.user.predictTransactionClassification.ML_SPACE_NOT_CONFIGURED"
+   * }`
+   */
   predictTransactionClassification?: Maybe<PredictTransactionClassificationOutput>;
   predictTicketClassification?: Maybe<TicketClassifier>;
   exportIncidentsToExcel?: Maybe<ExportIncidentsToExcelOutput>;

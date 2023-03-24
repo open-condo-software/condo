@@ -18,7 +18,7 @@ const ML_SPACE_TRANSACTION_CLASSIFIER = conf['ML_SPACE_TRANSACTION_CLASSIFIER'] 
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const ERRORS = {
+const errors = {
     COST_ITEM_NOT_FOUND: {
         query: 'predictTransactionClassification',
         code: INTERNAL_ERROR,
@@ -62,6 +62,11 @@ const PredictTransactionClassificationService = new GQLCustomSchema('PredictTran
         {
             access: access.canPredictTransactionClassification,
             schema: 'predictTransactionClassification (data: PredictTransactionClassificationInput!): PredictTransactionClassificationOutput',
+            doc: {
+                summary: 'Returns id of BankCostItem corresponding to specified payment purpose string',
+                description: 'Matching is performed by empirical model, implemented in external microservice "condo-classifier-api"',
+                errors,
+            },
             resolver: async (parent, args, context) => {
                 const { data: { purpose } } = args
                 if (conf.NODE_ENV === 'test' || !ML_SPACE_TRANSACTION_CLASSIFIER) {
@@ -70,7 +75,7 @@ const PredictTransactionClassificationService = new GQLCustomSchema('PredictTran
 
                 const { endpoint, authKey, workspace } = ML_SPACE_TRANSACTION_CLASSIFIER
                 if (!endpoint || !authKey || !workspace) {
-                    throw new GQLError(ERRORS.ML_SPACE_NOT_CONFIGURED, context)
+                    throw new GQLError(errors.ML_SPACE_NOT_CONFIGURED, context)
                 }
                 const response = await fetch(endpoint, {
                     headers: {
@@ -83,13 +88,13 @@ const PredictTransactionClassificationService = new GQLCustomSchema('PredictTran
                     body: JSON.stringify({ instances: [ { ticket: purpose } ] }),
                 })
                 if (response.status !== 200) {
-                    throw new GQLError(ERRORS.TRANSACTION_PREDICT_REQUEST_FAILED, context)
+                    throw new GQLError(errors.TRANSACTION_PREDICT_REQUEST_FAILED, context)
                 }
                 const result = await response.json()
                 const { prediction: [id] } = result
                 const costItem = await getById('BankCostItem', id)
                 if (!costItem) {
-                    throw new GQLError(ERRORS.COST_ITEM_NOT_FOUND, context)
+                    throw new GQLError(errors.COST_ITEM_NOT_FOUND, context)
                 }
                 return costItem
             },
