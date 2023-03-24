@@ -5,15 +5,10 @@ import {
 import { CarouselRef } from 'antd/lib/carousel'
 import React from 'react'
 
-import { CarouselArrow } from './arrow'
+import { ArrowControl } from '../_utils/controls'
 
 const CAROUSEL_CLASS_PREFIX = 'condo-carousel'
 const DEFAULT_AUTOPLAY_SPEED = 5000 // 5 sec
-const DEFAULT_ARROW_PROPS = {
-    arrows: true,
-    nextArrow: <CarouselArrow/>,
-    prevArrow: <CarouselArrow/>,
-}
 
 export type CarouselProps = Pick<DefaultCarouselProps,
 'slidesToShow'
@@ -27,19 +22,23 @@ export type CarouselProps = Pick<DefaultCarouselProps,
 | 'effect'
 > & {
     dots?: boolean
+    controlsSize?: 'large' | 'small'
 }
 
 const Carousel = React.forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     const {
         children,
         autoplaySpeed = DEFAULT_AUTOPLAY_SPEED,
+        controlsSize = 'large',
         ...rest
     } = props
 
     return (
         <DefaultCarousel
             {...rest}
-            {...DEFAULT_ARROW_PROPS}
+            arrows={true}
+            nextArrow={<ArrowControl size={controlsSize} type='next'/>}
+            prevArrow={<ArrowControl size={controlsSize} type='prev'/>}
             autoplaySpeed={autoplaySpeed}
             prefixCls={CAROUSEL_CLASS_PREFIX}
             ref={ref}

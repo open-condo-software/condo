@@ -9,7 +9,7 @@ export type SpaceProps = {
     width?: CSSProperties['width']
     height?: CSSProperties['height']
     size: typeof SpaceSize[number] | [typeof SpaceSize[number], typeof SpaceSize[number]]
-} & Pick<DefaultSpaceProps, 'direction' | 'align' | 'wrap' | 'children'>
+} & Pick<DefaultSpaceProps, 'direction' | 'align' | 'wrap' | 'children' | 'className'>
 
 const SPACE_CLASS_PREFIX = 'condo-space'
 

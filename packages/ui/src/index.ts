@@ -30,6 +30,9 @@ export type { ModalProps } from './components/Modal'
 export { Select, Option, OptGroup } from './components/Select'
 export type { SelectProps } from './components/Select'
 
+export { Steps } from './components/Steps'
+export type { StepsProps, StepItem } from './components/Steps'
+
 export { Tabs } from './components/Tabs'
 export type { TabsProps, TabItem } from './components/Tabs'
 
