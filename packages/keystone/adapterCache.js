@@ -59,10 +59,9 @@ const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 
 const logger = getLogger('adapterCache')
 
-
 class AdapterCache {
 
-    constructor ( { enabled, excludedLists, maxCacheKeys, logging, logStatsEachSecs } ) {
+    constructor ({ enabled, excludedLists, maxCacheKeys, logging, logStatsEachSecs }) {
         try {
             this.enabled = !!enabled
 
@@ -86,7 +85,7 @@ class AdapterCache {
             this.cacheHits = 0
             this.totalDropsOnListChange = 0
             this.totalDropsOnLRU = 0
-            this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 100)
+            if (this.enabled) this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 1000)
 
             // Cache: { listName -> queryKey -> { response, lastUpdate, score } }
             this.cache = new LRUCache({ max: this.maxCacheKeys, dispose: () => this.totalDropsOnLRU++ })
@@ -176,7 +175,7 @@ class AdapterCache {
      * Logs cache event.
      * @param {Object} event
      */
-    logEvent ( { type, functionName, listName, key, result } ) {
+    logEvent ({ type, functionName, listName, key, result }) {
         if (!this.logging) return
 
         logger.info({
@@ -198,16 +197,17 @@ class AdapterCache {
     }
 
     _logStats = () => {
-        logger.info({ stats:{
-            hits: this.cacheHits,
-            total: this.totalRequests,
-            hitrate: floor(this.cacheHits / this.totalRequests, 2),
-            totalKeys: this.cache.size,
-            totalDrops: this.totalDropsOnLRU + this.totalDropsOnListChange,
-            totalDropsOnLRU: this.totalDropsOnLRU,
-            totalDropsOnListChange: this.totalDropsOnListChange,
-        } }
-        )
+        logger.info({
+            stats: {
+                hits: this.cacheHits,
+                total: this.totalRequests,
+                hitrate: floor(this.cacheHits / this.totalRequests, 2),
+                totalKeys: this.cache.size,
+                totalDrops: this.totalDropsOnLRU + this.totalDropsOnListChange,
+                totalDropsOnLRU: this.totalDropsOnLRU,
+                totalDropsOnListChange: this.totalDropsOnListChange,
+            },
+        })
     }
 }
 
@@ -294,7 +294,7 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
             disabledLists.push({ listName, reason: 'List is a dependant of many: true relation or has many:true relation' })
             continue
         }
-        
+
         enabledLists.push(listName)
 
         // Patch public queries from BaseKeystoneList:
@@ -317,13 +317,13 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
         // Patch mutations:
 
         const originalUpdate = listAdapter.update
-        listAdapter.update = getMutationFunctionWithCache(listName, 'update', originalUpdate, listAdapter, cacheAPI )
+        listAdapter.update = getMutationFunctionWithCache(listName, 'update', originalUpdate, listAdapter, cacheAPI)
 
         const originalCreate = listAdapter.create
-        listAdapter.create = getMutationFunctionWithCache(listName, 'create', originalCreate, listAdapter, cacheAPI )
+        listAdapter.create = getMutationFunctionWithCache(listName, 'create', originalCreate, listAdapter, cacheAPI)
 
         const originalDelete = listAdapter.delete
-        listAdapter.delete = getMutationFunctionWithCache(listName, 'delete', originalDelete, listAdapter, cacheAPI )
+        listAdapter.delete = getMutationFunctionWithCache(listName, 'delete', originalDelete, listAdapter, cacheAPI)
 
         // A Knex only stabs!
         // Knex has internal functionality that updates database in implicit fashion.
@@ -356,8 +356,8 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
  * @param {AdapterCache} cacheAPI
  * @returns {function(...[*]): Promise<*>}
  */
-function getMutationFunctionWithCache ( listName, functionName, f, listAdapter, cacheAPI ) {
-    return async ( ...args ) => {
+function getMutationFunctionWithCache (listName, functionName, f, listAdapter, cacheAPI) {
+    return async (...args) => {
 
         // Get mutation value
         const functionResult = await f.apply(listAdapter, args)
@@ -391,7 +391,7 @@ function getMutationFunctionWithCache ( listName, functionName, f, listAdapter, 
  * @returns {(function(...[*]): Promise<*|*[]>)|*}
  */
 function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cacheAPI, getKey, getQuery = () => null, relations = {}) {
-    return async ( ...args ) => {
+    return async (...args) => {
         cacheAPI.incrementTotal()
 
         let key = getKey(args)
@@ -433,7 +433,7 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
                 response: copiedResponse,
             })
         }
-        
+
         cacheAPI.logEvent({
             type: 'MISS',
             functionName,
@@ -445,7 +445,6 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
         return response
     }
 }
-
 
 /**
  * Sometimes we might get a situation when two instances try to update state with different timestamp values.
@@ -467,13 +466,13 @@ function getStateRedisClient () {
             if (time > old_time) then
                 return redis.call('SET', KEYS[1], ARGV[1])
             end
-        ` }
+        `,
+    }
 
     const redis = getRedisClient('cache')
     redis.defineCommand('tryToUpdateCacheStateByNewTimestamp', updateTimeStampFunction)
     return redis
 }
-
 
 /**
  * Query is complex if it searches on a relation. Example: allBooks(where: {author: { id: ...}})
