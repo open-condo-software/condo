@@ -19,7 +19,7 @@ describe('GetAccessTokenByUserIdService', () => {
         admin = await makeLoggedInAdminClient()
         service = await makeClientWithServiceUser()
         await createTestExternalTokenAccessRight(admin, service.user, SBBOL_IDENTITY_TYPE)
-        storage = getSbbolSecretStorage()
+        storage = await getSbbolSecretStorage()
     })
 
     test('service: execute', async () => {
