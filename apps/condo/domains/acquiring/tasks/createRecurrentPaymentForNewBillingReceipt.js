@@ -22,6 +22,7 @@ const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'recurrent-payments-seeking-for-new-receipt' } }
 const logger = getLogger('recurrent-payments-seeking-for-new-receipt')
 const REDIS_LAST_DATE_KEY = 'LAST_RECURRENT_PAYMENT_SEEKING_RECEIPTS_CREATED_AT'
+const redisClient = getRedisClient()
 
 async function scanBillingReceiptsForRecurrentPaymentContext (context, recurrentPaymentContext, periods, lastDt) {
     // prepare vars
@@ -76,7 +77,6 @@ async function createRecurrentPaymentForNewBillingReceipt () {
     let hasMorePages = true
     const { prevMonthStart, thisMonthStart } = getStartDates()
     const periods = [prevMonthStart, thisMonthStart]
-    const redisClient = getRedisClient()
 
     // prepare filter values
     const lastDt = await redisClient.get(REDIS_LAST_DATE_KEY) || thisMonthStart
