@@ -6,7 +6,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { BankAccount, BankTransaction, BankContractorAccount, BankIntegrationAccountContext } = require('@condo/domains/banking/utils/serverSchema')
+const { BankAccount, BankTransaction, BankContractorAccount, BankIntegrationAccountContext, predictTransactionClassification } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
@@ -154,11 +154,13 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
 
                 if (!foundTransaction) {
                     const bankIntegrationAccountContextId = get(bankAccount, 'integrationContext.id')
+                    const costItem = await predictTransactionClassification(context, { purpose: transaction.paymentPurpose })
                     const createdTransaction = await BankTransaction.create(context, {
                         organization: { connect: { id: organizationId } },
                         account: { connect: { id: bankAccount.id } },
                         integrationContext: { connect: { id: bankIntegrationAccountContextId } },
                         contractorAccount: bankContractorAccount ? { connect: { id: bankContractorAccount.id } } : undefined,
+                        costItem: { connect: { id: costItem.id } },
                         meta: { sbbol: transaction },
                         ...whereTransactionConditions,
                         ...dvSenderFields,

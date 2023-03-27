@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { createTestBankIntegrationAccountContext, BankAccount, BankIntegrationAccountContext, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
+const { BankAccount, BankIntegrationAccountContext, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { requestTransactions } = require('@condo/domains/organization/integrations/sbbol/sync/requestTransactions')
 const { createTestOrganization, Organization, generateTin } = require('@condo/domains/organization/utils/testSchema')
@@ -44,6 +44,18 @@ jest.mock('@condo/domains/organization/integrations/sbbol/SbbolFintechApi',  () 
             return new SbbolFintechApi()
         }),
         SbbolFintechApi,
+    }
+})
+
+jest.mock('@condo/domains/banking/utils/serverSchema/index',  () => {
+    const originalModule = jest.requireActual('@condo/domains/banking/utils/serverSchema/index')
+    function predictTransactionClassification (context, { purpose }) {
+        return { id: '0fdc54f0-f834-497d-abe5-1323acbfc91b' }
+    }     
+
+    return {
+        ...originalModule,
+        predictTransactionClassification,
     }
 })
 
