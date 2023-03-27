@@ -793,20 +793,20 @@ const ClientCardPageContent = ({
     )
 }
 
-export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts, showOrganizationMessage = false }) => {
+export const ClientCardPageContentWrapper = ({ organizationQuery, ticketsQuery, canManageContacts, showOrganizationMessage = false }) => {
     const router = useRouter()
     const phoneNumber = get(router, ['query', 'number']) as string
 
     const { objs: contacts, loading: contactsLoading } = Contact.useObjects({
         where: {
-            ...baseQuery,
+            ...organizationQuery,
             phone: phoneNumber,
         },
     })
 
     const { objs: tickets, loading: ticketsLoading } = Ticket.useObjects({
         where: {
-            ...baseQuery,
+            ...ticketsQuery,
             clientPhone: phoneNumber,
             isResidentTicket: false,
             contact_is_null: true,
@@ -815,7 +815,7 @@ export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts, sho
 
     const { objs: employees, loading: employeesLoading } = OrganizationEmployee.useObjects({
         where: {
-            ...baseQuery,
+            ...organizationQuery,
             phone: phoneNumber,
         },
     })
@@ -871,11 +871,13 @@ const ClientCardPage = () => {
     const canManageContacts = !!get(link, 'role.canManageContacts')
 
     const { ticketFilterQuery } = useTicketVisibility()
-    const baseQuery = { ...ticketFilterQuery, property: { deletedAt: null }, organization: { id: organizationId } }
+    const organizationQuery = { organization: { id: organizationId } }
+    const ticketsQuery = { ...organizationQuery, ...ticketFilterQuery, property: { deletedAt: null } }
 
     return (
         <ClientCardPageContentWrapper
-            baseQuery={baseQuery}
+            organizationQuery={organizationQuery}
+            ticketsQuery={ticketsQuery}
             canManageContacts={canManageContacts}
         />
     )
