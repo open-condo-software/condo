@@ -80,7 +80,7 @@ export const SbbolImportModal: ISbbolImportModal = ({ propertyId, onComplete }) 
             if (bankAccounts.length === 1) {
                 form.setFieldValue(['items', 0, 'property'], propertyId)
                 form.setFieldValue(['items', 0, 'bankAccount'], bankAccounts[0].id)
-            } else if (bankAccounts.length > 1 && properties.length > 1) {
+            } else if (bankAccounts.length > 1 && properties.length >= 1) {
                 form.setFieldValue(['items', 0, 'property'], propertyId)
             }
         }
