@@ -154,13 +154,18 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
 
                 if (!foundTransaction) {
                     const bankIntegrationAccountContextId = get(bankAccount, 'integrationContext.id')
-                    const costItem = await predictTransactionClassification(context, { purpose: transaction.paymentPurpose })
+                    let costItem
+                    try {
+                        costItem = await predictTransactionClassification(context, { purpose: transaction.paymentPurpose })
+                    } catch (e) {
+                        logger.error({ msg: 'Can\'t get costItem from classification service', e })
+                    }
                     const createdTransaction = await BankTransaction.create(context, {
                         organization: { connect: { id: organizationId } },
                         account: { connect: { id: bankAccount.id } },
                         integrationContext: { connect: { id: bankIntegrationAccountContextId } },
                         contractorAccount: bankContractorAccount ? { connect: { id: bankContractorAccount.id } } : undefined,
-                        costItem: { connect: { id: costItem.id } },
+                        costItem: costItem ? { connect: { id: costItem.id } } : undefined,
                         meta: { sbbol: transaction },
                         ...whereTransactionConditions,
                         ...dvSenderFields,

@@ -47,18 +47,6 @@ jest.mock('@condo/domains/organization/integrations/sbbol/SbbolFintechApi',  () 
     }
 })
 
-jest.mock('@condo/domains/banking/utils/serverSchema/index',  () => {
-    const originalModule = jest.requireActual('@condo/domains/banking/utils/serverSchema/index')
-    function predictTransactionClassification (context, { purpose }) {
-        return { id: '0fdc54f0-f834-497d-abe5-1323acbfc91b' }
-    }     
-
-    return {
-        ...originalModule,
-        predictTransactionClassification,
-    }
-})
-
 describe('syncBankTransaction from SBBOL', () => {
     setFakeClientMode(index)
 
