@@ -186,6 +186,12 @@ const OidcClient = generateGqlQueries('OidcClient', OIDC_CLIENT_FIELDS)
 const EXTERNAL_TOKEN_ACCESS_RIGHT_FIELDS = `{ type user { id } deletedAt ${COMMON_FIELDS} }`
 const ExternalTokenAccessRight = generateGqlQueries('ExternalTokenAccessRight', EXTERNAL_TOKEN_ACCESS_RIGHT_FIELDS)
 
+const GET_ACCESS_TOKEN_BY_USER_ID_QUERY = gql`
+    query getAccessTokenByUserId ($data: GetAccessTokenByUserIdInput!) {
+        result: getAccessTokenByUserId(data: $data) { accessToken, ttl }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -216,5 +222,6 @@ module.exports = {
     USER_CUSTOM_ACCESS_GRAPHQL_TYPES,
     USER_CUSTOM_ACCESS_FIELDS,
     ExternalTokenAccessRight,
+    GET_ACCESS_TOKEN_BY_USER_ID_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

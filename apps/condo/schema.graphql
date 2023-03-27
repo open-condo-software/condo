@@ -54479,6 +54479,16 @@ type ResetUserOutput {
   status: String!
 }
 
+input GetAccessTokenByUserIdInput {
+  userId: ID!
+  type: String!
+}
+
+type GetAccessTokenByUserIdOutput {
+  accessToken: ID!
+  ttl: Int!
+}
+
 input RegisterNewOrganizationInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -57993,6 +58003,7 @@ type Query {
   }`
   """
   getPhoneByConfirmPhoneActionToken(data: GetPhoneByConfirmPhoneActionTokenInput!): GetPhoneByConfirmPhoneActionTokenOutput
+  getAccessTokenByUserId(data: GetAccessTokenByUserIdInput!): GetAccessTokenByUserIdOutput
 
   """
   Tells, whether a Property with given address exists in condo database

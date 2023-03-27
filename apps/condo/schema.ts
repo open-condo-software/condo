@@ -19045,6 +19045,17 @@ export type GeneratePaymentLinkReceiptDataInput = {
   accountNumber: Scalars['String'];
 };
 
+export type GetAccessTokenByUserIdInput = {
+  userId: Scalars['ID'];
+  type: Scalars['String'];
+};
+
+export type GetAccessTokenByUserIdOutput = {
+  __typename?: 'GetAccessTokenByUserIdOutput';
+  accessToken: Scalars['ID'];
+  ttl: Scalars['Int'];
+};
+
 export type GetExternalReportIframeUrlInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -45122,6 +45133,7 @@ export type Query = {
    * }`
    */
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
+  getAccessTokenByUserId?: Maybe<GetAccessTokenByUserIdOutput>;
   /**
    * Tells, whether a Property with given address exists in condo database
    *
@@ -50048,6 +50060,11 @@ export type QueryCheckPasswordRecoveryTokenArgs = {
 
 export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
   data: GetPhoneByConfirmPhoneActionTokenInput;
+};
+
+
+export type QueryGetAccessTokenByUserIdArgs = {
+  data: GetAccessTokenByUserIdInput;
 };
 
 

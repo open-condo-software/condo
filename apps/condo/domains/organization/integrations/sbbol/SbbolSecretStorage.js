@@ -11,7 +11,7 @@ const SBBOL_REDIS_KEY_PREFIX = 'SBBOL'
 
 // Real TTL is 180 days, but it is updated every time the accessToken expires and we get a new pair
 const REFRESH_TOKEN_TTL_DAYS = 180
-const ACCESS_TOKEN_TTL_HOURS = 1
+const ACCESS_TOKEN_TTL_SEC = 3550
 
 const logger = getLogger('sbbol/SbbolSecretStorage')
 
@@ -43,7 +43,12 @@ class SbbolSecretStorage {
     }
 
     async getAccessToken (userId) {
-        return this.#getValue(`user:${userId}:accessToken`)
+        if (!userId) throw new Error('userId is required for setAccessToken')
+        const key = `user:${userId}:accessToken`
+        return {
+            accessToken: await this.#getValue(key),
+            ttl: await this.keyStorage.ttl(this.#scopedKey(key)),
+        }
     }
 
     async setAccessToken (
@@ -54,7 +59,7 @@ class SbbolSecretStorage {
         if (!value) throw new Error('value is required for setAccessToken')
         if (!userId) throw new Error('userId is required for setAccessToken')
 
-        await this.#setValue(`user:${userId}:accessToken`, value, { expiresAt: dayjs().add(ACCESS_TOKEN_TTL_HOURS, 'hour').unix(), ...options })
+        await this.#setValue(`user:${userId}:accessToken`, value, { expiresAt: dayjs().add(ACCESS_TOKEN_TTL_SEC, 's').unix(), ...options })
         await this.#setValue(`user:${userId}:accessToken:updatedAt`, dayjs().toISOString())
     }
 

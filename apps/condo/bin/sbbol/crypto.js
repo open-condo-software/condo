@@ -66,7 +66,7 @@ const getAccessTokenFor = async (hashOrgId, userId) => {
     try {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
         // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-        accessToken = await getAccessTokenForUser(userId)
+        ({ accessToken } = await getAccessTokenForUser(userId))
     } catch (error) {
         logger.error({
             msg: 'Failed to obtain organization access token from SBBOL',
