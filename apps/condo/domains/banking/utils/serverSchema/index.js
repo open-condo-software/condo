@@ -17,6 +17,7 @@ const { BankIntegrationOrganizationContext: BankIntegrationOrganizationContextGQ
 const { BankTransaction: BankTransactionGQL } = require('@condo/domains/banking/gql')
 const { BankSyncTask: BankSyncTaskGQL } = require('@condo/domains/banking/gql')
 const { BankIntegrationAccessRight: BankIntegrationAccessRightGQL } = require('@condo/domains/banking/gql')
+const { PREDICT_TRANSACTION_CLASSIFICATION_MUTATION } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BankAccount = generateServerUtils(BankAccountGQL)
@@ -43,6 +44,18 @@ async function createBankAccountRequest (context, data) {
 }
 
 const BankIntegrationAccessRight = generateServerUtils(BankIntegrationAccessRightGQL)
+async function predictTransactionClassification (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+
+    return await execGqlWithoutAccess(context, {
+        query: PREDICT_TRANSACTION_CLASSIFICATION_MUTATION,
+        variables: { data },
+        errorMessage: '[error] Unable to predictTransactionClassification',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -57,5 +70,6 @@ module.exports = {
     BankTransaction,
     BankSyncTask,
     createBankAccountRequest,
+    predictTransactionClassification,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

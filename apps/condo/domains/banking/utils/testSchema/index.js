@@ -19,6 +19,7 @@ const { BankTransaction: BankTransactionGQL } = require('@condo/domains/banking/
 const { BankSyncTask: BankSyncTaskGQL } = require('@condo/domains/banking/gql')
 const { BankIntegrationOrganizationContext: BankIntegrationOrganizationContextGQL } = require('@condo/domains/banking/gql')
 const { BankIntegrationAccessRight: BankIntegrationAccessRightGQL } = require('@condo/domains/banking/gql')
+const { PREDICT_TRANSACTION_CLASSIFICATION_QUERY } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BankCategory = generateGQLTestUtils(BankCategoryGQL)
@@ -395,6 +396,18 @@ async function updateTestBankIntegrationAccessRight (client, id, extraAttrs = {}
     return [obj, attrs]
 }
 
+
+async function predictTransactionClassificationByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!extraAttrs.purpose) throw new Error('no purpose')
+
+    const attrs = {
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.query(PREDICT_TRANSACTION_CLASSIFICATION_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -410,5 +423,6 @@ module.exports = {
     importBankTransactionsByTestClient,
     BankIntegrationOrganizationContext, createTestBankIntegrationOrganizationContext, updateTestBankIntegrationOrganizationContext,
     BankIntegrationAccessRight, createTestBankIntegrationAccessRight, updateTestBankIntegrationAccessRight,
+    predictTransactionClassificationByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

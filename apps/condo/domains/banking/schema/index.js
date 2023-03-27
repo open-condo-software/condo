@@ -14,6 +14,7 @@ const { BankIntegrationOrganizationContext } = require('./BankIntegrationOrganiz
 const { BankSyncTask } = require('./BankSyncTask')
 const { BankTransaction } = require('./BankTransaction')
 const { CreateBankAccountRequestService } = require('./CreateBankAccountRequestService')
+const { PredictTransactionClassificationService } = require('./PredictTransactionClassificationService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -28,5 +29,6 @@ module.exports = {
     BankSyncTask,
     CreateBankAccountRequestService,
     BankIntegrationOrganizationContext,
+    PredictTransactionClassificationService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
