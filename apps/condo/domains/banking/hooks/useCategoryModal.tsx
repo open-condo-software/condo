@@ -27,7 +27,7 @@ interface IUseCategoryModal {
         type: PropertyReportTypes
         updateSelected: UpdateSelectedTransactions | UpdateSelectedContractors
     }): {
-        CategoryModal: React.FC,
+        CategoryModal: React.ReactElement,
         setOpen: React.Dispatch<React.SetStateAction<boolean>>
     }
 }
@@ -139,11 +139,12 @@ export const useCategoryModal: IUseCategoryModal = ({
             )
         }
 
-        return () => (
+        return (
             <Modal
                 title={modalTitle}
                 open={open}
                 onCancel={closeModal}
+                width='big'
                 footer={<Button
                     type='primary'
                     disabled={isNull(selectedCostItem) || loading}
