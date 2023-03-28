@@ -26,7 +26,7 @@ const PATTERN = new RegExp('\\d+|\\d+[sS]|\\d+.\\d{1,9}|\\d+.\\d{1,9}[sS]')
 const COLOR_PATTERN = new RegExp('^#[0-9a-fA-F]{6}$')
 const TTL_INIT = '86400'
 
-const DEFAULT_NOTIFICATION_OPTIONS = { 'click_action': { 'type': CLICK_ACTION_TYPE_APP } }
+const DEFAULT_NOTIFICATION_OPTIONS = { 'click_action': { 'type': CLICK_ACTION_TYPE_APP }, 'foreground_show': false }
 
 const TOKEN_TIMEOUT_ERROR = '80200003'
 const TOKEN_FAILED_ERROR  = '80200001'
