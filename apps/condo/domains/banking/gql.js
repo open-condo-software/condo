@@ -55,7 +55,7 @@ const IMPORT_BANK_TRANSACTIONS_MUTATION = gql`
 
 const PREDICT_TRANSACTION_CLASSIFICATION_QUERY = gql`
     query predictTransactionClassification ($data: PredictTransactionClassificationInput!) {
-        result: predictTransactionClassification(data: $data) { id name isOutcome category { id name } }
+        result: predictTransactionClassification(data: $data) { id name isOutcome category }
     }
 `
 
