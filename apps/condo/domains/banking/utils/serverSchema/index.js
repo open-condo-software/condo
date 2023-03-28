@@ -52,7 +52,7 @@ async function predictTransactionClassification (context, data) {
         query: PREDICT_TRANSACTION_CLASSIFICATION_QUERY,
         variables: { data },
         errorMessage: '[error] Unable to predictTransactionClassification',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
