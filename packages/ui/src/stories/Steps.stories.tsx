@@ -15,6 +15,7 @@ export default {
                 type: 'select',
             },
         },
+        noReturnMessage: { control: 'text' },
     },
 } as ComponentMeta<typeof Component>
 
