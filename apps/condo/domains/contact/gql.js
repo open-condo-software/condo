@@ -18,6 +18,9 @@ const Contact = generateGqlQueries('Contact', CONTACT_FIELDS)
 const CONTACT_ROLE_FIELDS = `{ name organization { id name } ${COMMON_FIELDS} }`
 const ContactRole = generateGqlQueries('ContactRole', CONTACT_ROLE_FIELDS)
 
+const CONTACT_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file meta ${COMMON_FIELDS} }`
+const ContactExportTask = generateGqlQueries('ContactExportTask', CONTACT_EXPORT_TASK_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_CONTACTS_TO_EXCEL =  gql`
@@ -30,5 +33,6 @@ module.exports = {
     Contact,
     EXPORT_CONTACTS_TO_EXCEL,
     ContactRole,
+    ContactExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

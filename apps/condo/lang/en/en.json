@@ -1644,6 +1644,7 @@
   "excelExport.sheetNames.tickets": "Tickets",
   "excelExport.sheetNames.propertyScopes": "Property scopes",
   "excelExport.sheetNames.incidents": "Incidents",
+  "excelExport.sheetNames.contacts": "Contacts",
   "ticketBlankExport.address.unitType.flat": "flat",
   "ticketBlankExport.address.unitType.parking": "parking place",
   "ticketBlankExport.address.unitType.apartment": "apartment",

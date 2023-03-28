@@ -6,11 +6,13 @@
 const { Contact } = require('./Contact')
 const { ContactRole } = require('./ContactRole')
 const { ExportContactsService } = require('./ExportContactsService')
+const { ContactExportTask } = require('./ContactExportTask')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Contact,
     ExportContactsService,
     ContactRole,
+    ContactExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

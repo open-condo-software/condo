@@ -1644,6 +1644,7 @@
   "excelExport.sheetNames.tickets": "Заявки",
   "excelExport.sheetNames.propertyScopes": "Области видимости",
   "excelExport.sheetNames.incidents": "Отключения",
+  "excelExport.sheetNames.contacts": "Контакты",
   "ticketBlankExport.address.unitType.flat": "квартира",
   "ticketBlankExport.address.unitType.parking": "машиноместо",
   "ticketBlankExport.address.unitType.apartment": "апартаменты",
