@@ -26,10 +26,10 @@ const { makeClientWithSupportUser, makeClientWithServiceUser, makeClientWithResi
  * @param residentUserData
  * @returns {Promise<{receipt: *, resident: *}>}
  */
-const makeBillingReceiptWithResident = async (billingReceiptAttrs = {}, skipConsumer = false, residentUserData = {}) => {
+const makeBillingReceiptWithResident = async (billingReceiptAttrs = {}, skipConsumer = false, residentUserData = {}, integrationAttrs = {}) => {
     const organizationUserWithProperty = await makeClientWithProperty(true)
     const support = await makeClientWithSupportUser()
-    const [integration] = await createTestBillingIntegration(support, { contextDefaultStatus: CONTEXT_FINISHED_STATUS })
+    const [integration] = await createTestBillingIntegration(support, { contextDefaultStatus: CONTEXT_FINISHED_STATUS, ...integrationAttrs })
     const [billingContext] = await createTestBillingIntegrationOrganizationContext(organizationUserWithProperty, organizationUserWithProperty.organization, integration)
     const integrationClient = await makeClientWithServiceUser()
     await createTestBillingIntegrationAccessRight(support, integration, integrationClient.user)

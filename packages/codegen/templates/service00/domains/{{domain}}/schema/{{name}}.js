@@ -11,7 +11,7 @@ const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const errors = {
+const ERRORS = {
     NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY: {
         {%- if type == "mutations" -%}
         mutation: '{{ convertFirstLetterToLower(name.replace("Service", "")) }}',
@@ -47,8 +47,8 @@ const {{ name }} = new GQLCustomSchema('{{ name }}', {
             resolver: async (parent, args, context, info, extra = {}) => {
                 // TODO(codegen): write {{ name }} logic!
                 const { data } = args
-                // TODO: throw errors in a following way
-                // throw new GQLError(errors.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
+                // TODO: throw ERRORS in a following way
+                // throw new GQLError(ERRORS.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
                 return {
                     id: null,
                 }
@@ -64,8 +64,8 @@ const {{ name }} = new GQLCustomSchema('{{ name }}', {
                 const { data } = args
                 // TODO(codegen): write logic here
 
-                // TODO: throw errors in a following way
-                // throw new GQLError(errors.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
+                // TODO: throw ERRORS in a following way
+                // throw new GQLError(ERRORS.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
             },
         },
     ],

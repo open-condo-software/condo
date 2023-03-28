@@ -30067,6 +30067,76 @@ export type Mutation = {
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   resetOrganization?: Maybe<ResetOrganizationOutput>;
   registerBillingReceipts?: Maybe<Array<Maybe<BillingReceipt>>>;
+  /**
+   * Sends notification of BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE type to all residents of provided scopes. Requires service user with access rights to billing domain. All properties in scopes should be connected to provided context.
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "sendNewReceiptMessagesToResidentScopes",
+   *   "variable": [
+   *     "data",
+   *     "context"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Please provide proper period not before start of previous and not later than start of current month, valid format is YYYY-MM-DD",
+   *   "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PERIOD_PROVIDED"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendNewReceiptMessagesToResidentScopes",
+   *   "variable": [
+   *     "data",
+   *     "billingIntegrationContext"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Please provide existing non-deleted billing integration organization context id",
+   *   "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CONTEXT_PROVIDED"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendNewReceiptMessagesToResidentScopes",
+   *   "variable": [
+   *     "data",
+   *     "context"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Please provide existing non-deleted billing category id",
+   *   "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CATEGORY_PROVIDED"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendNewReceiptMessagesToResidentScopes",
+   *   "variable": [
+   *     "data",
+   *     "scopes"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Scopes could not be empty",
+   *   "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.SCOPES_IS_EMPTY"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendNewReceiptMessagesToResidentScopes",
+   *   "variable": [
+   *     "data",
+   *     "scopes"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "All provided properties in scopes should be non-deleted & connected to organization of the billing context",
+   *   "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PROPERTY_PROVIDED"
+   * }`
+   */
+  sendNewReceiptMessagesToResidentScopes?: Maybe<SendNewReceiptMessagesToResidentScopesOutput>;
   createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
   /**
@@ -30582,6 +30652,34 @@ export type Mutation = {
    * 			}
    * 		}
    * 	},
+   * 	"BILLING_RECEIPT_CATEGORY_AVAILABLE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"propertyId": {
+   * 				"required": true
+   * 			},
+   * 			"period": {
+   * 				"required": true
+   * 			},
+   * 			"categoryId": {
+   * 				"required": true
+   * 			}
+   * 		},
+   * 		"categoryName": {
+   * 			"required": true
+   * 		}
+   * 	},
    * 	"BILLING_RECEIPT_ADDED": {
    * 		"dv": {
    * 			"defaultValue": "",
@@ -31050,6 +31148,28 @@ export type Mutation = {
    * }`
    */
   registerServiceConsumer?: Maybe<ServiceConsumer>;
+  /**
+   * Sends notification of requested type to all residents of provided scopes
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "sendMessageToResidentScopes",
+   *   "variable": [
+   *     "data",
+   *     "scopes"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Scopes could not be empty",
+   *   "messageForUser": "api.resident.sendMessageToResidentScopes.SCOPES_IS_EMPTY"
+   * }`
+   */
+  sendMessageToResidentScopes?: Maybe<SendMessageToResidentScopesServiceOutput>;
   /**
    * Creates OnBoarding and set of OnBoardingStep records for specified role and user
    *
@@ -37488,6 +37608,11 @@ export type MutationRegisterBillingReceiptsArgs = {
 };
 
 
+export type MutationSendNewReceiptMessagesToResidentScopesArgs = {
+  data: SendNewReceiptMessagesToResidentScopesInput;
+};
+
+
 export type MutationCreateBankAccountRequestArgs = {
   data: CreateBankAccountRequestInput;
 };
@@ -37530,6 +37655,11 @@ export type MutationRegisterResidentArgs = {
 
 export type MutationRegisterServiceConsumerArgs = {
   data: RegisterServiceConsumerInput;
+};
+
+
+export type MutationSendMessageToResidentScopesArgs = {
+  data: SendMessageToResidentScopesServiceInput;
 };
 
 
@@ -45661,6 +45791,12 @@ export type PropertyScopesCreateInput = {
   data?: Maybe<PropertyScopeCreateInput>;
 };
 
+export type PropertyScopesInput = {
+  property: PropertyWhereUniqueInput;
+  units?: Maybe<Array<Maybe<PropertyUnitInput>>>;
+  accountNumbers?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
 export type PropertyScopesUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<PropertyScopeUpdateInput>;
@@ -45670,6 +45806,11 @@ export enum PropertyTypeType {
   Building = 'building',
   Village = 'village'
 }
+
+export type PropertyUnitInput = {
+  unitType: Scalars['String'];
+  unitName: Scalars['String'];
+};
 
 export type PropertyUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
@@ -55029,6 +55170,12 @@ export type ResidentRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+export type ResidentScopesInput = {
+  property: PropertyWhereUniqueInput;
+  units?: Maybe<Array<Maybe<PropertyUnitInput>>>;
+  billingAccountNumbers?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
 export type ResidentUpdateInput = {
   user?: Maybe<UserRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
@@ -55253,6 +55400,21 @@ export type SendMessageToInput = {
   remoteClient?: Maybe<RemoteClientWhereInput>;
 };
 
+export type SendMessageToResidentScopesServiceInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  type: SendMessageType;
+  lang?: Maybe<SendMessageLang>;
+  uniqKeyTemplate?: Maybe<Scalars['String']>;
+  scopes: Array<ResidentScopesInput>;
+  meta?: Maybe<Scalars['JSON']>;
+};
+
+export type SendMessageToResidentScopesServiceOutput = {
+  __typename?: 'SendMessageToResidentScopesServiceOutput';
+  status: Scalars['String'];
+};
+
 export type SendMessageToSupportInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -55278,12 +55440,13 @@ export type SendMessageToSupportOutput = {
 
 export enum SendMessageType {
   InviteNewEmployee = 'INVITE_NEW_EMPLOYEE',
+  ShareTicket = 'SHARE_TICKET',
+  BankAccountCreationRequest = 'BANK_ACCOUNT_CREATION_REQUEST',
   DirtyInviteNewEmployeeSms = 'DIRTY_INVITE_NEW_EMPLOYEE_SMS',
   DirtyInviteNewEmployeeEmail = 'DIRTY_INVITE_NEW_EMPLOYEE_EMAIL',
   RegisterNewUser = 'REGISTER_NEW_USER',
   ResetPassword = 'RESET_PASSWORD',
   SmsVerify = 'SMS_VERIFY',
-  ShareTicket = 'SHARE_TICKET',
   DeveloperImportantNoteType = 'DEVELOPER_IMPORTANT_NOTE_TYPE',
   CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE',
   MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT',
@@ -55297,27 +55460,42 @@ export enum SendMessageType {
   TicketStatusDeclined = 'TICKET_STATUS_DECLINED',
   TicketCommentAdded = 'TICKET_COMMENT_ADDED',
   MeterVerificationDateReminder = 'METER_VERIFICATION_DATE_REMINDER',
-  MeterSubmitReadingsReminder = 'METER_SUBMIT_READINGS_REMINDER',
-  MeterVerificationDateExpired = 'METER_VERIFICATION_DATE_EXPIRED',
   ResidentAddBillingAccount = 'RESIDENT_ADD_BILLING_ACCOUNT',
   BillingReceiptAvailable = 'BILLING_RECEIPT_AVAILABLE',
   BillingReceiptAvailableNoAccount = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT',
+  BillingReceiptCategoryAvailable = 'BILLING_RECEIPT_CATEGORY_AVAILABLE',
   BillingReceiptAdded = 'BILLING_RECEIPT_ADDED',
   BillingReceiptAddedWithDebt = 'BILLING_RECEIPT_ADDED_WITH_DEBT',
   BillingReceiptAddedWithNoDebt = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT',
+  MeterSubmitReadingsReminder = 'METER_SUBMIT_READINGS_REMINDER',
+  MeterVerificationDateExpired = 'METER_VERIFICATION_DATE_EXPIRED',
   ResidentUpgradeApp = 'RESIDENT_UPGRADE_APP',
   StaffUpgradeApp = 'STAFF_UPGRADE_APP',
-  BankAccountCreationRequest = 'BANK_ACCOUNT_CREATION_REQUEST',
-  CustomContentMessage = 'CUSTOM_CONTENT_MESSAGE',
   CustomContentMessagePush = 'CUSTOM_CONTENT_MESSAGE_PUSH',
   CustomContentMessageEmail = 'CUSTOM_CONTENT_MESSAGE_EMAIL',
   CustomContentMessageSms = 'CUSTOM_CONTENT_MESSAGE_SMS',
   VoipIncomingCallMessage = 'VOIP_INCOMING_CALL_MESSAGE',
+  B2CAppMessagePush = 'B2C_APP_MESSAGE_PUSH',
   RecurrentPaymentProceedingSuccessResultMessage = 'RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE',
   RecurrentPaymentProceedingFailureResultMessage = 'RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE',
-  RecurrentPaymentTomorrowPaymentMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE',
-  B2CAppMessagePush = 'B2C_APP_MESSAGE_PUSH'
+  RecurrentPaymentTomorrowPaymentMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE'
 }
+
+export type SendNewReceiptMessagesToResidentScopesInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  context: BillingIntegrationOrganizationContextWhereUniqueInput;
+  category: BillingCategoryWhereUniqueInput;
+  period: Scalars['String'];
+  lang?: Maybe<SendMessageLang>;
+  scopes: Array<Maybe<PropertyScopesInput>>;
+  meta?: Maybe<Scalars['JSON']>;
+};
+
+export type SendNewReceiptMessagesToResidentScopesOutput = {
+  __typename?: 'SendNewReceiptMessagesToResidentScopesOutput';
+  status: Scalars['String'];
+};
 
 export type SenderField = {
   __typename?: 'SenderField';

@@ -57428,6 +57428,32 @@ input RegisterBillingReceiptsInput {
   receipts: [RegisterBillingReceiptInput!]!
 }
 
+input PropertyUnitInput {
+  unitType: String!
+  unitName: String!
+}
+
+input PropertyScopesInput {
+  property: PropertyWhereUniqueInput!
+  units: [PropertyUnitInput]
+  accountNumbers: [String]
+}
+
+input SendNewReceiptMessagesToResidentScopesInput {
+  dv: Int!
+  sender: JSON!
+  context: BillingIntegrationOrganizationContextWhereUniqueInput!
+  category: BillingCategoryWhereUniqueInput!
+  period: String!
+  lang: SendMessageLang
+  scopes: [PropertyScopesInput]!
+  meta: JSON
+}
+
+type SendNewReceiptMessagesToResidentScopesOutput {
+  status: String!
+}
+
 input CreateBankAccountRequestInput {
   dv: Int!
   sender: JSON!
@@ -57493,12 +57519,13 @@ input SendMessageToInput {
 
 enum SendMessageType {
   INVITE_NEW_EMPLOYEE
+  SHARE_TICKET
+  BANK_ACCOUNT_CREATION_REQUEST
   DIRTY_INVITE_NEW_EMPLOYEE_SMS
   DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
   REGISTER_NEW_USER
   RESET_PASSWORD
   SMS_VERIFY
-  SHARE_TICKET
   DEVELOPER_IMPORTANT_NOTE_TYPE
   CUSTOMER_IMPORTANT_NOTE_TYPE
   MESSAGE_FORWARDED_TO_SUPPORT
@@ -57512,26 +57539,25 @@ enum SendMessageType {
   TICKET_STATUS_DECLINED
   TICKET_COMMENT_ADDED
   METER_VERIFICATION_DATE_REMINDER
-  METER_SUBMIT_READINGS_REMINDER
-  METER_VERIFICATION_DATE_EXPIRED
   RESIDENT_ADD_BILLING_ACCOUNT
   BILLING_RECEIPT_AVAILABLE
   BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT
+  BILLING_RECEIPT_CATEGORY_AVAILABLE
   BILLING_RECEIPT_ADDED
   BILLING_RECEIPT_ADDED_WITH_DEBT
   BILLING_RECEIPT_ADDED_WITH_NO_DEBT
+  METER_SUBMIT_READINGS_REMINDER
+  METER_VERIFICATION_DATE_EXPIRED
   RESIDENT_UPGRADE_APP
   STAFF_UPGRADE_APP
-  BANK_ACCOUNT_CREATION_REQUEST
-  CUSTOM_CONTENT_MESSAGE
   CUSTOM_CONTENT_MESSAGE_PUSH
   CUSTOM_CONTENT_MESSAGE_EMAIL
   CUSTOM_CONTENT_MESSAGE_SMS
   VOIP_INCOMING_CALL_MESSAGE
+  B2C_APP_MESSAGE_PUSH
   RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE
   RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE
   RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE
-  B2C_APP_MESSAGE_PUSH
 }
 
 input SendMessageInput {
@@ -57639,6 +57665,26 @@ input RegisterServiceConsumerInput {
   accountNumber: String!
   organizationId: ID!
   extra: RegisterServiceConsumerInputExtra
+}
+
+input ResidentScopesInput {
+  property: PropertyWhereUniqueInput!
+  units: [PropertyUnitInput]
+  billingAccountNumbers: [String]
+}
+
+input SendMessageToResidentScopesServiceInput {
+  dv: Int!
+  sender: JSON!
+  type: SendMessageType!
+  lang: SendMessageLang
+  uniqKeyTemplate: String
+  scopes: [ResidentScopesInput!]!
+  meta: JSON
+}
+
+type SendMessageToResidentScopesServiceOutput {
+  status: String!
 }
 
 enum OnBoardingType {
@@ -65388,6 +65434,77 @@ type Mutation {
   acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   resetOrganization(data: ResetOrganizationInput!): ResetOrganizationOutput
   registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]
+
+  """
+  Sends notification of BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE type to all residents of provided scopes. Requires service user with access rights to billing domain. All properties in scopes should be connected to provided context. 
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "mutation": "sendNewReceiptMessagesToResidentScopes",
+    "variable": [
+      "data",
+      "context"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "Please provide proper period not before start of previous and not later than start of current month, valid format is YYYY-MM-DD",
+    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PERIOD_PROVIDED"
+  }`
+  
+  `{
+    "mutation": "sendNewReceiptMessagesToResidentScopes",
+    "variable": [
+      "data",
+      "billingIntegrationContext"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "Please provide existing non-deleted billing integration organization context id",
+    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CONTEXT_PROVIDED"
+  }`
+  
+  `{
+    "mutation": "sendNewReceiptMessagesToResidentScopes",
+    "variable": [
+      "data",
+      "context"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "Please provide existing non-deleted billing category id",
+    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CATEGORY_PROVIDED"
+  }`
+  
+  `{
+    "mutation": "sendNewReceiptMessagesToResidentScopes",
+    "variable": [
+      "data",
+      "scopes"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "Scopes could not be empty",
+    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.SCOPES_IS_EMPTY"
+  }`
+  
+  `{
+    "mutation": "sendNewReceiptMessagesToResidentScopes",
+    "variable": [
+      "data",
+      "scopes"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "All provided properties in scopes should be non-deleted & connected to organization of the billing context",
+    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PROPERTY_PROVIDED"
+  }`
+  """
+  sendNewReceiptMessagesToResidentScopes(data: SendNewReceiptMessagesToResidentScopesInput!): SendNewReceiptMessagesToResidentScopesOutput
   createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
 
@@ -65904,6 +66021,34 @@ type Mutation {
   			}
   		}
   	},
+  	"BILLING_RECEIPT_CATEGORY_AVAILABLE": {
+  		"dv": {
+  			"required": true
+  		},
+  		"data": {
+  			"userId": {
+  				"required": true
+  			},
+  			"url": {
+  				"required": true
+  			},
+  			"residentId": {
+  				"required": true
+  			},
+  			"propertyId": {
+  				"required": true
+  			},
+  			"period": {
+  				"required": true
+  			},
+  			"categoryId": {
+  				"required": true
+  			}
+  		},
+  		"categoryName": {
+  			"required": true
+  		}
+  	},
   	"BILLING_RECEIPT_ADDED": {
   		"dv": {
   			"defaultValue": "",
@@ -66373,6 +66518,29 @@ type Mutation {
   }`
   """
   registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer
+
+  """
+  Sends notification of requested type to all residents of provided scopes
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "mutation": "sendMessageToResidentScopes",
+    "variable": [
+      "data",
+      "scopes"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "Scopes could not be empty",
+    "messageForUser": "api.resident.sendMessageToResidentScopes.SCOPES_IS_EMPTY"
+  }`
+  """
+  sendMessageToResidentScopes(data: SendMessageToResidentScopesServiceInput!): SendMessageToResidentScopesServiceOutput
 
   """
   Creates OnBoarding and set of OnBoardingStep records for specified role and user
