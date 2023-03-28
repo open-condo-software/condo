@@ -25,6 +25,7 @@ type ComponentSpecificCheckEventProps = {
 
 type ComponentSpecificChangeEventProps = {
     Tabs: { activeKey: string }
+    Steps: { activeStep: number }
 }
 
 // TODO(DOMA-5597): Remove this group, since it too specific and move it to change group

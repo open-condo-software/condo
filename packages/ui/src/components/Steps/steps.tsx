@@ -5,6 +5,7 @@ import { Carousel, CarouselRef } from '@open-condo/ui/src'
 
 import { Step } from './step'
 
+import { sendAnalyticsChangeEvent } from '../_utils/analytics'
 import { useContainerSize } from '../_utils/hooks'
 
 import type { StepItem, StepProps } from './step'
@@ -14,6 +15,9 @@ export type StepsProps = {
     items: Array<StepItem>
     onChange?: (currentStep: number) => void
     itemSize?: 'large' | 'small'
+    id?: string,
+    className?: string
+    noReturnMessage?: string
 }
 
 const STEP_GAP = 24
@@ -22,7 +26,15 @@ const STEP_SM_MAX_WIDTH = 32 + 12 + 200 // index circle + gap + text
 
 const STEPS_CLASS_PREFIX = 'condo-steps'
 
-export const Steps: React.FC<StepsProps> = ({ items, current = 0, onChange, itemSize = 'large' }) => {
+export const Steps: React.FC<StepsProps> = ({
+    items,
+    current = 0,
+    onChange,
+    itemSize = 'large',
+    id,
+    className: propsClassName,
+    noReturnMessage,
+}) => {
     // NOTE: Internal state controls view
     const [currentItem, setCurrentItem] = useState(current)
     const [{ width }, setContainerRef] = useContainerSize<HTMLDivElement>()
@@ -32,7 +44,7 @@ export const Steps: React.FC<StepsProps> = ({ items, current = 0, onChange, item
     const stepMaxWidth = itemSize == 'small' ? STEP_SM_MAX_WIDTH : STEP_LG_MAX_WIDTH
     const stepsToShow = Math.min(totalItems, Math.max(Math.floor((width + STEP_GAP) / stepMaxWidth), 1))
 
-    const className = classNames(STEPS_CLASS_PREFIX, {
+    const className = classNames(STEPS_CLASS_PREFIX, propsClassName, {
         [`${STEPS_CLASS_PREFIX}-${itemSize}`]: itemSize,
     })
 
@@ -56,6 +68,10 @@ export const Steps: React.FC<StepsProps> = ({ items, current = 0, onChange, item
         }
     }, [currentItem, onChange])
 
+    useEffect(() => {
+        sendAnalyticsChangeEvent('Steps', { activeStep: currentItem, id })
+    }, [currentItem, id])
+
     const handleStepClick = useCallback((idx: number) => {
         return function onClick () {
             setCurrentItem(idx)
@@ -77,7 +93,7 @@ export const Steps: React.FC<StepsProps> = ({ items, current = 0, onChange, item
     }, [items])
 
     return (
-        <div className={className} ref={setContainerRef}>
+        <div className={className} ref={setContainerRef} id={id}>
             <Carousel
                 infinite={false}
                 dots={false}
@@ -104,6 +120,7 @@ export const Steps: React.FC<StepsProps> = ({ items, current = 0, onChange, item
                             size={itemSize}
                             type={type}
                             onClick={onClick}
+                            noReturnMessage={noReturnMessage}
                         />
                     )
                 })}
