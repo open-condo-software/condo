@@ -363,7 +363,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId }) => {
                 </Col>
                 <Col span={24}>
                     {tabContent}
-                    <CategoryModal />
+                    {CategoryModal}
                 </Col>
             </Row>
             <ActionBar hidden={!totalSelectedItems && !fileImportIntegration}>
