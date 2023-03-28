@@ -110,8 +110,6 @@ describe('SendMessageService', () => {
 
                     const transportMeta = message.processingMeta.transportsMeta[0]
 
-                    console.log(JSON.stringify(message, null, 2))
-
                     expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
                     expect(message.processingMeta.isVoIP).toBeTruthy()
@@ -155,8 +153,6 @@ describe('SendMessageService', () => {
                     })
 
                     const transportMeta = message.processingMeta.transportsMeta[0]
-
-                    console.log(JSON.stringify(message, null, 2))
 
                     expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)

@@ -374,6 +374,14 @@ const makeLoggedInAdminClient = async () => {
     return await makeLoggedInClient({ email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET })
 }
 
+/**
+ * Used for async action waiting in tests. Pass in callback and options.
+ * Will retry executing callback again and again each $interval ms for $timeout ms.
+ * You can also set $delay before trying callback if you sure that async action won't take less.
+ * @param callback
+ * @param options { timeout: 15000, interval: 150, delay: 0 }
+ * @returns {Promise<unknown>}
+ */
 async function waitFor (callback, options = null) {
     const timeout = get(options, 'timeout', 15000)
     const interval = get(options, 'interval', 150)
@@ -473,6 +481,7 @@ const catchErrorFrom = async (testFunc, inspect) => {
  */
 const expectToThrowAccessDeniedError = async (testFunc, path) => {
     if (!path) throw new Error('path is not specified')
+
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',

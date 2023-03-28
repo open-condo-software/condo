@@ -16,7 +16,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const errors = {
+const ERRORS = {
     NO_EMAIL_TARGET_WAS_SET: {
         mutation: 'createBankAccountRequest',
         message: 'No BANK_ACCOUNT_REQUEST_EMAIL_TARGET variable was found',
@@ -55,7 +55,7 @@ const CreateBankAccountRequestService = new GQLCustomSchema('CreateBankAccountRe
                 } } = args
                 const emailTo = conf['BANK_ACCOUNT_REQUEST_EMAIL_TARGET']
                 if (!emailTo) {
-                    throw new GQLError(errors.NO_EMAIL_TARGET_WAS_SET, context)
+                    throw new GQLError(ERRORS.NO_EMAIL_TARGET_WAS_SET, context)
                 }
 
                 const organization = await getById('Organization', organizationId)
@@ -64,7 +64,7 @@ const CreateBankAccountRequestService = new GQLCustomSchema('CreateBankAccountRe
                     organization: { id: organizationId },
                 })
                 if (!property) {
-                    throw new GQLError(errors.INCORRECT_PROPERTY_ID, context)
+                    throw new GQLError(ERRORS.INCORRECT_PROPERTY_ID, context)
                 }
 
                 const { status, id } = await sendMessage(context, {

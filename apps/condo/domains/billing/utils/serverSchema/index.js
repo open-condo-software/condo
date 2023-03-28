@@ -22,6 +22,7 @@ const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/do
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
 const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
+const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
@@ -71,6 +72,26 @@ const getPaymentsSum = async (context, organizationId, accountNumber, period, bi
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
 
+/**
+ *
+ * @param context
+ * @param data
+ * @returns {Promise<*>}
+ */
+async function sendNewReceiptMessagesToResidentScopes (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: SEND_RESIDENT_MESSAGE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to sendNewReceiptMessagesToResidentScopes',
+        dataPath: 'result',
+    })
+}
+
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -86,5 +107,6 @@ module.exports = {
     BillingCategory,
     registerBillingReceipts,
     getPaymentsSum,
+    sendNewReceiptMessagesToResidentScopes,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

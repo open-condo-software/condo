@@ -28,7 +28,7 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
+const { REGISTER_BILLING_RECEIPTS_MUTATION, SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -45,6 +45,7 @@ const BillingCategory = generateGQLTestUtils(BillingCategoryGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -731,6 +732,25 @@ async function makeResidentClientWithOwnReceipt(existingResidentClient) {
     }
 }
 
+/**
+ *
+ * @param client
+ * @param extraAttrs
+ * @returns {Promise<(*|{dv: number, sender: {dv: number, fingerprint: *}})[]>}
+ */
+async function sendNewReceiptMessagesToResidentScopesByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = { dv: 1, sender, ...extraAttrs }
+    const { data, errors } = await client.mutate(SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION, { data: attrs })
+
+    if (!extraAttrs.raw)  throwIfError(data, errors)
+
+    return [data.result, attrs]
+}
+
+
 /** used to generate random services
  * @param {number} count the number of services to create
  * @param {string} toPay specific toPay amount. If not passed a random amount is used**/
@@ -775,7 +795,8 @@ module.exports = {
     makeServiceUserForIntegration,
     registerBillingReceiptsByTestClient,
     createRegisterBillingReceiptsPayload,
-    generateServicesData
+    generateServicesData,
+    sendNewReceiptMessagesToResidentScopesByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

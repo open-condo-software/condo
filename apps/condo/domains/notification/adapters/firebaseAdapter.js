@@ -215,7 +215,7 @@ class FirebaseAdapter {
                             ({
                                 ...response,
                                 pushToken: notifications[idx].token,
-                                pushType: pushTypes[notifications[idx].token],
+                                pushType: get(pushTypes, notifications[idx].token, null),
                             })
                     )
                 }
