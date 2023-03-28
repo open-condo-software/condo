@@ -53700,7 +53700,7 @@ enum NewsItemScopeUnitTypeType {
   warehouse
 }
 
-""" Which residents can see the particular new item """
+""" Which residents can see the particular news item """
 type NewsItemScope {
   """
   This virtual field will be resolved in one of the following ways (in this order):
