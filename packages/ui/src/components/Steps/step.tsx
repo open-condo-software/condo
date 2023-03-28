@@ -27,20 +27,20 @@ export const Step: React.FC<StepProps> = ({ size, index, title, type, onClick, n
         [`${STEP_CLASS_PREFIX}-${type}`]: type,
     })
 
-    const indexLevel = size == 'large' ? 4 : 5
-    const indexType = type == 'disabled' ? 'secondary' : 'inverted'
-    const iconSize = size == 'large' ? 'large' : 'medium'
-    const titleSize = size == 'large' ? 'large' : 'medium'
-    const titleType = type == 'disabled' ? 'secondary' : undefined
+    const indexLevel = size === 'large' ? 4 : 5
+    const indexType = type === 'disabled' ? 'secondary' : 'inverted'
+    const iconSize = size === 'large' ? 'large' : 'medium'
+    const titleSize = size === 'large' ? 'large' : 'medium'
+    const titleType = type === 'disabled' ? 'secondary' : undefined
 
-    const StepWrapper = type == 'done' ? Tooltip : React.Fragment
+    const StepWrapper = type === 'done' ? Tooltip : React.Fragment
 
     return (
         <StepWrapper title={noReturnMessage || DEFAULT_NO_RETURN_MESSAGE} placement='bottomLeft'>
             <div className={className} onClick={onClick}>
                 <Space size={12} direction='horizontal' align='center'>
                     <div className={`${STEP_CLASS_PREFIX}-index`}>
-                        {type == 'done' ? (
+                        {type === 'done' ? (
                             <Check size={iconSize}/>
                         ) : (
                             <Typography.Title level={indexLevel} type={indexType}>
