@@ -16247,12 +16247,6 @@ export enum CacheControlScope {
   Private = 'PRIVATE'
 }
 
-export type Category = {
-  __typename?: 'Category';
-  id: Scalars['ID'];
-  name: Scalars['String'];
-};
-
 export type ChangePasswordWithTokenInput = {
   token: Scalars['String'];
   password: Scalars['String'];
@@ -41928,7 +41922,7 @@ export type PredictTransactionClassificationOutput = {
   id: Scalars['ID'];
   name: Scalars['String'];
   isOutcome: Scalars['Boolean'];
-  category?: Maybe<Category>;
+  category: Scalars['ID'];
 };
 
 export type PropertiesCreateInput = {
@@ -45218,6 +45212,14 @@ export type Query = {
    *   "type": "NOT_FOUND",
    *   "message": "Bank cost item not found",
    *   "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_NOT_FOUND"
+   * }`
+   *
+   * `{
+   *   "query": "predictTransactionClassification",
+   *   "code": "INTERNAL_ERROR",
+   *   "type": "NOT_FOUND",
+   *   "message": "Bank cost item not identify",
+   *   "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_NOT_IDENTIFY"
    * }`
    *
    * `{

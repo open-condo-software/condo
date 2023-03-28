@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { createTestBankIntegrationAccountContext, BankAccount, BankIntegrationAccountContext, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
+const { BankAccount, BankIntegrationAccountContext, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { requestTransactions } = require('@condo/domains/organization/integrations/sbbol/sync/requestTransactions')
 const { createTestOrganization, Organization, generateTin } = require('@condo/domains/organization/utils/testSchema')

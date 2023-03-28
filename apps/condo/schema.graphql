@@ -54681,16 +54681,11 @@ input PredictTransactionClassificationInput {
   purpose: String!
 }
 
-type Category {
-  id: ID!
-  name: String!
-}
-
 type PredictTransactionClassificationOutput {
   id: ID!
   name: String!
   isOutcome: Boolean!
-  category: Category
+  category: ID!
 }
 
 input ShareTicketInput {
@@ -58060,6 +58055,14 @@ type Query {
     "type": "NOT_FOUND",
     "message": "Bank cost item not found",
     "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_NOT_FOUND"
+  }`
+  
+  `{
+    "query": "predictTransactionClassification",
+    "code": "INTERNAL_ERROR",
+    "type": "NOT_FOUND",
+    "message": "Bank cost item not identify",
+    "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_NOT_IDENTIFY"
   }`
   
   `{
