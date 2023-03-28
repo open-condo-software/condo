@@ -36929,7 +36929,7 @@ export type NewsItemRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
-/**  Which residents can see the particular new item  */
+/**  Which residents can see the particular news item  */
 export type NewsItemScope = {
   __typename?: 'NewsItemScope';
   /**
