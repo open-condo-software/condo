@@ -52,17 +52,15 @@ async function updateTestNewsItem (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestNewsItemScope (client, newsItem, property, extraAttrs = {}) {
+async function createTestNewsItemScope (client, newsItem, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!newsItem || !newsItem.id) throw new Error('no newsItem.id')
-    if (!property || !property.id) throw new Error('no property.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
         newsItem: { connect: { id: newsItem.id } },
-        property: { connect: { id: property.id } },
         ...extraAttrs,
     }
     const obj = await NewsItemScope.create(client, attrs)

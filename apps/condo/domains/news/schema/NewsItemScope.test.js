@@ -70,7 +70,7 @@ describe('NewsItemScope', () => {
 
         describe('create', () => {
             test('admin can', async () => {
-                const [obj, attrs] = await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty)
+                const [obj, attrs] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -88,14 +88,14 @@ describe('NewsItemScope', () => {
 
             test('support can\'t', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestNewsItemScope(supportClient, dummyNewsItem, dummyProperty)
+                    await createTestNewsItemScope(supportClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
                 })
             })
 
             test('stuff with permission can', async () => {
                 // await createTestOrganizationEmployee(adminClient, dummyO10n, staffClient.user, dummyRoleAllow)
 
-                const [obj, attrs] = await createTestNewsItemScope(staffClient, dummyNewsItem, dummyProperty)
+                const [obj, attrs] = await createTestNewsItemScope(staffClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -105,26 +105,26 @@ describe('NewsItemScope', () => {
 
             test('stuff without permission can\'t', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestNewsItemScope(staffClientNoPermission, dummyNewsItem, dummyProperty)
+                    await createTestNewsItemScope(staffClientNoPermission, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
                 })
             })
 
             test('resident can\'t', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestNewsItemScope(residentClient, dummyNewsItem, dummyProperty)
+                    await createTestNewsItemScope(residentClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
                 })
             })
 
             test('anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestNewsItemScope(anonymousClient, dummyNewsItem, dummyProperty)
+                    await createTestNewsItemScope(anonymousClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
                 })
             })
         })
 
         describe('update', () => {
             test('admin can', async () => {
-                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty)
+                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 const [obj, attrs] = await updateTestNewsItemScope(adminClient, objCreated.id)
 
@@ -135,7 +135,7 @@ describe('NewsItemScope', () => {
             })
 
             test('support can\'t', async () => {
-                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty)
+                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestNewsItemScope(supportClient, objCreated.id)
@@ -143,7 +143,7 @@ describe('NewsItemScope', () => {
             })
 
             test('stuff with permission can', async () => {
-                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty)
+                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
                 const [obj, attrs] = await updateTestNewsItemScope(staffClient, objCreated.id)
 
                 expect(obj.id).toMatch(UUID_RE)
@@ -154,8 +154,7 @@ describe('NewsItemScope', () => {
             })
 
             test('stuff without permission can\'t', async () => {
-                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty)
-                // await createTestOrganizationEmployee(adminClient, dummyO10n, staffClientNoPermission.user, dummyRoleDisallow)
+                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestNewsItemScope(staffClientNoPermission, objCreated.id)
@@ -163,7 +162,7 @@ describe('NewsItemScope', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty)
+                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await updateTestNewsItemScope(anonymousClient, objCreated.id)
@@ -173,7 +172,7 @@ describe('NewsItemScope', () => {
 
         describe('hard delete', () => {
             test('admin can\'t', async () => {
-                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty)
+                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await NewsItemScope.delete(adminClient, objCreated.id)
@@ -181,7 +180,7 @@ describe('NewsItemScope', () => {
             })
 
             test('user can\'t', async () => {
-                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty)
+                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -190,7 +189,7 @@ describe('NewsItemScope', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty)
+                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await NewsItemScope.delete(anonymousClient, objCreated.id)
@@ -200,7 +199,7 @@ describe('NewsItemScope', () => {
 
         describe('read', () => {
             test('admin can', async () => {
-                const [obj] = await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty)
+                const [obj] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 const objs = await NewsItemScope.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -213,7 +212,7 @@ describe('NewsItemScope', () => {
             })
 
             test('staff with permission can', async () => {
-                const [obj] = await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty)
+                const [obj] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 const objs = await NewsItemScope.getAll(staffClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -224,7 +223,7 @@ describe('NewsItemScope', () => {
             })
 
             test('staff without permission can', async () => {
-                const [obj] = await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty)
+                const [obj] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 const objs = await NewsItemScope.getAll(staffClientNoPermission, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -235,7 +234,7 @@ describe('NewsItemScope', () => {
             })
 
             test('anonymous can\'t', async () => {
-                await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty)
+                await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await NewsItemScope.getAll(anonymousClient, {}, { sortBy: ['updatedAt_DESC'] })
@@ -247,7 +246,7 @@ describe('NewsItemScope', () => {
     describe('Validation tests', () => {
         test('Should have correct dv field (=== 1)', async () => {
             await expectToThrowGQLError(
-                async () => await createTestNewsItemScope(adminClient, dummyNewsItem, dummyProperty, { dv: 42 }),
+                async () => await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } }, dv: 42 }),
                 {
                     'code': 'BAD_USER_INPUT',
                     'type': 'DV_VERSION_MISMATCH',

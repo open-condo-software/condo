@@ -11,7 +11,7 @@ const access = require('@condo/domains/news/access/NewsItemScope')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
 const NewsItemScope = new GQLListSchema('NewsItemScope', {
-    schemaDoc: 'Which residents can see the particular new item',
+    schemaDoc: 'Which residents can see the particular news item',
     fields: {
 
         newsItem: {
@@ -27,9 +27,9 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
             schemaDoc: 'Residents of this property will be able to read the news item',
             type: Relationship,
             ref: 'Property',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         unitType: {
