@@ -30,8 +30,8 @@ const {
  */
 
 module.exports = {
-    notifyBeforeRecurrentPaymentDate: createCronTask('notifyBeforeRecurrentPaymentDate', '0 10 * * *', notifyBeforeRecurrentPaymentDate),
-    createRecurrentPaymentForNewBillingReceipt: createCronTask('createRecurrentPaymentForNewBillingReceipt', '0 10-14 * * *', createRecurrentPaymentForNewBillingReceipt),
-    createRecurrentPaymentForReadyToPayRecurrentPaymentContexts: createCronTask('createRecurrentPaymentForReadyToPayRecurrentPaymentContexts', '0 11 * * *', createRecurrentPaymentForReadyToPayRecurrentPaymentContexts),
+    notifyBeforeRecurrentPaymentDate: createCronTask('notifyBeforeRecurrentPaymentDate', '0 8 * * *', notifyBeforeRecurrentPaymentDate),
+    createRecurrentPaymentForNewBillingReceipt: createCronTask('createRecurrentPaymentForNewBillingReceipt', '0 9-13 * * *', createRecurrentPaymentForNewBillingReceipt),
+    createRecurrentPaymentForReadyToPayRecurrentPaymentContexts: createCronTask('createRecurrentPaymentForReadyToPayRecurrentPaymentContexts', '0 9 * * *', createRecurrentPaymentForReadyToPayRecurrentPaymentContexts),
     chargeRecurrentPayments: createCronTask('chargeRecurrentPayments', '0 12 * * *', chargeRecurrentPayments),
 }
