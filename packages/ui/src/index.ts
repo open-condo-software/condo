@@ -39,6 +39,9 @@ export type { TabsProps, TabItem } from './components/Tabs'
 export { Tag } from './components/Tag'
 export type { TagProps } from './components/Tag'
 
+export { Tooltip } from './components/Tooltip'
+export type { TooltipProps } from './components/Tooltip'
+
 export { Typography } from './components/Typography'
 
 export type {
