@@ -36,12 +36,12 @@ export const Steps: React.FC<StepsProps> = ({
     noReturnMessage,
 }) => {
     // NOTE: Internal state controls view
-    const [currentItem, setCurrentItem] = useState(current)
+    const [currentStep, setCurrentStep] = useState(current)
     const [{ width }, setContainerRef] = useContainerSize<HTMLDivElement>()
     const carouselRef = useRef<CarouselRef>(null)
 
     const totalItems = items.length
-    const stepMaxWidth = itemSize == 'small' ? STEP_SM_MAX_WIDTH : STEP_LG_MAX_WIDTH
+    const stepMaxWidth = itemSize === 'small' ? STEP_SM_MAX_WIDTH : STEP_LG_MAX_WIDTH
     const stepsToShow = Math.min(totalItems, Math.max(Math.floor((width + STEP_GAP) / stepMaxWidth), 1))
 
     const className = classNames(STEPS_CLASS_PREFIX, propsClassName, {
@@ -51,7 +51,7 @@ export const Steps: React.FC<StepsProps> = ({
     // NOTE: Sync internal state with prop, limiting it to [0; items.length)
     useEffect(() => {
         const rightBorder = Math.max(totalItems - 1, 0)
-        setCurrentItem(Math.max(0, Math.min(rightBorder, current)))
+        setCurrentStep(Math.max(0, Math.min(rightBorder, current)))
     }, [current, totalItems])
 
     // NOTE: Sliding to last slide in carousel will require multiple prev button clicks to go back
@@ -59,22 +59,22 @@ export const Steps: React.FC<StepsProps> = ({
     // [X . . .]
     useEffect(() => {
         const maxAllowedSlide = totalItems - stepsToShow
-        carouselRef.current?.goTo(Math.min(maxAllowedSlide, currentItem))
-    }, [currentItem, totalItems, stepsToShow])
+        carouselRef.current?.goTo(Math.min(maxAllowedSlide, currentStep))
+    }, [currentStep, totalItems, stepsToShow])
 
     useEffect(() => {
         if (onChange) {
-            onChange(currentItem)
+            onChange(currentStep)
         }
-    }, [currentItem, onChange])
+    }, [currentStep, onChange])
 
     useEffect(() => {
-        sendAnalyticsChangeEvent('Steps', { activeStep: currentItem, id })
-    }, [currentItem, id])
+        sendAnalyticsChangeEvent('Steps', { activeStep: currentStep, id })
+    }, [currentStep, id])
 
     const handleStepClick = useCallback((idx: number) => {
         return function onClick () {
-            setCurrentItem(idx)
+            setCurrentStep(idx)
         }
     }, [])
 
@@ -103,14 +103,14 @@ export const Steps: React.FC<StepsProps> = ({
             >
                 {steps.map((step, idx) => {
                     let type: StepProps['type']  = 'active'
-                    if (idx > currentItem) {
+                    if (idx > currentStep) {
                         type = 'disabled'
                     }
-                    if (idx <= steps[currentItem].previousBreakPoint) {
+                    if (idx <= steps[currentStep].previousBreakPoint) {
                         type = 'done'
                     }
 
-                    const onClick = type == 'active' ? handleStepClick(idx) : undefined
+                    const onClick = type === 'active' ? handleStepClick(idx) : undefined
 
                     return (
                         <Step
