@@ -15,6 +15,7 @@ const { Resident: ResidentGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/resident/gql')
 const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/gql')
+const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
@@ -133,6 +134,18 @@ async function registerServiceConsumerByTestClient (client, extraAttrs = {}) {
     return [data.obj, attrs]
 }
 
+
+async function sendResidentMessageByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = { dv: 1, sender, ...extraAttrs }
+    const { data, errors } = await client.mutate(SEND_RESIDENT_MESSAGE_MUTATION, { data: attrs })
+
+    throwIfError(data, errors)
+
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithServiceConsumer () {
@@ -167,6 +180,7 @@ module.exports = {
     registerResidentByTestClient, makeClientWithResident,
     ServiceConsumer, createTestServiceConsumer, updateTestServiceConsumer,
     makeClientWithServiceConsumer,
-    registerServiceConsumerByTestClient
+    registerServiceConsumerByTestClient,
+    sendResidentMessageByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

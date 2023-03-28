@@ -14,7 +14,7 @@ const { SOURCE_ALREADY_EXISTS_ERROR } = require('@address-service/domains/addres
 const { AddressSource: AddressSourceApi } = require('@address-service/domains/address/utils/serverSchema')
 
 
-const errors = {
+const ERRORS = {
     SAME_SOURCE: {
         mutation: 'createAddressSource',
         code: BAD_USER_INPUT,
@@ -45,7 +45,7 @@ const AddressSource = new GQLListSchema('AddressSource', {
                         const sameAddressSourceRows = await AddressSourceApi.getAll(context, where, { first: 1 })
 
                         if (!isEmpty(sameAddressSourceRows)) {
-                            throw new GQLError(errors.SAME_SOURCE, context)
+                            throw new GQLError(ERRORS.SAME_SOURCE, context)
                         }
                     }
                 },

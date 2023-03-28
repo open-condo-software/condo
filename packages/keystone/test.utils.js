@@ -472,6 +472,7 @@ const catchErrorFrom = async (testFunc, inspect) => {
  */
 const expectToThrowAccessDeniedError = async (testFunc, path) => {
     if (!path) throw new Error('path is not specified')
+
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',

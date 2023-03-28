@@ -43,6 +43,7 @@ const METER_VERIFICATION_DATE_EXPIRED_TYPE = 'METER_VERIFICATION_DATE_EXPIRED'
 const RESIDENT_ADD_BILLING_ACCOUNT_TYPE = 'RESIDENT_ADD_BILLING_ACCOUNT'
 const BILLING_RECEIPT_AVAILABLE_TYPE = 'BILLING_RECEIPT_AVAILABLE'
 const BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT'
+const BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE = 'BILLING_RECEIPT_CATEGORY_AVAILABLE'
 const BILLING_RECEIPT_ADDED_TYPE = 'BILLING_RECEIPT_ADDED'
 const BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_DEBT'
 const BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT'
@@ -84,6 +85,7 @@ const MESSAGE_TYPES = [
     RESIDENT_ADD_BILLING_ACCOUNT_TYPE,
     BILLING_RECEIPT_AVAILABLE_TYPE,
     BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE,
+    BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE,
     BILLING_RECEIPT_ADDED_TYPE,
     BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
@@ -305,6 +307,18 @@ const MESSAGE_META = {
             propertyId: { required: true },
             period: { required: true },
         },
+    },
+    [BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE]: {
+        dv: { required: true },
+        data: {
+            userId: { required: true },
+            url: { required: true },
+            residentId: { required: true },
+            propertyId: { required: true },
+            period: { required: true },
+            category: { required: true },
+        },
+        categoryName: { required: true },
     },
     [BILLING_RECEIPT_ADDED_TYPE]: {
         dv: { defaultValue: '', required: true },

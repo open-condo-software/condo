@@ -57726,6 +57726,7 @@ enum SendMessageType {
   RESIDENT_ADD_BILLING_ACCOUNT
   BILLING_RECEIPT_AVAILABLE
   BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT
+  BILLING_RECEIPT_CATEGORY_AVAILABLE
   BILLING_RECEIPT_ADDED
   BILLING_RECEIPT_ADDED_WITH_DEBT
   BILLING_RECEIPT_ADDED_WITH_NO_DEBT
@@ -57847,6 +57848,42 @@ input RegisterServiceConsumerInput {
   accountNumber: String!
   organizationId: ID!
   extra: RegisterServiceConsumerInputExtra
+}
+
+input PropertyUnitInput {
+  unitType: String
+  unitName: String
+}
+
+input PropertyDetailsInput {
+  propertyId: ID
+  billingPropertyId: ID
+  sections: [Int]
+  units: [PropertyUnitInput]
+  phones: [String]
+  billingAccounts: [ID]
+}
+
+input SendResidentMessageDataInput {
+  title: String
+  message: String
+  urlTemplate: String
+  categoryId: String
+  period: String
+}
+
+input SendResidentMessageInput {
+  dv: Int!
+  sender: JSON!
+  organizationId: ID!
+  propertyDetails: [PropertyDetailsInput]!
+  uniqKeyTemplate: String
+  type: String!
+  data: SendResidentMessageDataInput
+}
+
+type SendResidentMessageOutput {
+  status: String!
 }
 
 enum OnBoardingType {
@@ -66132,6 +66169,34 @@ type Mutation {
   			}
   		}
   	},
+  	"BILLING_RECEIPT_CATEGORY_AVAILABLE": {
+  		"dv": {
+  			"required": true
+  		},
+  		"data": {
+  			"userId": {
+  				"required": true
+  			},
+  			"url": {
+  				"required": true
+  			},
+  			"residentId": {
+  				"required": true
+  			},
+  			"propertyId": {
+  				"required": true
+  			},
+  			"period": {
+  				"required": true
+  			},
+  			"category": {
+  				"required": true
+  			}
+  		},
+  		"categoryName": {
+  			"required": true
+  		}
+  	},
   	"BILLING_RECEIPT_ADDED": {
   		"dv": {
   			"defaultValue": "",
@@ -66576,6 +66641,78 @@ type Mutation {
   }`
   """
   registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer
+
+  """
+  Sends notification to all residents of organization properties
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "mutation": "sendResidentMessage",
+    "variable": [
+      "data",
+      "data",
+      "category"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "Please use one of allowed category values",
+    "messageForUser": "api.resident.sendResidentMessage.INVALID_CATEGORY_PROVIDED"
+  }`
+  
+  `{
+    "mutation": "sendResidentMessage",
+    "variable": [
+      "data",
+      "organizationId"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "Please provide existing non-deleted organization id",
+    "messageForUser": "api.resident.sendResidentMessage.INVALID_ORGANIZATION_PROVIDED"
+  }`
+  
+  `{
+    "mutation": "sendResidentMessage",
+    "variable": [
+      "data",
+      "propertyDetails"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "Please provide either property or billingProperty id for each details item",
+    "messageForUser": "api.resident.sendResidentMessage.PROPERTY_IS_REQUIRED"
+  }`
+  
+  `{
+    "mutation": "sendResidentMessage",
+    "variable": [
+      "data",
+      "propertyDetails"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "Property details could not be empty",
+    "messageForUser": "api.resident.sendResidentMessage.PROPERTY_DETAILS_IS_EMPTY"
+  }`
+  
+  `{
+    "mutation": "sendResidentMessage",
+    "variable": [
+      "data",
+      "type"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_FOUND",
+    "message": "Please use one of allowed notification types",
+    "messageForUser": "api.resident.sendResidentMessage.INVALID_NOTIFICATION_TYPE_PROVIDED"
+  }`
+  """
+  sendResidentMessage(data: SendResidentMessageInput!): SendResidentMessageOutput
 
   """
   Creates OnBoarding and set of OnBoardingStep records for specified role and user

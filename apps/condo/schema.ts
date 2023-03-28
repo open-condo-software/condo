@@ -31027,6 +31027,34 @@ export type Mutation = {
    * 			}
    * 		}
    * 	},
+   * 	"BILLING_RECEIPT_CATEGORY_AVAILABLE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"propertyId": {
+   * 				"required": true
+   * 			},
+   * 			"period": {
+   * 				"required": true
+   * 			},
+   * 			"category": {
+   * 				"required": true
+   * 			}
+   * 		},
+   * 		"categoryName": {
+   * 			"required": true
+   * 		}
+   * 	},
    * 	"BILLING_RECEIPT_ADDED": {
    * 		"dv": {
    * 			"defaultValue": "",
@@ -31470,6 +31498,77 @@ export type Mutation = {
    * }`
    */
   registerServiceConsumer?: Maybe<ServiceConsumer>;
+  /**
+   * Sends notification to all residents of organization properties
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "sendResidentMessage",
+   *   "variable": [
+   *     "data",
+   *     "data",
+   *     "category"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Please use one of allowed category values",
+   *   "messageForUser": "api.resident.sendResidentMessage.INVALID_CATEGORY_PROVIDED"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendResidentMessage",
+   *   "variable": [
+   *     "data",
+   *     "organizationId"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Please provide existing non-deleted organization id",
+   *   "messageForUser": "api.resident.sendResidentMessage.INVALID_ORGANIZATION_PROVIDED"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendResidentMessage",
+   *   "variable": [
+   *     "data",
+   *     "propertyDetails"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Please provide either property or billingProperty id for each details item",
+   *   "messageForUser": "api.resident.sendResidentMessage.PROPERTY_IS_REQUIRED"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendResidentMessage",
+   *   "variable": [
+   *     "data",
+   *     "propertyDetails"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Property details could not be empty",
+   *   "messageForUser": "api.resident.sendResidentMessage.PROPERTY_DETAILS_IS_EMPTY"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendResidentMessage",
+   *   "variable": [
+   *     "data",
+   *     "type"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_FOUND",
+   *   "message": "Please use one of allowed notification types",
+   *   "messageForUser": "api.resident.sendResidentMessage.INVALID_NOTIFICATION_TYPE_PROVIDED"
+   * }`
+   */
+  sendResidentMessage?: Maybe<SendResidentMessageOutput>;
   /**
    * Creates OnBoarding and set of OnBoardingStep records for specified role and user
    *
@@ -38006,6 +38105,11 @@ export type MutationRegisterResidentArgs = {
 
 export type MutationRegisterServiceConsumerArgs = {
   data: RegisterServiceConsumerInput;
+};
+
+
+export type MutationSendResidentMessageArgs = {
+  data: SendResidentMessageInput;
 };
 
 
@@ -44759,6 +44863,15 @@ export type PropertyCreateInput = {
   sender?: Maybe<SenderFieldInput>;
 };
 
+export type PropertyDetailsInput = {
+  propertyId?: Maybe<Scalars['ID']>;
+  billingPropertyId?: Maybe<Scalars['ID']>;
+  sections?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  units?: Maybe<Array<Maybe<PropertyUnitInput>>>;
+  phones?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingAccounts?: Maybe<Array<Maybe<Scalars['ID']>>>;
+};
+
 /**  A keystone list  */
 export type PropertyHistoryRecord = {
   __typename?: 'PropertyHistoryRecord';
@@ -46091,6 +46204,11 @@ export enum PropertyTypeType {
   Building = 'building',
   Village = 'village'
 }
+
+export type PropertyUnitInput = {
+  unitType?: Maybe<Scalars['String']>;
+  unitName?: Maybe<Scalars['String']>;
+};
 
 export type PropertyUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
@@ -55737,6 +55855,7 @@ export enum SendMessageType {
   ResidentAddBillingAccount = 'RESIDENT_ADD_BILLING_ACCOUNT',
   BillingReceiptAvailable = 'BILLING_RECEIPT_AVAILABLE',
   BillingReceiptAvailableNoAccount = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT',
+  BillingReceiptCategoryAvailable = 'BILLING_RECEIPT_CATEGORY_AVAILABLE',
   BillingReceiptAdded = 'BILLING_RECEIPT_ADDED',
   BillingReceiptAddedWithDebt = 'BILLING_RECEIPT_ADDED_WITH_DEBT',
   BillingReceiptAddedWithNoDebt = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT',
@@ -55752,6 +55871,29 @@ export enum SendMessageType {
   RecurrentPaymentProceedingFailureResultMessage = 'RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE',
   RecurrentPaymentTomorrowPaymentMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE'
 }
+
+export type SendResidentMessageDataInput = {
+  title?: Maybe<Scalars['String']>;
+  message?: Maybe<Scalars['String']>;
+  urlTemplate?: Maybe<Scalars['String']>;
+  categoryId?: Maybe<Scalars['String']>;
+  period?: Maybe<Scalars['String']>;
+};
+
+export type SendResidentMessageInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  organizationId: Scalars['ID'];
+  propertyDetails: Array<Maybe<PropertyDetailsInput>>;
+  uniqKeyTemplate?: Maybe<Scalars['String']>;
+  type: Scalars['String'];
+  data?: Maybe<SendResidentMessageDataInput>;
+};
+
+export type SendResidentMessageOutput = {
+  __typename?: 'SendResidentMessageOutput';
+  status: Scalars['String'];
+};
 
 export type SenderField = {
   __typename?: 'SenderField';

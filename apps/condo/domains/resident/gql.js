@@ -34,6 +34,14 @@ const REGISTER_SERVICE_CONSUMER_MUTATION = gql`
     }
 `
 
+const SEND_RESIDENT_MESSAGE_MUTATION = gql`
+    mutation sendResidentMessage ($data: SendResidentMessageInput!) {
+        result: sendResidentMessage(data: $data) { 
+            status 
+        }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -45,5 +53,6 @@ module.exports = {
     RESIDENT_PROPERTY_FIELDS,
     ORGANIZATION_FEATURES_FIELDS,
     PAYMENT_CATEGORIES_FIELDS,
+    SEND_RESIDENT_MESSAGE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -30,7 +30,7 @@ function _throwIfError (context, errors, data, errorMessage, errorMapping) {
 
         /** NOTE(pahaz): you can use it like so:
          *
-         *    const errors = {
+         *    const ERRORS = {
          *        PASSWORD_IS_TOO_SHORT: {
          *            mutation: 'registerNewUser',
          *            variable: ['data', 'password'],
@@ -46,7 +46,7 @@ function _throwIfError (context, errors, data, errorMessage, errorMapping) {
          *
          *    const user = await User.create(context, userData, {
          *        errorMapping: {
-         *            '[password:minLength:User:password]': errors.PASSWORD_IS_TOO_SHORT,
+         *            '[password:minLength:User:password]': ERRORS.PASSWORD_IS_TOO_SHORT,
          *        },
          *    })
          *

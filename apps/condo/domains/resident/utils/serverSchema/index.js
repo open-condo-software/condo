@@ -10,6 +10,7 @@ const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/property/gql')
 const { Resident: ResidentGQL } = require('@condo/domains/resident/gql')
 const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_CONSUMER_SERVICE_MUTATION } = require('@condo/domains/resident/gql')
+const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Resident = generateServerUtils(ResidentGQL)
@@ -42,6 +43,20 @@ async function registerConsumerService (context, data) {
     })
 }
 
+async function sendResidentMessage (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write sendResidentMessage serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: SEND_RESIDENT_MESSAGE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to sendResidentMessage',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -49,5 +64,6 @@ module.exports = {
     registerResident,
     ServiceConsumer,
     registerConsumerService,
+    sendResidentMessage,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
