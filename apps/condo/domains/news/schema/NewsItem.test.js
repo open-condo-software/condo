@@ -401,6 +401,60 @@ describe('NewsItems', () => {
                     expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
                 ]))
             })
+
+            test('two residents, two organizations: each must see eligible news items', async () => {
+                const residentClient1 = await makeClientWithResidentUser()
+                const residentClient2 = await makeClientWithResidentUser()
+                const [o10n1] = await createTestOrganization(adminClient)
+                const [o10n2] = await createTestOrganization(adminClient)
+                const [property1] = await createTestProperty(adminClient, o10n1)
+                const [property2] = await createTestProperty(adminClient, o10n2)
+
+                const unitType1 = FLAT_UNIT_TYPE
+                const unitName1 = faker.lorem.word()
+                const unitType2 = FLAT_UNIT_TYPE
+                const unitName2 = faker.lorem.word()
+
+                await createTestResident(adminClient, residentClient1.user, property1, {
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+                await createTestResident(adminClient, residentClient2.user, property2, {
+                    unitType: unitType2,
+                    unitName: unitName2,
+                })
+
+                // News item for one organization
+                const [newsItem1, newsItem1Attrs] = await createTestNewsItem(adminClient, o10n1)
+                const [newsItemScope1] = await createTestNewsItemScope(adminClient, newsItem1, {
+                    property: { connect: { id: property1.id } },
+                })
+
+                // Two news items for another organization
+                const [newsItem2, newsItem2Attrs] = await createTestNewsItem(adminClient, o10n2)
+                const [newsItemScope2] = await createTestNewsItemScope(adminClient, newsItem2, {
+                    property: { connect: { id: property2.id } },
+                })
+                const [newsItem3, newsItem3Attrs] = await createTestNewsItem(adminClient, o10n2)
+                const [newsItemScope3] = await createTestNewsItemScope(adminClient, newsItem3, {
+                    property: { connect: { id: property2.id } },
+                })
+
+                const newsItems1 = await NewsItem.getAll(residentClient1, {})
+                const newsItems2 = await NewsItem.getAll(residentClient2, {})
+
+                expect(newsItems1).toHaveLength(1)
+                expect(newsItems1).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: newsItem1.id, title: newsItem1Attrs.title }),
+                ]))
+
+                expect(newsItems2).toHaveLength(2)
+                expect(newsItems2).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: newsItem2.id, title: newsItem2Attrs.title }),
+                    expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
+                ]))
+            })
         })
     })
 
