@@ -36942,11 +36942,11 @@ export type NewsItemScope = {
   _label_?: Maybe<Scalars['String']>;
   /**  The news item to control access for  */
   newsItem?: Maybe<NewsItem>;
-  /**  Residents of this property will be able to read the news item  */
+  /**  Filter on Resident by property, who can read news  */
   property?: Maybe<Property>;
-  /**  Which unit type has an ability to read the news item  */
+  /**  Filter on Resident by unit type, who can read news  */
   unitType?: Maybe<NewsItemScopeUnitTypeType>;
-  /**  The particular unit name who can read the news item  */
+  /**  Filter on Resident by unit name, who can read news  */
   unitName?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;

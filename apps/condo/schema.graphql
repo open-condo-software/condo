@@ -53714,13 +53714,13 @@ type NewsItemScope {
   """ The news item to control access for """
   newsItem: NewsItem
 
-  """ Residents of this property will be able to read the news item """
+  """ Filter on Resident by property, who can read news """
   property: Property
 
-  """ Which unit type has an ability to read the news item """
+  """ Filter on Resident by unit type, who can read news """
   unitType: NewsItemScopeUnitTypeType
 
-  """ The particular unit name who can read the news item """
+  """ Filter on Resident by unit name, who can read news """
   unitName: String
   id: ID!
   v: Int
