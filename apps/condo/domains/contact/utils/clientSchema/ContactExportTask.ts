@@ -8,10 +8,10 @@ import {
     ContactExportTaskUpdateInput,
     QueryAllContactExportTasksArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
-import { ContactExportTask as ContactExportTaskGQL } from '@condo/domains/contact/gql'
 
-// TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
+import { ContactExportTask as ContactExportTaskGQL } from '@condo/domains/contact/gql'
 
 const {
     useObject,
