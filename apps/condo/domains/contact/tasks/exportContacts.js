@@ -49,9 +49,9 @@ const buildExportFile = async ({ rows, task }) => {
 
     const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
 
-    let headerMessage = i18n('excelExport.header.tickets.forAllTime', { locale })
+    let headerMessage = i18n('excelExport.header.contacts.forAllTime', { locale })
     if (createdAtGte && createdAtLte) {
-        headerMessage = `${i18n('excelExport.header.tickets.forPeriod', { locale })} ${formatDate(createdAtGte)} — ${formatDate(createdAtLte)}`
+        headerMessage = `${i18n('excelExport.header.contacts.forPeriod', { locale })} ${formatDate(createdAtGte)} — ${formatDate(createdAtLte)}`
     }
 
     const { stream } = await buildExportExcelFile({

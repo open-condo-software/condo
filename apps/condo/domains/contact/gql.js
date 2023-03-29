@@ -18,7 +18,7 @@ const Contact = generateGqlQueries('Contact', CONTACT_FIELDS)
 const CONTACT_ROLE_FIELDS = `{ name organization { id name } ${COMMON_FIELDS} }`
 const ContactRole = generateGqlQueries('ContactRole', CONTACT_ROLE_FIELDS)
 
-const CONTACT_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file meta ${COMMON_FIELDS} }`
+const CONTACT_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone user { id } __typename meta ${COMMON_FIELDS} }`
 const ContactExportTask = generateGqlQueries('ContactExportTask', CONTACT_EXPORT_TASK_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

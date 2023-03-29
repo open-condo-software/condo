@@ -46,9 +46,9 @@ const ContactExportTask = new GQLListSchema('ContactExportTask', {
             options: [EXCEL],
             isRequired: true,
             access: {
-                create: canOnlyServerSideWithoutUserRequest,
+                create: true,
                 read: true,
-                update: true,
+                update: canOnlyServerSideWithoutUserRequest,
             },
         },
 

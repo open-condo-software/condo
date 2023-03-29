@@ -24,7 +24,7 @@ async function canManageContactExportTasks ({ authentication: { item: user }, or
 
     if (operation === 'create') {
         if (get(originalInput, ['user', 'connect', 'id']) !== user.id) return false
-        return false
+        return true
     } else if (operation === 'update') {
         if (get(originalInput, 'status') === CANCELLED) {
             return true
