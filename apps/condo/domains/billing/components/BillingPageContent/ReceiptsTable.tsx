@@ -3,7 +3,7 @@ import { Row, Col, Typography, Space } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -81,6 +81,12 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const hideServiceModal = () => {
         setModalIsVisible(false)
     }
+    
+    useEffect(()=>{
+        if (get(filters, 'period')){
+            setPeriod(dayjs(get(filters, 'period') as string))
+        }
+    }, [])
 
     const periodMetaSelect = useMemo(() => {
         return (
