@@ -93,8 +93,6 @@ describe('NewsItemScope', () => {
             })
 
             test('stuff with permission can', async () => {
-                // await createTestOrganizationEmployee(adminClient, dummyO10n, staffClient.user, dummyRoleAllow)
-
                 const [obj, attrs] = await createTestNewsItemScope(staffClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 expect(obj.id).toMatch(UUID_RE)
