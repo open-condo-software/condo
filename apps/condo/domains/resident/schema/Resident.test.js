@@ -266,7 +266,8 @@ describe('Resident', () => {
                 expect(obj.residentOrganization.id).toEqual(userClient.organization.id)
                 expect(obj.residentOrganization.name).toEqual(userClient.organization.name)
                 expect(obj.residentOrganization.country).toEqual(userClient.organization.country)
-                expect(Object.keys(obj.residentOrganization)).toHaveLength(3)
+                expect(obj.residentOrganization.tin).toEqual(userClient.organization.tin)
+                expect(Object.keys(obj.residentOrganization)).toHaveLength(4)
             })
         })
 
