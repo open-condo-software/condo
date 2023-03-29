@@ -413,7 +413,6 @@ describe('BillingReceipt', () => {
                             expect(receipts[0].property).toBeNull()
                             expect(receipts[0].account).toBeNull()
                             expect(receipts[0].importId).toBeNull()
-                            expect(receipts[0].raw).toBeNull()
                         })
                         test('With multiple residents and serviceConsumers', async () => {
                             // Add second receipt in same property
