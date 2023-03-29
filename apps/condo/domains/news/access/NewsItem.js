@@ -32,6 +32,7 @@ async function canReadNewsItems ({ authentication: { item: user } }) {
         const organizationsIds = uniq(compact(residents.map(resident => get(resident, 'organization'))))
 
         const scopesConditions = {
+            deletedAt: null,
             OR: flatten(residents.map((resident) => ([
                 {
                     AND: [
