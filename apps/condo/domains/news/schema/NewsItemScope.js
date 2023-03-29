@@ -24,7 +24,7 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
         },
 
         property: {
-            schemaDoc: 'Residents of this property will be able to read the news item',
+            schemaDoc: 'Filter on Resident by property, who can read news',
             type: Relationship,
             ref: 'Property',
             isRequired: false,
@@ -33,13 +33,13 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
         },
 
         unitType: {
-            schemaDoc: 'Which unit type has an ability to read the news item',
+            schemaDoc: 'Filter on Resident by unit type, who can read news',
             type: Select,
             options: UNIT_TYPES,
         },
 
         unitName: {
-            schemaDoc: 'The particular unit name who can read the news item',
+            schemaDoc: 'Filter on Resident by unit name, who can read news',
             type: Text,
         },
 
