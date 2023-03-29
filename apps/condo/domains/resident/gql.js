@@ -13,7 +13,7 @@ const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/s
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const RESIDENT_ORGANIZATION_FIELDS = 'id name country'
+const RESIDENT_ORGANIZATION_FIELDS = 'id name country tin'
 const RESIDENT_PROPERTY_FIELDS = 'id name address'
 const ORGANIZATION_FEATURES_FIELDS = 'hasBillingData hasMeters'
 const PAYMENT_CATEGORIES_FIELDS = 'id categoryName billingName acquiringName'

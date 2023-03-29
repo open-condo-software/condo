@@ -15,7 +15,7 @@ const { BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE } = require('@condo/domains/no
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
-
+const CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629' // billing.category.housing.name
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_RESIDENTS_NO_ACCOUNT_NOTIFICATION_CREATED_AT'
 
 const logger = getLogger('sendResidentsNoAccountNotifications')
@@ -35,14 +35,16 @@ const prepareAndSendNotification = async (context, resident, period) => {
 
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
     const country = get(resident, 'residentOrganization.country', conf.DEFAULT_LOCALE)
+    const tin = get(resident, 'residentOrganization.tin')
     const locale = get(COUNTRIES, country).locale
     const notificationKey = makeMessageKey(period, resident.property.id, resident.id)
     const organizationId = get(resident, 'residentOrganization.id')
+    const url = `${conf.SERVER_URL}/payments/addaccount/?residentId=${resident.id}&categoryId=${CATEGORY_ID}&organizationTIN=${tin}`
 
     const data = {
         residentId: resident.id,
         userId: resident.user.id,
-        url: `${conf.SERVER_URL}/billing/receipts/`,
+        url,
         propertyId: resident.property.id,
         period,
     }
