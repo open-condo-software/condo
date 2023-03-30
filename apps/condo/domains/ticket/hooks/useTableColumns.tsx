@@ -153,7 +153,6 @@ export function useTableColumns<T> (
     const renderIsFavoriteTicket = useCallback((ticket) => {
         return (
             <FavoriteTicketIndicator
-                eventProperties={{ page: 'ticket' }}
                 ticketId={ticket.id}
             />
         )
