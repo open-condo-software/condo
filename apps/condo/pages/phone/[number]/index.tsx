@@ -852,6 +852,7 @@ export const ClientCardPageContentWrapper = ({ organizationQuery, ticketsQuery, 
         })), 'property.id')
 
         return [...contactsData, ...notResidentData, ...employeesData]
+            .filter(tabsData => tabsData.organization && tabsData.property)
     }, [contacts, employeeTickets, notResidentTickets])
 
     return (
