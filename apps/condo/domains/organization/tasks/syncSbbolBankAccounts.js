@@ -32,9 +32,11 @@ async function syncSbbolBankAccounts () {
     const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })
     if (!integration) throw new Error(`Cannot find SBBOL integration by id=" ${BANK_INTEGRATION_IDS.SBBOL}"`)
 
-    for (const identity of usersWithSBBOLExternalIdentity) {
+    for (let identity of usersWithSBBOLExternalIdentity) {
         const [employee] = await OrganizationEmployee.getAll(context, {
-            user: { id: identity.user.id },
+            user: {
+                id: identity.user.id,
+            },
             organization: {
                 importRemoteSystem: SBBOL_IMPORT_NAME,
                 deletedAt: null,
@@ -44,7 +46,9 @@ async function syncSbbolBankAccounts () {
             isBlocked: false,
         }, { first: 1 })
 
-        await syncBankAccounts(identity.user.id, employee.organization)
+        if (employee) {
+            await syncBankAccounts(identity.user.id, employee.organization)
+        }
     }
 
 }
