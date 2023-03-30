@@ -22,6 +22,7 @@ const TASK_DV_AND_SENDER = {
 }
 const MAX_XLSX_FILE_ROWS = 10000
 const DATE_FORMAT = 'DD.MM.YYYY'
+const EMPTY_VALUE = '—'
 
 const appLogger = getLogger('condo')
 const taskLogger = appLogger.child({ module: 'exportContacts' })
@@ -36,9 +37,9 @@ const contactToRow = ({ task, contact, translatedRolesMap }) => {
         address: contact.property,
         unitName: contact.unitName,
         unitType,
-        phone: contact.phone,
-        email: contact.email,
-        role: roleId ? translatedRolesMap[roleId] : '',
+        phone: contact.phone || EMPTY_VALUE,
+        email: contact.email || EMPTY_VALUE,
+        role: roleId ? translatedRolesMap[roleId] : EMPTY_VALUE,
     }
 }
 

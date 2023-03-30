@@ -55,7 +55,7 @@ export const useContactExportToExcelTask: IUseContactExportToExcelTask = (props)
 
     const ExportButton = useCallback(() => (
         <Button
-            type='secondary'
+            type='primary'
             children={ExportAsExcelTitle}
             onClick={handleRunTask}
             loading={loading}
