@@ -15,6 +15,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const {
     NewsItem,
     createTestNewsItem,
@@ -33,7 +34,7 @@ const {
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-let adminClient, supportClient, userClient, anonymousClient, sender
+let adminClient, supportClient, userClient, anonymousClient, sender, dummyO10n
 
 describe('NewsItems', () => {
     beforeAll(async () => {
@@ -42,15 +43,14 @@ describe('NewsItems', () => {
         userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymousClient = await makeClient()
         sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+        const [o10n] = await createTestOrganization(adminClient)
+        dummyO10n = o10n
     })
 
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                // o r g a n i z a t i o n .... ssssooooo looooong :/
-                const [o10n, o10nAttrs] = await createTestOrganization(adminClient)
-
-                const [obj, attrs] = await createTestNewsItem(adminClient, o10n)
+                const [obj, attrs] = await createTestNewsItem(adminClient, dummyO10n)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -62,16 +62,14 @@ describe('NewsItems', () => {
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
                 expect(obj.createdAt).toMatch(DATETIME_RE)
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
-                expect(obj.organization.id).toMatch(o10n.id)
+                expect(obj.organization.id).toMatch(dummyO10n.id)
                 expect(obj.title).toEqual(attrs.title)
                 expect(obj.body).toEqual(attrs.body)
                 expect(obj.type).toEqual(attrs.type)
             })
 
             test('support can', async () => {
-                const [o10n, o10nAttrs] = await createTestOrganization(supportClient)
-
-                const [obj, attrs] = await createTestNewsItem(supportClient, o10n)
+                const [obj, attrs] = await createTestNewsItem(supportClient, dummyO10n)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -114,16 +112,14 @@ describe('NewsItems', () => {
 
             test('anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    const [o10n, o10nAttrs] = await createTestOrganization(adminClient)
-                    await createTestNewsItem(anonymousClient, o10n)
+                    await createTestNewsItem(anonymousClient, dummyO10n)
                 })
             })
         })
 
         describe('update', () => {
             test('admin can', async () => {
-                const [o10n, o10nAttrs] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestNewsItem(adminClient, o10n)
+                const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
 
                 const body = faker.lorem.words(10)
 
@@ -136,8 +132,7 @@ describe('NewsItems', () => {
             })
 
             test('support can', async () => {
-                const [o10n, o10nAttrs] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestNewsItem(adminClient, o10n)
+                const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
 
                 const body = faker.lorem.words(10)
                 const [obj, attrs] = await updateTestNewsItem(supportClient, objCreated.id, { body })
@@ -195,8 +190,7 @@ describe('NewsItems', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [o10n, o10nAttrs] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestNewsItem(adminClient, o10n)
+                const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObj(async () => {
@@ -207,8 +201,7 @@ describe('NewsItems', () => {
 
         describe('hard delete', () => {
             test('admin can\'t', async () => {
-                const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestNewsItem(adminClient, o10n)
+                const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await NewsItem.delete(adminClient, objCreated.id)
@@ -216,8 +209,7 @@ describe('NewsItems', () => {
             })
 
             test('user can\'t', async () => {
-                const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestNewsItem(adminClient, o10n)
+                const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -226,8 +218,7 @@ describe('NewsItems', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestNewsItem(adminClient, o10n)
+                const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
 
                 const client = await makeClient()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -238,8 +229,7 @@ describe('NewsItems', () => {
 
         describe('read', () => {
             test('admin can', async () => {
-                const [o10n] = await createTestOrganization(adminClient)
-                const [obj, attrs] = await createTestNewsItem(adminClient, o10n)
+                const [obj, attrs] = await createTestNewsItem(adminClient, dummyO10n)
 
                 const objs = await NewsItem.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -278,8 +268,7 @@ describe('NewsItems', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [o10n] = await createTestOrganization(adminClient)
-                const [obj, attrs] = await createTestNewsItem(adminClient, o10n)
+                const [obj, attrs] = await createTestNewsItem(adminClient, dummyO10n)
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
@@ -294,16 +283,39 @@ describe('NewsItems', () => {
 
     describe('Validation tests', () => {
         test('Should have correct dv field (=== 1)', async () => {
-            const [o10n, o10nAttrs] = await createTestOrganization(adminClient)
-
             await expectToThrowGQLError(
-                async () => await createTestNewsItem(adminClient, o10n, { dv: 42 }),
+                async () => await createTestNewsItem(adminClient, dummyO10n, { dv: 42 }),
                 {
-                    'code': 'BAD_USER_INPUT',
-                    'type': 'DV_VERSION_MISMATCH',
-                    'message': 'Wrong value for data version number',
-                    'mutation': 'createNewsItem',
-                    'variable': ['data', 'dv'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'DV_VERSION_MISMATCH',
+                    message: 'Wrong value for data version number',
+                    mutation: 'createNewsItem',
+                    variable: ['data', 'dv'],
+                },
+            )
+        })
+
+        test('The \'common\' news type the default one', async () => {
+            const [obj, attrs] = await createTestNewsItem(adminClient, dummyO10n, { type: undefined })
+
+            //after creation
+            expect(obj.type).toMatch(NEWS_TYPE_COMMON)
+
+            // and after updating
+            const [updatedObj] = await updateTestNewsItem(adminClient, obj.id, { type: undefined })
+            expect(updatedObj.type).toMatch(NEWS_TYPE_COMMON)
+        })
+
+        test('must throw an error if there is no validity date for emergency news item', async () => {
+            await expectToThrowGQLError(
+                async () => await createTestNewsItem(adminClient, dummyO10n, { type: NEWS_TYPE_EMERGENCY }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'EMPTY_VALID_BEFORE_DATE',
+                    message: 'The date the news item valid before is empty',
+                    mutation: 'createNewsItem',
+                    variable: ['data', 'validBefore'],
+                    messageForUser: 'api.newsItem.EMPTY_VALID_BEFORE_DATE',
                 },
             )
         })

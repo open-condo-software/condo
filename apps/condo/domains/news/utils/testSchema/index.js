@@ -8,7 +8,7 @@ const faker = require('faker')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { NewsItem: NewsItemGQL } = require('@condo/domains/news/gql')
-const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants')
+const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateGQLTestUtils(NewsItemGQL)
