@@ -1,10 +1,8 @@
-import { Grid } from 'antd'
-import { ScreenMap } from 'antd/es/_util/responsiveObserve'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 
-import { ITopNotification, useTopNotificationsHook } from './TopNotifications'
+import { ScreenMap, useBreakpoints } from '@open-condo/ui/dist/hooks'
 
-const { useBreakpoint } = Grid
+import { ITopNotification, useTopNotificationsHook } from './TopNotifications'
 
 interface ILayoutContext {
     isMobile?: boolean
@@ -28,7 +26,7 @@ const LayoutContext = createContext<ILayoutContext>({})
 export const useLayoutContext = (): ILayoutContext => useContext<ILayoutContext>(LayoutContext)
 
 export const LayoutContextProvider: React.FC = (props) => {
-    const breakpoints = useBreakpoint()
+    const breakpoints = useBreakpoints()
     const [isCollapsed, setIsCollapsed] = useState(false)
 
     const {
@@ -41,8 +39,8 @@ export const LayoutContextProvider: React.FC = (props) => {
         setIsCollapsed(!isCollapsed)
     }
 
-    const isSmall = (breakpoints.md || breakpoints.xs || breakpoints.sm) && !breakpoints.lg
-    const shouldTableScroll = (breakpoints.md || breakpoints.xs || breakpoints.sm) && !breakpoints.xl
+    const isSmall = !breakpoints.DESKTOP_SMALL
+    const shouldTableScroll = !breakpoints.DESKTOP_LARGE
 
     useEffect(() => {
         const isCollapsed = localStorage.getItem('isCollapsed') === 'true'

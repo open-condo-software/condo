@@ -314,7 +314,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const router = useRouter()
 
     const { breakpoints } = useLayoutContext()
-    const isSmallWindow = breakpoints.sm && !breakpoints.md || breakpoints.xs
+    const isSmallWindow = !breakpoints.TABLET_LARGE
     const { requiredValidator } = useValidations()
 
     const createIncidentProperty = IncidentProperty.useCreate({})

@@ -64,10 +64,10 @@ export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommen
         const lastCommentAt = get(currentTicketCommentTimes, 'lastCommentAt')
 
         return hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt) && (
-            <div style={breakpoints.xl ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL : {}}>
+            <div style={breakpoints.DESKTOP_LARGE ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL : {}}>
                 <Tooltip title={NewResidentCommentMessage} placement='topRight'>
                     <Typography.Text title={NewResidentCommentMessage}>
-                        <div style={breakpoints.xl ? NEW_COMMENTS_INDICATOR_WRAPPER_STYLES : NEW_COMMENTS_INDICATOR_WRAPPER_STYLES_ON_SMALLER_THAN_XL}>
+                        <div style={breakpoints.DESKTOP_LARGE ? NEW_COMMENTS_INDICATOR_WRAPPER_STYLES : NEW_COMMENTS_INDICATOR_WRAPPER_STYLES_ON_SMALLER_THAN_XL}>
                             <div style={NEW_COMMENTS_INDICATOR_STYLES}/>
                         </div>
                     </Typography.Text>

@@ -51,7 +51,8 @@
     "./src/": "./src/",
     "./dist/": "./dist/",
     "./style-vars/css": "./dist/style-vars/variables.css",
-    "./style-vars/less": "./dist/style-vars/variables.less"
+    "./style-vars/less": "./dist/style-vars/variables.less",
+    "./hooks": "./dist/hooks.js"
   },
   "typesVersions": {
     "*": {
