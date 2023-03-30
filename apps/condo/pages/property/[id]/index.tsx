@@ -26,7 +26,6 @@ import { PropertyPanels } from '@condo/domains/property/components/panels'
 import { CustomScrollbarCss } from '@condo/domains/property/components/panels/Builder/BuildingPanelCommon'
 import { PropertyReportCard } from '@condo/domains/property/components/PropertyReportCard'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 
 
 const PROPERTY_PAGE_CONTENT_ROW_GUTTER: RowProps['gutter'] = [12, 40]
@@ -60,36 +59,26 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     const { push } = useRouter()
 
     const softDeleteAction = Property.useSoftDelete( () => push('/property/'))
-    const { objs: ticketStatuses, loading: ticketStatusLoading } = TicketStatus.useObjects({})
 
     const yearOfConstructionCardLabel = property.yearOfConstruction
         ? dayjs(property.yearOfConstruction).format('YYYY')
         : UnknownValueTitle
 
     const ticketInWorkClick = useCallback(() => {
-        if (typeof window !== 'undefined' && !ticketStatusLoading && Number(property.ticketsInWork)) {
-            const inWorkStatus = ticketStatuses.find(status => status.type === TicketStatusType.Processing)
-            if (inWorkStatus) {
-                window.open(`/ticket?filters={"status":"${inWorkStatus.id}","property":"${property.id}"}`, '_blank')
-            }
+        if (typeof window !== 'undefined' && Number(property.ticketsInWork)) {
+            window.open(`/ticket?filters={"status":["${TicketStatusType.Processing}"],"property":"${property.id}"}`, '_blank')
         }
-    }, [property, ticketStatusLoading, ticketStatuses])
+    }, [property])
     const ticketDeferredClick = useCallback(() => {
-        if (typeof window !== 'undefined' && !ticketStatusLoading && Number(property.ticketsDeferred)) {
-            const deferredTicketStatus = ticketStatuses.find(status => status.type === TicketStatusType.Deferred)
-            if (deferredTicketStatus) {
-                window.open(`/ticket?filters={"status":"${deferredTicketStatus.id}","property":"${property.id}"}`, '_blank')
-            }
+        if (typeof window !== 'undefined' && Number(property.ticketsDeferred)) {
+            window.open(`/ticket?filters={"status":["${TicketStatusType.Deferred}"],"property":"${property.id}"}`, '_blank')
         }
-    }, [property, ticketStatusLoading, ticketStatuses])
+    }, [property])
     const ticketClosedClick = useCallback(() => {
-        if (typeof window !== 'undefined' && !ticketStatusLoading && Number(property.ticketsClosed)) {
-            const closedTicketStatus = ticketStatuses.find(status => status.type === TicketStatusType.Closed)
-            if (closedTicketStatus) {
-                window.open(`/ticket?filters={"status":"${closedTicketStatus.id}","property":"${property.id}"}`, '_blank')
-            }
+        if (typeof window !== 'undefined' && Number(property.ticketsClosed)) {
+            window.open(`/ticket?filters={"status":["${TicketStatusType.Closed}"],"property":"${property.id}"}`, '_blank')
         }
-    }, [property, ticketStatusLoading, ticketStatuses])
+    }, [property])
 
     const propertyInfoDataSource = useMemo<ListProps['dataSource']>(() => [
         {

@@ -80,7 +80,7 @@ export function useTableColumns<T> (
     const { loading: statusesLoading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
     const renderStatusFilterDropdown: ColumnType<Ticket>['filterDropdown'] = useCallback((filterProps) => {
-        const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
+        const adaptedStatuses = ticketStatuses.map(status => ({ label: status.name, value: status.type })).filter(identity)
         return getOptionFilterDropdown({
             checkboxGroupProps: {
                 options: adaptedStatuses,
