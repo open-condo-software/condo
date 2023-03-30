@@ -36550,6 +36550,10 @@ export type NewsItem = {
   body?: Maybe<Scalars['String']>;
   /**  The news item type  */
   type?: Maybe<NewsItemTypeType>;
+  /**  Date before which the news item makes sense  */
+  validBefore?: Maybe<Scalars['String']>;
+  /**  Date to publish the news item and to send notifications  */
+  sendAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -36571,6 +36575,8 @@ export type NewsItemCreateInput = {
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   type?: Maybe<NewsItemTypeType>;
+  validBefore?: Maybe<Scalars['String']>;
+  sendAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -36597,6 +36603,8 @@ export type NewsItemHistoryRecord = {
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
+  validBefore?: Maybe<Scalars['String']>;
+  sendAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -36617,6 +36625,8 @@ export type NewsItemHistoryRecordCreateInput = {
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
+  validBefore?: Maybe<Scalars['String']>;
+  sendAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -36642,6 +36652,8 @@ export type NewsItemHistoryRecordUpdateInput = {
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
+  validBefore?: Maybe<Scalars['String']>;
+  sendAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -36717,6 +36729,22 @@ export type NewsItemHistoryRecordWhereInput = {
   type_not_ends_with_i?: Maybe<Scalars['String']>;
   type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  validBefore?: Maybe<Scalars['String']>;
+  validBefore_not?: Maybe<Scalars['String']>;
+  validBefore_lt?: Maybe<Scalars['String']>;
+  validBefore_lte?: Maybe<Scalars['String']>;
+  validBefore_gt?: Maybe<Scalars['String']>;
+  validBefore_gte?: Maybe<Scalars['String']>;
+  validBefore_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  validBefore_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sendAt?: Maybe<Scalars['String']>;
+  sendAt_not?: Maybe<Scalars['String']>;
+  sendAt_lt?: Maybe<Scalars['String']>;
+  sendAt_lte?: Maybe<Scalars['String']>;
+  sendAt_gt?: Maybe<Scalars['String']>;
+  sendAt_gte?: Maybe<Scalars['String']>;
+  sendAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sendAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -36818,6 +36846,8 @@ export type NewsItemUpdateInput = {
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   type?: Maybe<NewsItemTypeType>;
+  validBefore?: Maybe<Scalars['String']>;
+  sendAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -36874,6 +36904,22 @@ export type NewsItemWhereInput = {
   type_not?: Maybe<NewsItemTypeType>;
   type_in?: Maybe<Array<Maybe<NewsItemTypeType>>>;
   type_not_in?: Maybe<Array<Maybe<NewsItemTypeType>>>;
+  validBefore?: Maybe<Scalars['String']>;
+  validBefore_not?: Maybe<Scalars['String']>;
+  validBefore_lt?: Maybe<Scalars['String']>;
+  validBefore_lte?: Maybe<Scalars['String']>;
+  validBefore_gt?: Maybe<Scalars['String']>;
+  validBefore_gte?: Maybe<Scalars['String']>;
+  validBefore_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  validBefore_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sendAt?: Maybe<Scalars['String']>;
+  sendAt_not?: Maybe<Scalars['String']>;
+  sendAt_lt?: Maybe<Scalars['String']>;
+  sendAt_lte?: Maybe<Scalars['String']>;
+  sendAt_gt?: Maybe<Scalars['String']>;
+  sendAt_gte?: Maybe<Scalars['String']>;
+  sendAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sendAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -56985,6 +57031,10 @@ export enum SortNewsItemHistoryRecordsBy {
   BodyDesc = 'body_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
+  ValidBeforeAsc = 'validBefore_ASC',
+  ValidBeforeDesc = 'validBefore_DESC',
+  SendAtAsc = 'sendAt_ASC',
+  SendAtDesc = 'sendAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -57012,6 +57062,10 @@ export enum SortNewsItemsBy {
   BodyDesc = 'body_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
+  ValidBeforeAsc = 'validBefore_ASC',
+  ValidBeforeDesc = 'validBefore_DESC',
+  SendAtAsc = 'sendAt_ASC',
+  SendAtDesc = 'sendAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

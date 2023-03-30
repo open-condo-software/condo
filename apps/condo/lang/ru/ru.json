@@ -1500,6 +1500,7 @@
   "api.organization.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION": "Указанный сотрудник уже принял приглашение",
   "api.banking.createBankAccountRequest.INCORRECT_PROPERTY_ID": "Неверное значение propertyId. Данный дом не принадлежит выбранной организации",
   "api.incident.WORK_FINISH_EARLY_THAN_WORK_START": "Окончание работ не может быть раньше начала",
+  "api.newsItem.EMPTY_VALID_BEFORE_DATE": "Дата актуальности новости обязательна",
   "excelExport.headers.payments.date": "Дата",
   "excelExport.headers.payments.account": "ЛС",
   "excelExport.headers.payments.address": "Адрес",

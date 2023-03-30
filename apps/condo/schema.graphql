@@ -52939,6 +52939,8 @@ type NewsItemHistoryRecord {
   title: String
   body: String
   type: String
+  validBefore: String
+  sendAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -53015,6 +53017,22 @@ input NewsItemHistoryRecordWhereInput {
   type_not_ends_with_i: String
   type_in: [String]
   type_not_in: [String]
+  validBefore: String
+  validBefore_not: String
+  validBefore_lt: String
+  validBefore_lte: String
+  validBefore_gt: String
+  validBefore_gte: String
+  validBefore_in: [String]
+  validBefore_not_in: [String]
+  sendAt: String
+  sendAt_not: String
+  sendAt_lt: String
+  sendAt_lte: String
+  sendAt_gt: String
+  sendAt_gte: String
+  sendAt_in: [String]
+  sendAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -53104,6 +53122,10 @@ enum SortNewsItemHistoryRecordsBy {
   body_DESC
   type_ASC
   type_DESC
+  validBefore_ASC
+  validBefore_DESC
+  sendAt_ASC
+  sendAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -53127,6 +53149,8 @@ input NewsItemHistoryRecordUpdateInput {
   title: String
   body: String
   type: String
+  validBefore: String
+  sendAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -53151,6 +53175,8 @@ input NewsItemHistoryRecordCreateInput {
   title: String
   body: String
   type: String
+  validBefore: String
+  sendAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -53197,6 +53223,12 @@ type NewsItem {
 
   """ The news item type """
   type: NewsItemTypeType
+
+  """ Date before which the news item makes sense """
+  validBefore: String
+
+  """ Date to publish the news item and to send notifications """
+  sendAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -53265,6 +53297,22 @@ input NewsItemWhereInput {
   type_not: NewsItemTypeType
   type_in: [NewsItemTypeType]
   type_not_in: [NewsItemTypeType]
+  validBefore: String
+  validBefore_not: String
+  validBefore_lt: String
+  validBefore_lte: String
+  validBefore_gt: String
+  validBefore_gte: String
+  validBefore_in: [String]
+  validBefore_not_in: [String]
+  sendAt: String
+  sendAt_not: String
+  sendAt_lt: String
+  sendAt_lte: String
+  sendAt_gt: String
+  sendAt_gte: String
+  sendAt_in: [String]
+  sendAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -53336,6 +53384,10 @@ enum SortNewsItemsBy {
   body_DESC
   type_ASC
   type_DESC
+  validBefore_ASC
+  validBefore_DESC
+  sendAt_ASC
+  sendAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -53359,6 +53411,8 @@ input NewsItemUpdateInput {
   title: String
   body: String
   type: NewsItemTypeType
+  validBefore: String
+  sendAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -53380,6 +53434,8 @@ input NewsItemCreateInput {
   title: String
   body: String
   type: NewsItemTypeType
+  validBefore: String
+  sendAt: String
   v: Int
   createdAt: String
   updatedAt: String

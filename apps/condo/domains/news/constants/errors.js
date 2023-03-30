@@ -1,0 +1,5 @@
+const EMPTY_VALID_BEFORE_DATE = 'EMPTY_VALID_BEFORE_DATE'
+
+module.exports = {
+    EMPTY_VALID_BEFORE_DATE,
+}
