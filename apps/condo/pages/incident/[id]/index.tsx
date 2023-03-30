@@ -55,6 +55,8 @@ type IncidentFieldProps = {
     incident: IIncident
 }
 
+const LABEL_SPAN_COMMON = 5
+
 const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => {
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'incident.fields.properties.label' })
@@ -107,7 +109,7 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
 
     return (
         <Row>
-            <PageFieldRow title={AddressLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={AddressLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 {renderPropertyScopeProperties}
             </PageFieldRow>
         </Row>
@@ -155,7 +157,7 @@ const IncidentWorkDateField: React.FC<IncidentFieldProps> = ({ incident }) => {
 
     return (
         <Row>
-            <PageFieldRow title={WorkDateLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={WorkDateLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 <Typography.Text>
                     {DateFromMessage}&nbsp;
                     <Typography.Text strong>
@@ -231,7 +233,7 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
 
     return (
         <Row>
-            <PageFieldRow title={ClassifierLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={ClassifierLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 {renderClassifiers}
             </PageFieldRow>
         </Row>
@@ -252,7 +254,7 @@ const IncidentWorkTypeField: React.FC<IncidentFieldProps> = ({ incident }) => {
 
     return (
         <Row>
-            <PageFieldRow title={WorkTypeLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={WorkTypeLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 <Typography.Text>
                     {incident.workType && workTypeLabels[incident.workType] || HaveNotMessage}
                 </Typography.Text>
@@ -267,7 +269,7 @@ const IncidentDetailsField: React.FC<IncidentFieldProps> = ({ incident }) => {
 
     return (
         <Row>
-            <PageFieldRow title={DetailsLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={DetailsLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 <Typography.Text>{incident.details}</Typography.Text>
             </PageFieldRow>
         </Row>
@@ -281,7 +283,7 @@ const IncidentTextForResidentField: React.FC<IncidentFieldProps> = ({ incident }
 
     return (
         <Row>
-            <PageFieldRow title={TextForResidentLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={TextForResidentLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 <Typography.Text type={!get(incident, 'textForResident') ? 'secondary' : null}>
                     {get(incident, 'textForResident') || HaveNotMessage}
                 </Typography.Text>
@@ -297,7 +299,7 @@ const IncidentOrganizationField: React.FC<IncidentFieldProps> = ({ incident }) =
 
     return (
         <Row>
-            <PageFieldRow title={OrganizationLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={OrganizationLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 <Typography.Text type={!get(incident, 'organization.name') ? 'secondary' : null}>
                     {get(incident, 'organization.name') || HaveNotMessage}
                 </Typography.Text>
@@ -426,6 +428,18 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                         <Col span={24} lg={24} xl={22}>
                             <IncidentContent incident={incident} withOrganization={withOrganization} />
                         </Col>
+                        <Col span={24} lg={24} xl={22}>
+                            <ChangeHistory
+                                <IIncidentChange>
+                                items={incidentChanges}
+                                loading={incidentChangesLoading}
+                                total={incidentChangesCount}
+                                title={ChangeHistoryTitle}
+                                useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
+                                Diff={ChangeHistoryDiff}
+                                labelSpan={LABEL_SPAN_COMMON}
+                            />
+                        </Col>
                         <ActionBar>
                             <Button
                                 disabled={incidentLoading}
@@ -442,17 +456,6 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                 id='editIncident'
                             />
                         </ActionBar>
-                        <Col span={24} lg={24} xl={22}>
-                            <ChangeHistory
-                                <IIncidentChange>
-                                items={incidentChanges}
-                                loading={incidentChangesLoading}
-                                total={incidentChangesCount}
-                                title={ChangeHistoryTitle}
-                                useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
-                                Diff={ChangeHistoryDiff}
-                            />
-                        </Col>
                     </Row>
                 </PageContent>
             </PageWrapper>

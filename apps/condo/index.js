@@ -8,6 +8,7 @@ const { createItems } = require('@keystonejs/server-side-graphql-client')
 const bodyParser = require('body-parser')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
+const isBetween = require('dayjs/plugin/isBetween')
 const timezone = require('dayjs/plugin/timezone')
 const utc = require('dayjs/plugin/utc')
 const express = require('express')
@@ -44,6 +45,7 @@ const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 dayjs.extend(duration)
 dayjs.extend(utc)
 dayjs.extend(timezone)
+dayjs.extend(isBetween)
 
 const FINGERPRINT_FORMAT_REGEXP = /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/
 

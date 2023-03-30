@@ -33,6 +33,7 @@ const TicketFilterFields = {
     clientPhone: '[String]',
     createdBy: '[String]',
     reviewValue: '[String]',
+    qualityControlValue: '[String]',
     contactIsNull: '[String]',
     completedAt: '[String]',
     lastCommentAt: '[String]',

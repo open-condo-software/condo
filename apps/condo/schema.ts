@@ -45831,6 +45831,13 @@ export enum PushType {
   SilentData = 'silent_data'
 }
 
+export enum QualityControlAdditionalOptionsType {
+  LowQuality = 'lowQuality',
+  HighQuality = 'highQuality',
+  Slowly = 'slowly',
+  Quickly = 'quickly'
+}
+
 export type Query = {
   __typename?: 'Query';
   /**  Search for all UserHistoryRecord items which match the where clause.  */
@@ -61104,6 +61111,14 @@ export enum SortTicketChangesBy {
   ReviewCommentFromDesc = 'reviewCommentFrom_DESC',
   ReviewCommentToAsc = 'reviewCommentTo_ASC',
   ReviewCommentToDesc = 'reviewCommentTo_DESC',
+  QualityControlValueFromAsc = 'qualityControlValueFrom_ASC',
+  QualityControlValueFromDesc = 'qualityControlValueFrom_DESC',
+  QualityControlValueToAsc = 'qualityControlValueTo_ASC',
+  QualityControlValueToDesc = 'qualityControlValueTo_DESC',
+  QualityControlCommentFromAsc = 'qualityControlCommentFrom_ASC',
+  QualityControlCommentFromDesc = 'qualityControlCommentFrom_DESC',
+  QualityControlCommentToAsc = 'qualityControlCommentTo_ASC',
+  QualityControlCommentToDesc = 'qualityControlCommentTo_DESC',
   StatusReasonFromAsc = 'statusReasonFrom_ASC',
   StatusReasonFromDesc = 'statusReasonFrom_DESC',
   StatusReasonToAsc = 'statusReasonTo_ASC',
@@ -61619,6 +61634,12 @@ export enum SortTicketHistoryRecordsBy {
   ReviewValueDesc = 'reviewValue_DESC',
   ReviewCommentAsc = 'reviewComment_ASC',
   ReviewCommentDesc = 'reviewComment_DESC',
+  QualityControlValueAsc = 'qualityControlValue_ASC',
+  QualityControlValueDesc = 'qualityControlValue_DESC',
+  QualityControlCommentAsc = 'qualityControlComment_ASC',
+  QualityControlCommentDesc = 'qualityControlComment_DESC',
+  QualityControlUpdatedAtAsc = 'qualityControlUpdatedAt_ASC',
+  QualityControlUpdatedAtDesc = 'qualityControlUpdatedAt_DESC',
   StatusUpdatedAtAsc = 'statusUpdatedAt_ASC',
   StatusUpdatedAtDesc = 'statusUpdatedAt_DESC',
   CompletedAtAsc = 'completedAt_ASC',
@@ -62018,6 +62039,14 @@ export enum SortTicketsBy {
   ReviewValueDesc = 'reviewValue_DESC',
   ReviewCommentAsc = 'reviewComment_ASC',
   ReviewCommentDesc = 'reviewComment_DESC',
+  QualityControlValueAsc = 'qualityControlValue_ASC',
+  QualityControlValueDesc = 'qualityControlValue_DESC',
+  QualityControlCommentAsc = 'qualityControlComment_ASC',
+  QualityControlCommentDesc = 'qualityControlComment_DESC',
+  QualityControlUpdatedAtAsc = 'qualityControlUpdatedAt_ASC',
+  QualityControlUpdatedAtDesc = 'qualityControlUpdatedAt_DESC',
+  QualityControlUpdatedByAsc = 'qualityControlUpdatedBy_ASC',
+  QualityControlUpdatedByDesc = 'qualityControlUpdatedBy_DESC',
   StatusUpdatedAtAsc = 'statusUpdatedAt_ASC',
   StatusUpdatedAtDesc = 'statusUpdatedAt_DESC',
   CompletedAtAsc = 'completedAt_ASC',
@@ -62505,6 +62534,16 @@ export type Ticket = {
   reviewValue?: Maybe<TicketReviewValueType>;
   /**  Resident's comment on ticket review  */
   reviewComment?: Maybe<Scalars['String']>;
+  /**  Review of the ticket by a staff on a 2-point scale (bad or good)  */
+  qualityControlValue?: Maybe<TicketQualityControlValueType>;
+  /**  Staff's comment on ticket review  */
+  qualityControlComment?: Maybe<Scalars['String']>;
+  /**  Quality control additional options that extend it.Options that do not match the score will be reset.  */
+  qualityControlAdditionalOptions?: Maybe<Array<Maybe<QualityControlAdditionalOptionsType>>>;
+  /**  Quality control updated at time  */
+  qualityControlUpdatedAt?: Maybe<Scalars['String']>;
+  /**  User who last updated quality control value/control/additional options  */
+  qualityControlUpdatedBy?: Maybe<User>;
   /**  Status updated at time  */
   statusUpdatedAt?: Maybe<Scalars['String']>;
   /**  When status of the ticket was changed to completed  */
@@ -62999,6 +63038,18 @@ export type TicketChange = {
   reviewCommentFrom?: Maybe<Scalars['String']>;
   /**  Resident's comment on ticket review  */
   reviewCommentTo?: Maybe<Scalars['String']>;
+  /**  Review of the ticket by a staff on a 2-point scale (bad or good)  */
+  qualityControlValueFrom?: Maybe<TicketChangeQualityControlValueFromType>;
+  /**  Review of the ticket by a staff on a 2-point scale (bad or good)  */
+  qualityControlValueTo?: Maybe<TicketChangeQualityControlValueToType>;
+  /**  Staff's comment on ticket review  */
+  qualityControlCommentFrom?: Maybe<Scalars['String']>;
+  /**  Staff's comment on ticket review  */
+  qualityControlCommentTo?: Maybe<Scalars['String']>;
+  /**  Quality control additional options that extend it.Options that do not match the score will be reset.  */
+  qualityControlAdditionalOptionsFrom?: Maybe<Scalars['JSON']>;
+  /**  Quality control additional options that extend it.Options that do not match the score will be reset.  */
+  qualityControlAdditionalOptionsTo?: Maybe<Scalars['JSON']>;
   /**  Text reason for status changes. Sometimes you should describe the reason why you change the `status`  */
   statusReasonFrom?: Maybe<Scalars['String']>;
   /**  Text reason for status changes. Sometimes you should describe the reason why you change the `status`  */
@@ -63191,6 +63242,12 @@ export type TicketChangeCreateInput = {
   reviewValueTo?: Maybe<TicketChangeReviewValueToType>;
   reviewCommentFrom?: Maybe<Scalars['String']>;
   reviewCommentTo?: Maybe<Scalars['String']>;
+  qualityControlValueFrom?: Maybe<TicketChangeQualityControlValueFromType>;
+  qualityControlValueTo?: Maybe<TicketChangeQualityControlValueToType>;
+  qualityControlCommentFrom?: Maybe<Scalars['String']>;
+  qualityControlCommentTo?: Maybe<Scalars['String']>;
+  qualityControlAdditionalOptionsFrom?: Maybe<Scalars['JSON']>;
+  qualityControlAdditionalOptionsTo?: Maybe<Scalars['JSON']>;
   statusReasonFrom?: Maybe<Scalars['String']>;
   statusReasonTo?: Maybe<Scalars['String']>;
   deadlineFrom?: Maybe<Scalars['String']>;
@@ -63282,6 +63339,16 @@ export type TicketChangeCreateInput = {
   sender?: Maybe<SenderFieldInput>;
 };
 
+export enum TicketChangeQualityControlValueFromType {
+  Bad = 'bad',
+  Good = 'good'
+}
+
+export enum TicketChangeQualityControlValueToType {
+  Bad = 'bad',
+  Good = 'good'
+}
+
 export enum TicketChangeReviewValueFromType {
   Bad = 'bad',
   Good = 'good',
@@ -63302,6 +63369,12 @@ export type TicketChangeUpdateInput = {
   reviewValueTo?: Maybe<TicketChangeReviewValueToType>;
   reviewCommentFrom?: Maybe<Scalars['String']>;
   reviewCommentTo?: Maybe<Scalars['String']>;
+  qualityControlValueFrom?: Maybe<TicketChangeQualityControlValueFromType>;
+  qualityControlValueTo?: Maybe<TicketChangeQualityControlValueToType>;
+  qualityControlCommentFrom?: Maybe<Scalars['String']>;
+  qualityControlCommentTo?: Maybe<Scalars['String']>;
+  qualityControlAdditionalOptionsFrom?: Maybe<Scalars['JSON']>;
+  qualityControlAdditionalOptionsTo?: Maybe<Scalars['JSON']>;
   statusReasonFrom?: Maybe<Scalars['String']>;
   statusReasonTo?: Maybe<Scalars['String']>;
   deadlineFrom?: Maybe<Scalars['String']>;
@@ -63458,6 +63531,58 @@ export type TicketChangeWhereInput = {
   reviewCommentTo_not_ends_with_i?: Maybe<Scalars['String']>;
   reviewCommentTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   reviewCommentTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlValueFrom?: Maybe<TicketChangeQualityControlValueFromType>;
+  qualityControlValueFrom_not?: Maybe<TicketChangeQualityControlValueFromType>;
+  qualityControlValueFrom_in?: Maybe<Array<Maybe<TicketChangeQualityControlValueFromType>>>;
+  qualityControlValueFrom_not_in?: Maybe<Array<Maybe<TicketChangeQualityControlValueFromType>>>;
+  qualityControlValueTo?: Maybe<TicketChangeQualityControlValueToType>;
+  qualityControlValueTo_not?: Maybe<TicketChangeQualityControlValueToType>;
+  qualityControlValueTo_in?: Maybe<Array<Maybe<TicketChangeQualityControlValueToType>>>;
+  qualityControlValueTo_not_in?: Maybe<Array<Maybe<TicketChangeQualityControlValueToType>>>;
+  qualityControlCommentFrom?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_not?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_contains?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_not_contains?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_starts_with?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_not_starts_with?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_ends_with?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_not_ends_with?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_i?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_not_i?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_contains_i?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_not_contains_i?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_starts_with_i?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_not_starts_with_i?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_ends_with_i?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_not_ends_with_i?: Maybe<Scalars['String']>;
+  qualityControlCommentFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlCommentFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlCommentTo?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_not?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_contains?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_not_contains?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_starts_with?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_not_starts_with?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_ends_with?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_not_ends_with?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_i?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_not_i?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_contains_i?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_not_contains_i?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_starts_with_i?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_not_starts_with_i?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_ends_with_i?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_not_ends_with_i?: Maybe<Scalars['String']>;
+  qualityControlCommentTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlCommentTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlAdditionalOptionsFrom?: Maybe<Scalars['JSON']>;
+  qualityControlAdditionalOptionsFrom_not?: Maybe<Scalars['JSON']>;
+  qualityControlAdditionalOptionsFrom_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  qualityControlAdditionalOptionsFrom_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  qualityControlAdditionalOptionsTo?: Maybe<Scalars['JSON']>;
+  qualityControlAdditionalOptionsTo_not?: Maybe<Scalars['JSON']>;
+  qualityControlAdditionalOptionsTo_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  qualityControlAdditionalOptionsTo_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   statusReasonFrom?: Maybe<Scalars['String']>;
   statusReasonFrom_not?: Maybe<Scalars['String']>;
   statusReasonFrom_contains?: Maybe<Scalars['String']>;
@@ -65792,6 +65917,11 @@ export type TicketCreateInput = {
   statusReopenedCounter?: Maybe<Scalars['Int']>;
   reviewValue?: Maybe<TicketReviewValueType>;
   reviewComment?: Maybe<Scalars['String']>;
+  qualityControlValue?: Maybe<TicketQualityControlValueType>;
+  qualityControlComment?: Maybe<Scalars['String']>;
+  qualityControlAdditionalOptions?: Maybe<Array<Maybe<QualityControlAdditionalOptionsType>>>;
+  qualityControlUpdatedAt?: Maybe<Scalars['String']>;
+  qualityControlUpdatedBy?: Maybe<UserRelateToOneInput>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   completedAt?: Maybe<Scalars['String']>;
   lastCommentAt?: Maybe<Scalars['String']>;
@@ -66781,6 +66911,7 @@ export type TicketFilter = {
   clientPhone?: Maybe<Array<Maybe<Scalars['String']>>>;
   createdBy?: Maybe<Array<Maybe<Scalars['String']>>>;
   reviewValue?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlValue?: Maybe<Array<Maybe<Scalars['String']>>>;
   contactIsNull?: Maybe<Array<Maybe<Scalars['String']>>>;
   completedAt?: Maybe<Array<Maybe<Scalars['String']>>>;
   lastCommentAt?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -67165,6 +67296,11 @@ export type TicketHistoryRecord = {
   statusReopenedCounter?: Maybe<Scalars['Int']>;
   reviewValue?: Maybe<Scalars['String']>;
   reviewComment?: Maybe<Scalars['String']>;
+  qualityControlValue?: Maybe<Scalars['String']>;
+  qualityControlComment?: Maybe<Scalars['String']>;
+  qualityControlAdditionalOptions?: Maybe<Scalars['JSON']>;
+  qualityControlUpdatedAt?: Maybe<Scalars['String']>;
+  qualityControlUpdatedBy?: Maybe<Scalars['String']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   completedAt?: Maybe<Scalars['String']>;
   lastCommentAt?: Maybe<Scalars['String']>;
@@ -67225,6 +67361,11 @@ export type TicketHistoryRecordCreateInput = {
   statusReopenedCounter?: Maybe<Scalars['Int']>;
   reviewValue?: Maybe<Scalars['String']>;
   reviewComment?: Maybe<Scalars['String']>;
+  qualityControlValue?: Maybe<Scalars['String']>;
+  qualityControlComment?: Maybe<Scalars['String']>;
+  qualityControlAdditionalOptions?: Maybe<Scalars['JSON']>;
+  qualityControlUpdatedAt?: Maybe<Scalars['String']>;
+  qualityControlUpdatedBy?: Maybe<Scalars['String']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   completedAt?: Maybe<Scalars['String']>;
   lastCommentAt?: Maybe<Scalars['String']>;
@@ -67290,6 +67431,11 @@ export type TicketHistoryRecordUpdateInput = {
   statusReopenedCounter?: Maybe<Scalars['Int']>;
   reviewValue?: Maybe<Scalars['String']>;
   reviewComment?: Maybe<Scalars['String']>;
+  qualityControlValue?: Maybe<Scalars['String']>;
+  qualityControlComment?: Maybe<Scalars['String']>;
+  qualityControlAdditionalOptions?: Maybe<Scalars['JSON']>;
+  qualityControlUpdatedAt?: Maybe<Scalars['String']>;
+  qualityControlUpdatedBy?: Maybe<Scalars['String']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   completedAt?: Maybe<Scalars['String']>;
   lastCommentAt?: Maybe<Scalars['String']>;
@@ -67395,6 +67541,58 @@ export type TicketHistoryRecordWhereInput = {
   reviewComment_not_ends_with_i?: Maybe<Scalars['String']>;
   reviewComment_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   reviewComment_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlValue?: Maybe<Scalars['String']>;
+  qualityControlValue_not?: Maybe<Scalars['String']>;
+  qualityControlValue_contains?: Maybe<Scalars['String']>;
+  qualityControlValue_not_contains?: Maybe<Scalars['String']>;
+  qualityControlValue_starts_with?: Maybe<Scalars['String']>;
+  qualityControlValue_not_starts_with?: Maybe<Scalars['String']>;
+  qualityControlValue_ends_with?: Maybe<Scalars['String']>;
+  qualityControlValue_not_ends_with?: Maybe<Scalars['String']>;
+  qualityControlValue_i?: Maybe<Scalars['String']>;
+  qualityControlValue_not_i?: Maybe<Scalars['String']>;
+  qualityControlValue_contains_i?: Maybe<Scalars['String']>;
+  qualityControlValue_not_contains_i?: Maybe<Scalars['String']>;
+  qualityControlValue_starts_with_i?: Maybe<Scalars['String']>;
+  qualityControlValue_not_starts_with_i?: Maybe<Scalars['String']>;
+  qualityControlValue_ends_with_i?: Maybe<Scalars['String']>;
+  qualityControlValue_not_ends_with_i?: Maybe<Scalars['String']>;
+  qualityControlValue_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlValue_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlComment?: Maybe<Scalars['String']>;
+  qualityControlComment_not?: Maybe<Scalars['String']>;
+  qualityControlComment_contains?: Maybe<Scalars['String']>;
+  qualityControlComment_not_contains?: Maybe<Scalars['String']>;
+  qualityControlComment_starts_with?: Maybe<Scalars['String']>;
+  qualityControlComment_not_starts_with?: Maybe<Scalars['String']>;
+  qualityControlComment_ends_with?: Maybe<Scalars['String']>;
+  qualityControlComment_not_ends_with?: Maybe<Scalars['String']>;
+  qualityControlComment_i?: Maybe<Scalars['String']>;
+  qualityControlComment_not_i?: Maybe<Scalars['String']>;
+  qualityControlComment_contains_i?: Maybe<Scalars['String']>;
+  qualityControlComment_not_contains_i?: Maybe<Scalars['String']>;
+  qualityControlComment_starts_with_i?: Maybe<Scalars['String']>;
+  qualityControlComment_not_starts_with_i?: Maybe<Scalars['String']>;
+  qualityControlComment_ends_with_i?: Maybe<Scalars['String']>;
+  qualityControlComment_not_ends_with_i?: Maybe<Scalars['String']>;
+  qualityControlComment_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlComment_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlAdditionalOptions?: Maybe<Scalars['JSON']>;
+  qualityControlAdditionalOptions_not?: Maybe<Scalars['JSON']>;
+  qualityControlAdditionalOptions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  qualityControlAdditionalOptions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  qualityControlUpdatedAt?: Maybe<Scalars['String']>;
+  qualityControlUpdatedAt_not?: Maybe<Scalars['String']>;
+  qualityControlUpdatedAt_lt?: Maybe<Scalars['String']>;
+  qualityControlUpdatedAt_lte?: Maybe<Scalars['String']>;
+  qualityControlUpdatedAt_gt?: Maybe<Scalars['String']>;
+  qualityControlUpdatedAt_gte?: Maybe<Scalars['String']>;
+  qualityControlUpdatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlUpdatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlUpdatedBy?: Maybe<Scalars['String']>;
+  qualityControlUpdatedBy_not?: Maybe<Scalars['String']>;
+  qualityControlUpdatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlUpdatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   statusUpdatedAt_not?: Maybe<Scalars['String']>;
   statusUpdatedAt_lt?: Maybe<Scalars['String']>;
@@ -69628,6 +69826,11 @@ export type TicketPropertyHintsUpdateInput = {
   data?: Maybe<TicketPropertyHintUpdateInput>;
 };
 
+export enum TicketQualityControlValueType {
+  Bad = 'bad',
+  Good = 'good'
+}
+
 export type TicketRelateToOneInput = {
   create?: Maybe<TicketCreateInput>;
   connect?: Maybe<TicketWhereUniqueInput>;
@@ -70460,6 +70663,11 @@ export type TicketUpdateInput = {
   statusReopenedCounter?: Maybe<Scalars['Int']>;
   reviewValue?: Maybe<TicketReviewValueType>;
   reviewComment?: Maybe<Scalars['String']>;
+  qualityControlValue?: Maybe<TicketQualityControlValueType>;
+  qualityControlComment?: Maybe<Scalars['String']>;
+  qualityControlAdditionalOptions?: Maybe<Array<Maybe<QualityControlAdditionalOptionsType>>>;
+  qualityControlUpdatedAt?: Maybe<Scalars['String']>;
+  qualityControlUpdatedBy?: Maybe<UserRelateToOneInput>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   completedAt?: Maybe<Scalars['String']>;
   lastCommentAt?: Maybe<Scalars['String']>;
@@ -70546,6 +70754,42 @@ export type TicketWhereInput = {
   reviewComment_not_ends_with_i?: Maybe<Scalars['String']>;
   reviewComment_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   reviewComment_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlValue?: Maybe<TicketQualityControlValueType>;
+  qualityControlValue_not?: Maybe<TicketQualityControlValueType>;
+  qualityControlValue_in?: Maybe<Array<Maybe<TicketQualityControlValueType>>>;
+  qualityControlValue_not_in?: Maybe<Array<Maybe<TicketQualityControlValueType>>>;
+  qualityControlComment?: Maybe<Scalars['String']>;
+  qualityControlComment_not?: Maybe<Scalars['String']>;
+  qualityControlComment_contains?: Maybe<Scalars['String']>;
+  qualityControlComment_not_contains?: Maybe<Scalars['String']>;
+  qualityControlComment_starts_with?: Maybe<Scalars['String']>;
+  qualityControlComment_not_starts_with?: Maybe<Scalars['String']>;
+  qualityControlComment_ends_with?: Maybe<Scalars['String']>;
+  qualityControlComment_not_ends_with?: Maybe<Scalars['String']>;
+  qualityControlComment_i?: Maybe<Scalars['String']>;
+  qualityControlComment_not_i?: Maybe<Scalars['String']>;
+  qualityControlComment_contains_i?: Maybe<Scalars['String']>;
+  qualityControlComment_not_contains_i?: Maybe<Scalars['String']>;
+  qualityControlComment_starts_with_i?: Maybe<Scalars['String']>;
+  qualityControlComment_not_starts_with_i?: Maybe<Scalars['String']>;
+  qualityControlComment_ends_with_i?: Maybe<Scalars['String']>;
+  qualityControlComment_not_ends_with_i?: Maybe<Scalars['String']>;
+  qualityControlComment_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlComment_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlAdditionalOptions?: Maybe<Array<Maybe<QualityControlAdditionalOptionsType>>>;
+  qualityControlAdditionalOptions_not?: Maybe<Array<Maybe<QualityControlAdditionalOptionsType>>>;
+  qualityControlAdditionalOptions_in?: Maybe<Array<Maybe<Array<Maybe<QualityControlAdditionalOptionsType>>>>>;
+  qualityControlAdditionalOptions_not_in?: Maybe<Array<Maybe<Array<Maybe<QualityControlAdditionalOptionsType>>>>>;
+  qualityControlUpdatedAt?: Maybe<Scalars['String']>;
+  qualityControlUpdatedAt_not?: Maybe<Scalars['String']>;
+  qualityControlUpdatedAt_lt?: Maybe<Scalars['String']>;
+  qualityControlUpdatedAt_lte?: Maybe<Scalars['String']>;
+  qualityControlUpdatedAt_gt?: Maybe<Scalars['String']>;
+  qualityControlUpdatedAt_gte?: Maybe<Scalars['String']>;
+  qualityControlUpdatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlUpdatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  qualityControlUpdatedBy?: Maybe<UserWhereInput>;
+  qualityControlUpdatedBy_is_null?: Maybe<Scalars['Boolean']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   statusUpdatedAt_not?: Maybe<Scalars['String']>;
   statusUpdatedAt_lt?: Maybe<Scalars['String']>;

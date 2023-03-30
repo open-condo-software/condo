@@ -1,10 +1,10 @@
-import { FileExcelFilled } from '@ant-design/icons'
 import get from 'lodash/get'
 import React, { useCallback } from 'react'
 
+import { Sheet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { Button } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
@@ -30,12 +30,11 @@ export const useTicketExportToExcelTask = ({ where, sortBy, format, locale, time
 
     const TicketsExportToXlsxButton = useCallback(() => (
         <Button
-            type='sberBlack'
-            secondary
-            icon={<FileExcelFilled />}
+            type='secondary'
+            icon={<Sheet size='medium' />}
             loading={loading}
             onClick={handleRunTask}
-            eventName='TicketsExportClick'
+            id='TicketsExportClick'
             children={ExportAsExcelLabel}
         />
     ), [ExportAsExcelLabel, handleRunTask, loading])

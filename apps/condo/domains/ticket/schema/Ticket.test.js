@@ -3,7 +3,7 @@
  */
 const dayjs = require('dayjs')
 const faker = require('faker')
-const { get } = require('lodash')
+const { get, isInteger, omit } = require('lodash')
 
 const {
     NUMBER_RE, UUID_RE, DATETIME_RE,
@@ -12,7 +12,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowValidationFailureError,
+    expectToThrowValidationFailureError, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
@@ -74,7 +74,9 @@ const {
     NEW_OR_REOPENED_STATUS_TYPE,
     DEFAULT_DEFERRED_DAYS, CLOSED_STATUS_TYPE,
 } = require('@condo/domains/ticket/constants')
+const { QUALITY_CONTROL_ADDITIONAL_OPTIONS, QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qualityControl')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { ERRORS } = require('@condo/domains/ticket/schema/Ticket')
 const {
     Ticket,
     TicketOrganizationSetting,
@@ -90,6 +92,28 @@ const {
     createTestPhone,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
+
+
+// todo(doma-5748): uncomment and remove temporary solution after update "faker"
+// const getRandomQualityControlAdditionalOptions = (count) => faker.helpers.arrayElements(
+//     QUALITY_CONTROL_ADDITIONAL_OPTIONS,
+//     faker.datatype.number({
+//         min: isInteger(count) && QUALITY_CONTROL_ADDITIONAL_OPTIONS.length > count ? count : 1,
+//         max: isInteger(count) && QUALITY_CONTROL_ADDITIONAL_OPTIONS.length > count ? count : QUALITY_CONTROL_ADDITIONAL_OPTIONS.length,
+//     })
+// )
+//
+// const getRandomQualityControlValue = () => faker.helpers.arrayElement(QUALITY_CONTROL_VALUES)
+
+// NOTE: temporary solution
+const getRandomQualityControlAdditionalOptions = (count) => {
+    return QUALITY_CONTROL_ADDITIONAL_OPTIONS.slice(0, isInteger(count) ? count : QUALITY_CONTROL_ADDITIONAL_OPTIONS.length)
+}
+
+// NOTE: temporary solution
+const getRandomQualityControlValue = () => {
+    return QUALITY_CONTROL_VALUES[0]
+}
 
 describe('Ticket', () => {
     let admin
@@ -139,6 +163,11 @@ describe('Ticket', () => {
             expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
             expect(obj.completedAt).toEqual(null)
             expect(obj.deferredUntil).toEqual(null)
+            expect(obj.qualityControlValue).toBeNull()
+            expect(obj.qualityControlComment).toBeNull()
+            expect(obj.qualityControlAdditionalOptions).toBeNull()
+            expect(obj.qualityControlUpdatedAt).toBeNull()
+            expect(obj.qualityControlUpdatedBy).toBeNull()
         })
 
         test('user with resident type without resident: cannot create Ticket', async () => {
@@ -953,6 +982,88 @@ describe('Ticket', () => {
             expect(dayjs(completedTicket.statusUpdatedAt).isValid()).toBe(true)
             expect(dayjs(completedTicket.statusUpdatedAt).diff(inProgressTicket.statusUpdatedAt)).toBeGreaterThanOrEqual(0)
         })
+
+        test('user: set qualityControlValue', async () => {
+            const client = await makeClientWithProperty()
+            const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+            const payload = { qualityControlValue: getRandomQualityControlValue() }
+            const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
+
+            expect(updatedTicket.qualityControlValue).toEqual(payload.qualityControlValue)
+        })
+
+        test('user: set qualityControlAdditionalOptions', async () => {
+            const client = await makeClientWithProperty()
+            const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+            const payload = {
+                qualityControlValue: getRandomQualityControlValue(),
+                qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions(),
+            }
+            const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
+
+
+            expect(updatedTicket.qualityControlValue).toEqual(payload.qualityControlValue)
+            expect(updatedTicket.qualityControlAdditionalOptions).toEqual(payload.qualityControlAdditionalOptions.sort())
+        })
+
+        test('user: set and update qualityControlAdditionalOptions', async () => {
+            const client = await makeClientWithProperty()
+            const [ticket, ticketAttrs] = await createTestTicket(client, client.organization, client.property, {
+                qualityControlValue: getRandomQualityControlValue(),
+                qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions(),
+            })
+
+            expect(ticket.qualityControlValue).toEqual(ticketAttrs.qualityControlValue)
+            expect(ticket.qualityControlAdditionalOptions).toEqual(ticketAttrs.qualityControlAdditionalOptions.sort())
+
+            const payload = {
+                qualityControlValue: getRandomQualityControlValue(),
+                qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions(),
+            }
+            const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
+
+            expect(updatedTicket.qualityControlValue).toEqual(payload.qualityControlValue)
+            expect(updatedTicket.qualityControlAdditionalOptions).toEqual(payload.qualityControlAdditionalOptions.sort())
+        })
+
+        test('user: set qualityControlComment', async () => {
+            const client = await makeClientWithProperty()
+            const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+            const payload = {
+                qualityControlValue: getRandomQualityControlValue(),
+                qualityControlComment: faker.lorem.sentence(),
+            }
+            const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
+
+            expect(updatedTicket.qualityControlComment).toEqual(payload.qualityControlComment)
+        })
+
+        describe('user: auto-set "qualityControlUpdatedAt" and "qualityControlUpdatedBy" when updated "qualityControlValue" or "qualityControlAdditionalOptions" or "qualityControlComment"', () => {
+            const cases = [
+                ['qualityControlValue', { qualityControlValue: getRandomQualityControlValue() }],
+                ['qualityControlAdditionalOptions', { qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions() }],
+                ['qualityControlComment', { qualityControlComment: faker.lorem.sentence() }],
+            ]
+
+            test.each(cases)('%s', async (_, payload) => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                    qualityControlValue: getRandomQualityControlValue(),
+                })
+
+                const timeBefore = dayjs()
+                const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
+                const timeAfter = dayjs()
+
+                expect(updatedTicket.qualityControlUpdatedAt).not.toBeNull()
+                expect(updatedTicket.qualityControlUpdatedAt).not.toEqual(ticket.qualityControlUpdatedAt)
+                expect(dayjs(updatedTicket.qualityControlUpdatedAt).isBetween(timeBefore, timeAfter)).toBeTruthy()
+                expect(updatedTicket.qualityControlUpdatedBy.id).toEqual(client.user.id)
+            })
+        })
     })
 
     describe('Permissions', () => {
@@ -1168,6 +1279,55 @@ describe('Ticket', () => {
             })
 
             expect(readTicket).toBeDefined()
+        })
+
+        test('admin: cannot update auto-set field "qualityControlUpdatedAt"', async () => {
+            const client = await makeClientWithProperty()
+
+            await expectToThrowGraphQLRequestError(async () => {
+                await createTestTicket(admin, client.organization, client.property, { qualityControlUpdatedAt: dayjs().toISOString() })
+            }, 'Field "qualityControlUpdatedAt" is not defined')
+        })
+
+        test('admin: cannot update auto-set field "qualityControlUpdatedBy"', async () => {
+            const client = await makeClientWithProperty()
+
+            await expectToThrowGraphQLRequestError(async () => {
+                await createTestTicket(admin, client.organization, client.property, { qualityControlUpdatedBy: { id: client.user.id } })
+            }, 'Field "qualityControlUpdatedBy" is not defined')
+        })
+
+        describe('resident: cannot set fields for quality control fields', () => {
+            const cases = [
+                ['qualityControlValue', { qualityControlValue: getRandomQualityControlValue() }],
+                ['qualityControlComment', { qualityControlValue: getRandomQualityControlValue(), qualityControlComment: faker.lorem.sentence() }],
+                ['qualityControlAdditionalOptions', { qualityControlValue: getRandomQualityControlValue(), qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions() }],
+            ]
+
+            test.each(cases)('cannot create ticket with "%s"', async (_, payload) => {
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, residentClient.user, residentClient.property, {
+                    unitName,
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestTicket(residentClient, residentClient.organization, residentClient.property, payload)
+                })
+            })
+
+            test.each(cases)('cannot update ticket with "%s"', async (_, payload) => {
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, residentClient.user, residentClient.property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(admin, residentClient.organization, residentClient.property, {
+                    qualityControlValue: getRandomQualityControlValue(),
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestTicket(residentClient, ticket.id, omit(payload, 'qualityControlValue'))
+                })
+            })
         })
     })
 
@@ -2142,6 +2302,118 @@ describe('Ticket', () => {
                 })
 
                 expect(updatedTicket.isAutoClassified).toEqual(true)
+            })
+        })
+
+        describe('quality control', () => {
+            describe('qualityControlAdditionalOptions', () => {
+                describe('Should pass "qualityControlAdditionalOptions"', () => {
+                    const cases = [
+                        [null, null],
+                        [[], null],
+                        [[QUALITY_CONTROL_ADDITIONAL_OPTIONS[0]], [QUALITY_CONTROL_ADDITIONAL_OPTIONS[0]]],
+                        [[QUALITY_CONTROL_ADDITIONAL_OPTIONS[0], QUALITY_CONTROL_ADDITIONAL_OPTIONS[1]], [QUALITY_CONTROL_ADDITIONAL_OPTIONS[0], QUALITY_CONTROL_ADDITIONAL_OPTIONS[1]].sort()],
+                        [[QUALITY_CONTROL_ADDITIONAL_OPTIONS[0], QUALITY_CONTROL_ADDITIONAL_OPTIONS[0]], [QUALITY_CONTROL_ADDITIONAL_OPTIONS[0]]],
+                    ]
+
+                    test.each(cases)('value: %j', async (additionalOptions, expected) => {
+                        const client = await makeClientWithProperty()
+                        const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+                        const payload = {
+                            qualityControlValue: getRandomQualityControlValue(),
+                            qualityControlAdditionalOptions: additionalOptions,
+                        }
+                        const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
+
+                        expect(updatedTicket.qualityControlValue).toEqual(payload.qualityControlValue)
+                        expect(updatedTicket.qualityControlAdditionalOptions).toEqual(expected)
+                    })
+                })
+
+                describe('Should not pass "qualityControlAdditionalOptions"', () => {
+                    const cases = [
+                        {},
+                        faker.datatype.number(),
+                        '',
+                        faker.lorem.sentence(),
+                        [faker.lorem.sentence()],
+                        [faker.random.boolean()],
+                        [faker.datatype.number()],
+                        [[]],
+                        [getRandomQualityControlAdditionalOptions()],
+                    ]
+
+                    test.each(cases)('value: %j', async (additionalOptions) => {
+                        const client = await makeClientWithProperty()
+                        const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+                        const payload = {
+                            qualityControlValue: getRandomQualityControlValue(),
+                            qualityControlAdditionalOptions: additionalOptions,
+                        }
+
+                        await expectToThrowGraphQLRequestError(async () => {
+                            await updateTestTicket(client, ticket.id, payload)
+                        }, 'got invalid value')
+                    })
+                })
+
+                test('"qualityControlAdditionalOptions" should not be passed if there is no "qualityControlValue"', async () => {
+                    const client = await makeClientWithProperty()
+                    const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+                    const payload = {
+                        qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions(),
+                    }
+
+                    await expectToThrowGQLError(async () => {
+                        await updateTestTicket(client, ticket.id, payload)
+                    }, ERRORS.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED)
+                })
+
+                test('"qualityControlAdditionalOptions" can be passed if there is "qualityControlValue"', async () => {
+                    const client = await makeClientWithProperty()
+                    const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                        qualityControlValue: getRandomQualityControlValue(),
+                    })
+
+                    const payload = {
+                        qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions(),
+                    }
+                    const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
+
+                    expect(updatedTicket.qualityControlAdditionalOptions).toEqual(payload.qualityControlAdditionalOptions.sort())
+                })
+            })
+
+            describe('qualityControlComment', () => {
+                test('"qualityControlComment" should not be passed if there is no "qualityControlValue"', async () => {
+                    const client = await makeClientWithProperty()
+                    const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+                    const payload = {
+                        qualityControlComment: faker.lorem.sentence(),
+                    }
+
+                    await expectToThrowGQLError(async () => {
+                        await updateTestTicket(client, ticket.id, payload)
+                    }, ERRORS.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED)
+                })
+
+                test('"qualityControlComment" can be passed if there is "qualityControlValue"', async () => {
+                    const client = await makeClientWithProperty()
+                    const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                        qualityControlValue: getRandomQualityControlValue(),
+                    })
+
+                    const payload = {
+                        qualityControlComment: faker.lorem.sentence(),
+                    }
+                    const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
+
+                    expect(updatedTicket.qualityControlComment).toEqual(payload.qualityControlComment)
+                })
             })
         })
     })
