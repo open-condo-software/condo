@@ -16,6 +16,7 @@ export type TooltipProps = Pick<DefaultTooltipProps,
 | 'zIndex'
 | 'defaultOpen'> & {
     title: string
+    children?: React.ReactNode
 }
 
 export const Tooltip: React.FC<TooltipProps> = (props) => {

@@ -40,7 +40,7 @@ Gradient.args = {
 export const NoAction = Template.bind({})
 NoAction.args = {
     backgroundColor: '#d3e3ff',
-    title: 'Some long description that takes 2 rows of texts',
+    title: 'Banner can exist without an action button',
     subtitle: 'Text can also takes up to 2 rows, containing 40 symbols each, so use it wisely',
     imgUrl: 'https://i.imgur.com/ambPuQF.png',
     invertText: false,
