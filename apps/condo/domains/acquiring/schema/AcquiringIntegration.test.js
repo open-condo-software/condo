@@ -11,6 +11,8 @@ import {
     SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR,
 } from '../constants/errors'
 
+const { faker } = require('@faker-js/faker')
+
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -19,15 +21,28 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('AcquiringIntegration', () => {
+    let admin
+    let support
+    let user
+    let anonymous
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        user = await makeClientWithNewRegisteredAndLoggedInUser()
+        support = await makeClientWithSupportUser()
+        anonymous = await makeClient()
+        // NOTE: If no billings in db no test won't work because of toplenboren's grouping :)
+        await createTestBillingIntegration(admin)
+
+    })
     describe('CRUD tests', () => {
         describe('create',  () => {
             test('user can\'t', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestAcquiringIntegration(client)
+                    await createTestAcquiringIntegration(user)
                 })
             })
             test('anonymous can\'t', async () => {
@@ -37,14 +52,12 @@ describe('AcquiringIntegration', () => {
                 })
             })
             test('support can', async () => {
-                const support = await makeClientWithSupportUser()
                 const [integration, attrs] = await createTestAcquiringIntegration(support)
                 expect(integration).toEqual(expect.objectContaining({
                     name: attrs.name,
                 }))
             })
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [integration, attrs] = await createTestAcquiringIntegration(admin, { canGroupReceipts: true })
                 expect(integration).toEqual(expect.objectContaining({
                     name: attrs.name,
@@ -53,120 +66,93 @@ describe('AcquiringIntegration', () => {
             })
         })
         describe('read', () => {
+            let acquiring
+            beforeAll(async () => {
+                [acquiring] = await createTestAcquiringIntegration(admin)
+            })
             test('user can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                await createTestAcquiringIntegration(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const integrations = await AcquiringIntegration.getAll(client)
-                expect(integrations).toBeDefined()
-                expect(integrations).not.toHaveLength(0)
+                const integrations = await AcquiringIntegration.getAll(user, { id: acquiring.id })
+                expect(integrations).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: acquiring.id }),
+                ]))
             })
             test('anonymous can\'t', async () => {
-                const anonymousClient = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await AcquiringIntegration.getAll(anonymousClient)
+                    await AcquiringIntegration.getAll(anonymous, {})
                 })
             })
             test('support can', async () => {
-                const support = await makeClientWithSupportUser()
-                await createTestAcquiringIntegration(support)
-
-                const integrations = await AcquiringIntegration.getAll(support)
-                expect(integrations).toBeDefined()
-                expect(integrations).not.toHaveLength(0)
+                const integrations = await AcquiringIntegration.getAll(support, { id: acquiring.id })
+                expect(integrations).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: acquiring.id }),
+                ]))
             })
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                await createTestAcquiringIntegration(admin)
-
-                const integrations = await AcquiringIntegration.getAll(admin)
-                expect(integrations).toBeDefined()
-                expect(integrations).not.toHaveLength(0)
+                const integrations = await AcquiringIntegration.getAll(admin, { id: acquiring.id })
+                expect(integrations).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: acquiring.id }),
+                ]))
             })
         })
         describe('update',  () => {
+            let integration
+            beforeAll(async () => {
+                [integration] = await createTestAcquiringIntegration(admin)
+            })
             test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [integration] =  await createTestAcquiringIntegration(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const payload = {}
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestAcquiringIntegration(client, integration.id, payload)
+                    await updateTestAcquiringIntegration(user, integration.id, payload)
                 })
             })
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [integration] =  await createTestAcquiringIntegration(admin)
-
-                const anonymousClient = await makeClient()
                 const payload = {}
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestAcquiringIntegration(anonymousClient, integration.id, payload)
+                    await updateTestAcquiringIntegration(anonymous, integration.id, payload)
                 })
             })
             test('support can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [integration] =  await createTestAcquiringIntegration(admin)
-
-                const support = await makeClientWithSupportUser()
-                const newName = 'UPDATE ACQUIRING TEST'
-                const payload = { name: newName }
+                const name = `${faker.company.companyName(0)} acquiring`
+                const payload = { name }
                 const [newIntegration] = await updateTestAcquiringIntegration(support, integration.id, payload)
                 expect(newIntegration).toEqual(expect.objectContaining(payload))
             })
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [integration] =  await createTestAcquiringIntegration(admin)
-
-                const newName = 'UPDATE ACQUIRING TEST'
-                const payload = { name: newName }
+                const name = `${faker.company.companyName(0)} acquiring`
+                const payload = { name }
                 const [newIntegration] = await updateTestAcquiringIntegration(admin, integration.id, payload)
                 expect(newIntegration).toEqual(expect.objectContaining(payload))
             })
         })
         describe('hard delete',  () => {
+            let integrationToDelete
+            beforeAll(async () => {
+                [integrationToDelete] = await createTestAcquiringIntegration(admin)
+            })
             test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [integration] =  await createTestAcquiringIntegration(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await AcquiringIntegration.delete(client, integration.id)
+                    await AcquiringIntegration.delete(user, integrationToDelete.id)
                 })
             })
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [integration] =  await createTestAcquiringIntegration(admin)
-
-                const anonymousClient = await makeClient()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await AcquiringIntegration.delete(anonymousClient, integration.id)
+                    await AcquiringIntegration.delete(anonymous, integrationToDelete.id)
                 })
             })
             test('support can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [integration] =  await createTestAcquiringIntegration(admin)
-
-                const support = await makeClientWithSupportUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await AcquiringIntegration.delete(support, integration.id)
+                    await AcquiringIntegration.delete(support, integrationToDelete.id)
                 })
             })
             test('admin can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [integration] =  await createTestAcquiringIntegration(admin)
-
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await AcquiringIntegration.delete(admin, integration.id)
+                    await AcquiringIntegration.delete(admin, integrationToDelete.id)
                 })
             })
         })
     })
     describe('Validation tests', () => {
         test('Fails if supportedBillingIntegrationGroup doesn\'t exist', async () => {
-            const support = await makeClientWithSupportUser()
             const NON_EXISTING_INTEGRATION_NAME = 'nonexistingbillingintegrationname'
             await expectToThrowValidationFailureError(async () => await createTestAcquiringIntegration(support, {
                 supportedBillingIntegrationsGroup: NON_EXISTING_INTEGRATION_NAME,
@@ -177,7 +163,6 @@ describe('AcquiringIntegration', () => {
             }), SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR)
         })
         test('Should have correct dv field (=== 1)', async () => {
-            const admin = await makeLoggedInAdminClient()
             await expectToThrowGQLError(async () => await createTestAcquiringIntegration(admin, {
                 dv: 2,
             }), {

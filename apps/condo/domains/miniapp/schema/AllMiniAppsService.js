@@ -9,11 +9,8 @@ const { find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/AllMiniAppsService')
 const {
-    ACQUIRING_APP_TYPE,
-    BILLING_APP_TYPE,
     APP_TYPES,
     B2B_APP_TYPE,
-    ACCRUALS_AND_PAYMENTS_CATEGORY,
     ALL_APPS_CATEGORIES,
     CONTEXT_FINISHED_STATUS,
 } = require('@condo/domains/miniapp/constants')
@@ -71,64 +68,6 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 const searchFilters = search ? {
                     name_contains_i: search,
                 } : {}
-
-                const billingIntegrations = await find('BillingIntegration', {
-                    isHidden: false,
-                    deletedAt: null,
-                    ...searchFilters,
-                    ...restWhere,
-                })
-                const billingContexts = await find('BillingIntegrationOrganizationContext', {
-                    organization,
-                    status: CONTEXT_FINISHED_STATUS,
-                    deletedAt: null,
-                })
-                const connectedBillingIntegrations = billingContexts.map(context => context.integration)
-                for (const billing of billingIntegrations) {
-                    const logoUrl = billing.logo ? APPS_FILE_ADAPTER.publicUrl({ filename: billing.logo.filename }) : null
-                    services.push({
-                        id: billing.id,
-                        type: BILLING_APP_TYPE,
-                        name: billing.name,
-                        shortDescription: billing.shortDescription,
-                        connected: connectedBillingIntegrations.includes(billing.id),
-                        category: ACCRUALS_AND_PAYMENTS_CATEGORY,
-                        logo: logoUrl,
-                        label: billing.label,
-                        // NOTE: Extra props for sort that will be omitted
-                        displayPriority: billing.displayPriority,
-                        createdAt: billing.createdAt,
-                    })
-                }
-
-                const acquiringIntegrations = await find('AcquiringIntegration', {
-                    isHidden: false,
-                    deletedAt: null,
-                    ...searchFilters,
-                    ...restWhere,
-                })
-                const acquiringContexts = await find('AcquiringIntegrationContext', {
-                    organization,
-                    status: CONTEXT_FINISHED_STATUS,
-                    deletedAt: null,
-                })
-                const connectedAcquiringIntegrations = acquiringContexts.map(context => context.integration)
-                for (const acquiring of acquiringIntegrations) {
-                    const logoUrl = acquiring.logo ? APPS_FILE_ADAPTER.publicUrl({ filename: acquiring.logo.filename }) : null
-                    services.push({
-                        id: acquiring.id,
-                        type: ACQUIRING_APP_TYPE,
-                        name: acquiring.name,
-                        shortDescription: acquiring.shortDescription,
-                        connected: connectedAcquiringIntegrations.includes(acquiring.id),
-                        category: ACCRUALS_AND_PAYMENTS_CATEGORY,
-                        logo: logoUrl,
-                        label: acquiring.label,
-                        // NOTE: Extra props for sort that will be omitted
-                        displayPriority: acquiring.displayPriority,
-                        createdAt: acquiring.createdAt,
-                    })
-                }
 
                 const B2BApps = await find('B2BApp', {
                     isHidden: false,

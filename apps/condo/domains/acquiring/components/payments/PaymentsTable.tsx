@@ -1,5 +1,4 @@
 import { FilterFilled } from '@ant-design/icons'
-import { BillingIntegrationOrganizationContext, SortPaymentsBy } from '@app/condo/schema'
 import { Col, Row, Space } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
@@ -21,6 +20,7 @@ import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePayme
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
 import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
 import { IFilters } from '@condo/domains/acquiring/utils/helpers'
+import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
@@ -38,6 +38,9 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
+import type { SortPaymentsBy } from '@app/condo/schema'
+
+
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
@@ -48,11 +51,6 @@ const ROW_GUTTER: [Gutter, Gutter] = [0, 30]
 const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const SUM_BAR_COL_GUTTER: [Gutter, Gutter] = [40, 0]
 const DATE_PICKER_COL_LAYOUT = { span: 11, offset: 1 }
-
-interface IPaymentsTableProps {
-    billingContext: BillingIntegrationOrganizationContext,
-    contextsLoading: boolean,
-}
 
 interface IPaymentsSumInfoProps {
     title: string
@@ -96,7 +94,7 @@ function usePaymentsSum (whereQuery) {
     return { data, error, loading }
 }
 
-const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, contextsLoading }): JSX.Element => {
+const PaymentsTableContent: React.FC = (): JSX.Element => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
@@ -106,6 +104,8 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
     const TotalsSumTitle = intl.formatMessage({ id: 'pages.condo.payments.TotalSum' })
     const DoneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
     const WithdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
+
+    const { billingContext } = useBillingAndAcquiringContexts()
 
     const { breakpoints } = useLayoutContext()
     const router = useRouter()
@@ -147,7 +147,6 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
     const searchPaymentsQuery: Record<string, unknown> = {
         ...filtersToWhere({ advancedAt: dateFilter, ...filters }),
         organization: { id: organizationId },
-        deletedAt: null,
         status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
     }
     const sortBy = sortersToSortBy(sorters, PAYMENTS_DEFAULT_SORT_BY)
@@ -278,7 +277,7 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
 
                 <Col span={24}>
                     <Table
-                        loading={loading || contextsLoading}
+                        loading={loading}
                         dataSource={objs}
                         totalRows={count}
                         columns={tableColumns}
@@ -319,7 +318,7 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
     )
 }
 
-const PaymentsTable: React.FC<IPaymentsTableProps> = (props) => {
+const PaymentsTable: React.FC = (props) => {
     return (
         <MultipleFilterContextProvider>
             <PaymentsTableContent {...props} />

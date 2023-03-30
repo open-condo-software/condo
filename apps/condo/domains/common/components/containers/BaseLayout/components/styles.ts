@@ -213,6 +213,10 @@ export const PAGE_HEADER_CSS = css`
   padding: 0 0 40px;
   background: ${colors.white};
 
+  .ant-page-header-heading {
+    align-items: center;
+  }
+
   & .ant-page-header-heading-title {
     white-space: normal;
   }

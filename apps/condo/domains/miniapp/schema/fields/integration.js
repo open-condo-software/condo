@@ -1,4 +1,4 @@
-const { Text, File, Checkbox, Select, Integer } = require('@keystonejs/fields')
+const { Text, File, Checkbox, Select, Integer, Url } = require('@keystonejs/fields')
 const { Markdown } = require('@keystonejs/fields-markdown')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
@@ -46,7 +46,7 @@ const APP_DETAILS_FIELD = {
 
 const IFRAME_URL_FIELD = {
     schemaDoc: 'Url to app page, which is the app starting point and will be opened in iframe',
-    type: Text,
+    type: Url,
     isRequired: false,
 }
 

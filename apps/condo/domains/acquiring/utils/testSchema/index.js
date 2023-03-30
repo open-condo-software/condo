@@ -100,9 +100,7 @@ async function createTestAcquiringIntegration (client, extraAttrs = {}) {
         sender,
         name,
         hostUrl,
-        shortDescription: faker.commerce.productDescription(),
-        developer: faker.company.name(),
-        detailedDescription: faker.lorem.paragraphs(5),
+        isHidden: true,
         explicitFeeDistributionSchema: getRandomExplicitFeeDistribution(),
         ...extraAttrs
     }

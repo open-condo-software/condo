@@ -1,7 +1,6 @@
 import styled from '@emotion/styled'
 import { Space, Image } from 'antd'
-import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback } from 'react'
+import React, { CSSProperties } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography, Button } from '@open-condo/ui'
@@ -26,13 +25,12 @@ type AppCardTitleProps = {
 }
 
 type AppCardProps = {
-    id: string
-    type: string
     connected: boolean
     name: string
     description: string
     logoUrl?: string
     label?: string
+    onClick?: () => void
 }
 
 const AppCardTitleWrapper = styled.div`
@@ -70,34 +68,23 @@ const AppCardTitle: React.FC<AppCardTitleProps> = ({ logoUrl, label }) => {
 }
 
 export const AppCard: React.FC<AppCardProps> = ({
-    id,
-    type,
     connected,
     name,
     logoUrl,
     description,
     label,
+    onClick,
 }) => {
     const intl = useIntl()
     const ButtonLabel = connected
         ? intl.formatMessage({ id: 'miniapps.appCard.connected.label' })
         : intl.formatMessage({ id: 'miniapps.appCard.notConnected.label' })
 
-    const router = useRouter()
-
-    const handleCardClick = useCallback(() => {
-        // TODO(DOMA-4830): Remove types after billing migration
-        const url = connected
-            ? `/miniapps/${id}?type=${type}`
-            : `/miniapps/${id}/about?type=${type}`
-        router.push(url)
-    }, [router, connected, id, type])
-
     return (
         <Card
             bodyPadding={CARD_BODY_PADDINGS}
             titlePadding={CARD_HEAD_PADDINGS}
-            onClick={handleCardClick}
+            onClick={onClick}
             title={<AppCardTitle logoUrl={logoUrl} label={label} />}
             hoverable
         >

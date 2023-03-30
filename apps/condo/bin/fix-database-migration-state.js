@@ -126,6 +126,45 @@ ALTER TABLE "TicketChange" DROP COLUMN "orderTo" CASCADE;
 
 COMMIT;
 
+--
+-- 20230518132922-0272_remove_acquiringintegration_appurl_and_more.js Remove old billing and acquiring UI fields
+--
+
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "appUrl" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "detailedDescription" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "developer" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "displayPriority" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "gallery" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "label" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "logo" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "partnerUrl" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "price" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "shortDescription" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "appUrl" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "detailedDescription" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "developer" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "displayPriority" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "gallery" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "label" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "logo" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "partnerUrl" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "price" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "shortDescription" CASCADE;
+ALTER TABLE "BillingIntegration" DROP COLUMN "developer" CASCADE;
+ALTER TABLE "BillingIntegration" DROP COLUMN "displayPriority" CASCADE;
+ALTER TABLE "BillingIntegration" DROP COLUMN "gallery" CASCADE;
+ALTER TABLE "BillingIntegration" DROP COLUMN "label" CASCADE;
+ALTER TABLE "BillingIntegration" DROP COLUMN "partnerUrl" CASCADE;
+ALTER TABLE "BillingIntegration" DROP COLUMN "price" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "developer" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "displayPriority" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "gallery" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "label" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "partnerUrl" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "price" CASCADE;
+
+COMMIT;
+
     `))
 }
 
