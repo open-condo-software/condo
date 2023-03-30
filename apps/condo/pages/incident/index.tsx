@@ -8,6 +8,7 @@ import {
 import { Col, Row, RowProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import get from 'lodash/get'
+import intersection from 'lodash/intersection'
 import uniq from 'lodash/uniq'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -163,21 +164,24 @@ const useIncidentsSearch = ({ baseQuery, filterMetas }) => {
     const incidentProperties = IncidentProperty.useAllObjects({}, { skip: true, fetchPolicy: 'network-only' })
     const incident = Incident.useObjects({}, { fetchPolicy: 'network-only', skip: true })
 
+    const baseOrganizationIds = useMemo(() => {
+        const baseOrganizationId = get(baseQuery, 'organization.id')
+        return (baseOrganizationId ? [baseOrganizationId] : get(baseQuery, 'organization.id_in', [])) || []
+    }, [baseQuery])
+
     const incidentWhere = useMemo(() => ({
-        ...baseQuery,
         ...filtersToWhere(filters),
         deletedAt: null,
-    }),
-    [filters, filtersToWhere, baseQuery])
+    }), [filters, filtersToWhere])
 
     const getWhereByAddress = useCallback(async (search?: string) => {
         if (!search) {
-            return { where: {} }
+            return { where: { organization: { id_in: baseOrganizationIds } } }
         }
 
         const propertyWhere = filterAddressForSearch(search) as { property: PropertyWhereInput }
         if (!propertyWhere) {
-            return { where: {} }
+            return { where: { organization: { id_in: baseOrganizationIds } } }
         }
 
         const { data: { objs: foundedProperties, meta: { count: countProperties } } } = await properties.refetch({
@@ -199,16 +203,20 @@ const useIncidentsSearch = ({ baseQuery, filterMetas }) => {
             },
         })
 
-        const where: IncidentWhereInput[] = [
+        const whereOR: IncidentWhereInput['OR'] = [
             { id_in: uniq(foundedIncidentProperties.map(item => item.incident.id)) },
         ]
         if (countProperties > 0) {
-            where.push({ hasAllProperties: true })
+            whereOR.push({ hasAllProperties: true })
+        }
+        const where: IncidentWhereInput = {
+            organization: { id_in: intersection(uniq(foundedProperties.map(item => item.organization.id)), baseOrganizationIds) },
+            OR: whereOR,
         }
 
-        return { where: { OR: where } }
+        return { where }
 
-    }, [baseQuery])
+    }, [baseOrganizationIds, baseQuery])
 
     const getIncidents = useCallback(async (incidentWhere, sortBy, currentPageIndex) => {
         const { data: { objs: incidents, meta: { count } } } = await incident.refetch({
