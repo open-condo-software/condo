@@ -17,7 +17,7 @@ const { ERROR_PASSED_DATE_IN_THE_FUTURE } = require('../constants')
 
 
 const logger = getLogger('sbbol/SbbolSyncTransactions')
-const isResponceSuccessfull = (response) => (get(response, 'error.cause', '') !== 'STATEMENT_RESPONSE_PROCESSING')
+const isResponceProcessing = (response) => (get(response, 'error.cause', '') !== 'STATEMENT_RESPONSE_PROCESSING')
 // ---------------------------------
 const FAILED_STATUS = 'failed'
 const IN_PROGRESS_STATUS = 'inProgress'
@@ -62,13 +62,14 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 statementDate,
             )
 
-            while (!isResponceSuccessfull(response) || !isResponceSuccessfull(summary)) {
+            //At the first request, the statement is just starting to form, so you need to repeat requests in a cycle until a successful response or throw an error
+            while (!isResponceProcessing(response) || !isResponceProcessing(summary)) {
                 if (failedReq > 5) {
                     break
                 }
                 await new Promise( (resolve) => {
                     setTimeout(async () => {
-                        if (!isResponceSuccessfull(response)) {
+                        if (!isResponceProcessing(response)) {
                             response = await fintechApi.getStatementTransactions(
                                 bankAccount.number,
                                 statementDate,
@@ -76,7 +77,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                             )
                         }
 
-                        if (!isResponceSuccessfull(summary)) {
+                        if (!isResponceProcessing(summary)) {
                             summary = await fintechApi.getStatementSummary(
                                 bankAccount.number,
                                 statementDate,
