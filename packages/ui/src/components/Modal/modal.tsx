@@ -10,7 +10,7 @@ import { Typography } from '../Typography'
 type CondoModalWidthType = 'small' | 'big' | 'fit-content'
 
 type CondoModalProps = {
-    title: string
+    title?: string
     open: boolean
     width?: CondoModalWidthType
 }
