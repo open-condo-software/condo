@@ -280,7 +280,7 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
                     key={keyword}
                     name={keyword}
                     filters={filters}
-                    size={(breakpoints.xs && !breakpoints.md) ? 24 : size}
+                    size={!breakpoints.TABLET_LARGE ? 24 : size}
                     label={label}
                     formItemProps={formItemProps}
                     queryToValueProcessor={queryToValueProcessor}

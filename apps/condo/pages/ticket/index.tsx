@@ -861,13 +861,13 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
         }
     }, [isAllTicketsSelected, isFavoriteTicketsSelected, isOwnTicketsSelected])
 
-    const { count: allTicketsCount, loading: allLoading, refetch: refetchAllTickets } = Ticket.useCount({
+    const { count: allTicketsCount, refetch: refetchAllTickets } = Ticket.useCount({
         where: {
             ...ticketFilterQuery,
         },
     })
     const ownTicketsQuery = { OR: [{ executor: { id: user.id }, assignee: { id: user.id } }] }
-    const { count: ownTicketsCount, loading: ownLoading, refetch: refetchOwnTickets } = Ticket.useCount({
+    const { count: ownTicketsCount, refetch: refetchOwnTickets } = Ticket.useCount({
         where: {
             ...ticketFilterQuery,
             ...ownTicketsQuery,
@@ -971,7 +971,7 @@ const TicketsPage: ITicketIndexPage = () => {
                     <FavoriteTicketsContextProvider
                         extraTicketsQuery={{ ...ticketFilterQuery, organization: { id: userOrganizationId } }}
                     >
-                        <Row gutter={breakpoints.lg && MEDIUM_VERTICAL_ROW_GUTTER}>
+                        <Row gutter={breakpoints.DESKTOP_LARGE && MEDIUM_VERTICAL_ROW_GUTTER}>
                             <Col span={24}>
                                 <Row justify='space-between' gutter={MEDIUM_VERTICAL_ROW_GUTTER}>
                                     <Col>

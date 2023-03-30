@@ -9,7 +9,8 @@
 [Usage](#usage)\
 [Including styles](#including-styles)\
 [Access theme colors](#access-theme-colors)\
-[Style-variables](#style-variables)
+[Style-variables](#style-variables)\
+[Hooks](#hooks)
 
 ## Installation
 To install package simply run the following command if you're using npm as your package manager:
@@ -55,4 +56,34 @@ import '@open-condo/ui/style-vars/css'
 
 ```less
 @import (reference) "@open-condo/ui/dist/style-vars/variables.less";
+```
+
+## Hooks
+Hooks can be imported as follows:
+```js
+import { useBreakpoints, useContainerSize } from '@open-condo/ui/hooks';
+```
+- `useBreakpoints` - returns the breakpoint object and its current value. 
+Breakpoint value becomes `true` if the window width is greater than or equal to the corresponding breakpoint.
+The name and width of the breakpoints:
+  - `MOBILE_SMALL` (0px)
+  - `MOBILE_LARGE` (360px) 
+  - `TABLET_SMALL` (480px) 
+  - `TABLET_LARGE` (768px)
+  - `DESKTOP_SMALL` (992px)
+  - `DESKTOP_LARGE` (1200px)
+```js
+const breakpoints = useBreakpoints()
+
+// window width >= 480px and < 992px
+const isTablet = breakpoints.TABLET_SMALL && !breakpoints.DESKTOP_SMALL
+```
+
+- `useContainerSize` provides the dimensions of a specific container.
+```js
+const [{ width, height }, setRef] = useContainerSize()
+
+console.log(width, height)
+
+return <div ref={setRef} />
 ```

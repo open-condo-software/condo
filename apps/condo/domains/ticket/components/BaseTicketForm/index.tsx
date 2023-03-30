@@ -648,7 +648,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             </Row>
                                                         </Col>
                                                         {
-                                                            selectedPropertyId && !breakpoints.xl && (
+                                                            selectedPropertyId && !breakpoints.DESKTOP_LARGE && (
                                                                 <Col span={24}>
                                                                     {hintsBlock}
                                                                 </Col>
@@ -728,7 +728,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
                                 <Col span={24 - propertyInfoColSpan}>
                                     {
-                                        selectedPropertyId && breakpoints.xl && (
+                                        selectedPropertyId && breakpoints.DESKTOP_LARGE && (
                                             <Affix offsetTop={60}>
                                                 <div style={HINTS_WRAPPER_STYLE}>
                                                     {hintsBlock}

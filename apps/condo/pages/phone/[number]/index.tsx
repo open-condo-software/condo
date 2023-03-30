@@ -647,17 +647,17 @@ const ClientCardPageContent = ({
     const { breakpoints } = useLayoutContext()
 
     const slidesToShow = useMemo(() => {
-        if (breakpoints.lg) {
+        if (breakpoints.DESKTOP_SMALL) {
             return 4
         }
-        if (breakpoints.md) {
+        if (breakpoints.TABLET_LARGE) {
             return 3
         }
-        if (breakpoints.sm) {
+        if (breakpoints.TABLET_SMALL) {
             return 2
         }
         return 1
-    }, [breakpoints.lg, breakpoints.md, breakpoints.sm])
+    }, [breakpoints.TABLET_SMALL, breakpoints.DESKTOP_SMALL, breakpoints.TABLET_LARGE])
 
     useEffect(() => {
         if (!initialActiveTab && tab) {
