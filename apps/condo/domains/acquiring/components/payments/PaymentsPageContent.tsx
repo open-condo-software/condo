@@ -5,8 +5,6 @@ import React, { useMemo } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
 
-import NoAcquiringStub from '@condo/domains/acquiring/components/payments/NoAcquiringStub'
-import NoBillingStub from '@condo/domains/acquiring/components/payments/NoBillingStub'
 import PaymentsTable from '@condo/domains/acquiring/components/payments/PaymentsTable'
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
@@ -87,14 +85,6 @@ const PaymentsPageContent = (): JSX.Element => {
 
     if (acquiringContextError) {
         return renderError(acquiringContextError)
-    }
-
-    if (!billingContextLoading && !billingContext) {
-        return <NoBillingStub/>
-    }
-
-    if (!acquiringContextLoading && !acquiringContext) {
-        return <NoAcquiringStub/>
     }
 
     return content
