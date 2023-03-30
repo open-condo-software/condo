@@ -10,7 +10,7 @@ export type BannerProps = {
     title: string
     subtitle: string
     backgroundColor: string
-    actionText: string
+    actionText?: string
     onClick?: React.MouseEventHandler<HTMLElement>
     imgUrl?: string
     invertText?: boolean
@@ -96,12 +96,14 @@ export const Banner: React.FC<BannerProps> = ({
                         {subtitle}
                     </Typography.Paragraph>
                 </div>
-                <Button
-                    type='primary'
-                    stateless
-                >
-                    {actionText}
-                </Button>
+                {Boolean(actionText) && (
+                    <Button
+                        type='primary'
+                        stateless
+                    >
+                        {actionText}
+                    </Button>
+                )}
             </div>
             {imgUrl && width > MD_BARRIER && (
                 <div className={`${CLASS_PREFIX}-image-container`}>
