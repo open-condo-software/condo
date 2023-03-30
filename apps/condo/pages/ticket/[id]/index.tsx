@@ -367,7 +367,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                                 <Col>
                                                     <FavoriteTicketIndicator
                                                         ticketId={id}
-                                                        eventProperties={{ page: 'ticketId' }}
                                                     />
                                                 </Col>
                                                 <Col>

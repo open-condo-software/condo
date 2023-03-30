@@ -954,7 +954,7 @@ const TicketsPage: ITicketIndexPage = () => {
                     <FavoriteTicketsContextProvider
                         extraTicketsQuery={{ ...ticketFilterQuery, organization: { id: userOrganizationId } }}
                     >
-                        <Row gutter={breakpoints.lg ? [0, 40] : SMALL_VERTICAL_BAR_ROW_GUTTER}>
+                        <Row gutter={breakpoints.lg && MEDIUM_VERTICAL_ROW_GUTTER}>
                             <Col span={24}>
                                 <Row justify='space-between' gutter={MEDIUM_VERTICAL_ROW_GUTTER}>
                                     <Col>
