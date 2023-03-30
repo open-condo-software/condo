@@ -42,14 +42,17 @@ import { TicketDetailsField } from '@condo/domains/ticket/components/TicketId/Ti
 import { TicketExecutorField } from '@condo/domains/ticket/components/TicketId/TicketExecutorField'
 import { TicketFileListField } from '@condo/domains/ticket/components/TicketId/TicketFileListField'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
+import { TicketQualityControlFields } from '@condo/domains/ticket/components/TicketId/TicketQualityControlFields'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
 import { TicketReviewField } from '@condo/domains/ticket/components/TicketId/TicketReviewField'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
 import { FavoriteTicketsContextProvider } from '@condo/domains/ticket/contexts/FavoriteTicketsContext'
+import { TicketQualityControlProvider, useTicketQualityControl } from '@condo/domains/ticket/contexts/TicketQualityControlContext'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
@@ -71,7 +74,7 @@ import { RESIDENT } from '@condo/domains/user/constants/common'
 
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
-const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 60]
+const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
 const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 20]
@@ -81,6 +84,7 @@ const TicketContent = ({ ticket }) => {
     return (
         <Col span={24}>
             <Row gutter={BIG_VERTICAL_GUTTER}>
+                <TicketQualityControlFields ticket={ticket} />
                 <Col span={24}>
                     <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                         <TicketReviewField ticket={ticket} />
@@ -123,6 +127,86 @@ const TicketChangeDiff = styled.p`
     }
 `
 
+const TicketActionBar = ({
+    ticket,
+    organization,
+    employee,
+}) => {
+    const intl = useIntl()
+    const UpdateMessage = intl.formatMessage({ id: 'Edit' })
+
+    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
+
+    const auth = useAuth() as { user: { id: string } }
+    const user = get(auth, 'user')
+
+    const { breakpoints } = useLayoutContext()
+
+    const id = get(ticket, 'id')
+    const canShareTickets = get(employee, 'role.canShareTickets')
+
+    const ticketStatusType = useMemo(() => get(ticket, ['status', 'type']), [ticket])
+    const isDeletedProperty = !ticket.property && ticket.propertyAddress
+    const disabledEditTicketButton = ticketStatusType === CLOSED_STATUS_TYPE || isDeletedProperty
+    const disabledEditQualityControlButton = ticket.status.id !== STATUS_IDS.COMPLETED && ticket.status.id !== STATUS_IDS.CLOSED
+
+    const { TicketBlanksExportToPdfButton, TicketBlanksExportToPdfModal } = useTicketExportToPdfTask({
+        ticketId: id,
+        where: {
+            id,
+            organization: { id: organization.id },
+            deletedAt: null,
+        },
+        sortBy: [],
+        user,
+        timeZone,
+        locale: intl.locale,
+        eventNamePrefix: 'TicketDetail',
+    })
+
+    const { EditButton: EditQualityControlButton } = useTicketQualityControl()
+
+    return (
+        <ActionBar>
+            <Link href={`/ticket/${ticket.id}/update`}>
+                <Button
+                    disabled={disabledEditTicketButton}
+                    type='secondary'
+                    icon={<Edit size='medium' />}
+                    data-cy='ticket__update-link'
+                >
+                    {UpdateMessage}
+                </Button>
+            </Link>
+            {
+                breakpoints.TABLET_LARGE && <>
+                    <TicketBlanksExportToPdfButton />
+                    {TicketBlanksExportToPdfModal}
+                </>
+            }
+            {
+                canShareTickets && (
+                    <ShareTicketModal
+                        organization={organization}
+                        date={get(ticket, 'createdAt')}
+                        number={get(ticket, 'number')}
+                        details={get(ticket, 'details')}
+                        id={id}
+                        locale={get(organization, 'country')}
+                    />
+                )
+            }
+            {
+                ticket.qualityControlValue && (
+                    <EditQualityControlButton
+                        disabled={disabledEditQualityControlButton}
+                    />
+                )
+            }
+        </ActionBar>
+    )
+}
+
 const TICKET_CREATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px' }
 const TICKET_UPDATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px', textAlign: 'end' }
 const TAGS_ROW_STYLE: CSSProperties = { marginTop: '1.6em ' }
@@ -133,7 +217,6 @@ const HINTS_COL_PROPS: ColProps = { span: 24 }
 
 export const TicketPageContent = ({ ticket, refetchTicket, loading, organization, employee, TicketContent }) => {
     const intl = useIntl()
-    const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
@@ -150,8 +233,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
     const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
-
-    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const auth = useAuth() as { user: { id: string } }
     const user = get(auth, 'user')
@@ -219,7 +300,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         ticket: { connect: { id } },
     }, () => refetchUserTicketCommentReadTime())
 
-    const canShareTickets = get(employee, 'role.canShareTickets')
     const ticketVisibilityType = get(employee, 'role.ticketVisibilityType')
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
@@ -252,15 +332,13 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     const isWarranty = get(ticket, 'isWarranty')
     const statusReopenedCounter = get(ticket, 'statusReopenedCounter')
 
-    const handleTicketStatusChanged = () => {
+    const refetchTicketAndTicketChanges = () => {
         refetchTicket()
         ticketChangesResult.refetch()
     }
 
     const ticketPropertyId = get(ticket, ['property', 'id'], null)
-    const ticketStatusType = useMemo(() => get(ticket, ['status', 'type']), [ticket])
     const isDeletedProperty = !ticket.property && ticket.propertyAddress
-    const disabledEditButton = ticketStatusType === CLOSED_STATUS_TYPE || isDeletedProperty
     const statusUpdatedAt = useMemo(() => get(ticket, 'statusUpdatedAt'), [ticket])
     const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === RESIDENT, [ticket])
     const canReadByResident = useMemo(() => get(ticket,  'canReadByResident'), [ticket])
@@ -297,23 +375,9 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         return timeSinceCreation.join(' ')
     }, [DaysShortMessage, HoursShortMessage, LessThanMinuteMessage, MinutesShortMessage, statusUpdatedAt])
 
-    const { TicketBlanksExportToPdfButton, TicketBlanksExportToPdfModal } = useTicketExportToPdfTask({
-        ticketId: id,
-        where: {
-            id,
-            organization: { id: organization.id },
-            deletedAt: null,
-        },
-        sortBy: [],
-        user,
-        timeZone,
-        locale: intl.locale,
-        eventNamePrefix: 'TicketDetail',
-    })
-
-    return (
+    const render =  (
         <Row gutter={BIG_VERTICAL_GUTTER}>
-            <Col lg={15} xxl={16} xs={24}>
+            <Col lg={16} xs={24}>
                 <Row gutter={TICKET_CONTENT_VERTICAL_GUTTER}>
                     <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                         <Col span={24}>
@@ -360,7 +424,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                     </Row>
                                 </Col>
                                 <Col xl={11} md={13} xs={24}>
-                                    <Row justify={!breakpoints.TABLET_LARGE ? 'center' : 'end'} gutter={SMALL_VERTICAL_GUTTER}>
+                                    <Row justify='end' gutter={SMALL_VERTICAL_GUTTER}>
                                         <Col span={24}>
                                             <Row justify='end' align='middle' gutter={BIG_HORIZONTAL_GUTTER}>
                                                 <Col>
@@ -373,7 +437,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                                         organization={organization}
                                                         employee={employee}
                                                         ticket={ticket}
-                                                        onUpdate={handleTicketStatusChanged}
+                                                        onUpdate={refetchTicketAndTicketChanges}
                                                         data-cy='ticket__status-select'
                                                     />
                                                 </Col>
@@ -428,55 +492,21 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                         }
                     </Row>
                     <TicketContent ticket={ticket}/>
-                    <Col span={24}>
-                        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-                            {
-                                ticketVisibilityType !== ASSIGNED_TICKET_VISIBILITY && (
-                                    <TicketPropertyHintCard
-                                        propertyId={ticketPropertyId}
-                                        hintContentStyle={HINT_CARD_STYLE}
-                                        colProps={HINTS_COL_PROPS}
-                                    />
-                                )
-                            }
-                            <IncidentHints
-                                organizationId={organization.id}
+                    {
+                        ticketVisibilityType !== ASSIGNED_TICKET_VISIBILITY && (
+                            <TicketPropertyHintCard
                                 propertyId={ticketPropertyId}
-                                classifier={ticket.classifier}
+                                hintContentStyle={HINT_CARD_STYLE}
                                 colProps={HINTS_COL_PROPS}
                             />
-                        </Row>
-                    </Col>
-                    <ActionBar>
-                        <Link href={`/ticket/${ticket.id}/update`}>
-                            <Button
-                                disabled={disabledEditButton}
-                                type='secondary'
-                                icon={<Edit size='medium' />}
-                                data-cy='ticket__update-link'
-                            >
-                                {UpdateMessage}
-                            </Button>
-                        </Link>
-                        {
-                            breakpoints.TABLET_LARGE && <>
-                                <TicketBlanksExportToPdfButton />
-                                {TicketBlanksExportToPdfModal}
-                            </>
-                        }
-                        {
-                            canShareTickets
-                                ? <ShareTicketModal
-                                    organization={organization}
-                                    date={get(ticket, 'createdAt')}
-                                    number={get(ticket, 'number')}
-                                    details={get(ticket, 'details')}
-                                    id={id}
-                                    locale={get(organization, 'country')}
-                                />
-                                : null
-                        }
-                    </ActionBar>
+                        )
+                    }
+                    <IncidentHints
+                        organizationId={organization.id}
+                        propertyId={ticketPropertyId}
+                        classifier={ticket.classifier}
+                        colProps={HINTS_COL_PROPS}
+                    />
                     <ChangeHistory
                         items={get(ticketChangesResult, 'objs')}
                         total={get(ticketChangesResult, 'count')}
@@ -485,9 +515,14 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                         useChangedFieldMessagesOf={useTicketChangedFieldMessagesOf}
                         Diff={TicketChangeDiff}
                     />
+                    <TicketActionBar
+                        ticket={ticket}
+                        organization={organization}
+                        employee={employee}
+                    />
                 </Row>
             </Col>
-            <Col lg={7} xs={24} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
+            <Col lg={7} xs={24} offset={breakpoints.DESKTOP_SMALL ? 1 : 0}>
                 <Affix offsetTop={40}>
                     <Comments
                         ticketCommentsTime={ticketCommentsTime}
@@ -508,6 +543,12 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                 </Affix>
             </Col>
         </Row>
+    )
+
+    return (
+        <TicketQualityControlProvider ticket={ticket} afterUpdate={refetchTicketAndTicketChanges}>
+            {render}
+        </TicketQualityControlProvider>
     )
 }
 

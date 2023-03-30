@@ -75,7 +75,7 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
                         {value.slice(0, MAX_DESCRIPTION_DISPLAY_LENGTH) + '…'}
                     </Tooltip>
                 ) : value
-                return <Typography.Text>«{formattedValue}»</Typography.Text>
+                return <Typography.Text>«<Typography.Text type='secondary'>{formattedValue}</Typography.Text>»</Typography.Text>
             },
             textForResident: (field, value, type) => {
                 const formattedValue = value && value.length > MAX_DESCRIPTION_DISPLAY_LENGTH ? (
@@ -87,7 +87,7 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
                         {value.slice(0, MAX_DESCRIPTION_DISPLAY_LENGTH) + '…'}
                     </Tooltip>
                 ) : value
-                return <Typography.Text>«{formattedValue}»</Typography.Text>
+                return <Typography.Text>«<Typography.Text type='secondary'>{formattedValue}</Typography.Text>»</Typography.Text>
             },
             status: (field, value, type) => {
                 const isActual = value === IncidentStatusType.Actual

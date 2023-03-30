@@ -18707,6 +18707,11 @@ type TicketHistoryRecord {
   statusReopenedCounter: Int
   reviewValue: String
   reviewComment: String
+  qualityControlValue: String
+  qualityControlComment: String
+  qualityControlAdditionalOptions: JSON
+  qualityControlUpdatedAt: String
+  qualityControlUpdatedBy: String
   statusUpdatedAt: String
   completedAt: String
   lastCommentAt: String
@@ -18813,6 +18818,58 @@ input TicketHistoryRecordWhereInput {
   reviewComment_not_ends_with_i: String
   reviewComment_in: [String]
   reviewComment_not_in: [String]
+  qualityControlValue: String
+  qualityControlValue_not: String
+  qualityControlValue_contains: String
+  qualityControlValue_not_contains: String
+  qualityControlValue_starts_with: String
+  qualityControlValue_not_starts_with: String
+  qualityControlValue_ends_with: String
+  qualityControlValue_not_ends_with: String
+  qualityControlValue_i: String
+  qualityControlValue_not_i: String
+  qualityControlValue_contains_i: String
+  qualityControlValue_not_contains_i: String
+  qualityControlValue_starts_with_i: String
+  qualityControlValue_not_starts_with_i: String
+  qualityControlValue_ends_with_i: String
+  qualityControlValue_not_ends_with_i: String
+  qualityControlValue_in: [String]
+  qualityControlValue_not_in: [String]
+  qualityControlComment: String
+  qualityControlComment_not: String
+  qualityControlComment_contains: String
+  qualityControlComment_not_contains: String
+  qualityControlComment_starts_with: String
+  qualityControlComment_not_starts_with: String
+  qualityControlComment_ends_with: String
+  qualityControlComment_not_ends_with: String
+  qualityControlComment_i: String
+  qualityControlComment_not_i: String
+  qualityControlComment_contains_i: String
+  qualityControlComment_not_contains_i: String
+  qualityControlComment_starts_with_i: String
+  qualityControlComment_not_starts_with_i: String
+  qualityControlComment_ends_with_i: String
+  qualityControlComment_not_ends_with_i: String
+  qualityControlComment_in: [String]
+  qualityControlComment_not_in: [String]
+  qualityControlAdditionalOptions: JSON
+  qualityControlAdditionalOptions_not: JSON
+  qualityControlAdditionalOptions_in: [JSON]
+  qualityControlAdditionalOptions_not_in: [JSON]
+  qualityControlUpdatedAt: String
+  qualityControlUpdatedAt_not: String
+  qualityControlUpdatedAt_lt: String
+  qualityControlUpdatedAt_lte: String
+  qualityControlUpdatedAt_gt: String
+  qualityControlUpdatedAt_gte: String
+  qualityControlUpdatedAt_in: [String]
+  qualityControlUpdatedAt_not_in: [String]
+  qualityControlUpdatedBy: String
+  qualityControlUpdatedBy_not: String
+  qualityControlUpdatedBy_in: [String]
+  qualityControlUpdatedBy_not_in: [String]
   statusUpdatedAt: String
   statusUpdatedAt_not: String
   statusUpdatedAt_lt: String
@@ -19232,6 +19289,12 @@ enum SortTicketHistoryRecordsBy {
   reviewValue_DESC
   reviewComment_ASC
   reviewComment_DESC
+  qualityControlValue_ASC
+  qualityControlValue_DESC
+  qualityControlComment_ASC
+  qualityControlComment_DESC
+  qualityControlUpdatedAt_ASC
+  qualityControlUpdatedAt_DESC
   statusUpdatedAt_ASC
   statusUpdatedAt_DESC
   completedAt_ASC
@@ -19303,6 +19366,11 @@ input TicketHistoryRecordUpdateInput {
   statusReopenedCounter: Int
   reviewValue: String
   reviewComment: String
+  qualityControlValue: String
+  qualityControlComment: String
+  qualityControlAdditionalOptions: JSON
+  qualityControlUpdatedAt: String
+  qualityControlUpdatedBy: String
   statusUpdatedAt: String
   completedAt: String
   lastCommentAt: String
@@ -19367,6 +19435,11 @@ input TicketHistoryRecordCreateInput {
   statusReopenedCounter: Int
   reviewValue: String
   reviewComment: String
+  qualityControlValue: String
+  qualityControlComment: String
+  qualityControlAdditionalOptions: JSON
+  qualityControlUpdatedAt: String
+  qualityControlUpdatedBy: String
   statusUpdatedAt: String
   completedAt: String
   lastCommentAt: String
@@ -19429,6 +19502,18 @@ enum TicketReviewValueType {
   bad
   good
   returned
+}
+
+enum TicketQualityControlValueType {
+  bad
+  good
+}
+
+enum QualityControlAdditionalOptionsType {
+  lowQuality
+  highQuality
+  slowly
+  quickly
 }
 
 input TicketStatusRelateToOneInput {
@@ -19505,6 +19590,23 @@ type Ticket {
 
   """ Resident's comment on ticket review """
   reviewComment: String
+
+  """ Review of the ticket by a staff on a 2-point scale (bad or good) """
+  qualityControlValue: TicketQualityControlValueType
+
+  """ Staff's comment on ticket review """
+  qualityControlComment: String
+
+  """ Quality control additional options that extend it.Options that do not match the score will be reset. 
+  """
+  qualityControlAdditionalOptions: [QualityControlAdditionalOptionsType]
+
+  """ Quality control updated at time """
+  qualityControlUpdatedAt: String
+
+  """ User who last updated quality control value/control/additional options 
+  """
+  qualityControlUpdatedBy: User
 
   """ Status updated at time """
   statusUpdatedAt: String
@@ -19701,6 +19803,42 @@ input TicketWhereInput {
   reviewComment_not_ends_with_i: String
   reviewComment_in: [String]
   reviewComment_not_in: [String]
+  qualityControlValue: TicketQualityControlValueType
+  qualityControlValue_not: TicketQualityControlValueType
+  qualityControlValue_in: [TicketQualityControlValueType]
+  qualityControlValue_not_in: [TicketQualityControlValueType]
+  qualityControlComment: String
+  qualityControlComment_not: String
+  qualityControlComment_contains: String
+  qualityControlComment_not_contains: String
+  qualityControlComment_starts_with: String
+  qualityControlComment_not_starts_with: String
+  qualityControlComment_ends_with: String
+  qualityControlComment_not_ends_with: String
+  qualityControlComment_i: String
+  qualityControlComment_not_i: String
+  qualityControlComment_contains_i: String
+  qualityControlComment_not_contains_i: String
+  qualityControlComment_starts_with_i: String
+  qualityControlComment_not_starts_with_i: String
+  qualityControlComment_ends_with_i: String
+  qualityControlComment_not_ends_with_i: String
+  qualityControlComment_in: [String]
+  qualityControlComment_not_in: [String]
+  qualityControlAdditionalOptions: [QualityControlAdditionalOptionsType]
+  qualityControlAdditionalOptions_not: [QualityControlAdditionalOptionsType]
+  qualityControlAdditionalOptions_in: [[QualityControlAdditionalOptionsType]]
+  qualityControlAdditionalOptions_not_in: [[QualityControlAdditionalOptionsType]]
+  qualityControlUpdatedAt: String
+  qualityControlUpdatedAt_not: String
+  qualityControlUpdatedAt_lt: String
+  qualityControlUpdatedAt_lte: String
+  qualityControlUpdatedAt_gt: String
+  qualityControlUpdatedAt_gte: String
+  qualityControlUpdatedAt_in: [String]
+  qualityControlUpdatedAt_not_in: [String]
+  qualityControlUpdatedBy: UserWhereInput
+  qualityControlUpdatedBy_is_null: Boolean
   statusUpdatedAt: String
   statusUpdatedAt_not: String
   statusUpdatedAt_lt: String
@@ -20054,6 +20192,14 @@ enum SortTicketsBy {
   reviewValue_DESC
   reviewComment_ASC
   reviewComment_DESC
+  qualityControlValue_ASC
+  qualityControlValue_DESC
+  qualityControlComment_ASC
+  qualityControlComment_DESC
+  qualityControlUpdatedAt_ASC
+  qualityControlUpdatedAt_DESC
+  qualityControlUpdatedBy_ASC
+  qualityControlUpdatedBy_DESC
   statusUpdatedAt_ASC
   statusUpdatedAt_DESC
   completedAt_ASC
@@ -20151,6 +20297,11 @@ input TicketUpdateInput {
   statusReopenedCounter: Int
   reviewValue: TicketReviewValueType
   reviewComment: String
+  qualityControlValue: TicketQualityControlValueType
+  qualityControlComment: String
+  qualityControlAdditionalOptions: [QualityControlAdditionalOptionsType]
+  qualityControlUpdatedAt: String
+  qualityControlUpdatedBy: UserRelateToOneInput
   statusUpdatedAt: String
   completedAt: String
   lastCommentAt: String
@@ -20212,6 +20363,11 @@ input TicketCreateInput {
   statusReopenedCounter: Int
   reviewValue: TicketReviewValueType
   reviewComment: String
+  qualityControlValue: TicketQualityControlValueType
+  qualityControlComment: String
+  qualityControlAdditionalOptions: [QualityControlAdditionalOptionsType]
+  qualityControlUpdatedAt: String
+  qualityControlUpdatedBy: UserRelateToOneInput
   statusUpdatedAt: String
   completedAt: String
   lastCommentAt: String
@@ -21541,6 +21697,16 @@ enum TicketChangeReviewValueToType {
   returned
 }
 
+enum TicketChangeQualityControlValueFromType {
+  bad
+  good
+}
+
+enum TicketChangeQualityControlValueToType {
+  bad
+  good
+}
+
 """ Incremental changes of Ticket """
 type TicketChange {
   """
@@ -21574,6 +21740,26 @@ type TicketChange {
 
   """ Resident's comment on ticket review """
   reviewCommentTo: String
+
+  """ Review of the ticket by a staff on a 2-point scale (bad or good) """
+  qualityControlValueFrom: TicketChangeQualityControlValueFromType
+
+  """ Review of the ticket by a staff on a 2-point scale (bad or good) """
+  qualityControlValueTo: TicketChangeQualityControlValueToType
+
+  """ Staff's comment on ticket review """
+  qualityControlCommentFrom: String
+
+  """ Staff's comment on ticket review """
+  qualityControlCommentTo: String
+
+  """ Quality control additional options that extend it.Options that do not match the score will be reset. 
+  """
+  qualityControlAdditionalOptionsFrom: JSON
+
+  """ Quality control additional options that extend it.Options that do not match the score will be reset. 
+  """
+  qualityControlAdditionalOptionsTo: JSON
 
   """ Text reason for status changes. Sometimes you should describe the reason why you change the `status` 
   """
@@ -21974,6 +22160,58 @@ input TicketChangeWhereInput {
   reviewCommentTo_not_ends_with_i: String
   reviewCommentTo_in: [String]
   reviewCommentTo_not_in: [String]
+  qualityControlValueFrom: TicketChangeQualityControlValueFromType
+  qualityControlValueFrom_not: TicketChangeQualityControlValueFromType
+  qualityControlValueFrom_in: [TicketChangeQualityControlValueFromType]
+  qualityControlValueFrom_not_in: [TicketChangeQualityControlValueFromType]
+  qualityControlValueTo: TicketChangeQualityControlValueToType
+  qualityControlValueTo_not: TicketChangeQualityControlValueToType
+  qualityControlValueTo_in: [TicketChangeQualityControlValueToType]
+  qualityControlValueTo_not_in: [TicketChangeQualityControlValueToType]
+  qualityControlCommentFrom: String
+  qualityControlCommentFrom_not: String
+  qualityControlCommentFrom_contains: String
+  qualityControlCommentFrom_not_contains: String
+  qualityControlCommentFrom_starts_with: String
+  qualityControlCommentFrom_not_starts_with: String
+  qualityControlCommentFrom_ends_with: String
+  qualityControlCommentFrom_not_ends_with: String
+  qualityControlCommentFrom_i: String
+  qualityControlCommentFrom_not_i: String
+  qualityControlCommentFrom_contains_i: String
+  qualityControlCommentFrom_not_contains_i: String
+  qualityControlCommentFrom_starts_with_i: String
+  qualityControlCommentFrom_not_starts_with_i: String
+  qualityControlCommentFrom_ends_with_i: String
+  qualityControlCommentFrom_not_ends_with_i: String
+  qualityControlCommentFrom_in: [String]
+  qualityControlCommentFrom_not_in: [String]
+  qualityControlCommentTo: String
+  qualityControlCommentTo_not: String
+  qualityControlCommentTo_contains: String
+  qualityControlCommentTo_not_contains: String
+  qualityControlCommentTo_starts_with: String
+  qualityControlCommentTo_not_starts_with: String
+  qualityControlCommentTo_ends_with: String
+  qualityControlCommentTo_not_ends_with: String
+  qualityControlCommentTo_i: String
+  qualityControlCommentTo_not_i: String
+  qualityControlCommentTo_contains_i: String
+  qualityControlCommentTo_not_contains_i: String
+  qualityControlCommentTo_starts_with_i: String
+  qualityControlCommentTo_not_starts_with_i: String
+  qualityControlCommentTo_ends_with_i: String
+  qualityControlCommentTo_not_ends_with_i: String
+  qualityControlCommentTo_in: [String]
+  qualityControlCommentTo_not_in: [String]
+  qualityControlAdditionalOptionsFrom: JSON
+  qualityControlAdditionalOptionsFrom_not: JSON
+  qualityControlAdditionalOptionsFrom_in: [JSON]
+  qualityControlAdditionalOptionsFrom_not_in: [JSON]
+  qualityControlAdditionalOptionsTo: JSON
+  qualityControlAdditionalOptionsTo_not: JSON
+  qualityControlAdditionalOptionsTo_in: [JSON]
+  qualityControlAdditionalOptionsTo_not_in: [JSON]
   statusReasonFrom: String
   statusReasonFrom_not: String
   statusReasonFrom_contains: String
@@ -22895,6 +23133,14 @@ enum SortTicketChangesBy {
   reviewCommentFrom_DESC
   reviewCommentTo_ASC
   reviewCommentTo_DESC
+  qualityControlValueFrom_ASC
+  qualityControlValueFrom_DESC
+  qualityControlValueTo_ASC
+  qualityControlValueTo_DESC
+  qualityControlCommentFrom_ASC
+  qualityControlCommentFrom_DESC
+  qualityControlCommentTo_ASC
+  qualityControlCommentTo_DESC
   statusReasonFrom_ASC
   statusReasonFrom_DESC
   statusReasonTo_ASC
@@ -23071,6 +23317,12 @@ input TicketChangeUpdateInput {
   reviewValueTo: TicketChangeReviewValueToType
   reviewCommentFrom: String
   reviewCommentTo: String
+  qualityControlValueFrom: TicketChangeQualityControlValueFromType
+  qualityControlValueTo: TicketChangeQualityControlValueToType
+  qualityControlCommentFrom: String
+  qualityControlCommentTo: String
+  qualityControlAdditionalOptionsFrom: JSON
+  qualityControlAdditionalOptionsTo: JSON
   statusReasonFrom: String
   statusReasonTo: String
   deadlineFrom: String
@@ -23175,6 +23427,12 @@ input TicketChangeCreateInput {
   reviewValueTo: TicketChangeReviewValueToType
   reviewCommentFrom: String
   reviewCommentTo: String
+  qualityControlValueFrom: TicketChangeQualityControlValueFromType
+  qualityControlValueTo: TicketChangeQualityControlValueToType
+  qualityControlCommentFrom: String
+  qualityControlCommentTo: String
+  qualityControlAdditionalOptionsFrom: JSON
+  qualityControlAdditionalOptionsTo: JSON
   statusReasonFrom: String
   statusReasonTo: String
   deadlineFrom: String
@@ -25502,6 +25760,7 @@ type TicketFilter {
   clientPhone: [String]
   createdBy: [String]
   reviewValue: [String]
+  qualityControlValue: [String]
   contactIsNull: [String]
   completedAt: [String]
   lastCommentAt: [String]

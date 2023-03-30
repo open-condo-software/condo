@@ -1,12 +1,13 @@
-import { Alert, Col, Row } from 'antd'
+import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Modal, Button, Typography } from '@open-condo/ui'
+import { Button, Modal, Typography, Alert } from '@open-condo/ui'
 
 import DatePicker from '@app/condo/domains/common/components/Pickers/DatePicker'
+
 
 type useTicketDeferModalType = (updateTicket: (statusDeferredId: string, deferredDate: Dayjs) => void) => { openModal: (statusDeferredId: string) => void, closeModal: () => void, deferTicketModal: JSX.Element }
 
@@ -98,7 +99,7 @@ export const useTicketDeferModal: useTicketDeferModalType = (updateTicket) => {
                 </Col>
                 <Col span={24}>
                     <Alert
-                        message={<Typography.Title level={5}>{InfoBlockTitleMessage}</Typography.Title>}
+                        message={InfoBlockTitleMessage}
                         type='warning'
                         description={InfoBlockContentMessage}
                         showIcon

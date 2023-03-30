@@ -20,13 +20,15 @@ export type TypographyTextProps = Omit<DefaultTextProps,
 | 'style'> & {
     type?: typeof TEXT_TYPES[number]
     size?: typeof TEXT_SIZES[number]
+    lineWrapping?: 'break-spaces'
 }
 
 const Text = React.forwardRef<HTMLSpanElement, TypographyTextProps>((props, ref) => {
-    const { type, size = 'lg', ellipsis, onClick, ...rest } = props
+    const { type, size = 'lg', ellipsis, onClick, lineWrapping, ...rest } = props
     const className = classNames({
         [`${TYPOGRAPHY_CLASS_PREFIX}-${type}`]: type,
         [`${TYPOGRAPHY_CLASS_PREFIX}-${size}`]: size,
+        [`${TYPOGRAPHY_CLASS_PREFIX}-break-spaces`]: lineWrapping === 'break-spaces',
     }, typeof onClick === 'function' ? `${TYPOGRAPHY_CLASS_PREFIX}-clickable` : '')
     // NOTE: Used wrapper destructuring to explicitly pass component props, which is marked as internal in antd
     const componentProps = { component: 'span' }

@@ -31,6 +31,7 @@ import {
 } from '@condo/domains/scope/utils/clientSchema/search'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
+import { QUALITY_CONTROL_VALUES_BY_KEY } from '@condo/domains/ticket/constants/qualityControl'
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 
 import {
@@ -70,6 +71,7 @@ const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
 const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid', 'isWarranty', 'statusReopenedCounter', 'isRegular'])
 const filterIsResidentContact = getIsResidentContactFilter()
 const filterReviewValue = getFilter('reviewValue', 'array', 'string', 'in')
+const filterQualityControlValue = getFilter('qualityControlValue', 'array', 'string', 'in')
 const filterSource = getFilter(['source', 'id'], 'array', 'string', 'in')
 const filterSection = getFilter('sectionName', 'array', 'string', 'in')
 const filterFloor = getFilter('floorName', 'array', 'string', 'in')
@@ -122,6 +124,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const GoodReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.good' })
     const BadReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.bad' })
     const ReviewValueMessage = intl.formatMessage({ id: 'ticket.reviewValue' })
+    const QualityControlValueMessage = intl.formatMessage({ id: 'ticket.qualityControl.filter.label' })
+    const GoodQualityControlMessage = intl.formatMessage({ id: 'ticket.qualityControl.good' })
+    const BadQualityControlMessage = intl.formatMessage({ id: 'ticket.qualityControl.bad' })
     const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
     const IsResidentContactLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact' })
     const IsResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.true' })
@@ -153,6 +158,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
         { label: GoodReviewMessage, value: REVIEW_VALUES.GOOD },
         { label: BadReviewMessage, value: REVIEW_VALUES.BAD },
     ], [BadReviewMessage, GoodReviewMessage])
+    const qualityControlValueOptions = useMemo(() => [
+        { label: GoodQualityControlMessage, value: QUALITY_CONTROL_VALUES_BY_KEY.GOOD },
+        { label: BadQualityControlMessage, value: QUALITY_CONTROL_VALUES_BY_KEY.BAD },
+    ], [BadQualityControlMessage, GoodQualityControlMessage])
     const unitTypeOptions = useMemo(() => [
         { label: intl.formatMessage({ id: `field.UnitType.${BuildingUnitSubType.Flat}` }), value: BuildingUnitSubType.Flat },
         { label: intl.formatMessage({ id: `field.UnitType.${BuildingUnitSubType.Parking}` }), value: BuildingUnitSubType.Parking },
@@ -509,7 +518,23 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     modalFilterComponentWrapper: {
                         label: ReviewValueMessage,
                         size: FilterComponentSize.Small,
-                        spaceSizeAfter: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'qualityControlValue',
+                filters: [filterQualityControlValue],
+                component: {
+                    type: ComponentType.Select,
+                    options: qualityControlValueOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: QualityControlValueMessage,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -616,5 +641,5 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                 filters: [filterTicketContact],
             },
         ]
-    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, filterTicketType, ticketTypeOptions, TicketTypeMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, StartDateMessage, EndDateMessage, LastCommentAtMessage, reviewValueOptions, ReviewValueMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
+    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, filterTicketType, ticketTypeOptions, TicketTypeMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, StartDateMessage, EndDateMessage, LastCommentAtMessage, reviewValueOptions, ReviewValueMessage, qualityControlValueOptions, QualityControlValueMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
 }

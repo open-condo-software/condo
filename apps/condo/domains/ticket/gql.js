@@ -14,7 +14,8 @@ const COMMON_CHANGE_HISTORY_FIELDS = 'changedByRole id dv sender { dv fingerprin
 
 const TICKET_CLASSIFIER_ATTRIBUTES_FIELDS = ' classifier { id place { id name } category { id name } problem { id name } }'
 const TICKET_PROPERTY_FIELDS = `id name address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} }`
-const TICKET_FIELDS = `{ canReadByResident completedAt lastCommentAt lastResidentCommentAt isResidentTicket reviewValue reviewComment deadline deferredUntil organization { id name country } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone email unitName unitType } assignee { id name } executor { id name } details related { id details } isAutoClassified isEmergency isPaid isWarranty meta source { id name type } sourceMeta categoryClassifier { id } placeClassifier { id } problemClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
+const TICKET_QUALITY_CONTROL_FIELDS = 'qualityControlValue qualityControlComment qualityControlAdditionalOptions qualityControlUpdatedAt qualityControlUpdatedBy { id name }'
+const TICKET_FIELDS = `{ canReadByResident completedAt lastCommentAt lastResidentCommentAt isResidentTicket reviewValue reviewComment ${TICKET_QUALITY_CONTROL_FIELDS} deadline deferredUntil organization { id name country } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone email unitName unitType } assignee { id name } executor { id name } details related { id details } isAutoClassified isEmergency isPaid isWarranty meta source { id name type } sourceMeta categoryClassifier { id } placeClassifier { id } problemClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
 const TICKET_STATUS_FIELDS = `{ organization { id } type name nameNonLocalized colors { primary secondary additional } ${COMMON_FIELDS} }`
@@ -115,6 +116,12 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'sourceIdTo',
     'sourceDisplayNameFrom',
     'sourceDisplayNameTo',
+    'qualityControlValueFrom',
+    'qualityControlValueTo',
+    'qualityControlCommentFrom',
+    'qualityControlCommentTo',
+    'qualityControlAdditionalOptionsFrom',
+    'qualityControlAdditionalOptionsTo',
 ]
 const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } organization { id country } } ${COMMON_CHANGE_HISTORY_FIELDS} ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
@@ -142,7 +149,7 @@ const TicketProblemClassifier = generateGqlQueries('TicketProblemClassifier', TI
 const TICKET_CLASSIFIER_FIELDS = `{ place { id name } category { id name } problem { id name } ${COMMON_FIELDS} }`
 const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIER_FIELDS)
 
-const TICKET_FILTER_FIELDS = '{ type completedAt lastCommentAt organization number createdAt status details property propertyScope address clientName executor assignee executorName deadline assigneeName attributes source sectionName floorName unitType unitName placeClassifier categoryClassifier problemClassifier clientPhone createdBy contactIsNull reviewValue }'
+const TICKET_FILTER_FIELDS = '{ type completedAt lastCommentAt organization number createdAt status details property propertyScope address clientName executor assignee executorName deadline assigneeName attributes source sectionName floorName unitType unitName placeClassifier categoryClassifier problemClassifier clientPhone createdBy contactIsNull reviewValue qualityControlValue }'
 const TICKET_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${TICKET_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const TicketFilterTemplate = generateGqlQueries('TicketFilterTemplate', TICKET_FILTER_TEMPLATE_FIELDS)
 
