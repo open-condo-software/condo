@@ -107,6 +107,21 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             if (get(transactions, 'error.cause') === 'WORKFLOW_FAULT') doNextRequest = false
         } while ( doNextRequest )
 
+        const summary = await fintechApi.getStatementSummary(
+            bankAccount.number,
+            statementDate,
+        )
+        if (summary) {
+            await BankAccount.update(context, bankAccount.id, {
+                meta: {
+                    ...bankAccount.meta,
+                    amount: get(summary, 'data.closingBalance.amount'),
+                    amountAt: get(summary, 'data.composedDateTime'),
+                },
+                ...dvSenderFields,
+            })
+        }
+
         for (const transaction of transactions) {
             // If SBBOL returned a transaction with an unsupported currency, do not process
             if (ISO_CODES.includes(transaction.amount.currencyName)) {
