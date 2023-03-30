@@ -17,7 +17,7 @@ const { ERROR_PASSED_DATE_IN_THE_FUTURE } = require('../constants')
 
 
 const logger = getLogger('sbbol/SbbolSyncTransactions')
-const isTransactionsReceived = (response) => (get(response, 'error.cause', '') !== 'STATEMENT_RESPONSE_PROCESSING')
+const isResponceSuccessfull = (response) => (get(response, 'error.cause', '') !== 'STATEMENT_RESPONSE_PROCESSING')
 // ---------------------------------
 const FAILED_STATUS = 'failed'
 const IN_PROGRESS_STATUS = 'inProgress'
@@ -52,22 +52,36 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
         let page = 1,
             doNextRequest = true,
             timeout = 1000,
-            failedReq = 0
+            failedReq = 0,
+            summary
 
         do {
             let response = await fintechApi.getStatementTransactions(bankAccount.number, statementDate, page)
+            summary = await fintechApi.getStatementSummary(
+                bankAccount.number,
+                statementDate,
+            )
 
-            while (!isTransactionsReceived(response)) {
+            while (!isResponceSuccessfull(response) || !isResponceSuccessfull(summary)) {
                 if (failedReq > 5) {
                     break
                 }
                 await new Promise( (resolve) => {
                     setTimeout(async () => {
-                        response = await fintechApi.getStatementTransactions(
-                            bankAccount.number,
-                            statementDate,
-                            page
-                        )
+                        if (!isResponceSuccessfull(response)) {
+                            response = await fintechApi.getStatementTransactions(
+                                bankAccount.number,
+                                statementDate,
+                                page
+                            )
+                        }
+
+                        if (!isResponceSuccessfull(summary)) {
+                            summary = await fintechApi.getStatementSummary(
+                                bankAccount.number,
+                                statementDate,
+                            )
+                        }
                         resolve()
                     }, timeout)
                 })
@@ -76,9 +90,8 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             }
 
             const receivedTransactions = get(response, 'data.transactions')
-            if (receivedTransactions) {
-                receivedTransactions.map( transaction => transactions.push(transaction))
-            } else {
+            const receivedSummary = get(summary, 'data.closingBalance')
+            if (!receivedTransactions || !receivedSummary) {
                 // ---------------------------------
                 await BankIntegrationAccountContext.update(context, bankIntegrationAccountContext.id, {
                     meta: {
@@ -87,11 +100,13 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     ...dvSenderFields,
                 })
                 // ^^ the code needed in the prototype. In MVP, synchronization status will be stored in BankSyncTask
-                logger.error(`Unsuccessful response to transaction request by state: ${{ 
-                    bankAccount: bankAccount.number, 
+                logger.error(`Unsuccessful response to transaction request by state: ${{
+                    bankAccount: bankAccount.number,
                     statementDate,
                     page,
                 }}`)
+            } else {
+                receivedTransactions.map( transaction => transactions.push(transaction))
             }
 
             page++
@@ -105,12 +120,9 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             // when report is requested for date in future
             // when report page does not exist, for example number is out of range of available pages
             if (get(transactions, 'error.cause') === 'WORKFLOW_FAULT') doNextRequest = false
+            if (get(summary, 'error.cause') === 'WORKFLOW_FAULT') doNextRequest = false
         } while ( doNextRequest )
 
-        const summary = await fintechApi.getStatementSummary(
-            bankAccount.number,
-            statementDate,
-        )
         if (summary) {
             await BankAccount.update(context, bankAccount.id, {
                 meta: {
