@@ -18268,19 +18268,6 @@ export type DisconnectUserFromRemoteClientOutput = {
   status: Scalars['String'];
 };
 
-export type ExportContactsToExcelInput = {
-  dv: Scalars['Int'];
-  sender: SenderFieldInput;
-  where: ContactWhereInput;
-  sortBy?: Maybe<Array<SortContactsBy>>;
-};
-
-export type ExportContactsToExcelOutput = {
-  __typename?: 'ExportContactsToExcelOutput';
-  status: Scalars['String'];
-  linkToFile: Scalars['String'];
-};
-
 export type ExportIncidentsToExcelInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -46542,7 +46529,6 @@ export type Query = {
   predictTransactionClassification?: Maybe<PredictTransactionClassificationOutput>;
   predictTicketClassification?: Maybe<TicketClassifier>;
   exportIncidentsToExcel?: Maybe<ExportIncidentsToExcelOutput>;
-  exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
   generatePaymentLink?: Maybe<GeneratePaymentLinkOutput>;
@@ -51584,11 +51570,6 @@ export type QueryPredictTicketClassificationArgs = {
 
 export type QueryExportIncidentsToExcelArgs = {
   data: ExportIncidentsToExcelInput;
-};
-
-
-export type QueryExportContactsToExcelArgs = {
-  data: ExportContactsToExcelInput;
 };
 
 

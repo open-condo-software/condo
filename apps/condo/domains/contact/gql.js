@@ -23,15 +23,8 @@ const ContactExportTask = generateGqlQueries('ContactExportTask', CONTACT_EXPORT
 
 /* AUTOGENERATE MARKER <CONST> */
 
-const EXPORT_CONTACTS_TO_EXCEL =  gql`
-    query exportContactsToExcel ($data: ExportContactsToExcelInput!) {
-        result: exportContactsToExcel(data: $data) { status, linkToFile }
-    }
-`
-
 module.exports = {
     Contact,
-    EXPORT_CONTACTS_TO_EXCEL,
     ContactRole,
     ContactExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
