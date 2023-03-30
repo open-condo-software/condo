@@ -20,6 +20,18 @@ export type StepProps = StepItem & {
 const STEP_CLASS_PREFIX = 'condo-steps-step'
 const DEFAULT_NO_RETURN_MESSAGE = 'At this point it is impossible to go back to this step'
 
+type WithTooltipProps = {
+    title: string
+    show: boolean
+    children: React.ReactNode
+}
+
+const WithTooltip: React.FC<WithTooltipProps> = ({ title, show, children }) => (
+    show
+        ? <Tooltip title={title} placement='bottomLeft'>{children}</Tooltip>
+        : <>{children}</>
+)
+
 export const Step: React.FC<StepProps> = ({ size, index, title, type, onClick, noReturnMessage }) => {
     const className = classNames({
         [STEP_CLASS_PREFIX]: true,
@@ -33,10 +45,8 @@ export const Step: React.FC<StepProps> = ({ size, index, title, type, onClick, n
     const titleSize = size === 'large' ? 'large' : 'medium'
     const titleType = type === 'disabled' ? 'secondary' : undefined
 
-    const StepWrapper = type === 'done' ? Tooltip : React.Fragment
-
     return (
-        <StepWrapper title={noReturnMessage || DEFAULT_NO_RETURN_MESSAGE} placement='bottomLeft'>
+        <WithTooltip title={noReturnMessage || DEFAULT_NO_RETURN_MESSAGE} show={type === 'done'}>
             <div className={className} onClick={onClick}>
                 <Space size={12} direction='horizontal' align='center'>
                     <div className={`${STEP_CLASS_PREFIX}-index`}>
@@ -54,6 +64,6 @@ export const Step: React.FC<StepProps> = ({ size, index, title, type, onClick, n
                     </Typography.Text>
                 </Space>
             </div>
-        </StepWrapper>
+        </WithTooltip>
     )
 }
