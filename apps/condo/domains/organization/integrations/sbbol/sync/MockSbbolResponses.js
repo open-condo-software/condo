@@ -229,6 +229,22 @@ const EXAMPLE_TRANSACTION = {
     },
 }
 
+const EXAMPLE_SUMMARY = {
+    composedDateTime: '2023-03-30T00:00:00',
+    lastMovementDate: '2017-08-17',
+    openingRate: null,
+    openingBalance: { amount: '100.10', currencyName: 'RUB' },
+    openingBalanceRub: { amount: '100.10', currencyName: 'RUB' },
+    closingBalance: { amount: '100.10', currencyName: 'RUB' },
+    closingBalanceRub: { amount: '100.10', currencyName: 'RUB' },
+    debitTurnover: { amount: '616147.76', currencyName: 'RUB' },
+    debitTurnoverRub: { amount: '616147.76', currencyName: 'RUB' },
+    debitTransactionsNumber: 15,
+    creditTurnover: { amount: '616147.76', currencyName: 'RUB' },
+    creditTurnoverRub: { amount: '616147.76', currencyName: 'RUB' },
+    creditTransactionsNumber: 15,
+}
+
 class MockSbbolResponses {
     static getUserInfo () {
         const inn = generateTin(RUSSIA_COUNTRY)
@@ -313,6 +329,10 @@ class MockSbbolResponses {
             clonedTransaction.number = faker.datatype.number(1000000).toString()
             return clonedTransaction
         })
+    }
+
+    static getStatementSummary () {
+        return EXAMPLE_SUMMARY
     }
 
 }
