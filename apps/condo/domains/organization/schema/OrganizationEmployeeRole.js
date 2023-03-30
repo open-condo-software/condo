@@ -95,6 +95,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         },
         canManagePropertyScopes: { type: Checkbox, defaultValue: false },
         canManageBankAccounts: { type: Checkbox, defaultValue: false },
+        canManageBankAccountReportTasks: { type: Checkbox, defaultValue: false },
         canManageBankIntegrationAccountContexts: { type: Checkbox, defaultValue: false },
         canManageBankIntegrationOrganizationContexts: { type: Checkbox, defaultValue: false },
         canManageBankContractorAccounts: { type: Checkbox, defaultValue: false },

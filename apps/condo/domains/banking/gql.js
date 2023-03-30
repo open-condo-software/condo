@@ -32,7 +32,7 @@ const BankIntegrationAccountContext = generateGqlQueries('BankIntegrationAccount
 const BANK_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id } organization { id, deletedAt } deletedAt ${COMMON_FIELDS} }`
 const BankIntegrationOrganizationContext = generateGqlQueries('BankIntegrationOrganizationContext', BANK_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS)
 
-const BANK_TRANSACTION_FIELDS = `{ account { id number } contractorAccount { id name costItem { id } } costItem { id } integrationContext { id enabled } organization { id } number date amount isOutcome currencyCode purpose meta importId importRemoteSystem ${COMMON_FIELDS} }`
+const BANK_TRANSACTION_FIELDS = `{ account { id number } contractorAccount { id name costItem { id } } costItem { id, category { id, name } } integrationContext { id enabled } organization { id } number date amount isOutcome currencyCode purpose meta importId importRemoteSystem ${COMMON_FIELDS} }`
 const BankTransaction = generateGqlQueries('BankTransaction', BANK_TRANSACTION_FIELDS)
 
 const BANK_SYNC_TASK_FIELDS = `{ account { id } integrationContext { id } organization { id } property { id } status file { id originalFilename publicUrl mimetype } user { id } totalCount processedCount meta ${COMMON_FIELDS} }`
@@ -62,6 +62,9 @@ const PREDICT_TRANSACTION_CLASSIFICATION_QUERY = gql`
 const BANK_ACCOUNT_REPORT_FIELDS = `{ account { id } organization { id } version template period amount amountAt publishedAt totalIncome totalOutcome data ${COMMON_FIELDS} }`
 const BankAccountReport = generateGqlQueries('BankAccountReport', BANK_ACCOUNT_REPORT_FIELDS)
 
+const BANK_ACCOUNT_REPORT_TASK_FIELDS = `{ account { id } organization { id } status progress meta ${COMMON_FIELDS} }`
+const BankAccountReportTask = generateGqlQueries('BankAccountReportTask', BANK_ACCOUNT_REPORT_TASK_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -79,5 +82,6 @@ module.exports = {
     IMPORT_BANK_TRANSACTIONS_MUTATION,
     PREDICT_TRANSACTION_CLASSIFICATION_QUERY,
     BankAccountReport,
+    BankAccountReportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
