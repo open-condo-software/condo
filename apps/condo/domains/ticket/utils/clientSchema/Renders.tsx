@@ -80,7 +80,7 @@ export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommen
 const DEBOUNCE_TIMEOUT_IN_MS = 200
 const FAVORITE_TICKET_INDICATOR_CONTAINER_STYLE: CSSProperties = { cursor: 'pointer' }
 
-export const FavoriteTicketIndicator = ({ ticketId, eventProperties }) => {
+export const FavoriteTicketIndicator = ({ ticketId }) => {
     const intl = useIntl()
     const AddToFavoriteMessage = intl.formatMessage({ id: 'pages.condo.ticket.favorite.addToFavorite' })
     const RemoveFromFavoriteMessage = intl.formatMessage({ id: 'pages.condo.ticket.favorite.removeFromFavorite' })
@@ -112,7 +112,7 @@ export const FavoriteTicketIndicator = ({ ticketId, eventProperties }) => {
     useEffect(() => {
         if (debouncedIsFavorite !== undefined && debouncedIsFavorite !== initialIsFavorite) {
             if (debouncedIsFavorite) {
-                logEvent({ eventName: 'AddFavoriteTicket', eventProperties })
+                logEvent({ eventName: 'TicketAddFavorite' })
                 createUserFavoriteTicketAction({})
             } else {
                 const favoriteTicket = userFavoriteTickets.find(favoriteTicket => favoriteTicket.ticket.id === ticketId)
