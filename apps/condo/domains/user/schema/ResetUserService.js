@@ -122,7 +122,9 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                 })
 
                 for (const externalIdentity of accordingUserExternalIdentity) {
-                    await UserExternalIdentity.softDelete(context, externalIdentity.id, { dv: 1, sender })
+                    if (!externalIdentity.deletedAt) {
+                        await UserExternalIdentity.softDelete(context, externalIdentity.id, { dv: 1, sender })
+                    }
                 }
 
                 return { status: 'ok' }
