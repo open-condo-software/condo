@@ -184,7 +184,7 @@
   "global.section.miniapps": "Сервисы",
   "global.section.SPP": "Платежи от физлиц",
   "global.available": "Есть",
-  "global.notAvailable": "Отсутсвует",
+  "global.notAvailable": "Отсутствует",
   "global.contractor": "{isSingular, plural, other {Контрагенты} one {Контрагент}}",
   "global.tin": "ИНН",
   "global.bankAccount": "Расчетный счет",
