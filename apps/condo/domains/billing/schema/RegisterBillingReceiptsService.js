@@ -155,7 +155,7 @@ const convertBillingReceiptToGQLInput = (item, propertiesIndex, accountsIndex) =
 
     item.recipient = {
         tin: item.tin,
-        iec: item.iec,
+        ...item.iec && { iec: item.iec },
         bankAccount: item.bankAccount,
         bic: item.bic,
     }
@@ -252,7 +252,9 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
 
     const newReceipts = []
     for (const item of receiptsToAdd) {
+        console.log('---------ITEM: ', item)
         const billingReceiptGQLInput = convertBillingReceiptToGQLInput(item, propertiesIndex, accountsIndex)
+        console.log('---------billingReceiptGQLInput: ', billingReceiptGQLInput)
         const newReceipt = await BillingReceipt.create(context, billingReceiptGQLInput)
         newReceipts.push(newReceipt)
     }
