@@ -147,6 +147,77 @@ describe('ResetUserService', () => {
         expect(resetUser.isEmailVerified).toEqual(false)
     })
 
+    test('user can reset their account with associated UserExternalEdentity', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        // create user external identity
+        const [identity] = await createTestUserExternalIdentity(admin, {
+            user: { connect: { id: client.user.id } },
+            identityId: faker.random.alphaNumeric(8),
+            identityType: SBER_ID_IDP_TYPE,
+            meta: {
+                dv: 1, city: faker.address.city(), county: faker.address.county(),
+            },
+        })
+
+        const payload = {
+            user: { id: client.user.id },
+        }
+
+        await resetUserByTestClient(client, payload)
+
+        // We use admin context here, since support does not have access to email and phone fields
+        const [resetUser] = await UserAdmin.getAll(admin, { id: client.user.id })
+        expect(resetUser.id).toEqual(client.user.id)
+        expect(resetUser.name).toEqual(DELETED_USER_NAME)
+        expect(resetUser.phone).toBeNull()
+        expect(resetUser.email).toBeNull()
+        expect(resetUser.isAdmin).toBeFalsy()
+        expect(resetUser.isSupport).toBeFalsy()
+        expect(resetUser.isPhoneVerified).toEqual(false)
+        expect(resetUser.isEmailVerified).toEqual(false)
+
+        const foundIdentity = await UserExternalIdentity.getAll(admin, { id: identity.id })
+        expect(foundIdentity).toHaveLength(0)
+    })
+
+    test('user can reset their account with deleted UserExternalEdentity', async () => {
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        // create user external identity
+        const [identity] = await createTestUserExternalIdentity(admin, {
+            user: { connect: { id: client.user.id } },
+            identityId: faker.random.alphaNumeric(8),
+            identityType: SBER_ID_IDP_TYPE,
+            meta: {
+                dv: 1, city: faker.address.city(), county: faker.address.county(),
+            },
+        })
+
+        // remove user external identity
+        await UserExternalIdentity.softDelete(client, identity.id)
+
+        const payload = {
+            user: { id: client.user.id },
+        }
+
+        await resetUserByTestClient(client, payload)
+
+        // We use admin context here, since support does not have access to email and phone fields
+        const [resetUser] = await UserAdmin.getAll(admin, { id: client.user.id })
+        expect(resetUser.id).toEqual(client.user.id)
+        expect(resetUser.name).toEqual(DELETED_USER_NAME)
+        expect(resetUser.phone).toBeNull()
+        expect(resetUser.email).toBeNull()
+        expect(resetUser.isAdmin).toBeFalsy()
+        expect(resetUser.isSupport).toBeFalsy()
+        expect(resetUser.isPhoneVerified).toEqual(false)
+        expect(resetUser.isEmailVerified).toEqual(false)
+
+        const foundIdentity = await UserExternalIdentity.getAll(admin, { id: identity.id })
+        expect(foundIdentity).toHaveLength(0)
+    })
+
     test('user cant reset another user', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
