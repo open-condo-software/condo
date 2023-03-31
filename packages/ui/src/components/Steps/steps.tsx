@@ -66,7 +66,8 @@ export const Steps: React.FC<StepsProps> = ({
         if (onChange) {
             onChange(currentStep)
         }
-    }, [currentStep, onChange])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStep])
 
     useEffect(() => {
         sendAnalyticsChangeEvent('Steps', { activeStep: currentStep, id })
