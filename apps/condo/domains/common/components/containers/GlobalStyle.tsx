@@ -391,6 +391,9 @@ export default function GlobalStyle () {
                 line-height: 32px; 
                 font-weight: 700;
               }
+              .ant-modal-footer button + .ant-btn:not(.ant-dropdown-trigger) {
+                margin-left: 8px;
+              }
               
               ${uploadControlCss}
               ${radioGroupCss}
