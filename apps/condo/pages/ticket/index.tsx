@@ -51,6 +51,7 @@ import {
     EXTENDED_RECORDS_LIMIT_FOR_IMPORT,
 } from '@condo/domains/common/constants/import'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import {
     MultipleFilterContextProvider,
     FiltersTooltip,
@@ -93,7 +94,6 @@ type TicketType = 'all' | 'own' | 'favorite'
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 const MEDIUM_VERTICAL_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
-const SMALL_VERTICAL_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 4]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.label }
 const DEBOUNCE_TIMEOUT = 400
 
@@ -541,7 +541,7 @@ const FiltersContainer = ({ filterMetas, TicketImportButton }) => {
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
-    const { breakpoints } = useLayoutContext()
+    const [{ width: contentWidth }, setRef] = useContainerSize()
 
     const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
@@ -574,11 +574,28 @@ const FiltersContainer = ({ filterMetas, TicketImportButton }) => {
         changeSearch(e.target.value)
     }, [changeSearch])
 
+    let inputColSpan = 24
+    let checkboxColSpan = 24
+    let filterButtonColSpan = 24
+
+    const isXlContainerSize = TicketImportButton ? contentWidth >= 1045 : contentWidth >= 980
+
+    if (isXlContainerSize) {
+        checkboxColSpan = 16
+        filterButtonColSpan = 8
+    }
+
+    if (contentWidth >= 1380) {
+        inputColSpan = 5
+        checkboxColSpan = 12
+        filterButtonColSpan = 7
+    }
+
     return (
         <>
-            <TableFiltersContainer>
+            <TableFiltersContainer ref={setRef}>
                 <Row gutter={FILTERS_CONTAINER_ROW_GUTTER} align='middle'>
-                    <Col xs={24} sm={24} xxl={5}>
+                    <Col span={inputColSpan}>
                         <Input
                             placeholder={SearchPlaceholder}
                             onChange={handleSearchChange}
@@ -587,7 +604,7 @@ const FiltersContainer = ({ filterMetas, TicketImportButton }) => {
                             suffix={<Search color={colors.gray[7]} />}
                         />
                     </Col>
-                    <Col xs={24} sm={24} xl={16} xxl={12}>
+                    <Col span={checkboxColSpan}>
                         <Row gutter={CHECKBOX_WRAPPER_GUTTERS} style={CHECKBOX_WRAPPER_STYLES}>
                             <Col>
                                 <Checkbox
@@ -646,9 +663,9 @@ const FiltersContainer = ({ filterMetas, TicketImportButton }) => {
                             </Col>
                         </Row>
                     </Col>
-                    <Col xs={24} sm={24} xl={8} xxl={7}>
+                    <Col span={filterButtonColSpan}>
                         {
-                            breakpoints.xl ? (
+                            isXlContainerSize ? (
                                 <Row justify='end' align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER} style={FILTERS_BUTTON_ROW_STYLES}>
                                     {
                                         appliedFiltersCount > 0 ? (

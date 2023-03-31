@@ -200,6 +200,13 @@ export const SUB_LAYOUT_CSS = css`
   align-items: center;
   background-color: ${colors.white};
 `
+export const EMPTY_SUB_LAYOUT_CSS = css`
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  background-color: ${colors.white};
+`
+
 /** @deprecated */
 export const subLayoutCss = css`
   width: 100%;
