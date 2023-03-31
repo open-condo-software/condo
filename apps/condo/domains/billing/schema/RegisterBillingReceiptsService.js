@@ -252,9 +252,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
 
     const newReceipts = []
     for (const item of receiptsToAdd) {
-        console.log('---------ITEM: ', item)
         const billingReceiptGQLInput = convertBillingReceiptToGQLInput(item, propertiesIndex, accountsIndex)
-        console.log('---------billingReceiptGQLInput: ', billingReceiptGQLInput)
         const newReceipt = await BillingReceipt.create(context, billingReceiptGQLInput)
         newReceipts.push(newReceipt)
     }
