@@ -163,13 +163,13 @@ describe('task schema queries', () => {
             const [{ id: id1 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[0]),
                 enabled: true,
-                paymentDay: date.date() + 1,
+                paymentDay: date.add('1', 'day').date(),
             })
 
             const [{ id: id2 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[1]),
                 enabled: true,
-                paymentDay: date.date() - 1,
+                paymentDay: date.subtract('1', 'day').date(),
             })
             const [{ id: id3 }] = await createTestRecurrentPaymentContext(admin, {
                 ...getContextRequest(batches[2]),
@@ -239,7 +239,6 @@ describe('task schema queries', () => {
 
             const objs = await getAllReadyToPayRecurrentPaymentContexts(adminContext, date, pageSize, 0, {
                 id_in: [id1, id2],
-                paymentDay: null,
                 autoPayReceipts: true,
             })
             expect(objs).toHaveLength(1)
