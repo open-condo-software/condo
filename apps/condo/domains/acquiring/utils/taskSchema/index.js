@@ -58,13 +58,17 @@ async function getAllReadyToPayRecurrentPaymentContexts (context, date, pageSize
     const paymentDayCondition = paymentDay !== endOfMonthPaymentDay
         ? { paymentDay }
         : { paymentDay_gte: paymentDay }
+    const autoPayReceipts = get(extraArgs, 'autoPayReceipts')
+    const triggerCondition = autoPayReceipts ? {
+        paymentDay: null,
+        autoPayReceipts: true,
+    } : { ...paymentDayCondition, autoPayReceipts: false }
 
     return await RecurrentPaymentContext.getAll(
         context, {
             enabled: true,
-            autoPayReceipts: false,
             deletedAt: null,
-            ...paymentDayCondition,
+            ...triggerCondition,
             ...extraArgs,
         }, {
             sortBy: 'id_ASC',
