@@ -3,7 +3,7 @@ import React from 'react'
 
 import { IconWrapper, IconProps } from '../wrappers'
 
-export const Sheet: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => {
+export const FileEdit: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => {
     return (
         <IconWrapper
             icon={
@@ -18,7 +18,7 @@ export const Sheet: React.FC<IconProps> = ({ svgProps: props, ...restProps }) =>
                     <path
                         fillRule='evenodd'
                         clipRule='evenodd'
-                        d='M2.05 5A2.95 2.95 0 0 1 5 2.05h14A2.95 2.95 0 0 1 21.95 5v14A2.95 2.95 0 0 1 19 21.95H5A2.95 2.95 0 0 1 2.05 19V5ZM5 3.95c-.58 0-1.05.47-1.05 1.05v3.051A.964.964 0 0 1 4 8.05h16l.05.001V5c0-.58-.47-1.05-1.05-1.05H5Zm9.05 6h-4.1v4.1h4.1v-4.1Zm1.9 4.1v-4.1H20l.05-.001v4.102a.922.922 0 0 0-.05-.001h-4.05Zm-1.9 1.9h-4.1V20l-.001.05h4.102a.922.922 0 0 1-.001-.05v-4.05Zm1.899 4.1.001-.05v-4.05H20l.05-.001V19c0 .58-.47 1.05-1.05 1.05h-3.051ZM4 9.95h4.05v4.1H4l-.05.001V9.95L4 9.95Zm0 6h4.05V20l.001.05H5c-.58 0-1.05-.47-1.05-1.05v-3.051l.05.001Z'
+                        d='M6 3a1 1 0 0 0-1 1v9.5a1 1 0 1 1-2 0V4a3 3 0 0 1 3-3h8.5a1 1 0 0 1 .707.293l5.5 5.5A1 1 0 0 1 21 7.5V20a3 3 0 0 1-3 3h-5.5a1 1 0 1 1 0-2H18a1 1 0 0 0 1-1V9h-5a1 1 0 0 1-1-1V3H6Zm9 .914V7h3.086L15 3.914Zm-3.095 9.08a1.1 1.1 0 0 0-.777.323L5.893 18.56l-.516 2.059 2.062-.522 5.244-5.225a1.104 1.104 0 0 0 .238-1.199 1.1 1.1 0 0 0-1.016-.68Zm-1.186-1.763a3.1 3.1 0 0 1 3.378 5.056l-5.441 5.421a1 1 0 0 1-.46.261l-3.95 1a1 1 0 0 1-1.216-1.212l.99-3.95a1 1 0 0 1 .262-.463l5.43-5.44c.288-.288.63-.517 1.007-.673Z'
                         fill='currentColor'
                     />
                 </svg>
