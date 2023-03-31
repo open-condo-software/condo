@@ -224,6 +224,7 @@ describe('exportContacts', () => {
             expect(updatedTask).toHaveProperty('exportedRecordsCount', contactsNumberFor2Queries)
             expect(updatedTask).toHaveProperty('totalRecordsCount', contactsNumberFor2Queries)
             expect(updatedTask.exportedRecordsCount).toEqual(contacts.length)
+            expect(updatedTask).toHaveProperty('v', 3)
             expect(updatedTask).toHaveProperty('status', COMPLETED)
         })
 
