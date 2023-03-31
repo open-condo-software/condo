@@ -185,10 +185,32 @@ class SbbolFintechApi extends SbbolRequestApi {
      * @property {page} page - optional
      * @return {Promise<{error: any}|{data: StatementTransactions}>}
      */
-    async getStatementTransactions (accountNumber, statementDate, page = 1) {
+    async getStatementTransactions (accountNumber, statementDate, page = 1, curFormat) {
         const { data, statusCode } = await this.request({
             method: 'GET',
             path: this.statementTransactionsRequestPath,
+            body: {
+                accountNumber,
+                statementDate,
+                page,
+                curFormat,
+            },
+        })
+        return parseSbbolResponse({ data, statusCode }, 200)
+    }
+
+    /**
+     * Get balance statement request, posted with `getStatementSummary`
+     * @typedef StatementSummary
+     * @property {accountNumber} SbbolAccount number
+     * @property {statementDate} Date - optional
+     * @property {page} page - optional
+     * @return {Promise<{error: any}|{data: StatementSummary}>}
+     */
+    async getStatementSummary (accountNumber, statementDate, page = 1) {
+        const { data, statusCode } = await this.request({
+            method: 'GET',
+            path: this.getStatementSummaryRequestPath,
             body: {
                 accountNumber,
                 statementDate,
@@ -200,6 +222,10 @@ class SbbolFintechApi extends SbbolRequestApi {
 
     get statementTransactionsRequestPath () {
         return `${this.apiPrefix}/v1/statement/transactions`
+    }
+
+    get getStatementSummaryRequestPath () {
+        return `${this.apiPrefix}/v1/statement/summary`
     }
 }
 

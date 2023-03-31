@@ -44,11 +44,13 @@ async function syncSbbolTransactions (date, userId = '', organization = {}) {
             deletedAt: null,
         }, { first: 1 })
 
-        await requestTransactions({
-            date,
-            userId,
-            organization: get(employee, 'organization'),
-        })
+        if (employee) {
+            await requestTransactions({
+                date,
+                userId,
+                organization: get(employee, 'organization'),
+            })
+        }
     }
 }
 

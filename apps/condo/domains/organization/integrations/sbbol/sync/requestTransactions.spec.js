@@ -3,6 +3,7 @@
  */
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
+const get = require('lodash/get')
 
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
@@ -37,6 +38,19 @@ jest.mock('@condo/domains/organization/integrations/sbbol/SbbolFintechApi',  () 
                 return Promise.resolve({ data: { transactions: MockSbbolResponses.getStatementTransactions() }, statusCode: 200 })
             }
         }
+
+        async getStatementSummary (accountNumber, statementDate, page = 1) {
+            if ( (this.now < statementDate) || page === 2) {
+                return Promise.resolve({ error: { cause: 'WORKFLOW_FAULT' }, statusCode: 400 })
+            }
+            if (this.requestCount === 0) {
+                this.requestCount++
+                return Promise.resolve({ error: { cause: 'STATEMENT_RESPONSE_PROCESSING' }, statusCode: 202 })
+            } else {
+                this.requestCount = 0
+                return Promise.resolve({ data: MockSbbolResponses.getStatementSummary(), statusCode: 200 })
+            }
+        }
     }
 
     return {
@@ -49,8 +63,7 @@ jest.mock('@condo/domains/organization/integrations/sbbol/SbbolFintechApi',  () 
 
 describe('syncBankTransaction from SBBOL', () => {
     setFakeClientMode(index)
-
-    let adminClient, commonClient, adminContext, context, commonOrganization
+    let adminClient, commonClient, adminContext, context, commonOrganization, commonBankAccount
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         commonClient = await makeLoggedInClient()
@@ -68,7 +81,7 @@ describe('syncBankTransaction from SBBOL', () => {
             integration: { connect: { id: bankIntegration.id } },
             organization: { connect: { id: commonOrganization.id } },
         })
-        const commonBankAccount = await BankAccount.create(adminClient, {
+        commonBankAccount = await BankAccount.create(adminClient, {
             tin: commonOrganization.tin,
             country: RUSSIA_COUNTRY,
             number: '40702810638155352218',
@@ -89,6 +102,9 @@ describe('syncBankTransaction from SBBOL', () => {
                 organization: commonOrganization,
             })
 
+            const bankAccountBalance = await BankAccount.getOne(adminClient, { id: commonBankAccount.id })
+            expect(get(bankAccountBalance, 'meta.amount')).toBeDefined()
+            expect(get(bankAccountBalance, 'meta.amountAt')).toBeDefined()
             expect(transactions).toHaveLength(5)
         })
 
