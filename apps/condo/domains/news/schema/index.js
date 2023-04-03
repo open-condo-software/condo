@@ -6,11 +6,13 @@
 const { NewsItem } = require('./NewsItem')
 const { NewsItemScope } = require('./NewsItemScope')
 const { NewsItemTemplate } = require('./NewsItemTemplate')
+const { NewsItemUserRead } = require('./NewsItemUserRead')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     NewsItem,
     NewsItemScope,
     NewsItemTemplate,
+    NewsItemUserRead,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
