@@ -116,8 +116,9 @@ const generateSmsCode = (phone) => {
 const updateEmployeesRelatedToUser = async (context, user) => {
     if (!user || !user.id) throw new Error('updateEmployeesRelatedToUser(): without user.id')
     const acceptedInviteEmployees = await OrganizationEmployee.getAll(context, { user: { id: user.id }, isAccepted: true })
-    if (acceptedInviteEmployees.length > 0) {
-        await Promise.all(acceptedInviteEmployees.map(employee => {
+    const readyToUpdateEmployees = acceptedInviteEmployees.filter(employee => !employee.deletedAt)
+    if (readyToUpdateEmployees.length > 0) {
+        await Promise.all(readyToUpdateEmployees.map(employee => {
             OrganizationEmployee.update(context, employee.id, {
                 dv: user.dv,
                 sender: user.sender,

@@ -112,7 +112,9 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
 
                 const employees = await OrganizationEmployee.getAll(context, { user: { id: user.id } })
                 for (const employee of employees) {
-                    await OrganizationEmployee.softDelete(context, employee.id, { dv: 1, sender })
+                    if (!employee.deletedAt) {
+                        await OrganizationEmployee.softDelete(context, employee.id, { dv: 1, sender })
+                    }
                 }
 
                 const accordingUserExternalIdentity = await UserExternalIdentity.getAll(context, {
