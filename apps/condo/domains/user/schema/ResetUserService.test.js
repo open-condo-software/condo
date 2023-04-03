@@ -218,6 +218,20 @@ describe('ResetUserService', () => {
         expect(foundIdentity).toHaveLength(0)
     })
 
+    test('user can reset their account with deleted OrganizationEmployee', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+
+        // remove one OrganizationEmployee
+        const [{ id }] = await OrganizationEmployee.getAll(client)
+        await OrganizationEmployee.softDelete(support, id)
+
+        // reset
+        await resetUserByTestClient(support, { user: { id: client.user.id } })
+
+        const canAccessObjs = await OrganizationEmployee.getAll(client)
+        expect(canAccessObjs).toHaveLength(0)
+    })
+
     test('user cant reset another user', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
