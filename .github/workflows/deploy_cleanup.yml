@@ -49,3 +49,6 @@ jobs:
         uses: werf/actions/cleanup@v1.2
         with:
           kube-config-base64-data: ${{ secrets.KUBE_CONFIG_BASE64_DATA }}
+        env:
+          WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
+          WERF_REPO_CONTAINER_REGISTRY: default
