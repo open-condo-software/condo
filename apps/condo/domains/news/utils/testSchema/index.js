@@ -10,10 +10,12 @@ const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/gene
 const { NewsItem: NewsItemGQL } = require('@condo/domains/news/gql')
 const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { NewsItemScope: NewsItemScopeGQL } = require('@condo/domains/news/gql')
+const { NewsItemTemplate: NewsItemTemplateGQL } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateGQLTestUtils(NewsItemGQL)
 const NewsItemScope = generateGQLTestUtils(NewsItemScopeGQL)
+const NewsItemTemplate = generateGQLTestUtils(NewsItemTemplateGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestNewsItem (client, organization, extraAttrs = {}) {
@@ -81,10 +83,48 @@ async function updateTestNewsItemScope (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestNewsItemTemplate (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const title = faker.lorem.words(3)
+    const body = faker.lorem.words(19)
+
+    const attrs = {
+        dv: 1,
+        sender,
+        title,
+        body,
+        ...extraAttrs,
+    }
+    const obj = await NewsItemTemplate.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestNewsItemTemplate (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const title = faker.lorem.words(3)
+    const body = faker.lorem.words(19)
+
+    const attrs = {
+        dv: 1,
+        sender,
+        title,
+        body,
+        ...extraAttrs,
+    }
+    const obj = await NewsItemTemplate.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     NewsItem, createTestNewsItem, updateTestNewsItem,
     NewsItemScope, createTestNewsItemScope, updateTestNewsItemScope,
+    NewsItemTemplate, createTestNewsItemTemplate, updateTestNewsItemTemplate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
