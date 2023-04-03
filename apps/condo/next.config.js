@@ -41,10 +41,6 @@ const popupSmartUrl = conf['POPUP_SMART_URL']
 const hasSbbolAuth = Boolean((conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}).client_id)
 const sppConfig = JSON.parse(conf['SPP_CONFIG'] || '{}')
 
-const sppRedirects = 'BillingIntegrationId' in sppConfig
-    ? [{ source: '/spp', destination: `/miniapps/${sppConfig.BillingIntegrationId}?type=BILLING`, permanent: false }]
-    : []
-
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
         // Will be available on both server and client
@@ -79,7 +75,6 @@ module.exports = withTM(withLess(withCSS({
                 destination: '/reports/:path*',
                 permanent: false,
             },
-            ...sppRedirects,
         ]
     },
     webpack: (config) => {

@@ -111,7 +111,6 @@ const MenuItems: React.FC = () => {
     const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } })
     const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
     const hasAccessToBilling = (get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)) && !isAssignedVisibilityType
-    const sppPath = `miniapps/${sppBillingId}?type=BILLING`
 
     useDeepCompareEffect(() => {
         updateContext({ orgFeatures })
@@ -164,23 +163,19 @@ const MenuItems: React.FC = () => {
             icon: Services,
             label: 'global.section.miniapps',
             access: () => !isAssignedVisibilityType,
-            // NOTE: If user is not from SPP, url to miniapp should belong to services section
-            excludePaths: sppBillingId && isSPPOrg ? [sppPath] : [],
+        }, {
+            path: 'service-provider-profile',
+            icon: Sber,
+            label: 'global.section.SPP',
+            access: () => sppBillingId && isSPPOrg,
         }, {
             path: 'settings',
             icon: Settings,
             label: 'global.section.settings',
             access: () => !isAssignedVisibilityType,
-        },
-        {
-            path: sppPath,
-            icon: Sber,
-            label: 'global.section.SPP',
-            access: () => sppBillingId && isSPPOrg,
-        },
-        ]
+        }]
         return itemsConfigs.filter((item) => get(item, 'access', () => true)())
-    }, [isAssignedVisibilityType, hasAccessToBilling, anyReceiptsLoaded, isSPPOrg, sppBillingId, sppPath])
+    }, [isAssignedVisibilityType, hasAccessToBilling, anyReceiptsLoaded, isSPPOrg, sppBillingId])
 
     return (
         <>
