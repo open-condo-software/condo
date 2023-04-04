@@ -51,7 +51,7 @@ const Template: ComponentStory<typeof Component> = (props) => {
     const footer = useMemo(() => {
         let footer = null
         if (customFooter === 'custom') {
-            footer = <Button type='primary' children='OK' />
+            footer = [<Button type='secondary' children='Cancel' key='cancel' />, <Button type='primary' children='OK' key='ok' />]
         }
         return footer
     }, [customFooter])
