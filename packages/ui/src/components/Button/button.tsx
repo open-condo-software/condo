@@ -53,9 +53,13 @@ const Button: React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<
             ref={ref}
             onClick={handleClick}
         >
-            <span className={`${BUTTON_CLASS_PREFIX}-text`} data-before={children}>
-                {children}
-            </span>
+            {
+                children && (
+                    <span className={`${BUTTON_CLASS_PREFIX}-text`} data-before={children}>
+                        {children}
+                    </span>
+                )
+            }
         </DefaultButton>
     )
 })
