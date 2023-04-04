@@ -1,19 +1,16 @@
-import { Alert, Col, Row, Typography } from 'antd'
+import { Alert, Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Modal, Button, Typography } from '@open-condo/ui'
 
-import { Button } from '@app/condo/domains/common/components/Button'
 import DatePicker from '@app/condo/domains/common/components/Pickers/DatePicker'
-import { Modal } from '@condo/domains/common/components/Modal'
 
 type useTicketDeferModalType = (updateTicket: (statusDeferredId: string, deferredDate: Dayjs) => void) => { openModal: (statusDeferredId: string) => void, closeModal: () => void, deferTicketModal: JSX.Element }
 
-const MODAL_CONTENT_TEXT_STYLE: CSSProperties = { fontSize: 16 }
 const DEFER_DATE_MODAL_CONTENT_ROW_GUTTER: [Gutter, Gutter] = [0, 24]
-const CANCEL_MODAL_FOOTER_GUTTER: [Gutter, Gutter] = [16, 16]
 const DATE_PICKER_STYLE: CSSProperties = { width: '100%' }
 const minDate = dayjs().endOf('day')
 const maxDate = dayjs().add(365, 'days').endOf('day')
@@ -75,14 +72,14 @@ export const useTicketDeferModal: useTicketDeferModalType = (updateTicket) => {
 
     const deferDateModal = useMemo(() => (
         <Modal
-            visible={isDeferModalVisible}
+            open={isDeferModalVisible}
             onCancel={handleCloseDeferTicketModal}
             title={DeferDateModalTitleMessage}
             footer={
                 <Button
                     onClick={handleSaveDeferredTicket}
                     disabled={!deferredDate}
-                    type='sberDefaultGradient'
+                    type='primary'
                 >
                     {SaveButtonLabelMessage}
                 </Button>
@@ -113,19 +110,17 @@ export const useTicketDeferModal: useTicketDeferModalType = (updateTicket) => {
 
     const cancelModal = useMemo(() => (
         <Modal
-            visible={isCancelModalVisible}
+            open={isCancelModalVisible}
             onCancel={handleReset}
             title={CancelModalTitleMessage}
-            footer={<Row gutter={CANCEL_MODAL_FOOTER_GUTTER} justify='end'>
-                <Col>
-                    <Button onClick={handleOpenDeferTicketModal} type='sberDefaultGradient'>{SelectDateButtonLabelMessage}</Button>
-                </Col>
-                <Col>
-                    <Button onClick={handleReset} type='sberBlack'>{LeaveCurrentStatusButtonLabelMessage}</Button>
-                </Col>
-            </Row>}
+            footer={[
+                <Button key='select-date' onClick={handleOpenDeferTicketModal} type='primary'>
+                    {SelectDateButtonLabelMessage}
+                </Button>,
+                <Button key='leave' onClick={handleReset} type='secondary'>{LeaveCurrentStatusButtonLabelMessage}</Button>,
+            ]}
         >
-            <Typography.Text type='secondary' style={MODAL_CONTENT_TEXT_STYLE}>{CancelModalContentMessage}</Typography.Text>
+            <Typography.Text type='secondary'>{CancelModalContentMessage}</Typography.Text>
         </Modal>
     ), [CancelModalContentMessage, CancelModalTitleMessage, LeaveCurrentStatusButtonLabelMessage, SelectDateButtonLabelMessage, handleOpenDeferTicketModal, handleReset, isCancelModalVisible])
 

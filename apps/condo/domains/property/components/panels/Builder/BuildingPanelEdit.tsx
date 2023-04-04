@@ -290,7 +290,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         addSectionFloor: <AddSectionFloor builder={mapEdit} refresh={refresh} />,
     }[mode] || null), [mode, mapEdit, refresh, duplicatedUnitIds])
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const showViewModeSelect = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
     const showSectionFilter = mapEdit.viewMode === MapViewMode.section && sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
@@ -332,7 +332,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         </Col>
                     )}
                     <Col flex={0}>
-                        <Space size={20} style={{ flexDirection: isSmall ? 'column-reverse' : 'row' }}>
+                        <Space size={20} style={{ flexDirection: !breakpoints.TABLET_LARGE ? 'column-reverse' : 'row' }}>
                             {
                                 showViewModeSelect && (
                                     <BuildingViewModeSelect
@@ -348,7 +348,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                 </Row>
                 <Row
                     style={UNIT_TYPE_ROW_STYLE}
-                    hidden={mapEdit.viewMode === MapViewMode.parking || isSmall}
+                    hidden={mapEdit.viewMode === MapViewMode.parking || !breakpoints.TABLET_LARGE}
                 >
                     <Col flex={0} style={UNIT_TYPE_COL_STYLE}>
                         <Row gutter={UNIT_TYPE_ROW_GUTTER}>

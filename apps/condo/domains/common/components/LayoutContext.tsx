@@ -6,7 +6,6 @@ import { ITopNotification, useTopNotificationsHook } from './TopNotifications'
 
 interface ILayoutContext {
     isMobile?: boolean
-    isSmall?: boolean
     shouldTableScroll?: boolean
     breakpoints?: ScreenMap
     isCollapsed?: boolean
@@ -39,7 +38,6 @@ export const LayoutContextProvider: React.FC = (props) => {
         setIsCollapsed(!isCollapsed)
     }
 
-    const isSmall = !breakpoints.DESKTOP_SMALL
     const shouldTableScroll = !breakpoints.DESKTOP_LARGE
 
     useEffect(() => {
@@ -51,7 +49,6 @@ export const LayoutContextProvider: React.FC = (props) => {
     return (
         <LayoutContext.Provider value={{
             isMobile: isMobileUserAgent(),
-            isSmall,
             shouldTableScroll,
             breakpoints,
             isCollapsed,

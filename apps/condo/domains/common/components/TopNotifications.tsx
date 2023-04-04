@@ -63,7 +63,7 @@ export const useTopNotificationsHook = (): ITopNotificationHookResult => {
     }
 
     const TopNotificationComponent: React.FC = () => {
-        const { isSmall } = useLayoutContext()
+        const { breakpoints } = useLayoutContext()
         if (topNotifications.length === 0) return null
         return (
             <>
@@ -76,7 +76,7 @@ export const useTopNotificationsHook = (): ITopNotificationHookResult => {
                                 message={notification.message}
                                 type={notification.type}
                                 key={notification.id}
-                                css={notificationAlert({ isSmall })}
+                                css={notificationAlert({ isSmall: !breakpoints.TABLET_LARGE })}
                                 action={<Space size={20}>
                                     {
                                         notification.actions.map((action, idx) => {
@@ -86,7 +86,7 @@ export const useTopNotificationsHook = (): ITopNotificationHookResult => {
                                                         await action.action()
                                                         removeNotification(notification.id)
                                                     }}
-                                                    size={isSmall ? 'middle' : 'large'}
+                                                    size={!breakpoints.TABLET_LARGE ? 'middle' : 'large'}
                                                     type='sberPrimary'
                                                     secondary={action.secondary}
                                                     key={idx}

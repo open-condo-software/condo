@@ -2,24 +2,23 @@
 import crypto from 'crypto'
 
 import { green } from '@ant-design/colors'
-import { CloseCircleFilled, RightOutlined, ShareAltOutlined } from '@ant-design/icons'
+import { CloseCircleFilled, RightOutlined } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Col, Collapse, notification, Row, Typography } from 'antd'
+import { Col, Collapse, notification, Row } from 'antd'
 import { get, isEmpty } from 'lodash'
 import getConfig from 'next/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 
+import { Send } from '@open-condo/icons'
 import { Organization } from '@open-condo/keystone/schema'
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { Modal, Button } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { Modal } from '@condo/domains/common/components/Modal'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { EN_LOCALE } from '@condo/domains/common/constants/locale'
 import { colors } from '@condo/domains/common/constants/style'
@@ -27,10 +26,6 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { ALGORITHM, CRYPTOENCODING, SALT } from '@condo/domains/ticket/constants/crypto'
 import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
 import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
-
-
-
-
 
 
 const collapse = css`
@@ -196,7 +191,6 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const OKMessage = intl.formatMessage({ id: 'OK' })
     const ShareSentMessage = intl.formatMessage({ id: 'ticket.shareSent' })
     const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
-    const { isSmall } = useLayoutContext()
 
     const { logEvent, getEventName } = useTracking()
 
@@ -288,20 +282,17 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     return (
         <>
             <Button
-                type='sberDefaultGradient'
-                icon={<ShareAltOutlined />}
-                secondary
+                type='secondary'
+                icon={<Send size='medium' />}
                 onClick={handleShow}
                 css={sendButton}
             >
                 {ShareButtonMessage}
             </Button>
             <Modal
-                style={{ top: 30 }}
-                visible={okVisible}
+                open={okVisible}
                 footer={<Button
-                    type='sberPrimary'
-                    size='large'
+                    type='primary'
                     onClick={handleClickSecond}
                 >
                     {OKMessage}
@@ -312,11 +303,10 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                 {ShareSentToEmailMessage}
             </Modal>
             <Modal
-                style={{ top: 30 }}
-                visible={shareVisible}
+                open={shareVisible}
                 footer={null}
                 onCancel={handleCancel}
-                title={<Typography.Title level={isSmall ? 5 : 3}>{ShareHeaderMessage}</Typography.Title>}
+                title={ShareHeaderMessage}
             >
                 <Row gutter={[0, 16]}>
                     <Col span={24}>
@@ -368,10 +358,8 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                                 {
                                     !isEmpty(chosenEmployees) &&
                                     <Button
-                                        type='sberPrimary'
-                                        size='large'
+                                        type='primary'
                                         onClick={handleClick}
-                                        style={{ marginTop: '20px' }}
                                         disabled={loading}
                                     >
                                         {SendTicketToEmailMessage}

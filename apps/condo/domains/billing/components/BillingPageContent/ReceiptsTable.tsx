@@ -147,7 +147,6 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
             <ServicesModal
                 receipt={detailedReceipt}
                 visible={modalIsVisible}
-                onOk={hideServiceModal}
                 onCancel={hideServiceModal}
                 isDetailed={hasServicesDetails}
                 currencyCode={currencyCode}

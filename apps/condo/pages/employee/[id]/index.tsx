@@ -80,7 +80,7 @@ export const EmployeePageContent = ({
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
 
     const { user } = useAuth()
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const userId = get(user, 'id')
     const employeeUserId = get(employee, 'user.id')
@@ -116,7 +116,7 @@ export const EmployeePageContent = ({
                         <Col xs={10} lg={3}>
                             <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked}/>
                         </Col>
-                        <Col xs={24} lg={20} offset={isSmall ? 0 : 1}>
+                        <Col xs={24} lg={20} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
                             <Row gutter={[0, 60]}>
                                 <Col span={24}>
                                     <Row gutter={[0, 40]}>

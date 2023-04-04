@@ -112,7 +112,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         eventName,
         excludePaths = [],
     } = props
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const { asPath } = useRouter()
     const intl = useIntl()
     const { getTrackingWrappedCallback } = useTracking()
@@ -140,7 +140,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const Message = intl.formatMessage({ id: label })
 
     const menuItemClassNames = classnames(wrapperClassName, {
-        'side': !isSmall,
+        'side': breakpoints.TABLET_LARGE,
         'active': isActive,
         'disabled': disabled,
     })

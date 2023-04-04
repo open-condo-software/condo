@@ -23,10 +23,10 @@ import { Options } from 'scroll-into-view-if-needed'
 
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { Modal, Button } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
-import { Modal } from '@condo/domains/common/components/Modal'
+import { Button as CommonButton } from '@condo/domains/common/components/Button'
 import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 
@@ -143,13 +143,13 @@ function FormList ({ dataSource, renderItem, ...extra }) {
 }
 
 function CreateFormListItemButton ({ label, ...extra }) {
-    return <Button
+    return <CommonButton
         type='dashed'
         style={{ width: '100%' }}
         {...extra}
     >
         <PlusOutlined />{label}
-    </Button>
+    </CommonButton>
 }
 
 function ExtraDropdownActionsMenu ({ actions }) {
@@ -445,11 +445,11 @@ const BaseModalForm: React.FC<IBaseModalFormProps> = ({
     const handleSaveRef = useRef(null)
     const Buttons = []
     if (showCancelButton) {
-        Buttons.push((<Button key='cancel' type='sberPrimary' secondary onClick={cancelModal}>{CancelMessage}</Button>))
+        Buttons.push((<Button key='cancel' type='secondary' onClick={cancelModal}>{CancelMessage}</Button>))
     }
     return (<Modal
         title={ModalTitleMsg}
-        visible={visible}
+        open={visible}
         onCancel={cancelModal}
         footer={[
             ...modalExtraFooter,
@@ -459,13 +459,12 @@ const BaseModalForm: React.FC<IBaseModalFormProps> = ({
                 onClick={() => {
                     handleSaveRef.current()
                 }}
-                type='sberPrimary'
+                type='primary'
                 {...submitButtonProps}
             >
                 {SaveMessage}
             </Button>,
         ]}
-        centered
         {...modalProps}
     >
         <Space direction='vertical' size={40}>

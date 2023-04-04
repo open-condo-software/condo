@@ -85,7 +85,7 @@ export const useExportToExcel = (props: UseExportToExcelInputType): UseExportToE
             onClick={handleExportToExcel}
             disabled={isXlsLoading || disabled}
             children={label || ExportAsExcelLabel}
-            icon={<Sheet size='small' />}
+            icon={<Sheet size='medium' />}
             id={id}
         />
     ), [ExportAsExcelLabel, handleExportToExcel, isXlsLoading, label])

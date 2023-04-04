@@ -52,11 +52,10 @@ export const EditContactForm: React.FC = () => {
     const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const NoPermissionMessage = intl.formatMessage({ id: 'EditingContactNoPermission' })
     const RoleLabel = intl.formatMessage({ id: 'ContactRole' })
     const Verified = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const router = useRouter()
     const contactId = get(router, 'query.id', '')
 
@@ -151,7 +150,7 @@ export const EditContactForm: React.FC = () => {
                                 <Col xs={10} lg={3}>
                                     <UserAvatar borderRadius={24}/>
                                 </Col>
-                                <Col xs={24} lg={15} offset={isSmall ? 0 : 1}>
+                                <Col xs={24} lg={15} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
                                     <Row gutter={GUTTER_0_40}>
                                         <Col span={24}>
                                             <Typography.Title

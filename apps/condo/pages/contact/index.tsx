@@ -59,7 +59,7 @@ export const ContactsPageContent = ({
     const router = useRouter()
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const canManageContacts = get(role, 'canManageContacts', false)
 
@@ -157,7 +157,7 @@ export const ContactsPageContent = ({
                                             align='middle'
                                             justify='center'
                                         >
-                                            <Col hidden={isSmall}>
+                                            <Col hidden={!breakpoints.TABLET_LARGE}>
                                                 {
                                                     canManageContacts && (
                                                         <ImportWrapper
@@ -188,7 +188,7 @@ export const ContactsPageContent = ({
                                                 {
                                                     canManageContacts && (
                                                         <Button
-                                                            block={!isSmall}
+                                                            block={breakpoints.TABLET_LARGE}
                                                             key='left'
                                                             type='sberPrimary'
                                                             onClick={() => router.push(ADD_CONTACT_ROUTE)}
@@ -213,7 +213,7 @@ export const ContactsPageContent = ({
                                 pageSize={CONTACT_PAGE_SIZE}
                             />
                         </Col>
-                        <ActionBar hidden={isSmall || !canManageContacts}>
+                        <ActionBar hidden={!breakpoints.TABLET_LARGE || !canManageContacts}>
                             <ExportButton />
                         </ActionBar>
                     </Row>

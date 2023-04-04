@@ -89,7 +89,7 @@ export const MetersPageContent = ({
         fetchPolicy: 'network-only',
     })
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible, ResetFiltersModalButton } = useMultipleFiltersModal(filterMetas, MeterReadingFilterTemplate, handleSearchReset)
@@ -233,7 +233,7 @@ export const MetersPageContent = ({
                             />
                         </Col>
                         <ExportToExcelActionBar
-                            hidden={isSmall}
+                            hidden={!breakpoints.TABLET_LARGE}
                             searchObjectsQuery={searchMeterReadingsQuery}
                             exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
                             sortBy={sortBy}

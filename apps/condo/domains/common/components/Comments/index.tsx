@@ -255,7 +255,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     const PromptResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.title' })
     const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
     const [editableComment, setEditableComment] = useState<CommentWithFiles>()
     const [sending, setSending] = useState(false)
@@ -365,7 +365,7 @@ const Comments: React.FC<ICommentsListProps> = ({
         residentCommentsTabContentProps : organizationCommentsTabContentProps
 
     return (
-        <Container isSmall={isSmall}>
+        <Container isSmall={!breakpoints.TABLET_LARGE}>
             <Head isTitleHidden={isTitleHidden}>{TitleMessage}</Head>
             <SwitchCommentsTypeWrapper>
                 <CardTabs
@@ -405,7 +405,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                     sending={sending}
                 />
             </CommentsTabsContainer>
-            <Footer isSmall={isSmall}>
+            <Footer isSmall={!breakpoints.TABLET_LARGE}>
                 {canCreateComments ? (
                     <CommentForm
                         ticket={ticket}

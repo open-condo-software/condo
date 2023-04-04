@@ -50,7 +50,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
     const ShowTable = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeTable' })
 
     const [viewMode, changeViewMode] = useState('list')
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const { role, searchPropertiesQuery, propertiesTableColumns, sortPropertiesBy, loading, canDownloadProperties } = props
 
@@ -71,7 +71,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                                 {PageTitleMessage}
                             </Typography.Title>
                         </Col>
-                        <Col lg={8} offset={isSmall ? 0 : 4} xs={24}>
+                        <Col lg={8} offset={!breakpoints.TABLET_LARGE ? 0 : 4} xs={24}>
                             <Radio.Group
                                 className='sberRadioGroup'
                                 style={RADIO_GROUP_STYLE}

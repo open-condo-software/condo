@@ -2,18 +2,16 @@ import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons'
 import { BillingReceipt } from '@app/condo/schema'
 import { css, Global } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Typography, Space, Table, ConfigProvider } from 'antd'
-import { SizeType } from 'antd/es/config-provider/SizeContext'
+import { Typography, Space, Table, Row, Col } from 'antd'
 import get from 'lodash/get'
-import React, { useContext, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Modal } from '@open-condo/ui'
 
 import { useServicesTableColumns } from '@condo/domains/billing/hooks/useServicesTableColumns'
-import { Modal } from '@condo/domains/common/components/Modal'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
-import { SubText } from '@condo/domains/common/components/Text'
 import { colors } from '@condo/domains/common/constants/style'
 
 interface IServicesModalProps {
@@ -21,7 +19,6 @@ interface IServicesModalProps {
     currencyCode: string
     isDetailed: boolean
     visible: boolean
-    onOk: () => void
     onCancel: () => void
 }
 
@@ -87,7 +84,6 @@ const formatRows = (significantServices: Array<TableRecord>, insignificantServic
 export const ServicesModal: React.FC<IServicesModalProps> = ({
     visible,
     onCancel,
-    onOk,
     receipt,
     currencyCode,
     isDetailed,
@@ -113,22 +109,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
         : ''
     const CategoryName = category ? intl.formatMessage({ id: category }) : ''
 
-    const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
-
     const modalTitleMessage = `${AccountMessage} ${accountNumber}`
-    const title = (
-        <Space direction='vertical' size={4}>
-            <Typography.Title level={3}>
-                {modalTitleMessage}
-            </Typography.Title>
-            <SubText size={configSize}>
-                {address}{unitName ? `, ${UnitTypePrefix}. ${unitName}` : ''}
-            </SubText>
-            {fullName && <SubText size={configSize}>{fullName}</SubText>}
-            {category && <SubText size={configSize}>{CategoryName}</SubText>}
-            {period && <SubText size={configSize}>{period}</SubText>}
-        </Space>
-    )
 
     const columns = useServicesTableColumns(isDetailed, currencyCode)
 
@@ -148,71 +129,79 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
         <>
             {isDetailed && <Global styles={WideModalStyles}/>}
             <Modal
-                title={title}
-                visible={visible}
-                onOk={() => {
-                    setExpanded(false)
-                    onOk()
-                }}
+                open={visible}
                 onCancel={() => {
                     setExpanded(false)
                     onCancel()
                 }}
                 footer={null}
-                centered
                 className='services-modal'
-                style={{ marginTop:40 }}
+                title={modalTitleMessage}
             >
-                <Table
-                    bordered
-                    tableLayout='auto'
-                    columns={columns}
-                    dataSource={dataSource}
-                    pagination={false}
-                    expandable={{
-                        indentSize: 0,
-                        // eslint-disable-next-line react/display-name
-                        expandIcon: ({ expanded, onExpand, record }) => {
-                            if (record.name !== ExpandMessage) return
-                            if (expanded) return (
-                                <ExpandIconWrapper>
-                                    <MinusSquareOutlined onClick={(e) => onExpand(record, e)}/>
-                                </ExpandIconWrapper>
-                            )
-                            return (
-                                <ExpandIconWrapper>
-                                    <PlusSquareOutlined onClick={(e) => onExpand(record, e)}/>
-                                </ExpandIconWrapper>
-                            )
-                        },
-                    }}
-                    onExpand={handleRowExpand}
-                    expandedRowKeys={expanded ? [ExpandMessage] : []}
-                    rowKey={(record) => record.name}
-                    onRow={(record) => ({
-                        onClick: () => {
-                            if (record.name === ExpandMessage) {
-                                setExpanded(!expanded)
-                            }
-                        },
-                    })}
-                    summary={(pageData) => {
-                        let totalToPay = 0
-                        pageData.forEach(({ toPay }) => {
-                            totalToPay += parseFloat(toPay || '0')
-                        })
-                        const pointedNumber = totalToPay.toFixed(2)
-                        return (
-                            <Table.Summary.Row>
-                                <Table.Summary.Cell index={0} align='right' colSpan={columns.length}>
-                                    <Typography.Text strong>
-                                        {moneyRender(pointedNumber)}
-                                    </Typography.Text>
-                                </Table.Summary.Cell>
-                            </Table.Summary.Row>
-                        )
-                    }}
-                />
+                <Row gutter={[0, 20]}>
+                    <Col span={24}>
+                        <Space direction='vertical' size={4}>
+                            <Typography.Paragraph strong type='secondary'>
+                                {address}{unitName ? `, ${UnitTypePrefix}. ${unitName}` : ''}
+                            </Typography.Paragraph>
+                            {fullName && <Typography.Paragraph strong type='secondary'>{fullName}</Typography.Paragraph>}
+                            {category && <Typography.Paragraph strong type='secondary'>{CategoryName}</Typography.Paragraph>}
+                            {period && <Typography.Paragraph strong type='secondary'>{period}</Typography.Paragraph>}
+                        </Space>
+                    </Col>
+                    <Col span={24}>
+                        <Table
+                            bordered
+                            tableLayout='auto'
+                            columns={columns}
+                            dataSource={dataSource}
+                            pagination={false}
+                            expandable={{
+                                indentSize: 0,
+                                // eslint-disable-next-line react/display-name
+                                expandIcon: ({ expanded, onExpand, record }) => {
+                                    if (record.name !== ExpandMessage) return
+                                    if (expanded) return (
+                                        <ExpandIconWrapper>
+                                            <MinusSquareOutlined onClick={(e) => onExpand(record, e)}/>
+                                        </ExpandIconWrapper>
+                                    )
+                                    return (
+                                        <ExpandIconWrapper>
+                                            <PlusSquareOutlined onClick={(e) => onExpand(record, e)}/>
+                                        </ExpandIconWrapper>
+                                    )
+                                },
+                            }}
+                            onExpand={handleRowExpand}
+                            expandedRowKeys={expanded ? [ExpandMessage] : []}
+                            rowKey={(record) => record.name}
+                            onRow={(record) => ({
+                                onClick: () => {
+                                    if (record.name === ExpandMessage) {
+                                        setExpanded(!expanded)
+                                    }
+                                },
+                            })}
+                            summary={(pageData) => {
+                                let totalToPay = 0
+                                pageData.forEach(({ toPay }) => {
+                                    totalToPay += parseFloat(toPay || '0')
+                                })
+                                const pointedNumber = totalToPay.toFixed(2)
+                                return (
+                                    <Table.Summary.Row>
+                                        <Table.Summary.Cell index={0} align='right' colSpan={columns.length}>
+                                            <Typography.Text strong>
+                                                {moneyRender(pointedNumber)}
+                                            </Typography.Text>
+                                        </Table.Summary.Cell>
+                                    </Table.Summary.Row>
+                                )
+                            }}
+                        />
+                    </Col>
+                </Row>
             </Modal>
         </>
     )

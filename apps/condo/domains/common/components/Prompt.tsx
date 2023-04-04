@@ -4,9 +4,7 @@ import { useRouter } from 'next/router'
 import React, { useEffect, useState, useRef } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-
-import { Button } from '@condo/domains/common/components/Button'
-import { Modal } from '@condo/domains/common/components/Modal'
+import { Modal, Button } from '@open-condo/ui'
 
 interface IPromptProps {
     title: string
@@ -70,15 +68,14 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
     }, [])
     return (
         <Modal
-            visible={isModalVisible}
+            open={isModalVisible}
             onCancel={hideModal}
             title={title}
-            centered
             footer={[
-                <Button key='back' type='sberDanger' style={{ margin: '16px' }} onClick={handleCancel}>
+                <Button key='back' danger type='secondary' onClick={handleCancel}>
                     {LeaveLabel}
                 </Button>,
-                <Button key='submit' type='sberPrimary' onClick={handleSave}>
+                <Button key='submit' type='primary' onClick={handleSave}>
                     {SaveLabel}
                 </Button>,
             ]}

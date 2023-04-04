@@ -54,17 +54,6 @@ type BaseMeterModalFormProps = ComponentProps<typeof BaseModalForm> & {
     organizationId: string
 }
 
-// TODO (DOMA-3721) Remove mess and create global component with global styles to common component
-const ModalHeaderPatcherCss = css`
-  .meter-modal {
-    & > .ant-modal-content > .ant-modal-header {
-      border-bottom: none;
-    }
-  }
-`
-const BASE_MODAL_PROPS = { width: 600, style: { marginTop: 40 }, className: 'meter-modal' }
-
-const SUBMIT_BUTTON_PROPS = { type: 'sberDefaultGradient' }
 const METER_MODAL_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const METER_MODAL_ROW_GUTTERS: [Gutter, Gutter] = [0, 20]
 const DATE_FIELD_INSTALLATION_DATE_DEPENDENCY = ['installationDate']
@@ -175,7 +164,6 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
 
     return (
         <>
-            <Global styles={ModalHeaderPatcherCss}/>
             <BaseModalForm
                 visible={isModalVisible}
                 cancelModal={handleCancelModal}
@@ -184,9 +172,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                 showCancelButton={false}
                 validateTrigger={METER_MODAL_VALIDATE_TRIGGER}
                 handleSubmit={handleSubmit}
-                modalProps={BASE_MODAL_PROPS}
                 submitButtonProps={{
-                    ...SUBMIT_BUTTON_PROPS,
                     disabled: disabled,
                 }}
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}

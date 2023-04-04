@@ -64,7 +64,7 @@ const TicketAssignments = ({
     const OtherMessage = intl.formatMessage({ id: 'pages.condo.ticket.select.group.other' })
     const DeletedEmployeeMessage = intl.formatMessage({ id: 'global.select.deletedEmployee' })
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const { assignee: initialAssignee, executor: initialExecutor } = form.getFieldsValue(['assignee', 'executor'])
 
@@ -207,7 +207,7 @@ const TicketAssignments = ({
                 <Col span={24}>
                     <Typography.Title level={3}>{TicketAssignmentTitle}</Typography.Title>
                 </Col>
-                <Col span={isSmall ? 24 : 18}>
+                <Col span={!breakpoints.TABLET_LARGE ? 24 : 18}>
                     <Row justify='space-between' gutter={[0, 12]}>
                         {
                             autoAssign && !loading && propertyId && categoryClassifier && (

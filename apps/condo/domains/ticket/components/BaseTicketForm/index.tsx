@@ -150,7 +150,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
     const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const { setIsAutoDetectedDeadlineValue, ticketSetting, setClassifier } = useTicketFormContext()
 
     const afterUpdateRuleId = useCallback(({ ruleId, placeId, categoryId, problemId }) => {
@@ -170,9 +170,9 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, 500)
     const handleInputBlur = useCallback(e => predictTicketClassifier(e.target.value), [predictTicketClassifier])
 
-    const detailsColSpan = isSmall ? 24 : 20
-    const classifierColSpan = isSmall ? 24 : 18
-    const deadlineColSpan = isSmall ? 24 : 18
+    const detailsColSpan = !breakpoints.TABLET_LARGE ? 24 : 20
+    const classifierColSpan = !breakpoints.TABLET_LARGE ? 24 : 18
+    const deadlineColSpan = !breakpoints.TABLET_LARGE ? 24 : 18
 
     const createdAt = get(initialValues, 'createdAt', null)
 
@@ -380,7 +380,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
     const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident' })
 
-    const { isSmall, breakpoints } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const router = useRouter()
 
@@ -519,7 +519,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const handleAddPropertiesClick = useCallback(() => router.push('/property/create'), [router])
     const NoPropertiesAlert = useMemo(() => !organizationPropertiesLoading && isEmpty(organizationProperties) ? (
-        <Col span={isSmall ? 24 : 20}>
+        <Col span={!breakpoints.TABLET_LARGE ? 24 : 20}>
             <Alert
                 showIcon
                 type='warning'
@@ -537,7 +537,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                 }
             />
         </Col>
-    ) : null, [AddMessage, NoPropertiesMessage, handleAddPropertiesClick, isSmall, organizationProperties, organizationPropertiesLoading])
+    ) : null, [AddMessage, NoPropertiesMessage, handleAddPropertiesClick, breakpoints.TABLET_LARGE, organizationProperties, organizationPropertiesLoading])
 
     const handlePropertySelectChange = useCallback((form) => (_, option) => {
         setIsPropertyChanged(true)
@@ -563,7 +563,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         setSelectedPropertyId(null)
     }, [])
 
-    const propertyInfoColSpan = isSmall ? 24 : 17
+    const propertyInfoColSpan = !breakpoints.TABLET_LARGE ? 24 : 17
 
     const hintsBlock = useMemo(() => (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>

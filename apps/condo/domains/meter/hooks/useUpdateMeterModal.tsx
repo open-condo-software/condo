@@ -78,13 +78,15 @@ export const useUpdateMeterModal = (refetch) => {
 
     }, [ConfirmDeleteMessage, ConfirmDeleteTitle, DeleteMessage, handleDeleteButtonClick, isAutomatic])
 
+    const modalTitle = `${MeterNumberMessage} ${meterNumber}`
+
     const UpdateMeterModal = useCallback(() => {
         return (
             <BaseMeterModalForm
                 propertyId={get(selectedMeter, ['property', 'id'])}
                 unitName={get(selectedMeter, 'unitName')}
                 initialValues={initialValues}
-                ModalTitleMsg={<Typography.Title level={3}>{MeterNumberMessage} {meterNumber}</Typography.Title>}
+                ModalTitleMsg={modalTitle}
                 visible={selectedMeter}
                 modalExtraFooter={modalFooter}
                 handleSubmit={handleSubmit}

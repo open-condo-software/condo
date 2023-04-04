@@ -1,6 +1,6 @@
 import { ServiceSubscriptionTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import cookie from 'js-cookie'
 import { get } from 'lodash'
@@ -10,15 +10,11 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Modal, Button, Typography } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
-import { Modal } from '@condo/domains/common/components/Modal'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-
 import { ServiceSubscription } from '../utils/clientSchema'
-
-
 
 
 interface IEndTrialSubscriptionReminderPopup {
@@ -95,16 +91,12 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
 
     const EndTrialSubscriptionReminderPopup = () => (
         <Modal
-            visible={isEndTrialSubscriptionReminderPopupVisible}
+            open={isEndTrialSubscriptionReminderPopupVisible}
             onCancel={handleCloseModal}
-            centered
-            width={600}
-            bodyStyle={{ padding: '30px' }}
             footer={[
                 <Button
-                    size='large'
                     key='submit'
-                    type='sberPrimary'
+                    type='primary'
                     onClick={handleCloseModal}
                 >
                     {CompleteActionMessage}

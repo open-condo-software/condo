@@ -65,7 +65,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     const { organization } = useOrganization()
     const router = useRouter()
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const { objs: employee } = OrganizationEmployee.useObjects(
         { where: { organization: { id: organization.id } } },
@@ -248,7 +248,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                         </Col>
                                     </Row>
                                 </Col>
-                                {!isSmall && (
+                                {breakpoints.TABLET_LARGE && (
                                     <Col span={10}>
                                         <Form.Item dependencies={['role']}>
                                             {({ getFieldValue }) => {

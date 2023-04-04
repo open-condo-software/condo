@@ -6,9 +6,9 @@ import { DesktopUserMenu } from './DesktopUserMenu'
 import { MobileUserMenu } from './MobileUserMenu'
 
 export const UserMenu = () => {
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     return (
-        isSmall ? <MobileUserMenu/> : <DesktopUserMenu/>
+        !breakpoints.TABLET_LARGE ? <MobileUserMenu/> : <DesktopUserMenu/>
     )
 }

@@ -158,7 +158,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const executorListRef = useRef([])
     const responsibleListRef = useRef([])
     const [specification, setSpecification] = useState<specificationTypes>(TICKET_REPORT_DAY_GROUP_STEPS[0] as specificationTypes)
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const updateUrlFilters = useCallback(() => {
         const [startDate, endDate] = dateRange
@@ -265,7 +265,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                         />
                     </Form.Item>
                 </Col>
-                <Col xs={24} sm={12} lg={4} offset={isSmall ? 0 : 1}>
+                <Col xs={24} sm={12} lg={4} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
                     <Form.Item label={SpecificationTitle} {...FORM_ITEM_STYLE}>
                         <Select value={specification} onChange={onSpecificationChange}>
                             <Select.Option disabled={dateRange[1].diff(dateRange[0], 'quarter') > 0} value='day'>
@@ -275,7 +275,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                         </Select>
                     </Form.Item>
                 </Col>
-                <Col xs={24} lg={12} offset={isSmall ? 0 : 1}>
+                <Col xs={24} lg={12} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
                     <Form.Item label={AddressTitle} {...FORM_ITEM_STYLE}>
                         <GraphQlSearchInput
                             allowClear
@@ -377,7 +377,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const router = useRouter()
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const filtersRef = useRef<null | ticketAnalyticsPageFilters>(null)
     const mapperInstanceRef = useRef(null)
     const ticketLabelsRef = useRef<TicketLabel[]>([])
@@ -896,7 +896,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                     <Col xs={24} sm={18}>
                         <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
                     </Col>
-                    <Col span={6} hidden={isSmall}>
+                    <Col span={6} hidden={!breakpoints.TABLET_LARGE}>
                         <Tooltip title={NotImplementedYetMessage}>
                             <Button icon={<PlusCircleFilled />} type='sberPrimary' secondary>{HeaderButtonTitle}</Button>
                         </Tooltip>
@@ -958,7 +958,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             </Col>
                             <Col
                                 xs={8}
-                                hidden={!isSmall}
+                                hidden={breakpoints.TABLET_LARGE}
                             >
                                 <TicketTypeSelect
                                     ticketType={ticketType}
@@ -983,7 +983,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             >
                                 <Col
                                     style={{ position: 'absolute', top: 0, right: 0, minWidth: '132px' }}
-                                    hidden={isSmall}
+                                    hidden={!breakpoints.TABLET_LARGE}
                                 >
                                     <TicketTypeSelect
                                         ticketType={ticketType}
@@ -992,7 +992,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     />
                                 </Col>
                             </TicketChartView>
-                        ), [analyticsData, loading, viewMode, ticketType, userOrganizationId, groupTicketsBy, isSmall])}
+                        ), [analyticsData, loading, viewMode, ticketType, userOrganizationId, groupTicketsBy, breakpoints.TABLET_LARGE])}
                     </Col>
                     <Col span={24}>
                         <Row gutter={[0, 20]}>
@@ -1012,7 +1012,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             </Col>
                         </Row>
                     </Col>
-                    <ActionBar hidden={isSmall}>
+                    <ActionBar hidden={!breakpoints.TABLET_LARGE}>
                         <Button
                             disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={printPdf}
                             icon={<FilePdfFilled />}

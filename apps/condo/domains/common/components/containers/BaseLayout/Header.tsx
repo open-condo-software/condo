@@ -45,7 +45,7 @@ interface IHeaderProps {
 }
 
 export const Header: React.FC<IHeaderProps> = (props) => {
-    const { isSmall, toggleCollapsed } = useLayoutContext()
+    const { breakpoints, toggleCollapsed } = useLayoutContext()
     const router = useRouter()
     const { isAuthenticated } = useAuth()
 
@@ -60,7 +60,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     }, [isAuthenticated, router])
 
     return (
-        isSmall
+        !breakpoints.TABLET_LARGE
             ? (
                 <MobileHeader>
                     <Space size={22}>
