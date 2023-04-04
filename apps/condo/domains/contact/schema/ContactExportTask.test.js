@@ -13,7 +13,12 @@ const { PROCESSING, COMPLETED, CANCELLED, EXCEL, EXPORT_PROCESSING_BATCH_SIZE } 
 const { downloadFile, readXlsx, expectDataFormat, getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 const { ContactExportTask, createTestContactExportTask, updateTestContactExportTask } = require('@condo/domains/contact/utils/testSchema')
 const { createTestContact, ContactRole } = require('@condo/domains/contact/utils/testSchema')
-const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const {
+    createTestOrganizationEmployeeRole,
+    createTestOrganizationEmployee,
+    createTestOrganization,
+    createTestOrganizationWithAccessToAnotherOrganization,
+} = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -59,6 +64,63 @@ describe('ContactExportTask', () => {
                 expect(obj).toHaveProperty('user.id', userClient.user.id)
                 expect(obj).toHaveProperty('format', EXCEL)
                 expect(obj).toHaveProperty('status', PROCESSING)
+            })
+
+            test('user cannot be created if user does not belongs to requested organization in `where` field', async () => {
+                const [organization] = await createTestOrganization(adminClient)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageContacts: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+                const [forbiddenOrganization] = await createTestOrganization(adminClient)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestContactExportTask(userClient, userClient.user, {
+                        where: {
+                            organization: { id: forbiddenOrganization.id },
+                        },
+                    })
+                })
+            })
+
+            test('user cannot create if he have no access to one of provided organizations at where field', async () => {
+                const {
+                    clientFrom: userClient,
+                    organizationTo,
+                    organizationFrom,
+                } = await createTestOrganizationWithAccessToAnotherOrganization()
+                const [forbiddenOrganization] = await createTestOrganization(adminClient)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestContactExportTask(userClient, userClient.user, {
+                        where: {
+                            organization: { id_in: [organizationTo.id, organizationFrom.id, forbiddenOrganization.id] },
+                        },
+                    })
+                })
+
+            })
+
+            test('user cannot create without specifying organization id at where field', async () => {
+                const [organization] = await createTestOrganization(adminClient)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageContacts: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestContactExportTask(userClient, userClient.user, {
+                        where: { organization: { id: null } },
+                    })
+                })
+            })
+
+            test('cannot be created withot specifying concrete task author', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestContactExportTask(userClient, userClient.user, {
+                        user: null,
+                    })
+                })
             })
 
             test('cannot be created by user for another user', async () => {
