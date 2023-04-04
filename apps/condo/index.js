@@ -124,6 +124,7 @@ if (!IS_BUILD_PHASE) {
     const { registerTasks } = require('@open-condo/keystone/tasks')
 
     registerTasks([
+        require('@condo/domains/acquiring/tasks'),
         require('@condo/domains/notification/tasks'),
         require('@condo/domains/organization/tasks'),
         require('@condo/domains/ticket/tasks'),
