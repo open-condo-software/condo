@@ -1,4 +1,4 @@
-import { FilePdfFilled, QuestionCircleOutlined } from '@ant-design/icons'
+import { QuestionCircleOutlined } from '@ant-design/icons'
 import {
     SortTicketCommentsBy,
     SortTicketsBy,
@@ -15,13 +15,13 @@ import isEmpty from 'lodash/isEmpty'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { ResolvedIntlConfig } from 'react-intl'
 
+import { Print } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { Modal, Button } from '@open-condo/ui'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import { Button } from '@condo/domains/common/components/Button'
 import { CommentPreview } from '@condo/domains/common/components/Comments/Comment'
 import { ChevronIcon as ChevronIconBase } from '@condo/domains/common/components/icons/ChevronIcon'
-import { Modal } from '@condo/domains/common/components/Modal'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { TrackingEventType, useTracking } from '@condo/domains/common/components/TrackingContext'
@@ -208,10 +208,6 @@ type UseTicketExportToPdfTaskType = (props: UseTicketExportToPdfTaskInputType) =
     TicketBlanksExportToPdfModal: JSX.Element
 }
 
-const StyledModal = styled(Modal)`
-  animation-duration: 0s !important;
-`
-
 export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  => {
     const { ticketId, where, sortBy, locale, timeZone, user, eventNamePrefix } = props
 
@@ -306,15 +302,13 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
             <Tooltip title={disabled ? SaveToPDFTooltipMessage : null}>
                 <div style={{ cursor: disabled ? 'not-allowed' : 'auto' }}>
                     <Button
-                        type='sberBlack'
-                        secondary
-                        icon={<FilePdfFilled/>}
+                        type='secondary'
+                        icon={<Print size='medium'/>}
                         loading={loading}
                         disabled={disabled}
                         onClick={handleOpenModal}
-                        eventName={openModalButtonEventName}
+                        id={openModalButtonEventName}
                         children={SaveInPdfLabel}
-                        style={{ pointerEvents: disabled ? 'none' : 'auto' }}
                     />
                 </div>
             </Tooltip>
@@ -322,15 +316,14 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
     }, [SaveToPDFTooltipMessage, loading, handleOpenModal, SaveInPdfLabel, openModalButtonEventName])
 
     const TicketBlanksExportToPdfModal = (
-        <StyledModal
-            visible={visibleModal}
+        <Modal
+            open={visibleModal}
             onCancel={handleCloseModal}
             title={`${SaveInPdfTitle}:`}
-            focusTriggerAfterClose={false}
             footer={
                 <Button
-                    type='sberDefaultGradient'
-                    icon={<FilePdfFilled />}
+                    type='primary'
+                    icon={<Print size='medium'/>}
                     onClick={handleSaveToPdfTask}
                     children={SaveInPdfLabel}
                 />
@@ -387,7 +380,7 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
                         )}
                 </Row>
             </Col>
-        </StyledModal>
+        </Modal>
     )
 
     return {

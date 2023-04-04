@@ -1,5 +1,4 @@
 /** @jsx jsx */
-import { EditFilled } from '@ant-design/icons'
 import {
     SortTicketChangesBy,
     SortTicketCommentFilesBy,
@@ -16,14 +15,14 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 
+import { Edit } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Alert } from '@open-condo/ui'
+import { Alert, Button } from '@open-condo/ui'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { Comments } from '@condo/domains/common/components/Comments'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
@@ -59,7 +58,7 @@ import {
     TicketChange,
     TicketComment,
     TicketCommentFile,
-    TicketCommentsTime, UserFavoriteTicket,
+    TicketCommentsTime,
     UserTicketCommentReadTime,
 } from '@condo/domains/ticket/utils/clientSchema'
 import { FavoriteTicketIndicator } from '@condo/domains/ticket/utils/clientSchema/Renders'
@@ -156,7 +155,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
 
     const auth = useAuth() as { user: { id: string } }
     const user = get(auth, 'user')
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const id = get(ticket, 'id')
 
@@ -361,7 +360,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                     </Row>
                                 </Col>
                                 <Col xl={11} md={13} xs={24}>
-                                    <Row justify={isSmall ? 'center' : 'end'} gutter={SMALL_VERTICAL_GUTTER}>
+                                    <Row justify={!breakpoints.TABLET_LARGE ? 'center' : 'end'} gutter={SMALL_VERTICAL_GUTTER}>
                                         <Col span={24}>
                                             <Row justify='end' align='middle' gutter={BIG_HORIZONTAL_GUTTER}>
                                                 <Col>
@@ -452,17 +451,15 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                         <Link href={`/ticket/${ticket.id}/update`}>
                             <Button
                                 disabled={disabledEditButton}
-                                color='green'
-                                type='sberDefaultGradient'
-                                secondary
-                                icon={<EditFilled />}
+                                type='secondary'
+                                icon={<Edit size='medium' />}
                                 data-cy='ticket__update-link'
                             >
                                 {UpdateMessage}
                             </Button>
                         </Link>
                         {
-                            !isSmall && <>
+                            breakpoints.TABLET_LARGE && <>
                                 <TicketBlanksExportToPdfButton />
                                 {TicketBlanksExportToPdfModal}
                             </>
@@ -490,7 +487,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                     />
                 </Row>
             </Col>
-            <Col lg={7} xs={24} offset={isSmall ? 0 : 1}>
+            <Col lg={7} xs={24} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
                 <Affix offsetTop={40}>
                     <Comments
                         ticketCommentsTime={ticketCommentsTime}

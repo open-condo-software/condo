@@ -1,6 +1,6 @@
 import { FilterFilled } from '@ant-design/icons'
 import { BillingIntegrationOrganizationContext, SortPaymentsBy } from '@app/condo/schema'
-import { Col, Row, Space, Typography } from 'antd'
+import { Col, Row, Space } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import { get } from 'lodash'
@@ -10,7 +10,7 @@ import React, { useCallback, useState } from 'react'
 import { useQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-
+import { Modal, Typography } from '@open-condo/ui'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
@@ -23,7 +23,6 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { Modal } from '@condo/domains/common/components/Modal'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
@@ -106,7 +105,7 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
     const DoneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
     const WithdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const router = useRouter()
     const userOrganization = useOrganization()
 
@@ -284,7 +283,7 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
                     />
                 </Col>
                 <ExportToExcelActionBar
-                    hidden={isSmall}
+                    hidden={!breakpoints.TABLET_LARGE}
                     searchObjectsQuery={searchPaymentsQuery}
                     sortBy={sortBy}
                     exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
@@ -293,10 +292,9 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
             </Row>
 
             <Modal
-                visible={isStatusDescModalVisible}
+                open={isStatusDescModalVisible}
                 onCancel={() => setIsStatusDescModalVisible(false)}
                 title={titleStatusDescModal}
-                centered
                 footer={[
                     <Button
                         key='close'

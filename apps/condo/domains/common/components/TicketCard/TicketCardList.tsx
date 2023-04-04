@@ -70,14 +70,14 @@ const TicketCard: React.FC<ITicketCardProps> = ({ contactId, address, tickets })
     const TicketsByContactMessage = intl.formatMessage({ id: 'TicketsByContact' })
     const NoTicketsOnAddressMessage = intl.formatMessage({ id: 'Contact.NoTicketOnAddress' })
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const hasMoreTickets = tickets.length >= TICKETS_ON_CARD ? tickets.length - TICKETS_ON_CARD : 0
 
     const filters = { contact: [contactId], address }
     const query = qs.stringify({ filters: JSON.stringify(pickBy(filters)) }, TICKET_QUERY_STRINGIFY_OPTIONS)
 
     return (
-        <Container isSmall={isSmall}>
+        <Container isSmall={!breakpoints.TABLET_LARGE}>
             <AddressPartContainer>
                 <Space size={8} direction='vertical'>
                     <Typography.Text type='secondary'>

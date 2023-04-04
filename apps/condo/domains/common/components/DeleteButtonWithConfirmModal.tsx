@@ -3,9 +3,8 @@ import { Typography } from 'antd'
 import React, { useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Button, ButtonProps, Modal, Space } from '@open-condo/ui'
+import { Button, ButtonProps, Modal } from '@open-condo/ui'
 
-// import { Modal } from '@condo/domains/common/components/Modal'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 
 export interface IDeleteActionButtonWithConfirmModal {
@@ -75,23 +74,21 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
                 title={title}
                 open={isConfirmVisible}
                 onCancel={handleCancel}
-                footer={
-                    <Space size={12}>
-                        <Button
-                            key='submit'
-                            type='secondary'
-                            danger
-                            onClick={handleDeleteButtonClick}
-                        >
-                            {okButtonLabel}
+                footer={[
+                    <Button
+                        key='submit'
+                        type='secondary'
+                        danger
+                        onClick={handleDeleteButtonClick}
+                    >
+                        {okButtonLabel}
+                    </Button>,
+                    showCancelButton && (
+                        <Button key='cancel' type='secondary' onClick={handleCancel}>
+                            {CancelMessage}
                         </Button>
-                        {showCancelButton && (
-                            <Button key='cancel' type='secondary' onClick={handleCancel}>
-                                {CancelMessage}
-                            </Button>
-                        )}
-                    </Space>
-                }
+                    ),
+                ]}
             >
                 <Typography.Text>
                     {message}

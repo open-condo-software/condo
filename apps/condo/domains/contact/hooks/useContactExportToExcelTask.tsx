@@ -59,7 +59,7 @@ export const useContactExportToExcelTask: IUseContactExportToExcelTask = (props)
             children={ExportAsExcelTitle}
             onClick={handleRunTask}
             loading={loading}
-            icon={<Sheet />}
+            icon={<Sheet size='medium' />}
         />
     ), [loading, ExportAsExcelTitle, handleRunTask])
 

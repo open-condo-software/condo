@@ -63,7 +63,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
 
     const { role, searchPropertiesQuery, tableColumns, sortBy, loading, canDownloadProperties } = props
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
@@ -194,7 +194,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                             </Col>
                             <Col xs={24} lg={12}>
                                 <Row justify='end' gutter={ROW_SMALL_HORIZONTAL_GUTTERS}>
-                                    <Col hidden={isSmall}>
+                                    <Col hidden={!breakpoints.TABLET_LARGE}>
                                         {
                                             canManageProperties && (
                                                 <ImportWrapper

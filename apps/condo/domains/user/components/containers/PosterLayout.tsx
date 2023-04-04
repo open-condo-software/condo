@@ -26,7 +26,7 @@ const {
 } = getConfig()
 
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor, layoutBgImage }) => {
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const intl = useIntl()
     const PrivacyPolicy = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
     const TermsOfService = intl.formatMessage({ id: 'pages.auth.register.info.termsOfService' })
@@ -38,7 +38,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
         <Layout style={LAYOUT_STYLE}>
             <Row align='stretch' justify='center'>
                 <AuthHeader headerAction={headerAction}/>
-                <Col lg={12} md={24} hidden={isSmall}>
+                <Col md={12} sm={24} hidden={!breakpoints.TABLET_LARGE}>
                     <PosterWrapper>
                         <Poster
                             src={BG_POSTER}
@@ -47,10 +47,10 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                         />
                     </PosterWrapper>
                 </Col>
-                <Col lg={12} md={24}>
+                <Col md={12} sm={24}>
                     <PageContent>
                         <ReCaptchaContainer id='ReCaptchaContainer'/>
-                        <ChildrenWrapper isSmall={isSmall}>
+                        <ChildrenWrapper isSmall={!breakpoints.TABLET_LARGE}>
                             <Row style={ROW_STYLE}>
                                 <Col span={24}>
                                     {children}
@@ -60,7 +60,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                     </PageContent>
                 </Col>
                 <Col span={24}>
-                    <Footer isSmall={isSmall} style={FOOTER_STYLE}>
+                    <Footer isSmall={!breakpoints.TABLET_LARGE} style={FOOTER_STYLE}>
                         <Row>
                             {SUPPORT_EMAIL && SUPPORT_PHONE && <Row>
                                 <Typography.Paragraph type='secondary' >

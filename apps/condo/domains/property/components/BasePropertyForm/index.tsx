@@ -62,7 +62,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
     const AddressValidationErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const { addressApi } = useAddressApi()
     const { action, initialValues, organization, address } = props
 
@@ -172,7 +172,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                 </Col>
                             </Row>
                             <Row gutter={PROPERTY_ROW_GUTTER}>
-                                <Col span={isSmall ? 12 : 4}>
+                                <Col span={!breakpoints.TABLET_LARGE ? 12 : 4}>
                                     <Form.Item
                                         name='area'
                                         label={AreaTitle}
@@ -181,7 +181,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         <Input/>
                                     </Form.Item>
                                 </Col>
-                                <Col span={isSmall ? 12 : 4}>
+                                <Col span={!breakpoints.TABLET_LARGE ? 12 : 4}>
                                     <Form.Item
                                         name='yearOfConstruction'
                                         label={YearOfConstructionTitle}

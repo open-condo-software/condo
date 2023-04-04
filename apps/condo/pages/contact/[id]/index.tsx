@@ -72,7 +72,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const contactRole = get(contact, 'role')
     const isVerified = get(contact, 'isVerified')
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const deleteCallback = useCallback(() => {
         return new Promise((resolve) => {
@@ -90,7 +90,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                     <Col xs={10} lg={3}>
                         <UserAvatar borderRadius={24}/>
                     </Col>
-                    <Col xs={24} lg={20} offset={isSmall ? 0 : 1}>
+                    <Col xs={24} lg={20} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
                         <Row gutter={[0, 60]}>
                             <Col lg={15} xs={24}>
                                 <Row gutter={[0, 40]}>
@@ -167,7 +167,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                     )}
                                 </Row>
                             </Col>
-                            <Col xs={24} lg={8} offset={isSmall ? 0 : 1}>
+                            <Col xs={24} lg={8} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
                                 <TicketCardList
                                     contactId={contactId}
                                 />

@@ -64,7 +64,7 @@ interface IPageWrapperProps {
 
 const PageWrapper: FunctionComponent<IPageWrapperProps> = (props) => {
     const { children, className, style } = props
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const { logEvent, getEventName } = useTracking()
 
     useEffect(() => {
@@ -73,7 +73,7 @@ const PageWrapper: FunctionComponent<IPageWrapperProps> = (props) => {
     }, [])
 
     return (
-        <StyledPageWrapper isSmall={isSmall} className={classnames('page-wrapper', className)} style={style}>
+        <StyledPageWrapper isSmall={!breakpoints.TABLET_LARGE} className={classnames('page-wrapper', className)} style={style}>
             {children}
         </StyledPageWrapper>
     )

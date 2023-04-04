@@ -33,7 +33,7 @@ export const PropertyScopeSettingsContent = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
@@ -96,7 +96,7 @@ export const PropertyScopeSettingsContent = () => {
                 canManagePropertyScopes && (
                     <Col span={24}>
                         <ExportToExcelActionBar
-                            hidden={isSmall}
+                            hidden={!breakpoints.TABLET_LARGE}
                             searchObjectsQuery={searchPropertyScopesQuery}
                             sortBy={sortBy}
                             exportToExcelQuery={EXPORT_PROPERTY_SCOPE_QUERY}

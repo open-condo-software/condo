@@ -1,6 +1,6 @@
 import { ServiceSubscriptionTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import cookie from 'js-cookie'
 import React, { useState, Dispatch, SetStateAction, useEffect } from 'react'
@@ -9,14 +9,11 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Modal, Typography, Button } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
-import { Modal } from '@condo/domains/common/components/Modal'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-
 import { ServiceSubscription } from '../utils/clientSchema'
-
 
 
 interface IServiceSubscriptionWelcomePopup {
@@ -86,16 +83,13 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
 
     const ServiceSubscriptionWelcomePopup = () => (
         <Modal
-            visible={isServiceSubscriptionWelcomePopupVisible}
+            open={isServiceSubscriptionWelcomePopupVisible}
             onCancel={handleCloseModal}
-            centered
-            width={600}
-            bodyStyle={{ padding: '30px' }}
+            title={GratitudeMessage}
             footer={[
                 <Button
-                    size='large'
                     key='submit'
-                    type='sberPrimary'
+                    type='primary'
                     onClick={handleCloseModal}
                 >
                     {CompleteActionMessage}
@@ -104,9 +98,6 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
         >
             <Row gutter={[0, 40]}>
                 <Col span={24}>
-                    <ServiceSubscriptionWelcomePopupParagraph strong>
-                        {GratitudeMessage}
-                    </ServiceSubscriptionWelcomePopupParagraph>
                     <ServiceSubscriptionWelcomePopupParagraph>
                         {TrialTimeMessage}
                     </ServiceSubscriptionWelcomePopupParagraph>

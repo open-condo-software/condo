@@ -51,7 +51,7 @@ const getActiveSubscriptionData = (intl, subscription: ServiceSubscription, isEx
 }
 
 export const SubscriptionPane: React.FC = () => {
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const intl = useIntl()
     const TariffsMessage = intl.formatMessage({ id: 'subscription.data.tariffs' })
     const SubscriptionMessage = intl.formatMessage({ id: 'subscription.data.subscription' })
@@ -78,7 +78,7 @@ export const SubscriptionPane: React.FC = () => {
                                 {
                                     subscriptions.map((subscription, index) => {
                                         return (
-                                            <Col sm={24} lg={8} offset={isSmall || (index % 2 === 0) ? 0 : 1 } key={index}>
+                                            <Col sm={24} lg={8} offset={!breakpoints.TABLET_LARGE || (index % 2 === 0) ? 0 : 1 } key={index}>
                                                 {subscription}
                                             </Col>
                                         )

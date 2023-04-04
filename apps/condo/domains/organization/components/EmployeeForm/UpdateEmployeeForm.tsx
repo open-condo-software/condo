@@ -52,7 +52,7 @@ export const UpdateEmployeeForm = () => {
 
     const { query, push } = useRouter()
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const employeeId = String(get(query, 'id', ''))
     const { obj: employee, loading: employeeLoading, error: employeeError } = OrganizationEmployee.useObject({ where: { id: employeeId } })
@@ -247,7 +247,7 @@ export const UpdateEmployeeForm = () => {
                                 </Col>
                             </Row>
                         </Col>
-                        {!isSmall && (
+                        {breakpoints.TABLET_LARGE && (
                             <Col lg={9}>
                                 <Form.Item dependencies={['role']}>
                                     {({ getFieldValue }) => {

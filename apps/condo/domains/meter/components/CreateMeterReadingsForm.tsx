@@ -92,8 +92,8 @@ export const PropertyMetersForm = ({
     const intl = useIntl()
     const MetersAndReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MetersAndReadings' })
 
-    const { isSmall } = useLayoutContext()
-    const tableScrollConfig = useMemo(() => isSmall ? TABLE_SCROlL_CONFIG : null,  [isSmall])
+    const { breakpoints } = useLayoutContext()
+    const tableScrollConfig = useMemo(() => !breakpoints.TABLET_LARGE ? TABLE_SCROlL_CONFIG : null,  [breakpoints.TABLET_LARGE])
 
     const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = Meter.useObjects({
         where: {

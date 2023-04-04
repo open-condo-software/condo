@@ -1,5 +1,4 @@
 import { ServiceSubscription, SortServiceSubscriptionsBy } from '@app/condo/schema'
-import { Typography } from 'antd'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -10,10 +9,9 @@ import React, { useContext, useEffect, useState, createContext } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Modal, Button, Typography } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
-import { Modal } from '@condo/domains/common/components/Modal'
 
 import { ServiceSubscription as ServiceSubscriptionUtil } from '../utils/clientSchema'
 import { isExpired } from '../utils/helpers'
@@ -76,9 +74,9 @@ const ExpiredModal: React.FC = () => {
     return (
         <Modal
             title={ExpiredTitleMessage}
-            visible={visible}
+            open={visible}
             footer={[
-                <Button key='submit' type='sberPrimary' onClick={() => setVisible(false)}>
+                <Button key='submit' type='primary' onClick={() => setVisible(false)}>
                     {OKMessage}
                 </Button>,
             ]}

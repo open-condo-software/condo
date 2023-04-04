@@ -11,11 +11,11 @@ interface ISideNav {
 }
 
 export const SideNav: React.FC<ISideNav> = (props) => {
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const { menuData, onLogoClick } = props
 
     return (
-        isSmall
+        !breakpoints.TABLET_LARGE
             ? <MobileSideNav menuData={menuData}/>
             : <DesktopSideNav onLogoClick={onLogoClick} menuData={menuData}/>
     )

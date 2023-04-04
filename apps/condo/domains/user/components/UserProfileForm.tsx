@@ -48,7 +48,7 @@ export const UserProfileForm = () => {
     const { user } = useAuth()
     const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
     const formAction = (formValues) => updateUserAction(formValues, user)
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const { requiredValidator, emailValidator, changeMessage, minLengthValidator } = useValidations()
     const minClientNameRule = changeMessage(minLengthValidator(2), MinLengthError)
@@ -87,7 +87,7 @@ export const UserProfileForm = () => {
                         <Col xs={10} lg={3}>
                             <UserAvatar borderRadius={24}/>
                         </Col>
-                        <Col lg={20} offset={isSmall ? 0 : 1}>
+                        <Col lg={20} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
                                     <Typography.Title

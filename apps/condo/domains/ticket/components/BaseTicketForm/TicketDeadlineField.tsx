@@ -29,8 +29,8 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
     const AutoCompletionTodayMessage = intl.formatMessage({ id: 'ticket.deadline.AutoCompletion.today' })
     const TicketWithoutDeadlineMessage = intl.formatMessage({ id: 'pages.condo.ticket.WithoutDeadline' })
 
-    const { isSmall } = useLayoutContext()
-    const COL_SPAN = useMemo(() => isSmall ? 24 : 11, [isSmall])
+    const { breakpoints } = useLayoutContext()
+    const COL_SPAN = useMemo(() => !breakpoints.TABLET_LARGE ? 24 : 11, [breakpoints.TABLET_LARGE])
 
     const { ticketSetting, isAutoDetectedDeadlineValue, setIsAutoDetectedDeadlineValue, isExistedTicket } = useTicketFormContext()
     const { isPaid, isEmergency, isWarranty } = form.getFieldsValue(['isPaid', 'isEmergency', 'isWarranty'])
@@ -67,7 +67,7 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
         const DaysMessage = intl.formatMessage({ id: 'DaysShort' }, { days: autoAddDays })
 
         return (
-            <Col style={AUTO_DETECTED_DEADLINE_COL_STYLE} span={isSmall ? 24 : 11}>
+            <Col style={AUTO_DETECTED_DEADLINE_COL_STYLE} span={!breakpoints.TABLET_LARGE ? 24 : 11}>
                 <Row justify='start' align='middle' style={AUTO_DETECTED_DEADLINE_ROW_STYLE}>
                     <Col span={24}>
                         <Typography.Text type='secondary' style={AUTO_COMPLETE_MESSAGE_STYLE}>
@@ -81,7 +81,7 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
                 </Row>
             </Col>
         )
-    }, [AutoCompletionMessage, AutoCompletionTodayMessage, autoAddDays, intl, isAutoDetectedDeadlineValue, isSmall])
+    }, [AutoCompletionMessage, AutoCompletionTodayMessage, autoAddDays, intl, isAutoDetectedDeadlineValue, breakpoints.TABLET_LARGE])
 
     useEffect(() => {
         if (!isExistedTicket) {

@@ -134,7 +134,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const ReportCardTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.reportCardTitle' })
     const NoDataTitle = intl.formatMessage({ id: 'NoData' })
 
-    const { isSmall, isMobile } = useLayoutContext()
+    const { breakpoints, isMobile } = useLayoutContext()
     const router = useRouter()
 
     const [activeTab, setActiveTab] = useState(get(bankAccountReports, '0.data.categoryGroups.0.id'))
@@ -323,7 +323,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                             value={(bankAccountReport.amount)}
                             label={PropertyBalanceLabel}
                             icon={<TotalBalanceIcon />}
-                            isSmall={isSmall}
+                            isSmall={!breakpoints.TABLET_LARGE}
                             currencyCode={currencyCode}
                             onClick={() => setActiveCategory(ReportCategories.Total)}
                         />
@@ -334,7 +334,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                             label={WithdrawalTitle}
                             icon={<BalanceOutIcon />}
                             valueType='danger'
-                            isSmall={isSmall}
+                            isSmall={!breakpoints.TABLET_LARGE}
                             currencyCode={currencyCode}
                             onClick={() => setActiveCategory(ReportCategories.Withdrawal)}
                         />
@@ -345,7 +345,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                             label={IncomeTitle}
                             icon={<BalanceInIcon />}
                             valueType='success'
-                            isSmall={isSmall}
+                            isSmall={!breakpoints.TABLET_LARGE}
                             currencyCode={currencyCode}
                             onClick={() => setActiveCategory(ReportCategories.Income)}
                         />
@@ -357,17 +357,17 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                     <Tabs items={tabsItems} onChange={onChangeTabs} activeKey={activeTab} />
                     <Row
                         gutter={BANK_ACCOUNT_REPORT_ROW_GUTTER}
-                        style={{ flexDirection: isSmall || isMobile ? 'column-reverse' : 'row' }}
+                        style={{ flexDirection: !breakpoints.TABLET_LARGE || isMobile ? 'column-reverse' : 'row' }}
                     >
                         {isEmpty(chartData)
                             ? (
                                 emptyPlaceholder
                             ) : (
                                 <>
-                                    <Col span={isSmall || isMobile ? 24 : 12}>
+                                    <Col span={!breakpoints.TABLET_LARGE || isMobile ? 24 : 12}>
                                         {chartLegendItems}
                                     </Col>
-                                    <Col span={isSmall || isMobile ? 24 : 12}>
+                                    <Col span={!breakpoints.TABLET_LARGE || isMobile ? 24 : 12}>
                                         <ReactECharts
                                             onChartReady={(instance) => chartInstance.current = instance}
                                             opts={CHART_OPTIONS}

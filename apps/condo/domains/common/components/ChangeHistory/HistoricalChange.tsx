@@ -32,7 +32,7 @@ export const HistoricalChange = <ChangesType extends BaseChangesType> (props: Hi
     const { changesValue, useChangedFieldMessagesOf, Diff } = props
 
     const changedFieldMessages = useChangedFieldMessagesOf(changesValue)
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const formattedDate = useMemo(() => dayjs(changesValue.createdAt).format('DD.MM.YYYY'), [changesValue.createdAt])
     const formattedTime = useMemo(() => dayjs(changesValue.createdAt).format('HH:mm'), [changesValue.createdAt])
@@ -40,7 +40,7 @@ export const HistoricalChange = <ChangesType extends BaseChangesType> (props: Hi
     return (
         <Row gutter={HISTORICAL_CHANGE_GUTTER}>
             <Col xs={24} lg={6}>
-                <Typography.Text disabled={isSmall}>
+                <Typography.Text disabled={!breakpoints.TABLET_LARGE}>
                     {formattedDate}
                     <Typography.Text type='secondary'>, {formattedTime}</Typography.Text>
                 </Typography.Text>

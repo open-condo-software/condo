@@ -31,7 +31,7 @@ interface ISideNavProps {
 export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
     const { onLogoClick, menuData } = props
     const { link } = useOrganization()
-    const { isSmall, toggleCollapsed, isCollapsed } = useLayoutContext()
+    const { breakpoints, toggleCollapsed, isCollapsed } = useLayoutContext()
 
     const isEmployeeBlocked = get(link, 'isBlocked', false)
 
@@ -40,7 +40,7 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
     }
 
     // TODO: (Dimitreee) implement mobile nav later
-    if (isSmall) {
+    if (!breakpoints.TABLET_LARGE) {
         return null
     }
 

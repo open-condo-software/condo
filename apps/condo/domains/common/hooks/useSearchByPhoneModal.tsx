@@ -1,20 +1,19 @@
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { SelectProps } from 'antd/lib/select'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 import { PhoneInputProps } from 'react-phone-input-2'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Modal } from '@open-condo/ui'
 
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
 import { GraphQlSearchInput, SearchComponentType } from '@condo/domains/common/components/GraphQlSearchInput'
-import { Modal } from '@condo/domains/common/components/Modal'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { colors } from '@condo/domains/common/constants/style'
 import {
     ClientType,
     mapSearchItemToOption,
@@ -22,25 +21,20 @@ import {
 } from '@condo/domains/contact/utils/clientCard'
 
 
-const StyledModal = styled(Modal)`
+const StyledModal = styled(Modal)<{ isSmall }>`
   animation-duration: 0s !important;
+  width: 1150px !important;
   
-  .ant-modal-close {
-    top: 26px;
-    right: 26px;
-    color: ${colors.black}
-  }
-  
-  .ant-modal-header {
-    border-bottom: none;
-    padding: 40px 40px 0 40px;
-  }
+  &.condo-modal {
+    ${props => !props.isSmall && 'top: -20vh; margin: 0 auto;'}
 
-  .ant-modal-body {
-    padding: 24px 40px 40px 40px;
-    
-    .ant-select-item-option {
-      padding: 0;
+    & .condo-modal-header {
+      border-radius: 12px;
+      border-bottom: none;
+    }
+
+    .condo-modal-content {
+      overflow: unset !important;
     }
   }
 `
@@ -113,7 +107,6 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
 
 const SELECT_STYLES = { width: '100%' }
 const PHONE_INPUT_MASK = { ru: '... ... .. ..' }
-const SELECT_DROPDOWN_ALIGN: SelectProps['dropdownAlign'] = { overflow: { adjustX: false, adjustY: false } }
 const PHONE_INPUT_PROPS: PhoneInputProps['inputProps'] = { autoFocus: true }
 
 const StyledPhoneInput = styled(PhoneInput)`
@@ -206,7 +199,6 @@ const SearchByPhoneSelect = ({
                 showLoadingMessage={false}
                 autoClearSearchValue
                 getPopupContainer={getPopupContainer}
-                dropdownAlign={SELECT_DROPDOWN_ALIGN}
             >
                 <StyledPhoneInput
                     inputProps={PHONE_INPUT_PROPS}
@@ -224,17 +216,19 @@ export const useSearchByPhoneModal = (searchByPhoneFn, canManageContacts) => {
     const intl = useIntl()
     const SearchByPhoneMessage = intl.formatMessage({ id: 'SearchByPhoneNumber' })
 
+    const { breakpoints } = useLayoutContext()
+
     const [isSearchByPhoneModalVisible, setIsSearchByPhoneModalVisible] = useState<boolean>(false)
 
     const handleCloseModal = useCallback(() => setIsSearchByPhoneModalVisible(false), [])
 
     const SearchByPhoneModal = useMemo(() => (
         <StyledModal
-            visible={isSearchByPhoneModalVisible}
+            isSmall={!breakpoints.TABLET_LARGE}
+            open={isSearchByPhoneModalVisible}
             title={SearchByPhoneMessage}
             onCancel={handleCloseModal}
             footer={null}
-            width={1150}
             destroyOnClose
         >
             <SearchByPhoneSelect

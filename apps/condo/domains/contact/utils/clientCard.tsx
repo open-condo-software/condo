@@ -134,7 +134,7 @@ const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, 
     const prefix = unitType === BuildingUnitSubType.Parking ? ParkingMessage : ShortFlatMessage
     const unitNameMessage = unitName && ` ${prefix} ${unitName}`
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const handleClick = useCallback(
         () => {
@@ -149,7 +149,7 @@ const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, 
 
     return (
         <Row justify='space-between' style={OPTION_STYLES} onClick={handleClick}>
-            <Col span={isSmall ? 24 : 21}>
+            <Col span={!breakpoints.TABLET_LARGE ? 24 : 21}>
                 <Row gutter={SELECT_OPTION_ROW_GUTTER}>
                     <Col>
                         <Typography.Text strong>
@@ -158,13 +158,13 @@ const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, 
 
                     </Col>
                     <Col span={16}>
-                        {property ? getAddressRender(property, unitNameMessage, DeletedMessage, !isSmall) : DeletedMessage}
+                        {property ? getAddressRender(property, unitNameMessage, DeletedMessage, breakpoints.TABLET_LARGE) : DeletedMessage}
                     </Col>
                 </Row>
             </Col>
             {
                 type !== ClientType.Resident && (
-                    <Col span={isSmall ? 24 : 3}>
+                    <Col span={!breakpoints.TABLET_LARGE ? 24 : 3}>
                         {TicketMessage} №{number}
                     </Col>
                 )

@@ -20,7 +20,7 @@ interface IAuthHeaderProps {
 }
 
 export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const router = useRouter()
     const { isAuthenticated } = useAuth()
 
@@ -33,7 +33,7 @@ export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
     }, [isAuthenticated, router])
 
     return (
-        isSmall
+        !breakpoints.TABLET_LARGE
             ? (
                 <>
                     <MobileHeader>

@@ -1,5 +1,4 @@
 /** @jsx jsx */
-import { CloseOutlined } from '@ant-design/icons'
 import { useApolloClient } from '@apollo/client'
 import { SortTicketsBy, Ticket as ITicket, TicketStatusTypeType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
@@ -21,18 +20,18 @@ import React, { CSSProperties, Key, useCallback, useEffect, useMemo, useRef, use
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { FileUp, Filter, Search } from '@open-condo/icons'
+import { FileUp, Filter, Search, Close } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography } from '@open-condo/ui'
+import { Typography, Button } from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
 import { colors } from '@open-condo/ui/dist/colors'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
+import { Button as CommonButton } from '@condo/domains/common/components/Button'
 import { CardTabs } from '@condo/domains/common/components/CardTabs'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -310,11 +309,10 @@ const TicketTable = ({
                 {selectedTicketKeys.length < 1 && <TicketsExportToXlsxButton />}
                 {selectedTicketKeys.length > 0 && (
                     <Button
-                        secondary
-                        type='sberBlack'
+                        type='secondary'
                         children={CancelSelectedTicketLabel}
                         onClick={handleResetSelectedTickets}
-                        icon={<CloseOutlined />}
+                        icon={<Close size='medium'/>}
                     />
                 )}
             </ActionBar>
@@ -504,7 +502,7 @@ const FiltersButton = ({ appliedFiltersCount, setIsMultipleFiltersModalVisible }
     }, [setIsMultipleFiltersModalVisible])
 
     return (
-        <Button
+        <CommonButton
             secondary
             type='sberBlack'
             onClick={handleOpenMultipleFilter}
@@ -520,7 +518,7 @@ const FiltersButton = ({ appliedFiltersCount, setIsMultipleFiltersModalVisible }
                     </AppliedFiltersCounter>
                 ) : null
             }
-        </Button>
+        </CommonButton>
     )
 }
 
@@ -783,9 +781,8 @@ export const TicketsPageContent = ({
                 }
             >
                 <Button
-                    type='sberBlack'
-                    icon={<FileUp/>}
-                    secondary
+                    type='secondary'
+                    icon={<FileUp size='medium'/>}
                 />
             </ImportWrapper>
         )
