@@ -7,6 +7,7 @@ const { get, isEmpty, uniq, compact } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById, find } = require('@open-condo/keystone/schema')
 
+const { queryFindNewsItemsScopesByResidents } = require('@condo/domains/news/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadNewsItemUserReads ({ authentication: { item: user } }) {
@@ -34,7 +35,14 @@ async function canManageNewsItemUserReads ({ authentication: { item: user }, ori
 
         const organizationsIds = uniq(compact(residents.map(resident => get(resident, 'organization'))))
 
-        return organizationsIds.includes(newsItem.organization)
+        const scopesConditions = queryFindNewsItemsScopesByResidents(residents)
+
+        /**
+         * @type {NewsItemScope[]}
+         */
+        const scopes = await find('NewsItemScope', scopesConditions)
+
+        return scopes.length > 0 && organizationsIds.includes(newsItem.organization)
     }
 
     return false

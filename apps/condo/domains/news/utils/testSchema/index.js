@@ -128,8 +128,6 @@ async function createTestNewsItemUserRead (client, newsItem, user, extraAttrs = 
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestNewsItemUserRead logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -145,8 +143,6 @@ async function updateTestNewsItemUserRead (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestNewsItemUserRead logic for generate fields
 
     const attrs = {
         dv: 1,

@@ -40,15 +40,13 @@ const {
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-let adminClient, supportClient, userClient, anonymousClient, sender, dummyO10n
+let adminClient, supportClient, anonymousClient, dummyO10n
 
 describe('NewsItems', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
-        userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymousClient = await makeClient()
-        sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
         const [o10n] = await createTestOrganization(adminClient)
         dummyO10n = o10n
     })
