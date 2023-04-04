@@ -184,7 +184,10 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     const bankIntegrationAccountContextId = get(bankAccount, 'integrationContext.id')
                     let costItem
                     try {
-                        costItem = await predictTransactionClassification(context, { purpose: transaction.paymentPurpose })
+                        costItem = await predictTransactionClassification(context, {
+                            purpose: transaction.paymentPurpose,
+                            isOutcome: whereTransactionConditions.isOutcome,
+                        })
                     } catch (e) {
                         logger.error({ msg: 'Can\'t get costItem from classification service', e })
                     }
