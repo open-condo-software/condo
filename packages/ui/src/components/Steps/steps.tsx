@@ -63,21 +63,17 @@ export const Steps: React.FC<StepsProps> = ({
     }, [currentStep, totalItems, stepsToShow])
 
     useEffect(() => {
-        if (onChange) {
-            onChange(currentStep)
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentStep])
-
-    useEffect(() => {
         sendAnalyticsChangeEvent('Steps', { activeStep: currentStep, id })
     }, [currentStep, id])
 
     const handleStepClick = useCallback((idx: number) => {
         return function onClick () {
             setCurrentStep(idx)
+            if (onChange) {
+                onChange(idx)
+            }
         }
-    }, [])
+    }, [onChange])
 
     const steps = useMemo(() => {
         const modifiedItems: Array<StepItem & { previousBreakPoint: number }> = []
