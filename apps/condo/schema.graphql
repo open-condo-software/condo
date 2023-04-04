@@ -4471,6 +4471,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageBankIntegrationOrganizationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
+  canManageBankAccountReports: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
@@ -4600,6 +4601,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageBankContractorAccounts_not: Boolean
   canManageBankTransactions: Boolean
   canManageBankTransactions_not: Boolean
+  canManageBankAccountReports: Boolean
+  canManageBankAccountReports_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
   canManageNewsItems: Boolean
@@ -4731,6 +4734,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageBankContractorAccounts_DESC
   canManageBankTransactions_ASC
   canManageBankTransactions_DESC
+  canManageBankAccountReports_ASC
+  canManageBankAccountReports_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
   canManageNewsItems_ASC
@@ -4783,6 +4788,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageBankIntegrationOrganizationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
+  canManageBankAccountReports: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
@@ -4833,6 +4839,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageBankIntegrationOrganizationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
+  canManageBankAccountReports: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
@@ -4912,6 +4919,7 @@ type OrganizationEmployeeRole {
   canManageBankIntegrationOrganizationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
+  canManageBankAccountReports: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
@@ -5029,6 +5037,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageBankContractorAccounts_not: Boolean
   canManageBankTransactions: Boolean
   canManageBankTransactions_not: Boolean
+  canManageBankAccountReports: Boolean
+  canManageBankAccountReports_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
   canManageNewsItems: Boolean
@@ -5142,6 +5152,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageBankContractorAccounts_DESC
   canManageBankTransactions_ASC
   canManageBankTransactions_DESC
+  canManageBankAccountReports_ASC
+  canManageBankAccountReports_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
   canManageNewsItems_ASC
@@ -5193,6 +5205,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageBankIntegrationOrganizationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
+  canManageBankAccountReports: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
@@ -5239,6 +5252,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageBankIntegrationOrganizationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
+  canManageBankAccountReports: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
@@ -18991,6 +19005,638 @@ input BankIntegrationOrganizationContextCreateInput {
 
 input BankIntegrationOrganizationContextsCreateInput {
   data: BankIntegrationOrganizationContextCreateInput
+}
+
+enum BankAccountReportHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type BankAccountReportHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the BankAccountReportHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the BankAccountReportHistoryRecord List config, or
+   3. As an alias to a 'name' field on the BankAccountReportHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the BankAccountReportHistoryRecord List.
+  """
+  _label_: String
+  account: String
+  organization: String
+  version: Int
+  template: String
+  period: String
+  amount: String
+  amountAt: String
+  publishedAt: String
+  totalIncome: String
+  totalOutcome: String
+  data: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankAccountReportHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankAccountReportHistoryRecordWhereInput {
+  AND: [BankAccountReportHistoryRecordWhereInput]
+  OR: [BankAccountReportHistoryRecordWhereInput]
+  account: String
+  account_not: String
+  account_in: [String]
+  account_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  version: Int
+  version_not: Int
+  version_lt: Int
+  version_lte: Int
+  version_gt: Int
+  version_gte: Int
+  version_in: [Int]
+  version_not_in: [Int]
+  template: String
+  template_not: String
+  template_contains: String
+  template_not_contains: String
+  template_starts_with: String
+  template_not_starts_with: String
+  template_ends_with: String
+  template_not_ends_with: String
+  template_i: String
+  template_not_i: String
+  template_contains_i: String
+  template_not_contains_i: String
+  template_starts_with_i: String
+  template_not_starts_with_i: String
+  template_ends_with_i: String
+  template_not_ends_with_i: String
+  template_in: [String]
+  template_not_in: [String]
+  period: String
+  period_not: String
+  period_contains: String
+  period_not_contains: String
+  period_starts_with: String
+  period_not_starts_with: String
+  period_ends_with: String
+  period_not_ends_with: String
+  period_i: String
+  period_not_i: String
+  period_contains_i: String
+  period_not_contains_i: String
+  period_starts_with_i: String
+  period_not_starts_with_i: String
+  period_ends_with_i: String
+  period_not_ends_with_i: String
+  period_in: [String]
+  period_not_in: [String]
+  amount: String
+  amount_not: String
+  amount_lt: String
+  amount_lte: String
+  amount_gt: String
+  amount_gte: String
+  amount_in: [String]
+  amount_not_in: [String]
+  amountAt: String
+  amountAt_not: String
+  amountAt_lt: String
+  amountAt_lte: String
+  amountAt_gt: String
+  amountAt_gte: String
+  amountAt_in: [String]
+  amountAt_not_in: [String]
+  publishedAt: String
+  publishedAt_not: String
+  publishedAt_lt: String
+  publishedAt_lte: String
+  publishedAt_gt: String
+  publishedAt_gte: String
+  publishedAt_in: [String]
+  publishedAt_not_in: [String]
+  totalIncome: String
+  totalIncome_not: String
+  totalIncome_lt: String
+  totalIncome_lte: String
+  totalIncome_gt: String
+  totalIncome_gte: String
+  totalIncome_in: [String]
+  totalIncome_not_in: [String]
+  totalOutcome: String
+  totalOutcome_not: String
+  totalOutcome_lt: String
+  totalOutcome_lte: String
+  totalOutcome_gt: String
+  totalOutcome_gte: String
+  totalOutcome_in: [String]
+  totalOutcome_not_in: [String]
+  data: JSON
+  data_not: JSON
+  data_in: [JSON]
+  data_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: BankAccountReportHistoryRecordHistoryActionType
+  history_action_not: BankAccountReportHistoryRecordHistoryActionType
+  history_action_in: [BankAccountReportHistoryRecordHistoryActionType]
+  history_action_not_in: [BankAccountReportHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input BankAccountReportHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortBankAccountReportHistoryRecordsBy {
+  version_ASC
+  version_DESC
+  template_ASC
+  template_DESC
+  period_ASC
+  period_DESC
+  amount_ASC
+  amount_DESC
+  amountAt_ASC
+  amountAt_DESC
+  publishedAt_ASC
+  publishedAt_DESC
+  totalIncome_ASC
+  totalIncome_DESC
+  totalOutcome_ASC
+  totalOutcome_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input BankAccountReportHistoryRecordUpdateInput {
+  account: String
+  organization: String
+  version: Int
+  template: String
+  period: String
+  amount: String
+  amountAt: String
+  publishedAt: String
+  totalIncome: String
+  totalOutcome: String
+  data: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankAccountReportHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankAccountReportHistoryRecordsUpdateInput {
+  id: ID!
+  data: BankAccountReportHistoryRecordUpdateInput
+}
+
+input BankAccountReportHistoryRecordCreateInput {
+  account: String
+  organization: String
+  version: Int
+  template: String
+  period: String
+  amount: String
+  amountAt: String
+  publishedAt: String
+  totalIncome: String
+  totalOutcome: String
+  data: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankAccountReportHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankAccountReportHistoryRecordsCreateInput {
+  data: BankAccountReportHistoryRecordCreateInput
+}
+
+enum BankAccountReportTemplateType {
+  expenses_grouped_by_category_and_cost_item
+}
+
+""" Calculated data for financial report of specified form, period and version. 
+"""
+type BankAccountReport {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the BankAccountReport List config, or
+   2. As an alias to the field set on 'labelField' in the BankAccountReport List config, or
+   3. As an alias to a 'name' field on the BankAccountReport List (if one exists), or
+   4. As an alias to the 'id' field on the BankAccountReport List.
+  """
+  _label_: String
+
+  """ Transactions of specified bank account will be used to calculate this report 
+  """
+  account: BankAccount
+
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
+  """ When manual changes in transactions covers specified period,  """
+  version: Int
+
+  """ Form of this report """
+  template: BankAccountReportTemplateType
+
+  """ Specified time frame to calculate this report. Can be month, quarter, year. Has specified format 
+  """
+  period: String
+
+  """ Total amount for BankAccount on end of specified period of this report 
+  """
+  amount: String
+
+  """ Date on that the specified amount is actual """
+  amountAt: String
+
+  """ Report will be available for public view if this field will have a value, otherwise in case of null value this report will not be available for public view 
+  """
+  publishedAt: String
+
+  """ Total income amount over period of this report """
+  totalIncome: String
+
+  """ Total outcome amount over period of this report """
+  totalOutcome: String
+
+  """ Calculated data of this report, that will be used to display """
+  data: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input BankAccountReportWhereInput {
+  AND: [BankAccountReportWhereInput]
+  OR: [BankAccountReportWhereInput]
+  account: BankAccountWhereInput
+  account_is_null: Boolean
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  version: Int
+  version_not: Int
+  version_lt: Int
+  version_lte: Int
+  version_gt: Int
+  version_gte: Int
+  version_in: [Int]
+  version_not_in: [Int]
+  template: BankAccountReportTemplateType
+  template_not: BankAccountReportTemplateType
+  template_in: [BankAccountReportTemplateType]
+  template_not_in: [BankAccountReportTemplateType]
+  period: String
+  period_not: String
+  period_contains: String
+  period_not_contains: String
+  period_starts_with: String
+  period_not_starts_with: String
+  period_ends_with: String
+  period_not_ends_with: String
+  period_i: String
+  period_not_i: String
+  period_contains_i: String
+  period_not_contains_i: String
+  period_starts_with_i: String
+  period_not_starts_with_i: String
+  period_ends_with_i: String
+  period_not_ends_with_i: String
+  period_in: [String]
+  period_not_in: [String]
+  amount: String
+  amount_not: String
+  amount_lt: String
+  amount_lte: String
+  amount_gt: String
+  amount_gte: String
+  amount_in: [String]
+  amount_not_in: [String]
+  amountAt: String
+  amountAt_not: String
+  amountAt_lt: String
+  amountAt_lte: String
+  amountAt_gt: String
+  amountAt_gte: String
+  amountAt_in: [String]
+  amountAt_not_in: [String]
+  publishedAt: String
+  publishedAt_not: String
+  publishedAt_lt: String
+  publishedAt_lte: String
+  publishedAt_gt: String
+  publishedAt_gte: String
+  publishedAt_in: [String]
+  publishedAt_not_in: [String]
+  totalIncome: String
+  totalIncome_not: String
+  totalIncome_lt: String
+  totalIncome_lte: String
+  totalIncome_gt: String
+  totalIncome_gte: String
+  totalIncome_in: [String]
+  totalIncome_not_in: [String]
+  totalOutcome: String
+  totalOutcome_not: String
+  totalOutcome_lt: String
+  totalOutcome_lte: String
+  totalOutcome_gt: String
+  totalOutcome_gte: String
+  totalOutcome_in: [String]
+  totalOutcome_not_in: [String]
+  data: JSON
+  data_not: JSON
+  data_in: [JSON]
+  data_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input BankAccountReportWhereUniqueInput {
+  id: ID!
+}
+
+enum SortBankAccountReportsBy {
+  account_ASC
+  account_DESC
+  organization_ASC
+  organization_DESC
+  version_ASC
+  version_DESC
+  template_ASC
+  template_DESC
+  period_ASC
+  period_DESC
+  amount_ASC
+  amount_DESC
+  amountAt_ASC
+  amountAt_DESC
+  publishedAt_ASC
+  publishedAt_DESC
+  totalIncome_ASC
+  totalIncome_DESC
+  totalOutcome_ASC
+  totalOutcome_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input BankAccountReportUpdateInput {
+  account: BankAccountRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  version: Int
+  template: BankAccountReportTemplateType
+  period: String
+  amount: String
+  amountAt: String
+  publishedAt: String
+  totalIncome: String
+  totalOutcome: String
+  data: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input BankAccountReportsUpdateInput {
+  id: ID!
+  data: BankAccountReportUpdateInput
+}
+
+input BankAccountReportCreateInput {
+  account: BankAccountRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  version: Int
+  template: BankAccountReportTemplateType
+  period: String
+  amount: String
+  amountAt: String
+  publishedAt: String
+  totalIncome: String
+  totalOutcome: String
+  data: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input BankAccountReportsCreateInput {
+  data: BankAccountReportCreateInput
 }
 
 enum TicketHistoryRecordHistoryActionType {
@@ -58473,6 +59119,34 @@ type Query {
   """
   _BankIntegrationOrganizationContextsMeta: _ListMeta
 
+  """ Search for all BankAccountReportHistoryRecord items which match the where clause. 
+  """
+  allBankAccountReportHistoryRecords(where: BankAccountReportHistoryRecordWhereInput, search: String, sortBy: [SortBankAccountReportHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [BankAccountReportHistoryRecord]
+
+  """ Search for the BankAccountReportHistoryRecord item with the matching ID. 
+  """
+  BankAccountReportHistoryRecord(where: BankAccountReportHistoryRecordWhereUniqueInput!): BankAccountReportHistoryRecord
+
+  """ Perform a meta-query on all BankAccountReportHistoryRecord items which match the where clause. 
+  """
+  _allBankAccountReportHistoryRecordsMeta(where: BankAccountReportHistoryRecordWhereInput, search: String, sortBy: [SortBankAccountReportHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the BankAccountReportHistoryRecord list. """
+  _BankAccountReportHistoryRecordsMeta: _ListMeta
+
+  """ Search for all BankAccountReport items which match the where clause. """
+  allBankAccountReports(where: BankAccountReportWhereInput, search: String, sortBy: [SortBankAccountReportsBy!], orderBy: String, first: Int, skip: Int): [BankAccountReport]
+
+  """ Search for the BankAccountReport item with the matching ID. """
+  BankAccountReport(where: BankAccountReportWhereUniqueInput!): BankAccountReport
+
+  """ Perform a meta-query on all BankAccountReport items which match the where clause. 
+  """
+  _allBankAccountReportsMeta(where: BankAccountReportWhereInput, search: String, sortBy: [SortBankAccountReportsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the BankAccountReport list. """
+  _BankAccountReportsMeta: _ListMeta
+
   """ Search for all TicketHistoryRecord items which match the where clause. 
   """
   allTicketHistoryRecords(where: TicketHistoryRecordWhereInput, search: String, sortBy: [SortTicketHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [TicketHistoryRecord]
@@ -61787,6 +62461,42 @@ type Mutation {
 
   """ Delete multiple BankIntegrationOrganizationContext items by ID. """
   deleteBankIntegrationOrganizationContexts(ids: [ID!]): [BankIntegrationOrganizationContext]
+
+  """ Create a single BankAccountReportHistoryRecord item. """
+  createBankAccountReportHistoryRecord(data: BankAccountReportHistoryRecordCreateInput): BankAccountReportHistoryRecord
+
+  """ Create multiple BankAccountReportHistoryRecord items. """
+  createBankAccountReportHistoryRecords(data: [BankAccountReportHistoryRecordsCreateInput]): [BankAccountReportHistoryRecord]
+
+  """ Update a single BankAccountReportHistoryRecord item by ID. """
+  updateBankAccountReportHistoryRecord(id: ID!, data: BankAccountReportHistoryRecordUpdateInput): BankAccountReportHistoryRecord
+
+  """ Update multiple BankAccountReportHistoryRecord items by ID. """
+  updateBankAccountReportHistoryRecords(data: [BankAccountReportHistoryRecordsUpdateInput]): [BankAccountReportHistoryRecord]
+
+  """ Delete a single BankAccountReportHistoryRecord item by ID. """
+  deleteBankAccountReportHistoryRecord(id: ID!): BankAccountReportHistoryRecord
+
+  """ Delete multiple BankAccountReportHistoryRecord items by ID. """
+  deleteBankAccountReportHistoryRecords(ids: [ID!]): [BankAccountReportHistoryRecord]
+
+  """ Create a single BankAccountReport item. """
+  createBankAccountReport(data: BankAccountReportCreateInput): BankAccountReport
+
+  """ Create multiple BankAccountReport items. """
+  createBankAccountReports(data: [BankAccountReportsCreateInput]): [BankAccountReport]
+
+  """ Update a single BankAccountReport item by ID. """
+  updateBankAccountReport(id: ID!, data: BankAccountReportUpdateInput): BankAccountReport
+
+  """ Update multiple BankAccountReport items by ID. """
+  updateBankAccountReports(data: [BankAccountReportsUpdateInput]): [BankAccountReport]
+
+  """ Delete a single BankAccountReport item by ID. """
+  deleteBankAccountReport(id: ID!): BankAccountReport
+
+  """ Delete multiple BankAccountReport items by ID. """
+  deleteBankAccountReports(ids: [ID!]): [BankAccountReport]
 
   """ Create a single TicketHistoryRecord item. """
   createTicketHistoryRecord(data: TicketHistoryRecordCreateInput): TicketHistoryRecord

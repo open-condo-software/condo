@@ -4,6 +4,7 @@
  */
 
 const { BankAccount } = require('./BankAccount')
+const { BankAccountReport } = require('./BankAccountReport')
 const { BankCategory } = require('./BankCategory')
 const { BankContractorAccount } = require('./BankContractorAccount')
 const { BankCostItem } = require('./BankCostItem')
@@ -30,5 +31,6 @@ module.exports = {
     CreateBankAccountRequestService,
     BankIntegrationOrganizationContext,
     PredictTransactionClassificationService,
+    BankAccountReport,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

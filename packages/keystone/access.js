@@ -132,6 +132,7 @@ const isSoftDelete = (originalInput) => {
 
 // Operation is forbidden for user of any kind
 // Operation is allowed for server utils without user request, for example, workers, that creating Keystone context via `getSchemaCtx` that skips access checks
+// Should be used for fields only
 const canOnlyServerSideWithoutUserRequest = () => false
 
 // TODO(pahaz): think about naming! ListAccessCheck and FieldAccessCheck has different arguments

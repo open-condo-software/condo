@@ -59,6 +59,9 @@ const PREDICT_TRANSACTION_CLASSIFICATION_QUERY = gql`
     }
 `
 
+const BANK_ACCOUNT_REPORT_FIELDS = `{ account { id } organization { id } version template period amount amountAt publishedAt totalIncome totalOutcome data ${COMMON_FIELDS} }`
+const BankAccountReport = generateGqlQueries('BankAccountReport', BANK_ACCOUNT_REPORT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -75,5 +78,6 @@ module.exports = {
     CREATE_BANK_ACCOUNT_REQUEST_MUTATION,
     IMPORT_BANK_TRANSACTIONS_MUTATION,
     PREDICT_TRANSACTION_CLASSIFICATION_QUERY,
+    BankAccountReport,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

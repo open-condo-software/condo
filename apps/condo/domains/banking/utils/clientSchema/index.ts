@@ -12,4 +12,5 @@ export * as BankIntegrationAccountContext from './BankIntegrationAccountContext'
 export * as BankTransaction from './BankTransaction'
 export * as BankSyncTask from './BankSyncTask'
 export * as BankIntegrationAccessRight from './BankIntegrationAccessRight'
+export * as BankAccountReport from './BankAccountReport'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

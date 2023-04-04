@@ -20,6 +20,8 @@ const { BankSyncTask: BankSyncTaskGQL } = require('@condo/domains/banking/gql')
 const { BankIntegrationOrganizationContext: BankIntegrationOrganizationContextGQL } = require('@condo/domains/banking/gql')
 const { BankIntegrationAccessRight: BankIntegrationAccessRightGQL } = require('@condo/domains/banking/gql')
 const { PREDICT_TRANSACTION_CLASSIFICATION_QUERY } = require('@condo/domains/banking/gql')
+const { BankAccountReport: BankAccountReportGQL } = require('@condo/domains/banking/gql')
+const { EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM } = require('@condo/domains/banking/constants')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BankCategory = generateGQLTestUtils(BankCategoryGQL)
@@ -33,6 +35,7 @@ const BankTransaction = generateGQLTestUtils(BankTransactionGQL)
 const BankSyncTask = generateGQLTestUtils(BankSyncTaskGQL)
 const BankIntegrationOrganizationContext = generateGQLTestUtils(BankIntegrationOrganizationContextGQL)
 const BankIntegrationAccessRight = generateGQLTestUtils(BankIntegrationAccessRightGQL)
+const BankAccountReport = generateGQLTestUtils(BankAccountReportGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBankCategory (client, extraAttrs = {}) {
@@ -408,6 +411,56 @@ async function predictTransactionClassificationByTestClient(client, extraAttrs =
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestBankAccountReport (client, account, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!account || !account.id) throw new Error('no account.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        account: { connect: { id: account.id } },
+        organization: { connect: { id: organization.id } },
+        version: 1,
+        template: EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM,
+        period: '2023-03',
+        amount: faker.random.number().toString(),
+        amountAt: dayjs().toISOString(),
+        publishedAt: dayjs().toISOString(),
+        totalIncome: faker.random.number().toString(),
+        totalOutcome: faker.random.number().toString(),
+        data: {
+            categoryGroups: [{
+                id: faker.random.uuid(),
+                name: faker.lorem.word(2),
+                costItemGroups: [{
+                    id: faker.random.uuid(),
+                    name: faker.lorem.word(2),
+                    sum: faker.random.number(),
+                }],
+            }],
+        },
+        ...extraAttrs,
+    }
+    const obj = await BankAccountReport.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBankAccountReport (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BankAccountReport.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -424,5 +477,6 @@ module.exports = {
     BankIntegrationOrganizationContext, createTestBankIntegrationOrganizationContext, updateTestBankIntegrationOrganizationContext,
     BankIntegrationAccessRight, createTestBankIntegrationAccessRight, updateTestBankIntegrationAccessRight,
     predictTransactionClassificationByTestClient,
+    BankAccountReport, createTestBankAccountReport, updateTestBankAccountReport,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
