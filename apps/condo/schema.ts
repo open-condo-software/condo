@@ -6243,6 +6243,542 @@ export type BankAccountRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+/**  Calculated data for financial report of specified form, period and version.  */
+export type BankAccountReport = {
+  __typename?: 'BankAccountReport';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the BankAccountReport List config, or
+   *  2. As an alias to the field set on 'labelField' in the BankAccountReport List config, or
+   *  3. As an alias to a 'name' field on the BankAccountReport List (if one exists), or
+   *  4. As an alias to the 'id' field on the BankAccountReport List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Transactions of specified bank account will be used to calculate this report  */
+  account?: Maybe<BankAccount>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  When manual changes in transactions covers specified period,   */
+  version?: Maybe<Scalars['Int']>;
+  /**  Form of this report  */
+  template?: Maybe<BankAccountReportTemplateType>;
+  /**  Specified time frame to calculate this report. Can be month, quarter, year. Has specified format  */
+  period?: Maybe<Scalars['String']>;
+  /**  Total amount for BankAccount on end of specified period of this report  */
+  amount?: Maybe<Scalars['String']>;
+  /**  Date on that the specified amount is actual  */
+  amountAt?: Maybe<Scalars['String']>;
+  /**  Report will be available for public view if this field will have a value, otherwise in case of null value this report will not be available for public view  */
+  publishedAt?: Maybe<Scalars['String']>;
+  /**  Total income amount over period of this report  */
+  totalIncome?: Maybe<Scalars['String']>;
+  /**  Total outcome amount over period of this report  */
+  totalOutcome?: Maybe<Scalars['String']>;
+  /**  Calculated data of this report, that will be used to display  */
+  data?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type BankAccountReportCreateInput = {
+  account?: Maybe<BankAccountRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  version?: Maybe<Scalars['Int']>;
+  template?: Maybe<BankAccountReportTemplateType>;
+  period?: Maybe<Scalars['String']>;
+  amount?: Maybe<Scalars['String']>;
+  amountAt?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['String']>;
+  totalIncome?: Maybe<Scalars['String']>;
+  totalOutcome?: Maybe<Scalars['String']>;
+  data?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type BankAccountReportHistoryRecord = {
+  __typename?: 'BankAccountReportHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the BankAccountReportHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the BankAccountReportHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the BankAccountReportHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the BankAccountReportHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  account?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  version?: Maybe<Scalars['Int']>;
+  template?: Maybe<Scalars['String']>;
+  period?: Maybe<Scalars['String']>;
+  amount?: Maybe<Scalars['String']>;
+  amountAt?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['String']>;
+  totalIncome?: Maybe<Scalars['String']>;
+  totalOutcome?: Maybe<Scalars['String']>;
+  data?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BankAccountReportHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type BankAccountReportHistoryRecordCreateInput = {
+  account?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  version?: Maybe<Scalars['Int']>;
+  template?: Maybe<Scalars['String']>;
+  period?: Maybe<Scalars['String']>;
+  amount?: Maybe<Scalars['String']>;
+  amountAt?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['String']>;
+  totalIncome?: Maybe<Scalars['String']>;
+  totalOutcome?: Maybe<Scalars['String']>;
+  data?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BankAccountReportHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum BankAccountReportHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type BankAccountReportHistoryRecordUpdateInput = {
+  account?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  version?: Maybe<Scalars['Int']>;
+  template?: Maybe<Scalars['String']>;
+  period?: Maybe<Scalars['String']>;
+  amount?: Maybe<Scalars['String']>;
+  amountAt?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['String']>;
+  totalIncome?: Maybe<Scalars['String']>;
+  totalOutcome?: Maybe<Scalars['String']>;
+  data?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BankAccountReportHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type BankAccountReportHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<BankAccountReportHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<BankAccountReportHistoryRecordWhereInput>>>;
+  account?: Maybe<Scalars['String']>;
+  account_not?: Maybe<Scalars['String']>;
+  account_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  account_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  version?: Maybe<Scalars['Int']>;
+  version_not?: Maybe<Scalars['Int']>;
+  version_lt?: Maybe<Scalars['Int']>;
+  version_lte?: Maybe<Scalars['Int']>;
+  version_gt?: Maybe<Scalars['Int']>;
+  version_gte?: Maybe<Scalars['Int']>;
+  version_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  version_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  template?: Maybe<Scalars['String']>;
+  template_not?: Maybe<Scalars['String']>;
+  template_contains?: Maybe<Scalars['String']>;
+  template_not_contains?: Maybe<Scalars['String']>;
+  template_starts_with?: Maybe<Scalars['String']>;
+  template_not_starts_with?: Maybe<Scalars['String']>;
+  template_ends_with?: Maybe<Scalars['String']>;
+  template_not_ends_with?: Maybe<Scalars['String']>;
+  template_i?: Maybe<Scalars['String']>;
+  template_not_i?: Maybe<Scalars['String']>;
+  template_contains_i?: Maybe<Scalars['String']>;
+  template_not_contains_i?: Maybe<Scalars['String']>;
+  template_starts_with_i?: Maybe<Scalars['String']>;
+  template_not_starts_with_i?: Maybe<Scalars['String']>;
+  template_ends_with_i?: Maybe<Scalars['String']>;
+  template_not_ends_with_i?: Maybe<Scalars['String']>;
+  template_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  template_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  period?: Maybe<Scalars['String']>;
+  period_not?: Maybe<Scalars['String']>;
+  period_contains?: Maybe<Scalars['String']>;
+  period_not_contains?: Maybe<Scalars['String']>;
+  period_starts_with?: Maybe<Scalars['String']>;
+  period_not_starts_with?: Maybe<Scalars['String']>;
+  period_ends_with?: Maybe<Scalars['String']>;
+  period_not_ends_with?: Maybe<Scalars['String']>;
+  period_i?: Maybe<Scalars['String']>;
+  period_not_i?: Maybe<Scalars['String']>;
+  period_contains_i?: Maybe<Scalars['String']>;
+  period_not_contains_i?: Maybe<Scalars['String']>;
+  period_starts_with_i?: Maybe<Scalars['String']>;
+  period_not_starts_with_i?: Maybe<Scalars['String']>;
+  period_ends_with_i?: Maybe<Scalars['String']>;
+  period_not_ends_with_i?: Maybe<Scalars['String']>;
+  period_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  period_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  amount?: Maybe<Scalars['String']>;
+  amount_not?: Maybe<Scalars['String']>;
+  amount_lt?: Maybe<Scalars['String']>;
+  amount_lte?: Maybe<Scalars['String']>;
+  amount_gt?: Maybe<Scalars['String']>;
+  amount_gte?: Maybe<Scalars['String']>;
+  amount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  amount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  amountAt?: Maybe<Scalars['String']>;
+  amountAt_not?: Maybe<Scalars['String']>;
+  amountAt_lt?: Maybe<Scalars['String']>;
+  amountAt_lte?: Maybe<Scalars['String']>;
+  amountAt_gt?: Maybe<Scalars['String']>;
+  amountAt_gte?: Maybe<Scalars['String']>;
+  amountAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  amountAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  publishedAt?: Maybe<Scalars['String']>;
+  publishedAt_not?: Maybe<Scalars['String']>;
+  publishedAt_lt?: Maybe<Scalars['String']>;
+  publishedAt_lte?: Maybe<Scalars['String']>;
+  publishedAt_gt?: Maybe<Scalars['String']>;
+  publishedAt_gte?: Maybe<Scalars['String']>;
+  publishedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  publishedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalIncome?: Maybe<Scalars['String']>;
+  totalIncome_not?: Maybe<Scalars['String']>;
+  totalIncome_lt?: Maybe<Scalars['String']>;
+  totalIncome_lte?: Maybe<Scalars['String']>;
+  totalIncome_gt?: Maybe<Scalars['String']>;
+  totalIncome_gte?: Maybe<Scalars['String']>;
+  totalIncome_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalIncome_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalOutcome?: Maybe<Scalars['String']>;
+  totalOutcome_not?: Maybe<Scalars['String']>;
+  totalOutcome_lt?: Maybe<Scalars['String']>;
+  totalOutcome_lte?: Maybe<Scalars['String']>;
+  totalOutcome_gt?: Maybe<Scalars['String']>;
+  totalOutcome_gte?: Maybe<Scalars['String']>;
+  totalOutcome_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalOutcome_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  data?: Maybe<Scalars['JSON']>;
+  data_not?: Maybe<Scalars['JSON']>;
+  data_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  data_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<BankAccountReportHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<BankAccountReportHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<BankAccountReportHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<BankAccountReportHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type BankAccountReportHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type BankAccountReportHistoryRecordsCreateInput = {
+  data?: Maybe<BankAccountReportHistoryRecordCreateInput>;
+};
+
+export type BankAccountReportHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<BankAccountReportHistoryRecordUpdateInput>;
+};
+
+export enum BankAccountReportTemplateType {
+  ExpensesGroupedByCategoryAndCostItem = 'expenses_grouped_by_category_and_cost_item'
+}
+
+export type BankAccountReportUpdateInput = {
+  account?: Maybe<BankAccountRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  version?: Maybe<Scalars['Int']>;
+  template?: Maybe<BankAccountReportTemplateType>;
+  period?: Maybe<Scalars['String']>;
+  amount?: Maybe<Scalars['String']>;
+  amountAt?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['String']>;
+  totalIncome?: Maybe<Scalars['String']>;
+  totalOutcome?: Maybe<Scalars['String']>;
+  data?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type BankAccountReportWhereInput = {
+  AND?: Maybe<Array<Maybe<BankAccountReportWhereInput>>>;
+  OR?: Maybe<Array<Maybe<BankAccountReportWhereInput>>>;
+  account?: Maybe<BankAccountWhereInput>;
+  account_is_null?: Maybe<Scalars['Boolean']>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  version?: Maybe<Scalars['Int']>;
+  version_not?: Maybe<Scalars['Int']>;
+  version_lt?: Maybe<Scalars['Int']>;
+  version_lte?: Maybe<Scalars['Int']>;
+  version_gt?: Maybe<Scalars['Int']>;
+  version_gte?: Maybe<Scalars['Int']>;
+  version_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  version_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  template?: Maybe<BankAccountReportTemplateType>;
+  template_not?: Maybe<BankAccountReportTemplateType>;
+  template_in?: Maybe<Array<Maybe<BankAccountReportTemplateType>>>;
+  template_not_in?: Maybe<Array<Maybe<BankAccountReportTemplateType>>>;
+  period?: Maybe<Scalars['String']>;
+  period_not?: Maybe<Scalars['String']>;
+  period_contains?: Maybe<Scalars['String']>;
+  period_not_contains?: Maybe<Scalars['String']>;
+  period_starts_with?: Maybe<Scalars['String']>;
+  period_not_starts_with?: Maybe<Scalars['String']>;
+  period_ends_with?: Maybe<Scalars['String']>;
+  period_not_ends_with?: Maybe<Scalars['String']>;
+  period_i?: Maybe<Scalars['String']>;
+  period_not_i?: Maybe<Scalars['String']>;
+  period_contains_i?: Maybe<Scalars['String']>;
+  period_not_contains_i?: Maybe<Scalars['String']>;
+  period_starts_with_i?: Maybe<Scalars['String']>;
+  period_not_starts_with_i?: Maybe<Scalars['String']>;
+  period_ends_with_i?: Maybe<Scalars['String']>;
+  period_not_ends_with_i?: Maybe<Scalars['String']>;
+  period_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  period_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  amount?: Maybe<Scalars['String']>;
+  amount_not?: Maybe<Scalars['String']>;
+  amount_lt?: Maybe<Scalars['String']>;
+  amount_lte?: Maybe<Scalars['String']>;
+  amount_gt?: Maybe<Scalars['String']>;
+  amount_gte?: Maybe<Scalars['String']>;
+  amount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  amount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  amountAt?: Maybe<Scalars['String']>;
+  amountAt_not?: Maybe<Scalars['String']>;
+  amountAt_lt?: Maybe<Scalars['String']>;
+  amountAt_lte?: Maybe<Scalars['String']>;
+  amountAt_gt?: Maybe<Scalars['String']>;
+  amountAt_gte?: Maybe<Scalars['String']>;
+  amountAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  amountAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  publishedAt?: Maybe<Scalars['String']>;
+  publishedAt_not?: Maybe<Scalars['String']>;
+  publishedAt_lt?: Maybe<Scalars['String']>;
+  publishedAt_lte?: Maybe<Scalars['String']>;
+  publishedAt_gt?: Maybe<Scalars['String']>;
+  publishedAt_gte?: Maybe<Scalars['String']>;
+  publishedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  publishedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalIncome?: Maybe<Scalars['String']>;
+  totalIncome_not?: Maybe<Scalars['String']>;
+  totalIncome_lt?: Maybe<Scalars['String']>;
+  totalIncome_lte?: Maybe<Scalars['String']>;
+  totalIncome_gt?: Maybe<Scalars['String']>;
+  totalIncome_gte?: Maybe<Scalars['String']>;
+  totalIncome_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalIncome_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalOutcome?: Maybe<Scalars['String']>;
+  totalOutcome_not?: Maybe<Scalars['String']>;
+  totalOutcome_lt?: Maybe<Scalars['String']>;
+  totalOutcome_lte?: Maybe<Scalars['String']>;
+  totalOutcome_gt?: Maybe<Scalars['String']>;
+  totalOutcome_gte?: Maybe<Scalars['String']>;
+  totalOutcome_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalOutcome_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  data?: Maybe<Scalars['JSON']>;
+  data_not?: Maybe<Scalars['JSON']>;
+  data_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  data_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type BankAccountReportWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type BankAccountReportsCreateInput = {
+  data?: Maybe<BankAccountReportCreateInput>;
+};
+
+export type BankAccountReportsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<BankAccountReportUpdateInput>;
+};
+
 export type BankAccountUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   integrationContext?: Maybe<BankIntegrationAccountContextRelateToOneInput>;
@@ -27677,6 +28213,30 @@ export type Mutation = {
   deleteBankIntegrationOrganizationContext?: Maybe<BankIntegrationOrganizationContext>;
   /**  Delete multiple BankIntegrationOrganizationContext items by ID.  */
   deleteBankIntegrationOrganizationContexts?: Maybe<Array<Maybe<BankIntegrationOrganizationContext>>>;
+  /**  Create a single BankAccountReportHistoryRecord item.  */
+  createBankAccountReportHistoryRecord?: Maybe<BankAccountReportHistoryRecord>;
+  /**  Create multiple BankAccountReportHistoryRecord items.  */
+  createBankAccountReportHistoryRecords?: Maybe<Array<Maybe<BankAccountReportHistoryRecord>>>;
+  /**  Update a single BankAccountReportHistoryRecord item by ID.  */
+  updateBankAccountReportHistoryRecord?: Maybe<BankAccountReportHistoryRecord>;
+  /**  Update multiple BankAccountReportHistoryRecord items by ID.  */
+  updateBankAccountReportHistoryRecords?: Maybe<Array<Maybe<BankAccountReportHistoryRecord>>>;
+  /**  Delete a single BankAccountReportHistoryRecord item by ID.  */
+  deleteBankAccountReportHistoryRecord?: Maybe<BankAccountReportHistoryRecord>;
+  /**  Delete multiple BankAccountReportHistoryRecord items by ID.  */
+  deleteBankAccountReportHistoryRecords?: Maybe<Array<Maybe<BankAccountReportHistoryRecord>>>;
+  /**  Create a single BankAccountReport item.  */
+  createBankAccountReport?: Maybe<BankAccountReport>;
+  /**  Create multiple BankAccountReport items.  */
+  createBankAccountReports?: Maybe<Array<Maybe<BankAccountReport>>>;
+  /**  Update a single BankAccountReport item by ID.  */
+  updateBankAccountReport?: Maybe<BankAccountReport>;
+  /**  Update multiple BankAccountReport items by ID.  */
+  updateBankAccountReports?: Maybe<Array<Maybe<BankAccountReport>>>;
+  /**  Delete a single BankAccountReport item by ID.  */
+  deleteBankAccountReport?: Maybe<BankAccountReport>;
+  /**  Delete multiple BankAccountReport items by ID.  */
+  deleteBankAccountReports?: Maybe<Array<Maybe<BankAccountReport>>>;
   /**  Create a single TicketHistoryRecord item.  */
   createTicketHistoryRecord?: Maybe<TicketHistoryRecord>;
   /**  Create multiple TicketHistoryRecord items.  */
@@ -33025,6 +33585,68 @@ export type MutationDeleteBankIntegrationOrganizationContextArgs = {
 
 
 export type MutationDeleteBankIntegrationOrganizationContextsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateBankAccountReportHistoryRecordArgs = {
+  data?: Maybe<BankAccountReportHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateBankAccountReportHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<BankAccountReportHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateBankAccountReportHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<BankAccountReportHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateBankAccountReportHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<BankAccountReportHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteBankAccountReportHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteBankAccountReportHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateBankAccountReportArgs = {
+  data?: Maybe<BankAccountReportCreateInput>;
+};
+
+
+export type MutationCreateBankAccountReportsArgs = {
+  data?: Maybe<Array<Maybe<BankAccountReportsCreateInput>>>;
+};
+
+
+export type MutationUpdateBankAccountReportArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<BankAccountReportUpdateInput>;
+};
+
+
+export type MutationUpdateBankAccountReportsArgs = {
+  data?: Maybe<Array<Maybe<BankAccountReportsUpdateInput>>>;
+};
+
+
+export type MutationDeleteBankAccountReportArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteBankAccountReportsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -40845,6 +41467,7 @@ export type OrganizationEmployeeRole = {
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
@@ -40891,6 +41514,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
@@ -40943,6 +41567,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
@@ -40989,6 +41614,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
@@ -41040,6 +41666,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
@@ -41168,6 +41795,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageBankContractorAccounts_not?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions_not?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReports_not?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents_not?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
@@ -41289,6 +41918,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
@@ -41394,6 +42024,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageBankContractorAccounts_not?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions_not?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReports_not?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents_not?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
@@ -46205,6 +46837,22 @@ export type Query = {
   _allBankIntegrationOrganizationContextsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the BankIntegrationOrganizationContext list.  */
   _BankIntegrationOrganizationContextsMeta?: Maybe<_ListMeta>;
+  /**  Search for all BankAccountReportHistoryRecord items which match the where clause.  */
+  allBankAccountReportHistoryRecords?: Maybe<Array<Maybe<BankAccountReportHistoryRecord>>>;
+  /**  Search for the BankAccountReportHistoryRecord item with the matching ID.  */
+  BankAccountReportHistoryRecord?: Maybe<BankAccountReportHistoryRecord>;
+  /**  Perform a meta-query on all BankAccountReportHistoryRecord items which match the where clause.  */
+  _allBankAccountReportHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the BankAccountReportHistoryRecord list.  */
+  _BankAccountReportHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all BankAccountReport items which match the where clause.  */
+  allBankAccountReports?: Maybe<Array<Maybe<BankAccountReport>>>;
+  /**  Search for the BankAccountReport item with the matching ID.  */
+  BankAccountReport?: Maybe<BankAccountReport>;
+  /**  Perform a meta-query on all BankAccountReport items which match the where clause.  */
+  _allBankAccountReportsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the BankAccountReport list.  */
+  _BankAccountReportsMeta?: Maybe<_ListMeta>;
   /**  Search for all TicketHistoryRecord items which match the where clause.  */
   allTicketHistoryRecords?: Maybe<Array<Maybe<TicketHistoryRecord>>>;
   /**  Search for the TicketHistoryRecord item with the matching ID.  */
@@ -49115,6 +49763,56 @@ export type Query_AllBankIntegrationOrganizationContextsMetaArgs = {
   where?: Maybe<BankIntegrationOrganizationContextWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortBankIntegrationOrganizationContextsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllBankAccountReportHistoryRecordsArgs = {
+  where?: Maybe<BankAccountReportHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBankAccountReportHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryBankAccountReportHistoryRecordArgs = {
+  where: BankAccountReportHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllBankAccountReportHistoryRecordsMetaArgs = {
+  where?: Maybe<BankAccountReportHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBankAccountReportHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllBankAccountReportsArgs = {
+  where?: Maybe<BankAccountReportWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBankAccountReportsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryBankAccountReportArgs = {
+  where: BankAccountReportWhereUniqueInput;
+};
+
+
+export type Query_AllBankAccountReportsMetaArgs = {
+  where?: Maybe<BankAccountReportWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBankAccountReportsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -56790,6 +57488,80 @@ export enum SortBankAccountHistoryRecordsBy {
   HistoryActionDesc = 'history_action_DESC'
 }
 
+export enum SortBankAccountReportHistoryRecordsBy {
+  VersionAsc = 'version_ASC',
+  VersionDesc = 'version_DESC',
+  TemplateAsc = 'template_ASC',
+  TemplateDesc = 'template_DESC',
+  PeriodAsc = 'period_ASC',
+  PeriodDesc = 'period_DESC',
+  AmountAsc = 'amount_ASC',
+  AmountDesc = 'amount_DESC',
+  AmountAtAsc = 'amountAt_ASC',
+  AmountAtDesc = 'amountAt_DESC',
+  PublishedAtAsc = 'publishedAt_ASC',
+  PublishedAtDesc = 'publishedAt_DESC',
+  TotalIncomeAsc = 'totalIncome_ASC',
+  TotalIncomeDesc = 'totalIncome_DESC',
+  TotalOutcomeAsc = 'totalOutcome_ASC',
+  TotalOutcomeDesc = 'totalOutcome_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortBankAccountReportsBy {
+  AccountAsc = 'account_ASC',
+  AccountDesc = 'account_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  VersionAsc = 'version_ASC',
+  VersionDesc = 'version_DESC',
+  TemplateAsc = 'template_ASC',
+  TemplateDesc = 'template_DESC',
+  PeriodAsc = 'period_ASC',
+  PeriodDesc = 'period_DESC',
+  AmountAsc = 'amount_ASC',
+  AmountDesc = 'amount_DESC',
+  AmountAtAsc = 'amountAt_ASC',
+  AmountAtDesc = 'amountAt_DESC',
+  PublishedAtAsc = 'publishedAt_ASC',
+  PublishedAtDesc = 'publishedAt_DESC',
+  TotalIncomeAsc = 'totalIncome_ASC',
+  TotalIncomeDesc = 'totalIncome_DESC',
+  TotalOutcomeAsc = 'totalOutcome_ASC',
+  TotalOutcomeDesc = 'totalOutcome_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortBankAccountsBy {
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
@@ -59785,6 +60557,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageBankContractorAccountsDesc = 'canManageBankContractorAccounts_DESC',
   CanManageBankTransactionsAsc = 'canManageBankTransactions_ASC',
   CanManageBankTransactionsDesc = 'canManageBankTransactions_DESC',
+  CanManageBankAccountReportsAsc = 'canManageBankAccountReports_ASC',
+  CanManageBankAccountReportsDesc = 'canManageBankAccountReports_DESC',
   CanManageIncidentsAsc = 'canManageIncidents_ASC',
   CanManageIncidentsDesc = 'canManageIncidents_DESC',
   CanManageNewsItemsAsc = 'canManageNewsItems_ASC',
@@ -59864,6 +60638,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageBankContractorAccountsDesc = 'canManageBankContractorAccounts_DESC',
   CanManageBankTransactionsAsc = 'canManageBankTransactions_ASC',
   CanManageBankTransactionsDesc = 'canManageBankTransactions_DESC',
+  CanManageBankAccountReportsAsc = 'canManageBankAccountReports_ASC',
+  CanManageBankAccountReportsDesc = 'canManageBankAccountReports_DESC',
   CanManageIncidentsAsc = 'canManageIncidents_ASC',
   CanManageIncidentsDesc = 'canManageIncidents_DESC',
   CanManageNewsItemsAsc = 'canManageNewsItems_ASC',

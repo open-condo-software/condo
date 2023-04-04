@@ -44,6 +44,7 @@ const DEFAULT_ROLES = {
         'canManageBankIntegrationOrganizationContexts': true,
         'canManageBankContractorAccounts': true,
         'canManageBankTransactions': true,
+        'canManageBankAccountReports': true,
         'ticketVisibilityType': ORGANIZATION_TICKET_VISIBILITY,
     },
     'Dispatcher': {
@@ -74,6 +75,7 @@ const DEFAULT_ROLES = {
         'canManageBankIntegrationOrganizationContexts': false,
         'canManageBankContractorAccounts': false,
         'canManageBankTransactions': false,
+        'canManageBankAccountReports': false,
         'ticketVisibilityType': PROPERTY_TICKET_VISIBILITY,
     },
     'Manager': {
@@ -104,6 +106,7 @@ const DEFAULT_ROLES = {
         'canManageBankIntegrationOrganizationContexts': false,
         'canManageBankContractorAccounts': false,
         'canManageBankTransactions': false,
+        'canManageBankAccountReports': false,
         'ticketVisibilityType': PROPERTY_TICKET_VISIBILITY,
     },
     'Foreman': {
@@ -134,6 +137,7 @@ const DEFAULT_ROLES = {
         'canManageBankIntegrationOrganizationContexts': false,
         'canManageBankContractorAccounts': false,
         'canManageBankTransactions': false,
+        'canManageBankAccountReports': false,
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
     },
     'Technician': {
@@ -164,6 +168,7 @@ const DEFAULT_ROLES = {
         'canManageBankIntegrationOrganizationContexts': false,
         'canManageBankContractorAccounts': false,
         'canManageBankTransactions': false,
+        'canManageBankAccountReports': false,
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
     },
     'Contractor': {
@@ -193,6 +198,7 @@ const DEFAULT_ROLES = {
         'canManageBankIntegrationOrganizationContexts': false,
         'canManageBankContractorAccounts': false,
         'canManageBankTransactions': false,
+        'canManageBankAccountReports': false,
         'ticketVisibilityType': ASSIGNED_TICKET_VISIBILITY,
     },
 }
