@@ -310,3 +310,14 @@
     display: inline-flex;
   }
 }
+
+a.condo-btn {
+  &-primary {
+    .condo-btn-href(@condo-button-line-height, @condo-button-padding-vert, @condo-button-padding-hor, 0);
+  }
+
+  &-secondary {
+    .condo-btn-href(@condo-button-line-height, @condo-button-padding-vert, @condo-button-padding-hor,
+    @condo-button-border-width);
+  }
+}

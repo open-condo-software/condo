@@ -1,9 +1,20 @@
-.condo-btn(@line-height, @vert-padding, @hor-padding, @border-width) {
+.condo-btn-base(@line-height, @vert-padding, @border-width) {
   box-sizing: border-box;
   height: @line-height + @vert-padding * 2;
-  padding: @vert-padding - @border-width @hor-padding - @border-width;
   line-height: @line-height;
   border-width: @border-width;
+}
+
+.condo-btn(@line-height, @vert-padding, @hor-padding, @border-width) {
+  .condo-btn-base(@line-height, @vert-padding, @border-width);
+
+  padding: @vert-padding - @border-width @hor-padding - @border-width;
+}
+
+.condo-btn-href(@line-height, @vert-padding, @hor-padding, @border-width) {
+  .condo-btn-base(@line-height, @vert-padding, @border-width);
+
+  padding: @vert-padding - @border-width @hor-padding - @border-width !important;
 }
 
 .condo-btn-layer(@margin) {
