@@ -464,19 +464,19 @@ async function updateTestBankAccountReport (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBankAccountReportTask (client, account, organization, extraAttrs = {}) {
+async function createTestBankAccountReportTask (client, account, organization, userId, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!account || !account.id) throw new Error('no account.id')
     if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!userId) throw new Error('no userId')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestBankAccountReportTask logic for generate fields
 
     const attrs = {
         dv: 1,
         sender,
         account: { connect: { id: account.id } },
         organization: { connect: { id: organization.id } },
+        user: { connect: { id: userId } },
         ...extraAttrs,
     }
     const obj = await BankAccountReportTask.create(client, attrs)
@@ -487,8 +487,6 @@ async function updateTestBankAccountReportTask (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestBankAccountReportTask logic for generate fields
 
     const attrs = {
         dv: 1,

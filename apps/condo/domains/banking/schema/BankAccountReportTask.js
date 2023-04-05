@@ -10,7 +10,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/banking/access/BankAccountReportTask')
-const { generateReports } = require('@condo/domains/banking/tasks/generateReports')
+const { generateReportsTask } = require('@condo/domains/banking/tasks/generateReports')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 const { BANK_SYNC_TASK_STATUS } = require('../constants')
@@ -45,6 +45,20 @@ const BankAccountReportTask = new GQLListSchema('BankAccountReportTask', {
             isRequired: true,
         },
 
+        user: {
+            schemaDoc: 'User that requested this operation. Will be used for read access checks to display all tasks somewhere and to display progress indicator of ongoing generating task for current user',
+            type: 'Relationship',
+            ref: 'User',
+            isRequired: true,
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            knexOptions: { isNotNullable: true },
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
+        },
+
         meta: {
             schemaDoc: 'Additional data, specific to used integration',
             type: Json,
@@ -56,7 +70,7 @@ const BankAccountReportTask = new GQLListSchema('BankAccountReportTask', {
         afterChange: async (args) => {
             const { updatedItem, operation } = args
             if (operation === 'create') {
-                await generateReports.delay(updatedItem.id)
+                await generateReportsTask.delay(updatedItem.id)
             }
         },
     },
