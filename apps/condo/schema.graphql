@@ -4473,6 +4473,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
+  canManageNewsItemTemplates: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4603,6 +4604,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageIncidents_not: Boolean
   canManageNewsItems: Boolean
   canManageNewsItems_not: Boolean
+  canManageNewsItemTemplates: Boolean
+  canManageNewsItemTemplates_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4732,6 +4735,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageIncidents_DESC
   canManageNewsItems_ASC
   canManageNewsItems_DESC
+  canManageNewsItemTemplates_ASC
+  canManageNewsItemTemplates_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4780,6 +4785,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
+  canManageNewsItemTemplates: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4829,6 +4835,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
+  canManageNewsItemTemplates: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4907,6 +4914,7 @@ type OrganizationEmployeeRole {
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
+  canManageNewsItemTemplates: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5025,6 +5033,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageIncidents_not: Boolean
   canManageNewsItems: Boolean
   canManageNewsItems_not: Boolean
+  canManageNewsItemTemplates: Boolean
+  canManageNewsItemTemplates_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5136,6 +5146,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageIncidents_DESC
   canManageNewsItems_ASC
   canManageNewsItems_DESC
+  canManageNewsItemTemplates_ASC
+  canManageNewsItemTemplates_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5183,6 +5195,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
+  canManageNewsItemTemplates: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5228,6 +5241,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageBankTransactions: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
+  canManageNewsItemTemplates: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -54545,6 +54559,443 @@ input NewsItemScopesCreateInput {
   data: NewsItemScopeCreateInput
 }
 
+enum NewsItemTemplateHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type NewsItemTemplateHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the NewsItemTemplateHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the NewsItemTemplateHistoryRecord List config, or
+   3. As an alias to a 'name' field on the NewsItemTemplateHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the NewsItemTemplateHistoryRecord List.
+  """
+  _label_: String
+  organization: String
+  title: String
+  body: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: NewsItemTemplateHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input NewsItemTemplateHistoryRecordWhereInput {
+  AND: [NewsItemTemplateHistoryRecordWhereInput]
+  OR: [NewsItemTemplateHistoryRecordWhereInput]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  title: String
+  title_not: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  title_i: String
+  title_not_i: String
+  title_contains_i: String
+  title_not_contains_i: String
+  title_starts_with_i: String
+  title_not_starts_with_i: String
+  title_ends_with_i: String
+  title_not_ends_with_i: String
+  title_in: [String]
+  title_not_in: [String]
+  body: String
+  body_not: String
+  body_contains: String
+  body_not_contains: String
+  body_starts_with: String
+  body_not_starts_with: String
+  body_ends_with: String
+  body_not_ends_with: String
+  body_i: String
+  body_not_i: String
+  body_contains_i: String
+  body_not_contains_i: String
+  body_starts_with_i: String
+  body_not_starts_with_i: String
+  body_ends_with_i: String
+  body_not_ends_with_i: String
+  body_in: [String]
+  body_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: NewsItemTemplateHistoryRecordHistoryActionType
+  history_action_not: NewsItemTemplateHistoryRecordHistoryActionType
+  history_action_in: [NewsItemTemplateHistoryRecordHistoryActionType]
+  history_action_not_in: [NewsItemTemplateHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input NewsItemTemplateHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortNewsItemTemplateHistoryRecordsBy {
+  title_ASC
+  title_DESC
+  body_ASC
+  body_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input NewsItemTemplateHistoryRecordUpdateInput {
+  organization: String
+  title: String
+  body: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: NewsItemTemplateHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input NewsItemTemplateHistoryRecordsUpdateInput {
+  id: ID!
+  data: NewsItemTemplateHistoryRecordUpdateInput
+}
+
+input NewsItemTemplateHistoryRecordCreateInput {
+  organization: String
+  title: String
+  body: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: NewsItemTemplateHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input NewsItemTemplateHistoryRecordsCreateInput {
+  data: NewsItemTemplateHistoryRecordCreateInput
+}
+
+""" The news item template for quick composing a news item """
+type NewsItemTemplate {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the NewsItemTemplate List config, or
+   2. As an alias to the field set on 'labelField' in the NewsItemTemplate List config, or
+   3. As an alias to a 'name' field on the NewsItemTemplate List (if one exists), or
+   4. As an alias to the 'id' field on the NewsItemTemplate List.
+  """
+  _label_: String
+
+  """ Organization who creates the template. A common template if there is no organization 
+  """
+  organization: Organization
+
+  """ The title of a future news item """
+  title: String
+
+  """ A future news item's body """
+  body: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input NewsItemTemplateWhereInput {
+  AND: [NewsItemTemplateWhereInput]
+  OR: [NewsItemTemplateWhereInput]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  title: String
+  title_not: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  title_i: String
+  title_not_i: String
+  title_contains_i: String
+  title_not_contains_i: String
+  title_starts_with_i: String
+  title_not_starts_with_i: String
+  title_ends_with_i: String
+  title_not_ends_with_i: String
+  title_in: [String]
+  title_not_in: [String]
+  body: String
+  body_not: String
+  body_contains: String
+  body_not_contains: String
+  body_starts_with: String
+  body_not_starts_with: String
+  body_ends_with: String
+  body_not_ends_with: String
+  body_i: String
+  body_not_i: String
+  body_contains_i: String
+  body_not_contains_i: String
+  body_starts_with_i: String
+  body_not_starts_with_i: String
+  body_ends_with_i: String
+  body_not_ends_with_i: String
+  body_in: [String]
+  body_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input NewsItemTemplateWhereUniqueInput {
+  id: ID!
+}
+
+enum SortNewsItemTemplatesBy {
+  organization_ASC
+  organization_DESC
+  title_ASC
+  title_DESC
+  body_ASC
+  body_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input NewsItemTemplateUpdateInput {
+  organization: OrganizationRelateToOneInput
+  title: String
+  body: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input NewsItemTemplatesUpdateInput {
+  id: ID!
+  data: NewsItemTemplateUpdateInput
+}
+
+input NewsItemTemplateCreateInput {
+  organization: OrganizationRelateToOneInput
+  title: String
+  body: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input NewsItemTemplatesCreateInput {
+  data: NewsItemTemplateCreateInput
+}
+
 enum WebhookHistoryRecordHistoryActionType {
   c
   u
@@ -59478,6 +59929,34 @@ type Query {
   """ Retrieve the meta-data for the NewsItemScope list. """
   _NewsItemScopesMeta: _ListMeta
 
+  """ Search for all NewsItemTemplateHistoryRecord items which match the where clause. 
+  """
+  allNewsItemTemplateHistoryRecords(where: NewsItemTemplateHistoryRecordWhereInput, search: String, sortBy: [SortNewsItemTemplateHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [NewsItemTemplateHistoryRecord]
+
+  """ Search for the NewsItemTemplateHistoryRecord item with the matching ID. 
+  """
+  NewsItemTemplateHistoryRecord(where: NewsItemTemplateHistoryRecordWhereUniqueInput!): NewsItemTemplateHistoryRecord
+
+  """ Perform a meta-query on all NewsItemTemplateHistoryRecord items which match the where clause. 
+  """
+  _allNewsItemTemplateHistoryRecordsMeta(where: NewsItemTemplateHistoryRecordWhereInput, search: String, sortBy: [SortNewsItemTemplateHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the NewsItemTemplateHistoryRecord list. """
+  _NewsItemTemplateHistoryRecordsMeta: _ListMeta
+
+  """ Search for all NewsItemTemplate items which match the where clause. """
+  allNewsItemTemplates(where: NewsItemTemplateWhereInput, search: String, sortBy: [SortNewsItemTemplatesBy!], orderBy: String, first: Int, skip: Int): [NewsItemTemplate]
+
+  """ Search for the NewsItemTemplate item with the matching ID. """
+  NewsItemTemplate(where: NewsItemTemplateWhereUniqueInput!): NewsItemTemplate
+
+  """ Perform a meta-query on all NewsItemTemplate items which match the where clause. 
+  """
+  _allNewsItemTemplatesMeta(where: NewsItemTemplateWhereInput, search: String, sortBy: [SortNewsItemTemplatesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the NewsItemTemplate list. """
+  _NewsItemTemplatesMeta: _ListMeta
+
   """ Search for all WebhookHistoryRecord items which match the where clause. 
   """
   allWebhookHistoryRecords(where: WebhookHistoryRecordWhereInput, search: String, sortBy: [SortWebhookHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookHistoryRecord]
@@ -63243,6 +63722,42 @@ type Mutation {
 
   """ Delete multiple NewsItemScope items by ID. """
   deleteNewsItemScopes(ids: [ID!]): [NewsItemScope]
+
+  """ Create a single NewsItemTemplateHistoryRecord item. """
+  createNewsItemTemplateHistoryRecord(data: NewsItemTemplateHistoryRecordCreateInput): NewsItemTemplateHistoryRecord
+
+  """ Create multiple NewsItemTemplateHistoryRecord items. """
+  createNewsItemTemplateHistoryRecords(data: [NewsItemTemplateHistoryRecordsCreateInput]): [NewsItemTemplateHistoryRecord]
+
+  """ Update a single NewsItemTemplateHistoryRecord item by ID. """
+  updateNewsItemTemplateHistoryRecord(id: ID!, data: NewsItemTemplateHistoryRecordUpdateInput): NewsItemTemplateHistoryRecord
+
+  """ Update multiple NewsItemTemplateHistoryRecord items by ID. """
+  updateNewsItemTemplateHistoryRecords(data: [NewsItemTemplateHistoryRecordsUpdateInput]): [NewsItemTemplateHistoryRecord]
+
+  """ Delete a single NewsItemTemplateHistoryRecord item by ID. """
+  deleteNewsItemTemplateHistoryRecord(id: ID!): NewsItemTemplateHistoryRecord
+
+  """ Delete multiple NewsItemTemplateHistoryRecord items by ID. """
+  deleteNewsItemTemplateHistoryRecords(ids: [ID!]): [NewsItemTemplateHistoryRecord]
+
+  """ Create a single NewsItemTemplate item. """
+  createNewsItemTemplate(data: NewsItemTemplateCreateInput): NewsItemTemplate
+
+  """ Create multiple NewsItemTemplate items. """
+  createNewsItemTemplates(data: [NewsItemTemplatesCreateInput]): [NewsItemTemplate]
+
+  """ Update a single NewsItemTemplate item by ID. """
+  updateNewsItemTemplate(id: ID!, data: NewsItemTemplateUpdateInput): NewsItemTemplate
+
+  """ Update multiple NewsItemTemplate items by ID. """
+  updateNewsItemTemplates(data: [NewsItemTemplatesUpdateInput]): [NewsItemTemplate]
+
+  """ Delete a single NewsItemTemplate item by ID. """
+  deleteNewsItemTemplate(id: ID!): NewsItemTemplate
+
+  """ Delete multiple NewsItemTemplate items by ID. """
+  deleteNewsItemTemplates(ids: [ID!]): [NewsItemTemplate]
 
   """ Create a single WebhookHistoryRecord item. """
   createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord

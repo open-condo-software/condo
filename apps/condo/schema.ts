@@ -29213,6 +29213,30 @@ export type Mutation = {
   deleteNewsItemScope?: Maybe<NewsItemScope>;
   /**  Delete multiple NewsItemScope items by ID.  */
   deleteNewsItemScopes?: Maybe<Array<Maybe<NewsItemScope>>>;
+  /**  Create a single NewsItemTemplateHistoryRecord item.  */
+  createNewsItemTemplateHistoryRecord?: Maybe<NewsItemTemplateHistoryRecord>;
+  /**  Create multiple NewsItemTemplateHistoryRecord items.  */
+  createNewsItemTemplateHistoryRecords?: Maybe<Array<Maybe<NewsItemTemplateHistoryRecord>>>;
+  /**  Update a single NewsItemTemplateHistoryRecord item by ID.  */
+  updateNewsItemTemplateHistoryRecord?: Maybe<NewsItemTemplateHistoryRecord>;
+  /**  Update multiple NewsItemTemplateHistoryRecord items by ID.  */
+  updateNewsItemTemplateHistoryRecords?: Maybe<Array<Maybe<NewsItemTemplateHistoryRecord>>>;
+  /**  Delete a single NewsItemTemplateHistoryRecord item by ID.  */
+  deleteNewsItemTemplateHistoryRecord?: Maybe<NewsItemTemplateHistoryRecord>;
+  /**  Delete multiple NewsItemTemplateHistoryRecord items by ID.  */
+  deleteNewsItemTemplateHistoryRecords?: Maybe<Array<Maybe<NewsItemTemplateHistoryRecord>>>;
+  /**  Create a single NewsItemTemplate item.  */
+  createNewsItemTemplate?: Maybe<NewsItemTemplate>;
+  /**  Create multiple NewsItemTemplate items.  */
+  createNewsItemTemplates?: Maybe<Array<Maybe<NewsItemTemplate>>>;
+  /**  Update a single NewsItemTemplate item by ID.  */
+  updateNewsItemTemplate?: Maybe<NewsItemTemplate>;
+  /**  Update multiple NewsItemTemplate items by ID.  */
+  updateNewsItemTemplates?: Maybe<Array<Maybe<NewsItemTemplate>>>;
+  /**  Delete a single NewsItemTemplate item by ID.  */
+  deleteNewsItemTemplate?: Maybe<NewsItemTemplate>;
+  /**  Delete multiple NewsItemTemplate items by ID.  */
+  deleteNewsItemTemplates?: Maybe<Array<Maybe<NewsItemTemplate>>>;
   /**  Create a single WebhookHistoryRecord item.  */
   createWebhookHistoryRecord?: Maybe<WebhookHistoryRecord>;
   /**  Create multiple WebhookHistoryRecord items.  */
@@ -36949,6 +36973,68 @@ export type MutationDeleteNewsItemScopesArgs = {
 };
 
 
+export type MutationCreateNewsItemTemplateHistoryRecordArgs = {
+  data?: Maybe<NewsItemTemplateHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateNewsItemTemplateHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<NewsItemTemplateHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateNewsItemTemplateHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<NewsItemTemplateHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateNewsItemTemplateHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<NewsItemTemplateHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteNewsItemTemplateHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteNewsItemTemplateHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateNewsItemTemplateArgs = {
+  data?: Maybe<NewsItemTemplateCreateInput>;
+};
+
+
+export type MutationCreateNewsItemTemplatesArgs = {
+  data?: Maybe<Array<Maybe<NewsItemTemplatesCreateInput>>>;
+};
+
+
+export type MutationUpdateNewsItemTemplateArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<NewsItemTemplateUpdateInput>;
+};
+
+
+export type MutationUpdateNewsItemTemplatesArgs = {
+  data?: Maybe<Array<Maybe<NewsItemTemplatesUpdateInput>>>;
+};
+
+
+export type MutationDeleteNewsItemTemplateArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteNewsItemTemplatesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
 export type MutationCreateWebhookHistoryRecordArgs = {
   data?: Maybe<WebhookHistoryRecordCreateInput>;
 };
@@ -37942,6 +38028,386 @@ export type NewsItemScopesCreateInput = {
 export type NewsItemScopesUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<NewsItemScopeUpdateInput>;
+};
+
+/**  The news item template for quick composing a news item  */
+export type NewsItemTemplate = {
+  __typename?: 'NewsItemTemplate';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the NewsItemTemplate List config, or
+   *  2. As an alias to the field set on 'labelField' in the NewsItemTemplate List config, or
+   *  3. As an alias to a 'name' field on the NewsItemTemplate List (if one exists), or
+   *  4. As an alias to the 'id' field on the NewsItemTemplate List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Organization who creates the template. A common template if there is no organization  */
+  organization?: Maybe<Organization>;
+  /**  The title of a future news item  */
+  title?: Maybe<Scalars['String']>;
+  /**  A future news item's body  */
+  body?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type NewsItemTemplateCreateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  title?: Maybe<Scalars['String']>;
+  body?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type NewsItemTemplateHistoryRecord = {
+  __typename?: 'NewsItemTemplateHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the NewsItemTemplateHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the NewsItemTemplateHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the NewsItemTemplateHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the NewsItemTemplateHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
+  body?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<NewsItemTemplateHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type NewsItemTemplateHistoryRecordCreateInput = {
+  organization?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
+  body?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<NewsItemTemplateHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum NewsItemTemplateHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type NewsItemTemplateHistoryRecordUpdateInput = {
+  organization?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
+  body?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<NewsItemTemplateHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type NewsItemTemplateHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<NewsItemTemplateHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<NewsItemTemplateHistoryRecordWhereInput>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  title?: Maybe<Scalars['String']>;
+  title_not?: Maybe<Scalars['String']>;
+  title_contains?: Maybe<Scalars['String']>;
+  title_not_contains?: Maybe<Scalars['String']>;
+  title_starts_with?: Maybe<Scalars['String']>;
+  title_not_starts_with?: Maybe<Scalars['String']>;
+  title_ends_with?: Maybe<Scalars['String']>;
+  title_not_ends_with?: Maybe<Scalars['String']>;
+  title_i?: Maybe<Scalars['String']>;
+  title_not_i?: Maybe<Scalars['String']>;
+  title_contains_i?: Maybe<Scalars['String']>;
+  title_not_contains_i?: Maybe<Scalars['String']>;
+  title_starts_with_i?: Maybe<Scalars['String']>;
+  title_not_starts_with_i?: Maybe<Scalars['String']>;
+  title_ends_with_i?: Maybe<Scalars['String']>;
+  title_not_ends_with_i?: Maybe<Scalars['String']>;
+  title_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  title_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  body?: Maybe<Scalars['String']>;
+  body_not?: Maybe<Scalars['String']>;
+  body_contains?: Maybe<Scalars['String']>;
+  body_not_contains?: Maybe<Scalars['String']>;
+  body_starts_with?: Maybe<Scalars['String']>;
+  body_not_starts_with?: Maybe<Scalars['String']>;
+  body_ends_with?: Maybe<Scalars['String']>;
+  body_not_ends_with?: Maybe<Scalars['String']>;
+  body_i?: Maybe<Scalars['String']>;
+  body_not_i?: Maybe<Scalars['String']>;
+  body_contains_i?: Maybe<Scalars['String']>;
+  body_not_contains_i?: Maybe<Scalars['String']>;
+  body_starts_with_i?: Maybe<Scalars['String']>;
+  body_not_starts_with_i?: Maybe<Scalars['String']>;
+  body_ends_with_i?: Maybe<Scalars['String']>;
+  body_not_ends_with_i?: Maybe<Scalars['String']>;
+  body_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  body_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<NewsItemTemplateHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<NewsItemTemplateHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<NewsItemTemplateHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<NewsItemTemplateHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type NewsItemTemplateHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type NewsItemTemplateHistoryRecordsCreateInput = {
+  data?: Maybe<NewsItemTemplateHistoryRecordCreateInput>;
+};
+
+export type NewsItemTemplateHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<NewsItemTemplateHistoryRecordUpdateInput>;
+};
+
+export type NewsItemTemplateUpdateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  title?: Maybe<Scalars['String']>;
+  body?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type NewsItemTemplateWhereInput = {
+  AND?: Maybe<Array<Maybe<NewsItemTemplateWhereInput>>>;
+  OR?: Maybe<Array<Maybe<NewsItemTemplateWhereInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  title?: Maybe<Scalars['String']>;
+  title_not?: Maybe<Scalars['String']>;
+  title_contains?: Maybe<Scalars['String']>;
+  title_not_contains?: Maybe<Scalars['String']>;
+  title_starts_with?: Maybe<Scalars['String']>;
+  title_not_starts_with?: Maybe<Scalars['String']>;
+  title_ends_with?: Maybe<Scalars['String']>;
+  title_not_ends_with?: Maybe<Scalars['String']>;
+  title_i?: Maybe<Scalars['String']>;
+  title_not_i?: Maybe<Scalars['String']>;
+  title_contains_i?: Maybe<Scalars['String']>;
+  title_not_contains_i?: Maybe<Scalars['String']>;
+  title_starts_with_i?: Maybe<Scalars['String']>;
+  title_not_starts_with_i?: Maybe<Scalars['String']>;
+  title_ends_with_i?: Maybe<Scalars['String']>;
+  title_not_ends_with_i?: Maybe<Scalars['String']>;
+  title_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  title_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  body?: Maybe<Scalars['String']>;
+  body_not?: Maybe<Scalars['String']>;
+  body_contains?: Maybe<Scalars['String']>;
+  body_not_contains?: Maybe<Scalars['String']>;
+  body_starts_with?: Maybe<Scalars['String']>;
+  body_not_starts_with?: Maybe<Scalars['String']>;
+  body_ends_with?: Maybe<Scalars['String']>;
+  body_not_ends_with?: Maybe<Scalars['String']>;
+  body_i?: Maybe<Scalars['String']>;
+  body_not_i?: Maybe<Scalars['String']>;
+  body_contains_i?: Maybe<Scalars['String']>;
+  body_not_contains_i?: Maybe<Scalars['String']>;
+  body_starts_with_i?: Maybe<Scalars['String']>;
+  body_not_starts_with_i?: Maybe<Scalars['String']>;
+  body_ends_with_i?: Maybe<Scalars['String']>;
+  body_not_ends_with_i?: Maybe<Scalars['String']>;
+  body_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  body_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type NewsItemTemplateWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type NewsItemTemplatesCreateInput = {
+  data?: Maybe<NewsItemTemplateCreateInput>;
+};
+
+export type NewsItemTemplatesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<NewsItemTemplateUpdateInput>;
 };
 
 export enum NewsItemTypeType {
@@ -39988,6 +40454,7 @@ export type OrganizationEmployeeRole = {
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
+  canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -40033,6 +40500,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
+  canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -40084,6 +40552,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
+  canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -40129,6 +40598,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
+  canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -40179,6 +40649,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
+  canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -40308,6 +40779,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageIncidents_not?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems_not?: Maybe<Scalars['Boolean']>;
+  canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
+  canManageNewsItemTemplates_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -40425,6 +40898,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
+  canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -40531,6 +41005,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageIncidents_not?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems_not?: Maybe<Scalars['Boolean']>;
+  canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
+  canManageNewsItemTemplates_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -46360,6 +46836,22 @@ export type Query = {
   _allNewsItemScopesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the NewsItemScope list.  */
   _NewsItemScopesMeta?: Maybe<_ListMeta>;
+  /**  Search for all NewsItemTemplateHistoryRecord items which match the where clause.  */
+  allNewsItemTemplateHistoryRecords?: Maybe<Array<Maybe<NewsItemTemplateHistoryRecord>>>;
+  /**  Search for the NewsItemTemplateHistoryRecord item with the matching ID.  */
+  NewsItemTemplateHistoryRecord?: Maybe<NewsItemTemplateHistoryRecord>;
+  /**  Perform a meta-query on all NewsItemTemplateHistoryRecord items which match the where clause.  */
+  _allNewsItemTemplateHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the NewsItemTemplateHistoryRecord list.  */
+  _NewsItemTemplateHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all NewsItemTemplate items which match the where clause.  */
+  allNewsItemTemplates?: Maybe<Array<Maybe<NewsItemTemplate>>>;
+  /**  Search for the NewsItemTemplate item with the matching ID.  */
+  NewsItemTemplate?: Maybe<NewsItemTemplate>;
+  /**  Perform a meta-query on all NewsItemTemplate items which match the where clause.  */
+  _allNewsItemTemplatesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the NewsItemTemplate list.  */
+  _NewsItemTemplatesMeta?: Maybe<_ListMeta>;
   /**  Search for all WebhookHistoryRecord items which match the where clause.  */
   allWebhookHistoryRecords?: Maybe<Array<Maybe<WebhookHistoryRecord>>>;
   /**  Search for the WebhookHistoryRecord item with the matching ID.  */
@@ -51414,6 +51906,56 @@ export type Query_AllNewsItemScopesMetaArgs = {
   where?: Maybe<NewsItemScopeWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortNewsItemScopesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllNewsItemTemplateHistoryRecordsArgs = {
+  where?: Maybe<NewsItemTemplateHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemTemplateHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryNewsItemTemplateHistoryRecordArgs = {
+  where: NewsItemTemplateHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllNewsItemTemplateHistoryRecordsMetaArgs = {
+  where?: Maybe<NewsItemTemplateHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemTemplateHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllNewsItemTemplatesArgs = {
+  where?: Maybe<NewsItemTemplateWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemTemplatesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryNewsItemTemplateArgs = {
+  where: NewsItemTemplateWhereUniqueInput;
+};
+
+
+export type Query_AllNewsItemTemplatesMetaArgs = {
+  where?: Maybe<NewsItemTemplateWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemTemplatesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -58401,6 +58943,54 @@ export enum SortNewsItemScopesBy {
   DvDesc = 'dv_DESC'
 }
 
+export enum SortNewsItemTemplateHistoryRecordsBy {
+  TitleAsc = 'title_ASC',
+  TitleDesc = 'title_DESC',
+  BodyAsc = 'body_ASC',
+  BodyDesc = 'body_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortNewsItemTemplatesBy {
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  TitleAsc = 'title_ASC',
+  TitleDesc = 'title_DESC',
+  BodyAsc = 'body_ASC',
+  BodyDesc = 'body_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortNewsItemsBy {
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
@@ -58698,6 +59288,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageIncidentsDesc = 'canManageIncidents_DESC',
   CanManageNewsItemsAsc = 'canManageNewsItems_ASC',
   CanManageNewsItemsDesc = 'canManageNewsItems_DESC',
+  CanManageNewsItemTemplatesAsc = 'canManageNewsItemTemplates_ASC',
+  CanManageNewsItemTemplatesDesc = 'canManageNewsItemTemplates_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -58775,6 +59367,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageIncidentsDesc = 'canManageIncidents_DESC',
   CanManageNewsItemsAsc = 'canManageNewsItems_ASC',
   CanManageNewsItemsDesc = 'canManageNewsItems_DESC',
+  CanManageNewsItemTemplatesAsc = 'canManageNewsItemTemplates_ASC',
+  CanManageNewsItemTemplatesDesc = 'canManageNewsItemTemplates_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

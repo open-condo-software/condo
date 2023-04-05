@@ -5,4 +5,5 @@
 
 export * as NewsItem from './NewsItem'
 export * as NewsItemScope from './NewsItemScope'
+export * as NewsItemTemplate from './NewsItemTemplate'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
