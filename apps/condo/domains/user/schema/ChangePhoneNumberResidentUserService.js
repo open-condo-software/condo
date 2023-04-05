@@ -80,7 +80,7 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
                     throw new GQLError(ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
                 }
                 const { phone, isPhoneVerified } = action
-                await User.update(context, userId, { sender, phone, isPhoneVerified, dv: 1 })
+                await User.update(context, userId, { sender, phone, isPhoneVerified, type: context.authedItem.type, dv: 1 })
                 await ConfirmPhoneAction.update(context, action.id, { completedAt: new Date().toISOString(), sender, dv: 1 })
                 return {
                     status: 'ok',

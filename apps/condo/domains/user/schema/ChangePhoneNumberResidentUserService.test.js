@@ -1,5 +1,5 @@
 
-const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, expectToThrowInternalError } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
@@ -36,6 +36,31 @@ describe('ChangePhoneNumberResidentUserService', () => {
                     phone: phone,
                     isPhoneVerified: true,
                 })
+            })
+            it('can change phone with token if user with same phone and staff type exists', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [{ token, phone }] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
+                const client = await makeClientWithResidentUser({ type: RESIDENT, isPhoneVerified: true })
+                await createTestUser(admin, { phone: phone, type: STAFF })
+
+                const [result] = await changePhoneNumberResidentUserByTestClient(client, { token })
+                expect(result).toEqual({ 'status': 'ok' })
+                const updatedUser = await UserAdmin.getOne(admin, { phone, type: RESIDENT })
+                expect(updatedUser).toMatchObject({
+                    id: client.user.id,
+                    phone: phone,
+                    isPhoneVerified: true,
+                })
+            })
+            it('can not change phone with token if user with same phone and resident type exists', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [{ token, phone }] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
+                const client = await makeClientWithResidentUser({ type: RESIDENT, isPhoneVerified: true })
+                await createTestUser(admin, { phone: phone, type: RESIDENT })
+
+                await expectToThrowInternalError(async () => {
+                    await changePhoneNumberResidentUserByTestClient(client, { token })
+                }, '[error] Update User internal error', 'result')
             })
             it('can not change phone with expired token', async () => {
                 const admin = await makeLoggedInAdminClient()
