@@ -7,34 +7,33 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { EXPORT_CONTACTS_TO_EXCEL } from '@app/condo/domains/contact/gql'
+import ActionBar from '@condo/domains/common/components/ActionBar'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { EXCEL } from '@condo/domains/common/constants/export'
 import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT, EXTENDED_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useContactExportToExcelTask } from '@condo/domains/contact/hooks/useContactExportToExcelTask'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
 import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
 import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFilters'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { CONTACT_PAGE_SIZE, getPageIndexFromQuery, IFilters } from '@condo/domains/contact/utils/helpers'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-
-
-
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
@@ -56,6 +55,7 @@ export const ContactsPageContent = ({
     const ContactsMessage = intl.formatMessage({ id: 'global.section.contacts' })
     const ContactTitle = intl.formatMessage({ id: 'pages.condo.contact.ImportTitle' })
 
+    const { user } = useAuth() as { user: { id: string } }
     const router = useRouter()
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
@@ -75,6 +75,14 @@ export const ContactsPageContent = ({
         first: CONTACT_PAGE_SIZE,
     }, {
         fetchPolicy: 'network-only',
+    })
+    const { ExportButton } = useContactExportToExcelTask({
+        where: searchContactsQuery,
+        sortBy,
+        format: EXCEL,
+        user,
+        timeZone: intl.formatters.getDateTimeFormat().resolvedOptions().timeZone,
+        locale: intl.locale,
     })
 
     const handleRowAction = useCallback((record) => {
@@ -205,13 +213,9 @@ export const ContactsPageContent = ({
                                 pageSize={CONTACT_PAGE_SIZE}
                             />
                         </Col>
-                        <ExportToExcelActionBar
-                            hidden={isSmall || !canManageContacts}
-                            searchObjectsQuery={searchContactsQuery}
-                            sortBy={sortBy}
-                            exportToExcelQuery={EXPORT_CONTACTS_TO_EXCEL}
-                            useTimeZone={false}
-                        />
+                        <ActionBar hidden={isSmall || !canManageContacts}>
+                            <ExportButton />
+                        </ActionBar>
                     </Row>
                 </TablePageContent>
             </PageWrapper>

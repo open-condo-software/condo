@@ -54,6 +54,7 @@ import { SERVICE_PROVIDER_PROFILE } from '@condo/domains/common/constants/featur
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
+import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { OnBoardingProvider } from '@condo/domains/onboarding/components/OnBoardingContext'
@@ -73,7 +74,6 @@ import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 import { USER_QUERY } from '@condo/domains/user/gql'
-
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 
@@ -215,12 +215,16 @@ const TasksProvider = ({ children }) => {
     const { user } = useAuth()
     // Use UI interfaces for all tasks, that are supposed to be tracked
     const { TicketExportTask: TicketExportTaskUIInterface } = useTicketExportTaskUIInterface()
+    const { ContactExportTask: ContactExportTaskUIInterface } = useContactExportTaskUIInterface()
     const { BankSyncTask: BankSyncTaskUIInterface } = useBankSyncTaskUIInterface()
     const { MiniAppTask: MiniAppTaskUIInterface } = useMiniappTaskUIInterface()
     // ... another interfaces of tasks should be used here
 
     // Load all tasks with 'processing' status
     const { records: ticketExportTasks } = TicketExportTaskUIInterface.storage.useTasks(
+        { status: TASK_STATUS.PROCESSING, today: true }, user
+    )
+    const { records: contactExportTasks } = ContactExportTaskUIInterface.storage.useTasks(
         { status: TASK_STATUS.PROCESSING, today: true }, user
     )
     const { records: bankSyncTasks } = BankSyncTaskUIInterface.storage.useTasks(
@@ -231,13 +235,16 @@ const TasksProvider = ({ children }) => {
     )
     // ... another task records should be loaded here
 
-    const initialTaskRecords = useMemo(() => [...miniAppTasks, ...ticketExportTasks, ...bankSyncTasks],
-        [miniAppTasks, ticketExportTasks, bankSyncTasks])
+    const initialTaskRecords = useMemo(
+        () => [...miniAppTasks, ...ticketExportTasks, ...contactExportTasks, ...bankSyncTasks],
+        [miniAppTasks, ticketExportTasks, contactExportTasks, bankSyncTasks]
+    )
     const uiInterfaces = useMemo(() => ({
         MiniAppTask: MiniAppTaskUIInterface,
         TicketExportTask: TicketExportTaskUIInterface,
+        ContactExportTask: ContactExportTaskUIInterface,
         BankSyncTask: BankSyncTaskUIInterface,
-    }), [MiniAppTaskUIInterface, TicketExportTaskUIInterface, BankSyncTaskUIInterface])
+    }), [MiniAppTaskUIInterface, TicketExportTaskUIInterface, ContactExportTaskUIInterface, BankSyncTaskUIInterface])
 
     return (
         <TasksContextProvider

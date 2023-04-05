@@ -12,10 +12,13 @@ const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.util
 const { Contact: ContactGQL } = require('@condo/domains/contact/gql')
 const { ContactRole: ContactRoleGQL } = require('@condo/domains/contact/gql')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { ContactExportTask: ContactExportTaskGQL } = require('@condo/domains/contact/gql')
+const { EXCEL } = require('../../../common/constants/export')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Contact = generateGQLTestUtils(ContactGQL)
 const ContactRole = generateGQLTestUtils(ContactRoleGQL)
+const ContactExportTask = generateGQLTestUtils(ContactExportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestContact (client, organization, property, extraAttrs = {}) {
@@ -84,10 +87,44 @@ async function updateTestContactRole (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestContactExportTask (client, user, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        format: EXCEL,
+        where: {},
+        sortBy: {},
+        locale: 'en',
+        timeZone: 'Europe/Moscow',
+        user: { connect: { id: user.id } },
+        ...extraAttrs,
+    }
+    const obj = await ContactExportTask.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestContactExportTask (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ContactExportTask.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Contact, createTestContact, updateTestContact,
     ContactRole, createTestContactRole, updateTestContactRole,
+    ContactExportTask, createTestContactExportTask, updateTestContactExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

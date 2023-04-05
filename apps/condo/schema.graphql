@@ -35932,6 +35932,647 @@ input ContactRolesCreateInput {
   data: ContactRoleCreateInput
 }
 
+enum ContactExportTaskHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type ContactExportTaskHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the ContactExportTaskHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the ContactExportTaskHistoryRecord List config, or
+   3. As an alias to a 'name' field on the ContactExportTaskHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the ContactExportTaskHistoryRecord List.
+  """
+  _label_: String
+  status: String
+  format: String
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: JSON
+  meta: JSON
+  where: JSON
+  sortBy: JSON
+  locale: String
+  timeZone: String
+  user: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ContactExportTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ContactExportTaskHistoryRecordWhereInput {
+  AND: [ContactExportTaskHistoryRecordWhereInput]
+  OR: [ContactExportTaskHistoryRecordWhereInput]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  format: String
+  format_not: String
+  format_contains: String
+  format_not_contains: String
+  format_starts_with: String
+  format_not_starts_with: String
+  format_ends_with: String
+  format_not_ends_with: String
+  format_i: String
+  format_not_i: String
+  format_contains_i: String
+  format_not_contains_i: String
+  format_starts_with_i: String
+  format_not_starts_with_i: String
+  format_ends_with_i: String
+  format_not_ends_with_i: String
+  format_in: [String]
+  format_not_in: [String]
+  exportedRecordsCount: Int
+  exportedRecordsCount_not: Int
+  exportedRecordsCount_lt: Int
+  exportedRecordsCount_lte: Int
+  exportedRecordsCount_gt: Int
+  exportedRecordsCount_gte: Int
+  exportedRecordsCount_in: [Int]
+  exportedRecordsCount_not_in: [Int]
+  totalRecordsCount: Int
+  totalRecordsCount_not: Int
+  totalRecordsCount_lt: Int
+  totalRecordsCount_lte: Int
+  totalRecordsCount_gt: Int
+  totalRecordsCount_gte: Int
+  totalRecordsCount_in: [Int]
+  totalRecordsCount_not_in: [Int]
+  file: JSON
+  file_not: JSON
+  file_in: [JSON]
+  file_not_in: [JSON]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  where: JSON
+  where_not: JSON
+  where_in: [JSON]
+  where_not_in: [JSON]
+  sortBy: JSON
+  sortBy_not: JSON
+  sortBy_in: [JSON]
+  sortBy_not_in: [JSON]
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
+  timeZone: String
+  timeZone_not: String
+  timeZone_contains: String
+  timeZone_not_contains: String
+  timeZone_starts_with: String
+  timeZone_not_starts_with: String
+  timeZone_ends_with: String
+  timeZone_not_ends_with: String
+  timeZone_i: String
+  timeZone_not_i: String
+  timeZone_contains_i: String
+  timeZone_not_contains_i: String
+  timeZone_starts_with_i: String
+  timeZone_not_starts_with_i: String
+  timeZone_ends_with_i: String
+  timeZone_not_ends_with_i: String
+  timeZone_in: [String]
+  timeZone_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: ContactExportTaskHistoryRecordHistoryActionType
+  history_action_not: ContactExportTaskHistoryRecordHistoryActionType
+  history_action_in: [ContactExportTaskHistoryRecordHistoryActionType]
+  history_action_not_in: [ContactExportTaskHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input ContactExportTaskHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortContactExportTaskHistoryRecordsBy {
+  status_ASC
+  status_DESC
+  format_ASC
+  format_DESC
+  exportedRecordsCount_ASC
+  exportedRecordsCount_DESC
+  totalRecordsCount_ASC
+  totalRecordsCount_DESC
+  locale_ASC
+  locale_DESC
+  timeZone_ASC
+  timeZone_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input ContactExportTaskHistoryRecordUpdateInput {
+  status: String
+  format: String
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: JSON
+  meta: JSON
+  where: JSON
+  sortBy: JSON
+  locale: String
+  timeZone: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ContactExportTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ContactExportTaskHistoryRecordsUpdateInput {
+  id: ID!
+  data: ContactExportTaskHistoryRecordUpdateInput
+}
+
+input ContactExportTaskHistoryRecordCreateInput {
+  status: String
+  format: String
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: JSON
+  meta: JSON
+  where: JSON
+  sortBy: JSON
+  locale: String
+  timeZone: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ContactExportTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ContactExportTaskHistoryRecordsCreateInput {
+  data: ContactExportTaskHistoryRecordCreateInput
+}
+
+enum ContactExportTaskStatusType {
+  processing
+  completed
+  error
+  cancelled
+}
+
+enum ContactExportTaskFormatType {
+  excel
+}
+
+""" Stores requested export format, status of export job, link to exported file and information about progress of export job 
+"""
+type ContactExportTask {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the ContactExportTask List config, or
+   2. As an alias to the field set on 'labelField' in the ContactExportTask List config, or
+   3. As an alias to a 'name' field on the ContactExportTask List (if one exists), or
+   4. As an alias to the 'id' field on the ContactExportTask List.
+  """
+  _label_: String
+
+  """ Status of the job. Used at client side progress information component 
+  """
+  status: ContactExportTaskStatusType
+
+  """ Requested export file format """
+  format: ContactExportTaskFormatType
+
+  """ How many records at the moment are exported """
+  exportedRecordsCount: Int
+
+  """ Total records to export that will be determined at server side in export operation 
+  """
+  totalRecordsCount: Int
+
+  """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
+  """
+  file: File
+
+  """ Stores information about query and ids of exported and failed records 
+  """
+  meta: JSON
+
+  """ Filtering conditions for records to export """
+  where: JSON
+
+  """ Sorting parameters for records to export """
+  sortBy: JSON
+
+  """ Requested export locale, in that the resulting file will be rendered """
+  locale: String
+
+  """ To requested timeZone all datetime fields will be converted """
+  timeZone: String
+
+  """ User that requested this exporting operation. Will be used for read access checks to display all exported tasks somewhere and to display progress indicator of ongoing exporting task for current user 
+  """
+  user: User
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input ContactExportTaskWhereInput {
+  AND: [ContactExportTaskWhereInput]
+  OR: [ContactExportTaskWhereInput]
+  status: ContactExportTaskStatusType
+  status_not: ContactExportTaskStatusType
+  status_in: [ContactExportTaskStatusType]
+  status_not_in: [ContactExportTaskStatusType]
+  format: ContactExportTaskFormatType
+  format_not: ContactExportTaskFormatType
+  format_in: [ContactExportTaskFormatType]
+  format_not_in: [ContactExportTaskFormatType]
+  exportedRecordsCount: Int
+  exportedRecordsCount_not: Int
+  exportedRecordsCount_lt: Int
+  exportedRecordsCount_lte: Int
+  exportedRecordsCount_gt: Int
+  exportedRecordsCount_gte: Int
+  exportedRecordsCount_in: [Int]
+  exportedRecordsCount_not_in: [Int]
+  totalRecordsCount: Int
+  totalRecordsCount_not: Int
+  totalRecordsCount_lt: Int
+  totalRecordsCount_lte: Int
+  totalRecordsCount_gt: Int
+  totalRecordsCount_gte: Int
+  totalRecordsCount_in: [Int]
+  totalRecordsCount_not_in: [Int]
+  file: String
+  file_not: String
+  file_in: [String]
+  file_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  where: JSON
+  where_not: JSON
+  where_in: [JSON]
+  where_not_in: [JSON]
+  sortBy: JSON
+  sortBy_not: JSON
+  sortBy_in: [JSON]
+  sortBy_not_in: [JSON]
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
+  timeZone: String
+  timeZone_not: String
+  timeZone_contains: String
+  timeZone_not_contains: String
+  timeZone_starts_with: String
+  timeZone_not_starts_with: String
+  timeZone_ends_with: String
+  timeZone_not_ends_with: String
+  timeZone_i: String
+  timeZone_not_i: String
+  timeZone_contains_i: String
+  timeZone_not_contains_i: String
+  timeZone_starts_with_i: String
+  timeZone_not_starts_with_i: String
+  timeZone_ends_with_i: String
+  timeZone_not_ends_with_i: String
+  timeZone_in: [String]
+  timeZone_not_in: [String]
+  user: UserWhereInput
+  user_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input ContactExportTaskWhereUniqueInput {
+  id: ID!
+}
+
+enum SortContactExportTasksBy {
+  status_ASC
+  status_DESC
+  format_ASC
+  format_DESC
+  exportedRecordsCount_ASC
+  exportedRecordsCount_DESC
+  totalRecordsCount_ASC
+  totalRecordsCount_DESC
+  locale_ASC
+  locale_DESC
+  timeZone_ASC
+  timeZone_DESC
+  user_ASC
+  user_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input ContactExportTaskUpdateInput {
+  status: ContactExportTaskStatusType
+  format: ContactExportTaskFormatType
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: Upload
+  meta: JSON
+  where: JSON
+  sortBy: JSON
+  locale: String
+  timeZone: String
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input ContactExportTasksUpdateInput {
+  id: ID!
+  data: ContactExportTaskUpdateInput
+}
+
+input ContactExportTaskCreateInput {
+  status: ContactExportTaskStatusType
+  format: ContactExportTaskFormatType
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: Upload
+  meta: JSON
+  where: JSON
+  sortBy: JSON
+  locale: String
+  timeZone: String
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input ContactExportTasksCreateInput {
+  data: ContactExportTaskCreateInput
+}
+
 enum ResidentHistoryRecordHistoryActionType {
   c
   u
@@ -55733,18 +56374,6 @@ type SetMessageStatusOutput {
   status: String!
 }
 
-input ExportContactsToExcelInput {
-  dv: Int!
-  sender: SenderFieldInput!
-  where: ContactWhereInput!
-  sortBy: [SortContactsBy!]
-}
-
-type ExportContactsToExcelOutput {
-  status: String!
-  linkToFile: String!
-}
-
 input RegisterResidentInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -57889,6 +58518,34 @@ type Query {
   """ Retrieve the meta-data for the ContactRole list. """
   _ContactRolesMeta: _ListMeta
 
+  """ Search for all ContactExportTaskHistoryRecord items which match the where clause. 
+  """
+  allContactExportTaskHistoryRecords(where: ContactExportTaskHistoryRecordWhereInput, search: String, sortBy: [SortContactExportTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ContactExportTaskHistoryRecord]
+
+  """ Search for the ContactExportTaskHistoryRecord item with the matching ID. 
+  """
+  ContactExportTaskHistoryRecord(where: ContactExportTaskHistoryRecordWhereUniqueInput!): ContactExportTaskHistoryRecord
+
+  """ Perform a meta-query on all ContactExportTaskHistoryRecord items which match the where clause. 
+  """
+  _allContactExportTaskHistoryRecordsMeta(where: ContactExportTaskHistoryRecordWhereInput, search: String, sortBy: [SortContactExportTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the ContactExportTaskHistoryRecord list. """
+  _ContactExportTaskHistoryRecordsMeta: _ListMeta
+
+  """ Search for all ContactExportTask items which match the where clause. """
+  allContactExportTasks(where: ContactExportTaskWhereInput, search: String, sortBy: [SortContactExportTasksBy!], orderBy: String, first: Int, skip: Int): [ContactExportTask]
+
+  """ Search for the ContactExportTask item with the matching ID. """
+  ContactExportTask(where: ContactExportTaskWhereUniqueInput!): ContactExportTask
+
+  """ Perform a meta-query on all ContactExportTask items which match the where clause. 
+  """
+  _allContactExportTasksMeta(where: ContactExportTaskWhereInput, search: String, sortBy: [SortContactExportTasksBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the ContactExportTask list. """
+  _ContactExportTasksMeta: _ListMeta
+
   """ Search for all ResidentHistoryRecord items which match the where clause. 
   """
   allResidentHistoryRecords(where: ResidentHistoryRecordWhereInput, search: String, sortBy: [SortResidentHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ResidentHistoryRecord]
@@ -59019,7 +59676,6 @@ type Query {
   predictTransactionClassification(data: PredictTransactionClassificationInput!): PredictTransactionClassificationOutput
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   exportIncidentsToExcel(data: ExportIncidentsToExcelInput!): ExportIncidentsToExcelOutput
-  exportContactsToExcel(data: ExportContactsToExcelInput!): ExportContactsToExcelOutput
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
@@ -61352,6 +62008,42 @@ type Mutation {
 
   """ Delete multiple ContactRole items by ID. """
   deleteContactRoles(ids: [ID!]): [ContactRole]
+
+  """ Create a single ContactExportTaskHistoryRecord item. """
+  createContactExportTaskHistoryRecord(data: ContactExportTaskHistoryRecordCreateInput): ContactExportTaskHistoryRecord
+
+  """ Create multiple ContactExportTaskHistoryRecord items. """
+  createContactExportTaskHistoryRecords(data: [ContactExportTaskHistoryRecordsCreateInput]): [ContactExportTaskHistoryRecord]
+
+  """ Update a single ContactExportTaskHistoryRecord item by ID. """
+  updateContactExportTaskHistoryRecord(id: ID!, data: ContactExportTaskHistoryRecordUpdateInput): ContactExportTaskHistoryRecord
+
+  """ Update multiple ContactExportTaskHistoryRecord items by ID. """
+  updateContactExportTaskHistoryRecords(data: [ContactExportTaskHistoryRecordsUpdateInput]): [ContactExportTaskHistoryRecord]
+
+  """ Delete a single ContactExportTaskHistoryRecord item by ID. """
+  deleteContactExportTaskHistoryRecord(id: ID!): ContactExportTaskHistoryRecord
+
+  """ Delete multiple ContactExportTaskHistoryRecord items by ID. """
+  deleteContactExportTaskHistoryRecords(ids: [ID!]): [ContactExportTaskHistoryRecord]
+
+  """ Create a single ContactExportTask item. """
+  createContactExportTask(data: ContactExportTaskCreateInput): ContactExportTask
+
+  """ Create multiple ContactExportTask items. """
+  createContactExportTasks(data: [ContactExportTasksCreateInput]): [ContactExportTask]
+
+  """ Update a single ContactExportTask item by ID. """
+  updateContactExportTask(id: ID!, data: ContactExportTaskUpdateInput): ContactExportTask
+
+  """ Update multiple ContactExportTask items by ID. """
+  updateContactExportTasks(data: [ContactExportTasksUpdateInput]): [ContactExportTask]
+
+  """ Delete a single ContactExportTask item by ID. """
+  deleteContactExportTask(id: ID!): ContactExportTask
+
+  """ Delete multiple ContactExportTask items by ID. """
+  deleteContactExportTasks(ids: [ID!]): [ContactExportTask]
 
   """ Create a single ResidentHistoryRecord item. """
   createResidentHistoryRecord(data: ResidentHistoryRecordCreateInput): ResidentHistoryRecord
