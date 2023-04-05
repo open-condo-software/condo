@@ -110,7 +110,14 @@ const PredictTransactionClassificationService = new GQLCustomSchema('PredictTran
                     throw new GQLError(errors.COST_ITEM_NOT_FOUND, context)
                 }
                 if (costItem.isOutcome !== isOutcome) {
-                    throw new GQLError(errors.COST_ITEM_IS_OUTCOME_NOT_EQUAL, context)
+                    throw new GQLError({
+                        ...errors.COST_ITEM_IS_OUTCOME_NOT_EQUAL,
+                        data: {
+                            receivedCostItem: costItem,
+                            transactionDirection: { isOutcome },
+                            costItemDirection: { isOutcome: costItem.isOutcome },
+                        },
+                    }, context)
                 }
                 return costItem
             },
