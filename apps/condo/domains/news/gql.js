@@ -17,11 +17,15 @@ const NewsItemScope = generateGqlQueries('NewsItemScope', NEWS_ITEM_SCOPE_FIELDS
 const NEWS_ITEM_TEMPLATE_FIELDS = `{ organization { id } title body ${COMMON_FIELDS} }`
 const NewsItemTemplate = generateGqlQueries('NewsItemTemplate', NEWS_ITEM_TEMPLATE_FIELDS)
 
+const NEWS_ITEM_USER_READ_FIELDS = `{ newsItem { id } user { id } ${COMMON_FIELDS} }`
+const NewsItemUserRead = generateGqlQueries('NewsItemUserRead', NEWS_ITEM_USER_READ_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     NewsItem,
     NewsItemScope,
     NewsItemTemplate,
+    NewsItemUserRead,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
