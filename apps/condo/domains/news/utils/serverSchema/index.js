@@ -9,19 +9,16 @@ const { generateServerUtils } = require('@open-condo/codegen/generate.server.uti
 const { NewsItem: NewsItemGQL } = require('@condo/domains/news/gql')
 const { NewsItemScope: NewsItemScopeGQL } = require('@condo/domains/news/gql')
 const { NewsItemTemplate: NewsItemTemplateGQL } = require('@condo/domains/news/gql')
-const { NewsItemUserRead: NewsItemUserReadGQL } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateServerUtils(NewsItemGQL)
 const NewsItemScope = generateServerUtils(NewsItemScopeGQL)
 const NewsItemTemplate = generateServerUtils(NewsItemTemplateGQL)
-const NewsItemUserRead = generateServerUtils(NewsItemUserReadGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     NewsItem,
     NewsItemScope,
     NewsItemTemplate,
-    NewsItemUserRead,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

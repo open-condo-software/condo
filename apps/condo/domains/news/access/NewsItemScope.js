@@ -51,8 +51,6 @@ async function canManageNewsItemScopes ({ authentication: { item: user }, origin
             }
         }
 
-        if (!newsItemId) return false
-
         const newsItem = await getById('NewsItem', newsItemId)
         return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, newsItem.organization, 'canManageNewsItems')
     }
