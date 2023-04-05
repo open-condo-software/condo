@@ -18,6 +18,7 @@ const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
 } = require('@condo/domains/billing/utils/testSchema')
 const { sleep } = require('@condo/domains/common/utils/sleep')
+const { Contact, createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     CALL_METER_READING_SOURCE_ID,
     COLD_WATER_METER_RESOURCE_ID,
@@ -46,6 +47,7 @@ const {
     makeEmployeeUserClientWithAbilities,
     updateTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
+const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const {
     createTestProperty,
     makeClientWithProperty,
@@ -1244,6 +1246,78 @@ describe('MeterReading', () => {
                     expect(meterReading.id).toMatch(UUID_RE)
                     expect(meterReading.date).toMatch(DATETIME_RE)
                 })
+            })
+        })
+
+        describe('Resolve input', () => {
+            it('Create contact if contact does not exist in same property, unitType and unitName', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const client1 = await makeClientWithResidentUser()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const unitName = faker.random.alphaNumeric(8)
+
+                // contact in other unitName
+                await createTestContact(adminClient, organization, property, {
+                    phone: client1.userAttrs.phone,
+                    unitName: faker.random.alphaNumeric(8),
+                    unitType: FLAT_UNIT_TYPE,
+                })
+
+                // contact in other unitType
+                await createTestContact(adminClient, organization, property, {
+                    phone: client1.userAttrs.phone,
+                    unitName,
+                    unitType: PARKING_UNIT_TYPE,
+                })
+
+                const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                    unitName,
+                    unitType: FLAT_UNIT_TYPE,
+                })
+                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                const [meterReading] = await createTestMeterReading(adminClient, meter, source, {
+                    clientName: client1.userAttrs.name,
+                    clientPhone: client1.userAttrs.phone,
+                })
+
+                const createdContact = await Contact.getOne(adminClient, {
+                    property: { id: property.id },
+                    phone: client1.userAttrs.phone,
+                    unitName,
+                    unitType: FLAT_UNIT_TYPE,
+                })
+                expect(createdContact).toBeDefined()
+                expect(meterReading.contact.id).toEqual(createdContact.id)
+            })
+
+            it('Connect contact if he exists in same property, unitType and unitName', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const client1 = await makeClientWithResidentUser()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const unitName = faker.random.alphaNumeric(8)
+
+                const [contact] = await createTestContact(adminClient, organization, property, {
+                    phone: client1.userAttrs.phone,
+                    unitName,
+                    unitType: FLAT_UNIT_TYPE,
+                })
+
+                const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                    unitName,
+                })
+                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                const [meterReading] = await createTestMeterReading(adminClient, meter, source, {
+                    clientName: client1.userAttrs.name,
+                    clientPhone: client1.userAttrs.phone,
+                })
+
+                const connectedContact = meterReading.contact
+                expect(connectedContact).toBeDefined()
+                expect(connectedContact.id).toEqual(contact.id)
             })
         })
     })

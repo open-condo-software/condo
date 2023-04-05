@@ -110,8 +110,6 @@ const Contact = new GQLListSchema('Contact', {
                     const value = resolvedData[fieldPath]
                     if (value === '') {
                         return addFieldValidationError('Name should not be a blank string')
-                    } else if (value.length === 1) {
-                        return addFieldValidationError('Name should not be a one-character string')
                     }
                 },
             },
