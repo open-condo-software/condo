@@ -88,7 +88,7 @@ describe('NewsItemUserRead', () => {
                 })
             })
 
-            test('Eligible resident can, not eligible can\'t', async () => {
+            test('Eligible resident can, non-eligible can\'t', async () => {
                 const resident = await makeClientWithResidentUser()
 
                 const unitType1 = FLAT_UNIT_TYPE
@@ -99,7 +99,7 @@ describe('NewsItemUserRead', () => {
                 })
 
                 const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-                const [newsItemScope1] = await createTestNewsItemScope(adminClient, newsItem, {
+                await createTestNewsItemScope(adminClient, newsItem, {
                     property: { connect: { id: dummyProperty.id } },
                     unitType: unitType1,
                     unitName: unitName1,
@@ -123,7 +123,7 @@ describe('NewsItemUserRead', () => {
                 })
             })
 
-            test('can\'t ream same news item twice by the same user', async () => {
+            test('can\'t read same news item twice by the same user', async () => {
                 const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
                 await createTestNewsItemUserRead(adminClient, newsItem, adminClient.user)
 
@@ -167,6 +167,14 @@ describe('NewsItemUserRead', () => {
                 const [objCreated] = await createTestNewsItemUserRead(adminClient, newsItem, adminClient.user)
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     const [obj, attrs] = await updateTestNewsItemUserRead(staffClient, objCreated.id)
+                })
+            })
+
+            test('resident can\'t', async () => {
+                const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+                const [objCreated] = await createTestNewsItemUserRead(adminClient, newsItem, residentClient.user)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestNewsItemUserRead(residentClient, objCreated.id)
                 })
             })
 
@@ -220,7 +228,7 @@ describe('NewsItemUserRead', () => {
                 ]))
             })
 
-            test('Eligible resident can, not eligible can\'t', async () => {
+            test('Eligible resident can, non-eligible can\'t', async () => {
                 const resident = await makeClientWithResidentUser()
 
                 const unitType1 = FLAT_UNIT_TYPE
