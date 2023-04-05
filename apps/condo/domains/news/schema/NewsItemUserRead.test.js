@@ -230,6 +230,7 @@ describe('NewsItemUserRead', () => {
 
             test('Eligible resident can, non-eligible can\'t', async () => {
                 const resident = await makeClientWithResidentUser()
+                const nonEligibleResident = await makeClientWithResidentUser()
 
                 const unitType1 = FLAT_UNIT_TYPE
                 const unitName1 = faker.lorem.word()
@@ -253,7 +254,7 @@ describe('NewsItemUserRead', () => {
                     id: obj.id,
                 })
 
-                const objs2 = await NewsItemUserRead.getAll(residentClient, {}, { sortBy: ['updatedAt_DESC'] })
+                const objs2 = await NewsItemUserRead.getAll(nonEligibleResident, {}, { sortBy: ['updatedAt_DESC'] })
                 expect(objs2).toHaveLength(0)
             })
 
