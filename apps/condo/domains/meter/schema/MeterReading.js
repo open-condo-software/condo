@@ -81,7 +81,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
             }
 
             if (operation === 'create' && user.type === RESIDENT) {
-                await addClientInfoToResidentMeterReading(context, resolvedData)
+                addClientInfoToResidentMeterReading(context, resolvedData)
             }
 
             const meter = await Meter.getOne(context, {
@@ -96,7 +96,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
                     unitType: get(meter, 'unitType'),
                 }
 
-                await connectContactToMeterReading(context, contactCreationData, existingItem)
+                resolvedData.contact = await connectContactToMeterReading(context, contactCreationData, existingItem)
             }
 
             return resolvedData

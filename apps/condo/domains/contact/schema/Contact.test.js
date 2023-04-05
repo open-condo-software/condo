@@ -89,7 +89,7 @@ describe('Contact', () => {
     })
 
     describe('validation', () => {
-        test('name length should be min 2 characters', async () => {
+        test('name length should be min 1 character', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             await catchErrorFrom(async () => {
@@ -99,14 +99,6 @@ describe('Contact', () => {
             }, ({ errors }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
                 expect(errors[0].data.messages[0]).toMatch('Name should not be a blank string')
-            })
-            await catchErrorFrom(async () => {
-                await createTestContact(adminClient, userClient.organization, userClient.property, {
-                    name: 'a',
-                })
-            }, ({ errors }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Name should not be a one-character string')
             })
         })
 
