@@ -52321,56 +52321,6 @@ export type Query_AllNewsItemScopesMetaArgs = {
 };
 
 
-export type QueryAllNewsItemUserReadHistoryRecordsArgs = {
-  where?: Maybe<NewsItemUserReadHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortNewsItemUserReadHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryNewsItemUserReadHistoryRecordArgs = {
-  where: NewsItemUserReadHistoryRecordWhereUniqueInput;
-};
-
-
-export type Query_AllNewsItemUserReadHistoryRecordsMetaArgs = {
-  where?: Maybe<NewsItemUserReadHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortNewsItemUserReadHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllNewsItemUserReadsArgs = {
-  where?: Maybe<NewsItemUserReadWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortNewsItemUserReadsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryNewsItemUserReadArgs = {
-  where: NewsItemUserReadWhereUniqueInput;
-};
-
-
-export type Query_AllNewsItemUserReadsMetaArgs = {
-  where?: Maybe<NewsItemUserReadWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortNewsItemUserReadsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
 export type QueryAllNewsItemTemplateHistoryRecordsArgs = {
   where?: Maybe<NewsItemTemplateHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
@@ -52415,6 +52365,56 @@ export type Query_AllNewsItemTemplatesMetaArgs = {
   where?: Maybe<NewsItemTemplateWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortNewsItemTemplatesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllNewsItemUserReadHistoryRecordsArgs = {
+  where?: Maybe<NewsItemUserReadHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemUserReadHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryNewsItemUserReadHistoryRecordArgs = {
+  where: NewsItemUserReadHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllNewsItemUserReadHistoryRecordsMetaArgs = {
+  where?: Maybe<NewsItemUserReadHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemUserReadHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllNewsItemUserReadsArgs = {
+  where?: Maybe<NewsItemUserReadWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemUserReadsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryNewsItemUserReadArgs = {
+  where: NewsItemUserReadWhereUniqueInput;
+};
+
+
+export type Query_AllNewsItemUserReadsMetaArgs = {
+  where?: Maybe<NewsItemUserReadWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemUserReadsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -59402,48 +59402,6 @@ export enum SortNewsItemScopesBy {
   DvDesc = 'dv_DESC'
 }
 
-export enum SortNewsItemUserReadHistoryRecordsBy {
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  HistoryDateAsc = 'history_date_ASC',
-  HistoryDateDesc = 'history_date_DESC',
-  HistoryActionAsc = 'history_action_ASC',
-  HistoryActionDesc = 'history_action_DESC'
-}
-
-export enum SortNewsItemUserReadsBy {
-  NewsItemAsc = 'newsItem_ASC',
-  NewsItemDesc = 'newsItem_DESC',
-  UserAsc = 'user_ASC',
-  UserDesc = 'user_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  CreatedByAsc = 'createdBy_ASC',
-  CreatedByDesc = 'createdBy_DESC',
-  UpdatedByAsc = 'updatedBy_ASC',
-  UpdatedByDesc = 'updatedBy_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC'
-}
-
 export enum SortNewsItemTemplateHistoryRecordsBy {
   TitleAsc = 'title_ASC',
   TitleDesc = 'title_DESC',
@@ -59474,6 +59432,48 @@ export enum SortNewsItemTemplatesBy {
   TitleDesc = 'title_DESC',
   BodyAsc = 'body_ASC',
   BodyDesc = 'body_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortNewsItemUserReadHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortNewsItemUserReadsBy {
+  NewsItemAsc = 'newsItem_ASC',
+  NewsItemDesc = 'newsItem_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
