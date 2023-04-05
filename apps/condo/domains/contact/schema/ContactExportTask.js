@@ -12,6 +12,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
 const { PROCESSING, EXPORT_STATUS_VALUES, EXCEL } = require('@condo/domains/common/constants/export')
+const { COMPLETED, ERROR } = require('@condo/domains/common/constants/export')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
@@ -167,6 +168,16 @@ const ContactExportTask = new GQLListSchema('ContactExportTask', {
         },
     },
     hooks: {
+        validateInput: async ({ resolvedData, existingItem, addValidationError }) => {
+            if (existingItem) {
+                if (resolvedData['status'] && existingItem['status'] === COMPLETED) {
+                    addValidationError('status is already completed')
+                }
+                if (resolvedData['status'] && existingItem['status'] === ERROR) {
+                    addValidationError('status is already error')
+                }
+            }
+        },
         afterChange: async (args) => {
             const { updatedItem, operation } = args
             await setFileMetaAfterChange(args)

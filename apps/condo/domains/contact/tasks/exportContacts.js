@@ -24,8 +24,7 @@ const MAX_XLSX_FILE_ROWS = 10000
 const DATE_FORMAT = 'DD.MM.YYYY'
 const EMPTY_VALUE = '—'
 
-const appLogger = getLogger('condo')
-const taskLogger = appLogger.child({ module: 'exportContacts' })
+const taskLogger = getLogger('exportContacts')
 
 const contactToRow = ({ task, contact, translatedRolesMap }) => {
     const { locale } = task
@@ -89,12 +88,16 @@ async function exportContacts (taskId) {
     const baseAttrs = { dv: 1, sender: TASK_DV_AND_SENDER }
 
     if (!task.locale) {
+        taskLogger.error({
+            msg: `ContactExportTask with id = ${taskId} doesn't have value for "locale" field`,
+            data: { id: taskId },
+        })
         await ContactExportTask.update(context, taskId, {
             ...baseAttrs,
             status: ERROR,
         })
 
-        throw new Error(`ContactExportTask with id = ${taskId} doesn't have value for "locale" field`)
+        return
     }
 
     try {
@@ -151,13 +154,13 @@ async function exportContacts (taskId) {
                 break
             }
         }
-    } catch (error) {
+    } catch (err) {
         taskLogger.error({
             msg: 'Failed to export contacts',
             data: { id: taskId },
-            error,
+            err,
         })
-        throw error
+        throw err
     }
 }
 
