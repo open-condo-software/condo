@@ -54996,6 +54996,362 @@ input NewsItemTemplatesCreateInput {
   data: NewsItemTemplateCreateInput
 }
 
+enum NewsItemUserReadHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type NewsItemUserReadHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the NewsItemUserReadHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the NewsItemUserReadHistoryRecord List config, or
+   3. As an alias to a 'name' field on the NewsItemUserReadHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the NewsItemUserReadHistoryRecord List.
+  """
+  _label_: String
+  newsItem: String
+  user: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: NewsItemUserReadHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input NewsItemUserReadHistoryRecordWhereInput {
+  AND: [NewsItemUserReadHistoryRecordWhereInput]
+  OR: [NewsItemUserReadHistoryRecordWhereInput]
+  newsItem: String
+  newsItem_not: String
+  newsItem_in: [String]
+  newsItem_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: NewsItemUserReadHistoryRecordHistoryActionType
+  history_action_not: NewsItemUserReadHistoryRecordHistoryActionType
+  history_action_in: [NewsItemUserReadHistoryRecordHistoryActionType]
+  history_action_not_in: [NewsItemUserReadHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input NewsItemUserReadHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortNewsItemUserReadHistoryRecordsBy {
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input NewsItemUserReadHistoryRecordUpdateInput {
+  newsItem: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: NewsItemUserReadHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input NewsItemUserReadHistoryRecordsUpdateInput {
+  id: ID!
+  data: NewsItemUserReadHistoryRecordUpdateInput
+}
+
+input NewsItemUserReadHistoryRecordCreateInput {
+  newsItem: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: NewsItemUserReadHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input NewsItemUserReadHistoryRecordsCreateInput {
+  data: NewsItemUserReadHistoryRecordCreateInput
+}
+
+""" The fact the user has read the particular news item """
+type NewsItemUserRead {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the NewsItemUserRead List config, or
+   2. As an alias to the field set on 'labelField' in the NewsItemUserRead List config, or
+   3. As an alias to a 'name' field on the NewsItemUserRead List (if one exists), or
+   4. As an alias to the 'id' field on the NewsItemUserRead List.
+  """
+  _label_: String
+
+  """ The news item the user has read """
+  newsItem: NewsItem
+
+  """ The user who has read the particular news item """
+  user: User
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input NewsItemUserReadWhereInput {
+  AND: [NewsItemUserReadWhereInput]
+  OR: [NewsItemUserReadWhereInput]
+  newsItem: NewsItemWhereInput
+  newsItem_is_null: Boolean
+  user: UserWhereInput
+  user_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input NewsItemUserReadWhereUniqueInput {
+  id: ID!
+}
+
+enum SortNewsItemUserReadsBy {
+  newsItem_ASC
+  newsItem_DESC
+  user_ASC
+  user_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input NewsItemUserReadUpdateInput {
+  newsItem: NewsItemRelateToOneInput
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input NewsItemUserReadsUpdateInput {
+  id: ID!
+  data: NewsItemUserReadUpdateInput
+}
+
+input NewsItemUserReadCreateInput {
+  newsItem: NewsItemRelateToOneInput
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input NewsItemUserReadsCreateInput {
+  data: NewsItemUserReadCreateInput
+}
+
 enum WebhookHistoryRecordHistoryActionType {
   c
   u
@@ -59957,6 +60313,34 @@ type Query {
   """ Retrieve the meta-data for the NewsItemTemplate list. """
   _NewsItemTemplatesMeta: _ListMeta
 
+  """ Search for all NewsItemUserReadHistoryRecord items which match the where clause. 
+  """
+  allNewsItemUserReadHistoryRecords(where: NewsItemUserReadHistoryRecordWhereInput, search: String, sortBy: [SortNewsItemUserReadHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [NewsItemUserReadHistoryRecord]
+
+  """ Search for the NewsItemUserReadHistoryRecord item with the matching ID. 
+  """
+  NewsItemUserReadHistoryRecord(where: NewsItemUserReadHistoryRecordWhereUniqueInput!): NewsItemUserReadHistoryRecord
+
+  """ Perform a meta-query on all NewsItemUserReadHistoryRecord items which match the where clause. 
+  """
+  _allNewsItemUserReadHistoryRecordsMeta(where: NewsItemUserReadHistoryRecordWhereInput, search: String, sortBy: [SortNewsItemUserReadHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the NewsItemUserReadHistoryRecord list. """
+  _NewsItemUserReadHistoryRecordsMeta: _ListMeta
+
+  """ Search for all NewsItemUserRead items which match the where clause. """
+  allNewsItemUserReads(where: NewsItemUserReadWhereInput, search: String, sortBy: [SortNewsItemUserReadsBy!], orderBy: String, first: Int, skip: Int): [NewsItemUserRead]
+
+  """ Search for the NewsItemUserRead item with the matching ID. """
+  NewsItemUserRead(where: NewsItemUserReadWhereUniqueInput!): NewsItemUserRead
+
+  """ Perform a meta-query on all NewsItemUserRead items which match the where clause. 
+  """
+  _allNewsItemUserReadsMeta(where: NewsItemUserReadWhereInput, search: String, sortBy: [SortNewsItemUserReadsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the NewsItemUserRead list. """
+  _NewsItemUserReadsMeta: _ListMeta
+
   """ Search for all WebhookHistoryRecord items which match the where clause. 
   """
   allWebhookHistoryRecords(where: WebhookHistoryRecordWhereInput, search: String, sortBy: [SortWebhookHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookHistoryRecord]
@@ -63758,6 +64142,42 @@ type Mutation {
 
   """ Delete multiple NewsItemTemplate items by ID. """
   deleteNewsItemTemplates(ids: [ID!]): [NewsItemTemplate]
+
+  """ Create a single NewsItemUserReadHistoryRecord item. """
+  createNewsItemUserReadHistoryRecord(data: NewsItemUserReadHistoryRecordCreateInput): NewsItemUserReadHistoryRecord
+
+  """ Create multiple NewsItemUserReadHistoryRecord items. """
+  createNewsItemUserReadHistoryRecords(data: [NewsItemUserReadHistoryRecordsCreateInput]): [NewsItemUserReadHistoryRecord]
+
+  """ Update a single NewsItemUserReadHistoryRecord item by ID. """
+  updateNewsItemUserReadHistoryRecord(id: ID!, data: NewsItemUserReadHistoryRecordUpdateInput): NewsItemUserReadHistoryRecord
+
+  """ Update multiple NewsItemUserReadHistoryRecord items by ID. """
+  updateNewsItemUserReadHistoryRecords(data: [NewsItemUserReadHistoryRecordsUpdateInput]): [NewsItemUserReadHistoryRecord]
+
+  """ Delete a single NewsItemUserReadHistoryRecord item by ID. """
+  deleteNewsItemUserReadHistoryRecord(id: ID!): NewsItemUserReadHistoryRecord
+
+  """ Delete multiple NewsItemUserReadHistoryRecord items by ID. """
+  deleteNewsItemUserReadHistoryRecords(ids: [ID!]): [NewsItemUserReadHistoryRecord]
+
+  """ Create a single NewsItemUserRead item. """
+  createNewsItemUserRead(data: NewsItemUserReadCreateInput): NewsItemUserRead
+
+  """ Create multiple NewsItemUserRead items. """
+  createNewsItemUserReads(data: [NewsItemUserReadsCreateInput]): [NewsItemUserRead]
+
+  """ Update a single NewsItemUserRead item by ID. """
+  updateNewsItemUserRead(id: ID!, data: NewsItemUserReadUpdateInput): NewsItemUserRead
+
+  """ Update multiple NewsItemUserRead items by ID. """
+  updateNewsItemUserReads(data: [NewsItemUserReadsUpdateInput]): [NewsItemUserRead]
+
+  """ Delete a single NewsItemUserRead item by ID. """
+  deleteNewsItemUserRead(id: ID!): NewsItemUserRead
+
+  """ Delete multiple NewsItemUserRead items by ID. """
+  deleteNewsItemUserReads(ids: [ID!]): [NewsItemUserRead]
 
   """ Create a single WebhookHistoryRecord item. """
   createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord
