@@ -6,7 +6,6 @@ const { flatten, get } = require('lodash')
  */
 function queryFindNewsItemsScopesByResidents (residents) {
     return {
-        deletedAt: null,
         OR: flatten(residents.map((resident) => {
             const organizationId = get(resident, 'organization')
             const propertyId = get(resident, 'property')
