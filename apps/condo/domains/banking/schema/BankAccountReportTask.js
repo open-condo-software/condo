@@ -27,6 +27,11 @@ const BankAccountReportTask = new GQLListSchema('BankAccountReportTask', {
             isRequired: true,
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
         },
 
         organization: ORGANIZATION_OWNED_FIELD,
@@ -42,7 +47,6 @@ const BankAccountReportTask = new GQLListSchema('BankAccountReportTask', {
         progress: {
             schemaDoc: 'Progress of current generation operation',
             type: Integer,
-            isRequired: true,
         },
 
         user: {

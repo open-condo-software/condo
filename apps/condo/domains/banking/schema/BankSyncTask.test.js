@@ -610,10 +610,6 @@ describe('BankSyncTask', () => {
             expect(obj.integrationContext.id).toEqual(bankAccount.integrationContext.id)
         }
 
-        beforeAll(async () => {
-            adminClient = await makeLoggedInAdminClient()
-        })
-
         it('creates BankAccount, BankIntegrationAccountContext, BankTransaction and BankContractorAccount records', async () => {
             const [organization] = await createTestOrganization(adminClient)
 
