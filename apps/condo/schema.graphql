@@ -54501,6 +54501,13 @@ enum NewsItemTypeType {
   emergency
 }
 
+input NewsItemScopeRelateToManyInput {
+  create: [NewsItemScopeCreateInput]
+  connect: [NewsItemScopeWhereUniqueInput]
+  disconnect: [NewsItemScopeWhereUniqueInput]
+  disconnectAll: Boolean
+}
+
 """ The news item created by the organization to show on resident's mobile devices 
 """
 type NewsItem {
@@ -54530,6 +54537,8 @@ type NewsItem {
 
   """ Date to publish the news item and to send notifications """
   sendAt: String
+  scopes(where: NewsItemScopeWhereInput, search: String, sortBy: [SortNewsItemScopesBy!], orderBy: String, first: Int, skip: Int): [NewsItemScope!]!
+  _scopesMeta(where: NewsItemScopeWhereInput, search: String, sortBy: [SortNewsItemScopesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
   id: ID!
   v: Int
   createdAt: String
@@ -54614,6 +54623,15 @@ input NewsItemWhereInput {
   sendAt_gte: String
   sendAt_in: [String]
   sendAt_not_in: [String]
+
+  """ condition must be true for all nodes """
+  scopes_every: NewsItemScopeWhereInput
+
+  """ condition must be true for at least 1 node """
+  scopes_some: NewsItemScopeWhereInput
+
+  """ condition must be false for all nodes """
+  scopes_none: NewsItemScopeWhereInput
   id: ID
   id_not: ID
   id_in: [ID]
@@ -54689,6 +54707,8 @@ enum SortNewsItemsBy {
   validBefore_DESC
   sendAt_ASC
   sendAt_DESC
+  scopes_ASC
+  scopes_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -54714,6 +54734,7 @@ input NewsItemUpdateInput {
   type: NewsItemTypeType
   validBefore: String
   sendAt: String
+  scopes: NewsItemScopeRelateToManyInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -54737,6 +54758,7 @@ input NewsItemCreateInput {
   type: NewsItemTypeType
   validBefore: String
   sendAt: String
+  scopes: NewsItemScopeRelateToManyInput
   v: Int
   createdAt: String
   updatedAt: String

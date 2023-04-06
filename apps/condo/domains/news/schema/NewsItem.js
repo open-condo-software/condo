@@ -65,6 +65,13 @@ const NewsItem = new GQLListSchema('NewsItem', {
             type: 'DateTimeUtc',
         },
 
+        scopes: {
+            type: 'Relationship',
+            ref: 'NewsItemScope.newsItem',
+            many: true,
+            access: { read: false, create: false, update: false },
+        },
+
     },
     hooks: {
         resolveInput: async (args) => {
