@@ -485,7 +485,7 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
                 {hasBankAccount && (
                     <>
                         <Col span={24}>
-                            <BankAccountReport />
+                            <BankAccountReport bankAccount={bankAccount} organizationId={link.organization.id} />
                         </Col>
                         <Col span={24}>
                             <PropertyReport bankAccount={bankAccount} propertyId={property.id} />

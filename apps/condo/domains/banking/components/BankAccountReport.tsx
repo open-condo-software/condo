@@ -1,16 +1,23 @@
+import { BankAccountReport as BankAccountReportType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Row, Col } from 'antd'
+import dayjs from 'dayjs'
 import ReactECharts from 'echarts-for-react'
 import get from 'lodash/get'
 import React, { useState, useCallback, useRef, useMemo } from 'react'
 
 import { Wallet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { Tabs, Card, Typography, Select, Option, Space } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
-import { Tabs, Card, Typography, Select, Option, Space, Button } from '@open-condo/ui'
+import type { CardProps } from '@open-condo/ui'
 
+import { BankAccountReport as BankAccountReportClient } from '@condo/domains/banking/utils/clientSchema'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
 
+import type { BankAccount as BankAccountType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 import type { EChartsOption, EChartsReactProps } from 'echarts-for-react'
 
@@ -68,6 +75,7 @@ type InfoCardProps = {
     label: string
     icon: React.ReactElement
     isSmall: boolean
+    onClick?: CardProps['onClick']
     currencyCode?: string
     valueType?: TypographyTextProps['type']
 }
@@ -80,8 +88,8 @@ const InfoCard: IInfoCard = ({ value, currencyCode = 'RUB',  ...props }) => {
     const bodyPadding = isSmall ? '' : '46px 60px'
 
     return (
-        <Card hoverable bodyPadding={bodyPadding}>
-            <Space direction='horizontal' size={40}>
+        <Card hoverable bodyPadding={bodyPadding} onClick={props.onClick}>
+            <Space direction={isSmall ? 'vertical' : 'horizontal'} size={40}>
                 {icon}
                 <Space direction='vertical' size={8}>
                     <Typography.Paragraph>{label}</Typography.Paragraph>
@@ -93,19 +101,32 @@ const InfoCard: IInfoCard = ({ value, currencyCode = 'RUB',  ...props }) => {
 }
 
 interface IBankReportContent {
-    ({ bankAccountReport, currencyCode }: { bankAccountReport: Record<string, any>, currencyCode?: string }): React.ReactElement
+    ({ bankAccountReports, currencyCode }: { bankAccountReports: Array<BankAccountReportType>, currencyCode?: string }
+    ): React.ReactElement
 }
 
-const BankAccountReportContent: IBankReportContent = ({ bankAccountReport = {}, currencyCode = 'RUB' }) => {
+enum ReportCategories {
+    'Total',
+    'Income',
+    'Withdrawal',
+}
+
+const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [], currencyCode = 'RUB' }) => {
     const intl = useIntl()
     const PropertyBalanceLabel = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportBalance.title' })
     const IncomeTitle = intl.formatMessage({ id: 'global.income' }, { isSingular: false })
     const WithdrawalTitle = intl.formatMessage({ id: 'global.withdrawal' }, { isSingular: false })
+    const ChooseReportTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.chooseReportTitle' })
+    const NoDataTitle = intl.formatMessage({ id: 'NoData' })
 
     const { isSmall, isMobile } = useLayoutContext()
 
     const [activeKey, setActiveKey] = useState(0)
+    const [selectedPeriod, setSelectedPeriod] = useState(0)
+    const [activeCategory, setActiveCategory] = useState<ReportCategories>(ReportCategories.Total)
     const chartInstance = useRef(null)
+
+    const bankAccountReport = get(bankAccountReports, selectedPeriod)
 
     const chartData = get(bankAccountReport, ['data', 'categoryGroups', activeKey, 'costItemGroups'], [])
 
@@ -143,7 +164,9 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReport = {}, 
                             .reduce((prev, cur) => prev + cur, 0)
                         const value = intl.formatNumber(totalSum, { style: 'currency', currency: currencyCode })
 
-                        return value + '\n Total sum'
+                        return value + '\n' + intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.totalSumTitle' }, {
+                            sumItem: WithdrawalTitle.toLowerCase(),
+                        })
                     },
                 },
                 labelLine: {
@@ -151,7 +174,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReport = {}, 
                 },
                 data: chartData.map(categoryInfo => ({
                     value: categoryInfo.sum,
-                    name: categoryInfo.name,
+                    name: intl.formatMessage({ id: categoryInfo.name }),
                 })),
             },
         ],
@@ -159,6 +182,9 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReport = {}, 
 
     const onChangeTabs = useCallback((key) => {
         setActiveKey(key)
+    }, [])
+    const onReportPeriodSelectChange = useCallback((periodIndex) => {
+        setSelectedPeriod(periodIndex)
     }, [])
     const onMouseOver = useCallback((item) => () => {
         chartInstance.current.setOption({ series: [{ label: { show: false } }] })
@@ -183,14 +209,32 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReport = {}, 
         },
     }), [])
 
-    const tabsItems = bankAccountReport.data.categoryGroups
-        .map((reportData, key) => ({ label: reportData.name, key }))
+    const tabsItems = get(bankAccountReport, 'data.categoryGroups', [])
+        .map((reportData, key) => ({ label: intl.formatMessage({ id: reportData.name }), key }))
+    const reportOptionItems = useMemo(() => bankAccountReports
+        .sort((a, b) => dayjs(a.period).isBefore(b.period) ? 1 : -1)
+        .map((bankAccountReport, reportIndex) => (
+            <Option
+                key={bankAccountReport.id}
+                value={reportIndex}
+            >
+                {dayjs(bankAccountReport.period).format('MMMM YYYY')}
+            </Option>
+        )), [bankAccountReports])
+
+    if (!bankAccountReport) {
+        return (
+            <BasicEmptyListView image='/dino/searching@2x.png'>
+                <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
+            </BasicEmptyListView>
+        )
+    }
 
     return (
         <Row gutter={BANK_ACCOUNT_REPORT_ROW_GUTTER}>
             <Col span={24}>
-                <Select placeholder='Выберите отчет'>
-                    <Option >Март 2022</Option>
+                <Select placeholder={ChooseReportTitle} value={selectedPeriod} onChange={onReportPeriodSelectChange}>
+                    {reportOptionItems}
                 </Select>
             </Col>
             <Col span={24}>
@@ -202,6 +246,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReport = {}, 
                             icon={<Wallet />}
                             isSmall={isSmall}
                             currencyCode={currencyCode}
+                            onClick={() => setActiveCategory(ReportCategories.Total)}
                         />
                     </Col>
                     <Col xl={8} md={12} sm={24} xs={12}>
@@ -212,6 +257,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReport = {}, 
                             valueType='danger'
                             isSmall={isSmall}
                             currencyCode={currencyCode}
+                            onClick={() => setActiveCategory(ReportCategories.Withdrawal)}
                         />
                     </Col>
                     <Col xl={8} md={12} sm={24} xs={12}>
@@ -222,6 +268,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReport = {}, 
                             valueType='success'
                             isSmall={isSmall}
                             currencyCode={currencyCode}
+                            onClick={() => setActiveCategory(ReportCategories.Income)}
                         />
                     </Col>
                 </Row>
@@ -237,9 +284,11 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReport = {}, 
                                     onMouseOver={onMouseOver(item)}
                                     onMouseLeave={onMouseLeave(item)}
                                 >
-                                    <LegendLabelItem color={index < CHART_COLOR_SET.length ? CHART_COLOR_SET[index] : CHART_COLOR_SET[index - CHART_COLOR_SET.length]}>
+                                    <LegendLabelItem
+                                        color={index < CHART_COLOR_SET.length ? CHART_COLOR_SET[index] : CHART_COLOR_SET[index - CHART_COLOR_SET.length]}
+                                    >
                                         <Typography.Text>
-                                            {item.name}
+                                            {intl.formatMessage({ id: item.name })}
                                         </Typography.Text>
                                     </LegendLabelItem>
                                     <Typography.Text>
@@ -263,54 +312,29 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReport = {}, 
     )
 }
 
-const BANK_REPORT_MOCK_DATA = {
-    amount: 1234567,
-    amountAt: new Date(),
-    totalIncome: 82312,
-    totalOutcome: 22312,
-    data: {
-        categoryGroups: [
-            {
-                id: 'categoryGroupId1',
-                name: 'First category',
-                costItemGroups: [
-                    { sum: 104, name: 'Cost Item 1 dfasdasdasda sdasdasd sdasdasdasdasd asdasdasd asdasd as ' },
-                    { sum: 735, name: 'Cost Item 2' },
-                    { sum: 580, name: 'Cost Item 3' },
-                    { sum: 484, name: 'Cost Item 4' },
-                    { sum: 300, name: 'Cost Item 6' },
-                    { sum: 300, name: 'Cost Item 7' },
-                    { sum: 300, name: 'Cost Item 8' },
-                    { sum: 300, name: 'Cost Item 9' },
-                    { sum: 300, name: 'Cost Item 10' },
-                    { sum: 300, name: 'Cost Item 11' },
-                    { sum: 300, name: 'Cost Item 12' },
-                    { sum: 300, name: 'Cost Item 13' },
-                    { sum: 300, name: 'Cost Item 14' },
-                    { sum: 300, name: 'Cost Item 15' },
-                ],
-            },
-            {
-                id: 'categoryGroupId2',
-                name: 'Second category',
-                costItemGroups: [
-                    { sum: 204, name: 'Cost Item 21' },
-                    { sum: 535, name: 'Cost Item 22' },
-                    { sum: 480, name: 'Cost Item 23' },
-                    { sum: 284, name: 'Cost Item 24' },
-                    { sum: 100, name: 'Cost Item 25' },
-                ],
-            },
-        ],
-    },
+interface IBankAccountReport {
+    ({ bankAccount, organizationId }: { bankAccount: BankAccountType, organizationId: string }): React.ReactElement
 }
 
-const BankAccountReport = () => {
+const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId }) => {
+    const { objs: bankAccountReports, loading } = BankAccountReportClient.useObjects({
+        where: {
+            account: { id: bankAccount.id },
+            organization: { id: organizationId },
+        },
+    })
+
+    if (loading) {
+        return <Loader />
+    }
 
     return (
         <Row>
             <Col span={24}>
-                <BankAccountReportContent bankAccountReport={BANK_REPORT_MOCK_DATA} />
+                <BankAccountReportContent
+                    bankAccountReports={bankAccountReports}
+                    currencyCode={bankAccount.currencyCode}
+                />
             </Col>
         </Row>
     )
