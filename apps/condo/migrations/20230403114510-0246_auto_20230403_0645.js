@@ -6,7 +6,7 @@ exports.up = async (knex) => {
         BEGIN;
         
         --
-        -- [CUSTOM] Ticket/incident classifiers changing
+        -- [CUSTOM] (This is an irreversible migration!) Ticket/incident classifiers changing
         --
         
         --
@@ -20,7 +20,8 @@ exports.up = async (knex) => {
         --
         
         INSERT INTO public."TicketProblemClassifier" ("id", "name", "organization","createdBy", "updatedBy", "dv", "sender", "v", "createdAt", "updatedAt", "deletedAt", "newId")
-            VALUES ('977b657e-2599-4d1b-8003-b0595998efe0', 'Ремонт в помещении', null, null, null, 1, '{"dv": 1, "fingerprint": "initial_import"}', 1, '2023-03-23 00:00:00.000000', '2023-03-23 00:00:00.000000', null, null);
+            VALUES ('977b657e-2599-4d1b-8003-b0595998efe0', 'Ремонт в помещении', null, null, null, 1, '{"dv": 1, "fingerprint": "initial_import"}', 1, '2023-03-23 00:00:00.000000', '2023-03-23 00:00:00.000000', null, null)
+            ON CONFLICT (id) DO NOTHING;
         
         --
         -- 2 - Update TicketClassifier's
@@ -439,6 +440,11 @@ exports.up = async (knex) => {
 exports.down = async (knex) => {
     await knex.raw(`
         BEGIN;
+        
+        --
+        -- This is an irreversible migration!
+        --
+        
         COMMIT;
     `)
 }
