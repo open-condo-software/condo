@@ -14,6 +14,10 @@ export default defineConfig({
             // eslint-disable-next-line import/order
             return require('./plugins/index.js')(on, config)
         },
+        env: {
+            supportPassword: conf['CYPRESS_SERVER_SUPPORT_PASSWORD'],
+            supportEmail: conf['CYPRESS_SERVER_SUPPORT_EMAIL'],
+        },
         requestTimeout: 10000,
         pageLoadTimeout: 10000,
         numTestsKeptInMemory: 0,
