@@ -149,7 +149,7 @@ class AdapterCache {
     dropCacheByList (listName) {
         this.cache.forEach((cachedItem, key) => {
             if (get(cachedItem, 'listName') === listName) {
-                this.cache.del(key)
+                this.cache.delete(key)
                 this.totalDropsOnListChange++
             }
         })
