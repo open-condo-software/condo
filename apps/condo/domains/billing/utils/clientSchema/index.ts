@@ -6,7 +6,7 @@
 export * as BillingIntegration from './BillingIntegration'
 export * as BillingIntegrationAccessRight from './BillingIntegrationAccessRight'
 export * as BillingIntegrationOrganizationContext from './BillingIntegrationOrganizationContext'
-export * as BillingIntegrationLog from './BillingIntegrationLog'
+export * as BillingIntegrationProblem from './BillingIntegrationProblem'
 export * as BillingProperty from './BillingProperty'
 export * as BillingAccount from './BillingAccount'
 export * as BillingMeterResource from './BillingMeterResource'
