@@ -41,11 +41,12 @@ const setupPostgresStats = async (url) => {
 }
 
 const runCypressLoadTests = async () => {
-    const [,,instances] = process.argv
+    const [,,instances, condoUrl] = process.argv
+
     const { DATABASE_URL } = process.env
 
     let postgresStats = await setupPostgresStats(DATABASE_URL)
-    await runCypressInParallel(parseInt(instances))
+    await runCypressInParallel(parseInt(instances), condoUrl)
 
     postgresStats = null
 }

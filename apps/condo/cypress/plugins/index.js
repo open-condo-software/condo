@@ -23,8 +23,16 @@ let userObject = {}
 let supportObject = {}
 
 module.exports = async (on, config) => {
+    
+    const supportEmail = config.env.supportEmail
+    const supportPassword = config.env.supportPassword
+    if (!supportEmail || !supportPassword) {
+        throw new Error('Please provide cypress with support credentials for correct user creation')
+    }
 
-    const admin = await makeLoggedInAdminClient()
+    //const admin = await makeLoggedInAdminClient()
+
+    const supportClient = await makeLoggedInClient({ email: supportEmail, password: supportPassword })
 
     on('task', {
         async 'metrics:log' ([name, value]) {
@@ -33,13 +41,13 @@ module.exports = async (on, config) => {
             return null
         },
         async 'keystone:createUser' () {
-            return await createTestUser(admin)
+            return await createTestUser(supportClient)
         },
         async 'keystone:createForgotPasswordAction' (user) {
-            return await createTestForgotPasswordAction(admin, user)
+            //    return await createTestForgotPasswordAction(admin, user)
         },
         async 'keystone:getConfirmPhoneAction' (phone) {
-            return await ConfirmPhoneAction.getAll(admin, { phone })
+            //return await ConfirmPhoneAction.getAll(admin, { phone })
         },
         async 'keystone:createUserWithProperty' (forceCreate = false) {
             if (forceCreate || isEmpty(userObject)) {
@@ -90,9 +98,9 @@ module.exports = async (on, config) => {
                     user: { id: client.userAttrs.id }, isRejected: false, isBlocked: false,
                 })
 
-                await updateTestUser(admin, organizationLink.user.id, {
-                    isSupport: true,
-                })
+                //await updateTestUser(admin, organizationLink.user.id, {
+                //    isSupport: true,
+                //})
 
                 const user = Object.assign({}, client.userAttrs)
                 supportObject = Object.assign({}, {
