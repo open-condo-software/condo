@@ -2,6 +2,8 @@ import {
     QualityControlAdditionalOptionsType,
     TicketChange as ITicketChange,
     TicketQualityControlValueType,
+    FeedbackAdditionalOptionsType,
+    TicketFeedbackValueType,
 } from '@app/condo/schema'
 import { Typography } from 'antd'
 import { BaseType } from 'antd/lib/typography/Base'
@@ -16,15 +18,11 @@ import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { SafeUserMention } from '@condo/domains/common/components/ChangeHistory/SafeUserMention'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
+import { convertQualityControlOrFeedbackOptionsToText } from '@condo/domains/ticket/utils'
 import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
-import {
-    getReviewMessageByValue,
-} from '@condo/domains/ticket/utils/clientSchema/Ticket'
-import { convertQualityControlOptionsToText } from '@condo/domains/ticket/utils/qualityControl'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
 
@@ -128,6 +126,9 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.source' })
     const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident' })
     const DeclineTicketByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.declineTicketByResident.status' })
+    const FeedbackValueMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.feedbackValue' })
+    const FeedbackCommentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.feedbackComment' })
+    const FeedbackAdditionalOptionsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.feedbackAdditionalOptions' })
     const QualityControlValueMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.qualityControlValue' })
     const QualityControlCommentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.qualityControlComment' })
     const QualityControlAdditionalOptionsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.qualityControlAdditionalOptions' })
@@ -136,15 +137,22 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
     const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsWarrantyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
 
-    const FilledReviewCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.filled' })
-    const BadReviewEmptyCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.empty.badReview' })
-    const GoodReviewEmptyCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.empty.goodReview' })
+    const FeedbackBadMessage = intl.formatMessage({ id: 'ticket.feedback.bad' })
+    const FeedbackGoodMessage = intl.formatMessage({ id: 'ticket.feedback.good' })
+    const FeedbackLowQualityMessage = intl.formatMessage({ id: 'ticket.feedback.options.lowQuality' })
+    const FeedbackSlowlyMessage = intl.formatMessage({ id: 'ticket.feedback.options.slowly' })
+    const FeedbackHighQualityMessage = intl.formatMessage({ id: 'ticket.feedback.options.highQuality' })
+    const FeedbackQuicklyMessage = intl.formatMessage({ id: 'ticket.feedback.options.quickly' })
+
+    const feedbackAdditionalOptionsMessages = useMemo(() => ({
+        [FeedbackAdditionalOptionsType.LowQuality]: FeedbackLowQualityMessage.toLowerCase(),
+        [FeedbackAdditionalOptionsType.Slowly]: FeedbackSlowlyMessage.toLowerCase(),
+        [FeedbackAdditionalOptionsType.HighQuality]: FeedbackHighQualityMessage.toLowerCase(),
+        [FeedbackAdditionalOptionsType.Quickly]: FeedbackQuicklyMessage.toLowerCase(),
+    }), [FeedbackHighQualityMessage, FeedbackLowQualityMessage, FeedbackQuicklyMessage, FeedbackSlowlyMessage])
 
     const BadMessage = intl.formatMessage({ id: 'ticket.qualityControl.bad' })
     const GoodMessage = intl.formatMessage({ id: 'ticket.qualityControl.good' })
-
-    const AndMessage = intl.formatMessage(( { id: 'And' }))
-
     const LowQualityMessage = intl.formatMessage({ id: 'ticket.qualityControl.options.lowQuality' })
     const SlowlyMessage = intl.formatMessage({ id: 'ticket.qualityControl.options.slowly' })
     const HighQualityMessage = intl.formatMessage({ id: 'ticket.qualityControl.options.highQuality' })
@@ -175,8 +183,10 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
         ['deadline', DeadlineMessage],
         ['deferredUntil', DeferredUntilMessage],
         ['statusReopenedCounter', '', { change: 'pages.condo.ticket.TicketChanges.statusReopenedCounter.change' }],
-        ['reviewValue', '', { add: 'pages.condo.ticket.TicketChanges.reviewValue.add', change: 'pages.condo.ticket.TicketChanges.reviewValue.add' }],
         ['sourceDisplayName', SourceMessage],
+        ['feedbackValue', FeedbackValueMessage],
+        ['feedbackAdditionalOptions', FeedbackAdditionalOptionsMessage], // NOTE: may display options that are not available in the CRM, but are available in the API
+        ['feedbackComment', FeedbackCommentMessage],
         ['qualityControlValue', QualityControlValueMessage],
         ['qualityControlAdditionalOptions', QualityControlAdditionalOptionsMessage], // NOTE: may display options that are not available in the CRM, but are available in the API
         ['qualityControlComment', QualityControlCommentMessage, { add: 'pages.condo.ticket.TicketChanges.qualityControlComment.add' }],
@@ -260,33 +270,6 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
             classifierDisplayName: (field, value) => {
                 return <Typography.Text>«{value}»</Typography.Text>
             },
-            reviewValue: (field, value) => {
-                const textTypeByReview: { [key: string]: BaseType } = {
-                    [REVIEW_VALUES.BAD]: 'warning',
-                    [REVIEW_VALUES.GOOD]: 'success',
-                }
-                const reviewValueMessage = getReviewMessageByValue(value, intl)
-                const reviewComment = ticketChange['reviewCommentTo']
-                let reviewCommentMessage
-
-                if (reviewComment) {
-                    const selectedReviewOptions = reviewComment.split(';').map(option => `«${option.trim()}»`).join(` ${AndMessage} `)
-                    reviewCommentMessage = `${FilledReviewCommentMessage} ${selectedReviewOptions}`
-                } else {
-                    if (value === REVIEW_VALUES.BAD) {
-                        reviewCommentMessage = BadReviewEmptyCommentMessage
-                    } else if (value === REVIEW_VALUES.GOOD) {
-                        reviewCommentMessage = GoodReviewEmptyCommentMessage
-                    }
-                }
-
-                return (
-                    <Typography.Paragraph>
-                        «<Typography.Text type={textTypeByReview[value]}>{reviewValueMessage}</Typography.Text>».&nbsp;
-                        {reviewCommentMessage}
-                    </Typography.Paragraph>
-                )
-            },
             sourceDisplayName: (field, value) => {
                 return <Typography.Text>«{value}»</Typography.Text>
             },
@@ -294,6 +277,25 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
             isPaid: (field, value) => formatTicketFlag(value, 'paid'),
             isWarranty: (field, value) => formatTicketFlag(value, 'warranty'),
             clientName: (field, value, type: TicketChangeFieldMessageType) => addLink(ticketChange, 'contactId', value,  type,  '/contact/{id}'),
+            feedbackValue: (field, value) => {
+                const isBad = value === TicketFeedbackValueType.Bad
+
+                const message = isBad ? FeedbackBadMessage : FeedbackGoodMessage
+                const textType: BaseType = isBad ? 'danger' : 'success'
+
+                return (
+                    <Typography.Text>
+                        «<Typography.Text type={textType}>{message}</Typography.Text>»
+                    </Typography.Text>
+                )
+            },
+            feedbackAdditionalOptions: (field, value) => {
+                const formattedValue = convertQualityControlOrFeedbackOptionsToText(value, feedbackAdditionalOptionsMessages)
+                return (
+                    <Typography.Text>«<Typography.Text type='secondary'>{formattedValue}</Typography.Text>»</Typography.Text>
+                )
+            },
+            feedbackComment: (field, value) => <Typography.Text>«<Typography.Text type='secondary'>{value}</Typography.Text>»</Typography.Text>,
             qualityControlValue: (field, value) => {
                 const isBad = value === TicketQualityControlValueType.Bad
                 const message = isBad ? BadMessage : GoodMessage
@@ -305,13 +307,13 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
                     </Typography.Text>
                 )
             },
-            qualityControlComment: (field, value) => <Typography.Text>«<Typography.Text type='secondary'>{value}</Typography.Text>»</Typography.Text>,
             qualityControlAdditionalOptions: (field, value) => {
-                const formattedValue = convertQualityControlOptionsToText(value, optionsMessages)
+                const formattedValue = convertQualityControlOrFeedbackOptionsToText(value, optionsMessages)
                 return (
                     <Typography.Text>«<Typography.Text type='secondary'>{formattedValue}</Typography.Text>»</Typography.Text>
                 )
             },
+            qualityControlComment: (field, value) => <Typography.Text>«<Typography.Text type='secondary'>{value}</Typography.Text>»</Typography.Text>,
         }
 
         return has(formatterFor, field)
@@ -460,7 +462,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
 
     // If we have several changed fields in one changedField object and should display one message.
     // For example, when returning an ticket by a resident, only the message 'statusReopenedCounter' should be displayed,
-    // and 3 fields are changed: 'statusReopenedCounter', 'statusDisplayName' and 'reviewValue'
+    // and 3 fields are changed: 'statusReopenedCounter', 'statusDisplayName' and 'feedbackValue'
     const priorityFields = ['statusReopenedCounter']
     const priorityField = priorityFields.find(priorityField => changedFields.find(([field]) => field === priorityField))
     if (priorityField) {
@@ -468,10 +470,8 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
     }
 
     return changedFields
-        .map(([field, message, changeMessage]) => {
-            return {
-                field,
-                message: formatDiffMessage(field, message, ticketChange, changeMessage),
-            }
-        })
+        .map(([field, message, changeMessage]) => ({
+            field,
+            message: formatDiffMessage(field, message, ticketChange, changeMessage),
+        }))
 }

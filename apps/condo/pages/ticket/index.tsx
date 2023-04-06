@@ -387,7 +387,8 @@ const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property',
 const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
 const ATTRIBUTE_NAMES_To_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPaid']
 const CHECKBOX_WRAPPER_GUTTERS: [Gutter, Gutter] = [8, 16]
-const DETAILED_LOGGING = ['status', 'source', 'attributes', 'reviewValue', 'unitType', 'contactIsNull']
+// todo(doma-5776): update amplitude
+const DETAILED_LOGGING = ['status', 'source', 'attributes', 'feedbackValue', 'qualityControlValue', 'unitType', 'contactIsNull']
 
 const SMALL_HORIZONTAL_GUTTER: [Gutter, Gutter] = [10, 0]
 const TICKET_STATUS_FILTER_CONTAINER_ROW_STYLES: CSSProperties = { flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: '20px' }

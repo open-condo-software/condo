@@ -19290,6 +19290,13 @@ export type FeeDistributionFieldInput = {
   category?: Maybe<Scalars['String']>;
 };
 
+export enum FeedbackAdditionalOptionsType {
+  LowQuality = 'lowQuality',
+  HighQuality = 'highQuality',
+  Slowly = 'slowly',
+  Quickly = 'quickly'
+}
+
 export type File = {
   __typename?: 'File';
   id?: Maybe<Scalars['ID']>;
@@ -63756,6 +63763,14 @@ export enum SortTicketChangesBy {
   ReviewCommentFromDesc = 'reviewCommentFrom_DESC',
   ReviewCommentToAsc = 'reviewCommentTo_ASC',
   ReviewCommentToDesc = 'reviewCommentTo_DESC',
+  FeedbackValueFromAsc = 'feedbackValueFrom_ASC',
+  FeedbackValueFromDesc = 'feedbackValueFrom_DESC',
+  FeedbackValueToAsc = 'feedbackValueTo_ASC',
+  FeedbackValueToDesc = 'feedbackValueTo_DESC',
+  FeedbackCommentFromAsc = 'feedbackCommentFrom_ASC',
+  FeedbackCommentFromDesc = 'feedbackCommentFrom_DESC',
+  FeedbackCommentToAsc = 'feedbackCommentTo_ASC',
+  FeedbackCommentToDesc = 'feedbackCommentTo_DESC',
   QualityControlValueFromAsc = 'qualityControlValueFrom_ASC',
   QualityControlValueFromDesc = 'qualityControlValueFrom_DESC',
   QualityControlValueToAsc = 'qualityControlValueTo_ASC',
@@ -64279,6 +64294,12 @@ export enum SortTicketHistoryRecordsBy {
   ReviewValueDesc = 'reviewValue_DESC',
   ReviewCommentAsc = 'reviewComment_ASC',
   ReviewCommentDesc = 'reviewComment_DESC',
+  FeedbackValueAsc = 'feedbackValue_ASC',
+  FeedbackValueDesc = 'feedbackValue_DESC',
+  FeedbackCommentAsc = 'feedbackComment_ASC',
+  FeedbackCommentDesc = 'feedbackComment_DESC',
+  FeedbackUpdatedAtAsc = 'feedbackUpdatedAt_ASC',
+  FeedbackUpdatedAtDesc = 'feedbackUpdatedAt_DESC',
   QualityControlValueAsc = 'qualityControlValue_ASC',
   QualityControlValueDesc = 'qualityControlValue_DESC',
   QualityControlCommentAsc = 'qualityControlComment_ASC',
@@ -64684,6 +64705,12 @@ export enum SortTicketsBy {
   ReviewValueDesc = 'reviewValue_DESC',
   ReviewCommentAsc = 'reviewComment_ASC',
   ReviewCommentDesc = 'reviewComment_DESC',
+  FeedbackValueAsc = 'feedbackValue_ASC',
+  FeedbackValueDesc = 'feedbackValue_DESC',
+  FeedbackCommentAsc = 'feedbackComment_ASC',
+  FeedbackCommentDesc = 'feedbackComment_DESC',
+  FeedbackUpdatedAtAsc = 'feedbackUpdatedAt_ASC',
+  FeedbackUpdatedAtDesc = 'feedbackUpdatedAt_DESC',
   QualityControlValueAsc = 'qualityControlValue_ASC',
   QualityControlValueDesc = 'qualityControlValue_DESC',
   QualityControlCommentAsc = 'qualityControlComment_ASC',
@@ -65179,15 +65206,23 @@ export type Ticket = {
   organization?: Maybe<Organization>;
   /**  Counter showing the number of changes `status` to `new_or_reopened`  */
   statusReopenedCounter?: Maybe<Scalars['Int']>;
-  /**  Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review  */
+  /**  @deprecated - use "feedbackValue". This field will be removed soon. Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review  */
   reviewValue?: Maybe<TicketReviewValueType>;
-  /**  Resident's comment on ticket review  */
+  /**  @deprecated - use "feedbackAdditionalOptions" and "feedbackComment". This field will be removed soon. Resident's comment on ticket review  */
   reviewComment?: Maybe<Scalars['String']>;
+  /**  Feedback of the ticket by a resident on a 2-point scale (0 – ticket returned, 1 – bad review, 2 – good review)  */
+  feedbackValue?: Maybe<TicketFeedbackValueType>;
+  /**  Staff's comment on ticket feedback  */
+  feedbackComment?: Maybe<Scalars['String']>;
+  /**  Feedback additional options that extend it.Duplicates are removed and empty arrays are converted to null.  */
+  feedbackAdditionalOptions?: Maybe<Array<Maybe<FeedbackAdditionalOptionsType>>>;
+  /**  Feedback update time  */
+  feedbackUpdatedAt?: Maybe<Scalars['String']>;
   /**  Review of the ticket by a staff on a 2-point scale (bad or good)  */
   qualityControlValue?: Maybe<TicketQualityControlValueType>;
   /**  Staff's comment on ticket review  */
   qualityControlComment?: Maybe<Scalars['String']>;
-  /**  Quality control additional options that extend it.Options that do not match the score will be reset.  */
+  /**  Quality control additional options that extend it.Duplicates are removed and empty arrays are converted to null.  */
   qualityControlAdditionalOptions?: Maybe<Array<Maybe<QualityControlAdditionalOptionsType>>>;
   /**  Quality control updated at time  */
   qualityControlUpdatedAt?: Maybe<Scalars['String']>;
@@ -65679,14 +65714,26 @@ export type TicketChange = {
   statusReopenedCounterFrom?: Maybe<Scalars['Int']>;
   /**  Counter showing the number of changes `status` to `new_or_reopened`  */
   statusReopenedCounterTo?: Maybe<Scalars['Int']>;
-  /**  Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review  */
+  /**  @deprecated - use "feedbackValue". This field will be removed soon. Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review  */
   reviewValueFrom?: Maybe<TicketChangeReviewValueFromType>;
-  /**  Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review  */
+  /**  @deprecated - use "feedbackValue". This field will be removed soon. Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review  */
   reviewValueTo?: Maybe<TicketChangeReviewValueToType>;
-  /**  Resident's comment on ticket review  */
+  /**  @deprecated - use "feedbackAdditionalOptions" and "feedbackComment". This field will be removed soon. Resident's comment on ticket review  */
   reviewCommentFrom?: Maybe<Scalars['String']>;
-  /**  Resident's comment on ticket review  */
+  /**  @deprecated - use "feedbackAdditionalOptions" and "feedbackComment". This field will be removed soon. Resident's comment on ticket review  */
   reviewCommentTo?: Maybe<Scalars['String']>;
+  /**  Feedback of the ticket by a resident on a 2-point scale (0 – ticket returned, 1 – bad review, 2 – good review)  */
+  feedbackValueFrom?: Maybe<TicketChangeFeedbackValueFromType>;
+  /**  Feedback of the ticket by a resident on a 2-point scale (0 – ticket returned, 1 – bad review, 2 – good review)  */
+  feedbackValueTo?: Maybe<TicketChangeFeedbackValueToType>;
+  /**  Staff's comment on ticket feedback  */
+  feedbackCommentFrom?: Maybe<Scalars['String']>;
+  /**  Staff's comment on ticket feedback  */
+  feedbackCommentTo?: Maybe<Scalars['String']>;
+  /**  Feedback additional options that extend it.Duplicates are removed and empty arrays are converted to null.  */
+  feedbackAdditionalOptionsFrom?: Maybe<Scalars['JSON']>;
+  /**  Feedback additional options that extend it.Duplicates are removed and empty arrays are converted to null.  */
+  feedbackAdditionalOptionsTo?: Maybe<Scalars['JSON']>;
   /**  Review of the ticket by a staff on a 2-point scale (bad or good)  */
   qualityControlValueFrom?: Maybe<TicketChangeQualityControlValueFromType>;
   /**  Review of the ticket by a staff on a 2-point scale (bad or good)  */
@@ -65695,9 +65742,9 @@ export type TicketChange = {
   qualityControlCommentFrom?: Maybe<Scalars['String']>;
   /**  Staff's comment on ticket review  */
   qualityControlCommentTo?: Maybe<Scalars['String']>;
-  /**  Quality control additional options that extend it.Options that do not match the score will be reset.  */
+  /**  Quality control additional options that extend it.Duplicates are removed and empty arrays are converted to null.  */
   qualityControlAdditionalOptionsFrom?: Maybe<Scalars['JSON']>;
-  /**  Quality control additional options that extend it.Options that do not match the score will be reset.  */
+  /**  Quality control additional options that extend it.Duplicates are removed and empty arrays are converted to null.  */
   qualityControlAdditionalOptionsTo?: Maybe<Scalars['JSON']>;
   /**  Text reason for status changes. Sometimes you should describe the reason why you change the `status`  */
   statusReasonFrom?: Maybe<Scalars['String']>;
@@ -65891,6 +65938,12 @@ export type TicketChangeCreateInput = {
   reviewValueTo?: Maybe<TicketChangeReviewValueToType>;
   reviewCommentFrom?: Maybe<Scalars['String']>;
   reviewCommentTo?: Maybe<Scalars['String']>;
+  feedbackValueFrom?: Maybe<TicketChangeFeedbackValueFromType>;
+  feedbackValueTo?: Maybe<TicketChangeFeedbackValueToType>;
+  feedbackCommentFrom?: Maybe<Scalars['String']>;
+  feedbackCommentTo?: Maybe<Scalars['String']>;
+  feedbackAdditionalOptionsFrom?: Maybe<Scalars['JSON']>;
+  feedbackAdditionalOptionsTo?: Maybe<Scalars['JSON']>;
   qualityControlValueFrom?: Maybe<TicketChangeQualityControlValueFromType>;
   qualityControlValueTo?: Maybe<TicketChangeQualityControlValueToType>;
   qualityControlCommentFrom?: Maybe<Scalars['String']>;
@@ -65988,6 +66041,18 @@ export type TicketChangeCreateInput = {
   sender?: Maybe<SenderFieldInput>;
 };
 
+export enum TicketChangeFeedbackValueFromType {
+  Bad = 'bad',
+  Good = 'good',
+  Returned = 'returned'
+}
+
+export enum TicketChangeFeedbackValueToType {
+  Bad = 'bad',
+  Good = 'good',
+  Returned = 'returned'
+}
+
 export enum TicketChangeQualityControlValueFromType {
   Bad = 'bad',
   Good = 'good'
@@ -66018,6 +66083,12 @@ export type TicketChangeUpdateInput = {
   reviewValueTo?: Maybe<TicketChangeReviewValueToType>;
   reviewCommentFrom?: Maybe<Scalars['String']>;
   reviewCommentTo?: Maybe<Scalars['String']>;
+  feedbackValueFrom?: Maybe<TicketChangeFeedbackValueFromType>;
+  feedbackValueTo?: Maybe<TicketChangeFeedbackValueToType>;
+  feedbackCommentFrom?: Maybe<Scalars['String']>;
+  feedbackCommentTo?: Maybe<Scalars['String']>;
+  feedbackAdditionalOptionsFrom?: Maybe<Scalars['JSON']>;
+  feedbackAdditionalOptionsTo?: Maybe<Scalars['JSON']>;
   qualityControlValueFrom?: Maybe<TicketChangeQualityControlValueFromType>;
   qualityControlValueTo?: Maybe<TicketChangeQualityControlValueToType>;
   qualityControlCommentFrom?: Maybe<Scalars['String']>;
@@ -66180,6 +66251,58 @@ export type TicketChangeWhereInput = {
   reviewCommentTo_not_ends_with_i?: Maybe<Scalars['String']>;
   reviewCommentTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   reviewCommentTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackValueFrom?: Maybe<TicketChangeFeedbackValueFromType>;
+  feedbackValueFrom_not?: Maybe<TicketChangeFeedbackValueFromType>;
+  feedbackValueFrom_in?: Maybe<Array<Maybe<TicketChangeFeedbackValueFromType>>>;
+  feedbackValueFrom_not_in?: Maybe<Array<Maybe<TicketChangeFeedbackValueFromType>>>;
+  feedbackValueTo?: Maybe<TicketChangeFeedbackValueToType>;
+  feedbackValueTo_not?: Maybe<TicketChangeFeedbackValueToType>;
+  feedbackValueTo_in?: Maybe<Array<Maybe<TicketChangeFeedbackValueToType>>>;
+  feedbackValueTo_not_in?: Maybe<Array<Maybe<TicketChangeFeedbackValueToType>>>;
+  feedbackCommentFrom?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_not?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_contains?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_not_contains?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_starts_with?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_not_starts_with?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_ends_with?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_not_ends_with?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_i?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_not_i?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_contains_i?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_not_contains_i?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_starts_with_i?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_not_starts_with_i?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_ends_with_i?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_not_ends_with_i?: Maybe<Scalars['String']>;
+  feedbackCommentFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackCommentFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackCommentTo?: Maybe<Scalars['String']>;
+  feedbackCommentTo_not?: Maybe<Scalars['String']>;
+  feedbackCommentTo_contains?: Maybe<Scalars['String']>;
+  feedbackCommentTo_not_contains?: Maybe<Scalars['String']>;
+  feedbackCommentTo_starts_with?: Maybe<Scalars['String']>;
+  feedbackCommentTo_not_starts_with?: Maybe<Scalars['String']>;
+  feedbackCommentTo_ends_with?: Maybe<Scalars['String']>;
+  feedbackCommentTo_not_ends_with?: Maybe<Scalars['String']>;
+  feedbackCommentTo_i?: Maybe<Scalars['String']>;
+  feedbackCommentTo_not_i?: Maybe<Scalars['String']>;
+  feedbackCommentTo_contains_i?: Maybe<Scalars['String']>;
+  feedbackCommentTo_not_contains_i?: Maybe<Scalars['String']>;
+  feedbackCommentTo_starts_with_i?: Maybe<Scalars['String']>;
+  feedbackCommentTo_not_starts_with_i?: Maybe<Scalars['String']>;
+  feedbackCommentTo_ends_with_i?: Maybe<Scalars['String']>;
+  feedbackCommentTo_not_ends_with_i?: Maybe<Scalars['String']>;
+  feedbackCommentTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackCommentTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackAdditionalOptionsFrom?: Maybe<Scalars['JSON']>;
+  feedbackAdditionalOptionsFrom_not?: Maybe<Scalars['JSON']>;
+  feedbackAdditionalOptionsFrom_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  feedbackAdditionalOptionsFrom_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  feedbackAdditionalOptionsTo?: Maybe<Scalars['JSON']>;
+  feedbackAdditionalOptionsTo_not?: Maybe<Scalars['JSON']>;
+  feedbackAdditionalOptionsTo_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  feedbackAdditionalOptionsTo_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   qualityControlValueFrom?: Maybe<TicketChangeQualityControlValueFromType>;
   qualityControlValueFrom_not?: Maybe<TicketChangeQualityControlValueFromType>;
   qualityControlValueFrom_in?: Maybe<Array<Maybe<TicketChangeQualityControlValueFromType>>>;
@@ -68566,6 +68689,10 @@ export type TicketCreateInput = {
   statusReopenedCounter?: Maybe<Scalars['Int']>;
   reviewValue?: Maybe<TicketReviewValueType>;
   reviewComment?: Maybe<Scalars['String']>;
+  feedbackValue?: Maybe<TicketFeedbackValueType>;
+  feedbackComment?: Maybe<Scalars['String']>;
+  feedbackAdditionalOptions?: Maybe<Array<Maybe<FeedbackAdditionalOptionsType>>>;
+  feedbackUpdatedAt?: Maybe<Scalars['String']>;
   qualityControlValue?: Maybe<TicketQualityControlValueType>;
   qualityControlComment?: Maybe<Scalars['String']>;
   qualityControlAdditionalOptions?: Maybe<Array<Maybe<QualityControlAdditionalOptionsType>>>;
@@ -69210,6 +69337,12 @@ export type TicketExportTasksUpdateInput = {
   data?: Maybe<TicketExportTaskUpdateInput>;
 };
 
+export enum TicketFeedbackValueType {
+  Bad = 'bad',
+  Good = 'good',
+  Returned = 'returned'
+}
+
 /**  File attached to the ticket  */
 export type TicketFile = {
   __typename?: 'TicketFile';
@@ -69560,6 +69693,7 @@ export type TicketFilter = {
   clientPhone?: Maybe<Array<Maybe<Scalars['String']>>>;
   createdBy?: Maybe<Array<Maybe<Scalars['String']>>>;
   reviewValue?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackValue?: Maybe<Array<Maybe<Scalars['String']>>>;
   qualityControlValue?: Maybe<Array<Maybe<Scalars['String']>>>;
   contactIsNull?: Maybe<Array<Maybe<Scalars['String']>>>;
   completedAt?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -69945,6 +70079,10 @@ export type TicketHistoryRecord = {
   statusReopenedCounter?: Maybe<Scalars['Int']>;
   reviewValue?: Maybe<Scalars['String']>;
   reviewComment?: Maybe<Scalars['String']>;
+  feedbackValue?: Maybe<Scalars['String']>;
+  feedbackComment?: Maybe<Scalars['String']>;
+  feedbackAdditionalOptions?: Maybe<Scalars['JSON']>;
+  feedbackUpdatedAt?: Maybe<Scalars['String']>;
   qualityControlValue?: Maybe<Scalars['String']>;
   qualityControlComment?: Maybe<Scalars['String']>;
   qualityControlAdditionalOptions?: Maybe<Scalars['JSON']>;
@@ -70010,6 +70148,10 @@ export type TicketHistoryRecordCreateInput = {
   statusReopenedCounter?: Maybe<Scalars['Int']>;
   reviewValue?: Maybe<Scalars['String']>;
   reviewComment?: Maybe<Scalars['String']>;
+  feedbackValue?: Maybe<Scalars['String']>;
+  feedbackComment?: Maybe<Scalars['String']>;
+  feedbackAdditionalOptions?: Maybe<Scalars['JSON']>;
+  feedbackUpdatedAt?: Maybe<Scalars['String']>;
   qualityControlValue?: Maybe<Scalars['String']>;
   qualityControlComment?: Maybe<Scalars['String']>;
   qualityControlAdditionalOptions?: Maybe<Scalars['JSON']>;
@@ -70080,6 +70222,10 @@ export type TicketHistoryRecordUpdateInput = {
   statusReopenedCounter?: Maybe<Scalars['Int']>;
   reviewValue?: Maybe<Scalars['String']>;
   reviewComment?: Maybe<Scalars['String']>;
+  feedbackValue?: Maybe<Scalars['String']>;
+  feedbackComment?: Maybe<Scalars['String']>;
+  feedbackAdditionalOptions?: Maybe<Scalars['JSON']>;
+  feedbackUpdatedAt?: Maybe<Scalars['String']>;
   qualityControlValue?: Maybe<Scalars['String']>;
   qualityControlComment?: Maybe<Scalars['String']>;
   qualityControlAdditionalOptions?: Maybe<Scalars['JSON']>;
@@ -70190,6 +70336,54 @@ export type TicketHistoryRecordWhereInput = {
   reviewComment_not_ends_with_i?: Maybe<Scalars['String']>;
   reviewComment_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   reviewComment_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackValue?: Maybe<Scalars['String']>;
+  feedbackValue_not?: Maybe<Scalars['String']>;
+  feedbackValue_contains?: Maybe<Scalars['String']>;
+  feedbackValue_not_contains?: Maybe<Scalars['String']>;
+  feedbackValue_starts_with?: Maybe<Scalars['String']>;
+  feedbackValue_not_starts_with?: Maybe<Scalars['String']>;
+  feedbackValue_ends_with?: Maybe<Scalars['String']>;
+  feedbackValue_not_ends_with?: Maybe<Scalars['String']>;
+  feedbackValue_i?: Maybe<Scalars['String']>;
+  feedbackValue_not_i?: Maybe<Scalars['String']>;
+  feedbackValue_contains_i?: Maybe<Scalars['String']>;
+  feedbackValue_not_contains_i?: Maybe<Scalars['String']>;
+  feedbackValue_starts_with_i?: Maybe<Scalars['String']>;
+  feedbackValue_not_starts_with_i?: Maybe<Scalars['String']>;
+  feedbackValue_ends_with_i?: Maybe<Scalars['String']>;
+  feedbackValue_not_ends_with_i?: Maybe<Scalars['String']>;
+  feedbackValue_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackValue_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackComment?: Maybe<Scalars['String']>;
+  feedbackComment_not?: Maybe<Scalars['String']>;
+  feedbackComment_contains?: Maybe<Scalars['String']>;
+  feedbackComment_not_contains?: Maybe<Scalars['String']>;
+  feedbackComment_starts_with?: Maybe<Scalars['String']>;
+  feedbackComment_not_starts_with?: Maybe<Scalars['String']>;
+  feedbackComment_ends_with?: Maybe<Scalars['String']>;
+  feedbackComment_not_ends_with?: Maybe<Scalars['String']>;
+  feedbackComment_i?: Maybe<Scalars['String']>;
+  feedbackComment_not_i?: Maybe<Scalars['String']>;
+  feedbackComment_contains_i?: Maybe<Scalars['String']>;
+  feedbackComment_not_contains_i?: Maybe<Scalars['String']>;
+  feedbackComment_starts_with_i?: Maybe<Scalars['String']>;
+  feedbackComment_not_starts_with_i?: Maybe<Scalars['String']>;
+  feedbackComment_ends_with_i?: Maybe<Scalars['String']>;
+  feedbackComment_not_ends_with_i?: Maybe<Scalars['String']>;
+  feedbackComment_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackComment_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackAdditionalOptions?: Maybe<Scalars['JSON']>;
+  feedbackAdditionalOptions_not?: Maybe<Scalars['JSON']>;
+  feedbackAdditionalOptions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  feedbackAdditionalOptions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  feedbackUpdatedAt?: Maybe<Scalars['String']>;
+  feedbackUpdatedAt_not?: Maybe<Scalars['String']>;
+  feedbackUpdatedAt_lt?: Maybe<Scalars['String']>;
+  feedbackUpdatedAt_lte?: Maybe<Scalars['String']>;
+  feedbackUpdatedAt_gt?: Maybe<Scalars['String']>;
+  feedbackUpdatedAt_gte?: Maybe<Scalars['String']>;
+  feedbackUpdatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackUpdatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   qualityControlValue?: Maybe<Scalars['String']>;
   qualityControlValue_not?: Maybe<Scalars['String']>;
   qualityControlValue_contains?: Maybe<Scalars['String']>;
@@ -73312,6 +73506,10 @@ export type TicketUpdateInput = {
   statusReopenedCounter?: Maybe<Scalars['Int']>;
   reviewValue?: Maybe<TicketReviewValueType>;
   reviewComment?: Maybe<Scalars['String']>;
+  feedbackValue?: Maybe<TicketFeedbackValueType>;
+  feedbackComment?: Maybe<Scalars['String']>;
+  feedbackAdditionalOptions?: Maybe<Array<Maybe<FeedbackAdditionalOptionsType>>>;
+  feedbackUpdatedAt?: Maybe<Scalars['String']>;
   qualityControlValue?: Maybe<TicketQualityControlValueType>;
   qualityControlComment?: Maybe<Scalars['String']>;
   qualityControlAdditionalOptions?: Maybe<Array<Maybe<QualityControlAdditionalOptionsType>>>;
@@ -73403,6 +73601,40 @@ export type TicketWhereInput = {
   reviewComment_not_ends_with_i?: Maybe<Scalars['String']>;
   reviewComment_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   reviewComment_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackValue?: Maybe<TicketFeedbackValueType>;
+  feedbackValue_not?: Maybe<TicketFeedbackValueType>;
+  feedbackValue_in?: Maybe<Array<Maybe<TicketFeedbackValueType>>>;
+  feedbackValue_not_in?: Maybe<Array<Maybe<TicketFeedbackValueType>>>;
+  feedbackComment?: Maybe<Scalars['String']>;
+  feedbackComment_not?: Maybe<Scalars['String']>;
+  feedbackComment_contains?: Maybe<Scalars['String']>;
+  feedbackComment_not_contains?: Maybe<Scalars['String']>;
+  feedbackComment_starts_with?: Maybe<Scalars['String']>;
+  feedbackComment_not_starts_with?: Maybe<Scalars['String']>;
+  feedbackComment_ends_with?: Maybe<Scalars['String']>;
+  feedbackComment_not_ends_with?: Maybe<Scalars['String']>;
+  feedbackComment_i?: Maybe<Scalars['String']>;
+  feedbackComment_not_i?: Maybe<Scalars['String']>;
+  feedbackComment_contains_i?: Maybe<Scalars['String']>;
+  feedbackComment_not_contains_i?: Maybe<Scalars['String']>;
+  feedbackComment_starts_with_i?: Maybe<Scalars['String']>;
+  feedbackComment_not_starts_with_i?: Maybe<Scalars['String']>;
+  feedbackComment_ends_with_i?: Maybe<Scalars['String']>;
+  feedbackComment_not_ends_with_i?: Maybe<Scalars['String']>;
+  feedbackComment_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackComment_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackAdditionalOptions?: Maybe<Array<Maybe<FeedbackAdditionalOptionsType>>>;
+  feedbackAdditionalOptions_not?: Maybe<Array<Maybe<FeedbackAdditionalOptionsType>>>;
+  feedbackAdditionalOptions_in?: Maybe<Array<Maybe<Array<Maybe<FeedbackAdditionalOptionsType>>>>>;
+  feedbackAdditionalOptions_not_in?: Maybe<Array<Maybe<Array<Maybe<FeedbackAdditionalOptionsType>>>>>;
+  feedbackUpdatedAt?: Maybe<Scalars['String']>;
+  feedbackUpdatedAt_not?: Maybe<Scalars['String']>;
+  feedbackUpdatedAt_lt?: Maybe<Scalars['String']>;
+  feedbackUpdatedAt_lte?: Maybe<Scalars['String']>;
+  feedbackUpdatedAt_gt?: Maybe<Scalars['String']>;
+  feedbackUpdatedAt_gte?: Maybe<Scalars['String']>;
+  feedbackUpdatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  feedbackUpdatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   qualityControlValue?: Maybe<TicketQualityControlValueType>;
   qualityControlValue_not?: Maybe<TicketQualityControlValueType>;
   qualityControlValue_in?: Maybe<Array<Maybe<TicketQualityControlValueType>>>;

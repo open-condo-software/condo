@@ -4,6 +4,8 @@ const render = (fields) => (
     ), '')
 )
 
+const renderEnumOptions = (options) => options.join(' ')
+
 const getValidator = (compiledSchema) => {
     return function validateInput ({ resolvedData, fieldPath, addFieldValidationError }) {
         if (!compiledSchema(resolvedData[fieldPath])) {
@@ -17,4 +19,5 @@ const getValidator = (compiledSchema) => {
 module.exports = {
     render,
     getValidator,
+    renderEnumOptions,
 }

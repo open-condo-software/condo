@@ -12,7 +12,7 @@ import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { EMOJI } from '@condo/domains/ticket/constants/emoji'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { useTicketQualityControl } from '@condo/domains/ticket/contexts/TicketQualityControlContext'
-import { convertQualityControlOptionsToText, filterQualityControlOptionsByScore } from '@condo/domains/ticket/utils/qualityControl'
+import { convertQualityControlOrFeedbackOptionsToText, filterQualityControlOptionsByScore } from '@condo/domains/ticket/utils'
 
 
 type TicketQualityControlFieldProps = {
@@ -56,7 +56,7 @@ export const TicketQualityControlValueField: React.FC<TicketQualityControlValueF
     const renderOptions = useMemo(() => {
         if (isEmpty(ticket.qualityControlAdditionalOptions) || !ticket.qualityControlValue) return null
         const selectedOption = filterQualityControlOptionsByScore(ticket.qualityControlValue, ticket.qualityControlAdditionalOptions)
-        const textOptions = convertQualityControlOptionsToText(selectedOption, optionsMessages)
+        const textOptions = convertQualityControlOrFeedbackOptionsToText(selectedOption, optionsMessages)
         return textOptions && ` (${textOptions})`
     }, [optionsMessages, ticket.qualityControlAdditionalOptions, ticket.qualityControlValue])
 

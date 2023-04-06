@@ -4,40 +4,40 @@ const { isEmpty, compact, isArray, uniq } = require('lodash')
 const { Json } = require('@open-condo/keystone/fields')
 
 const { getValidator, renderEnumOptions } = require('@condo/domains/common/schema/json.utils')
-const { QUALITY_CONTROL_ADDITIONAL_OPTIONS } = require('@condo/domains/ticket/constants/qualityControl')
+const { FEEDBACK_ADDITIONAL_OPTIONS } = require('@condo/domains/ticket/constants/feedback')
 
 
 const ajv = new Ajv()
 
-const QUALITY_CONTROL_ADDITIONAL_OPTIONS_ENUM = 'QualityControlAdditionalOptionsType'
+const FEEDBACK_ADDITIONAL_OPTIONS_ENUM = 'FeedbackAdditionalOptionsType'
 
-const QUALITY_CONTROL_ADDITIONAL_OPTIONS_TYPES = `
-    enum ${QUALITY_CONTROL_ADDITIONAL_OPTIONS_ENUM} {
-        ${renderEnumOptions(QUALITY_CONTROL_ADDITIONAL_OPTIONS)}
+const FEEDBACK_ADDITIONAL_OPTIONS_TYPES = `
+    enum ${FEEDBACK_ADDITIONAL_OPTIONS_ENUM} {
+        ${renderEnumOptions(FEEDBACK_ADDITIONAL_OPTIONS)}
     }
 `
 
-const QualityControlAdditionalOptionsSchema = {
+const FeedbackAdditionalOptionsSchema = {
     type: ['array', 'null'],
     uniqueItems: true,
     items: {
-        enum: QUALITY_CONTROL_ADDITIONAL_OPTIONS,
+        enum: FEEDBACK_ADDITIONAL_OPTIONS,
     },
 }
 
-const qualityControlAdditionalOptionsValidator = getValidator(ajv.compile(QualityControlAdditionalOptionsSchema))
+const feedbackAdditionalOptionsValidator = getValidator(ajv.compile(FeedbackAdditionalOptionsSchema))
 
-const QUALITY_CONTROL_ADDITIONAL_OPTIONS_FIELD = {
-    schemaDoc: 'Quality control additional options that extend it.' +
+const FEEDBACK_ADDITIONAL_OPTIONS_FIELD = {
+    schemaDoc: 'Feedback additional options that extend it.' +
         'Duplicates are removed and empty arrays are converted to null.',
     type: Json,
     isRequired: false,
     kmigratorOptions: { null: true },
-    graphQLInputType: `[${QUALITY_CONTROL_ADDITIONAL_OPTIONS_ENUM}]`,
-    graphQLReturnType: `[${QUALITY_CONTROL_ADDITIONAL_OPTIONS_ENUM}]`,
-    extendGraphQLTypes: [QUALITY_CONTROL_ADDITIONAL_OPTIONS_TYPES],
+    graphQLInputType: `[${FEEDBACK_ADDITIONAL_OPTIONS_ENUM}]`,
+    graphQLReturnType: `[${FEEDBACK_ADDITIONAL_OPTIONS_ENUM}]`,
+    extendGraphQLTypes: [FEEDBACK_ADDITIONAL_OPTIONS_TYPES],
     hooks: {
-        validateInput: qualityControlAdditionalOptionsValidator,
+        validateInput: feedbackAdditionalOptionsValidator,
         resolveInput: async ({ resolvedData, fieldPath }) => {
             const value = resolvedData[fieldPath]
             if (isArray(value)) {
@@ -52,5 +52,5 @@ const QUALITY_CONTROL_ADDITIONAL_OPTIONS_FIELD = {
 }
 
 module.exports = {
-    QUALITY_CONTROL_ADDITIONAL_OPTIONS_FIELD,
+    FEEDBACK_ADDITIONAL_OPTIONS_FIELD,
 }
