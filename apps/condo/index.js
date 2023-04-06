@@ -18,14 +18,16 @@ const { v4 } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
-const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { AdapterCache } = require('@open-condo/keystone/adapterCache')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
 const { GraphQLLoggerPlugin, getKeystonePinoOptions } = require('@open-condo/keystone/logging')
-const { customAccessPostProcessor } = require('@open-condo/keystone/preprocessors/customAccess')
-const { escapeSearchPreprocessor } = require('@open-condo/keystone/preprocessors/escapeSearch')
-const { schemaDocPreprocessor } = require('@open-condo/keystone/preprocessors/schemaDoc')
+const {
+    customAccessPostProcessor,
+    schemaDocPreprocessor,
+    adminDocPreprocessor,
+    escapeSearchPreprocessor,
+} = require('@open-condo/keystone/preprocessors')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
 const { prepareDefaultKeystoneConfig, getAdapter } = require('@open-condo/keystone/setup.utils')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
@@ -117,7 +119,7 @@ registerSchemas(keystone, [
     require('@condo/domains/scope/schema'),
     require('@condo/domains/news/schema'),
     getWebhookModels('@app/condo/schema.graphql'),
-], [schemaDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor])
+], [schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor])
 
 if (!IS_BUILD_PHASE) {
     // NOTE(pahaz): we put it here because it inits the redis connection and we don't want it at build time
