@@ -110,7 +110,13 @@ module.exports = function createConfiguration (context, conf) {
             Session: 365 * 24 * 60 * 60, // 365 day in seconds
             Interaction: 60 * 60, // 1 hour in seconds
         },
-
+        // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#responsetypes
+        responseTypes: [
+            'code id_token',
+            'code',
+            'id_token',
+            'id_token token', // implicit flow with token!
+        ],
         // TODO(pahaz): think about pkce and keys!
         pkce: {
             required: () => false,
