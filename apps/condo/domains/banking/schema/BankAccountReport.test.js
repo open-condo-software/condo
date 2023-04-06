@@ -114,6 +114,7 @@ describe('BankAccountReport', () => {
                                 id: faker.random.uuid(),
                                 name: faker.lorem.word(2),
                                 sum: faker.random.number(),
+                                isOutcome: !objCreated.data.categoryGroups[0].costItemGroups[0].isOutcome,
                             }],
                         }],
                     },
@@ -349,32 +350,24 @@ describe('BankAccountReport', () => {
             expect(obj.dv).toEqual(1)
         })
 
-        test('JSON schema of "data" field', async () => {
-            const [organization] = await createTestOrganization(adminClient)
-            const [bankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
-            const [account] = await createTestBankAccount(adminClient, organization, {
-                integrationContext: { connect: { id: bankIntegrationAccountContext.id } },
+        describe('JSON schema of "data" field', () => {
+
+            let organization
+            let bankIntegrationAccountContext
+            let account
+
+            beforeAll(async () => {
+                organization = (await createTestOrganization(adminClient))[0]
+                bankIntegrationAccountContext = (await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization))[0]
+                account = (await createTestBankAccount(adminClient, organization, {
+                    integrationContext: { connect: { id: bankIntegrationAccountContext.id } },
+                }))[0]
             })
 
-            await expectToThrowValidationFailureError(async () => {
-                await createTestBankAccountReport(adminClient, account, organization, {
-                    data: {
-                        forbiddenField: 'forbidden-value',
-                    },
-                })
-            }, 'data field validation error. JSON not in the correct format - path: msg:must NOT have additional properties')
-
-            await expectToThrowValidationFailureError(async () => {
-                await createTestBankAccountReport(adminClient, account, organization, {
-                    data: {
-                        categoryGroups: {},
-                    },
-                })
-            }, 'data field validation error. JSON not in the correct format - path:/categoryGroups msg:must be array')
-
-            await expectToThrowValidationFailureError(async () => {
-                await createTestBankAccountReport(adminClient, account, organization, {
-                    data: {
+            const cases = [
+                [
+                    'data field validation error. JSON not in the correct format - path:/categoryGroups/0 msg:must NOT have additional properties',
+                    {
                         categoryGroups: [{
                             forbiddenField: faker.lorem.word(2),
                             id: faker.random.uuid(),
@@ -383,15 +376,65 @@ describe('BankAccountReport', () => {
                                 id: faker.random.uuid(),
                                 name: faker.lorem.word(2),
                                 sum: faker.random.number(),
+                                isOutcome: faker.random.boolean(),
                             }],
                         }],
                     },
-                })
-            }, 'data field validation error. JSON not in the correct format - path:/categoryGroups/0 msg:must NOT have additional properties')
-
-            await expectToThrowValidationFailureError(async () => {
-                await createTestBankAccountReport(adminClient, account, organization, {
-                    data: {
+                ],
+                [
+                    'data field validation error. JSON not in the correct format - path:/categoryGroups/0 msg:must have required property \'id\'',
+                    {
+                        categoryGroups: [{
+                            name: faker.lorem.word(2),
+                            costItemGroups: [{
+                                id: faker.random.uuid(),
+                                name: faker.lorem.word(2),
+                                sum: faker.random.number(),
+                                isOutcome: faker.random.boolean(),
+                            }],
+                        }],
+                    },
+                ],
+                [
+                    'data field validation error. JSON not in the correct format - path: msg:must NOT have additional properties',
+                    {
+                        forbiddenField: 'forbidden-value',
+                    },
+                ],
+                [
+                    'data field validation error. JSON not in the correct format - path:/categoryGroups msg:must be array',
+                    {
+                        categoryGroups: {},
+                    },
+                ],
+                [
+                    'data field validation error. JSON not in the correct format - path:/categoryGroups/0 msg:must have required property \'name\'',
+                    {
+                        categoryGroups: [{
+                            forbiddenField: faker.lorem.word(2),
+                            id: faker.random.uuid(),
+                            costItemGroups: [{
+                                id: faker.random.uuid(),
+                                name: faker.lorem.word(2),
+                                sum: faker.random.number(),
+                                isOutcome: faker.random.boolean(),
+                            }],
+                        }],
+                    },
+                ],
+                [
+                    'data field validation error. JSON not in the correct format - path:/categoryGroups/0 msg:must have required property \'costItemGroups\'',
+                    {
+                        categoryGroups: [{
+                            forbiddenField: faker.lorem.word(2),
+                            id: faker.random.uuid(),
+                            name: faker.lorem.word(2),
+                        }],
+                    },
+                ],
+                [
+                    'data field validation error. JSON not in the correct format - path:/categoryGroups/0/id msg:must match format "uuid"',
+                    {
                         categoryGroups: [{
                             id: 'incorrect format',
                             name: faker.lorem.word(2),
@@ -399,15 +442,14 @@ describe('BankAccountReport', () => {
                                 id: faker.random.uuid(),
                                 name: faker.lorem.word(2),
                                 sum: faker.random.number(),
+                                isOutcome: faker.random.boolean(),
                             }],
                         }],
                     },
-                })
-            }, 'data field validation error. JSON not in the correct format - path:/categoryGroups/0/id msg:must match format "uuid"')
-
-            await expectToThrowValidationFailureError(async () => {
-                await createTestBankAccountReport(adminClient, account, organization, {
-                    data: {
+                ],
+                [
+                    'data field validation error. JSON not in the correct format - path:/categoryGroups/0/name msg:must be string',
+                    {
                         categoryGroups: [{
                             id: faker.random.uuid(),
                             name: 123,
@@ -415,15 +457,14 @@ describe('BankAccountReport', () => {
                                 id: faker.random.uuid(),
                                 name: faker.lorem.word(2),
                                 sum: faker.random.number(),
+                                isOutcome: faker.random.boolean(),
                             }],
                         }],
                     },
-                })
-            }, 'data field validation error. JSON not in the correct format - path:/categoryGroups/0/name msg:must be string')
-
-            await expectToThrowValidationFailureError(async () => {
-                await createTestBankAccountReport(adminClient, account, organization, {
-                    data: {
+                ],
+                [
+                    'data field validation error. JSON not in the correct format - path:/categoryGroups/0/costItemGroups/0 msg:must NOT have additional properties',
+                    {
                         categoryGroups: [{
                             id: faker.random.uuid(),
                             name: faker.lorem.word(2),
@@ -432,15 +473,15 @@ describe('BankAccountReport', () => {
                                 id: faker.random.uuid(),
                                 name: faker.lorem.word(2),
                                 sum: faker.random.number(),
+                                isOutcome: faker.random.boolean(),
+
                             }],
                         }],
                     },
-                })
-            }, 'data field validation error. JSON not in the correct format - path:/categoryGroups/0/costItemGroups/0 msg:must NOT have additional properties')
-
-            await expectToThrowValidationFailureError(async () => {
-                await createTestBankAccountReport(adminClient, account, organization, {
-                    data: {
+                ],
+                [
+                    'data field validation error. JSON not in the correct format - path:/categoryGroups/0/costItemGroups/0/sum msg:must be number',
+                    {
                         categoryGroups: [{
                             id: faker.random.uuid(),
                             name: faker.lorem.word(2),
@@ -448,15 +489,29 @@ describe('BankAccountReport', () => {
                                 id: faker.random.uuid(),
                                 name: faker.lorem.word(2),
                                 sum: 'forbidden string value',
+                                isOutcome: faker.random.boolean(),
                             }],
                         }],
                     },
-                })
-            }, 'data field validation error. JSON not in the correct format - path:/categoryGroups/0/costItemGroups/0/sum msg:must be number')
-
-            await expectToThrowValidationFailureError(async () => {
-                await createTestBankAccountReport(adminClient, account, organization, {
-                    data: {
+                ],
+                [
+                    'data field validation error. JSON not in the correct format - path:/categoryGroups/0/costItemGroups/0/name msg:must be string',
+                    {
+                        categoryGroups: [{
+                            id: faker.random.uuid(),
+                            name: faker.lorem.word(2),
+                            costItemGroups: [{
+                                id: faker.random.uuid(),
+                                name: 123,
+                                sum: faker.random.number(),
+                                isOutcome: faker.random.boolean(),
+                            }],
+                        }],
+                    },
+                ],
+                [
+                    'data field validation error. JSON not in the correct format - path:/categoryGroups/0/costItemGroups/0 msg:must have required property \'isOutcome\'',
+                    {
                         categoryGroups: [{
                             id: faker.random.uuid(),
                             name: faker.lorem.word(2),
@@ -467,8 +522,16 @@ describe('BankAccountReport', () => {
                             }],
                         }],
                     },
-                })
-            }, 'data field validation error. JSON not in the correct format - path:/categoryGroups/0/costItemGroups/0/name msg:must be string')
+                ],
+            ]
+
+            test.each(cases)('returns error %p', async (error, invalidData) => {
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestBankAccountReport(adminClient, account, organization, {
+                        data: invalidData,
+                    })
+                }, error)
+            })
         })
 
         test('format of "period" field', async () => {

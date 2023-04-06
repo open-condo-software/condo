@@ -36,9 +36,12 @@ const bankAccountReportDataValidators = {
                                     sum: {
                                         type: 'number',
                                     },
+                                    isOutcome: {
+                                        type: 'boolean',
+                                    },
                                 },
                                 additionalProperties: false,
-                                required: ['id', 'name', 'sum'],
+                                required: ['id', 'name', 'sum', 'isOutcome'],
                             },
                         },
                     },
