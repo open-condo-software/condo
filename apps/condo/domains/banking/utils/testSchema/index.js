@@ -438,6 +438,7 @@ async function createTestBankAccountReport (client, account, organization, extra
                     id: faker.random.uuid(),
                     name: faker.lorem.word(2),
                     sum: faker.random.number(),
+                    isOutcome: faker.random.boolean(),
                 }],
             }],
         },
