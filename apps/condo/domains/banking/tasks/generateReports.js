@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 const isEqual = require('lodash/isEqual')
-const pick = require('lodash/pick')
+const pickBy = require('lodash/pickBy')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -9,15 +9,12 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
 const {
-    BankIntegration,
     BankAccount, BankAccountReportTask, BankAccountReport,
-    BankIntegrationAccountContext,
     BankTransaction,
-    BankContractorAccount,
 } = require('@condo/domains/banking/utils/serverSchema')
 const { TASK_PROCESSING_STATUS, TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } = require('@condo/domains/common/constants/tasks')
-const { sleep } = require('@condo/domains/common/utils/sleep')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+
+const { EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM } = require('../constants')
 
 // Avoids producing "BankAccountReportHistoryRecord" record for each iteration in the processing loop, when we update progress
 // Practically, we need to
@@ -40,8 +37,8 @@ function sortTransactionsByMonthAndYear (allTransactions) {
         const currentDate = setIterator.next().value
         const filteredTransactionsByCurrentYearMonth = []
         for (const transaction of allTransactions) {
-            if (transaction.date.include(currentDate)) {
-                filteredTransactionsByCurrentYearMonth.push(pick(transaction))
+            if (transaction.date.includes(currentDate)) {
+                filteredTransactionsByCurrentYearMonth.push(pickBy(transaction))
             }
         }
         sortedTransactionsByMonthAndYear.push(filteredTransactionsByCurrentYearMonth)
@@ -55,12 +52,12 @@ function calculateTransactionsTurnover (sortedTransactions) {
     for (let transactions of sortedTransactions) {
         date = dayjs(transactions[0].date).format('YYYY-MM')
         for (let transaction of transactions) {
-            transaction.isOutcome ? totalOutcome += transaction.amount : totalIncome += transaction.amount
+            transaction.isOutcome ? totalOutcome += Number(transaction.amount) : totalIncome += Number(transaction.amount)
         }
         result.push({
             date,
-            totalIncome,
-            totalOutcome,
+            totalIncome: totalIncome.toString(),
+            totalOutcome: totalOutcome.toString(),
         })
         totalIncome = 0
         totalOutcome = 0
@@ -71,12 +68,12 @@ function calculateTransactionsTurnover (sortedTransactions) {
 async function categoryGroupsBuilder (costItemsDataSortedByDate, { task, lastProgress, context }) {
     const categoryGroups = []
     let firstIter = 0, secondIter = 0
-    for (let [date, data] of costItemsDataSortedByDate) {
+    for (let { date, data } of costItemsDataSortedByDate) {
         firstIter++
         let parsedCategoryData = {}
-        for (const costItemId of data) {
+        for (let costItemId in data) {
             secondIter++
-            if (parsedCategoryData.includes(data[costItemId].category.id)) {
+            if (Object.keys(parsedCategoryData).includes(data[costItemId].category.id)) {
                 parsedCategoryData[data[costItemId].category.id].costItemGroups.push({
                     id: costItemId,
                     name: data[costItemId].name,
@@ -89,6 +86,7 @@ async function categoryGroupsBuilder (costItemsDataSortedByDate, { task, lastPro
                     costItemGroups: [{
                         id: costItemId,
                         name: data[costItemId].name,
+                        //isOutcome: data[costItemId].isOutcome,
                         sum: data[costItemId].amount,
                     }],
                 }
@@ -96,22 +94,17 @@ async function categoryGroupsBuilder (costItemsDataSortedByDate, { task, lastPro
                     task,
                     lastProgress,
                     context,
-                    progress: (costItemsDataSortedByDate.length / firstIter * 100) / (data.length / secondIter * 100) * 0.7,
+                    progress: (costItemsDataSortedByDate.length / firstIter * 100) / (Object.keys(data).length / secondIter * 100) * 70,
                 })
                 lastProgress = Date.now()
             }
         }
         categoryGroups.push({
             date,
-            data: Object.values(parsedCategoryData),
+            data: {
+                categoryGroups: Object.values(parsedCategoryData),
+            },
         })
-        await updateTaskProgress({
-            task,
-            lastProgress,
-            context,
-            progress: (costItemsDataSortedByDate.length / firstIter * 100) / (data.length / secondIter * 100) * 0.7,
-        })
-        lastProgress = Date.now()
     }
     return categoryGroups
 }
@@ -146,7 +139,7 @@ const generateReports = async (taskId) => {
         throw new Error(`Cannot find BankSyncTask by id="${taskId}"`)
     }
 
-    const { account: bankAccountId, organization } = task
+    const { account: { id: bankAccountId }, organization } = task
 
     const bankAccount = await BankAccount.getOne(context, {
         id: bankAccountId,
@@ -166,6 +159,16 @@ const generateReports = async (taskId) => {
         account: { id: bankAccount.id },
     })
 
+    for (let transaction of allTransactions) {
+        if (!transaction.costItem) {
+            const contractorAccount = get(transaction, 'contractorAccount')
+            if (!contractorAccount){
+                throw new Error('contractorAccount is undefined')
+            }
+            transaction.costItem = { ...contractorAccount.costItem }
+        }
+    }
+
     const sortedTransactions = sortTransactionsByMonthAndYear(allTransactions)
     const monthTurnovers = calculateTransactionsTurnover(sortedTransactions)
 
@@ -179,11 +182,12 @@ const generateReports = async (taskId) => {
         for (let i = 0; i < transactions.length; i++) {
             const currentTransaction = transactions[i]
             if (Object.keys(costItemData.data).includes(currentTransaction.costItem.id)) {
-                costItemData.data[currentTransaction.costItem.id].amount += currentTransaction.amount
+                costItemData.data[currentTransaction.costItem.id].amount += Number(currentTransaction.amount)
             } else {
                 costItemData.data[currentTransaction.costItem.id] = {
-                    amount: currentTransaction.amount,
+                    amount: Number(currentTransaction.amount),
                     name: currentTransaction.costItem.name,
+                    //isOutcome: currentTransaction.isOutcome,
                     category: {
                         id: currentTransaction.costItem.category.id,
                         name: currentTransaction.costItem.category.name,
@@ -195,7 +199,7 @@ const generateReports = async (taskId) => {
                 task,
                 lastProgress,
                 context,
-                progress: allTransactions.length / transactions.length / i * 100,
+                progress: allTransactions.length / transactions.length / (i + 1) * 100,
             })
             lastProgress = Date.now()
         }
@@ -211,30 +215,41 @@ const generateReports = async (taskId) => {
         })
     lastProgress = Date.now()
 
-    for (let [date, data] of categoryGroupsSortedByMonth) {
+    for (let { date, data } of categoryGroupsSortedByMonth) {
         let index = 0
         const reports = await BankAccountReport.getAll(context, {
             period: date,
             deletedAt: null,
             organization: { id: organization.id },
         }, { sortBy: ['createdAt_ASC'] })
-        if (reports.length && isEqual(reports[length - 1].data, data)) {
+        const payload = {
+            data,
+            version: 1,
+            period: date,
+            account: { connect: { id: bankAccountId } },
+            organization: { connect: { id: organization.id } },
+            totalIncome: monthTurnovers[index].totalIncome,
+            totalOutcome: monthTurnovers[index].totalOutcome,
+            template: EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM,
+            amount: get(bankAccount, 'meta.amount'),
+            amountAt: get(bankAccount, 'meta.amountAt'),
+            ...DV_SENDER,
+        }
+        if (reports.length > 0 && isEqual(reports[reports.length - 1].data, data[index])) {
             if (date !== monthTurnovers[index].date) throw new Error('Date from categoryGroups not equal date from monthTurnovers')
             await BankAccountReport.create(context, {
-                version: reports[length - 1].version++,
-                period: date,
-                account: { connect: { id: bankAccountId } },
-                organization: { connect: { id: organization.id } },
-                totalIncome: monthTurnovers[index].totalIncome,
-                totalOutcome: monthTurnovers[index].totalOutcome,
+                ...payload,
+                version: ++reports[reports.length - 1].version,
             })
             index++
+        } else {
+            await BankAccountReport.create(context, payload)
         }
         await updateTaskProgress({
             task,
             lastProgress,
             context,
-            progress: categoryGroupsSortedByMonth.length / index * 100,
+            progress: categoryGroupsSortedByMonth.length / (index + 1) * 100,
         })
         lastProgress = Date.now()
     }
