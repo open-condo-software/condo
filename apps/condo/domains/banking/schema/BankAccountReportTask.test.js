@@ -5,15 +5,14 @@
 const dayjs = require('dayjs')
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, catchErrorFrom, UploadingFile } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
 const { BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
 const { BankAccountReportTask, createTestBankAccountReportTask, updateTestBankAccountReportTask, createTestBankAccount, BankAccountReport, createTestBankTransaction } = require('@condo/domains/banking/utils/testSchema')
-const { createTestBankSyncTask, BankAccount, BankTransaction } = require('@condo/domains/banking/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -24,7 +23,7 @@ const { createTestBankIntegrationAccountContext, createTestBankContractorAccount
 
 function generateDateArray (dateStart, interval) {
     const dateInterval = [dateStart]
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= interval; i++) {
         dateInterval.push(dayjs(dateInterval[dateInterval.length - 1]).add(1, 'day').format('YYYY-MM-DD'))
     }
     return dateInterval
@@ -107,7 +106,7 @@ describe('BankAccountReportTask', () => {
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
+                expect(obj.v).toEqual(3)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
             })
 
@@ -151,7 +150,7 @@ describe('BankAccountReportTask', () => {
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
+                expect(obj.v).toEqual(3)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
             })
 
