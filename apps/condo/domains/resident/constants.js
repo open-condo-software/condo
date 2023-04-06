@@ -144,6 +144,12 @@ const PAYMENT_CATEGORIES_META = [
     },
 ]
 
+const SUCCESS_STATUS = 'Ok'
+
+
 module.exports = {
     PAYMENT_CATEGORIES_META,
+    SUCCESS_STATUS,
+
+
 }

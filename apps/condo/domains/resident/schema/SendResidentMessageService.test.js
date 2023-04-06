@@ -20,7 +20,8 @@ const {
 const { syncRemoteClientWithPushTokenByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { SUCCESS_STATUS, ERRORS } = require('@condo/domains/resident/schema/sendResidentMessageService')
+const { SUCCESS_STATUS } = require('@condo/domains/resident/constants')
+const { SEND_RESIDENT_MESSAGE_ERRORS } = require('@condo/domains/resident/errors')
 const { sendResidentMessageByTestClient, registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -143,7 +144,7 @@ describe('SendResidentMessageService', () => {
 
                 await expectToThrowGQLError(
                     async () => { await sendResidentMessageByTestClient(adminClient, payload) },
-                    { ...ERRORS.INVALID_ORGANIZATION_PROVIDED },
+                    { ...SEND_RESIDENT_MESSAGE_ERRORS.INVALID_ORGANIZATION_PROVIDED },
                     'result'
                 )
             })
@@ -160,7 +161,7 @@ describe('SendResidentMessageService', () => {
 
                 await expectToThrowGQLError(
                     async () => { await sendResidentMessageByTestClient(adminClient, payload) },
-                    { ...ERRORS.INVALID_CATEGORY_PROVIDED },
+                    { ...SEND_RESIDENT_MESSAGE_ERRORS.INVALID_CATEGORY_PROVIDED },
                     'result'
                 )
             })
@@ -174,7 +175,7 @@ describe('SendResidentMessageService', () => {
 
                 await expectToThrowGQLError(
                     async () => { await sendResidentMessageByTestClient(adminClient, payload) },
-                    { ...ERRORS.INVALID_NOTIFICATION_TYPE_PROVIDED },
+                    { ...SEND_RESIDENT_MESSAGE_ERRORS.INVALID_NOTIFICATION_TYPE_PROVIDED },
                     'result'
                 )
             })
@@ -188,7 +189,7 @@ describe('SendResidentMessageService', () => {
 
                 await expectToThrowGQLError(
                     async () => { await sendResidentMessageByTestClient(adminClient, payload) },
-                    { ...ERRORS.PROPERTY_DETAILS_IS_EMPTY },
+                    { ...SEND_RESIDENT_MESSAGE_ERRORS.PROPERTY_DETAILS_IS_EMPTY },
                     'result'
                 )
             })
@@ -202,7 +203,7 @@ describe('SendResidentMessageService', () => {
 
                 await expectToThrowGQLError(
                     async () => { await sendResidentMessageByTestClient(adminClient, payload) },
-                    { ...ERRORS.PROPERTY_IS_REQUIRED },
+                    { ...SEND_RESIDENT_MESSAGE_ERRORS.PROPERTY_IS_REQUIRED },
                     'result'
                 )
             })
