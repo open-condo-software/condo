@@ -20,6 +20,7 @@ const {
 const { syncRemoteClientWithPushTokenByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { SUCCESS_STATUS, ERRORS } = require('@condo/domains/resident/schema/sendResidentMessageService')
 const { sendResidentMessageByTestClient, registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -28,18 +29,8 @@ const {
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-const { SUCCESS_STATUS, ERRORS } = require('./sendResidentMessageService')
-
-
 
 const CATEGORY_HOUSING = '928c97ef-5289-4daa-b80e-4b9fed50c629'
-
-/**
- * TODO:
- * 1. Test access rights - done
- * 2. Test data validation
- * 3. Test no duplicates logic
- */
 
 describe('SendResidentMessageService', () => {
     let adminClient, supportClient, serviceClient,
