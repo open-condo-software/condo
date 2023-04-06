@@ -93,7 +93,6 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
 
         // settings data structure config (settings field for BillingIntegrationOrganizationContext)
         // state data structure config (state field for BillingIntegrationOrganizationContext)
-        // log messages translation and adaptation (message field for BillingIntegrationLog)
         accessRights: {
             type: Relationship,
             ref: 'BillingIntegrationAccessRight.integration',

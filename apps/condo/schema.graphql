@@ -8797,31 +8797,30 @@ input BillingIntegrationOrganizationContextRelateToOneInput {
   disconnectAll: Boolean
 }
 
-""" Important `integration component` log records. Sometimes you need to report some errors/problems related to the integration process. The target audience of these messages is the client of our API platform. You should avoid repeating the same messages. The existence of the message means that some problems were occurred during the integration process and the client should the user must take some actions to eliminate them 
+""" Report about an error that occurred during integration process. There's 2 target groups for it: Organization employees will see title and message of last problem, so they can be notified, that something went wrong. Support can also read problem messages as well as metadata, which helps them to resolve an issue. 
 """
-type BillingIntegrationLog {
+type BillingIntegrationProblem {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the BillingIntegrationLog List config, or
-   2. As an alias to the field set on 'labelField' in the BillingIntegrationLog List config, or
-   3. As an alias to a 'name' field on the BillingIntegrationLog List (if one exists), or
-   4. As an alias to the 'id' field on the BillingIntegrationLog List.
+   1. Execution of 'labelResolver' set on the BillingIntegrationProblem List config, or
+   2. As an alias to the field set on 'labelField' in the BillingIntegrationProblem List config, or
+   3. As an alias to a 'name' field on the BillingIntegrationProblem List (if one exists), or
+   4. As an alias to the 'id' field on the BillingIntegrationProblem List.
   """
   _label_: String
 
   """ Integration context """
   context: BillingIntegrationOrganizationContext
 
-  """ Message type. Our clients can use different languages. Sometimes we need to change the text message for the client. The settings for the message texts are in the integration. Ex: WRONG_AUTH_CREDENTIALS 
+  """ Problem summary, like "Wrong requisites", "No access provided" and so on 
   """
-  type: String
+  title: String
 
-  """ Client understandable message. May be overridden by integration settings for some message types 
+  """ Client understandable message, describing what should client do to fix a problem 
   """
   message: String
 
-  """ The message metadata. Context variables for generating messages. Examples of data keys: `` 
-  """
+  """ The message metadata, which can help support to resolve an issue """
   meta: JSON
   id: ID!
   v: Int
@@ -8846,29 +8845,29 @@ type BillingIntegrationLog {
   sender: SenderField
 }
 
-input BillingIntegrationLogWhereInput {
-  AND: [BillingIntegrationLogWhereInput]
-  OR: [BillingIntegrationLogWhereInput]
+input BillingIntegrationProblemWhereInput {
+  AND: [BillingIntegrationProblemWhereInput]
+  OR: [BillingIntegrationProblemWhereInput]
   context: BillingIntegrationOrganizationContextWhereInput
   context_is_null: Boolean
-  type: String
-  type_not: String
-  type_contains: String
-  type_not_contains: String
-  type_starts_with: String
-  type_not_starts_with: String
-  type_ends_with: String
-  type_not_ends_with: String
-  type_i: String
-  type_not_i: String
-  type_contains_i: String
-  type_not_contains_i: String
-  type_starts_with_i: String
-  type_not_starts_with_i: String
-  type_ends_with_i: String
-  type_not_ends_with_i: String
-  type_in: [String]
-  type_not_in: [String]
+  title: String
+  title_not: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  title_i: String
+  title_not_i: String
+  title_contains_i: String
+  title_not_contains_i: String
+  title_starts_with_i: String
+  title_not_starts_with_i: String
+  title_ends_with_i: String
+  title_not_ends_with_i: String
+  title_in: [String]
+  title_not_in: [String]
   message: String
   message_not: String
   message_contains: String
@@ -8949,15 +8948,15 @@ input BillingIntegrationLogWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input BillingIntegrationLogWhereUniqueInput {
+input BillingIntegrationProblemWhereUniqueInput {
   id: ID!
 }
 
-enum SortBillingIntegrationLogsBy {
+enum SortBillingIntegrationProblemsBy {
   context_ASC
   context_DESC
-  type_ASC
-  type_DESC
+  title_ASC
+  title_DESC
   message_ASC
   message_DESC
   id_ASC
@@ -8978,9 +8977,9 @@ enum SortBillingIntegrationLogsBy {
   dv_DESC
 }
 
-input BillingIntegrationLogUpdateInput {
+input BillingIntegrationProblemUpdateInput {
   context: BillingIntegrationOrganizationContextRelateToOneInput
-  type: String
+  title: String
   message: String
   meta: JSON
   v: Int
@@ -8994,14 +8993,14 @@ input BillingIntegrationLogUpdateInput {
   sender: SenderFieldInput
 }
 
-input BillingIntegrationLogsUpdateInput {
+input BillingIntegrationProblemsUpdateInput {
   id: ID!
-  data: BillingIntegrationLogUpdateInput
+  data: BillingIntegrationProblemUpdateInput
 }
 
-input BillingIntegrationLogCreateInput {
+input BillingIntegrationProblemCreateInput {
   context: BillingIntegrationOrganizationContextRelateToOneInput
-  type: String
+  title: String
   message: String
   meta: JSON
   v: Int
@@ -9015,8 +9014,8 @@ input BillingIntegrationLogCreateInput {
   sender: SenderFieldInput
 }
 
-input BillingIntegrationLogsCreateInput {
-  data: BillingIntegrationLogCreateInput
+input BillingIntegrationProblemsCreateInput {
+  data: BillingIntegrationProblemCreateInput
 }
 
 enum BillingPropertyHistoryRecordHistoryActionType {
@@ -58588,19 +58587,19 @@ type Query {
   """
   _BillingIntegrationOrganizationContextsMeta: _ListMeta
 
-  """ Search for all BillingIntegrationLog items which match the where clause. 
+  """ Search for all BillingIntegrationProblem items which match the where clause. 
   """
-  allBillingIntegrationLogs(where: BillingIntegrationLogWhereInput, search: String, sortBy: [SortBillingIntegrationLogsBy!], orderBy: String, first: Int, skip: Int): [BillingIntegrationLog]
+  allBillingIntegrationProblems(where: BillingIntegrationProblemWhereInput, search: String, sortBy: [SortBillingIntegrationProblemsBy!], orderBy: String, first: Int, skip: Int): [BillingIntegrationProblem]
 
-  """ Search for the BillingIntegrationLog item with the matching ID. """
-  BillingIntegrationLog(where: BillingIntegrationLogWhereUniqueInput!): BillingIntegrationLog
+  """ Search for the BillingIntegrationProblem item with the matching ID. """
+  BillingIntegrationProblem(where: BillingIntegrationProblemWhereUniqueInput!): BillingIntegrationProblem
 
-  """ Perform a meta-query on all BillingIntegrationLog items which match the where clause. 
+  """ Perform a meta-query on all BillingIntegrationProblem items which match the where clause. 
   """
-  _allBillingIntegrationLogsMeta(where: BillingIntegrationLogWhereInput, search: String, sortBy: [SortBillingIntegrationLogsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allBillingIntegrationProblemsMeta(where: BillingIntegrationProblemWhereInput, search: String, sortBy: [SortBillingIntegrationProblemsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the BillingIntegrationLog list. """
-  _BillingIntegrationLogsMeta: _ListMeta
+  """ Retrieve the meta-data for the BillingIntegrationProblem list. """
+  _BillingIntegrationProblemsMeta: _ListMeta
 
   """ Search for all BillingPropertyHistoryRecord items which match the where clause. 
   """
@@ -61786,23 +61785,23 @@ type Mutation {
   """ Delete multiple BillingIntegrationOrganizationContext items by ID. """
   deleteBillingIntegrationOrganizationContexts(ids: [ID!]): [BillingIntegrationOrganizationContext]
 
-  """ Create a single BillingIntegrationLog item. """
-  createBillingIntegrationLog(data: BillingIntegrationLogCreateInput): BillingIntegrationLog
+  """ Create a single BillingIntegrationProblem item. """
+  createBillingIntegrationProblem(data: BillingIntegrationProblemCreateInput): BillingIntegrationProblem
 
-  """ Create multiple BillingIntegrationLog items. """
-  createBillingIntegrationLogs(data: [BillingIntegrationLogsCreateInput]): [BillingIntegrationLog]
+  """ Create multiple BillingIntegrationProblem items. """
+  createBillingIntegrationProblems(data: [BillingIntegrationProblemsCreateInput]): [BillingIntegrationProblem]
 
-  """ Update a single BillingIntegrationLog item by ID. """
-  updateBillingIntegrationLog(id: ID!, data: BillingIntegrationLogUpdateInput): BillingIntegrationLog
+  """ Update a single BillingIntegrationProblem item by ID. """
+  updateBillingIntegrationProblem(id: ID!, data: BillingIntegrationProblemUpdateInput): BillingIntegrationProblem
 
-  """ Update multiple BillingIntegrationLog items by ID. """
-  updateBillingIntegrationLogs(data: [BillingIntegrationLogsUpdateInput]): [BillingIntegrationLog]
+  """ Update multiple BillingIntegrationProblem items by ID. """
+  updateBillingIntegrationProblems(data: [BillingIntegrationProblemsUpdateInput]): [BillingIntegrationProblem]
 
-  """ Delete a single BillingIntegrationLog item by ID. """
-  deleteBillingIntegrationLog(id: ID!): BillingIntegrationLog
+  """ Delete a single BillingIntegrationProblem item by ID. """
+  deleteBillingIntegrationProblem(id: ID!): BillingIntegrationProblem
 
-  """ Delete multiple BillingIntegrationLog items by ID. """
-  deleteBillingIntegrationLogs(ids: [ID!]): [BillingIntegrationLog]
+  """ Delete multiple BillingIntegrationProblem items by ID. """
+  deleteBillingIntegrationProblems(ids: [ID!]): [BillingIntegrationProblem]
 
   """ Create a single BillingPropertyHistoryRecord item. """
   createBillingPropertyHistoryRecord(data: BillingPropertyHistoryRecordCreateInput): BillingPropertyHistoryRecord

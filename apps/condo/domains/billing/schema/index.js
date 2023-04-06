@@ -10,8 +10,8 @@ const { BillingAccountMeterReading } = require('./BillingAccountMeterReading')
 const { BillingCategory } = require('./BillingCategory')
 const { BillingIntegration } = require('./BillingIntegration')
 const { BillingIntegrationAccessRight } = require('./BillingIntegrationAccessRight')
-const { BillingIntegrationLog } = require('./BillingIntegrationLog')
 const { BillingIntegrationOrganizationContext } = require('./BillingIntegrationOrganizationContext')
+const { BillingIntegrationProblem } = require('./BillingIntegrationProblem')
 const { BillingMeterResource } = require('./BillingMeterResource')
 const { BillingProperty } = require('./BillingProperty')
 const { BillingReceipt } = require('./BillingReceipt')
@@ -23,7 +23,7 @@ module.exports = {
     BillingIntegration,
     BillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext,
-    BillingIntegrationLog,
+    BillingIntegrationProblem,
     BillingProperty,
     BillingAccount,
     BillingMeterResource,

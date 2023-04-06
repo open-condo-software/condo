@@ -16,7 +16,7 @@ const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.util
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationContextGQL } = require('@condo/domains/billing/gql')
-const { BillingIntegrationLog: BillingIntegrationLogGQL } = require('@condo/domains/billing/gql')
+const { BillingIntegrationProblem: BillingIntegrationProblemGQL } = require('@condo/domains/billing/gql')
 const { BillingProperty: BillingPropertyGQL } = require('@condo/domains/billing/gql')
 const { BillingAccount: BillingAccountGQL } = require('@condo/domains/billing/gql')
 const { BillingMeterResource: BillingMeterResourceGQL } = require('@condo/domains/billing/gql')
@@ -37,7 +37,7 @@ const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/g
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
 const BillingIntegrationAccessRight = generateGQLTestUtils(BillingIntegrationAccessRightGQL)
 const BillingIntegrationOrganizationContext = generateGQLTestUtils(BillingIntegrationOrganizationContextGQL)
-const BillingIntegrationLog = generateGQLTestUtils(BillingIntegrationLogGQL)
+const BillingIntegrationProblem = generateGQLTestUtils(BillingIntegrationProblemGQL)
 const BillingProperty = generateGQLTestUtils(BillingPropertyGQL)
 const BillingAccount = generateGQLTestUtils(BillingAccountGQL)
 const BillingMeterResource = generateGQLTestUtils(BillingMeterResourceGQL)
@@ -153,25 +153,26 @@ async function updateTestBillingIntegrationOrganizationContext (client, id, extr
     return [obj, attrs]
 }
 
-async function createTestBillingIntegrationLog (client, context, extraAttrs = {}) {
+async function createTestBillingIntegrationProblem (client, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    if (!context || !context.id) throw new Error('no context')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const type = faker.lorem.words().replace(/[ ]/g, '_').toUpperCase()
-    const message = faker.lorem.sentences()
+    const title = faker.lorem.sentence(3)
+    const message = faker.lorem.sentences(3)
     const meta = { username: faker.lorem.word(), server: faker.internet.url(), ip: faker.internet.ipv6() }
 
     const attrs = {
         dv: 1,
         sender,
         context: { connect: { id: context.id } },
-        type, message, meta,
+        title, message, meta,
         ...extraAttrs,
     }
-    const obj = await BillingIntegrationLog.create(client, attrs)
+    const obj = await BillingIntegrationProblem.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestBillingIntegrationLog (client, id, extraAttrs = {}) {
+async function updateTestBillingIntegrationProblem (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -181,7 +182,7 @@ async function updateTestBillingIntegrationLog (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await BillingIntegrationLog.update(client, id, attrs)
+    const obj = await BillingIntegrationProblem.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -364,20 +365,6 @@ async function createTestBillingMeterResource (client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await BillingMeterResource.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestBillingMeterResource (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await BillingMeterResource.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -577,21 +564,6 @@ async function updateTestBillingCategory (client, id, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await BillingCategory.update(client, id, attrs)
-    return [obj, attrs]
-}
-
-
-async function updateTestBillingOrganization (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await BillingOrganization.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -878,16 +850,16 @@ module.exports = {
     BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight,
     makeClientWithIntegrationAccess,
     BillingIntegrationOrganizationContext, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext,
-    BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog,
     BillingProperty, createTestBillingProperty, createTestBillingProperties, updateTestBillingProperty, updateTestBillingProperties,
+    BillingIntegrationProblem, createTestBillingIntegrationProblem, updateTestBillingIntegrationProblem,
     BillingAccount, createTestBillingAccount, createTestBillingAccounts, updateTestBillingAccount, updateTestBillingAccounts,
-    BillingMeterResource, createTestBillingMeterResource, updateTestBillingMeterResource,
+    BillingMeterResource, createTestBillingMeterResource,
     BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter,
     BillingAccountMeterReading, createTestBillingAccountMeterReading, updateTestBillingAccountMeterReading,
     BillingReceipt, createTestBillingReceipt, createTestBillingReceipts, updateTestBillingReceipt, updateTestBillingReceipts,
     makeContextWithOrganizationAndIntegrationAsAdmin,
     makeOrganizationIntegrationManager, addBillingIntegrationAndContext,
-    BillingOrganization, updateTestBillingOrganization,
+    BillingOrganization,
     ResidentBillingReceipt,
     createReceiptsReader,
     makeClientWithPropertyAndBilling,

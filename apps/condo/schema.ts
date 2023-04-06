@@ -13572,189 +13572,6 @@ export type BillingIntegrationHistoryRecordsUpdateInput = {
   data?: Maybe<BillingIntegrationHistoryRecordUpdateInput>;
 };
 
-/**  Important `integration component` log records. Sometimes you need to report some errors/problems related to the integration process. The target audience of these messages is the client of our API platform. You should avoid repeating the same messages. The existence of the message means that some problems were occurred during the integration process and the client should the user must take some actions to eliminate them  */
-export type BillingIntegrationLog = {
-  __typename?: 'BillingIntegrationLog';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the BillingIntegrationLog List config, or
-   *  2. As an alias to the field set on 'labelField' in the BillingIntegrationLog List config, or
-   *  3. As an alias to a 'name' field on the BillingIntegrationLog List (if one exists), or
-   *  4. As an alias to the 'id' field on the BillingIntegrationLog List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  /**  Integration context  */
-  context?: Maybe<BillingIntegrationOrganizationContext>;
-  /**  Message type. Our clients can use different languages. Sometimes we need to change the text message for the client. The settings for the message texts are in the integration. Ex: WRONG_AUTH_CREDENTIALS  */
-  type?: Maybe<Scalars['String']>;
-  /**  Client understandable message. May be overridden by integration settings for some message types  */
-  message?: Maybe<Scalars['String']>;
-  /**  The message metadata. Context variables for generating messages. Examples of data keys: ``  */
-  meta?: Maybe<Scalars['JSON']>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  createdBy?: Maybe<User>;
-  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  updatedBy?: Maybe<User>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
-};
-
-export type BillingIntegrationLogCreateInput = {
-  context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
-  type?: Maybe<Scalars['String']>;
-  message?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-};
-
-export type BillingIntegrationLogUpdateInput = {
-  context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
-  type?: Maybe<Scalars['String']>;
-  message?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-};
-
-export type BillingIntegrationLogWhereInput = {
-  AND?: Maybe<Array<Maybe<BillingIntegrationLogWhereInput>>>;
-  OR?: Maybe<Array<Maybe<BillingIntegrationLogWhereInput>>>;
-  context?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
-  context_is_null?: Maybe<Scalars['Boolean']>;
-  type?: Maybe<Scalars['String']>;
-  type_not?: Maybe<Scalars['String']>;
-  type_contains?: Maybe<Scalars['String']>;
-  type_not_contains?: Maybe<Scalars['String']>;
-  type_starts_with?: Maybe<Scalars['String']>;
-  type_not_starts_with?: Maybe<Scalars['String']>;
-  type_ends_with?: Maybe<Scalars['String']>;
-  type_not_ends_with?: Maybe<Scalars['String']>;
-  type_i?: Maybe<Scalars['String']>;
-  type_not_i?: Maybe<Scalars['String']>;
-  type_contains_i?: Maybe<Scalars['String']>;
-  type_not_contains_i?: Maybe<Scalars['String']>;
-  type_starts_with_i?: Maybe<Scalars['String']>;
-  type_not_starts_with_i?: Maybe<Scalars['String']>;
-  type_ends_with_i?: Maybe<Scalars['String']>;
-  type_not_ends_with_i?: Maybe<Scalars['String']>;
-  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  message?: Maybe<Scalars['String']>;
-  message_not?: Maybe<Scalars['String']>;
-  message_contains?: Maybe<Scalars['String']>;
-  message_not_contains?: Maybe<Scalars['String']>;
-  message_starts_with?: Maybe<Scalars['String']>;
-  message_not_starts_with?: Maybe<Scalars['String']>;
-  message_ends_with?: Maybe<Scalars['String']>;
-  message_not_ends_with?: Maybe<Scalars['String']>;
-  message_i?: Maybe<Scalars['String']>;
-  message_not_i?: Maybe<Scalars['String']>;
-  message_contains_i?: Maybe<Scalars['String']>;
-  message_not_contains_i?: Maybe<Scalars['String']>;
-  message_starts_with_i?: Maybe<Scalars['String']>;
-  message_not_starts_with_i?: Maybe<Scalars['String']>;
-  message_ends_with_i?: Maybe<Scalars['String']>;
-  message_not_ends_with_i?: Maybe<Scalars['String']>;
-  message_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  message_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  meta?: Maybe<Scalars['JSON']>;
-  meta_not?: Maybe<Scalars['JSON']>;
-  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<UserWhereInput>;
-  createdBy_is_null?: Maybe<Scalars['Boolean']>;
-  updatedBy?: Maybe<UserWhereInput>;
-  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['String']>;
-  newId_not?: Maybe<Scalars['String']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-};
-
-export type BillingIntegrationLogWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type BillingIntegrationLogsCreateInput = {
-  data?: Maybe<BillingIntegrationLogCreateInput>;
-};
-
-export type BillingIntegrationLogsUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<BillingIntegrationLogUpdateInput>;
-};
-
 /**  Integration state and settings for all organizations. The existence of this object means that there is a configured integration between the `billing data source` and `this API`  */
 export type BillingIntegrationOrganizationContext = {
   __typename?: 'BillingIntegrationOrganizationContext';
@@ -14141,6 +13958,189 @@ export type BillingIntegrationOrganizationContextsCreateInput = {
 export type BillingIntegrationOrganizationContextsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<BillingIntegrationOrganizationContextUpdateInput>;
+};
+
+/**  Report about an error that occurred during integration process. There's 2 target groups for it: Organization employees will see title and message of last problem, so they can be notified, that something went wrong. Support can also read problem messages as well as metadata, which helps them to resolve an issue.  */
+export type BillingIntegrationProblem = {
+  __typename?: 'BillingIntegrationProblem';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the BillingIntegrationProblem List config, or
+   *  2. As an alias to the field set on 'labelField' in the BillingIntegrationProblem List config, or
+   *  3. As an alias to a 'name' field on the BillingIntegrationProblem List (if one exists), or
+   *  4. As an alias to the 'id' field on the BillingIntegrationProblem List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Integration context  */
+  context?: Maybe<BillingIntegrationOrganizationContext>;
+  /**  Problem summary, like "Wrong requisites", "No access provided" and so on  */
+  title?: Maybe<Scalars['String']>;
+  /**  Client understandable message, describing what should client do to fix a problem  */
+  message?: Maybe<Scalars['String']>;
+  /**  The message metadata, which can help support to resolve an issue  */
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type BillingIntegrationProblemCreateInput = {
+  context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
+  title?: Maybe<Scalars['String']>;
+  message?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type BillingIntegrationProblemUpdateInput = {
+  context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
+  title?: Maybe<Scalars['String']>;
+  message?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type BillingIntegrationProblemWhereInput = {
+  AND?: Maybe<Array<Maybe<BillingIntegrationProblemWhereInput>>>;
+  OR?: Maybe<Array<Maybe<BillingIntegrationProblemWhereInput>>>;
+  context?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
+  context_is_null?: Maybe<Scalars['Boolean']>;
+  title?: Maybe<Scalars['String']>;
+  title_not?: Maybe<Scalars['String']>;
+  title_contains?: Maybe<Scalars['String']>;
+  title_not_contains?: Maybe<Scalars['String']>;
+  title_starts_with?: Maybe<Scalars['String']>;
+  title_not_starts_with?: Maybe<Scalars['String']>;
+  title_ends_with?: Maybe<Scalars['String']>;
+  title_not_ends_with?: Maybe<Scalars['String']>;
+  title_i?: Maybe<Scalars['String']>;
+  title_not_i?: Maybe<Scalars['String']>;
+  title_contains_i?: Maybe<Scalars['String']>;
+  title_not_contains_i?: Maybe<Scalars['String']>;
+  title_starts_with_i?: Maybe<Scalars['String']>;
+  title_not_starts_with_i?: Maybe<Scalars['String']>;
+  title_ends_with_i?: Maybe<Scalars['String']>;
+  title_not_ends_with_i?: Maybe<Scalars['String']>;
+  title_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  title_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  message?: Maybe<Scalars['String']>;
+  message_not?: Maybe<Scalars['String']>;
+  message_contains?: Maybe<Scalars['String']>;
+  message_not_contains?: Maybe<Scalars['String']>;
+  message_starts_with?: Maybe<Scalars['String']>;
+  message_not_starts_with?: Maybe<Scalars['String']>;
+  message_ends_with?: Maybe<Scalars['String']>;
+  message_not_ends_with?: Maybe<Scalars['String']>;
+  message_i?: Maybe<Scalars['String']>;
+  message_not_i?: Maybe<Scalars['String']>;
+  message_contains_i?: Maybe<Scalars['String']>;
+  message_not_contains_i?: Maybe<Scalars['String']>;
+  message_starts_with_i?: Maybe<Scalars['String']>;
+  message_not_starts_with_i?: Maybe<Scalars['String']>;
+  message_ends_with_i?: Maybe<Scalars['String']>;
+  message_not_ends_with_i?: Maybe<Scalars['String']>;
+  message_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  message_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type BillingIntegrationProblemWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type BillingIntegrationProblemsCreateInput = {
+  data?: Maybe<BillingIntegrationProblemCreateInput>;
+};
+
+export type BillingIntegrationProblemsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<BillingIntegrationProblemUpdateInput>;
 };
 
 export type BillingIntegrationRelateToOneInput = {
@@ -27769,18 +27769,18 @@ export type Mutation = {
   deleteBillingIntegrationOrganizationContext?: Maybe<BillingIntegrationOrganizationContext>;
   /**  Delete multiple BillingIntegrationOrganizationContext items by ID.  */
   deleteBillingIntegrationOrganizationContexts?: Maybe<Array<Maybe<BillingIntegrationOrganizationContext>>>;
-  /**  Create a single BillingIntegrationLog item.  */
-  createBillingIntegrationLog?: Maybe<BillingIntegrationLog>;
-  /**  Create multiple BillingIntegrationLog items.  */
-  createBillingIntegrationLogs?: Maybe<Array<Maybe<BillingIntegrationLog>>>;
-  /**  Update a single BillingIntegrationLog item by ID.  */
-  updateBillingIntegrationLog?: Maybe<BillingIntegrationLog>;
-  /**  Update multiple BillingIntegrationLog items by ID.  */
-  updateBillingIntegrationLogs?: Maybe<Array<Maybe<BillingIntegrationLog>>>;
-  /**  Delete a single BillingIntegrationLog item by ID.  */
-  deleteBillingIntegrationLog?: Maybe<BillingIntegrationLog>;
-  /**  Delete multiple BillingIntegrationLog items by ID.  */
-  deleteBillingIntegrationLogs?: Maybe<Array<Maybe<BillingIntegrationLog>>>;
+  /**  Create a single BillingIntegrationProblem item.  */
+  createBillingIntegrationProblem?: Maybe<BillingIntegrationProblem>;
+  /**  Create multiple BillingIntegrationProblem items.  */
+  createBillingIntegrationProblems?: Maybe<Array<Maybe<BillingIntegrationProblem>>>;
+  /**  Update a single BillingIntegrationProblem item by ID.  */
+  updateBillingIntegrationProblem?: Maybe<BillingIntegrationProblem>;
+  /**  Update multiple BillingIntegrationProblem items by ID.  */
+  updateBillingIntegrationProblems?: Maybe<Array<Maybe<BillingIntegrationProblem>>>;
+  /**  Delete a single BillingIntegrationProblem item by ID.  */
+  deleteBillingIntegrationProblem?: Maybe<BillingIntegrationProblem>;
+  /**  Delete multiple BillingIntegrationProblem items by ID.  */
+  deleteBillingIntegrationProblems?: Maybe<Array<Maybe<BillingIntegrationProblem>>>;
   /**  Create a single BillingPropertyHistoryRecord item.  */
   createBillingPropertyHistoryRecord?: Maybe<BillingPropertyHistoryRecord>;
   /**  Create multiple BillingPropertyHistoryRecord items.  */
@@ -32442,33 +32442,33 @@ export type MutationDeleteBillingIntegrationOrganizationContextsArgs = {
 };
 
 
-export type MutationCreateBillingIntegrationLogArgs = {
-  data?: Maybe<BillingIntegrationLogCreateInput>;
+export type MutationCreateBillingIntegrationProblemArgs = {
+  data?: Maybe<BillingIntegrationProblemCreateInput>;
 };
 
 
-export type MutationCreateBillingIntegrationLogsArgs = {
-  data?: Maybe<Array<Maybe<BillingIntegrationLogsCreateInput>>>;
+export type MutationCreateBillingIntegrationProblemsArgs = {
+  data?: Maybe<Array<Maybe<BillingIntegrationProblemsCreateInput>>>;
 };
 
 
-export type MutationUpdateBillingIntegrationLogArgs = {
+export type MutationUpdateBillingIntegrationProblemArgs = {
   id: Scalars['ID'];
-  data?: Maybe<BillingIntegrationLogUpdateInput>;
+  data?: Maybe<BillingIntegrationProblemUpdateInput>;
 };
 
 
-export type MutationUpdateBillingIntegrationLogsArgs = {
-  data?: Maybe<Array<Maybe<BillingIntegrationLogsUpdateInput>>>;
+export type MutationUpdateBillingIntegrationProblemsArgs = {
+  data?: Maybe<Array<Maybe<BillingIntegrationProblemsUpdateInput>>>;
 };
 
 
-export type MutationDeleteBillingIntegrationLogArgs = {
+export type MutationDeleteBillingIntegrationProblemArgs = {
   id: Scalars['ID'];
 };
 
 
-export type MutationDeleteBillingIntegrationLogsArgs = {
+export type MutationDeleteBillingIntegrationProblemsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -46541,14 +46541,14 @@ export type Query = {
   _allBillingIntegrationOrganizationContextsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the BillingIntegrationOrganizationContext list.  */
   _BillingIntegrationOrganizationContextsMeta?: Maybe<_ListMeta>;
-  /**  Search for all BillingIntegrationLog items which match the where clause.  */
-  allBillingIntegrationLogs?: Maybe<Array<Maybe<BillingIntegrationLog>>>;
-  /**  Search for the BillingIntegrationLog item with the matching ID.  */
-  BillingIntegrationLog?: Maybe<BillingIntegrationLog>;
-  /**  Perform a meta-query on all BillingIntegrationLog items which match the where clause.  */
-  _allBillingIntegrationLogsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the BillingIntegrationLog list.  */
-  _BillingIntegrationLogsMeta?: Maybe<_ListMeta>;
+  /**  Search for all BillingIntegrationProblem items which match the where clause.  */
+  allBillingIntegrationProblems?: Maybe<Array<Maybe<BillingIntegrationProblem>>>;
+  /**  Search for the BillingIntegrationProblem item with the matching ID.  */
+  BillingIntegrationProblem?: Maybe<BillingIntegrationProblem>;
+  /**  Perform a meta-query on all BillingIntegrationProblem items which match the where clause.  */
+  _allBillingIntegrationProblemsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the BillingIntegrationProblem list.  */
+  _BillingIntegrationProblemsMeta?: Maybe<_ListMeta>;
   /**  Search for all BillingPropertyHistoryRecord items which match the where clause.  */
   allBillingPropertyHistoryRecords?: Maybe<Array<Maybe<BillingPropertyHistoryRecord>>>;
   /**  Search for the BillingPropertyHistoryRecord item with the matching ID.  */
@@ -48844,25 +48844,25 @@ export type Query_AllBillingIntegrationOrganizationContextsMetaArgs = {
 };
 
 
-export type QueryAllBillingIntegrationLogsArgs = {
-  where?: Maybe<BillingIntegrationLogWhereInput>;
+export type QueryAllBillingIntegrationProblemsArgs = {
+  where?: Maybe<BillingIntegrationProblemWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBillingIntegrationLogsBy>>;
+  sortBy?: Maybe<Array<SortBillingIntegrationProblemsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
 };
 
 
-export type QueryBillingIntegrationLogArgs = {
-  where: BillingIntegrationLogWhereUniqueInput;
+export type QueryBillingIntegrationProblemArgs = {
+  where: BillingIntegrationProblemWhereUniqueInput;
 };
 
 
-export type Query_AllBillingIntegrationLogsMetaArgs = {
-  where?: Maybe<BillingIntegrationLogWhereInput>;
+export type Query_AllBillingIntegrationProblemsMetaArgs = {
+  where?: Maybe<BillingIntegrationProblemWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBillingIntegrationLogsBy>>;
+  sortBy?: Maybe<Array<SortBillingIntegrationProblemsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -58412,31 +58412,6 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   HistoryActionDesc = 'history_action_DESC'
 }
 
-export enum SortBillingIntegrationLogsBy {
-  ContextAsc = 'context_ASC',
-  ContextDesc = 'context_DESC',
-  TypeAsc = 'type_ASC',
-  TypeDesc = 'type_DESC',
-  MessageAsc = 'message_ASC',
-  MessageDesc = 'message_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  CreatedByAsc = 'createdBy_ASC',
-  CreatedByDesc = 'createdBy_DESC',
-  UpdatedByAsc = 'updatedBy_ASC',
-  UpdatedByDesc = 'updatedBy_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC'
-}
-
 export enum SortBillingIntegrationOrganizationContextHistoryRecordsBy {
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
@@ -58465,6 +58440,31 @@ export enum SortBillingIntegrationOrganizationContextsBy {
   OrganizationDesc = 'organization_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortBillingIntegrationProblemsBy {
+  ContextAsc = 'context_ASC',
+  ContextDesc = 'context_DESC',
+  TitleAsc = 'title_ASC',
+  TitleDesc = 'title_DESC',
+  MessageAsc = 'message_ASC',
+  MessageDesc = 'message_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
