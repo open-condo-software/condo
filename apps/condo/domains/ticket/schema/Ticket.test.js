@@ -3,7 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { get, isInteger, omit } = require('lodash')
+const { get, pick } = require('lodash')
 
 const {
     NUMBER_RE, UUID_RE, DATETIME_RE,
@@ -76,6 +76,7 @@ const {
     NEW_OR_REOPENED_STATUS_TYPE,
     CLOSED_STATUS_TYPE,
 } = require('@condo/domains/ticket/constants')
+const { FEEDBACK_VALUES_BY_KEY, FEEDBACK_ADDITIONAL_OPTIONS, FEEDBACK_VALUES } = require('@condo/domains/ticket/constants/feedback')
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS, QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qualityControl')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { ERRORS, DAILY_SAME_TICKET_LIMIT, DAILY_TICKET_LIMIT } = require('@condo/domains/ticket/schema/Ticket')
@@ -96,26 +97,10 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 
-// todo(doma-5748): uncomment and remove temporary solution after update "faker"
-// const getRandomQualityControlAdditionalOptions = (count) => faker.helpers.arrayElements(
-//     QUALITY_CONTROL_ADDITIONAL_OPTIONS,
-//     faker.datatype.number({
-//         min: isInteger(count) && QUALITY_CONTROL_ADDITIONAL_OPTIONS.length > count ? count : 1,
-//         max: isInteger(count) && QUALITY_CONTROL_ADDITIONAL_OPTIONS.length > count ? count : QUALITY_CONTROL_ADDITIONAL_OPTIONS.length,
-//     })
-// )
-//
-// const getRandomQualityControlValue = () => faker.helpers.arrayElement(QUALITY_CONTROL_VALUES)
-
-// NOTE: temporary solution
-const getRandomQualityControlAdditionalOptions = (count) => {
-    return QUALITY_CONTROL_ADDITIONAL_OPTIONS.slice(0, isInteger(count) ? count : QUALITY_CONTROL_ADDITIONAL_OPTIONS.length)
-}
-
-// NOTE: temporary solution
-const getRandomQualityControlValue = () => {
-    return QUALITY_CONTROL_VALUES[0]
-}
+const FEEDBACK_VALUES_WITHOUT_RETURNED = FEEDBACK_VALUES.filter(item => item !== FEEDBACK_VALUES_BY_KEY.RETURNED)
+// TODO(DOMA-5833): delete REVIEW_VALUES_WITHOUT_RETURNED when the mobile app will use 'feedback*' fields
+/** @deprecated */
+const REVIEW_VALUES_WITHOUT_RETURNED = [REVIEW_VALUES.GOOD, REVIEW_VALUES.BAD]
 
 describe('Ticket', () => {
     let admin
@@ -157,6 +142,10 @@ describe('Ticket', () => {
             expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
             expect(obj.completedAt).toEqual(null)
             expect(obj.deferredUntil).toEqual(null)
+            expect(obj.feedbackValue).toBeNull()
+            expect(obj.feedbackComment).toBeNull()
+            expect(obj.feedbackAdditionalOptions).toBeNull()
+            expect(obj.feedbackUpdatedAt).toBeNull()
             expect(obj.qualityControlValue).toBeNull()
             expect(obj.qualityControlComment).toBeNull()
             expect(obj.qualityControlAdditionalOptions).toBeNull()
@@ -977,11 +966,97 @@ describe('Ticket', () => {
             expect(dayjs(completedTicket.statusUpdatedAt).diff(inProgressTicket.statusUpdatedAt)).toBeGreaterThanOrEqual(0)
         })
 
+        test('resident: can update feedback fields', async () => {
+            const residentClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, residentClient.user, residentClient.property, {
+                unitName,
+            })
+            const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
+                unitName,
+            })
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+            })
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            const [updatedTicket, attrs] = await updateTestTicket(residentClient, ticket.id, {
+                feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED),
+                feedbackComment: faker.lorem.sentence(),
+                feedbackAdditionalOptions: faker.helpers.arrayElements(FEEDBACK_ADDITIONAL_OPTIONS),
+            })
+
+            expect(updatedTicket.feedbackValue).toEqual(attrs.feedbackValue)
+            expect(updatedTicket.feedbackComment).toEqual(attrs.feedbackComment)
+            expect(updatedTicket.feedbackAdditionalOptions).toEqual(attrs.feedbackAdditionalOptions.sort())
+        })
+
+        test('resident: should close ticket when set feedback', async () => {
+            const residentClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, residentClient.user, residentClient.property, {
+                unitName,
+            })
+            const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
+                unitName,
+            })
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+            })
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            const [updatedTicket] = await updateTestTicket(residentClient, ticket.id, {
+                feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED),
+            })
+
+            expect(updatedTicket.status.id).toEqual(STATUS_IDS.CLOSED)
+        })
+
+        describe('resident: auto-set "feedbackUpdatedAt" when updated "feedbackValue" or "feedbackAdditionalOptions" or "feedbackComment"', () => {
+            const cases = [
+                ['feedbackValue', { feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED) }],
+                ['feedbackAdditionalOptions', { feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED), feedbackAdditionalOptions: faker.helpers.arrayElements(FEEDBACK_ADDITIONAL_OPTIONS) }],
+                ['feedbackComment', { feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED), feedbackComment: faker.lorem.sentence() }],
+            ]
+
+            test.each(cases)('%s', async (_, payload) => {
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, residentClient.user, residentClient.property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
+                    unitName,
+                })
+
+                await updateTestTicket(admin, ticket.id, {
+                    status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+                })
+                await updateTestTicket(admin, ticket.id, {
+                    status: { connect: { id: STATUS_IDS.COMPLETED } },
+                })
+
+                const timeBefore = dayjs()
+                const [updatedTicket] = await updateTestTicket(residentClient, ticket.id, payload)
+                const timeAfter = dayjs()
+
+                expect(updatedTicket.feedbackUpdatedAt).not.toBeNull()
+                expect(updatedTicket.feedbackUpdatedAt).not.toEqual(ticket.feedbackUpdatedAt)
+                expect(dayjs(updatedTicket.feedbackUpdatedAt).isBetween(timeBefore, timeAfter)).toBeTruthy()
+            })
+        })
+
         test('user: set qualityControlValue', async () => {
             const client = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
 
-            const payload = { qualityControlValue: getRandomQualityControlValue() }
+            const payload = { qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES) }
             const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
 
             expect(updatedTicket.qualityControlValue).toEqual(payload.qualityControlValue)
@@ -992,8 +1067,8 @@ describe('Ticket', () => {
             const [ticket] = await createTestTicket(client, client.organization, client.property)
 
             const payload = {
-                qualityControlValue: getRandomQualityControlValue(),
-                qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions(),
+                qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES),
+                qualityControlAdditionalOptions: faker.helpers.arrayElements(QUALITY_CONTROL_ADDITIONAL_OPTIONS),
             }
             const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
 
@@ -1005,16 +1080,16 @@ describe('Ticket', () => {
         test('user: set and update qualityControlAdditionalOptions', async () => {
             const client = await makeClientWithProperty()
             const [ticket, ticketAttrs] = await createTestTicket(client, client.organization, client.property, {
-                qualityControlValue: getRandomQualityControlValue(),
-                qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions(),
+                qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES),
+                qualityControlAdditionalOptions: faker.helpers.arrayElements(QUALITY_CONTROL_ADDITIONAL_OPTIONS),
             })
 
             expect(ticket.qualityControlValue).toEqual(ticketAttrs.qualityControlValue)
             expect(ticket.qualityControlAdditionalOptions).toEqual(ticketAttrs.qualityControlAdditionalOptions.sort())
 
             const payload = {
-                qualityControlValue: getRandomQualityControlValue(),
-                qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions(),
+                qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES),
+                qualityControlAdditionalOptions: faker.helpers.arrayElements(QUALITY_CONTROL_ADDITIONAL_OPTIONS),
             }
             const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
 
@@ -1027,7 +1102,7 @@ describe('Ticket', () => {
             const [ticket] = await createTestTicket(client, client.organization, client.property)
 
             const payload = {
-                qualityControlValue: getRandomQualityControlValue(),
+                qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES),
                 qualityControlComment: faker.lorem.sentence(),
             }
             const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
@@ -1037,15 +1112,15 @@ describe('Ticket', () => {
 
         describe('user: auto-set "qualityControlUpdatedAt" and "qualityControlUpdatedBy" when updated "qualityControlValue" or "qualityControlAdditionalOptions" or "qualityControlComment"', () => {
             const cases = [
-                ['qualityControlValue', { qualityControlValue: getRandomQualityControlValue() }],
-                ['qualityControlAdditionalOptions', { qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions() }],
+                ['qualityControlValue', { qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES) }],
+                ['qualityControlAdditionalOptions', { qualityControlAdditionalOptions: faker.helpers.arrayElements(QUALITY_CONTROL_ADDITIONAL_OPTIONS) }],
                 ['qualityControlComment', { qualityControlComment: faker.lorem.sentence() }],
             ]
 
             test.each(cases)('%s', async (_, payload) => {
                 const client = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(client, client.organization, client.property, {
-                    qualityControlValue: getRandomQualityControlValue(),
+                    qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES),
                 })
 
                 const timeBefore = dayjs()
@@ -1275,6 +1350,14 @@ describe('Ticket', () => {
             expect(readTicket).toBeDefined()
         })
 
+        test('admin: cannot updated auto-set field "feedbackUpdatedAt"', async () => {
+            const client = await makeClientWithProperty()
+
+            await expectToThrowGraphQLRequestError(async () => {
+                await createTestTicket(admin, client.organization, client.property, { feedbackUpdatedAt: dayjs().toISOString() })
+            }, 'Field "feedbackUpdatedAt" is not defined')
+        })
+
         test('admin: cannot update auto-set field "qualityControlUpdatedAt"', async () => {
             const client = await makeClientWithProperty()
 
@@ -1291,11 +1374,11 @@ describe('Ticket', () => {
             }, 'Field "qualityControlUpdatedBy" is not defined')
         })
 
-        describe('resident: cannot set fields for quality control fields', () => {
+        describe('resident: cannot set quality control fields', () => {
             const cases = [
-                ['qualityControlValue', { qualityControlValue: getRandomQualityControlValue() }],
-                ['qualityControlComment', { qualityControlValue: getRandomQualityControlValue(), qualityControlComment: faker.lorem.sentence() }],
-                ['qualityControlAdditionalOptions', { qualityControlValue: getRandomQualityControlValue(), qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions() }],
+                ['qualityControlValue', { qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES) }],
+                ['qualityControlComment', { qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES), qualityControlComment: faker.lorem.sentence() }],
+                ['qualityControlAdditionalOptions', { qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES), qualityControlAdditionalOptions: faker.helpers.arrayElements(QUALITY_CONTROL_ADDITIONAL_OPTIONS) }],
             ]
 
             test.each(cases)('cannot create ticket with "%s"', async (_, payload) => {
@@ -1309,17 +1392,42 @@ describe('Ticket', () => {
                 })
             })
 
-            test.each(cases)('cannot update ticket with "%s"', async (_, payload) => {
+            test.each(cases)('cannot update ticket with "%s"', async (field, payload) => {
                 const residentClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
                 await createTestResident(admin, residentClient.user, residentClient.property, {
                     unitName,
                 })
                 const [ticket] = await createTestTicket(admin, residentClient.organization, residentClient.property, {
-                    qualityControlValue: getRandomQualityControlValue(),
+                    qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES),
                 })
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestTicket(residentClient, ticket.id, omit(payload, 'qualityControlValue'))
+                    await updateTestTicket(residentClient, ticket.id, pick(payload, field))
+                })
+            })
+        })
+
+        describe('staff: cannot set feedback fields', () => {
+            const cases = [
+                ['feedbackValue', { feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED) }],
+                ['feedbackComment', { feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED), feedbackComment: faker.lorem.sentence() }],
+                ['feedbackAdditionalOptions', { feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED), feedbackAdditionalOptions: faker.helpers.arrayElements(FEEDBACK_ADDITIONAL_OPTIONS) }],
+            ]
+
+            test.each(cases)('cannot create ticket with "%s"', async (_, payload) => {
+                const client = await makeClientWithProperty()
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestTicket(client, client.organization, client.property, payload)
+                })
+            })
+
+            test.each(cases)('cannot update ticket with "%s"', async (field, payload) => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(admin, client.organization, client.property, {
+                    feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED),
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestTicket(client, ticket.id, pick(payload, field))
                 })
             })
         })
@@ -1766,6 +1874,7 @@ describe('Ticket', () => {
             })
         })
 
+        // TODO(DOMA-5833): delete this describe when the mobile app will use 'feedback*' fields
         describe('change status after resident review', () => {
             test('status changed to CLOSED after resident left GOOD review value', async () => {
                 const userClient = await makeClientWithResidentAccessAndProperty()
@@ -1809,6 +1918,50 @@ describe('Ticket', () => {
 
                 expect(ticket.id).toEqual(updatedTicket.id)
                 expect(updatedTicket.reviewValue).toEqual(REVIEW_VALUES.RETURN)
+                expect(updatedTicket.status.id).toEqual(STATUS_IDS.OPEN)
+            })
+        })
+
+        describe('change status after resident feedback', () => {
+            test('status changed to CLOSED after resident left GOOD or BAD feedback value', async () => {
+                const userClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, userClient.user, userClient.property, {
+                    unitName,
+                })
+
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                    unitName,
+                    status: { connect: { id: STATUS_IDS.COMPLETED } },
+                })
+
+                const [updatedTicket, ticketAttr] = await updateTestTicket(userClient, ticket.id, {
+                    feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED),
+                })
+
+                expect(ticket.id).toEqual(updatedTicket.id)
+                expect(updatedTicket.feedbackValue).toEqual(ticketAttr.feedbackValue)
+                expect(updatedTicket.status.id).toEqual(STATUS_IDS.CLOSED)
+            })
+
+            test('status changed to OPEN after resident return ticket to work', async () => {
+                const userClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, userClient.user, userClient.property, {
+                    unitName,
+                })
+
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                    unitName,
+                    status: { connect: { id: STATUS_IDS.COMPLETED } },
+                })
+
+                const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
+                    feedbackValue: FEEDBACK_VALUES_BY_KEY.RETURNED,
+                })
+
+                expect(ticket.id).toEqual(updatedTicket.id)
+                expect(updatedTicket.feedbackValue).toEqual(FEEDBACK_VALUES_BY_KEY.RETURNED)
                 expect(updatedTicket.status.id).toEqual(STATUS_IDS.OPEN)
             })
         })
@@ -2370,6 +2523,162 @@ describe('Ticket', () => {
             })
         })
 
+        describe('feedback', () => {
+            describe('feedbackAdditionalOptions', () => {
+                describe('Should pass "feedbackAdditionalOptions"', () => {
+                    const cases = [
+                        [null, null],
+                        [[], null],
+                        [[FEEDBACK_ADDITIONAL_OPTIONS[0]], [FEEDBACK_ADDITIONAL_OPTIONS[0]]],
+                        [[FEEDBACK_ADDITIONAL_OPTIONS[0], FEEDBACK_ADDITIONAL_OPTIONS[1]], [FEEDBACK_ADDITIONAL_OPTIONS[0], FEEDBACK_ADDITIONAL_OPTIONS[1]].sort()],
+                        [[FEEDBACK_ADDITIONAL_OPTIONS[0], FEEDBACK_ADDITIONAL_OPTIONS[0]], [FEEDBACK_ADDITIONAL_OPTIONS[0]]],
+                    ]
+
+                    test.each(cases)('value: %j', async (additionalOptions, expected) => {
+                        const userClient = await makeClientWithResidentAccessAndProperty()
+                        const unitName = faker.random.alphaNumeric(5)
+                        await createTestResident(admin, userClient.user, userClient.property, {
+                            unitName,
+                        })
+
+                        const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                            unitName,
+                            status: { connect: { id: STATUS_IDS.COMPLETED } },
+                        })
+
+                        const payload = {
+                            feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED),
+                            feedbackAdditionalOptions: additionalOptions,
+                        }
+                        const [updatedTicket] = await updateTestTicket(userClient, ticket.id, payload)
+
+                        expect(updatedTicket.feedbackValue).toEqual(payload.feedbackValue)
+                        expect(updatedTicket.feedbackAdditionalOptions).toEqual(expected)
+                    })
+                })
+
+                describe('Should not pass "feedbackAdditionalOptions"', () => {
+                    const cases = [
+                        {},
+                        faker.datatype.number(),
+                        '',
+                        faker.lorem.sentence(),
+                        [faker.lorem.sentence()],
+                        [faker.datatype.boolean()],
+                        [faker.datatype.number()],
+                        [[]],
+                        [faker.helpers.arrayElements(FEEDBACK_ADDITIONAL_OPTIONS)],
+                    ]
+
+                    test.each(cases)('value: %j', async (additionalOptions) => {
+                        const client = await makeClientWithProperty()
+                        const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+                        const payload = {
+                            feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED),
+                            feedbackAdditionalOptions: additionalOptions,
+                        }
+
+                        await expectToThrowGraphQLRequestError(async () => {
+                            await updateTestTicket(client, ticket.id, payload)
+                        }, 'got invalid value')
+                    })
+                })
+
+                test('"feedbackAdditionalOptions" should not be passed if there is no "feedbackValue"', async () => {
+                    const userClient = await makeClientWithResidentAccessAndProperty()
+                    const unitName = faker.random.alphaNumeric(5)
+                    await createTestResident(admin, userClient.user, userClient.property, {
+                        unitName,
+                    })
+
+                    const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                        unitName,
+                        status: { connect: { id: STATUS_IDS.COMPLETED } },
+                    })
+
+                    const payload = {
+                        feedbackAdditionalOptions: faker.helpers.arrayElements(FEEDBACK_ADDITIONAL_OPTIONS),
+                    }
+
+                    await expectToThrowGQLError(async () => {
+                        await updateTestTicket(userClient, ticket.id, payload)
+                    }, ERRORS.FEEDBACK_VALUE_MUST_BE_SPECIFIED)
+                })
+
+                test('"feedbackAdditionalOptions" can be passed if there is "feedbackValue"', async () => {
+                    const userClient = await makeClientWithResidentAccessAndProperty()
+                    const unitName = faker.random.alphaNumeric(5)
+                    await createTestResident(admin, userClient.user, userClient.property, {
+                        unitName,
+                    })
+
+                    const [completedTicket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                        unitName,
+                        status: { connect: { id: STATUS_IDS.COMPLETED } },
+                    })
+
+                    const [ticket] = await updateTestTicket(userClient, completedTicket.id, {
+                        feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED),
+                    })
+
+                    const payload = {
+                        feedbackAdditionalOptions: faker.helpers.arrayElements(FEEDBACK_ADDITIONAL_OPTIONS),
+                    }
+                    const [updatedTicket] = await updateTestTicket(userClient, ticket.id, payload)
+
+                    expect(updatedTicket.feedbackAdditionalOptions).toEqual(payload.feedbackAdditionalOptions.sort())
+                })
+            })
+
+            describe('feedbackComment', () => {
+                test('"feedbackComment" should not be passed if there is no "feedbackValue"', async () => {
+                    const userClient = await makeClientWithResidentAccessAndProperty()
+                    const unitName = faker.random.alphaNumeric(5)
+                    await createTestResident(admin, userClient.user, userClient.property, {
+                        unitName,
+                    })
+
+                    const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                        unitName,
+                        status: { connect: { id: STATUS_IDS.COMPLETED } },
+                    })
+
+                    const payload = {
+                        feedbackComment: faker.lorem.sentence(),
+                    }
+
+                    await expectToThrowGQLError(async () => {
+                        await updateTestTicket(userClient, ticket.id, payload)
+                    }, ERRORS.FEEDBACK_VALUE_MUST_BE_SPECIFIED)
+                })
+
+                test('"feedbackComment" can be passed if there is "feedbackValue"', async () => {
+                    const userClient = await makeClientWithResidentAccessAndProperty()
+                    const unitName = faker.random.alphaNumeric(5)
+                    await createTestResident(admin, userClient.user, userClient.property, {
+                        unitName,
+                    })
+
+                    const [completedTicket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                        unitName,
+                        status: { connect: { id: STATUS_IDS.COMPLETED } },
+                    })
+
+                    const [ticket] = await updateTestTicket(userClient, completedTicket.id, {
+                        feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED),
+                    })
+
+                    const payload = {
+                        feedbackComment: faker.lorem.sentence(),
+                    }
+                    const [updatedTicket] = await updateTestTicket(userClient, ticket.id, payload)
+
+                    expect(updatedTicket.feedbackComment).toEqual(payload.feedbackComment)
+                })
+            })
+        })
+
         describe('quality control', () => {
             describe('qualityControlAdditionalOptions', () => {
                 describe('Should pass "qualityControlAdditionalOptions"', () => {
@@ -2386,7 +2695,7 @@ describe('Ticket', () => {
                         const [ticket] = await createTestTicket(client, client.organization, client.property)
 
                         const payload = {
-                            qualityControlValue: getRandomQualityControlValue(),
+                            qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES),
                             qualityControlAdditionalOptions: additionalOptions,
                         }
                         const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
@@ -2406,7 +2715,7 @@ describe('Ticket', () => {
                         [faker.datatype.boolean()],
                         [faker.datatype.number()],
                         [[]],
-                        [getRandomQualityControlAdditionalOptions()],
+                        [faker.helpers.arrayElements(QUALITY_CONTROL_ADDITIONAL_OPTIONS)],
                     ]
 
                     test.each(cases)('value: %j', async (additionalOptions) => {
@@ -2414,7 +2723,7 @@ describe('Ticket', () => {
                         const [ticket] = await createTestTicket(client, client.organization, client.property)
 
                         const payload = {
-                            qualityControlValue: getRandomQualityControlValue(),
+                            qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES),
                             qualityControlAdditionalOptions: additionalOptions,
                         }
 
@@ -2429,7 +2738,7 @@ describe('Ticket', () => {
                     const [ticket] = await createTestTicket(client, client.organization, client.property)
 
                     const payload = {
-                        qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions(),
+                        qualityControlAdditionalOptions: faker.helpers.arrayElements(QUALITY_CONTROL_ADDITIONAL_OPTIONS),
                     }
 
                     await expectToThrowGQLError(async () => {
@@ -2440,11 +2749,11 @@ describe('Ticket', () => {
                 test('"qualityControlAdditionalOptions" can be passed if there is "qualityControlValue"', async () => {
                     const client = await makeClientWithProperty()
                     const [ticket] = await createTestTicket(client, client.organization, client.property, {
-                        qualityControlValue: getRandomQualityControlValue(),
+                        qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES),
                     })
 
                     const payload = {
-                        qualityControlAdditionalOptions: getRandomQualityControlAdditionalOptions(),
+                        qualityControlAdditionalOptions: faker.helpers.arrayElements(QUALITY_CONTROL_ADDITIONAL_OPTIONS),
                     }
                     const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
 
@@ -2469,7 +2778,7 @@ describe('Ticket', () => {
                 test('"qualityControlComment" can be passed if there is "qualityControlValue"', async () => {
                     const client = await makeClientWithProperty()
                     const [ticket] = await createTestTicket(client, client.organization, client.property, {
-                        qualityControlValue: getRandomQualityControlValue(),
+                        qualityControlValue: faker.helpers.arrayElement(QUALITY_CONTROL_VALUES),
                     })
 
                     const payload = {
@@ -2480,6 +2789,39 @@ describe('Ticket', () => {
                     expect(updatedTicket.qualityControlComment).toEqual(payload.qualityControlComment)
                 })
             })
+        })
+    })
+
+    // TODO(DOMA-5833): delete this describe when the mobile app will use 'feedback*' fields
+    describe('feedback and review', () => {
+        test('feedback should override review', async () => {
+            const residentClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, residentClient.user, residentClient.property, {
+                unitName,
+            })
+            const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
+                unitName,
+            })
+
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+            })
+            await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            const [updatedTicket, attrs] = await updateTestTicket(residentClient, ticket.id, {
+                feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED),
+                reviewValue: faker.helpers.arrayElement(REVIEW_VALUES_WITHOUT_RETURNED),
+                reviewComment: faker.lorem.sentence(),
+            })
+
+            expect(updatedTicket.feedbackValue).toEqual(attrs.feedbackValue)
+            expect(updatedTicket.reviewValue).toEqual(attrs.feedbackValue)
+            expect(updatedTicket.reviewComment).toBeNull()
+            expect(updatedTicket.feedbackComment).toBeNull()
+            expect(updatedTicket.feedbackAdditionalOptions).toBeNull()
         })
     })
 

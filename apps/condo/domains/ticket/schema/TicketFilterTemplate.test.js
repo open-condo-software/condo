@@ -13,11 +13,15 @@ const {
     expectToThrowAuthenticationErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
-const { createTestOrganization, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganization, createTestOrganizationEmployee,
+    makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
+} = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
+const { REVIEW_VALUES } = require('@condo/domains/ticket/constants')
+const { FEEDBACK_VALUES_BY_KEY } = require('@condo/domains/ticket/constants/feedback')
 const { TicketFilterTemplate, createTestTicketFilterTemplate, updateTestTicketFilterTemplate } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -309,6 +313,74 @@ describe('TicketFilterTemplate', () => {
                     name: newTemplateName,
                 })
             })
+        })
+    })
+
+    // TODO(DOMA-5833): should remove this describe soon
+    describe('auto-set one of the fields if the other is changed (for fields "reviewValue" and "feedbackValue" )', () => {
+        test('create', async () => {
+            const { userClient, employee } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()
+
+            const [template1, attrs1] = await createTestTicketFilterTemplate(userClient, employee, {
+                fields: {
+                    reviewValue: [REVIEW_VALUES.GOOD],
+                },
+            })
+            expect(template1.fields.reviewValue).toEqual(attrs1.fields.reviewValue)
+            expect(template1.fields.reviewValue).toEqual(template1.fields.feedbackValue)
+
+            const [template2, attrs2] = await createTestTicketFilterTemplate(userClient, employee, {
+                fields: {
+                    feedbackValue: [FEEDBACK_VALUES_BY_KEY.GOOD],
+                },
+            })
+            expect(template2.fields.feedbackValue).toEqual(attrs2.fields.feedbackValue)
+            expect(template2.fields.feedbackValue).toEqual(template2.fields.reviewValue)
+        })
+
+        test('update', async () => {
+            const { userClient, employee } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()
+
+            const [template1] = await createTestTicketFilterTemplate(userClient, employee, {
+                fields: {
+                    reviewValue: [REVIEW_VALUES.GOOD],
+                },
+            })
+            const [template2] = await createTestTicketFilterTemplate(userClient, employee, {
+                fields: {
+                    reviewValue: [REVIEW_VALUES.GOOD],
+                },
+            })
+            const [template3] = await createTestTicketFilterTemplate(userClient, employee, {
+                fields: {
+                    reviewValue: [REVIEW_VALUES.GOOD],
+                },
+            })
+
+            const [updatedTemplate1, attrs1] = await updateTestTicketFilterTemplate(userClient, template1.id, {
+                fields: {
+                    reviewValue: [REVIEW_VALUES.BAD],
+                },
+            })
+            expect(updatedTemplate1.fields.reviewValue).toEqual(attrs1.fields.reviewValue)
+            expect(updatedTemplate1.fields.reviewValue).toEqual(updatedTemplate1.fields.feedbackValue)
+
+            const [updatedTemplate2, attrs2] = await updateTestTicketFilterTemplate(userClient, template2.id, {
+                fields: {
+                    feedbackValue: [REVIEW_VALUES.BAD],
+                },
+            })
+            expect(updatedTemplate2.fields.feedbackValue).toEqual(attrs2.fields.feedbackValue)
+            expect(updatedTemplate2.fields.feedbackValue).toEqual(updatedTemplate2.fields.reviewValue)
+
+            const [updatedTemplate3, attrs3] = await updateTestTicketFilterTemplate(userClient, template3.id, {
+                fields: {
+                    feedbackValue: [FEEDBACK_VALUES_BY_KEY.GOOD, FEEDBACK_VALUES_BY_KEY.BAD],
+                    reviewValue: [REVIEW_VALUES.BAD],
+                },
+            })
+            expect(updatedTemplate3.fields.feedbackValue).toEqual(attrs3.fields.feedbackValue)
+            expect(updatedTemplate3.fields.feedbackValue).toEqual(updatedTemplate3.fields.reviewValue)
         })
     })
 })

@@ -19244,6 +19244,10 @@ type TicketHistoryRecord {
   statusReopenedCounter: Int
   reviewValue: String
   reviewComment: String
+  feedbackValue: String
+  feedbackComment: String
+  feedbackAdditionalOptions: JSON
+  feedbackUpdatedAt: String
   qualityControlValue: String
   qualityControlComment: String
   qualityControlAdditionalOptions: JSON
@@ -19355,6 +19359,54 @@ input TicketHistoryRecordWhereInput {
   reviewComment_not_ends_with_i: String
   reviewComment_in: [String]
   reviewComment_not_in: [String]
+  feedbackValue: String
+  feedbackValue_not: String
+  feedbackValue_contains: String
+  feedbackValue_not_contains: String
+  feedbackValue_starts_with: String
+  feedbackValue_not_starts_with: String
+  feedbackValue_ends_with: String
+  feedbackValue_not_ends_with: String
+  feedbackValue_i: String
+  feedbackValue_not_i: String
+  feedbackValue_contains_i: String
+  feedbackValue_not_contains_i: String
+  feedbackValue_starts_with_i: String
+  feedbackValue_not_starts_with_i: String
+  feedbackValue_ends_with_i: String
+  feedbackValue_not_ends_with_i: String
+  feedbackValue_in: [String]
+  feedbackValue_not_in: [String]
+  feedbackComment: String
+  feedbackComment_not: String
+  feedbackComment_contains: String
+  feedbackComment_not_contains: String
+  feedbackComment_starts_with: String
+  feedbackComment_not_starts_with: String
+  feedbackComment_ends_with: String
+  feedbackComment_not_ends_with: String
+  feedbackComment_i: String
+  feedbackComment_not_i: String
+  feedbackComment_contains_i: String
+  feedbackComment_not_contains_i: String
+  feedbackComment_starts_with_i: String
+  feedbackComment_not_starts_with_i: String
+  feedbackComment_ends_with_i: String
+  feedbackComment_not_ends_with_i: String
+  feedbackComment_in: [String]
+  feedbackComment_not_in: [String]
+  feedbackAdditionalOptions: JSON
+  feedbackAdditionalOptions_not: JSON
+  feedbackAdditionalOptions_in: [JSON]
+  feedbackAdditionalOptions_not_in: [JSON]
+  feedbackUpdatedAt: String
+  feedbackUpdatedAt_not: String
+  feedbackUpdatedAt_lt: String
+  feedbackUpdatedAt_lte: String
+  feedbackUpdatedAt_gt: String
+  feedbackUpdatedAt_gte: String
+  feedbackUpdatedAt_in: [String]
+  feedbackUpdatedAt_not_in: [String]
   qualityControlValue: String
   qualityControlValue_not: String
   qualityControlValue_contains: String
@@ -19826,6 +19878,12 @@ enum SortTicketHistoryRecordsBy {
   reviewValue_DESC
   reviewComment_ASC
   reviewComment_DESC
+  feedbackValue_ASC
+  feedbackValue_DESC
+  feedbackComment_ASC
+  feedbackComment_DESC
+  feedbackUpdatedAt_ASC
+  feedbackUpdatedAt_DESC
   qualityControlValue_ASC
   qualityControlValue_DESC
   qualityControlComment_ASC
@@ -19903,6 +19961,10 @@ input TicketHistoryRecordUpdateInput {
   statusReopenedCounter: Int
   reviewValue: String
   reviewComment: String
+  feedbackValue: String
+  feedbackComment: String
+  feedbackAdditionalOptions: JSON
+  feedbackUpdatedAt: String
   qualityControlValue: String
   qualityControlComment: String
   qualityControlAdditionalOptions: JSON
@@ -19972,6 +20034,10 @@ input TicketHistoryRecordCreateInput {
   statusReopenedCounter: Int
   reviewValue: String
   reviewComment: String
+  feedbackValue: String
+  feedbackComment: String
+  feedbackAdditionalOptions: JSON
+  feedbackUpdatedAt: String
   qualityControlValue: String
   qualityControlComment: String
   qualityControlAdditionalOptions: JSON
@@ -20039,6 +20105,19 @@ enum TicketReviewValueType {
   bad
   good
   returned
+}
+
+enum TicketFeedbackValueType {
+  bad
+  good
+  returned
+}
+
+enum FeedbackAdditionalOptionsType {
+  lowQuality
+  highQuality
+  slowly
+  quickly
 }
 
 enum TicketQualityControlValueType {
@@ -20121,12 +20200,27 @@ type Ticket {
   """ Counter showing the number of changes `status` to `new_or_reopened` """
   statusReopenedCounter: Int
 
-  """ Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review 
+  """ @deprecated - use "feedbackValue". This field will be removed soon. Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review 
   """
   reviewValue: TicketReviewValueType
 
-  """ Resident's comment on ticket review """
+  """ @deprecated - use "feedbackAdditionalOptions" and "feedbackComment". This field will be removed soon. Resident's comment on ticket review 
+  """
   reviewComment: String
+
+  """ Feedback of the ticket by a resident on a 2-point scale (0 – ticket returned, 1 – bad review, 2 – good review) 
+  """
+  feedbackValue: TicketFeedbackValueType
+
+  """ Staff's comment on ticket feedback """
+  feedbackComment: String
+
+  """ Feedback additional options that extend it.Duplicates are removed and empty arrays are converted to null. 
+  """
+  feedbackAdditionalOptions: [FeedbackAdditionalOptionsType]
+
+  """ Feedback update time """
+  feedbackUpdatedAt: String
 
   """ Review of the ticket by a staff on a 2-point scale (bad or good) """
   qualityControlValue: TicketQualityControlValueType
@@ -20134,7 +20228,7 @@ type Ticket {
   """ Staff's comment on ticket review """
   qualityControlComment: String
 
-  """ Quality control additional options that extend it.Options that do not match the score will be reset. 
+  """ Quality control additional options that extend it.Duplicates are removed and empty arrays are converted to null. 
   """
   qualityControlAdditionalOptions: [QualityControlAdditionalOptionsType]
 
@@ -20340,6 +20434,40 @@ input TicketWhereInput {
   reviewComment_not_ends_with_i: String
   reviewComment_in: [String]
   reviewComment_not_in: [String]
+  feedbackValue: TicketFeedbackValueType
+  feedbackValue_not: TicketFeedbackValueType
+  feedbackValue_in: [TicketFeedbackValueType]
+  feedbackValue_not_in: [TicketFeedbackValueType]
+  feedbackComment: String
+  feedbackComment_not: String
+  feedbackComment_contains: String
+  feedbackComment_not_contains: String
+  feedbackComment_starts_with: String
+  feedbackComment_not_starts_with: String
+  feedbackComment_ends_with: String
+  feedbackComment_not_ends_with: String
+  feedbackComment_i: String
+  feedbackComment_not_i: String
+  feedbackComment_contains_i: String
+  feedbackComment_not_contains_i: String
+  feedbackComment_starts_with_i: String
+  feedbackComment_not_starts_with_i: String
+  feedbackComment_ends_with_i: String
+  feedbackComment_not_ends_with_i: String
+  feedbackComment_in: [String]
+  feedbackComment_not_in: [String]
+  feedbackAdditionalOptions: [FeedbackAdditionalOptionsType]
+  feedbackAdditionalOptions_not: [FeedbackAdditionalOptionsType]
+  feedbackAdditionalOptions_in: [[FeedbackAdditionalOptionsType]]
+  feedbackAdditionalOptions_not_in: [[FeedbackAdditionalOptionsType]]
+  feedbackUpdatedAt: String
+  feedbackUpdatedAt_not: String
+  feedbackUpdatedAt_lt: String
+  feedbackUpdatedAt_lte: String
+  feedbackUpdatedAt_gt: String
+  feedbackUpdatedAt_gte: String
+  feedbackUpdatedAt_in: [String]
+  feedbackUpdatedAt_not_in: [String]
   qualityControlValue: TicketQualityControlValueType
   qualityControlValue_not: TicketQualityControlValueType
   qualityControlValue_in: [TicketQualityControlValueType]
@@ -20729,6 +20857,12 @@ enum SortTicketsBy {
   reviewValue_DESC
   reviewComment_ASC
   reviewComment_DESC
+  feedbackValue_ASC
+  feedbackValue_DESC
+  feedbackComment_ASC
+  feedbackComment_DESC
+  feedbackUpdatedAt_ASC
+  feedbackUpdatedAt_DESC
   qualityControlValue_ASC
   qualityControlValue_DESC
   qualityControlComment_ASC
@@ -20834,6 +20968,10 @@ input TicketUpdateInput {
   statusReopenedCounter: Int
   reviewValue: TicketReviewValueType
   reviewComment: String
+  feedbackValue: TicketFeedbackValueType
+  feedbackComment: String
+  feedbackAdditionalOptions: [FeedbackAdditionalOptionsType]
+  feedbackUpdatedAt: String
   qualityControlValue: TicketQualityControlValueType
   qualityControlComment: String
   qualityControlAdditionalOptions: [QualityControlAdditionalOptionsType]
@@ -20900,6 +21038,10 @@ input TicketCreateInput {
   statusReopenedCounter: Int
   reviewValue: TicketReviewValueType
   reviewComment: String
+  feedbackValue: TicketFeedbackValueType
+  feedbackComment: String
+  feedbackAdditionalOptions: [FeedbackAdditionalOptionsType]
+  feedbackUpdatedAt: String
   qualityControlValue: TicketQualityControlValueType
   qualityControlComment: String
   qualityControlAdditionalOptions: [QualityControlAdditionalOptionsType]
@@ -22234,6 +22376,18 @@ enum TicketChangeReviewValueToType {
   returned
 }
 
+enum TicketChangeFeedbackValueFromType {
+  bad
+  good
+  returned
+}
+
+enum TicketChangeFeedbackValueToType {
+  bad
+  good
+  returned
+}
+
 enum TicketChangeQualityControlValueFromType {
   bad
   good
@@ -22264,19 +22418,43 @@ type TicketChange {
   """ Counter showing the number of changes `status` to `new_or_reopened` """
   statusReopenedCounterTo: Int
 
-  """ Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review 
+  """ @deprecated - use "feedbackValue". This field will be removed soon. Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review 
   """
   reviewValueFrom: TicketChangeReviewValueFromType
 
-  """ Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review 
+  """ @deprecated - use "feedbackValue". This field will be removed soon. Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review 
   """
   reviewValueTo: TicketChangeReviewValueToType
 
-  """ Resident's comment on ticket review """
+  """ @deprecated - use "feedbackAdditionalOptions" and "feedbackComment". This field will be removed soon. Resident's comment on ticket review 
+  """
   reviewCommentFrom: String
 
-  """ Resident's comment on ticket review """
+  """ @deprecated - use "feedbackAdditionalOptions" and "feedbackComment". This field will be removed soon. Resident's comment on ticket review 
+  """
   reviewCommentTo: String
+
+  """ Feedback of the ticket by a resident on a 2-point scale (0 – ticket returned, 1 – bad review, 2 – good review) 
+  """
+  feedbackValueFrom: TicketChangeFeedbackValueFromType
+
+  """ Feedback of the ticket by a resident on a 2-point scale (0 – ticket returned, 1 – bad review, 2 – good review) 
+  """
+  feedbackValueTo: TicketChangeFeedbackValueToType
+
+  """ Staff's comment on ticket feedback """
+  feedbackCommentFrom: String
+
+  """ Staff's comment on ticket feedback """
+  feedbackCommentTo: String
+
+  """ Feedback additional options that extend it.Duplicates are removed and empty arrays are converted to null. 
+  """
+  feedbackAdditionalOptionsFrom: JSON
+
+  """ Feedback additional options that extend it.Duplicates are removed and empty arrays are converted to null. 
+  """
+  feedbackAdditionalOptionsTo: JSON
 
   """ Review of the ticket by a staff on a 2-point scale (bad or good) """
   qualityControlValueFrom: TicketChangeQualityControlValueFromType
@@ -22290,11 +22468,11 @@ type TicketChange {
   """ Staff's comment on ticket review """
   qualityControlCommentTo: String
 
-  """ Quality control additional options that extend it.Options that do not match the score will be reset. 
+  """ Quality control additional options that extend it.Duplicates are removed and empty arrays are converted to null. 
   """
   qualityControlAdditionalOptionsFrom: JSON
 
-  """ Quality control additional options that extend it.Options that do not match the score will be reset. 
+  """ Quality control additional options that extend it.Duplicates are removed and empty arrays are converted to null. 
   """
   qualityControlAdditionalOptionsTo: JSON
 
@@ -22697,6 +22875,58 @@ input TicketChangeWhereInput {
   reviewCommentTo_not_ends_with_i: String
   reviewCommentTo_in: [String]
   reviewCommentTo_not_in: [String]
+  feedbackValueFrom: TicketChangeFeedbackValueFromType
+  feedbackValueFrom_not: TicketChangeFeedbackValueFromType
+  feedbackValueFrom_in: [TicketChangeFeedbackValueFromType]
+  feedbackValueFrom_not_in: [TicketChangeFeedbackValueFromType]
+  feedbackValueTo: TicketChangeFeedbackValueToType
+  feedbackValueTo_not: TicketChangeFeedbackValueToType
+  feedbackValueTo_in: [TicketChangeFeedbackValueToType]
+  feedbackValueTo_not_in: [TicketChangeFeedbackValueToType]
+  feedbackCommentFrom: String
+  feedbackCommentFrom_not: String
+  feedbackCommentFrom_contains: String
+  feedbackCommentFrom_not_contains: String
+  feedbackCommentFrom_starts_with: String
+  feedbackCommentFrom_not_starts_with: String
+  feedbackCommentFrom_ends_with: String
+  feedbackCommentFrom_not_ends_with: String
+  feedbackCommentFrom_i: String
+  feedbackCommentFrom_not_i: String
+  feedbackCommentFrom_contains_i: String
+  feedbackCommentFrom_not_contains_i: String
+  feedbackCommentFrom_starts_with_i: String
+  feedbackCommentFrom_not_starts_with_i: String
+  feedbackCommentFrom_ends_with_i: String
+  feedbackCommentFrom_not_ends_with_i: String
+  feedbackCommentFrom_in: [String]
+  feedbackCommentFrom_not_in: [String]
+  feedbackCommentTo: String
+  feedbackCommentTo_not: String
+  feedbackCommentTo_contains: String
+  feedbackCommentTo_not_contains: String
+  feedbackCommentTo_starts_with: String
+  feedbackCommentTo_not_starts_with: String
+  feedbackCommentTo_ends_with: String
+  feedbackCommentTo_not_ends_with: String
+  feedbackCommentTo_i: String
+  feedbackCommentTo_not_i: String
+  feedbackCommentTo_contains_i: String
+  feedbackCommentTo_not_contains_i: String
+  feedbackCommentTo_starts_with_i: String
+  feedbackCommentTo_not_starts_with_i: String
+  feedbackCommentTo_ends_with_i: String
+  feedbackCommentTo_not_ends_with_i: String
+  feedbackCommentTo_in: [String]
+  feedbackCommentTo_not_in: [String]
+  feedbackAdditionalOptionsFrom: JSON
+  feedbackAdditionalOptionsFrom_not: JSON
+  feedbackAdditionalOptionsFrom_in: [JSON]
+  feedbackAdditionalOptionsFrom_not_in: [JSON]
+  feedbackAdditionalOptionsTo: JSON
+  feedbackAdditionalOptionsTo_not: JSON
+  feedbackAdditionalOptionsTo_in: [JSON]
+  feedbackAdditionalOptionsTo_not_in: [JSON]
   qualityControlValueFrom: TicketChangeQualityControlValueFromType
   qualityControlValueFrom_not: TicketChangeQualityControlValueFromType
   qualityControlValueFrom_in: [TicketChangeQualityControlValueFromType]
@@ -23670,6 +23900,14 @@ enum SortTicketChangesBy {
   reviewCommentFrom_DESC
   reviewCommentTo_ASC
   reviewCommentTo_DESC
+  feedbackValueFrom_ASC
+  feedbackValueFrom_DESC
+  feedbackValueTo_ASC
+  feedbackValueTo_DESC
+  feedbackCommentFrom_ASC
+  feedbackCommentFrom_DESC
+  feedbackCommentTo_ASC
+  feedbackCommentTo_DESC
   qualityControlValueFrom_ASC
   qualityControlValueFrom_DESC
   qualityControlValueTo_ASC
@@ -23854,6 +24092,12 @@ input TicketChangeUpdateInput {
   reviewValueTo: TicketChangeReviewValueToType
   reviewCommentFrom: String
   reviewCommentTo: String
+  feedbackValueFrom: TicketChangeFeedbackValueFromType
+  feedbackValueTo: TicketChangeFeedbackValueToType
+  feedbackCommentFrom: String
+  feedbackCommentTo: String
+  feedbackAdditionalOptionsFrom: JSON
+  feedbackAdditionalOptionsTo: JSON
   qualityControlValueFrom: TicketChangeQualityControlValueFromType
   qualityControlValueTo: TicketChangeQualityControlValueToType
   qualityControlCommentFrom: String
@@ -23964,6 +24208,12 @@ input TicketChangeCreateInput {
   reviewValueTo: TicketChangeReviewValueToType
   reviewCommentFrom: String
   reviewCommentTo: String
+  feedbackValueFrom: TicketChangeFeedbackValueFromType
+  feedbackValueTo: TicketChangeFeedbackValueToType
+  feedbackCommentFrom: String
+  feedbackCommentTo: String
+  feedbackAdditionalOptionsFrom: JSON
+  feedbackAdditionalOptionsTo: JSON
   qualityControlValueFrom: TicketChangeQualityControlValueFromType
   qualityControlValueTo: TicketChangeQualityControlValueToType
   qualityControlCommentFrom: String
@@ -26297,6 +26547,7 @@ type TicketFilter {
   clientPhone: [String]
   createdBy: [String]
   reviewValue: [String]
+  feedbackValue: [String]
   qualityControlValue: [String]
   contactIsNull: [String]
   completedAt: [String]
