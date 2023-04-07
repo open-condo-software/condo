@@ -73,7 +73,6 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
 
 async function canManageContextProblem ({ authentication:  { item: user }, originalInput }) {
     // Problem field is automatically set, so you can only resolve issue (set it to null)
-    console.log(originalInput)
     if (get(originalInput, ['currentProblem', 'create']) || get(originalInput, ['currentProblem', 'connect'])) {
         return false
     }
