@@ -28,7 +28,6 @@ async function registerResident (context, data) {
     })
 }
 
-
 const ServiceConsumer = generateServerUtils(ServiceConsumerGQL)
 async function registerConsumerService (context, data) {
     if (!context) throw new Error('no context')
@@ -47,7 +46,6 @@ async function sendResidentMessage (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write sendResidentMessage serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: SEND_RESIDENT_MESSAGE_MUTATION,

@@ -128,7 +128,7 @@ const sendResidentMessage = async (json) => {
     let skip = 0, successCount = 0, skippedDuplicates = 0
 
     while (skip < residentsCount) {
-        // TODO: приоритет сортировки квартиры и аппартаменты (sortBy: ['unitType_ASC'], add index on unitType for Resident model)
+        // TODO(DOMA-5824): priority on sorting by flats & apartments (sortBy: ['unitType_ASC'], add index on unitType for Resident model)
         const residents = await Resident.getAll(context, residentsWhere, { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip })
 
         if (isEmpty(residents)) break

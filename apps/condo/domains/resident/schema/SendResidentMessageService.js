@@ -52,8 +52,6 @@ const validateResidentMessageData = async (context, data) => {
 
         if (isEmpty(categoryData)) throw new GQLError(ERRORS.INVALID_CATEGORY_PROVIDED, context)
     }
-
-    return true
 }
 
 const SendResidentMessageService = new GQLCustomSchema('SendResidentMessageService', {
@@ -102,8 +100,5 @@ const SendResidentMessageService = new GQLCustomSchema('SendResidentMessageServi
 })
 
 module.exports = {
-    ERRORS,
-    SUCCESS_STATUS,
     SendResidentMessageService,
-    validateResidentMessageData,
 }
