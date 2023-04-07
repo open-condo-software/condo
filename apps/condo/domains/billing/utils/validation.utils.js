@@ -36,30 +36,7 @@ function validateReport ({ resolvedData, fieldPath, addFieldValidationError }) {
     }
 }
 
-// Refs https://gist.github.com/Fluidbyte/2973986 Native delimiter refs https://www.texastech.edu/offices/treasury/currency-conversion.php
-const CURRENCY_DISPLAY_INFO_SCHEMA = {
-    type: 'object',
-    properties: {
-        symbolNative: { type: 'string' },    // ₽
-        decimalDigits: { type: 'number' },   // 2
-        rounding: { type: 'number' },        // 0
-        delimiterNative: { type: 'string' }, // ,    Native delimiter. Usually (.) but for some cultures (like RUB) the (,) is used
-    },
-    required: ['symbolNative', 'decimalDigits', 'rounding', 'delimiterNative'],
-}
-
-const jsonCurrencyDisplayInfoValidator = ajv.compile(CURRENCY_DISPLAY_INFO_SCHEMA)
-
-function validateCurrencyDisplayInfo ({ resolvedData, fieldPath, addFieldValidationError }) {
-    if (!jsonCurrencyDisplayInfoValidator(resolvedData[fieldPath])) {
-        return jsonCurrencyDisplayInfoValidator.errors.forEach((error) => {
-            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
-        })
-    }
-}
-
 module.exports = {
     validatePeriod: validatePeriod,
     validateReport: validateReport,
-    validateCurrencyDisplayInfo: validateCurrencyDisplayInfo,
 }
