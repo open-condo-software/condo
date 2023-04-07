@@ -11,7 +11,6 @@ export type Breakpoint = typeof BREAKPOINTS[number]
 type BreakpointMap = { [Key in Breakpoint]: string }
 
 export type ScreenMap = Partial<Record<Breakpoint, boolean>>
-export type ScreenSizeMap = Partial<Record<Breakpoint, number>>
 
 export const responsiveMap: BreakpointMap = {
     MOBILE_SMALL: '(min-width: 0px)',
