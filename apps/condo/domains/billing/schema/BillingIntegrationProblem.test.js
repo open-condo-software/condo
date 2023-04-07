@@ -1,6 +1,6 @@
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -11,12 +11,15 @@ const {
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
 const {
     createTestBillingIntegrationOrganizationContext,
+    updateTestBillingIntegrationOrganizationContext,
     createTestBillingIntegrationAccessRight,
     createTestBillingIntegration,
     createTestBillingIntegrationProblem,
     updateTestBillingIntegrationProblem,
     BillingIntegrationProblem,
+    BillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithServiceUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -235,6 +238,53 @@ describe('BillingIntegrationProblem', () => {
                     context: { connect: { id: anotherContext.id } },
                 })
             }, 'Field "context" is not defined')
+        })
+        test('"currentProblem" of context updated on problem creation, can be resolved and cannot be set manually', async () => {
+            const newEmployee = await makeEmployeeUserClientWithAbilities({ canReadBillingReceipts: true, canManageIntegrations: true })
+            const newServiceUser = await makeClientWithServiceUser()
+            const [newBilling] = await createTestBillingIntegration(admin)
+            await createTestBillingIntegrationAccessRight(admin, newBilling, newServiceUser.user)
+
+            const [newContext] = await createTestBillingIntegrationOrganizationContext(newEmployee, newEmployee.organization, newBilling, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+            expect(newContext).toHaveProperty('currentProblem', null)
+
+            const problemPayload = {
+                title: faker.lorem.sentence(3),
+                message: faker.lorem.sentences(3),
+            }
+            const [problem] = await createTestBillingIntegrationProblem(newServiceUser, newContext, problemPayload)
+
+            await waitFor(async () => {
+                const updatedContext = await BillingIntegrationOrganizationContext.getOne(newEmployee, { id: newContext.id })
+                expect(updatedContext).toHaveProperty('currentProblem')
+                expect(updatedContext.currentProblem).toEqual(expect.objectContaining({
+                    id: problem.id,
+                    ...problemPayload,
+                }))
+            })
+
+            const [resolvedContext] = await updateTestBillingIntegrationOrganizationContext(support, newContext.id, {
+                currentProblem: { disconnectAll: true },
+            })
+            expect(resolvedContext).toHaveProperty('currentProblem', null)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestBillingIntegrationOrganizationContext(support, newContext.id, {
+                    currentProblem: { connect: { id: problem.id } },
+                })
+            })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestBillingIntegrationOrganizationContext(newServiceUser, newContext.id, {
+                    currentProblem: { connect: { id: problem.id } },
+                })
+            })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestBillingIntegrationOrganizationContext(admin, newContext.id, {
+                    currentProblem: { connect: { id: problem.id } },
+                })
+            })
         })
     })
 })

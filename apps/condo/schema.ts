@@ -12610,6 +12610,8 @@ export type BillingIntegrationOrganizationContext = {
   state?: Maybe<Scalars['JSON']>;
   /**  Information about last report, such as time of report, period of report, amount of loaded data and etc  */
   lastReport?: Maybe<Scalars['JSON']>;
+  /**  Link to a problem occurred during last integration process. Filled automatically, can only be resolved to null manually.  */
+  currentProblem?: Maybe<BillingIntegrationProblem>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12633,6 +12635,7 @@ export type BillingIntegrationOrganizationContextCreateInput = {
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
+  currentProblem?: Maybe<BillingIntegrationProblemRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12661,6 +12664,7 @@ export type BillingIntegrationOrganizationContextHistoryRecord = {
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
+  currentProblem?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12683,6 +12687,7 @@ export type BillingIntegrationOrganizationContextHistoryRecordCreateInput = {
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
+  currentProblem?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12710,6 +12715,7 @@ export type BillingIntegrationOrganizationContextHistoryRecordUpdateInput = {
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
+  currentProblem?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12765,6 +12771,10 @@ export type BillingIntegrationOrganizationContextHistoryRecordWhereInput = {
   lastReport_not?: Maybe<Scalars['JSON']>;
   lastReport_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   lastReport_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  currentProblem?: Maybe<Scalars['String']>;
+  currentProblem_not?: Maybe<Scalars['String']>;
+  currentProblem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  currentProblem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -12870,6 +12880,7 @@ export type BillingIntegrationOrganizationContextUpdateInput = {
   status?: Maybe<Scalars['String']>;
   state?: Maybe<Scalars['JSON']>;
   lastReport?: Maybe<Scalars['JSON']>;
+  currentProblem?: Maybe<BillingIntegrationProblemRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12904,6 +12915,8 @@ export type BillingIntegrationOrganizationContextWhereInput = {
   lastReport_not?: Maybe<Scalars['JSON']>;
   lastReport_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   lastReport_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  currentProblem?: Maybe<BillingIntegrationProblemWhereInput>;
+  currentProblem_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -13024,6 +13037,13 @@ export type BillingIntegrationProblemCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+};
+
+export type BillingIntegrationProblemRelateToOneInput = {
+  create?: Maybe<BillingIntegrationProblemCreateInput>;
+  connect?: Maybe<BillingIntegrationProblemWhereUniqueInput>;
+  disconnect?: Maybe<BillingIntegrationProblemWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
 export type BillingIntegrationProblemUpdateInput = {
@@ -56540,6 +56560,8 @@ export enum SortBillingIntegrationOrganizationContextsBy {
   OrganizationDesc = 'organization_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
+  CurrentProblemAsc = 'currentProblem_ASC',
+  CurrentProblemDesc = 'currentProblem_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

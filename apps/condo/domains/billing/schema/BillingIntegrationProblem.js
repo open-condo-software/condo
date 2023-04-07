@@ -5,6 +5,8 @@ const { versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingIntegrationProblem')
+const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
+
 
 const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
 
@@ -38,6 +40,19 @@ const BillingIntegrationProblem = new GQLListSchema('BillingIntegrationProblem',
         update: access.canManageBillingIntegrationProblems,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        afterChange: async ({ operation, updatedItem, context }) => {
+            if (operation === 'create') {
+                const id = updatedItem['id']
+                const contextId = updatedItem['context']
+                await BillingIntegrationOrganizationContext.update(context, contextId, {
+                    currentProblem: { connect: { id } },
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'problem-after-change' },
+                })
+            }
+        },
     },
 })
 

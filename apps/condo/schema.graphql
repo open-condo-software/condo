@@ -8367,6 +8367,7 @@ type BillingIntegrationOrganizationContextHistoryRecord {
   status: String
   state: JSON
   lastReport: JSON
+  currentProblem: String
   id: ID!
   v: Int
   createdAt: String
@@ -8423,6 +8424,10 @@ input BillingIntegrationOrganizationContextHistoryRecordWhereInput {
   lastReport_not: JSON
   lastReport_in: [JSON]
   lastReport_not_in: [JSON]
+  currentProblem: String
+  currentProblem_not: String
+  currentProblem_in: [String]
+  currentProblem_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -8533,6 +8538,7 @@ input BillingIntegrationOrganizationContextHistoryRecordUpdateInput {
   status: String
   state: JSON
   lastReport: JSON
+  currentProblem: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -8559,6 +8565,7 @@ input BillingIntegrationOrganizationContextHistoryRecordCreateInput {
   status: String
   state: JSON
   lastReport: JSON
+  currentProblem: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -8575,6 +8582,13 @@ input BillingIntegrationOrganizationContextHistoryRecordCreateInput {
 
 input BillingIntegrationOrganizationContextHistoryRecordsCreateInput {
   data: BillingIntegrationOrganizationContextHistoryRecordCreateInput
+}
+
+input BillingIntegrationProblemRelateToOneInput {
+  create: BillingIntegrationProblemCreateInput
+  connect: BillingIntegrationProblemWhereUniqueInput
+  disconnect: BillingIntegrationProblemWhereUniqueInput
+  disconnectAll: Boolean
 }
 
 """ Integration state and settings for all organizations. The existence of this object means that there is a configured integration between the `billing data source` and `this API` 
@@ -8612,6 +8626,10 @@ type BillingIntegrationOrganizationContext {
   """ Information about last report, such as time of report, period of report, amount of loaded data and etc 
   """
   lastReport: JSON
+
+  """ Link to a problem occurred during last integration process. Filled automatically, can only be resolved to null manually. 
+  """
+  currentProblem: BillingIntegrationProblem
   id: ID!
   v: Int
   createdAt: String
@@ -8658,6 +8676,8 @@ input BillingIntegrationOrganizationContextWhereInput {
   lastReport_not: JSON
   lastReport_in: [JSON]
   lastReport_not_in: [JSON]
+  currentProblem: BillingIntegrationProblemWhereInput
+  currentProblem_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -8727,6 +8747,8 @@ enum SortBillingIntegrationOrganizationContextsBy {
   organization_DESC
   status_ASC
   status_DESC
+  currentProblem_ASC
+  currentProblem_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -8752,6 +8774,7 @@ input BillingIntegrationOrganizationContextUpdateInput {
   status: String
   state: JSON
   lastReport: JSON
+  currentProblem: BillingIntegrationProblemRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -8775,6 +8798,7 @@ input BillingIntegrationOrganizationContextCreateInput {
   status: String
   state: JSON
   lastReport: JSON
+  currentProblem: BillingIntegrationProblemRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String

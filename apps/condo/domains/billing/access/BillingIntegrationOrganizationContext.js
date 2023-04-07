@@ -9,6 +9,7 @@ const { getById } = require('@open-condo/keystone/schema')
 
 const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
 
 /**
@@ -70,6 +71,16 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
     return await checkBillingIntegrationsAccessRights(user.id, [integrationId])
 }
 
+async function canManageContextProblem ({ authentication:  { item: user }, originalInput }) {
+    // Problem field is automatically set, so you can only resolve issue (set it to null)
+    console.log(originalInput)
+    if (get(originalInput, ['currentProblem', 'create']) || get(originalInput, ['currentProblem', 'connect'])) {
+        return false
+    }
+
+    return (user.isAdmin || user.isSupport || user.type === SERVICE)
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -77,4 +88,5 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
 module.exports = {
     canReadBillingIntegrationOrganizationContexts,
     canManageBillingIntegrationOrganizationContexts,
+    canManageContextProblem,
 }

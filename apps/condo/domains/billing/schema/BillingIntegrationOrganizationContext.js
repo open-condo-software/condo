@@ -73,6 +73,20 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
                 validateInput: validateReport,
             },
         },
+
+        currentProblem: {
+            schemaDoc: 'Link to a problem occurred during last integration process. Filled automatically, can only be resolved to null manually.',
+            type: Relationship,
+            ref: 'BillingIntegrationProblem',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            access: {
+                read: true,
+                create: access.canManageContextProblem,
+                update: access.canManageContextProblem,
+            },
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
