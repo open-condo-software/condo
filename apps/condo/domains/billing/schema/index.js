@@ -5,14 +5,11 @@
 
 const { AllResidentBillingReceiptsService } = require('./AllResidentBillingReceiptsService')
 const { BillingAccount } = require('./BillingAccount')
-const { BillingAccountMeter } = require('./BillingAccountMeter')
-const { BillingAccountMeterReading } = require('./BillingAccountMeterReading')
 const { BillingCategory } = require('./BillingCategory')
 const { BillingIntegration } = require('./BillingIntegration')
 const { BillingIntegrationAccessRight } = require('./BillingIntegrationAccessRight')
 const { BillingIntegrationOrganizationContext } = require('./BillingIntegrationOrganizationContext')
 const { BillingIntegrationProblem } = require('./BillingIntegrationProblem')
-const { BillingMeterResource } = require('./BillingMeterResource')
 const { BillingProperty } = require('./BillingProperty')
 const { BillingReceipt } = require('./BillingReceipt')
 const { BillingRecipient } = require('./BillingRecipient')
@@ -26,9 +23,6 @@ module.exports = {
     BillingIntegrationProblem,
     BillingProperty,
     BillingAccount,
-    BillingMeterResource,
-    BillingAccountMeter,
-    BillingAccountMeterReading,
     BillingReceipt,
     AllResidentBillingReceiptsService,
     BillingRecipient,
