@@ -39,6 +39,16 @@ const BASE_CHART_OPTS: EChartsOption = {
     },
     color: CHART_COLOR_SET,
 }
+const BASE_CHART_SERIES_CONFIG = {
+    type: 'pie',
+    radius: ['80%', '88%'],
+    avoidLabelOverlap: true,
+    top: 'center',
+    left: 'center',
+    width: '100%',
+    height: '100%',
+    labelLine: { show: false },
+}
 
 function truncate (str: string, n: number): string {
     return str.length > n ? str.slice(0, n - 1) + '...' : str
@@ -145,18 +155,12 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
         })
     }
 
-    const echartsOption: EChartsOption = {
+    const echartsOption: EChartsOption = useMemo(() => ({
         ...BASE_CHART_OPTS,
         legend: { show: false },
         series: [
             {
-                type: 'pie',
-                radius: ['80%', '88%'],
-                avoidLabelOverlap: true,
-                top: 'center',
-                left: 'center',
-                width: '100%',
-                height: '100%',
+                ...BASE_CHART_SERIES_CONFIG,
                 emphasis: {
                     label: {
                         show: true,
@@ -182,16 +186,13 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                         }), LABEL_TRUNCATE_LENGTH)
                     },
                 },
-                labelLine: {
-                    show: false,
-                },
                 data: chartData.map(categoryInfo => ({
                     value: categoryInfo.sum,
                     name: intl.formatMessage({ id: categoryInfo.name }),
                 })),
             },
         ],
-    }
+    }), [chartData, WithdrawalTitle, currencyCode, intl])
 
     const onChangeTabs = useCallback((key) => {
         setActiveKey(key)
@@ -268,6 +269,11 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
             )
         })
     }, [chartData, intl, currencyCode, onMouseLeave, onMouseOver])
+    const emptyPlaceholder = useMemo(() => (
+        <BasicEmptyListView image='/dino/searching@2x.png'>
+            <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
+        </BasicEmptyListView>
+    ), [intl, NoDataTitle])
 
     useEffect(() => {
         const defaultSelectedKey = get(bankAccountReports, [selectedPeriod, 'data', 'categoryGroups', '0', 'id'])
@@ -278,11 +284,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     }, [bankAccountReports, selectedPeriod])
 
     if (!bankAccountReport) {
-        return (
-            <BasicEmptyListView image='/dino/searching@2x.png'>
-                <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
-            </BasicEmptyListView>
-        )
+        return emptyPlaceholder
     }
 
     return (
@@ -351,9 +353,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                                     </Col>
                                 </>
                             ) : (
-                                <BasicEmptyListView image='/dino/searching@2x.png'>
-                                    <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
-                                </BasicEmptyListView>
+                                emptyPlaceholder
                             )}
                     </Row>
                 </Card>
