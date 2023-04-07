@@ -245,8 +245,11 @@ describe('RecurrentPaymentContext', () => {
                 await createTestRecurrentPaymentContext(admin, request)
             }, ({ errors }) => {
                 expect(errors).toMatchObject([{
-                    name: 'ValidationFailureError',
-                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR] },
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        type: RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR,
+                        message: 'You have to set only one trigger',
+                    },
                 }])
             })
         })
@@ -260,8 +263,11 @@ describe('RecurrentPaymentContext', () => {
                 await createTestRecurrentPaymentContext(admin, request)
             }, ({ errors }) => {
                 expect(errors).toMatchObject([{
-                    name: 'ValidationFailureError',
-                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_NO_TRIGGER_SET_UP_ERROR] },
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        type: RECURRENT_PAYMENT_CONTEXT_NO_TRIGGER_SET_UP_ERROR,
+                        message: 'You have to set at least one trigger',
+                    },
                 }])
             })
         })
@@ -278,8 +284,11 @@ describe('RecurrentPaymentContext', () => {
                 })
             }, ({ errors }) => {
                 expect(errors).toMatchObject([{
-                    name: 'ValidationFailureError',
-                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR] },
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        type: RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR,
+                        message: 'You have to set only one trigger',
+                    },
                 }])
             })
         })
@@ -298,8 +307,11 @@ describe('RecurrentPaymentContext', () => {
                 })
             }, ({ errors }) => {
                 expect(errors).toMatchObject([{
-                    name: 'ValidationFailureError',
-                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR] },
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        type: RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR,
+                        message: 'You have to set only one trigger',
+                    },
                 }])
             })
         })
@@ -337,8 +349,11 @@ describe('RecurrentPaymentContext', () => {
                 })
             }, ({ errors }) => {
                 expect(errors).toMatchObject([{
-                    name: 'ValidationFailureError',
-                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR] },
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        type: RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR,
+                        message: 'You have to set value for paymentDay in range 1-31',
+                    },
                 }])
             })
 
@@ -349,8 +364,11 @@ describe('RecurrentPaymentContext', () => {
                 })
             }, ({ errors }) => {
                 expect(errors).toMatchObject([{
-                    name: 'ValidationFailureError',
-                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR] },
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        type: RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR,
+                        message: 'You have to set value for paymentDay in range 1-31',
+                    },
                 }])
             })
 
@@ -361,8 +379,11 @@ describe('RecurrentPaymentContext', () => {
                 })
             }, ({ errors }) => {
                 expect(errors).toMatchObject([{
-                    name: 'ValidationFailureError',
-                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR] },
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        type: RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR,
+                        message: 'You have to set value for paymentDay in range 1-31',
+                    },
                 }])
             })
         })
