@@ -212,7 +212,6 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const tabsItems = get(bankAccountReport, 'data.categoryGroups', [])
         .map((reportData, key) => ({ label: intl.formatMessage({ id: reportData.name }), key }))
     const reportOptionItems = useMemo(() => bankAccountReports
-        .sort((a, b) => dayjs(a.period).isBefore(b.period) ? 1 : -1)
         .map((bankAccountReport, reportIndex) => (
             <Option
                 key={bankAccountReport.id}
@@ -328,11 +327,14 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId }) 
         return <Loader />
     }
 
+    const sortedBankAccountReports = [...bankAccountReports]
+        .sort((a, b) => dayjs(a.period).isBefore(b.period) ? 1 : -1)
+
     return (
         <Row>
             <Col span={24}>
                 <BankAccountReportContent
-                    bankAccountReports={bankAccountReports}
+                    bankAccountReports={sortedBankAccountReports}
                     currencyCode={bankAccount.currencyCode}
                 />
             </Col>
