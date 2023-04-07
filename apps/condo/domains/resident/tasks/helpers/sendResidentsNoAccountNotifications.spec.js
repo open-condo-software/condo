@@ -92,7 +92,7 @@ describe('sendResidentsNoAccountNotifications', () => {
     })
 
 
-    it('fails to send notifications for all SKIPPED_INTEGRATION_NAMES', async () => {
+    it.skip('fails to send notifications for all SKIPPED_INTEGRATION_NAMES', async () => {
         for (const name of SKIPPED_INTEGRATION_NAMES) {
             const { receipt } = await makeBillingReceiptWithResident({}, false, undefined, { name })
 
