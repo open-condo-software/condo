@@ -11,6 +11,7 @@ const {
 
 const {
     RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR,
+    RECURRENT_PAYMENT_CONTEXT_NO_TRIGGER_SET_UP_ERROR,
     RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
@@ -246,6 +247,21 @@ describe('RecurrentPaymentContext', () => {
                 expect(errors).toMatchObject([{
                     name: 'ValidationFailureError',
                     data: { messages: [RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR] },
+                }])
+            })
+        })
+        test('validate no trigger set up', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const request = await getContextRequest()
+            request.autoPayReceipts = false
+            request.paymentDay = null
+
+            await catchErrorFrom(async () => {
+                await createTestRecurrentPaymentContext(admin, request)
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    name: 'ValidationFailureError',
+                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_NO_TRIGGER_SET_UP_ERROR] },
                 }])
             })
         })
