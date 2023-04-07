@@ -7,7 +7,10 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RecurrentPaymentContext')
-const { RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR } = require('@condo/domains/acquiring/constants/errors')
+const {
+    RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR,
+    RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR,
+} = require('@condo/domains/acquiring/constants/errors')
 const { SETTINGS_FIELD } = require('@condo/domains/acquiring/schema/fields/Settings')
 const {
     POSITIVE_MONEY_AMOUNT_FIELD,
@@ -40,8 +43,15 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
             isRequired: false,
             hooks: {
                 validateInput: ({ resolvedData, addFieldValidationError }) => {
+                    // check that only one trigger are set up
                     if (resolvedData['autoPayReceipts'] && resolvedData['paymentDay']) {
                         addFieldValidationError(RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR)
+                    }
+
+                    // check payment day is in range 1-31
+                    if (!resolvedData['autoPayReceipts']
+                        && (resolvedData['paymentDay'] < 1 || resolvedData['paymentDay'] > 31)) {
+                        addFieldValidationError(RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR)
                     }
                 },
             },

@@ -10,6 +10,10 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const {
+    RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR,
+    RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR,
+} = require('@condo/domains/acquiring/constants/errors')
+const {
     RecurrentPaymentContext,
     createTestRecurrentPaymentContext,
     updateTestRecurrentPaymentContext,
@@ -22,7 +26,7 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 describe('RecurrentPaymentContext', () => {
-    let admin, support, user, anonymous, getContextRequest, billingCategory, serviceConsumerClient
+    let admin, getContextRequest, billingCategory, serviceConsumerClient
 
     beforeEach(async () => {
         serviceConsumerClient = await makeClientWithServiceConsumer()
@@ -241,7 +245,7 @@ describe('RecurrentPaymentContext', () => {
             }, ({ errors }) => {
                 expect(errors).toMatchObject([{
                     name: 'ValidationFailureError',
-                    data: { messages: ['RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR'] },
+                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR] },
                 }])
             })
         })
@@ -259,7 +263,7 @@ describe('RecurrentPaymentContext', () => {
             }, ({ errors }) => {
                 expect(errors).toMatchObject([{
                     name: 'ValidationFailureError',
-                    data: { messages: ['RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR'] },
+                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR] },
                 }])
             })
         })
@@ -279,7 +283,7 @@ describe('RecurrentPaymentContext', () => {
             }, ({ errors }) => {
                 expect(errors).toMatchObject([{
                     name: 'ValidationFailureError',
-                    data: { messages: ['RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR'] },
+                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR] },
                 }])
             })
         })
@@ -302,6 +306,47 @@ describe('RecurrentPaymentContext', () => {
                 expect(errors).toMatchObject([{
                     name: 'GraphQLError',
                     message: 'Unable to connect a RecurrentPaymentContext.serviceConsumer<ServiceConsumer>',
+                }])
+            })
+        })
+        test('validate paymentDay not in range 1-31', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const request = await getContextRequest()
+            request.paymentDay = 0
+
+            await catchErrorFrom(async () => {
+                await createTestRecurrentPaymentContext(admin, {
+                    ...request,
+                    paymentDay: 0,
+                })
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    name: 'ValidationFailureError',
+                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR] },
+                }])
+            })
+
+            await catchErrorFrom(async () => {
+                await createTestRecurrentPaymentContext(admin, {
+                    ...request,
+                    paymentDay: -1,
+                })
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    name: 'ValidationFailureError',
+                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR] },
+                }])
+            })
+
+            await catchErrorFrom(async () => {
+                await createTestRecurrentPaymentContext(admin, {
+                    ...request,
+                    paymentDay: 32,
+                })
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    name: 'ValidationFailureError',
+                    data: { messages: [RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR] },
                 }])
             })
         })
