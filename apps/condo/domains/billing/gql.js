@@ -28,15 +28,6 @@ const BillingProperty = generateGqlQueries('BillingProperty', BILLING_PROPERTY_F
 const BILLING_ACCOUNT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id, address } number unitName unitType raw globalId meta fullName ${COMMON_FIELDS} }`
 const BillingAccount = generateGqlQueries('BillingAccount', BILLING_ACCOUNT_FIELDS)
 
-const BILLING_METER_RESOURCE_FIELDS = `{ name ${COMMON_FIELDS} }`
-const BillingMeterResource = generateGqlQueries('BillingMeterResource', BILLING_METER_RESOURCE_FIELDS)
-
-const BILLING_ACCOUNT_METER_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } account { id } resource { id } raw meta ${COMMON_FIELDS} }`
-const BillingAccountMeter = generateGqlQueries('BillingAccountMeter', BILLING_ACCOUNT_METER_FIELDS)
-
-const BILLING_ACCOUNT_METER_READING_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } account { id } meter { id number } period value1 value2 value3 value4 date raw ${COMMON_FIELDS} }`
-const BillingAccountMeterReading = generateGqlQueries('BillingAccountMeterReading', BILLING_ACCOUNT_METER_READING_FIELDS)
-
 const BILLING_RECIPIENT_FIELDS = `{ context { id } importId tin iec bic bankAccount purpose isApproved meta name ${COMMON_FIELDS} }`
 const BillingRecipient = generateGqlQueries('BillingRecipient', BILLING_RECIPIENT_FIELDS)
 
@@ -68,9 +59,6 @@ module.exports = {
     BillingIntegrationProblem,
     BillingProperty,
     BillingAccount,
-    BillingMeterResource,
-    BillingAccountMeter,
-    BillingAccountMeterReading,
     BillingReceipt,
     ResidentBillingReceipt,
     RESIDENT_BILLING_RECEIPTS_FIELDS,
