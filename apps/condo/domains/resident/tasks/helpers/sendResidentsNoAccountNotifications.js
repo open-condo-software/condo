@@ -185,9 +185,10 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
     const contextWhere = {
         status: CONTEXT_FINISHED_STATUS,
         deletedAt: null,
-        integration: {
-            name_not_in: SKIPPED_INTEGRATION_NAMES,
-        },
+        // TODO(DOMA-5825): reenable this when EPS-receipts trigger is done
+        // integration: {
+        //     name_not_in: SKIPPED_INTEGRATION_NAMES,
+        // },
     }
     const billingContexts = billingContextId
         ? [ await BillingIntegrationOrganizationContext.getOne(context, { id: billingContextId, ...contextWhere }) ]
