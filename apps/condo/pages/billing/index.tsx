@@ -3,6 +3,7 @@ import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Typography } from '@open-condo/ui'
 
 import { AcquiringIntegrationContext as AcquiringContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingOnboardingPage } from '@condo/domains/billing/components/OnBoarding'
@@ -48,8 +49,11 @@ const AccrualsAndPaymentsPage: PageType = () => {
         )
     }
 
+    const msg = '// TODO: Errors and dinosaurs'
     if (billingCtx && acquiringCtx) {
-        return <div>ТАК БЛЕН!</div>
+        return <div>
+            <Typography.Title>{msg}</Typography.Title>
+        </div>
     }
 
     return (

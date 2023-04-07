@@ -111,12 +111,13 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         }
     }, [handleDoneMessage])
 
-    if (acquiringLoading || acquiringCtxLoading || billingCtxLoading) {
-        return <Loader fill size='large'/>
-    }
-
     if (acquiringError || acquiringCtxError || billingCtxError) {
         return <Typography.Title>{acquiringError || acquiringCtxError || billingCtxError}</Typography.Title>
+    }
+
+    // NOTE: !setupUrl = case when useEffect for creating ctx is being triggered, but not finished yet
+    if (acquiringLoading || acquiringCtxLoading || billingCtxLoading || !setupUrl) {
+        return <Loader fill size='large'/>
     }
 
     return (

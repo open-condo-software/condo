@@ -27,8 +27,8 @@ type BillingOnboardingPageProps = {
 export const BillingOnboardingPage: React.FC<BillingOnboardingPageProps> = ({ onFinish }) => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.title' })
-    const BillingSelectTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.setupBillingStep.title' })
-    const SetupBillingTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.chooseBillingStep.title' })
+    const BillingSelectTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.chooseBillingStep.title' })
+    const SetupBillingTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.setupBillingStep.title' })
     const SetupAcquiringTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.setupAcquiringStep.title' })
     const StepNoReturnMessage = intl.formatMessage({ id: 'accrualsAndPayments.setup.noReturn' })
 
