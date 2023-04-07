@@ -4,6 +4,7 @@
 const { Relationship, Integer, Checkbox } = require('@keystonejs/fields')
 const { isNil } = require('lodash')
 
+const { GQLError } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
@@ -12,6 +13,7 @@ const {
     RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR,
     RECURRENT_PAYMENT_CONTEXT_NO_TRIGGER_SET_UP_ERROR,
     RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR,
+    GQL_ERRORS,
 } = require('@condo/domains/acquiring/constants/errors')
 const { SETTINGS_FIELD } = require('@condo/domains/acquiring/schema/fields/Settings')
 const {
@@ -44,21 +46,21 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
             type: Integer,
             isRequired: false,
             hooks: {
-                validateInput: ({ resolvedData, addFieldValidationError }) => {
+                validateInput: ({ resolvedData }) => {
                     // check that only one trigger are set up
                     if (resolvedData['autoPayReceipts'] && resolvedData['paymentDay']) {
-                        addFieldValidationError(RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR)
+                        throw new GQLError(GQL_ERRORS.RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR)
                     }
 
                     //check at least one trigger are set
                     if (!resolvedData['autoPayReceipts'] && isNil(resolvedData['paymentDay'])) {
-                        addFieldValidationError(RECURRENT_PAYMENT_CONTEXT_NO_TRIGGER_SET_UP_ERROR)
+                        throw new GQLError(GQL_ERRORS.RECURRENT_PAYMENT_CONTEXT_NO_TRIGGER_SET_UP_ERROR)
                     }
 
                     // check payment day is in range 1-31
                     if (!resolvedData['autoPayReceipts'] && !isNil(resolvedData['paymentDay'])
                         && (resolvedData['paymentDay'] < 1 || resolvedData['paymentDay'] > 31)) {
-                        addFieldValidationError(RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR)
+                        throw new GQLError(GQL_ERRORS.RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR)
                     }
                 },
             },
