@@ -12,13 +12,15 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
+const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { BankAccountReportTask, createTestBankAccountReportTask, updateTestBankAccountReportTask, createTestBankAccount, BankAccountReport, createTestBankTransaction } = require('@condo/domains/banking/utils/testSchema')
+const { createTestBankIntegrationAccountContext, createTestBankContractorAccount, BankIntegration, createTestBankCategory, createTestBankCostItem, createTestBankSyncTask, updateTestBankSyncTask } = require('@condo/domains/banking/utils/testSchema')
+const { sleep } = require('@condo/domains/common/utils/sleep')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
-const { BANK_INTEGRATION_IDS } = require('../constants')
-const { createTestBankIntegrationAccountContext, createTestBankContractorAccount, BankIntegration, createTestBankCategory, createTestBankCostItem } = require('../utils/testSchema')
 
 
 function generateDateArray (dateStart, interval) {
@@ -87,6 +89,81 @@ describe('BankAccountReportTask', () => {
                 expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
             })
 
+            test('user cannot if it is an employee of organization without "canManageBankAccountReportTasks" permission', async () => {
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageBankAccountReportTasks: false,
+                })
+                await createTestOrganizationEmployee(admin, organization, userClient.user, role)
+                const [account] = await createTestBankAccount(admin, organization)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestBankAccountReportTask(userClient, account, organization, userClient.user.id)
+                })
+            })
+
+            test('user cannot if it is an employee of another organization with "canManageBankAccountReportTasks" permission', async () => {
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [anotherOrganization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, anotherOrganization, {
+                    canManageBankAccountReportTasks: true,
+                })
+                await createTestOrganizationEmployee(admin, anotherOrganization, userClient.user, role)
+                const [organization] = await createTestOrganization(admin)
+                const [account] = await createTestBankAccount(admin, organization, {
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestBankAccountReportTask(userClient, account, organization, userClient.user.id)
+
+                })
+            })
+
+            test('user can if it is an employee of linked organization with "canManageBankAccountReportTasks" permission', async () => {
+                const [parentOrganization] = await createTestOrganization(admin)
+                const [childOrganization] = await createTestOrganization(admin)
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestOrganizationLink(admin, parentOrganization, childOrganization)
+                const [role] = await createTestOrganizationEmployeeRole(admin, parentOrganization, {
+                    canManageBankAccountReportTasks: true,
+                })
+                await createTestOrganizationEmployee(admin, parentOrganization, userClient.user, role, {})
+
+                const [account] = await createTestBankAccount(admin, childOrganization)
+
+                const [obj, attrs] = await createTestBankAccountReportTask(userClient, account, childOrganization, userClient.user.id)
+
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(1)
+                expect(obj.newId).toEqual(null)
+                expect(obj.deletedAt).toEqual(null)
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
+                expect(obj.createdAt).toMatch(DATETIME_RE)
+                expect(obj.updatedAt).toMatch(DATETIME_RE)
+            })
+
+            test('user cannot if it is an employee of linked organization without "canManageBankAccountReportTasks" permission', async () => {
+                const [parentOrganization] = await createTestOrganization(admin)
+                const [childOrganization] = await createTestOrganization(admin)
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestOrganizationLink(admin, parentOrganization, childOrganization)
+                const [role] = await createTestOrganizationEmployeeRole(admin, parentOrganization, {
+                    canManageBankAccountReportTasks: false,
+                })
+                await createTestOrganizationEmployee(admin, parentOrganization, userClient.user, role, {})
+
+                const [account] = await createTestBankAccount(admin, childOrganization)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestBankAccountReportTask(userClient, account, childOrganization, userClient.user.id)
+                })
+            })
+
             test('anonymous can\'t', async () => {
                 const client = await makeClient()
 
@@ -101,12 +178,12 @@ describe('BankAccountReportTask', () => {
                 const [org] = await createTestOrganization(admin)
                 const [account] = await createTestBankAccount(admin, org)
                 const [objCreated] = await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
-
+                await sleep(300) // In parallel with the update in the test, there is an update in the task launched in afterChange of the BankAccountReportTask entity
                 const [obj, attrs] = await updateTestBankAccountReportTask(admin, objCreated.id)
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(3)
+                expect(obj.v).toEqual(4)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
             })
 
@@ -145,13 +222,60 @@ describe('BankAccountReportTask', () => {
                 await createTestOrganizationEmployee(admin, org, client.user, role)
                 const [objCreated] = await createTestBankAccountReportTask(client, account, org, client.user.id, { progress: 0 })
 
-                const [obj, attrs] = await updateTestBankAccountReportTask(client, objCreated.id, { progress: 1 })
+                const [obj, attrs] = await updateTestBankAccountReportTask(client, objCreated.id, {
+                    status: BANK_SYNC_TASK_STATUS.CANCELLED,
+                })
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
                 expect(obj.v).toEqual(3)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+            })
+
+            test('user can only cancel his task', async () => {
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageBankAccountReportTasks: true,
+                })
+                await createTestOrganizationEmployee(admin, organization, userClient.user, role)
+                const [account] = await createTestBankAccount(admin, organization)
+
+                const [objCreated, attrs] = await createTestBankAccountReportTask(userClient, account, organization, userClient.user.id)
+
+                await catchErrorFrom(async () => {
+                    await updateTestBankAccountReportTask(userClient, objCreated.id, {
+                        organization: { disconnectAll: true },
+                    })
+                }, ({ errors }) =>{
+                    expect(errors[0].message).toContain('Field "organization" is not defined by type "BankAccountReportTaskUpdateInput"')
+                })
+                await catchErrorFrom(async () => {
+                    await updateTestBankAccountReportTask(userClient, objCreated.id, {
+                        account: { disconnectAll: true },
+                    })
+                }, ({ errors }) =>{
+                    expect(errors[0].message).toContain('Field "account" is not defined by type "BankAccountReportTaskUpdateInput"')
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestBankAccountReportTask(userClient, objCreated.id, {
+                        progress: 100,
+                    })
+                })
+
+                const [objUpdated2, finalAttrs] = await updateTestBankAccountReportTask(userClient, objCreated.id, {
+                    status: BANK_SYNC_TASK_STATUS.CANCELLED,
+                })
+
+                expect(objUpdated2.id).toMatch(UUID_RE)
+                expect(objUpdated2.dv).toEqual(1)
+                expect(objUpdated2.sender).toEqual(finalAttrs.sender)
+                expect(objUpdated2.v).toEqual(4)
+                expect(objUpdated2.updatedBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
+                expect(objUpdated2.status).toEqual(BANK_SYNC_TASK_STATUS.CANCELLED)
+                expect(objUpdated2.organization).toEqual(expect.objectContaining({ id: organization.id }))
+                expect(objUpdated2.account).toEqual(expect.objectContaining({ id: account.id }))
             })
 
             test('anonymous can\'t', async () => {
@@ -275,8 +399,6 @@ describe('BankAccountReportTask', () => {
                 const [createdTransaction] = await createTestBankTransaction(admin, account, contractorAccount, integrationContext, org, { date })
             }
 
-            // 2) action
-
             const [createdReportTask] = await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
 
 
@@ -291,9 +413,6 @@ describe('BankAccountReportTask', () => {
                     organization: { id: org.id },
                 })
                 expect(bankAccountReport).toBeDefined()
-            })
-            const bankAccountReport = await BankAccountReport.getOne(admin, {
-                organization: { id: org.id },
             })
         })
     })
