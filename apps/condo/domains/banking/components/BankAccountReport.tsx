@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import ReactECharts from 'echarts-for-react'
 import find from 'lodash/find'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -134,15 +135,15 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
 
     const { isSmall, isMobile } = useLayoutContext()
 
-    const [activeKey, setActiveKey] = useState(get(bankAccountReports, '0.data.categoryGroups.0.id', null))
+    const [activeTab, setActiveTab] = useState(get(bankAccountReports, '0.data.categoryGroups.0.id'))
     const [selectedPeriod, setSelectedPeriod] = useState(0)
     const [activeCategory, setActiveCategory] = useState<ReportCategories>(ReportCategories.Total)
     const chartInstance = useRef(null)
 
     const bankAccountReport = get(bankAccountReports, selectedPeriod)
+    const categoryGroups = get(bankAccountReport, 'data.categoryGroups', [])
 
-    let chartData = get(find(get(bankAccountReport, 'data.categoryGroups', []), { id: activeKey }), 'costItemGroups', [])
-
+    let chartData = get(find(categoryGroups, { id: activeTab }), 'costItemGroups', [])
     if (activeCategory !== ReportCategories.Total) {
         chartData = chartData.filter(costItemGroup => {
             if (activeCategory === ReportCategories.Withdrawal) {
@@ -195,13 +196,12 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     }), [chartData, WithdrawalTitle, currencyCode, intl])
 
     const onChangeTabs = useCallback((key) => {
-        setActiveKey(key)
+        setActiveTab(key)
     }, [])
     const onReportPeriodSelectChange = useCallback((periodIndex) => {
         setSelectedPeriod(periodIndex)
     }, [])
     const onMouseOver = useCallback((itemName) => () => {
-
         chartInstance.current.setOption({ series: [{ label: { show: false } }] })
         chartInstance.current._api.dispatchAction({
             type: 'highlight',
@@ -224,19 +224,18 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
         },
     }), [])
 
-    const tabsItems = useMemo(() => {
-        return get(bankAccountReport, 'data.categoryGroups', [])
-            .filter(categoryGroup => {
-                if (activeCategory === ReportCategories.Total) {
-                    return true
-                } else if (activeCategory === ReportCategories.Income) {
-                    return categoryGroup.costItemGroups.some(item => item.isOutcome === false)
-                } else if (activeCategory === ReportCategories.Withdrawal) {
-                    return categoryGroup.costItemGroups.some(item => item.isOutcome === true)
-                }
-            })
-            .map((reportData) => ({ label: intl.formatMessage({ id: reportData.name }), key: reportData.id }))
-    }, [bankAccountReport, activeCategory, intl])
+    const tabsItems = useMemo(() => categoryGroups
+        .filter(categoryGroup => {
+            if (activeCategory === ReportCategories.Total) {
+                return true
+            } else if (activeCategory === ReportCategories.Income) {
+                return categoryGroup.costItemGroups.some(item => item.isOutcome === false)
+            } else if (activeCategory === ReportCategories.Withdrawal) {
+                return categoryGroup.costItemGroups.some(item => item.isOutcome === true)
+            }
+        })
+        .map(reportData => ({ label: intl.formatMessage({ id: reportData.name }), key: reportData.id }))
+    , [categoryGroups, activeCategory, intl])
     const reportOptionItems = useMemo(() => bankAccountReports
         .map((bankAccountReport, reportIndex) => (
             <Option
@@ -273,19 +272,23 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
         <BasicEmptyListView image='/dino/searching@2x.png'>
             <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
         </BasicEmptyListView>
-    ), [intl, NoDataTitle])
+    ), [NoDataTitle])
 
     useEffect(() => {
-        const defaultSelectedKey = get(bankAccountReports, [selectedPeriod, 'data', 'categoryGroups', '0', 'id'])
+        const defaultSelectedTab = get(bankAccountReports, [selectedPeriod, 'data', 'categoryGroups', '0', 'id'])
 
-        if (defaultSelectedKey) {
-            setActiveKey(defaultSelectedKey)
+        if (defaultSelectedTab) {
+            setActiveTab(defaultSelectedTab)
         }
     }, [bankAccountReports, selectedPeriod])
 
-    if (!bankAccountReport) {
-        return emptyPlaceholder
-    }
+    useEffect(() => {
+        if (isEmpty(chartData) && !isEmpty(categoryGroups)) {
+            setActiveTab(get(categoryGroups, '0.id'))
+        }
+    }, [chartData, categoryGroups])
+
+    if (!bankAccountReport) return emptyPlaceholder
 
     return (
         <Row gutter={BANK_ACCOUNT_REPORT_ROW_GUTTER}>
@@ -332,13 +335,15 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
             </Col>
             <Col span={24}>
                 <Card title={<Typography.Title level={3}>{ReportCardTitle}</Typography.Title>}>
-                    <Tabs items={tabsItems} onChange={onChangeTabs} />
+                    <Tabs items={tabsItems} onChange={onChangeTabs} activeKey={activeTab} />
                     <Row
                         gutter={BANK_ACCOUNT_REPORT_ROW_GUTTER}
                         style={{ flexDirection: isSmall || isMobile ? 'column-reverse' : 'row' }}
                     >
-                        {chartData.length
+                        {isEmpty(chartData)
                             ? (
+                                emptyPlaceholder
+                            ) : (
                                 <>
                                     <Col span={isSmall || isMobile ? 24 : 12}>
                                         {chartLegendItems}
@@ -352,8 +357,6 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                                         />
                                     </Col>
                                 </>
-                            ) : (
-                                emptyPlaceholder
                             )}
                     </Row>
                 </Card>
