@@ -217,13 +217,27 @@ async function registerMultiPayment (context, recurrentPayment) {
     }
 
     // get user context for registering multi payment
-    const { resident: { user } } = await getServiceConsumer(context, recurrentContext.serviceConsumer.id)
-    const userContext = await context.createContext({
-        authentication: {
-            item: user,
-            listKey: 'User',
-        },
-    })
+    let userContext = null
+    try {
+        const { resident: { user } } = await getServiceConsumer(context, recurrentContext.serviceConsumer.id)
+        userContext = await context.createContext({
+            authentication: {
+                item: user,
+                listKey: 'User',
+            },
+        })
+    } catch (e) {
+        // can not retrieve service consumer case
+        const errorCode = get(e, 'extensions.type') || RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE
+        const errorMessage = get(e, 'extensions.message') || get(e, 'message')
+
+        // can not register multi payment for deleted service consumer
+        return {
+            registered: false,
+            errorCode,
+            errorMessage,
+        }
+    }
 
     // create multi payment
     const registerRequest = {
@@ -380,7 +394,8 @@ async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMess
         || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE
         || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE
         || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE
-        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE) {
+        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE
+        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE) {
         nextStatus = RECURRENT_PAYMENT_ERROR_STATUS
     }
 
