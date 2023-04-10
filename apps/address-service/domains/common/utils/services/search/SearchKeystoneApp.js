@@ -68,6 +68,8 @@ class SearchKeystoneApp {
              * @returns {Promise<void>}
              */
             async (req, res, next) => {
+                this.logger.info({ msg: 'incoming request', req })
+
                 /**
                  * User's search string
                  * @type {string}

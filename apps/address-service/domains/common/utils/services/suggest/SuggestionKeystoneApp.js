@@ -56,8 +56,11 @@ class SuggestionKeystoneApp {
 
         app.all('/suggest', setNoCache, async (req, res, next) => {
             if (!ALLOWED_METHODS.includes(req.method)) {
+                this.logger.warn({ msg: 'not allowed method', req })
                 res.send(404)
             }
+
+            this.logger.info({ msg: 'incoming request', req })
 
             /**
              * User's search string
@@ -116,7 +119,14 @@ class SuggestionKeystoneApp {
 
             // 2. Get suggestions array
             if (suggestionProvider) {
-                const denormalizedSuggestions = await suggestionProvider.get({ query: s, session, context, language, count, helpers })
+                const denormalizedSuggestions = await suggestionProvider.get({
+                    query: s,
+                    session,
+                    context,
+                    language,
+                    count,
+                    helpers,
+                })
                 suggestions = bypass ? denormalizedSuggestions : suggestionProvider.normalize(denormalizedSuggestions)
             }
 
