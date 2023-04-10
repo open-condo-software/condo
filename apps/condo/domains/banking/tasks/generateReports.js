@@ -98,7 +98,7 @@ async function categoryGroupsBuilder (costItemsDataSortedByDate, { task, lastPro
                     costItemGroups: [{
                         id: costItemId,
                         name: data[costItemId].name,
-                        //isOutcome: data[costItemId].isOutcome,
+                        isOutcome: data[costItemId].isOutcome,
                         sum: data[costItemId].amount,
                     }],
                 }
@@ -200,7 +200,7 @@ const generateReports = async (taskId) => {
                 costItemData.data[currentTransaction.costItem.id] = {
                     amount: Number(currentTransaction.amount),
                     name: currentTransaction.costItem.name,
-                    //isOutcome: currentTransaction.isOutcome,
+                    isOutcome: currentTransaction.isOutcome,
                     category: {
                         id: currentTransaction.costItem.category.id,
                         name: currentTransaction.costItem.category.name,
