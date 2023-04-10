@@ -26,14 +26,16 @@ const subscribers = new Map<number, SubscribeFunc>()
 let subUid = -1
 let screens = {}
 
+type MediaQueryListListener = (this: MediaQueryList, event: MediaQueryListEvent) => void
+
 const responsiveObserve = {
     matchHandlers: {} as {
         [prop: string]: {
-            mql: MediaQueryList;
-            listener: ((this: MediaQueryList, ev: MediaQueryListEvent) => any) | null;
+            mql: MediaQueryList
+            listener: MediaQueryListListener
         };
     },
-    dispatch (pointMap: ScreenMap) {
+    dispatch (pointMap: ScreenMap): boolean {
         screens = pointMap
         subscribers.forEach(func => func(screens))
         return subscribers.size >= 1
@@ -45,19 +47,19 @@ const responsiveObserve = {
         func(screens)
         return subUid
     },
-    unsubscribe (token: number) {
+    unsubscribe (token: number): void {
         subscribers.delete(token)
         if (!subscribers.size) this.unregister()
     },
-    unregister () {
+    unregister (): void {
         Object.keys(responsiveMap).forEach((screen) => {
             const matchMediaQuery = responsiveMap[screen as Breakpoint]
             const handler = this.matchHandlers[matchMediaQuery]
-            handler?.mql.removeListener(handler?.listener)
+            handler?.mql.removeEventListener('change', handler?.listener)
         })
         subscribers.clear()
     },
-    register () {
+    register (): void {
         Object.keys(responsiveMap).forEach((screen) => {
             const matchMediaQuery = responsiveMap[screen as Breakpoint]
             const listener = ({ matches }: { matches: boolean }) => {
@@ -67,7 +69,7 @@ const responsiveObserve = {
                 })
             }
             const mql = window.matchMedia(matchMediaQuery)
-            mql.addListener(listener)
+            mql.addEventListener('change', listener)
             this.matchHandlers[matchMediaQuery] = {
                 mql,
                 listener,
