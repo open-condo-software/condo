@@ -36508,6 +36508,8 @@ export type NewsItem = {
   validBefore?: Maybe<Scalars['String']>;
   /**  Date to publish the news item and to send notifications  */
   sendAt?: Maybe<Scalars['String']>;
+  scopes: Array<NewsItemScope>;
+  _scopesMeta?: Maybe<_QueryMeta>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -36524,6 +36526,28 @@ export type NewsItem = {
   sender?: Maybe<SenderField>;
 };
 
+
+/**  The news item created by the organization to show on resident's mobile devices  */
+export type NewsItemScopesArgs = {
+  where?: Maybe<NewsItemScopeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemScopesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+/**  The news item created by the organization to show on resident's mobile devices  */
+export type NewsItem_ScopesMetaArgs = {
+  where?: Maybe<NewsItemScopeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemScopesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
 export type NewsItemCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   title?: Maybe<Scalars['String']>;
@@ -36531,6 +36555,7 @@ export type NewsItemCreateInput = {
   type?: Maybe<NewsItemTypeType>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
+  scopes?: Maybe<NewsItemScopeRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37060,6 +37085,13 @@ export type NewsItemScopeHistoryRecordsUpdateInput = {
   data?: Maybe<NewsItemScopeHistoryRecordUpdateInput>;
 };
 
+export type NewsItemScopeRelateToManyInput = {
+  create?: Maybe<Array<Maybe<NewsItemScopeCreateInput>>>;
+  connect?: Maybe<Array<Maybe<NewsItemScopeWhereUniqueInput>>>;
+  disconnect?: Maybe<Array<Maybe<NewsItemScopeWhereUniqueInput>>>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export enum NewsItemScopeUnitTypeType {
   Parking = 'parking',
   Flat = 'flat',
@@ -37576,6 +37608,7 @@ export type NewsItemUpdateInput = {
   type?: Maybe<NewsItemTypeType>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
+  scopes?: Maybe<NewsItemScopeRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37955,6 +37988,12 @@ export type NewsItemWhereInput = {
   sendAt_gte?: Maybe<Scalars['String']>;
   sendAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sendAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  /**  condition must be true for all nodes  */
+  scopes_every?: Maybe<NewsItemScopeWhereInput>;
+  /**  condition must be true for at least 1 node  */
+  scopes_some?: Maybe<NewsItemScopeWhereInput>;
+  /**  condition must be false for all nodes  */
+  scopes_none?: Maybe<NewsItemScopeWhereInput>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -58357,6 +58396,8 @@ export enum SortNewsItemsBy {
   ValidBeforeDesc = 'validBefore_DESC',
   SendAtAsc = 'sendAt_ASC',
   SendAtDesc = 'sendAt_DESC',
+  ScopesAsc = 'scopes_ASC',
+  ScopesDesc = 'scopes_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

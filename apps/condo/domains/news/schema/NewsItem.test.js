@@ -280,7 +280,7 @@ describe('NewsItems', () => {
                 })
             })
 
-            test('eligible resident can, not eligible can\'t', async () => {
+            test('eligible resident can, non-eligible can\'t', async () => {
                 const residentClient1 = await makeClientWithResidentUser()
                 const residentClient2 = await makeClientWithResidentUser()
                 const residentClient3 = await makeClientWithResidentAccessAndProperty()
