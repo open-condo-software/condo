@@ -25,7 +25,7 @@ export function useBreakpoints (refreshOnChange = true): ScreenMap {
 
             return () => ResponsiveObserve.unsubscribe(token)
         }
-    }, [])
+    }, [forceUpdate, refreshOnChange])
 
     return screensRef.current
 }
