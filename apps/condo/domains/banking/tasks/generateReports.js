@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
+const cloneDeep = require('lodash/cloneDeep')
 const get = require('lodash/get')
 const isEqual = require('lodash/isEqual')
-const pickBy = require('lodash/pickBy')
 const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
@@ -50,7 +50,7 @@ function sortTransactionsByMonthAndYear (allTransactions) {
         const filteredTransactionsByCurrentYearMonth = []
         for (const transaction of allTransactions) {
             if (transaction.date.includes(currentDate)) {
-                filteredTransactionsByCurrentYearMonth.push(pickBy(transaction))
+                filteredTransactionsByCurrentYearMonth.push(cloneDeep(transaction))
             }
         }
         sortedTransactionsByMonthAndYear.push(filteredTransactionsByCurrentYearMonth)
@@ -89,6 +89,7 @@ async function categoryGroupsBuilder (costItemsDataSortedByDate, { task, lastPro
                 parsedCategoryData[data[costItemId].category.id].costItemGroups.push({
                     id: costItemId,
                     name: data[costItemId].name,
+                    isOutcome: data[costItemId].isOutcome,
                     sum: data[costItemId].amount,
                 })
             } else {
@@ -98,7 +99,7 @@ async function categoryGroupsBuilder (costItemsDataSortedByDate, { task, lastPro
                     costItemGroups: [{
                         id: costItemId,
                         name: data[costItemId].name,
-                        //isOutcome: data[costItemId].isOutcome,
+                        isOutcome: data[costItemId].isOutcome,
                         sum: data[costItemId].amount,
                     }],
                 }
@@ -200,7 +201,7 @@ const generateReports = async (taskId) => {
                 costItemData.data[currentTransaction.costItem.id] = {
                     amount: Number(currentTransaction.amount),
                     name: currentTransaction.costItem.name,
-                    //isOutcome: currentTransaction.isOutcome,
+                    isOutcome: currentTransaction.isOutcome,
                     category: {
                         id: currentTransaction.costItem.category.id,
                         name: currentTransaction.costItem.category.name,
