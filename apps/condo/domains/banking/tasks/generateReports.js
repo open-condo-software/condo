@@ -2,7 +2,6 @@ const dayjs = require('dayjs')
 const cloneDeep = require('lodash/cloneDeep')
 const get = require('lodash/get')
 const isEqual = require('lodash/isEqual')
-const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -25,17 +24,6 @@ const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
 const SLEEP_TIMEOUT = conf.WORKER_BATCH_OPERATIONS_SLEEP_TIMEOUT || 200
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'generateReports' } }
-
-const unsignedCategory = {
-    id: uuid(),
-    name: 'banking.category.UNSIGNED.name',
-}
-
-const unsignedCostItem = {
-    id: uuid(),
-    name: 'banking.costItem.UNSIGNED.name',
-    category: unsignedCategory,
-}
 
 const logger = getLogger('generateReports')
 
@@ -176,7 +164,6 @@ const generateReports = async (taskId) => {
         if (!transaction.costItem) {
             const contractorAccount = get(transaction, 'contractorAccount')
             if (!contractorAccount){
-                transaction.costItem = unsignedCostItem
                 continue
             }
             transaction.costItem = { ...contractorAccount.costItem }
@@ -195,6 +182,9 @@ const generateReports = async (taskId) => {
         }
         for (let i = 0; i < transactions.length; i++) {
             const currentTransaction = transactions[i]
+            if (!currentTransaction.costItem) {
+                continue
+            }
             if (Object.keys(costItemData.data).includes(currentTransaction.costItem.id)) {
                 costItemData.data[currentTransaction.costItem.id].amount += Number(currentTransaction.amount)
             } else {

@@ -501,7 +501,7 @@ describe('BankAccountReportTask', () => {
                     organization: { id: org.id },
                 })
                 expect(bankAccountReport).toBeDefined()
-            }, { timeout: 1000000 })
+            })
             const report = await BankAccountReport.getOne(admin, {
                 organization: { id: org.id },
             })
@@ -511,7 +511,6 @@ describe('BankAccountReportTask', () => {
             expect(Number(report.totalIncome)).toEqual(250)
             expect(Number(report.totalOutcome)).toEqual(50)
             expect(report.data.categoryGroups[0].costItemGroups[0].sum).toEqual(250)
-            expect(report.data.categoryGroups[1].costItemGroups[0].sum).toEqual(50)
         })
     })
 })
