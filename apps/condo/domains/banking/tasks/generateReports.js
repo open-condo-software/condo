@@ -2,6 +2,7 @@ const dayjs = require('dayjs')
 const get = require('lodash/get')
 const isEqual = require('lodash/isEqual')
 const pickBy = require('lodash/pickBy')
+const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -24,6 +25,17 @@ const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
 const SLEEP_TIMEOUT = conf.WORKER_BATCH_OPERATIONS_SLEEP_TIMEOUT || 200
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'generateReports' } }
+
+const unsignedCategory = {
+    id: uuid(),
+    name: 'banking.category.UNSIGNED.name',
+}
+
+const unsignedCostItem = {
+    id: uuid(),
+    name: 'banking.costItem.UNSIGNED.name',
+    category: unsignedCategory,
+}
 
 const logger = getLogger('generateReports')
 
@@ -163,7 +175,8 @@ const generateReports = async (taskId) => {
         if (!transaction.costItem) {
             const contractorAccount = get(transaction, 'contractorAccount')
             if (!contractorAccount){
-                throw new Error('contractorAccount is undefined')
+                transaction.costItem = unsignedCostItem
+                continue
             }
             transaction.costItem = { ...contractorAccount.costItem }
         }

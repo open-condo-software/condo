@@ -1704,6 +1704,8 @@
   "banking.category.THERMAL_ENERGY.name": "Thermal energy",
   "banking.category.COLD_WATER_SUPPLY.name": "Cold water supply",
   "banking.category.ELECTRIC_ENERGY.name": "Electric energy",
+  "banking.category.UNSIGNED.name": "Unsigned",
+  "banking.costItem.UNSIGNED.name": "Unsigned",
   "banking.costItem.EMERGENCY_SERVICE.name": "Emergency service",
   "banking.costItem.RENT.name": "Rent",
   "banking.costItem.BANKING_SERVICES.name": "Banking services",

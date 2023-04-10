@@ -1704,6 +1704,8 @@
   "banking.category.THERMAL_ENERGY.name": "Тепловая энергия",
   "banking.category.COLD_WATER_SUPPLY.name": "Холодное водоснабжение",
   "banking.category.ELECTRIC_ENERGY.name": "Электрическая энергия",
+  "banking.category.UNSIGNED.name": "Неразмеченная",
+  "banking.costItem.UNSIGNED.name": "Неразмеченная",
   "banking.costItem.EMERGENCY_SERVICE.name": "Аварийное обслуживание",
   "banking.costItem.RENT.name": "Аренда",
   "banking.costItem.BANKING_SERVICES.name": "Банковское обслуживание",

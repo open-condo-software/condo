@@ -379,7 +379,7 @@ describe('BankAccountReportTask', () => {
     
     describe('BankAccountReportTask afterChange', async () => {
 
-        it('creates BankAccountReport', async () => {
+        it('create BankAccountReport', async () => {
             const [org] = await createTestOrganization(admin)
             const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org)
             const [account] = await createTestBankAccount(admin, org, {
@@ -448,6 +448,70 @@ describe('BankAccountReportTask', () => {
             expect(Number(report.totalOutcome)).toEqual(50)
             expect(report.data.categoryGroups[0].costItemGroups[0].sum).toEqual(250)
             expect(report.data.categoryGroups[0].costItemGroups[1].sum).toEqual(50)
+        })
+
+        it('create BankAccountReport with unsigned CostItem and Category', async () => {
+            const [org] = await createTestOrganization(admin)
+            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org)
+            const [account] = await createTestBankAccount(admin, org, {
+                integrationContext: { connect: { id: integrationContext.id } },
+                meta: {
+                    amount: '200',
+                    amountAt: dayjs().format('YYYY-MM-DD'),
+                },
+            })
+
+            const [costItem1] = await createTestBankCostItem(admin, category, {
+                isOutcome: false,
+            })
+
+            const [contractorAccount1] = await createTestBankContractorAccount(admin, org, {
+                costItem: { connect: { id: costItem1.id } },
+            })
+
+            const date = dayjs().format('YYYY-MM-DD')
+            for (let i = 0; i < 5; i++) {
+                const [createdTransaction] = await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
+                    date,
+                    amount: '50',
+                    isOutcome: false,
+                })
+
+            }
+            for (let i = 0; i < 5; i++) {
+                const [createdTransaction] = await createTestBankTransaction(admin, account, { id: faker.datatype.uuid() }, integrationContext, org, {
+                    date,
+                    amount: '10',
+                    isOutcome: true,
+                    contractorAccount: undefined,
+                })
+            }
+
+            const [createdReportTask] = await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
+
+
+            await waitFor(async () => {
+                const updatedTask = await BankAccountReportTask.getOne(admin, {
+                    id: createdReportTask.id,
+                    status: BANK_SYNC_TASK_STATUS.COMPLETED,
+                })
+                expect(updatedTask).toBeDefined()
+
+                const bankAccountReport = await BankAccountReport.getOne(admin, {
+                    organization: { id: org.id },
+                })
+                expect(bankAccountReport).toBeDefined()
+            }, { timeout: 1000000 })
+            const report = await BankAccountReport.getOne(admin, {
+                organization: { id: org.id },
+            })
+            expect(report.version).toEqual(1)
+            expect(Number(report.amount)).toEqual(200)
+            expect(report.amountAt).toEqual(`${dayjs().format('YYYY-MM-DD')}T00:00:00.000Z`)
+            expect(Number(report.totalIncome)).toEqual(250)
+            expect(Number(report.totalOutcome)).toEqual(50)
+            expect(report.data.categoryGroups[0].costItemGroups[0].sum).toEqual(250)
+            expect(report.data.categoryGroups[1].costItemGroups[0].sum).toEqual(50)
         })
     })
 })
