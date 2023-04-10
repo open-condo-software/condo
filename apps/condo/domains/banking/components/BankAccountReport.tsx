@@ -5,6 +5,7 @@ import ReactECharts from 'echarts-for-react'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import { useRouter } from 'next/router'
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
@@ -136,6 +137,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const NoDataTitle = intl.formatMessage({ id: 'NoData' })
 
     const { isSmall, isMobile } = useLayoutContext()
+    const { push, asPath } = useRouter()
 
     const [activeTab, setActiveTab] = useState(get(bankAccountReports, '0.data.categoryGroups.0.id'))
     const [selectedPeriod, setSelectedPeriod] = useState(0)
@@ -210,9 +212,13 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const onChangeTabs = useCallback((key) => {
         setActiveTab(key)
     }, [])
-    const onReportPeriodSelectChange = useCallback((periodIndex) => {
+    const onReportPeriodSelectChange = useCallback(async (periodIndex) => {
         setSelectedPeriod(periodIndex)
-    }, [])
+
+        if (!isEmpty(bankAccountReports)) {
+            await push(`${asPath.split('?')[0]}?period=${bankAccountReports[periodIndex].period}`)
+        }
+    }, [asPath, push, bankAccountReports])
     const onMouseOver = useCallback((itemName) => () => {
         chartInstance.current.setOption({ series: [{ label: { show: false } }] })
         chartInstance.current._api.dispatchAction({
@@ -276,6 +282,12 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
             <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
         </BasicEmptyListView>
     ), [NoDataTitle])
+
+    useEffect(() => {
+        if (!asPath.includes('?period') && !isEmpty(bankAccountReports)) {
+            push(`${asPath}?period=${bankAccountReports[selectedPeriod].period}`)
+        }
+    }, [asPath])
 
     useEffect(() => {
         const defaultSelectedTab = get(bankAccountReports, [selectedPeriod, 'data', 'categoryGroups', '0', 'id'])
@@ -366,6 +378,11 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
             </Col>
         </Row>
     )
+}
+
+type BankAccountReportProps = {
+    bankAccountReports: Array<BankAccountReportType>
+    currencyCode: string
 }
 
 interface IBankAccountReport {

@@ -179,12 +179,6 @@ const BankAccount = new GQLListSchema('BankAccount', {
             type: Json,
             isRequired: false,
         },
-
-        reportVisible: {
-            schemaDoc: 'Determines visibility of the report for residents',
-            type: Checkbox,
-            defaultValue: false,
-        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
