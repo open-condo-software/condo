@@ -11,7 +11,7 @@ const conf = require('@open-condo/config')
 const access = require('@open-condo/keystone/access')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
-const { GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
+const { GraphQLLoggerPlugin, getKeystonePinoOptions } = require('@open-condo/keystone/logging')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 
 const { OIDCKeystoneApp } = require('@address-service/domains/common/oidc')
@@ -68,6 +68,7 @@ const authStrategy = keystone.createAuthStrategy({
 
 module.exports = {
     keystone,
+    pinoOptions: getKeystonePinoOptions(),
     apps: [
         conf.NODE_ENV === 'test' ? undefined : new OIDCKeystoneApp(),
         new GraphQLApp({

@@ -165,6 +165,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * @returns {Promise<*|null>}
      */
     async callToDadata (url, body) {
+        this.logger.info({ msg: 'call to dadata', url, body })
         const result = await fetch(
             url,
             {
@@ -177,8 +178,6 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                 body: JSON.stringify(body),
             },
         )
-
-        //TODO?(nas): add some calls counter (maybe datadog)
 
         const status = result.status
         if (status === 200) {
@@ -196,7 +195,8 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
              */
         }
 
-        //TODO(AleX83Xpert) maybe need to log erroneous status
+        this.logger.warn({ msg: 'dadata responded with error status code', status, url, body })
+
         return null
     }
 
