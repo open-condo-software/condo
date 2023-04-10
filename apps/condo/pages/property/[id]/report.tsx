@@ -11,6 +11,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Button, Checkbox } from '@open-condo/ui'
 
+import { BankAccountReport } from '@condo/domains/banking/components/BankAccountReport'
 import { BankAccountVisibilitySelect } from '@condo/domains/banking/components/BankAccountVisibilitySelect'
 import {
     BankCostItemProvider,
@@ -482,9 +483,14 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
                     </Row>
                 </Col>
                 {hasBankAccount && (
-                    <Col span={24}>
-                        <PropertyReport bankAccount={bankAccount} propertyId={property.id} />
-                    </Col>
+                    <>
+                        <Col span={24}>
+                            <BankAccountReport bankAccount={bankAccount} organizationId={link.organization.id} />
+                        </Col>
+                        <Col span={24}>
+                            <PropertyReport bankAccount={bankAccount} propertyId={property.id} />
+                        </Col>
+                    </>
                 )}
             </Row>
             {!hasBankAccount && (
