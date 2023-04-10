@@ -7061,6 +7061,9 @@ type BillingIntegrationHistoryRecord {
   extendsBillingPage: Boolean
   billingPageTitle: String
   group: String
+  connectedMessage: String
+  uploadUrl: String
+  uploadMessage: String
   contextDefaultStatus: String
   dataFormat: JSON
   currencyCode: String
@@ -7300,6 +7303,60 @@ input BillingIntegrationHistoryRecordWhereInput {
   group_not_ends_with_i: String
   group_in: [String]
   group_not_in: [String]
+  connectedMessage: String
+  connectedMessage_not: String
+  connectedMessage_contains: String
+  connectedMessage_not_contains: String
+  connectedMessage_starts_with: String
+  connectedMessage_not_starts_with: String
+  connectedMessage_ends_with: String
+  connectedMessage_not_ends_with: String
+  connectedMessage_i: String
+  connectedMessage_not_i: String
+  connectedMessage_contains_i: String
+  connectedMessage_not_contains_i: String
+  connectedMessage_starts_with_i: String
+  connectedMessage_not_starts_with_i: String
+  connectedMessage_ends_with_i: String
+  connectedMessage_not_ends_with_i: String
+  connectedMessage_in: [String]
+  connectedMessage_not_in: [String]
+  uploadUrl: String
+  uploadUrl_not: String
+  uploadUrl_contains: String
+  uploadUrl_not_contains: String
+  uploadUrl_starts_with: String
+  uploadUrl_not_starts_with: String
+  uploadUrl_ends_with: String
+  uploadUrl_not_ends_with: String
+  uploadUrl_i: String
+  uploadUrl_not_i: String
+  uploadUrl_contains_i: String
+  uploadUrl_not_contains_i: String
+  uploadUrl_starts_with_i: String
+  uploadUrl_not_starts_with_i: String
+  uploadUrl_ends_with_i: String
+  uploadUrl_not_ends_with_i: String
+  uploadUrl_in: [String]
+  uploadUrl_not_in: [String]
+  uploadMessage: String
+  uploadMessage_not: String
+  uploadMessage_contains: String
+  uploadMessage_not_contains: String
+  uploadMessage_starts_with: String
+  uploadMessage_not_starts_with: String
+  uploadMessage_ends_with: String
+  uploadMessage_not_ends_with: String
+  uploadMessage_i: String
+  uploadMessage_not_i: String
+  uploadMessage_contains_i: String
+  uploadMessage_not_contains_i: String
+  uploadMessage_starts_with_i: String
+  uploadMessage_not_starts_with_i: String
+  uploadMessage_ends_with_i: String
+  uploadMessage_not_ends_with_i: String
+  uploadMessage_in: [String]
+  uploadMessage_not_in: [String]
   contextDefaultStatus: String
   contextDefaultStatus_not: String
   contextDefaultStatus_contains: String
@@ -7451,6 +7508,12 @@ enum SortBillingIntegrationHistoryRecordsBy {
   billingPageTitle_DESC
   group_ASC
   group_DESC
+  connectedMessage_ASC
+  connectedMessage_DESC
+  uploadUrl_ASC
+  uploadUrl_DESC
+  uploadMessage_ASC
+  uploadMessage_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   currencyCode_ASC
@@ -7494,6 +7557,9 @@ input BillingIntegrationHistoryRecordUpdateInput {
   extendsBillingPage: Boolean
   billingPageTitle: String
   group: String
+  connectedMessage: String
+  uploadUrl: String
+  uploadMessage: String
   contextDefaultStatus: String
   dataFormat: JSON
   currencyCode: String
@@ -7535,6 +7601,9 @@ input BillingIntegrationHistoryRecordCreateInput {
   extendsBillingPage: Boolean
   billingPageTitle: String
   group: String
+  connectedMessage: String
+  uploadUrl: String
+  uploadMessage: String
   contextDefaultStatus: String
   dataFormat: JSON
   currencyCode: String
@@ -7604,7 +7673,8 @@ type BillingIntegration {
   """
   shortDescription: String
 
-  """ Short text describing integration target organization group """
+  """ Short text describing integration target group. Like The type of organization for which this integration is best suited. 
+  """
   targetDescription: String
 
   """ Controls text appearance in the integration banner """
@@ -7617,7 +7687,7 @@ type BillingIntegration {
   """ Image shown in the integration banner """
   bannerPromoImage: File
 
-  """ A short sentence describing how long it usually takes for integration to upload receipts 
+  """ A short sentence describing how long it usually takes for integration to upload receipts. Appears under correlated title in the integration modal 
   """
   receiptsLoadingTime: String
 
@@ -7625,7 +7695,7 @@ type BillingIntegration {
   """
   detailedDescription: String
 
-  """ Url to app page, which will be opened during app connection to setup the integration 
+  """ Url to app page, which will be opened during app connection to setup the integration. One of setupUrl and instruction fields must be filled 
   """
   setupUrl: String
 
@@ -7637,11 +7707,12 @@ type BillingIntegration {
   """
   instructionExtraLink: String
 
-  """ Url to app page, which is the app starting point and will be opened in iframe 
+  """ Url to the application page that extends the "Accruals and Payments" section and opens in an iframe inside an additional tab named from the "billingPageTitle" or "name" field and controlled by "extendsBillingPage" flag 
   """
   appUrl: String
 
-  """ Determines whether there is an additional tab in the billing section """
+  """ If this flag is set to true, then in the "Accruals and Payments" section will appear an additional tab with the "billingPageTitle" or "name" field and iframe from "appUrl" inside 
+  """
   extendsBillingPage: Boolean
 
   """ Used in billing section to override name of app tab """
@@ -7650,6 +7721,17 @@ type BillingIntegration {
   """ Billing group which this billing is part of. Used to restrict certain billings from certain acquirings" 
   """
   group: String
+
+  """ The message shown to the user after the integration is connected before the first receipts are downloaded. Appeared while lastReport field of context is null 
+  """
+  connectedMessage: String
+
+  """ If specified, billing app will have a call-to-action button, which opens iframe with specified url to start receipts-uploading process. Text of a button can be overridden via "uploadMessage" 
+  """
+  uploadUrl: String
+
+  """ Overrides default "Upload receipts" message on call-to-action button """
+  uploadMessage: String
 
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
@@ -7927,6 +8009,60 @@ input BillingIntegrationWhereInput {
   group_not_ends_with_i: String
   group_in: [String]
   group_not_in: [String]
+  connectedMessage: String
+  connectedMessage_not: String
+  connectedMessage_contains: String
+  connectedMessage_not_contains: String
+  connectedMessage_starts_with: String
+  connectedMessage_not_starts_with: String
+  connectedMessage_ends_with: String
+  connectedMessage_not_ends_with: String
+  connectedMessage_i: String
+  connectedMessage_not_i: String
+  connectedMessage_contains_i: String
+  connectedMessage_not_contains_i: String
+  connectedMessage_starts_with_i: String
+  connectedMessage_not_starts_with_i: String
+  connectedMessage_ends_with_i: String
+  connectedMessage_not_ends_with_i: String
+  connectedMessage_in: [String]
+  connectedMessage_not_in: [String]
+  uploadUrl: String
+  uploadUrl_not: String
+  uploadUrl_contains: String
+  uploadUrl_not_contains: String
+  uploadUrl_starts_with: String
+  uploadUrl_not_starts_with: String
+  uploadUrl_ends_with: String
+  uploadUrl_not_ends_with: String
+  uploadUrl_i: String
+  uploadUrl_not_i: String
+  uploadUrl_contains_i: String
+  uploadUrl_not_contains_i: String
+  uploadUrl_starts_with_i: String
+  uploadUrl_not_starts_with_i: String
+  uploadUrl_ends_with_i: String
+  uploadUrl_not_ends_with_i: String
+  uploadUrl_in: [String]
+  uploadUrl_not_in: [String]
+  uploadMessage: String
+  uploadMessage_not: String
+  uploadMessage_contains: String
+  uploadMessage_not_contains: String
+  uploadMessage_starts_with: String
+  uploadMessage_not_starts_with: String
+  uploadMessage_ends_with: String
+  uploadMessage_not_ends_with: String
+  uploadMessage_i: String
+  uploadMessage_not_i: String
+  uploadMessage_contains_i: String
+  uploadMessage_not_contains_i: String
+  uploadMessage_starts_with_i: String
+  uploadMessage_not_starts_with_i: String
+  uploadMessage_ends_with_i: String
+  uploadMessage_not_ends_with_i: String
+  uploadMessage_in: [String]
+  uploadMessage_not_in: [String]
   contextDefaultStatus: String
   contextDefaultStatus_not: String
   contextDefaultStatus_in: [String]
@@ -8043,6 +8179,12 @@ enum SortBillingIntegrationsBy {
   billingPageTitle_DESC
   group_ASC
   group_DESC
+  connectedMessage_ASC
+  connectedMessage_DESC
+  uploadUrl_ASC
+  uploadUrl_DESC
+  uploadMessage_ASC
+  uploadMessage_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   currencyCode_ASC
@@ -8088,6 +8230,9 @@ input BillingIntegrationUpdateInput {
   extendsBillingPage: Boolean
   billingPageTitle: String
   group: String
+  connectedMessage: String
+  uploadUrl: String
+  uploadMessage: String
   contextDefaultStatus: String
   dataFormat: BillingIntegrationDataFormatFieldInput
   currencyCode: String
@@ -8127,6 +8272,9 @@ input BillingIntegrationCreateInput {
   extendsBillingPage: Boolean
   billingPageTitle: String
   group: String
+  connectedMessage: String
+  uploadUrl: String
+  uploadMessage: String
   contextDefaultStatus: String
   dataFormat: BillingIntegrationDataFormatFieldInput
   currencyCode: String

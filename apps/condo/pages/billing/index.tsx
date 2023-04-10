@@ -3,9 +3,9 @@ import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography } from '@open-condo/ui'
 
 import { AcquiringIntegrationContext as AcquiringContext } from '@condo/domains/acquiring/utils/clientSchema'
+import { BillingPageContent } from '@condo/domains/billing/components/BillingPageContent'
 import { BillingOnboardingPage } from '@condo/domains/billing/components/OnBoarding'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -49,11 +49,18 @@ const AccrualsAndPaymentsPage: PageType = () => {
         )
     }
 
-    const msg = '// TODO: Errors and dinosaurs'
     if (billingCtx && acquiringCtx) {
-        return <div>
-            <Typography.Title>{msg}</Typography.Title>
-        </div>
+        return (
+            <BillingPageContent
+                billingName={get(billingCtx, ['integration', 'name'], '')}
+                hasReceipts={Boolean(billingCtx.lastReport)}
+                problem={billingCtx.currentProblem}
+                connectedMessage={get(billingCtx, ['integration', 'connectedMessage'])}
+                instructionLink={get(billingCtx, ['integration', 'instructionExtraLink'])}
+                uploadUrl={get(billingCtx, ['integration', 'uploadUrl'])}
+                uploadMessage={get(billingCtx, ['integration', 'uploadMessage'])}
+            />
+        )
     }
 
     return (

@@ -11899,7 +11899,7 @@ export type BillingIntegration = {
   logo?: Maybe<File>;
   /**  Short description / catch phrase providing information about integration functionality. Will be shown on App's card  */
   shortDescription?: Maybe<Scalars['String']>;
-  /**  Short text describing integration target organization group  */
+  /**  Short text describing integration target group. Like The type of organization for which this integration is best suited.  */
   targetDescription?: Maybe<Scalars['String']>;
   /**  Controls text appearance in the integration banner  */
   bannerTextColor?: Maybe<BillingIntegrationBannerTextColorType>;
@@ -11907,24 +11907,30 @@ export type BillingIntegration = {
   bannerColor?: Maybe<Scalars['String']>;
   /**  Image shown in the integration banner  */
   bannerPromoImage?: Maybe<File>;
-  /**  A short sentence describing how long it usually takes for integration to upload receipts  */
+  /**  A short sentence describing how long it usually takes for integration to upload receipts. Appears under correlated title in the integration modal  */
   receiptsLoadingTime?: Maybe<Scalars['String']>;
   /**  Text describing app functionality, connection process and pricing in full detail. Written in markdown without html tags. Will be shown on app's page  */
   detailedDescription?: Maybe<Scalars['String']>;
-  /**  Url to app page, which will be opened during app connection to setup the integration  */
+  /**  Url to app page, which will be opened during app connection to setup the integration. One of setupUrl and instruction fields must be filled  */
   setupUrl?: Maybe<Scalars['String']>;
   /**  Short instruction for connecting the service written in markdown. Used in cases where integration has no frontend  */
   instruction?: Maybe<Scalars['String']>;
   /**  Used in cases when integration need to link external instruction or article.  */
   instructionExtraLink?: Maybe<Scalars['String']>;
-  /**  Url to app page, which is the app starting point and will be opened in iframe  */
+  /**  Url to the application page that extends the "Accruals and Payments" section and opens in an iframe inside an additional tab named from the "billingPageTitle" or "name" field and controlled by "extendsBillingPage" flag  */
   appUrl?: Maybe<Scalars['String']>;
-  /**  Determines whether there is an additional tab in the billing section  */
+  /**  If this flag is set to true, then in the "Accruals and Payments" section will appear an additional tab with the "billingPageTitle" or "name" field and iframe from "appUrl" inside  */
   extendsBillingPage?: Maybe<Scalars['Boolean']>;
   /**  Used in billing section to override name of app tab  */
   billingPageTitle?: Maybe<Scalars['String']>;
   /**  Billing group which this billing is part of. Used to restrict certain billings from certain acquirings"  */
   group?: Maybe<Scalars['String']>;
+  /**  The message shown to the user after the integration is connected before the first receipts are downloaded. Appeared while lastReport field of context is null  */
+  connectedMessage?: Maybe<Scalars['String']>;
+  /**  If specified, billing app will have a call-to-action button, which opens iframe with specified url to start receipts-uploading process. Text of a button can be overridden via "uploadMessage"  */
+  uploadUrl?: Maybe<Scalars['String']>;
+  /**  Overrides default "Upload receipts" message on call-to-action button  */
+  uploadMessage?: Maybe<Scalars['String']>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
   contextDefaultStatus?: Maybe<Scalars['String']>;
   /**  Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay)  */
@@ -12282,6 +12288,9 @@ export type BillingIntegrationCreateInput = {
   extendsBillingPage?: Maybe<Scalars['Boolean']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   group?: Maybe<Scalars['String']>;
+  connectedMessage?: Maybe<Scalars['String']>;
+  uploadUrl?: Maybe<Scalars['String']>;
+  uploadMessage?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -12339,6 +12348,9 @@ export type BillingIntegrationHistoryRecord = {
   extendsBillingPage?: Maybe<Scalars['Boolean']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   group?: Maybe<Scalars['String']>;
+  connectedMessage?: Maybe<Scalars['String']>;
+  uploadUrl?: Maybe<Scalars['String']>;
+  uploadMessage?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -12376,6 +12388,9 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   extendsBillingPage?: Maybe<Scalars['Boolean']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   group?: Maybe<Scalars['String']>;
+  connectedMessage?: Maybe<Scalars['String']>;
+  uploadUrl?: Maybe<Scalars['String']>;
+  uploadMessage?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -12418,6 +12433,9 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   extendsBillingPage?: Maybe<Scalars['Boolean']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   group?: Maybe<Scalars['String']>;
+  connectedMessage?: Maybe<Scalars['String']>;
+  uploadUrl?: Maybe<Scalars['String']>;
+  uploadMessage?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -12656,6 +12674,60 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   group_not_ends_with_i?: Maybe<Scalars['String']>;
   group_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   group_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  connectedMessage?: Maybe<Scalars['String']>;
+  connectedMessage_not?: Maybe<Scalars['String']>;
+  connectedMessage_contains?: Maybe<Scalars['String']>;
+  connectedMessage_not_contains?: Maybe<Scalars['String']>;
+  connectedMessage_starts_with?: Maybe<Scalars['String']>;
+  connectedMessage_not_starts_with?: Maybe<Scalars['String']>;
+  connectedMessage_ends_with?: Maybe<Scalars['String']>;
+  connectedMessage_not_ends_with?: Maybe<Scalars['String']>;
+  connectedMessage_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_i?: Maybe<Scalars['String']>;
+  connectedMessage_contains_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_contains_i?: Maybe<Scalars['String']>;
+  connectedMessage_starts_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_starts_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_ends_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_ends_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  connectedMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uploadUrl?: Maybe<Scalars['String']>;
+  uploadUrl_not?: Maybe<Scalars['String']>;
+  uploadUrl_contains?: Maybe<Scalars['String']>;
+  uploadUrl_not_contains?: Maybe<Scalars['String']>;
+  uploadUrl_starts_with?: Maybe<Scalars['String']>;
+  uploadUrl_not_starts_with?: Maybe<Scalars['String']>;
+  uploadUrl_ends_with?: Maybe<Scalars['String']>;
+  uploadUrl_not_ends_with?: Maybe<Scalars['String']>;
+  uploadUrl_i?: Maybe<Scalars['String']>;
+  uploadUrl_not_i?: Maybe<Scalars['String']>;
+  uploadUrl_contains_i?: Maybe<Scalars['String']>;
+  uploadUrl_not_contains_i?: Maybe<Scalars['String']>;
+  uploadUrl_starts_with_i?: Maybe<Scalars['String']>;
+  uploadUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  uploadUrl_ends_with_i?: Maybe<Scalars['String']>;
+  uploadUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  uploadUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uploadUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uploadMessage?: Maybe<Scalars['String']>;
+  uploadMessage_not?: Maybe<Scalars['String']>;
+  uploadMessage_contains?: Maybe<Scalars['String']>;
+  uploadMessage_not_contains?: Maybe<Scalars['String']>;
+  uploadMessage_starts_with?: Maybe<Scalars['String']>;
+  uploadMessage_not_starts_with?: Maybe<Scalars['String']>;
+  uploadMessage_ends_with?: Maybe<Scalars['String']>;
+  uploadMessage_not_ends_with?: Maybe<Scalars['String']>;
+  uploadMessage_i?: Maybe<Scalars['String']>;
+  uploadMessage_not_i?: Maybe<Scalars['String']>;
+  uploadMessage_contains_i?: Maybe<Scalars['String']>;
+  uploadMessage_not_contains_i?: Maybe<Scalars['String']>;
+  uploadMessage_starts_with_i?: Maybe<Scalars['String']>;
+  uploadMessage_not_starts_with_i?: Maybe<Scalars['String']>;
+  uploadMessage_ends_with_i?: Maybe<Scalars['String']>;
+  uploadMessage_not_ends_with_i?: Maybe<Scalars['String']>;
+  uploadMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uploadMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_contains?: Maybe<Scalars['String']>;
@@ -13406,6 +13478,9 @@ export type BillingIntegrationUpdateInput = {
   extendsBillingPage?: Maybe<Scalars['Boolean']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   group?: Maybe<Scalars['String']>;
+  connectedMessage?: Maybe<Scalars['String']>;
+  uploadUrl?: Maybe<Scalars['String']>;
+  uploadMessage?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
   currencyCode?: Maybe<Scalars['String']>;
@@ -13656,6 +13731,60 @@ export type BillingIntegrationWhereInput = {
   group_not_ends_with_i?: Maybe<Scalars['String']>;
   group_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   group_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  connectedMessage?: Maybe<Scalars['String']>;
+  connectedMessage_not?: Maybe<Scalars['String']>;
+  connectedMessage_contains?: Maybe<Scalars['String']>;
+  connectedMessage_not_contains?: Maybe<Scalars['String']>;
+  connectedMessage_starts_with?: Maybe<Scalars['String']>;
+  connectedMessage_not_starts_with?: Maybe<Scalars['String']>;
+  connectedMessage_ends_with?: Maybe<Scalars['String']>;
+  connectedMessage_not_ends_with?: Maybe<Scalars['String']>;
+  connectedMessage_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_i?: Maybe<Scalars['String']>;
+  connectedMessage_contains_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_contains_i?: Maybe<Scalars['String']>;
+  connectedMessage_starts_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_starts_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_ends_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_not_ends_with_i?: Maybe<Scalars['String']>;
+  connectedMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  connectedMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uploadUrl?: Maybe<Scalars['String']>;
+  uploadUrl_not?: Maybe<Scalars['String']>;
+  uploadUrl_contains?: Maybe<Scalars['String']>;
+  uploadUrl_not_contains?: Maybe<Scalars['String']>;
+  uploadUrl_starts_with?: Maybe<Scalars['String']>;
+  uploadUrl_not_starts_with?: Maybe<Scalars['String']>;
+  uploadUrl_ends_with?: Maybe<Scalars['String']>;
+  uploadUrl_not_ends_with?: Maybe<Scalars['String']>;
+  uploadUrl_i?: Maybe<Scalars['String']>;
+  uploadUrl_not_i?: Maybe<Scalars['String']>;
+  uploadUrl_contains_i?: Maybe<Scalars['String']>;
+  uploadUrl_not_contains_i?: Maybe<Scalars['String']>;
+  uploadUrl_starts_with_i?: Maybe<Scalars['String']>;
+  uploadUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  uploadUrl_ends_with_i?: Maybe<Scalars['String']>;
+  uploadUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  uploadUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uploadUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uploadMessage?: Maybe<Scalars['String']>;
+  uploadMessage_not?: Maybe<Scalars['String']>;
+  uploadMessage_contains?: Maybe<Scalars['String']>;
+  uploadMessage_not_contains?: Maybe<Scalars['String']>;
+  uploadMessage_starts_with?: Maybe<Scalars['String']>;
+  uploadMessage_not_starts_with?: Maybe<Scalars['String']>;
+  uploadMessage_ends_with?: Maybe<Scalars['String']>;
+  uploadMessage_not_ends_with?: Maybe<Scalars['String']>;
+  uploadMessage_i?: Maybe<Scalars['String']>;
+  uploadMessage_not_i?: Maybe<Scalars['String']>;
+  uploadMessage_contains_i?: Maybe<Scalars['String']>;
+  uploadMessage_not_contains_i?: Maybe<Scalars['String']>;
+  uploadMessage_starts_with_i?: Maybe<Scalars['String']>;
+  uploadMessage_not_starts_with_i?: Maybe<Scalars['String']>;
+  uploadMessage_ends_with_i?: Maybe<Scalars['String']>;
+  uploadMessage_not_ends_with_i?: Maybe<Scalars['String']>;
+  uploadMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  uploadMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -58875,6 +59004,12 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   BillingPageTitleDesc = 'billingPageTitle_DESC',
   GroupAsc = 'group_ASC',
   GroupDesc = 'group_DESC',
+  ConnectedMessageAsc = 'connectedMessage_ASC',
+  ConnectedMessageDesc = 'connectedMessage_DESC',
+  UploadUrlAsc = 'uploadUrl_ASC',
+  UploadUrlDesc = 'uploadUrl_DESC',
+  UploadMessageAsc = 'uploadMessage_ASC',
+  UploadMessageDesc = 'uploadMessage_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CurrencyCodeAsc = 'currencyCode_ASC',
@@ -59003,6 +59138,12 @@ export enum SortBillingIntegrationsBy {
   BillingPageTitleDesc = 'billingPageTitle_DESC',
   GroupAsc = 'group_ASC',
   GroupDesc = 'group_DESC',
+  ConnectedMessageAsc = 'connectedMessage_ASC',
+  ConnectedMessageDesc = 'connectedMessage_DESC',
+  UploadUrlAsc = 'uploadUrl_ASC',
+  UploadUrlDesc = 'uploadUrl_DESC',
+  UploadMessageAsc = 'uploadMessage_ASC',
+  UploadMessageDesc = 'uploadMessage_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CurrencyCodeAsc = 'currencyCode_ASC',

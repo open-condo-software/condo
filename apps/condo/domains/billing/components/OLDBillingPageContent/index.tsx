@@ -1,0 +1,124 @@
+import { ApolloError } from '@apollo/client'
+import { BillingIntegrationOrganizationContext } from '@app/condo/schema'
+import { Typography } from 'antd'
+import React, { CSSProperties } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { EmptyListView, BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import {
+    CONTEXT_IN_PROGRESS_STATUS,
+    CONTEXT_ERROR_STATUS,
+} from '@condo/domains/miniapp/constants'
+
+import { MainContent } from './MainContent'
+
+
+const BILLING_SETTINGS_ROUTE = '/billing'
+
+interface IBillingPageContentProps {
+    access: boolean,
+    contextLoading: boolean,
+    contextError: string | ApolloError
+    context: BillingIntegrationOrganizationContext
+}
+
+export interface IContextProps {
+    context: BillingIntegrationOrganizationContext
+}
+
+const BIG_DINO_STYLE: CSSProperties = { height: 200 }
+
+/**
+ * @deprecated TODO(DOMA-5444): Rewrite it to fit self-service flow
+ */
+export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access, contextLoading, contextError, context }) => {
+    const intl = useIntl()
+    const NoPermissionsMessage = intl.formatMessage({ id: 'global.noPageViewPermission' })
+    const NoBillingTitle = intl.formatMessage({ id: 'pages.billing.NoBilling.title' })
+    const NoBillingMessage = intl.formatMessage({ id: 'pages.billing.NoBilling.message' })
+    const NoBillingActionLabel = intl.formatMessage({ id: 'pages.billing.NoBilling.button' })
+    const ConnectionInProgressMessage = intl.formatMessage({ id:'ConnectionInProgress' })
+    const WillBeReadySoonMessage = intl.formatMessage({ id: 'WillBeReadySoon' })
+    const ErrorOccurredMessage = intl.formatMessage({ id: 'ErrorOccurred' })
+    const CompanyName = intl.formatMessage({ id: 'CompanyName' })
+    const ConnectSupportMessage = intl.formatMessage({ id: 'ErrorHappenedDuringIntegration' }, {
+        company: CompanyName,
+    })
+
+    const { logEvent } = useTracking()
+
+    if (!access) {
+        logEvent({ eventName: 'BillingPageAccessError', denyDuplicates: true })
+
+        return (
+            <BasicEmptyListView>
+                <Typography.Title level={3}>
+                    {NoPermissionsMessage}
+                </Typography.Title>
+            </BasicEmptyListView>
+        )
+    }
+
+    if (contextLoading) {
+        return (
+            <Loader fill size='large'/>
+        )
+    }
+
+    if (contextError) {
+        return (
+            <BasicEmptyListView>
+                <Typography.Title level={3}>
+                    {contextError}
+                </Typography.Title>
+            </BasicEmptyListView>
+        )
+    }
+
+    if (!context) {
+        logEvent({ eventName: 'BillingPageEmpty', denyDuplicates: true })
+        return (
+            <EmptyListView
+                label={NoBillingTitle}
+                message={NoBillingMessage}
+                createRoute={BILLING_SETTINGS_ROUTE}
+                createLabel={NoBillingActionLabel}
+            />
+        )
+    }
+
+    if (context.status === CONTEXT_IN_PROGRESS_STATUS) {
+        logEvent({ eventName: 'BillingPageInProgressStatus', denyDuplicates: true })
+        return (
+            <BasicEmptyListView image='/dino/waiting.png' imageStyle={BIG_DINO_STYLE} spaceSize={16}>
+                <Typography.Title level={3}>
+                    {ConnectionInProgressMessage}
+                </Typography.Title>
+                <Typography.Text type='secondary'>
+                    {WillBeReadySoonMessage}
+                </Typography.Text>
+            </BasicEmptyListView>
+        )
+    }
+
+    if (context.status === CONTEXT_ERROR_STATUS) {
+        logEvent({ eventName: 'BillingPageErrorStatus', denyDuplicates: true })
+        return (
+            <BasicEmptyListView image='/dino/fail.png' imageStyle={BIG_DINO_STYLE} spaceSize={16}>
+                <Typography.Title level={3}>
+                    {ErrorOccurredMessage}
+                </Typography.Title>
+                <Typography.Text type='secondary'>
+                    {ConnectSupportMessage}
+                </Typography.Text>
+            </BasicEmptyListView>
+        )
+    }
+
+    return (
+        <MainContent context={context}/>
+    )
+}
