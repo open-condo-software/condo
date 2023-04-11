@@ -1,12 +1,17 @@
+import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Button, Tooltip } from '@open-condo/ui'
 
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 
 interface IErrorsContainerProps {
-    isVisible: boolean
+    ApplyChangesMessage: string
+    handleSave: () => void
+    isLoading: boolean
+    disabledCondition: boolean
     property: string
     details: string,
     placeClassifier: string,
@@ -16,7 +21,20 @@ interface IErrorsContainerProps {
     isRequiredDeadline?: boolean
 }
 
-export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, property, details, placeClassifier, categoryClassifier, deadline, propertyMismatchError, isRequiredDeadline }) => {
+export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({
+    ApplyChangesMessage,
+    handleSave,
+    isLoading,
+    disabledCondition,
+    property,
+    details,
+    placeClassifier,
+    categoryClassifier,
+    deadline,
+    propertyMismatchError,
+    isRequiredDeadline,
+    ...otherProps
+}) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
@@ -35,14 +53,22 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, pr
         .join(', ')
 
     const requiredErrorMessage = !isEmpty(emptyFieldMessages) && ErrorsContainerTitle.concat(` ${emptyFieldMessages.toLowerCase()}`)
-
+    const errors = [requiredErrorMessage, propertyMismatchError].filter(Boolean).join(',')
 
     return (
-        isVisible && (
-            <ErrorsWrapper>
-                <div>{propertyMismatchError}</div>
-                <div>{requiredErrorMessage}</div>
-            </ErrorsWrapper>
-        )
+        <Tooltip key='submit' title={disabledCondition ? errors : null}>
+            <div style={{ cursor: disabledCondition ? 'not-allowed' : 'auto', width: '100%' }}>
+                <Button
+                    key='submit'
+                    onClick={handleSave}
+                    type='primary'
+                    loading={isLoading}
+                    disabled={disabledCondition}
+                    data-cy={get(otherProps, 'data-cy')}
+                >
+                    {ApplyChangesMessage}
+                </Button>
+            </div>
+        </Tooltip>
     )
 }
