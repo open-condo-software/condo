@@ -43141,6 +43141,7 @@ export type PredictTicketClassificationInput = {
 
 export type PredictTransactionClassificationInput = {
   purpose: Scalars['String'];
+  isOutcome: Scalars['Boolean'];
 };
 
 export type PredictTransactionClassificationOutput = {
@@ -46494,6 +46495,14 @@ export type Query = {
    *   "type": "NOT_FOUND",
    *   "message": "Bank cost item not identify",
    *   "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_NOT_IDENTIFY"
+   * }`
+   *
+   * `{
+   *   "query": "predictTransactionClassification",
+   *   "code": "INTERNAL_ERROR",
+   *   "type": "NOT_FOUND",
+   *   "message": "Bank cost item isOutcome field not equal isOutcome field from transaction",
+   *   "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_IS_OUTCOME_NOT_EQUAL"
    * }`
    *
    * `{

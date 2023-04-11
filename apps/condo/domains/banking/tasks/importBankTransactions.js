@@ -14,6 +14,7 @@ const {
     BankTransaction,
     BankContractorAccount,
     BankSyncTask,
+    predictTransactionClassification,
 } = require('@condo/domains/banking/utils/serverSchema')
 const { convertFrom1CExchangeToSchema } = require('@condo/domains/banking/utils/serverSchema/converters/convertFrom1CExchangeToSchema')
 const { TASK_PROCESSING_STATUS, TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } = require('@condo/domains/common/constants/tasks')
@@ -182,6 +183,14 @@ const importBankTransactionsWorker = async (taskId) => {
             duplicatedTransactions.push(transactionData.number)
             continue
         }
+
+        let costItem
+        try {
+            costItem = await predictTransactionClassification(context, { purpose: transactionData.purpose, isOutcome: transactionData.isOutcome })
+        } catch (err) {
+            logger.error({ msg: 'Can\'t get costItem from classification service', err })
+        }
+
         const payload = {
             ...DV_SENDER,
             number: transactionData.number,
@@ -196,6 +205,7 @@ const importBankTransactionsWorker = async (taskId) => {
             account: { connect: { id: bankAccount.id } },
             integrationContext: { connect: { id: integrationContext.id } },
             meta: transactionData.meta,
+            costItem: costItem ? { connect: { id: costItem.id } } : undefined,
         }
         if (transactionData.contractorAccount) {
             let existingContractorAccount = await BankContractorAccount.getOne(context, {

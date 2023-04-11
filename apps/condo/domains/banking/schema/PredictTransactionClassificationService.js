@@ -33,6 +33,13 @@ const errors = {
         message: 'Bank cost item not identify',
         messageForUser: 'api.user.predictTransactionClassification.COST_ITEM_NOT_IDENTIFY',
     },
+    COST_ITEM_IS_OUTCOME_NOT_EQUAL: {
+        query: 'predictTransactionClassification',
+        code: INTERNAL_ERROR,
+        type: NOT_FOUND,
+        message: 'Bank cost item isOutcome field not equal isOutcome field from transaction',
+        messageForUser: 'api.user.predictTransactionClassification.COST_ITEM_IS_OUTCOME_NOT_EQUAL',
+    },
     TRANSACTION_PREDICT_REQUEST_FAILED: {
         query: 'predictTransactionClassification',
         code: INTERNAL_ERROR,
@@ -53,7 +60,7 @@ const PredictTransactionClassificationService = new GQLCustomSchema('PredictTran
     types: [
         {
             access: true,
-            type: 'input PredictTransactionClassificationInput { purpose: String! }',
+            type: 'input PredictTransactionClassificationInput { purpose: String!, isOutcome: Boolean! }',
         },
         {
             access: true,
@@ -71,7 +78,7 @@ const PredictTransactionClassificationService = new GQLCustomSchema('PredictTran
                 errors,
             },
             resolver: async (parent, args, context) => {
-                const { data: { purpose } } = args
+                const { data: { purpose, isOutcome } } = args
                 if (conf.NODE_ENV === 'test' || !ML_SPACE_TRANSACTION_CLASSIFIER) {
                     return null
                 }
@@ -101,6 +108,16 @@ const PredictTransactionClassificationService = new GQLCustomSchema('PredictTran
                 const costItem = await getById('BankCostItem', id)
                 if (!costItem) {
                     throw new GQLError(errors.COST_ITEM_NOT_FOUND, context)
+                }
+                if (costItem.isOutcome !== isOutcome) {
+                    throw new GQLError({
+                        ...errors.COST_ITEM_IS_OUTCOME_NOT_EQUAL,
+                        data: {
+                            receivedCostItem: costItem,
+                            transactionDirection: { isOutcome },
+                            costItemDirection: { isOutcome: costItem.isOutcome },
+                        },
+                    }, context)
                 }
                 return costItem
             },
