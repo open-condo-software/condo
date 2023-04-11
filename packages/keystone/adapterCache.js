@@ -200,7 +200,7 @@ class AdapterCache {
         }
     }
 
-    _calculateHitrate = () => {
+    _getHitrate = () => {
         if (this.totalRequests !== 0) {
             return this.cacheHits / this.totalRequests
         } else {
@@ -213,7 +213,7 @@ class AdapterCache {
             stats: {
                 hits: this.cacheHits,
                 total: this.totalRequests,
-                hitrate: floor(this._calculateHitrate(), 2),
+                hitrate: floor(this._getHitrate(), 2),
                 totalKeys: this.cache.size,
                 totalDrops: this.totalDropsOnLRU + this.totalDropsOnListChange,
                 totalDropsOnLRU: this.totalDropsOnLRU,
@@ -223,7 +223,7 @@ class AdapterCache {
     }
 
     _logMetrics = () => {
-        reportMetric({ name: ADAPTER_CACHE_HITRATE_METRIC_NAME, value: this._calculateHitrate(), type: METRIC_TYPE_GAUGE })
+        reportMetric({ name: ADAPTER_CACHE_HITRATE_METRIC_NAME, value: this._getHitrate(), type: METRIC_TYPE_GAUGE })
     }
 }
 
