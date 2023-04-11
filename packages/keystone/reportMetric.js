@@ -6,7 +6,7 @@ const { getLogger } = require('./logging')
 
 const logger = getLogger('metricReporter')
 
-const METRIC_TYPE_COUNT = 'count.'
+const METRIC_TYPE_COUNT = 'count'
 const METRIC_TYPE_GAUGE = 'gauge'
 const METRIC_TYPE_HISTOGRAM = 'histogram'
 
@@ -21,10 +21,9 @@ const StatsDClient = new StatsD({
 
 /**
  * Send a metric to statsd server (Datadog / Grafana)
- * @param name
- * @param value
- * @param timestamp
- * @param type
+ * @param {string} name
+ * @param {float} value
+ * @param {string} type
  */
 const reportMetric = ({ name, value, type }) => {
     if (type === METRIC_TYPE_GAUGE) {
@@ -39,7 +38,7 @@ const reportMetric = ({ name, value, type }) => {
         StatsDClient.histogram(name, value)
     }
 
-    logger.error({ 'msg': 'You tried to submit metric with unsupported type. Please check reportMetric function for details' })
+    logger.warn({ 'msg': 'You tried to submit metric with unsupported type. Please check reportMetric function for details' })
 }
 
 
