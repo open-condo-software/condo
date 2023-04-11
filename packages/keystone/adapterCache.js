@@ -200,12 +200,20 @@ class AdapterCache {
         }
     }
 
+    _calculateHitrate = () => {
+        if (this.totalRequests !== 0) {
+            return this.cacheHits / this.totalRequests
+        } else {
+            return 0
+        }
+    }
+
     _logStats = () => {
         logger.info({
             stats: {
                 hits: this.cacheHits,
                 total: this.totalRequests,
-                hitrate: floor(this.cacheHits / this.totalRequests, 2),
+                hitrate: floor(this._calculateHitrate(), 2),
                 totalKeys: this.cache.size,
                 totalDrops: this.totalDropsOnLRU + this.totalDropsOnListChange,
                 totalDropsOnLRU: this.totalDropsOnLRU,
@@ -215,16 +223,7 @@ class AdapterCache {
     }
 
     _logMetrics = () => {
-        let value = 0
-        if (this.totalRequests !== 0) {
-            value = this.cacheHits / this.totalRequests
-        }
-        reportMetric({
-            name: ADAPTER_CACHE_HITRATE_METRIC_NAME,
-            value: value,
-            type: METRIC_TYPE_GAUGE,
-        })
-        logger.info('Metric is sent to metric collector')
+        reportMetric({ name: ADAPTER_CACHE_HITRATE_METRIC_NAME, value: this._calculateHitrate(), type: METRIC_TYPE_GAUGE })
     }
 }
 
