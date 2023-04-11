@@ -376,9 +376,9 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId, ro
     const NoDataTitle = intl.formatMessage({ id: 'NoData' })
 
     const { user } = useAuth()
-    // TODO: get only last version here
     const { objs: bankAccountReports, loading } = BankAccountReportClient.useObjects({
         where: {
+            isLatest: true,
             account: { id: bankAccount.id },
             organization: { id: organizationId },
         },
