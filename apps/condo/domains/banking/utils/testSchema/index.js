@@ -432,6 +432,7 @@ async function createTestBankAccountReport (client, account, organization, extra
         publishedAt: dayjs().toISOString(),
         totalIncome: faker.random.number().toString(),
         totalOutcome: faker.random.number().toString(),
+        isLatest: true,
         data: {
             categoryGroups: [{
                 id: faker.random.uuid(),
