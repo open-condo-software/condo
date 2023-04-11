@@ -9,7 +9,7 @@ import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Tabs, Card, Typography, Select, Option, Space, Button } from '@open-condo/ui'
+import { Tabs, Card, Typography, Select, Option, Space } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 import type { CardProps } from '@open-condo/ui'
 
@@ -143,7 +143,15 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const chartInstance = useRef(null)
 
     const bankAccountReport = get(bankAccountReports, selectedPeriod)
-    const categoryGroups = get(bankAccountReport, 'data.categoryGroups', [])
+    const categoryGroups = get(bankAccountReport, 'data.categoryGroups', []).filter(categoryGroup => {
+        if (activeCategory === ReportCategories.Total) {
+            return true
+        } else if (activeCategory === ReportCategories.Income) {
+            return categoryGroup.costItemGroups.some(item => item.isOutcome === false)
+        } else if (activeCategory === ReportCategories.Withdrawal) {
+            return categoryGroup.costItemGroups.some(item => item.isOutcome === true)
+        }
+    })
 
     let chartData = get(find(categoryGroups, { id: activeTab }), 'costItemGroups', [])
     if (activeCategory !== ReportCategories.Total) {
@@ -183,19 +191,21 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                             .map(e => e.sum)
                             .reduce((prev, cur) => prev + cur, 0)
                         const value = intl.formatNumber(totalSum, { style: 'currency', currency: currencyCode }) + '\n'
+                        const isOutcome = get(chartData, '0.isOutcome', false)
 
                         return value + truncate(intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.totalSumTitle' }, {
-                            sumItem: WithdrawalTitle.toLowerCase(),
+                            sumItem: isOutcome ? WithdrawalTitle.toLowerCase() : IncomeTitle.toLowerCase(),
                         }), LABEL_TRUNCATE_LENGTH)
                     },
                 },
                 data: chartData.map(categoryInfo => ({
                     value: categoryInfo.sum,
                     name: intl.formatMessage({ id: `banking.costItem.${categoryInfo.name}.name` }),
+                    isOutcome: categoryInfo.isOutcome,
                 })),
             },
         ],
-    }), [chartData, WithdrawalTitle, currencyCode, intl])
+    }), [chartData, WithdrawalTitle, IncomeTitle, currencyCode, intl])
 
     const onChangeTabs = useCallback((key) => {
         setActiveTab(key)
@@ -227,17 +237,8 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     }), [])
 
     const tabsItems = useMemo(() => categoryGroups
-        .filter(categoryGroup => {
-            if (activeCategory === ReportCategories.Total) {
-                return true
-            } else if (activeCategory === ReportCategories.Income) {
-                return categoryGroup.costItemGroups.some(item => item.isOutcome === false)
-            } else if (activeCategory === ReportCategories.Withdrawal) {
-                return categoryGroup.costItemGroups.some(item => item.isOutcome === true)
-            }
-        })
         .map(reportData => ({ label: intl.formatMessage({ id: `banking.category.${reportData.name}.name` }), key: reportData.id }))
-    , [categoryGroups, activeCategory, intl])
+    , [categoryGroups, intl])
     const reportOptionItems = useMemo(() => bankAccountReports
         .map((bankAccountReport, reportIndex) => (
             <Option
