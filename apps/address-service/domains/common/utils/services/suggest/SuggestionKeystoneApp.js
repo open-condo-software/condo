@@ -13,7 +13,7 @@ const { getSuggestionsProvider } = require('@address-service/domains/common/util
  * @property {string} rawValue
  */
 
-const ALLOWED_METHODS = ['GET', 'POST']
+const SUGGEST_ENDPOINT = '/suggest'
 
 /**
  * @param {Request} req express request
@@ -54,14 +54,7 @@ class SuggestionKeystoneApp {
             next()
         }
 
-        app.all('/suggest', setNoCache, async (req, res, next) => {
-            if (!ALLOWED_METHODS.includes(req.method)) {
-                this.logger.warn({ msg: 'not allowed method', req })
-                res.send(404)
-            }
-
-            this.logger.info({ msg: 'incoming request', req })
-
+        async function processRequest (req, res, next) {
             /**
              * User's search string
              * @type {?string}
@@ -156,7 +149,10 @@ class SuggestionKeystoneApp {
             }
 
             res.json(suggestions)
-        })
+        }
+
+        app.get(SUGGEST_ENDPOINT, setNoCache, processRequest)
+        app.post(SUGGEST_ENDPOINT, setNoCache, processRequest)
 
         return app
     }
