@@ -576,11 +576,13 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                 {
                                     isFunction(ActionBar)
                                     && (
-                                        <ActionBar
-                                            handleSave={handleSave}
-                                            isLoading={isLoading}
-                                            form={form}
-                                        />
+                                        <Col span={24}>
+                                            <ActionBar
+                                                handleSave={handleSave}
+                                                isLoading={isLoading}
+                                                form={form}
+                                            />
+                                        </Col>
                                     )
                                 }
                             </Row>

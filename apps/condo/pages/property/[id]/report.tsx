@@ -1,4 +1,4 @@
-import { Row, Col, Tabs, Space } from 'antd'
+import { Row, Col, Tabs } from 'antd'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
 import Head from 'next/head'
@@ -10,7 +10,7 @@ import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Button, Checkbox } from '@open-condo/ui'
+import { Typography, Button, Checkbox, ActionBar } from '@open-condo/ui'
 
 import { BankAccountReport } from '@condo/domains/banking/components/BankAccountReport'
 import { BankAccountVisibilitySelect } from '@condo/domains/banking/components/BankAccountVisibilitySelect'
@@ -32,7 +32,6 @@ import {
     BankIntegrationAccountContext,
     BankAccountReport as BankAccountReportClient,
 } from '@condo/domains/banking/utils/clientSchema'
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -383,51 +382,54 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
                     {CategoryModal}
                 </Col>
             </Row>
-            <ActionBar hidden={!totalSelectedItems && !fileImportIntegration}>
-                <Space size={12}>
-                    {
-                        totalSelectedItems
-                            ? (
-                                <>
-                                    <Typography.Title level={5}>{itemsSelectedTitle}</Typography.Title>
-                                    <Button
-                                        type='primary'
-                                        onClick={handleEditSelectedRows}
-                                    >
-                                        {EditTitle}
-                                    </Button>
-                                    {reportDeleteEntities && (
-                                        <DeleteButtonWithConfirmModal
-                                            title={deleteModalTitle}
-                                            message={deleteModalDescription}
-                                            okButtonLabel={DeleteTitle}
-                                            buttonContent={DeleteTitle}
-                                            action={handleDeleteSelected}
-                                            showCancelButton
-                                        />
-                                    )}
-                                    <Button
-                                        type='secondary'
-                                        onClick={handleClearSelection}
-                                    >
-                                        {CancelSelectionTitle}
-                                    </Button>
-                                </>
-                            )
-                            : (
-                                <FileImportButton
-                                    hidden={!fileImportIntegration}
-                                    type='primary'
-                                >
-                                    {UploadFileTitle}
-                                </FileImportButton>
-                            )
-                    }
-                    {canManageBankAccountReportTasks && (
-                        <BankReportTaskButton />
-                    )}
-                </Space>
-            </ActionBar>
+            {
+                (totalSelectedItems || fileImportIntegration) && (
+                    <ActionBar
+                        message={totalSelectedItems && itemsSelectedTitle}
+                        actions={totalSelectedItems ? [
+                            <Button
+                                key='edit'
+                                type='primary'
+                                onClick={handleEditSelectedRows}
+                            >
+                                {EditTitle}
+                            </Button>,
+                            reportDeleteEntities && (
+                                <DeleteButtonWithConfirmModal
+                                    key='delete'
+                                    title={deleteModalTitle}
+                                    message={deleteModalDescription}
+                                    okButtonLabel={DeleteTitle}
+                                    buttonContent={DeleteTitle}
+                                    action={handleDeleteSelected}
+                                    showCancelButton
+                                />
+                            ),
+                            <Button
+                                key='cancel'
+                                type='secondary'
+                                onClick={handleClearSelection}
+                            >
+                                {CancelSelectionTitle}
+                            </Button>,
+                            canManageBankAccountReportTasks && (
+                                <BankReportTaskButton key='reportTask' />
+                            ),
+                        ] : [
+                            <FileImportButton
+                                key='import'
+                                hidden={!fileImportIntegration}
+                                type='primary'
+                            >
+                                {UploadFileTitle}
+                            </FileImportButton>,
+                            canManageBankAccountReportTasks && (
+                                <BankReportTaskButton key='reportTask' />
+                            ),
+                        ]}
+                    />
+                )
+            }
         </>
     )
 }

@@ -282,6 +282,7 @@ const BUTTON_TYPE_STYLES = {
     sberBlack: sberBlackCss,
 }
 
+/** @deprecated use Button from @open-condo/ui **/
 export const Button: React.FC<CustomButtonProps> = (props) => {
     const { type, secondary, onClick, eventName: propEventName, eventProperties = {}, ...restProps } = props
     const { getTrackingWrappedCallback, getEventName } = useTracking()

@@ -9,13 +9,11 @@ import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import {
     DeleteButtonWithConfirmModal,
-    IDeleteActionButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { renderBlockedObject } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -198,24 +196,26 @@ const PropertyScopeIdPage = () => {
                         {
                             canManagePropertyScopes && (
                                 <Col span={24}>
-                                    <ActionBar>
-                                        <Link href={`/settings/propertyScope/${scopeId}/update`}>
-                                            <Button
-                                                color='green'
-                                                type='sberDefaultGradient'
-                                                eventName='PropertyScopeVisitUpdate'
-                                            >
-                                                {EditMessage}
-                                            </Button>
-                                        </Link>
-                                        <DeleteButtonWithConfirmModal
-                                            title={ConfirmDeleteTitle}
-                                            message={ConfirmDeleteMessage}
-                                            okButtonLabel={DeleteMessage}
-                                            action={handleDeleteButtonClick}
-                                            buttonContent={DeleteMessage}
-                                        />
-                                    </ActionBar>
+                                    <ActionBar
+                                        actions={[
+                                            <Link key='edit' href={`/settings/propertyScope/${scopeId}/update`}>
+                                                <Button
+                                                    type='primary'
+                                                    id='PropertyScopeVisitUpdate'
+                                                >
+                                                    {EditMessage}
+                                                </Button>
+                                            </Link>,
+                                            <DeleteButtonWithConfirmModal
+                                                key='delete'
+                                                title={ConfirmDeleteTitle}
+                                                message={ConfirmDeleteMessage}
+                                                okButtonLabel={DeleteMessage}
+                                                action={handleDeleteButtonClick}
+                                                buttonContent={DeleteMessage}
+                                            />,
+                                        ]}
+                                    />
                                 </Col>
                             )
                         }

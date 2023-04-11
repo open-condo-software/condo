@@ -1,13 +1,15 @@
 import { Form } from 'antd'
-import React  from 'react'
+import React, { ReactElement } from 'react'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
+import { ActionBar } from '@open-condo/ui'
+
 import { useExportToExcel, UseExportToExcelInputType } from '@condo/domains/common/hooks/useExportToExcel'
 
 
 interface IExportToExcelActionBarProps extends UseExportToExcelInputType {
     hidden?: boolean
     disabled?: boolean
+    actions?: [ReactElement, ...ReactElement[]]
 }
 
 export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (props) => {
@@ -18,6 +20,7 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
         hidden = false,
         useTimeZone = true,
         disabled = false,
+        actions = [],
     } = props
 
     const { ExportButton } = useExportToExcel({
@@ -27,12 +30,14 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
         useTimeZone,
     })
 
-    return (
+    return !hidden &&  (
         <Form.Item noStyle>
-            <ActionBar hidden={hidden}>
-                {props.children}
-                <ExportButton disabled={disabled} />
-            </ActionBar>
+            <ActionBar
+                actions={[
+                    ...actions,
+                    <ExportButton key='export' disabled={disabled} />,
+                ]}
+            />
         </Form.Item>
     )
 }

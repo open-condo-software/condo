@@ -721,7 +721,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                             </Form.Item>
                                         </Col>
                                         {isFunction(props.children) && (
-                                            props.children({ handleSave, isLoading, form })
+                                            <Col span={24}>
+                                                {props.children({ handleSave, isLoading, form })}
+                                            </Col>
                                         )}
                                     </Row>
                                 </Col>

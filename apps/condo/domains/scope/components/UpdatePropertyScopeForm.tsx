@@ -2,9 +2,8 @@ import { get } from 'lodash'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
 import {
     PropertyScope,
     PropertyScopeOrganizationEmployee,
@@ -56,17 +55,19 @@ export const UpdatePropertyScopeForm = ({ id }) => {
             loading={loading}
         >
             {({ handleSave, isLoading }) => (
-                <ActionBar>
-                    <Button
-                        key='submit'
-                        onClick={handleSave}
-                        type='sberDefaultGradient'
-                        loading={isLoading}
-                        eventName='PropertyScopeClickUpdate'
-                    >
-                        {SaveLabel}
-                    </Button>
-                </ActionBar>
+                <ActionBar
+                    actions={[
+                        <Button
+                            key='submit'
+                            onClick={handleSave}
+                            type='primary'
+                            loading={isLoading}
+                            id='PropertyScopeClickUpdate'
+                        >
+                            {SaveLabel}
+                        </Button>,
+                    ]}
+                />
             )}
         </BasePropertyScopeForm>
     )

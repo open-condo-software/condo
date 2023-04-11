@@ -84,7 +84,7 @@ export const OrganizationSelectWrapper = styled.div`
   flex: 1 1 auto;
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: end;
 `
 
 export const MenuItemsContainer = styled.div`

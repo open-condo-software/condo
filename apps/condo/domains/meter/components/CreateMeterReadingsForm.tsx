@@ -157,12 +157,14 @@ export const PropertyMetersForm = ({
                     }
                 </Row>
             </Col>
-            <CreateMeterReadingsActionBar
-                handleSave={handleSave}
-                newMeterReadings={newMeterReadings}
-                handleAddMeterButtonClick={handleAddMeterButtonClick}
-                isLoading={loading}
-            />
+            <Col span={24}>
+                <CreateMeterReadingsActionBar
+                    handleSave={handleSave}
+                    newMeterReadings={newMeterReadings}
+                    handleAddMeterButtonClick={handleAddMeterButtonClick}
+                    isLoading={loading}
+                />
+            </Col>
             <CreateMeterModal />
             <UpdateMeterModal />
         </>
