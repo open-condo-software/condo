@@ -525,7 +525,7 @@ const PropertyReportPage = (): React.ReactElement => {
 
     useEffect(() => {
         if (!reportPageEnabled) {
-            push(asPath.replace('report', ''))
+            push(asPath.split('/report')[0])
         }
     }, [reportPageEnabled, push, asPath])
 

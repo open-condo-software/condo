@@ -8,8 +8,9 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Tabs, Card, Typography, Select, Option, Space } from '@open-condo/ui'
+import { Tabs, Card, Typography, Select, Option, Space, Button } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 import type { CardProps } from '@open-condo/ui'
 
@@ -18,6 +19,10 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { TotalBalanceIcon, BalanceOutIcon, BalanceInIcon } from '@condo/domains/common/components/icons/TotalBalance'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
+
+import { getClientSideSenderInfo } from '../../common/utils/userid.utils'
+import { useBankReportTaskUIInterface } from '../hooks/useBankReportTaskUIInterface'
 
 import type { BankAccount as BankAccountType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
@@ -189,7 +194,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                 },
                 data: chartData.map(categoryInfo => ({
                     value: categoryInfo.sum,
-                    name: intl.formatMessage({ id: categoryInfo.name }),
+                    name: intl.formatMessage({ id: `banking.costItem.${categoryInfo.name}.name` }),
                 })),
             },
         ],
@@ -234,7 +239,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                 return categoryGroup.costItemGroups.some(item => item.isOutcome === true)
             }
         })
-        .map(reportData => ({ label: intl.formatMessage({ id: reportData.name }), key: reportData.id }))
+        .map(reportData => ({ label: intl.formatMessage({ id: `banking.category.${reportData.name}.name` }), key: reportData.id }))
     , [categoryGroups, activeCategory, intl])
     const reportOptionItems = useMemo(() => bankAccountReports
         .map((bankAccountReport, reportIndex) => (
@@ -247,7 +252,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
         )), [bankAccountReports])
     const chartLegendItems = useMemo(() => {
         return chartData.map((item, index) => {
-            const itemName = intl.formatMessage({ id: item.name })
+            const itemName = intl.formatMessage({ id: `banking.costItem.${item.name}.name` })
             return (
                 <LegendContainer
                     key={'legend-item-' + index}
@@ -370,11 +375,28 @@ interface IBankAccountReport {
 }
 
 const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId }) => {
+    const intl = useIntl()
+    const CreateReportTitle = intl.formatMessage({ id: 'pages.condo.property.report.createReport.title' })
+    const NoDataTitle = intl.formatMessage({ id: 'NoData' })
+
+    const { user } = useAuth()
+    // TODO: get only last version here
     const { objs: bankAccountReports, loading } = BankAccountReportClient.useObjects({
         where: {
             account: { id: bankAccount.id },
             organization: { id: organizationId },
         },
+    })
+
+    const { BankReportTask: TaskUIInterface } = useBankReportTaskUIInterface()
+
+    const { loading: taskLoading, handleRunTask } = useTaskLauncher(TaskUIInterface, {
+        dv: 1,
+        sender: getClientSideSenderInfo(),
+        account: { connect: { id: bankAccount.id } },
+        progress: 0,
+        organization: { connect: { id: organizationId } },
+        user: { connect: { id: get(user, 'id') } },
     })
 
     if (loading) {
@@ -387,10 +409,28 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId }) 
     return (
         <Row>
             <Col span={24}>
-                <BankAccountReportContent
-                    bankAccountReports={sortedBankAccountReports}
-                    currencyCode={bankAccount.currencyCode}
-                />
+                {isEmpty(sortedBankAccountReports)
+                    ? (
+                        <BasicEmptyListView image='/dino/searching@2x.png'>
+                            <Space size={16} direction='vertical'>
+                                <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
+                                <Button type='primary' loading={taskLoading} onClick={handleRunTask} disabled={loading}>
+                                    Создать отчет
+                                </Button>
+                            </Space>
+                        </BasicEmptyListView>
+                    ) : (
+                        <>
+                            <Button type='primary' loading={taskLoading} onClick={handleRunTask} disabled={loading}>
+                                {CreateReportTitle}
+                            </Button>
+                            <BankAccountReportContent
+                                bankAccountReports={sortedBankAccountReports}
+                                currencyCode={bankAccount.currencyCode}
+                            />
+                        </>
+                    )
+                }
             </Col>
         </Row>
     )
