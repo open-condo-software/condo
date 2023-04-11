@@ -52,6 +52,7 @@ import type {
     BankContractorAccount as BankContractorAccountType,
     BankIntegrationAccountContext as BankIntegrationAccountContextType,
     MakeOptional,
+    OrganizationEmployeeRole as OrganizationEmployeeRoleType,
 } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
@@ -84,7 +85,9 @@ interface IPropertyImportBankTransactions {
     ({ bankAccount, organizationId, refetchBankAccount }: PropertyImportBankTransactionProps): React.ReactElement
 }
 interface IPropertyReport {
-    ({ bankAccount, propertyId }: Pick<BaseBankReportProps, 'bankAccount'> & { propertyId: string }): React.ReactElement
+    ({ bankAccount, propertyId, role }: Pick<BaseBankReportProps, 'bankAccount'>
+    & { propertyId: string, role?: OrganizationEmployeeRoleType }
+    ): React.ReactElement
 }
 
 // This statuses will use only at MVP version of the app
@@ -214,7 +217,7 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
     )
 }
 
-const PropertyReport: IPropertyReport = ({ bankAccount, propertyId }) => {
+const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
     const intl = useIntl()
     const IncomeTitle = intl.formatMessage({ id: 'global.income' }, { isSingular: false })
     const WithdrawalTitle = intl.formatMessage({ id: 'global.withdrawal' }, { isSingular: false })
@@ -330,6 +333,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId }) => {
     const itemsSelectedTitle = intl.formatMessage({ id: 'pages.banking.report.itemsSelected' }, { count: totalSelectedItems })
     const fileImportIntegration = get(bankAccount, ['integrationContext', 'integration', 'id']) === BANK_INTEGRATION_IDS['1CClientBankExchange']
     const reportDeleteEntities = useFlag(PROPERTY_REPORT_DELETE_ENTITIES)
+    const canManageBankAccountReportTasks = get(role, 'canManageBankAccountReportTasks', false)
 
     return (
         <>
@@ -414,7 +418,9 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId }) => {
                                 </FileImportButton>
                             )
                     }
-                    <BankReportTaskButton />
+                    {canManageBankAccountReportTasks && (
+                        <BankReportTaskButton />
+                    )}
                 </Space>
             </ActionBar>
         </>
@@ -492,10 +498,14 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
                 {hasBankAccount && (
                     <>
                         <Col span={24}>
-                            <BankAccountReport bankAccount={bankAccount} organizationId={link.organization.id} />
+                            <BankAccountReport
+                                bankAccount={bankAccount}
+                                organizationId={link.organization.id}
+                                role={link.role}
+                            />
                         </Col>
                         <Col span={24}>
-                            <PropertyReport bankAccount={bankAccount} propertyId={property.id} />
+                            <PropertyReport bankAccount={bankAccount} propertyId={property.id} role={link.role} />
                         </Col>
                     </>
                 )}

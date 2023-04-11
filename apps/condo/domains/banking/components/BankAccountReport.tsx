@@ -1,4 +1,3 @@
-import { BankAccountReport as BankAccountReportType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Row, Col } from 'antd'
 import dayjs from 'dayjs'
@@ -21,6 +20,7 @@ import { TotalBalanceIcon, BalanceOutIcon, BalanceInIcon } from '@condo/domains/
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 
+import type { BankAccountReport as BankAccountReportType, OrganizationEmployeeRole as OrganizationEmployeeRoleType } from '@app/condo/schema'
 import type { BankAccount as BankAccountType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 import type { EChartsOption, EChartsReactProps } from 'echarts-for-react'
@@ -368,12 +368,11 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
 }
 
 interface IBankAccountReport {
-    ({ bankAccount, organizationId }: { bankAccount: BankAccountType, organizationId: string }): React.ReactElement
+    ({ bankAccount, organizationId, role }: { bankAccount: BankAccountType, organizationId: string, role: OrganizationEmployeeRoleType }): React.ReactElement
 }
 
-const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId }) => {
+const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId, role }) => {
     const intl = useIntl()
-    const CreateReportTitle = intl.formatMessage({ id: 'pages.condo.property.report.createReport.title' })
     const NoDataTitle = intl.formatMessage({ id: 'NoData' })
 
     const { user } = useAuth()
@@ -397,6 +396,7 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId }) 
 
     const sortedBankAccountReports = [...bankAccountReports]
         .sort((a, b) => dayjs(a.period).isBefore(b.period) ? 1 : -1)
+    const canManageBankAccountReportTasks = get(role, 'canManageBankAccountReportTasks', false)
 
     return (
         <Row>
@@ -406,7 +406,9 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId }) 
                         <BasicEmptyListView image='/dino/searching@2x.png'>
                             <Space size={16} direction='vertical'>
                                 <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
-                                <BankReportTaskButton />
+                                {canManageBankAccountReportTasks && (
+                                    <BankReportTaskButton />
+                                )}
                             </Space>
                         </BasicEmptyListView>
                     ) : (

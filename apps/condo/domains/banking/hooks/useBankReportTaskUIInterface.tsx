@@ -1,4 +1,6 @@
+import { notification } from 'antd'
 import get from 'lodash/get'
+import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -21,6 +23,9 @@ export const useBankReportTaskUIInterface = () => {
     const TaskProgressTitle = intl.formatMessage({ id: 'tasks.BankReportTask.progress.title' })
     const TaskProgressDescriptionProcessing = intl.formatMessage({ id: 'tasks.BankReportTask.progress.description.processing' })
     const TaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.BankReportTask.progress.description.completed' })
+    const UpdateTitle = intl.formatMessage({ id: 'Update' })
+
+    const { reload } = useRouter()
 
     const TaskUIInterface: ITask = {
         storage: new TasksCondoStorage({
@@ -38,7 +43,12 @@ export const useBankReportTaskUIInterface = () => {
         calculateProgress: (task: BankAccountReportTaskType) => {
             return task.progress
         },
-        onComplete: () => null,
+        onComplete: () => {
+            notification.success({
+                message: TaskProgressDescriptionCompleted,
+                btn: <Button onClick={() => reload()} type='primary'>{UpdateTitle}</Button>,
+            })
+        },
         onCancel: () => null,
     }
 
