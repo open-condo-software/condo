@@ -53,9 +53,11 @@ const LRUCache = require('lru-cache')
 const { getLogger } = require('./logging')
 const { queryHasField } = require('./queryHasField')
 const { getRedisClient } = require('./redis')
+const { reportMetric, METRIC_TYPE_GAUGE } = require('./reportMetric')
 
 const UPDATED_AT_FIELD = 'updatedAt'
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
+const ADAPTER_CACHE_HITRATE_METRIC_NAME = 'adapterCache.hitrate'
 
 const logger = getLogger('adapterCache')
 
@@ -79,17 +81,19 @@ class AdapterCache {
 
             this.logging = !!logging
 
-            // Log statistics each <provided> seconds
+            // Stats
             this.logStatsEachSecs = logStatsEachSecs || 60
             this.totalRequests = 0
             this.cacheHits = 0
             this.totalDropsOnListChange = 0
             this.totalDropsOnLRU = 0
-            if (this.enabled) this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 1000)
 
             // Cache: { listName -> queryKey -> { response, lastUpdate, score } }
             this.cache = new LRUCache({ max: this.maxCacheKeys, dispose: () => this.totalDropsOnLRU++ })
 
+            // Log statistics each <provided> seconds
+            if (this.enabled) this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 1000)
+            if (this.enabled) this.metricsInterval = setInterval(() => this._logMetrics(), 1000)
         } catch (e) {
             this.enabled = false
             logger.warn({ msg: 'ADAPTER_CACHE: Bad config', err: e })
@@ -208,6 +212,19 @@ class AdapterCache {
                 totalDropsOnListChange: this.totalDropsOnListChange,
             },
         })
+    }
+
+    _logMetrics = () => {
+        let value = 0
+        if (this.totalRequests !== 0) {
+            value = this.cacheHits / this.totalRequests
+        }
+        reportMetric({
+            name: ADAPTER_CACHE_HITRATE_METRIC_NAME,
+            value: value,
+            type: METRIC_TYPE_GAUGE,
+        })
+        logger.info('Metric is sent to metric collector')
     }
 }
 
