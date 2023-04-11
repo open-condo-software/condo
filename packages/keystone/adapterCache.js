@@ -51,9 +51,9 @@ const { get, cloneDeep, floor } = require('lodash')
 const LRUCache = require('lru-cache')
 
 const { getLogger } = require('./logging')
+const Metrics = require('./metrics')
 const { queryHasField } = require('./queryHasField')
 const { getRedisClient } = require('./redis')
-const { reportMetric, METRIC_TYPE_GAUGE } = require('./reportMetric')
 
 const UPDATED_AT_FIELD = 'updatedAt'
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
@@ -223,7 +223,7 @@ class AdapterCache {
     }
 
     _logMetrics = () => {
-        reportMetric({ name: ADAPTER_CACHE_HITRATE_METRIC_NAME, value: this._getHitrate(), type: METRIC_TYPE_GAUGE })
+        Metrics.gauge({ name: ADAPTER_CACHE_HITRATE_METRIC_NAME, value: this._getHitrate() })
     }
 }
 
