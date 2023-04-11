@@ -299,7 +299,7 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
     const TicketBlanksExportToPdfButton = useCallback<ExportToPdfButtonType>(({ disabled }) => {
         return (
             <Tooltip title={disabled ? SaveToPDFTooltipMessage : null}>
-                <div style={{ cursor: disabled ? 'not-allowed' : 'auto' }}>
+                <div style={{ cursor: disabled ? 'not-allowed' : 'auto', width: '100%' }}>
                     <Button
                         type='secondary'
                         icon={<Print size='medium'/>}
