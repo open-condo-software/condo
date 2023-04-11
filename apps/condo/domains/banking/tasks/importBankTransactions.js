@@ -187,8 +187,8 @@ const importBankTransactionsWorker = async (taskId) => {
         let costItem
         try {
             costItem = await predictTransactionClassification(context, { purpose: transactionData.purpose, isOutcome: transactionData.isOutcome })
-        } catch (error) {
-            logger.error({ msg: 'Can\'t get costItem from classification service', error })
+        } catch (err) {
+            logger.error({ msg: 'Can\'t get costItem from classification service', err })
         }
 
         const payload = {

@@ -188,8 +188,8 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                             purpose: transaction.paymentPurpose,
                             isOutcome: whereTransactionConditions.isOutcome,
                         })
-                    } catch (e) {
-                        logger.error({ msg: 'Can\'t get costItem from classification service', e })
+                    } catch (err) {
+                        logger.error({ msg: 'Can\'t get costItem from classification service', err })
                     }
                     const createdTransaction = await BankTransaction.create(context, {
                         organization: { connect: { id: organizationId } },
