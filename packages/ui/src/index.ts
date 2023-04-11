@@ -57,3 +57,6 @@ export type { RadioProps, RadioGroupProps } from './components/Radio'
 
 export { Space } from './components/Space'
 export type { SpaceProps } from './components/Space'
+
+export type { ActionBarProps } from './components/ActionBar'
+export { ActionBar } from './components/ActionBar'

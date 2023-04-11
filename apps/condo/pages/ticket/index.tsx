@@ -24,11 +24,10 @@ import { FileUp, Filter, Search, Close } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Button } from '@open-condo/ui'
+import { ActionBar, Typography, Button } from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
 import { colors } from '@open-condo/ui/dist/colors'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button as CommonButton } from '@condo/domains/common/components/Button'
@@ -297,25 +296,29 @@ const TicketTable = ({
                     sticky
                 />
             </Col>
-            <ActionBar hidden={loading || ticketsWithFiltersCount === 0}>
-                {selectedTicketKeys.length > 0 && (
-                    <Typography.Text strong>
-                        {CountSelectedTicketLabel}: {selectedTicketKeys.length}
-                    </Typography.Text>
-                )}
-                {selectedTicketKeys.length > 0 && (
-                    <TicketBlanksExportToPdfButton disabled={selectedTicketKeys.length > MAX_TICKET_BLANKS_EXPORT} />
-                )}
-                {selectedTicketKeys.length < 1 && <TicketsExportToXlsxButton />}
-                {selectedTicketKeys.length > 0 && (
-                    <Button
-                        type='secondary'
-                        children={CancelSelectedTicketLabel}
-                        onClick={handleResetSelectedTickets}
-                        icon={<Close size='medium'/>}
-                    />
-                )}
-            </ActionBar>
+            {
+                !loading && ticketsWithFiltersCount > 0 && (
+                    <ActionBar>
+                        {selectedTicketKeys.length > 0 && (
+                            <Typography.Text strong>
+                                {CountSelectedTicketLabel}: {selectedTicketKeys.length}
+                            </Typography.Text>
+                        )}
+                        {selectedTicketKeys.length > 0 && (
+                            <TicketBlanksExportToPdfButton disabled={selectedTicketKeys.length > MAX_TICKET_BLANKS_EXPORT} />
+                        )}
+                        {selectedTicketKeys.length < 1 && <TicketsExportToXlsxButton />}
+                        {selectedTicketKeys.length > 0 && (
+                            <Button
+                                type='secondary'
+                                children={CancelSelectedTicketLabel}
+                                onClick={handleResetSelectedTickets}
+                                icon={<Close size='medium' />}
+                            />
+                        )}
+                    </ActionBar>
+                )
+            }
             {TicketBlanksExportToPdfModal}
         </>
     )
