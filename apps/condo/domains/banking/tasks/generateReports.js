@@ -162,11 +162,11 @@ const generateReports = async (taskId) => {
 
     for (let transaction of allTransactions) {
         if (!transaction.costItem) {
-            const contractorAccount = get(transaction, 'contractorAccount')
-            if (!contractorAccount){
+            const contractorAccountCostItem = get(transaction, 'contractorAccount.costItem')
+            if (!contractorAccountCostItem){
                 continue
             }
-            transaction.costItem = { ...contractorAccount.costItem }
+            transaction.costItem = { ...contractorAccountCostItem }
         }
     }
 
