@@ -48,7 +48,7 @@ const bankAccountReportDataValidators = {
                     additionalProperties: false,
                     required: ['id', 'name', 'costItemGroups'],
                 },
-                minItems: 1,
+                minItems: 0,
             },
         },
         additionalProperties: false,

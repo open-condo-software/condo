@@ -96,7 +96,7 @@ async function categoryGroupsBuilder (costItemsDataSortedByDate, { task, lastPro
                     task,
                     lastProgress,
                     context,
-                    progress: (costItemsDataSortedByDate.length / firstIter * 100) / (Object.keys(data).length / secondIter * 100) * 70,
+                    progress: Math.round((costItemsDataSortedByDate.length / firstIter * 100) / (Object.keys(data).length / secondIter * 100) * 70),
                 })
                 lastProgress = Date.now()
             }
@@ -210,7 +210,7 @@ const generateReports = async (taskId) => {
                 task,
                 lastProgress,
                 context,
-                progress: allTransactions.length / transactions.length / (i + 1) * 100,
+                progress: Math.round(allTransactions.length / transactions.length / (i + 1) * 100 * 0.5),
             })
             lastProgress = Date.now()
         }
@@ -225,9 +225,8 @@ const generateReports = async (taskId) => {
             context,
         })
     lastProgress = Date.now()
-
+    let index = 0
     for (let { date, data } of categoryGroupsSortedByMonth) {
-        let index = 0
         const reports = await BankAccountReport.getAll(context, {
             period: date,
             deletedAt: null,
@@ -248,22 +247,25 @@ const generateReports = async (taskId) => {
             amountAt: get(bankAccount, 'meta.amountAt'),
             ...DV_SENDER,
         }
-        if (reports.length > 0 && isEqual(reports[reports.length - 1].data, data[index])) {
-            if (date !== monthTurnovers[index].date) throw new Error('Date from categoryGroups not equal date from monthTurnovers')
-            await BankAccountReport.create(context, {
-                ...payload,
-                version: ++reports[reports.length - 1].version,
-            })
-            await BankAccountReport.update(context, reports[reports.length - 1], { isLatest: false })
-            index++
+        const lastReport = reports[reports.length - 1]
+        if (reports.length > 0) {
+            if (!isEqual(lastReport.data, data[index]) || payload.totalIncome !== lastReport.totalIncome || payload.totalOutcome !== lastReport.totalOutcome) {
+                if (date !== monthTurnovers[index].date) throw new Error('Date from categoryGroups not equal date from monthTurnovers')
+                await BankAccountReport.create(context, {
+                    ...payload,
+                    version: reports[reports.length - 1].version + 1,
+                })
+                await BankAccountReport.update(context, reports[reports.length - 1].id, { isLatest: false, ...DV_SENDER })
+            }
         } else {
             await BankAccountReport.create(context, payload)
         }
+        index++
         await updateTaskProgress({
             task,
             lastProgress,
             context,
-            progress: categoryGroupsSortedByMonth.length / (index + 1) * 100,
+            progress: Math.round(categoryGroupsSortedByMonth.length / (index + 1) * 100),
         })
         lastProgress = Date.now()
     }
