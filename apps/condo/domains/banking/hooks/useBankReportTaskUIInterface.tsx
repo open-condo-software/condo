@@ -1,10 +1,20 @@
+import get from 'lodash/get'
+import React, { useCallback } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
+import { Button } from '@open-condo/ui'
+import type { ButtonProps } from '@open-condo/ui'
 
 import { BankAccountReportTask } from '@condo/domains/banking/utils/clientSchema'
 import { ITask, TASK_REMOVE_STRATEGY, TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
+import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
-import type { BankAccountReportTask as BankAccountReportTaskType } from '@app/condo/schema'
+import type {
+    BankAccountReportTask as BankAccountReportTaskType,
+    BankAccount as BankAccountType,
+} from '@app/condo/schema'
 
 export const useBankReportTaskUIInterface = () => {
     const intl = useIntl()
@@ -34,5 +44,41 @@ export const useBankReportTaskUIInterface = () => {
 
     return {
         BankReportTask: TaskUIInterface,
+    }
+}
+
+type UserBankReportTaskButtonProps = {
+    organizationId: string,
+    user: Record<string, 'unknown'>,
+    bankAccount: BankAccountType,
+    type?: ButtonProps['type']
+}
+
+export const useBankReportTaskButton = (props: UserBankReportTaskButtonProps) => {
+    const intl = useIntl()
+    const CreateReportTitle = intl.formatMessage({ id: 'pages.condo.property.report.createReport.title' })
+
+    const { organizationId, user, bankAccount, type = 'primary' } = props
+
+    const { BankReportTask: TaskUIInterface } = useBankReportTaskUIInterface()
+
+    const { loading, handleRunTask } = useTaskLauncher(TaskUIInterface, {
+        dv: 1,
+        sender: getClientSideSenderInfo(),
+        account: { connect: { id: bankAccount.id } },
+        progress: 0,
+        organization: { connect: { id: organizationId } },
+        user: { connect: { id: get(user, 'id') } },
+    })
+
+    const BankReportTaskButton = useCallback(() => (
+        <Button type={type} onClick={handleRunTask} loading={loading}>
+            {CreateReportTitle}
+        </Button>
+    ), [CreateReportTitle, handleRunTask, loading, type])
+
+    return {
+        BankReportTaskButton,
+        TaskUIInterface,
     }
 }

@@ -14,15 +14,12 @@ import { Tabs, Card, Typography, Select, Option, Space, Button } from '@open-con
 import type { TypographyTextProps } from '@open-condo/ui'
 import type { CardProps } from '@open-condo/ui'
 
+import { useBankReportTaskButton } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { BankAccountReport as BankAccountReportClient } from '@condo/domains/banking/utils/clientSchema'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { TotalBalanceIcon, BalanceOutIcon, BalanceInIcon } from '@condo/domains/common/components/icons/TotalBalance'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
-
-import { getClientSideSenderInfo } from '../../common/utils/userid.utils'
-import { useBankReportTaskUIInterface } from '../hooks/useBankReportTaskUIInterface'
 
 import type { BankAccount as BankAccountType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
@@ -388,15 +385,10 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId }) 
         },
     })
 
-    const { BankReportTask: TaskUIInterface } = useBankReportTaskUIInterface()
-
-    const { loading: taskLoading, handleRunTask } = useTaskLauncher(TaskUIInterface, {
-        dv: 1,
-        sender: getClientSideSenderInfo(),
-        account: { connect: { id: bankAccount.id } },
-        progress: 0,
-        organization: { connect: { id: organizationId } },
-        user: { connect: { id: get(user, 'id') } },
+    const { BankReportTaskButton } = useBankReportTaskButton({
+        organizationId,
+        user,
+        bankAccount,
     })
 
     if (loading) {
@@ -414,21 +406,14 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId }) 
                         <BasicEmptyListView image='/dino/searching@2x.png'>
                             <Space size={16} direction='vertical'>
                                 <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
-                                <Button type='primary' loading={taskLoading} onClick={handleRunTask} disabled={loading}>
-                                    Создать отчет
-                                </Button>
+                                <BankReportTaskButton />
                             </Space>
                         </BasicEmptyListView>
                     ) : (
-                        <>
-                            <Button type='primary' loading={taskLoading} onClick={handleRunTask} disabled={loading}>
-                                {CreateReportTitle}
-                            </Button>
-                            <BankAccountReportContent
-                                bankAccountReports={sortedBankAccountReports}
-                                currencyCode={bankAccount.currencyCode}
-                            />
-                        </>
+                        <BankAccountReportContent
+                            bankAccountReports={sortedBankAccountReports}
+                            currencyCode={bankAccount.currencyCode}
+                        />
                     )
                 }
             </Col>

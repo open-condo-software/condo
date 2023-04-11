@@ -7,6 +7,7 @@ import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Button, Checkbox } from '@open-condo/ui'
@@ -21,6 +22,7 @@ import {
 import { SbbolImportModal } from '@condo/domains/banking/components/SbbolImportModal'
 import { BANK_INTEGRATION_IDS } from '@condo/domains/banking/constants'
 import useBankContractorAccountTable from '@condo/domains/banking/hooks/useBankContractorAccountTable'
+import { useBankReportTaskButton } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import useBankTransactionsTable from '@condo/domains/banking/hooks/useBankTransactionsTable'
 import { useCategoryModal } from '@condo/domains/banking/hooks/useCategoryModal'
 import { useFileImport } from '@condo/domains/banking/hooks/useFileImport'
@@ -229,6 +231,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId }) => {
     const [categoryNotSet, setCategoryNotSet] = useState(false)
 
     // Hooks
+    const { user } = useAuth()
     const { selectedItem } = useBankCostItemContext()
     const {
         Component: BankTransactionsTable,
@@ -255,6 +258,10 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId }) => {
         propertyId,
         bankAccount,
         organizationId: get(bankAccount, 'organization.id'),
+    })
+
+    const { BankReportTaskButton } = useBankReportTaskButton({
+        bankAccount, user, organizationId: bankAccount.organization.id, type: 'secondary',
     })
 
     // Handlers
@@ -407,7 +414,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId }) => {
                                 </FileImportButton>
                             )
                     }
-
+                    <BankReportTaskButton />
                 </Space>
             </ActionBar>
         </>
@@ -524,8 +531,10 @@ const PropertyReportPage = (): React.ReactElement => {
     )
 
     useEffect(() => {
-        if (!reportPageEnabled) {
-            push(asPath.split('/report')[0])
+        if (typeof window !== undefined) {
+            if (!reportPageEnabled) {
+                push(asPath.split('/report')[0])
+            }
         }
     }, [reportPageEnabled, push, asPath])
 
