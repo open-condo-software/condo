@@ -419,7 +419,7 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, bankAccountReports
                             <Space size={16} direction='vertical'>
                                 <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
                                 {canManageBankAccountReportTasks && (
-                                    <BankReportTaskButton />
+                                    <BankReportTaskButton key='reportTask' />
                                 )}
                             </Space>
                         </BasicEmptyListView>

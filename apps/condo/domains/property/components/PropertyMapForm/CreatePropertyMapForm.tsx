@@ -6,9 +6,8 @@ import React, { useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
 import { Loader } from '@condo/domains/common/components/Loader'
 import BasePropertyMapForm from '@condo/domains/property/components/BasePropertyMapForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -60,26 +59,24 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
             {({ handleSave, isLoading }) => {
                 return (
                     <Form.Item noStyle dependencies={PROPERTY_FORM_DEPENDENCIES}>
-                        <ActionBar>
-                            <Space size={12}>
+                        <ActionBar
+                            actions={[
                                 <Button
                                     key='submit'
                                     onClick={handleSave}
-                                    type='sberDefaultGradient'
+                                    type='primary'
                                     loading={isLoading}
                                     hidden={!canManageProperties}
                                 >
                                     {ApplyChangesLabel}
-                                </Button>
-                                <Link href={`/property/${id}`}>
-                                    <Button
-                                        key='cancel'
-                                        secondary
-                                        type='sberDefaultGradient'>
+                                </Button>,
+                                <Link key='cancel' href={`/property/${id}`}>
+                                    <Button type='secondary'>
                                         {CancelChangesLabel}
                                     </Button>
-                                </Link>
-                            </Space>
+                                </Link>,
+                            ]}
+                        >
                         </ActionBar>
                     </Form.Item>
                 )

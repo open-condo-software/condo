@@ -1,4 +1,3 @@
-import { PlusCircleOutlined } from '@ant-design/icons'
 import { SortTicketPropertyHintsBy } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
@@ -8,12 +7,12 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
+import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -152,15 +151,18 @@ export const SettingsContent = () => {
             {
                 canManageTicketPropertyHints && (
                     <Col span={24}>
-                        <ActionBar>
-                            <Button
-                                type='sberDefaultGradient'
-                                icon={<PlusCircleOutlined/>}
-                                onClick={handleAddHintButtonClick}
-                            >
-                                {CreateHintMessage}
-                            </Button>
-                        </ActionBar>
+                        <ActionBar
+                            actions={[
+                                <Button
+                                    key='createHint'
+                                    type='primary'
+                                    icon={<PlusCircle size='medium'/>}
+                                    onClick={handleAddHintButtonClick}
+                                >
+                                    {CreateHintMessage}
+                                </Button>,
+                            ]}
+                        />
                     </Col>
                 )
             }

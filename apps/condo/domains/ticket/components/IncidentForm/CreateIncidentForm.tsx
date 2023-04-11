@@ -3,9 +3,8 @@ import React, { ComponentProps, useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button } from '@open-condo/ui'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Incident } from '@condo/domains/ticket/utils/clientSchema'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
@@ -18,14 +17,17 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
     const { handleSave, isLoading } = props
 
     return (
-        <ActionBar>
-            <Button
-                type='primary'
-                children={SaveLabel}
-                onClick={handleSave}
-                disabled={isLoading}
-            />
-        </ActionBar>
+        <ActionBar
+            actions={[
+                <Button
+                    key='submit'
+                    type='primary'
+                    children={SaveLabel}
+                    onClick={handleSave}
+                    disabled={isLoading}
+                />,
+            ]}
+        />
     )
 }
 

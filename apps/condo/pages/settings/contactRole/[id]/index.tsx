@@ -9,13 +9,11 @@ import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import {
     DeleteButtonWithConfirmModal,
-    IDeleteActionButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
@@ -105,23 +103,25 @@ const TheContactRolePage = (): JSX.Element => {
                         {
                             canManageContactRoles && isCustomRole && (
                                 <Col span={24}>
-                                    <ActionBar>
-                                        <Link href={`/settings/contactRole/${contactRoleId}/update`}>
-                                            <Button
-                                                color='green'
-                                                type='sberDefaultGradient'
-                                            >
-                                                {UpdateMessage}
-                                            </Button>
-                                        </Link>
-                                        <DeleteButtonWithConfirmModal
-                                            title={ConfirmDeleteTitle}
-                                            message={ConfirmDeleteMessage}
-                                            okButtonLabel={DeleteMessage}
-                                            action={handleDeleteButtonClick}
-                                            buttonContent={DeleteMessage}
-                                        />
-                                    </ActionBar>
+                                    <ActionBar
+                                        actions={[
+                                            <Link key='upload' href={`/settings/contactRole/${contactRoleId}/update`}>
+                                                <Button
+                                                    type='primary'
+                                                >
+                                                    {UpdateMessage}
+                                                </Button>
+                                            </Link>,
+                                            <DeleteButtonWithConfirmModal
+                                                key='delete'
+                                                title={ConfirmDeleteTitle}
+                                                message={ConfirmDeleteMessage}
+                                                okButtonLabel={DeleteMessage}
+                                                action={handleDeleteButtonClick}
+                                                buttonContent={DeleteMessage}
+                                            />,
+                                        ]}
+                                    />
                                 </Col>
                             )
                         }

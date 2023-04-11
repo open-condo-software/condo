@@ -12,10 +12,9 @@ import React, { useMemo, useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import type { ListProps } from '@open-condo/ui'
+import { ActionBar, ListProps } from '@open-condo/ui'
 import { List, Typography, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import {
@@ -167,39 +166,35 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
             </Row>
             {
                 canManageProperties ? (
-                    <ActionBar>
-                        <Space size={20} wrap style={PROPERTY_PAGE_ACTION_BAR_SPACE_STYLE}>
-                            <Link href={`/property/${property.id}/update`}>
-                                <span>
+                    <ActionBar
+                        actions={[
+                            <Link key='editProperty' href={`/property/${property.id}/update`}>
+                                <Button
+                                    type='primary'
+                                >
+                                    {EditPropertyTitle}
+                                </Button>
+                            </Link>,
+                            !isNull(get(property, 'map')) && (
+                                <Link key='editPropertyMap' href={`/property/${property.id}/map/update`}>
                                     <Button
-                                        type='primary'
+                                        type='secondary'
+                                        data-cy='property-map__update-button'
                                     >
-                                        {EditPropertyTitle}
+                                        {EditPropertyMapTitle}
                                     </Button>
-                                </span>
-                            </Link>
-                            {
-                                !isNull(get(property, 'map')) && (
-                                    <Link href={`/property/${property.id}/map/update`}>
-                                        <Button
-                                            color='green'
-                                            type='secondary'
-                                            data-cy='property-map__update-button'
-                                        >
-                                            {EditPropertyMapTitle}
-                                        </Button>
-                                    </Link>
-                                )
-                            }
+                                </Link>
+                            ),
                             <DeleteButtonWithConfirmModal
+                                key='delete'
                                 title={ConfirmDeleteTitle}
                                 message={ConfirmDeleteMessage}
                                 okButtonLabel={DeletePropertyLabel}
                                 action={() => softDeleteAction(property)}
                                 buttonContent={DeletePropertyLabel}
-                            />
-                        </Space>
-                    </ActionBar>
+                            />,
+                        ]}
+                    />
                 ) : null
             }
         </>

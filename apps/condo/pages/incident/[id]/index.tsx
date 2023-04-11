@@ -13,9 +13,8 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Tag, Typography } from '@open-condo/ui'
+import { ActionBar, Button, Tag, Typography } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -437,25 +436,30 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                 title={ChangeHistoryTitle}
                                 useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
                                 Diff={ChangeHistoryDiff}
-                                labelSpan={LABEL_SPAN_COMMON}
                             />
                         </Col>
-                        <ActionBar>
-                            <Button
-                                disabled={incidentLoading}
-                                type='primary'
-                                children={isActual ? ChangeToNotActualLabel : ChangeToActualLabel}
-                                onClick={handleOpen}
-                                id={isActual ? 'changeStatusToNotActual' : 'changeStatusToActual'}
+                        <Col span={24}>
+                            <ActionBar
+                                actions={[
+                                    <Button
+                                        key='changeStatus'
+                                        disabled={incidentLoading}
+                                        type='primary'
+                                        children={isActual ? ChangeToNotActualLabel : ChangeToActualLabel}
+                                        onClick={handleOpen}
+                                        id={isActual ? 'changeStatusToNotActual' : 'changeStatusToActual'}
+                                    />,
+                                    <Button
+                                        key='editIncident'
+                                        disabled={incidentLoading}
+                                        type='secondary'
+                                        children={EditLabel}
+                                        onClick={handleEditIncident}
+                                        id='editIncident'
+                                    />,
+                                ]}
                             />
-                            <Button
-                                disabled={incidentLoading}
-                                type='secondary'
-                                children={EditLabel}
-                                onClick={handleEditIncident}
-                                id='editIncident'
-                            />
-                        </ActionBar>
+                        </Col>
                     </Row>
                 </PageContent>
             </PageWrapper>

@@ -1,4 +1,3 @@
-import { PlusCircleOutlined } from '@ant-design/icons'
 import { SortContactRolesBy } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
@@ -9,11 +8,11 @@ import orderBy from 'lodash/orderBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
+import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -120,15 +119,18 @@ export const ContactRolesSettingsContent = () => {
             {
                 canManageContactRoles && (
                     <Col span={24}>
-                        <ActionBar>
-                            <Button
-                                type='sberDefaultGradient'
-                                icon={<PlusCircleOutlined/>}
-                                onClick={handleAddHintButtonClick}
-                            >
-                                {AddMessage}
-                            </Button>
-                        </ActionBar>
+                        <ActionBar
+                            actions={[
+                                <Button
+                                    key='submit'
+                                    type='primary'
+                                    icon={<PlusCircle size='medium'/>}
+                                    onClick={handleAddHintButtonClick}
+                                >
+                                    {AddMessage}
+                                </Button>,
+                            ]}
+                        />
                     </Col>
                 )
             }

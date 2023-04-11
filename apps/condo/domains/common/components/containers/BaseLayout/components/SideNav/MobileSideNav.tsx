@@ -1,11 +1,10 @@
-/** @jsx jsx */
-import { CloseOutlined } from '@ant-design/icons'
-import { jsx } from '@emotion/react'
+/** @jsx jsx */import { jsx } from '@emotion/react'
 import { Layout } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect } from 'react'
 
+import { Close } from '@open-condo/icons'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -56,7 +55,7 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
             collapsedWidth={0}
         >
             <MobileSideNavHeader>
-                <CloseOutlined onClick={toggleCollapsed}/>
+                <Close size='medium' onClick={toggleCollapsed}/>
                 <OrganizationSelectWrapper>
                     <OrganizationSelect/>
                 </OrganizationSelectWrapper>

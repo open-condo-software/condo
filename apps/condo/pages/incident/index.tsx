@@ -17,9 +17,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Checkbox, Button } from '@open-condo/ui'
+import { Typography, Checkbox, Button, ActionBar } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -313,16 +312,21 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
             {IncidentsTable}
             {
                 !loading && (
-                    <ActionBar>
-                        <Button
-                            type='primary'
-                            children={AddNewIncidentLabel}
-                            onClick={handleAddNewIncident}
-                            id='createIncident'
-                            icon={<PlusCircle size='small' />}
+                    <Col span={24}>
+                        <ActionBar
+                            actions={[
+                                <Button
+                                    key='create'
+                                    type='primary'
+                                    children={AddNewIncidentLabel}
+                                    onClick={handleAddNewIncident}
+                                    id='createIncident'
+                                    icon={<PlusCircle size='medium' />}
+                                />,
+                                Boolean(count) && <ExportButton key='export' id='exportToExcelIncidents' />,
+                            ]}
                         />
-                        {Boolean(count) && <ExportButton id='exportToExcelIncidents' />}
-                    </ActionBar>
+                    </Col>
                 )
             }
         </>

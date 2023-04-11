@@ -1,4 +1,3 @@
-import { DiffOutlined } from '@ant-design/icons'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
@@ -7,13 +6,13 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
+import { FileDown } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
@@ -127,9 +126,8 @@ export const ContactsPageContent = ({
                                 exampleTemplateLink='/contact-import-example.xlsx'
                             >
                                 <Button
-                                    type='sberPrimary'
-                                    icon={<DiffOutlined/>}
-                                    secondary
+                                    type='secondary'
+                                    icon={<FileDown size='medium'/>}
                                 />
                             </ImportWrapper>
                         )}
@@ -176,9 +174,8 @@ export const ContactsPageContent = ({
                                                             exampleTemplateLink='/contact-import-example.xlsx'
                                                         >
                                                             <Button
-                                                                type='sberPrimary'
-                                                                icon={<DiffOutlined/>}
-                                                                secondary
+                                                                type='secondary'
+                                                                icon={<FileDown size='medium'/>}
                                                             />
                                                         </ImportWrapper>
                                                     )
@@ -190,7 +187,7 @@ export const ContactsPageContent = ({
                                                         <Button
                                                             block={breakpoints.TABLET_LARGE}
                                                             key='left'
-                                                            type='sberPrimary'
+                                                            type='primary'
                                                             onClick={() => router.push(ADD_CONTACT_ROUTE)}
                                                         >
                                                             {CreateContact}
@@ -213,9 +210,17 @@ export const ContactsPageContent = ({
                                 pageSize={CONTACT_PAGE_SIZE}
                             />
                         </Col>
-                        <ActionBar hidden={!breakpoints.TABLET_LARGE || !canManageContacts}>
-                            <ExportButton />
-                        </ActionBar>
+                        {
+                            canManageContacts && (
+                                <Col span={24}>
+                                    <ActionBar
+                                        actions={[
+                                            <ExportButton key='export' />,
+                                        ]}
+                                    />
+                                </Col>
+                            )
+                        }
                     </Row>
                 </TablePageContent>
             </PageWrapper>

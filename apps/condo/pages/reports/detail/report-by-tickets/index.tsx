@@ -1,5 +1,4 @@
 /** @jsx jsx */
-import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
 import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLabel } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
 import { Col, Divider, Form, notification, Radio, Row, Select, TableColumnsType, Tabs, Typography } from 'antd'
@@ -13,10 +12,12 @@ import { useRouter } from 'next/router'
 import qs from 'qs'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { Edit, PlusCircle, Print } from '@open-condo/icons'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useApolloClient, useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
 import TicketChart, { TicketSelectTypes, ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
@@ -31,8 +32,6 @@ import {
     isEmptyAnalyticsData,
 } from '@condo/domains/analytics/utils/helpers'
 import { MAX_FILTERED_ELEMENTS, MAX_TAG_TEXT_LENGTH } from '@condo/domains/analytics/utils/helpers'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
 import {
     PageContent,
     PageHeader,
@@ -343,7 +342,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                     </Col>
                 )}
                 <Col span={24}>
-                    <Button onClick={applyFilters} type='sberPrimary'>{ApplyButtonTitle}</Button>
+                    <Button onClick={applyFilters} type='primary'>{ApplyButtonTitle}</Button>
                 </Col>
             </Row>
         </Form>
@@ -902,7 +901,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                     </Col>
                     <Col span={6} hidden={!breakpoints.TABLET_LARGE}>
                         <Tooltip title={NotImplementedYetMessage}>
-                            <Button icon={<PlusCircleFilled />} type='sberPrimary' secondary>{HeaderButtonTitle}</Button>
+                            <Button icon={<PlusCircle size='medium' />} type='secondary'>{HeaderButtonTitle}</Button>
                         </Tooltip>
                     </Col>
                 </Row>
@@ -1016,24 +1015,32 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             </Col>
                         </Row>
                     </Col>
-                    <ActionBar hidden={!breakpoints.TABLET_LARGE}>
-                        <Button
-                            disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={printPdf}
-                            icon={<FilePdfFilled />}
-                            type='sberPrimary'
-                            secondary>
-                            {PrintTitle}
-                        </Button>
-                        <Button
-                            disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)}
-                            onClick={downloadExcel}
-                            loading={isXSLXLoading}
-                            icon={<EditFilled />}
-                            type='sberPrimary'
-                            secondary>
-                            {ExcelTitle}
-                        </Button>
-                    </ActionBar>
+                    {
+                        breakpoints.TABLET_LARGE ? (
+                            <ActionBar
+                                actions={[
+                                    <Button
+                                        key='print'
+                                        disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={printPdf}
+                                        icon={<Print size='medium'/>}
+                                        type='secondary'
+                                    >
+                                        {PrintTitle}
+                                    </Button>,
+                                    <Button
+                                        key='edit'
+                                        disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)}
+                                        onClick={downloadExcel}
+                                        loading={isXSLXLoading}
+                                        icon={<Edit size='medium' />}
+                                        type='secondary'
+                                    >
+                                        {ExcelTitle}
+                                    </Button>,
+                                ]}
+                            />
+                        ) : <></>
+                    }
                 </Row>
                 <TicketWarningModal />
             </PageContent>

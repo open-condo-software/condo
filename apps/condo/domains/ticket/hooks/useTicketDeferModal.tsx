@@ -111,6 +111,7 @@ export const useTicketDeferModal: useTicketDeferModalType = (updateTicket) => {
 
     const cancelModal = useMemo(() => (
         <Modal
+            width='big'
             open={isCancelModalVisible}
             onCancel={handleReset}
             title={CancelModalTitleMessage}
