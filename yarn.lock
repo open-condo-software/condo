@@ -9294,6 +9294,7 @@ __metadata:
     form-data: ^4.0.0
     graphql: ^15.6.1
     graphql-tag: ^2.12.6
+    hot-shots: ^10.0.0
     ioredis: ^4.28.5
     lodash: ^4.17.21
     lru-cache: ^7.18.3
@@ -25461,6 +25462,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hot-shots@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "hot-shots@npm:10.0.0"
+  dependencies:
+    unix-dgram: 2.x
+  dependenciesMeta:
+    unix-dgram:
+      optional: true
+  checksum: b37f611190e897bbd2d8d07542cd24c98f2dcca01813f25cd8ba36155c0fa26db5216e01058a2b47142c2be8e45e6d80965358d69a7f0d85a6878ca27951813e
+  languageName: node
+  linkType: hard
+
 "hotkeys-js@npm:3.9.3":
   version: 3.9.3
   resolution: "hotkeys-js@npm:3.9.3"
@@ -32561,6 +32574,15 @@ __metadata:
   dependencies:
     node-gyp: latest
   checksum: cb16937273ea55b01ea47df244094c12297ce6b29b36e845d349f1f7c268b8d7c5abd126a102c5678a1e1afd0d36bba35ea0cc959e364928ce60561c9306064a
+  languageName: node
+  linkType: hard
+
+"nan@npm:^2.16.0":
+  version: 2.17.0
+  resolution: "nan@npm:2.17.0"
+  dependencies:
+    node-gyp: latest
+  checksum: ec609aeaf7e68b76592a3ba96b372aa7f5df5b056c1e37410b0f1deefbab5a57a922061e2c5b369bae9c7c6b5e6eecf4ad2dac8833a1a7d3a751e0a7c7f849ed
   languageName: node
   linkType: hard
 
@@ -45701,6 +45723,17 @@ __metadata:
   version: 2.0.0
   resolution: "universalify@npm:2.0.0"
   checksum: 2406a4edf4a8830aa6813278bab1f953a8e40f2f63a37873ffa9a3bc8f9745d06cc8e88f3572cb899b7e509013f7f6fcc3e37e8a6d914167a5381d8440518c44
+  languageName: node
+  linkType: hard
+
+"unix-dgram@npm:2.x":
+  version: 2.0.6
+  resolution: "unix-dgram@npm:2.0.6"
+  dependencies:
+    bindings: ^1.5.0
+    nan: ^2.16.0
+    node-gyp: latest
+  checksum: 0ab238726fd69e0a0174664225117b4575b40bd5df546c50a01de2fadf9da602c385ec8ff2f159607a127a6e7bf67628931903d43d286db27460b5abbe8cf8ac
   languageName: node
   linkType: hard
 
