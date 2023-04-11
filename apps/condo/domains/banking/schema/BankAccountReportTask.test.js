@@ -314,9 +314,12 @@ describe('BankAccountReportTask', () => {
                 const [account] = await createTestBankAccount(admin, org)
                 const [objCreated] = await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
 
-                const objs = await BankAccountReportTask.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
+                const objs = await BankAccountReportTask.getAll(admin, {
+                    organization: { id: org.id },
+                    account: { id: account.id },
+                }, { sortBy: ['updatedAt_DESC'] })
 
-                expect(objs.length).toBeGreaterThanOrEqual(1)
+                expect(objs.length).toEqual(1)
                 expect(objs).toEqual(expect.arrayContaining([
                     expect.objectContaining({
                         id: objCreated.id,
