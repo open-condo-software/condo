@@ -53,12 +53,15 @@ const AccrualsAndPaymentsPage: PageType = () => {
         return (
             <BillingPageContent
                 billingName={get(billingCtx, ['integration', 'name'], '')}
+                extendsBillingPage={get(billingCtx, ['integration', 'extendsBillingPage'], false)}
+                billingPageTitle={get(billingCtx, ['integration', 'billingPageTitle'])}
                 hasReceipts={Boolean(billingCtx.lastReport)}
                 problem={billingCtx.currentProblem}
                 connectedMessage={get(billingCtx, ['integration', 'connectedMessage'])}
                 instructionLink={get(billingCtx, ['integration', 'instructionExtraLink'])}
                 uploadUrl={get(billingCtx, ['integration', 'uploadUrl'])}
                 uploadMessage={get(billingCtx, ['integration', 'uploadMessage'])}
+                appUrl={get(billingCtx, ['integration', 'appUrl'])}
             />
         )
     }

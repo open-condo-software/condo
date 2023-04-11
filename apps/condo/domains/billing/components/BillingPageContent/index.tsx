@@ -9,6 +9,7 @@ import { PageWrapper, PageHeader, TablePageContent } from '@condo/domains/common
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 import { EmptyContent } from './EmptyContent'
+import { MainContent } from './MainContent'
 
 
 import type { BillingIntegrationProblem } from '@app/condo/schema'
@@ -20,6 +21,9 @@ type BillingPageContentProps = {
     uploadUrl?: string
     uploadMessage?: string
     hasReceipts: boolean
+    extendsBillingPage: boolean
+    billingPageTitle?: string
+    appUrl?: string
     problem?: Pick<BillingIntegrationProblem, 'title' | 'message'>
 }
 
@@ -31,6 +35,9 @@ export const BillingPageContent: React.FC<BillingPageContentProps> = ({
     uploadMessage,
     problem,
     hasReceipts,
+    extendsBillingPage,
+    billingPageTitle,
+    appUrl,
 }) => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.accrualsAndPayments' })
@@ -72,14 +79,22 @@ export const BillingPageContent: React.FC<BillingPageContentProps> = ({
                 <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} extra={<Tag bgColor={tagBg} textColor={colors.white}>{tagMessage}</Tag>}/>
                 <TablePageContent>
                     {
-                        hasReceipts ? null : (
-                            <EmptyContent
-                                problem={problem}
-                                connectedMessage={connectedMessage}
-                                uploadComponent={UploadAction}
-                                instructionUrl={instructionLink}
-                            />
-                        )
+                        hasReceipts
+                            ? (
+                                <MainContent
+                                    billingName={billingName}
+                                    extendsBillingPage={extendsBillingPage}
+                                    billingPageTitle={billingPageTitle}
+                                    appUrl={appUrl}
+                                />
+                            ) : (
+                                <EmptyContent
+                                    problem={problem}
+                                    connectedMessage={connectedMessage}
+                                    uploadComponent={UploadAction}
+                                    instructionUrl={instructionLink}
+                                />
+                            )
                     }
                 </TablePageContent>
                 {ModalContextHandler}
