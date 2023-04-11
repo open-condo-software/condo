@@ -7,8 +7,7 @@ const { Virtual } = require('@keystonejs/fields')
 
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { addressService } = require(
-    '@open-condo/keystone/plugins/addressService')
+const { addressService } = require('@open-condo/keystone/plugins/addressService')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { find } = require('@open-condo/keystone/schema')
 const { getById } = require('@open-condo/keystone/schema')
@@ -69,7 +68,7 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             },
         },
     },
-    plugins: [uuided(), addressService({ fieldsHooks: { address: {} } }), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), addressService({}), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadBillingProperties,
         create: access.canManageBillingProperties,
