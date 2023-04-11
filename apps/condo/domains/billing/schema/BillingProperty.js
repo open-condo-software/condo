@@ -37,6 +37,12 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             },
         },
 
+        normalizedAddress: {
+            schemaDoc: '[DEPRECATED] Normalized address from `billing data source`. Used to map Properties to BillingProperties',
+            type: Text,
+            isRequired: false,
+        },
+
         meta: {
             schemaDoc: 'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
                 'Examples of data keys: `total space of building`, `property beginning of exploitation year`, `has cultural heritage status`, `number of underground floors`, `number of above-ground floors`',

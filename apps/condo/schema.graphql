@@ -9076,6 +9076,7 @@ type BillingPropertyHistoryRecord {
   importId: String
   raw: JSON
   globalId: String
+  normalizedAddress: String
   meta: JSON
   property: JSON
   id: ID!
@@ -9144,6 +9145,24 @@ input BillingPropertyHistoryRecordWhereInput {
   globalId_not_ends_with_i: String
   globalId_in: [String]
   globalId_not_in: [String]
+  normalizedAddress: String
+  normalizedAddress_not: String
+  normalizedAddress_contains: String
+  normalizedAddress_not_contains: String
+  normalizedAddress_starts_with: String
+  normalizedAddress_not_starts_with: String
+  normalizedAddress_ends_with: String
+  normalizedAddress_not_ends_with: String
+  normalizedAddress_i: String
+  normalizedAddress_not_i: String
+  normalizedAddress_contains_i: String
+  normalizedAddress_not_contains_i: String
+  normalizedAddress_starts_with_i: String
+  normalizedAddress_not_starts_with_i: String
+  normalizedAddress_ends_with_i: String
+  normalizedAddress_not_ends_with_i: String
+  normalizedAddress_in: [String]
+  normalizedAddress_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -9283,6 +9302,8 @@ enum SortBillingPropertyHistoryRecordsBy {
   importId_DESC
   globalId_ASC
   globalId_DESC
+  normalizedAddress_ASC
+  normalizedAddress_DESC
   id_ASC
   id_DESC
   address_ASC
@@ -9310,6 +9331,7 @@ input BillingPropertyHistoryRecordUpdateInput {
   importId: String
   raw: JSON
   globalId: String
+  normalizedAddress: String
   meta: JSON
   property: JSON
   address: String
@@ -9340,6 +9362,7 @@ input BillingPropertyHistoryRecordCreateInput {
   importId: String
   raw: JSON
   globalId: String
+  normalizedAddress: String
   meta: JSON
   property: JSON
   address: String
@@ -9389,6 +9412,10 @@ type BillingProperty {
   """ A well-known universal identifier that allows you to identify the same objects in different systems. It may differ in different countries. Example: for Russia, the FIAS ID is used 
   """
   globalId: String
+
+  """ [DEPRECATED] Normalized address from `billing data source`. Used to map Properties to BillingProperties 
+  """
+  normalizedAddress: String
 
   """ Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. Examples of data keys: `total space of building`, `property beginning of exploitation year`, `has cultural heritage status`, `number of underground floors`, `number of above-ground floors` 
   """
@@ -9477,6 +9504,24 @@ input BillingPropertyWhereInput {
   globalId_not_ends_with_i: String
   globalId_in: [String]
   globalId_not_in: [String]
+  normalizedAddress: String
+  normalizedAddress_not: String
+  normalizedAddress_contains: String
+  normalizedAddress_not_contains: String
+  normalizedAddress_starts_with: String
+  normalizedAddress_not_starts_with: String
+  normalizedAddress_ends_with: String
+  normalizedAddress_not_ends_with: String
+  normalizedAddress_i: String
+  normalizedAddress_not_i: String
+  normalizedAddress_contains_i: String
+  normalizedAddress_not_contains_i: String
+  normalizedAddress_starts_with_i: String
+  normalizedAddress_not_starts_with_i: String
+  normalizedAddress_ends_with_i: String
+  normalizedAddress_not_ends_with_i: String
+  normalizedAddress_in: [String]
+  normalizedAddress_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -9594,6 +9639,8 @@ enum SortBillingPropertiesBy {
   importId_DESC
   globalId_ASC
   globalId_DESC
+  normalizedAddress_ASC
+  normalizedAddress_DESC
   id_ASC
   id_DESC
   address_ASC
@@ -9621,6 +9668,7 @@ input BillingPropertyUpdateInput {
   importId: String
   raw: JSON
   globalId: String
+  normalizedAddress: String
   meta: JSON
   address: String
   addressKey: String
@@ -9647,6 +9695,7 @@ input BillingPropertyCreateInput {
   importId: String
   raw: JSON
   globalId: String
+  normalizedAddress: String
   meta: JSON
   address: String
   addressKey: String
