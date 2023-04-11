@@ -6274,6 +6274,8 @@ export type BankAccountReport = {
   totalIncome?: Maybe<Scalars['String']>;
   /**  Total outcome amount over period of this report  */
   totalOutcome?: Maybe<Scalars['String']>;
+  /**  Whether the report version is the latest  */
+  isLatest?: Maybe<Scalars['Boolean']>;
   /**  Calculated data of this report, that will be used to display  */
   data?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -6303,6 +6305,7 @@ export type BankAccountReportCreateInput = {
   publishedAt?: Maybe<Scalars['String']>;
   totalIncome?: Maybe<Scalars['String']>;
   totalOutcome?: Maybe<Scalars['String']>;
+  isLatest?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6336,6 +6339,7 @@ export type BankAccountReportHistoryRecord = {
   publishedAt?: Maybe<Scalars['String']>;
   totalIncome?: Maybe<Scalars['String']>;
   totalOutcome?: Maybe<Scalars['String']>;
+  isLatest?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -6363,6 +6367,7 @@ export type BankAccountReportHistoryRecordCreateInput = {
   publishedAt?: Maybe<Scalars['String']>;
   totalIncome?: Maybe<Scalars['String']>;
   totalOutcome?: Maybe<Scalars['String']>;
+  isLatest?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6395,6 +6400,7 @@ export type BankAccountReportHistoryRecordUpdateInput = {
   publishedAt?: Maybe<Scalars['String']>;
   totalIncome?: Maybe<Scalars['String']>;
   totalOutcome?: Maybe<Scalars['String']>;
+  isLatest?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6505,6 +6511,8 @@ export type BankAccountReportHistoryRecordWhereInput = {
   totalOutcome_gte?: Maybe<Scalars['String']>;
   totalOutcome_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   totalOutcome_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isLatest?: Maybe<Scalars['Boolean']>;
+  isLatest_not?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   data_not?: Maybe<Scalars['JSON']>;
   data_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -7009,6 +7017,7 @@ export type BankAccountReportUpdateInput = {
   publishedAt?: Maybe<Scalars['String']>;
   totalIncome?: Maybe<Scalars['String']>;
   totalOutcome?: Maybe<Scalars['String']>;
+  isLatest?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7098,6 +7107,8 @@ export type BankAccountReportWhereInput = {
   totalOutcome_gte?: Maybe<Scalars['String']>;
   totalOutcome_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   totalOutcome_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isLatest?: Maybe<Scalars['Boolean']>;
+  isLatest_not?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   data_not?: Maybe<Scalars['JSON']>;
   data_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -56357,6 +56368,8 @@ export enum SortBankAccountReportHistoryRecordsBy {
   TotalIncomeDesc = 'totalIncome_DESC',
   TotalOutcomeAsc = 'totalOutcome_ASC',
   TotalOutcomeDesc = 'totalOutcome_DESC',
+  IsLatestAsc = 'isLatest_ASC',
+  IsLatestDesc = 'isLatest_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -56448,6 +56461,8 @@ export enum SortBankAccountReportsBy {
   TotalIncomeDesc = 'totalIncome_DESC',
   TotalOutcomeAsc = 'totalOutcome_ASC',
   TotalOutcomeDesc = 'totalOutcome_DESC',
+  IsLatestAsc = 'isLatest_ASC',
+  IsLatestDesc = 'isLatest_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

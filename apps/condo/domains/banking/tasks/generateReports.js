@@ -13,6 +13,7 @@ const {
     BankTransaction,
 } = require('@condo/domains/banking/utils/serverSchema')
 const { TASK_PROCESSING_STATUS, TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } = require('@condo/domains/common/constants/tasks')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 
 const { EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM } = require('../constants')
 
@@ -154,10 +155,16 @@ const generateReports = async (taskId) => {
     }
     await BankAccountReportTask.update(context, taskId, taskUpdatePayload)
 
-    const allTransactions = await BankTransaction.getAll(context, {
-        deletedAt: null,
-        organization: { id: organization.id },
-        account: { id: bankAccount.id },
+    const allTransactions = await loadListByChunks({
+        context: context,
+        list: BankTransaction,
+        chunkSize: 50,
+        limit: 100000000,
+        where: {
+            deletedAt: null,
+            organization: { id: organization.id },
+            account: { id: bankAccount.id },
+        },
     })
 
     for (let transaction of allTransactions) {
@@ -225,10 +232,12 @@ const generateReports = async (taskId) => {
             period: date,
             deletedAt: null,
             organization: { id: organization.id },
+            isLatest: true,
         }, { sortBy: ['createdAt_ASC'] })
         const payload = {
             data,
             version: 1,
+            isLatest: true,
             period: date,
             account: { connect: { id: bankAccountId } },
             organization: { connect: { id: organization.id } },
@@ -245,6 +254,7 @@ const generateReports = async (taskId) => {
                 ...payload,
                 version: ++reports[reports.length - 1].version,
             })
+            await BankAccountReport.update(context, reports[reports.length - 1], { isLatest: false })
             index++
         } else {
             await BankAccountReport.create(context, payload)

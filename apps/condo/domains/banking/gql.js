@@ -59,7 +59,7 @@ const PREDICT_TRANSACTION_CLASSIFICATION_QUERY = gql`
     }
 `
 
-const BANK_ACCOUNT_REPORT_FIELDS = `{ account { id } organization { id } version template period amount amountAt publishedAt totalIncome totalOutcome data ${COMMON_FIELDS} }`
+const BANK_ACCOUNT_REPORT_FIELDS = `{ account { id } organization { id } version template period amount amountAt publishedAt totalIncome totalOutcome isLatest data ${COMMON_FIELDS} }`
 const BankAccountReport = generateGqlQueries('BankAccountReport', BANK_ACCOUNT_REPORT_FIELDS)
 
 const BANK_ACCOUNT_REPORT_TASK_FIELDS = `{ account { id } organization { id } status progress user { id } meta ${COMMON_FIELDS} }`

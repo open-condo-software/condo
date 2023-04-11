@@ -17541,6 +17541,7 @@ type BankAccountReportHistoryRecord {
   publishedAt: String
   totalIncome: String
   totalOutcome: String
+  isLatest: Boolean
   data: JSON
   id: ID!
   v: Int
@@ -17652,6 +17653,8 @@ input BankAccountReportHistoryRecordWhereInput {
   totalOutcome_gte: String
   totalOutcome_in: [String]
   totalOutcome_not_in: [String]
+  isLatest: Boolean
+  isLatest_not: Boolean
   data: JSON
   data_not: JSON
   data_in: [JSON]
@@ -17755,6 +17758,8 @@ enum SortBankAccountReportHistoryRecordsBy {
   totalIncome_DESC
   totalOutcome_ASC
   totalOutcome_DESC
+  isLatest_ASC
+  isLatest_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -17784,6 +17789,7 @@ input BankAccountReportHistoryRecordUpdateInput {
   publishedAt: String
   totalIncome: String
   totalOutcome: String
+  isLatest: Boolean
   data: JSON
   v: Int
   createdAt: String
@@ -17815,6 +17821,7 @@ input BankAccountReportHistoryRecordCreateInput {
   publishedAt: String
   totalIncome: String
   totalOutcome: String
+  isLatest: Boolean
   data: JSON
   v: Int
   createdAt: String
@@ -17884,6 +17891,9 @@ type BankAccountReport {
 
   """ Total outcome amount over period of this report """
   totalOutcome: String
+
+  """ Whether the report version is the latest """
+  isLatest: Boolean
 
   """ Calculated data of this report, that will be used to display """
   data: JSON
@@ -17987,6 +17997,8 @@ input BankAccountReportWhereInput {
   totalOutcome_gte: String
   totalOutcome_in: [String]
   totalOutcome_not_in: [String]
+  isLatest: Boolean
+  isLatest_not: Boolean
   data: JSON
   data_not: JSON
   data_in: [JSON]
@@ -18074,6 +18086,8 @@ enum SortBankAccountReportsBy {
   totalIncome_DESC
   totalOutcome_ASC
   totalOutcome_DESC
+  isLatest_ASC
+  isLatest_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -18103,6 +18117,7 @@ input BankAccountReportUpdateInput {
   publishedAt: String
   totalIncome: String
   totalOutcome: String
+  isLatest: Boolean
   data: JSON
   v: Int
   createdAt: String
@@ -18131,6 +18146,7 @@ input BankAccountReportCreateInput {
   publishedAt: String
   totalIncome: String
   totalOutcome: String
+  isLatest: Boolean
   data: JSON
   v: Int
   createdAt: String
