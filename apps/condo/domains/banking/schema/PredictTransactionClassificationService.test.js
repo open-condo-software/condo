@@ -11,7 +11,7 @@ describe('PredictTransactionClassificationService', () => {
     test('anonymous: execute', async () => {
         const client = await makeClient()
         await expectToThrowAuthenticationError(async () => {
-            await predictTransactionClassificationByTestClient(client, { purpose: 'something' })
+            await predictTransactionClassificationByTestClient(client, { purpose: 'something', isOutcome: true })
         }, 'result')
     })
 })
