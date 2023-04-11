@@ -6274,6 +6274,8 @@ export type BankAccountReport = {
   totalIncome?: Maybe<Scalars['String']>;
   /**  Total outcome amount over period of this report  */
   totalOutcome?: Maybe<Scalars['String']>;
+  /**  Whether the report version is the latest  */
+  isLatest?: Maybe<Scalars['Boolean']>;
   /**  Calculated data of this report, that will be used to display  */
   data?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -6303,6 +6305,7 @@ export type BankAccountReportCreateInput = {
   publishedAt?: Maybe<Scalars['String']>;
   totalIncome?: Maybe<Scalars['String']>;
   totalOutcome?: Maybe<Scalars['String']>;
+  isLatest?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6336,6 +6339,7 @@ export type BankAccountReportHistoryRecord = {
   publishedAt?: Maybe<Scalars['String']>;
   totalIncome?: Maybe<Scalars['String']>;
   totalOutcome?: Maybe<Scalars['String']>;
+  isLatest?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -6363,6 +6367,7 @@ export type BankAccountReportHistoryRecordCreateInput = {
   publishedAt?: Maybe<Scalars['String']>;
   totalIncome?: Maybe<Scalars['String']>;
   totalOutcome?: Maybe<Scalars['String']>;
+  isLatest?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6395,6 +6400,7 @@ export type BankAccountReportHistoryRecordUpdateInput = {
   publishedAt?: Maybe<Scalars['String']>;
   totalIncome?: Maybe<Scalars['String']>;
   totalOutcome?: Maybe<Scalars['String']>;
+  isLatest?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6505,6 +6511,8 @@ export type BankAccountReportHistoryRecordWhereInput = {
   totalOutcome_gte?: Maybe<Scalars['String']>;
   totalOutcome_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   totalOutcome_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isLatest?: Maybe<Scalars['Boolean']>;
+  isLatest_not?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   data_not?: Maybe<Scalars['JSON']>;
   data_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -6600,6 +6608,400 @@ export type BankAccountReportHistoryRecordsUpdateInput = {
   data?: Maybe<BankAccountReportHistoryRecordUpdateInput>;
 };
 
+/**  Information about the report generation process  */
+export type BankAccountReportTask = {
+  __typename?: 'BankAccountReportTask';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the BankAccountReportTask List config, or
+   *  2. As an alias to the field set on 'labelField' in the BankAccountReportTask List config, or
+   *  3. As an alias to a 'name' field on the BankAccountReportTask List (if one exists), or
+   *  4. As an alias to the 'id' field on the BankAccountReportTask List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Bank account for which the current report generation operation is running.  */
+  account?: Maybe<BankAccount>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  Status of current generation operation  */
+  status?: Maybe<BankAccountReportTaskStatusType>;
+  /**  Progress of current generation operation  */
+  progress?: Maybe<Scalars['Int']>;
+  /**  User that requested this operation. Will be used for read access checks to display all tasks somewhere and to display progress indicator of ongoing generating task for current user  */
+  user?: Maybe<User>;
+  /**  Additional data, specific to used integration  */
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type BankAccountReportTaskCreateInput = {
+  account?: Maybe<BankAccountRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  status?: Maybe<BankAccountReportTaskStatusType>;
+  progress?: Maybe<Scalars['Int']>;
+  user?: Maybe<UserRelateToOneInput>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type BankAccountReportTaskHistoryRecord = {
+  __typename?: 'BankAccountReportTaskHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the BankAccountReportTaskHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the BankAccountReportTaskHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the BankAccountReportTaskHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the BankAccountReportTaskHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  account?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  progress?: Maybe<Scalars['Int']>;
+  user?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BankAccountReportTaskHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type BankAccountReportTaskHistoryRecordCreateInput = {
+  account?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  progress?: Maybe<Scalars['Int']>;
+  user?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BankAccountReportTaskHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum BankAccountReportTaskHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type BankAccountReportTaskHistoryRecordUpdateInput = {
+  account?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  progress?: Maybe<Scalars['Int']>;
+  user?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BankAccountReportTaskHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type BankAccountReportTaskHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<BankAccountReportTaskHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<BankAccountReportTaskHistoryRecordWhereInput>>>;
+  account?: Maybe<Scalars['String']>;
+  account_not?: Maybe<Scalars['String']>;
+  account_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  account_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status?: Maybe<Scalars['String']>;
+  status_not?: Maybe<Scalars['String']>;
+  status_contains?: Maybe<Scalars['String']>;
+  status_not_contains?: Maybe<Scalars['String']>;
+  status_starts_with?: Maybe<Scalars['String']>;
+  status_not_starts_with?: Maybe<Scalars['String']>;
+  status_ends_with?: Maybe<Scalars['String']>;
+  status_not_ends_with?: Maybe<Scalars['String']>;
+  status_i?: Maybe<Scalars['String']>;
+  status_not_i?: Maybe<Scalars['String']>;
+  status_contains_i?: Maybe<Scalars['String']>;
+  status_not_contains_i?: Maybe<Scalars['String']>;
+  status_starts_with_i?: Maybe<Scalars['String']>;
+  status_not_starts_with_i?: Maybe<Scalars['String']>;
+  status_ends_with_i?: Maybe<Scalars['String']>;
+  status_not_ends_with_i?: Maybe<Scalars['String']>;
+  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  progress?: Maybe<Scalars['Int']>;
+  progress_not?: Maybe<Scalars['Int']>;
+  progress_lt?: Maybe<Scalars['Int']>;
+  progress_lte?: Maybe<Scalars['Int']>;
+  progress_gt?: Maybe<Scalars['Int']>;
+  progress_gte?: Maybe<Scalars['Int']>;
+  progress_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  progress_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<BankAccountReportTaskHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<BankAccountReportTaskHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<BankAccountReportTaskHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<BankAccountReportTaskHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type BankAccountReportTaskHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type BankAccountReportTaskHistoryRecordsCreateInput = {
+  data?: Maybe<BankAccountReportTaskHistoryRecordCreateInput>;
+};
+
+export type BankAccountReportTaskHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<BankAccountReportTaskHistoryRecordUpdateInput>;
+};
+
+export enum BankAccountReportTaskStatusType {
+  Processing = 'processing',
+  Completed = 'completed',
+  Error = 'error',
+  Cancelled = 'cancelled'
+}
+
+export type BankAccountReportTaskUpdateInput = {
+  account?: Maybe<BankAccountRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  status?: Maybe<BankAccountReportTaskStatusType>;
+  progress?: Maybe<Scalars['Int']>;
+  user?: Maybe<UserRelateToOneInput>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type BankAccountReportTaskWhereInput = {
+  AND?: Maybe<Array<Maybe<BankAccountReportTaskWhereInput>>>;
+  OR?: Maybe<Array<Maybe<BankAccountReportTaskWhereInput>>>;
+  account?: Maybe<BankAccountWhereInput>;
+  account_is_null?: Maybe<Scalars['Boolean']>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  status?: Maybe<BankAccountReportTaskStatusType>;
+  status_not?: Maybe<BankAccountReportTaskStatusType>;
+  status_in?: Maybe<Array<Maybe<BankAccountReportTaskStatusType>>>;
+  status_not_in?: Maybe<Array<Maybe<BankAccountReportTaskStatusType>>>;
+  progress?: Maybe<Scalars['Int']>;
+  progress_not?: Maybe<Scalars['Int']>;
+  progress_lt?: Maybe<Scalars['Int']>;
+  progress_lte?: Maybe<Scalars['Int']>;
+  progress_gt?: Maybe<Scalars['Int']>;
+  progress_gte?: Maybe<Scalars['Int']>;
+  progress_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  progress_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type BankAccountReportTaskWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type BankAccountReportTasksCreateInput = {
+  data?: Maybe<BankAccountReportTaskCreateInput>;
+};
+
+export type BankAccountReportTasksUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<BankAccountReportTaskUpdateInput>;
+};
+
 export enum BankAccountReportTemplateType {
   ExpensesGroupedByCategoryAndCostItem = 'expenses_grouped_by_category_and_cost_item'
 }
@@ -6615,6 +7017,7 @@ export type BankAccountReportUpdateInput = {
   publishedAt?: Maybe<Scalars['String']>;
   totalIncome?: Maybe<Scalars['String']>;
   totalOutcome?: Maybe<Scalars['String']>;
+  isLatest?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -6704,6 +7107,8 @@ export type BankAccountReportWhereInput = {
   totalOutcome_gte?: Maybe<Scalars['String']>;
   totalOutcome_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   totalOutcome_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isLatest?: Maybe<Scalars['Boolean']>;
+  isLatest_not?: Maybe<Scalars['Boolean']>;
   data?: Maybe<Scalars['JSON']>;
   data_not?: Maybe<Scalars['JSON']>;
   data_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -26869,6 +27274,30 @@ export type Mutation = {
   deleteBankAccountReport?: Maybe<BankAccountReport>;
   /**  Delete multiple BankAccountReport items by ID.  */
   deleteBankAccountReports?: Maybe<Array<Maybe<BankAccountReport>>>;
+  /**  Create a single BankAccountReportTaskHistoryRecord item.  */
+  createBankAccountReportTaskHistoryRecord?: Maybe<BankAccountReportTaskHistoryRecord>;
+  /**  Create multiple BankAccountReportTaskHistoryRecord items.  */
+  createBankAccountReportTaskHistoryRecords?: Maybe<Array<Maybe<BankAccountReportTaskHistoryRecord>>>;
+  /**  Update a single BankAccountReportTaskHistoryRecord item by ID.  */
+  updateBankAccountReportTaskHistoryRecord?: Maybe<BankAccountReportTaskHistoryRecord>;
+  /**  Update multiple BankAccountReportTaskHistoryRecord items by ID.  */
+  updateBankAccountReportTaskHistoryRecords?: Maybe<Array<Maybe<BankAccountReportTaskHistoryRecord>>>;
+  /**  Delete a single BankAccountReportTaskHistoryRecord item by ID.  */
+  deleteBankAccountReportTaskHistoryRecord?: Maybe<BankAccountReportTaskHistoryRecord>;
+  /**  Delete multiple BankAccountReportTaskHistoryRecord items by ID.  */
+  deleteBankAccountReportTaskHistoryRecords?: Maybe<Array<Maybe<BankAccountReportTaskHistoryRecord>>>;
+  /**  Create a single BankAccountReportTask item.  */
+  createBankAccountReportTask?: Maybe<BankAccountReportTask>;
+  /**  Create multiple BankAccountReportTask items.  */
+  createBankAccountReportTasks?: Maybe<Array<Maybe<BankAccountReportTask>>>;
+  /**  Update a single BankAccountReportTask item by ID.  */
+  updateBankAccountReportTask?: Maybe<BankAccountReportTask>;
+  /**  Update multiple BankAccountReportTask items by ID.  */
+  updateBankAccountReportTasks?: Maybe<Array<Maybe<BankAccountReportTask>>>;
+  /**  Delete a single BankAccountReportTask item by ID.  */
+  deleteBankAccountReportTask?: Maybe<BankAccountReportTask>;
+  /**  Delete multiple BankAccountReportTask items by ID.  */
+  deleteBankAccountReportTasks?: Maybe<Array<Maybe<BankAccountReportTask>>>;
   /**  Create a single TicketHistoryRecord item.  */
   createTicketHistoryRecord?: Maybe<TicketHistoryRecord>;
   /**  Create multiple TicketHistoryRecord items.  */
@@ -32093,6 +32522,68 @@ export type MutationDeleteBankAccountReportArgs = {
 
 
 export type MutationDeleteBankAccountReportsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateBankAccountReportTaskHistoryRecordArgs = {
+  data?: Maybe<BankAccountReportTaskHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateBankAccountReportTaskHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<BankAccountReportTaskHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateBankAccountReportTaskHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<BankAccountReportTaskHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateBankAccountReportTaskHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<BankAccountReportTaskHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteBankAccountReportTaskHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteBankAccountReportTaskHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateBankAccountReportTaskArgs = {
+  data?: Maybe<BankAccountReportTaskCreateInput>;
+};
+
+
+export type MutationCreateBankAccountReportTasksArgs = {
+  data?: Maybe<Array<Maybe<BankAccountReportTasksCreateInput>>>;
+};
+
+
+export type MutationUpdateBankAccountReportTaskArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<BankAccountReportTaskUpdateInput>;
+};
+
+
+export type MutationUpdateBankAccountReportTasksArgs = {
+  data?: Maybe<Array<Maybe<BankAccountReportTasksUpdateInput>>>;
+};
+
+
+export type MutationDeleteBankAccountReportTaskArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteBankAccountReportTasksArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -39948,6 +40439,7 @@ export type OrganizationEmployeeRole = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReportTasks?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
@@ -39995,6 +40487,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReportTasks?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
@@ -40048,6 +40541,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReportTasks?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
@@ -40095,6 +40589,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReportTasks?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
@@ -40147,6 +40642,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReportTasks?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
@@ -40272,6 +40768,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManagePropertyScopes_not?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts_not?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReportTasks?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReportTasks_not?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationAccountContexts_not?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
@@ -40399,6 +40897,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReportTasks?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
@@ -40501,6 +41000,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManagePropertyScopes_not?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankAccounts_not?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReportTasks?: Maybe<Scalars['Boolean']>;
+  canManageBankAccountReportTasks_not?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationAccountContexts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationAccountContexts_not?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationOrganizationContexts?: Maybe<Scalars['Boolean']>;
@@ -45291,6 +45792,22 @@ export type Query = {
   _allBankAccountReportsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the BankAccountReport list.  */
   _BankAccountReportsMeta?: Maybe<_ListMeta>;
+  /**  Search for all BankAccountReportTaskHistoryRecord items which match the where clause.  */
+  allBankAccountReportTaskHistoryRecords?: Maybe<Array<Maybe<BankAccountReportTaskHistoryRecord>>>;
+  /**  Search for the BankAccountReportTaskHistoryRecord item with the matching ID.  */
+  BankAccountReportTaskHistoryRecord?: Maybe<BankAccountReportTaskHistoryRecord>;
+  /**  Perform a meta-query on all BankAccountReportTaskHistoryRecord items which match the where clause.  */
+  _allBankAccountReportTaskHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the BankAccountReportTaskHistoryRecord list.  */
+  _BankAccountReportTaskHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all BankAccountReportTask items which match the where clause.  */
+  allBankAccountReportTasks?: Maybe<Array<Maybe<BankAccountReportTask>>>;
+  /**  Search for the BankAccountReportTask item with the matching ID.  */
+  BankAccountReportTask?: Maybe<BankAccountReportTask>;
+  /**  Perform a meta-query on all BankAccountReportTask items which match the where clause.  */
+  _allBankAccountReportTasksMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the BankAccountReportTask list.  */
+  _BankAccountReportTasksMeta?: Maybe<_ListMeta>;
   /**  Search for all TicketHistoryRecord items which match the where clause.  */
   allTicketHistoryRecords?: Maybe<Array<Maybe<TicketHistoryRecord>>>;
   /**  Search for the TicketHistoryRecord item with the matching ID.  */
@@ -48109,6 +48626,56 @@ export type Query_AllBankAccountReportsMetaArgs = {
   where?: Maybe<BankAccountReportWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortBankAccountReportsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllBankAccountReportTaskHistoryRecordsArgs = {
+  where?: Maybe<BankAccountReportTaskHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBankAccountReportTaskHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryBankAccountReportTaskHistoryRecordArgs = {
+  where: BankAccountReportTaskHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllBankAccountReportTaskHistoryRecordsMetaArgs = {
+  where?: Maybe<BankAccountReportTaskHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBankAccountReportTaskHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllBankAccountReportTasksArgs = {
+  where?: Maybe<BankAccountReportTaskWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBankAccountReportTasksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryBankAccountReportTaskArgs = {
+  where: BankAccountReportTaskWhereUniqueInput;
+};
+
+
+export type Query_AllBankAccountReportTasksMetaArgs = {
+  where?: Maybe<BankAccountReportTaskWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBankAccountReportTasksBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -55801,6 +56368,8 @@ export enum SortBankAccountReportHistoryRecordsBy {
   TotalIncomeDesc = 'totalIncome_DESC',
   TotalOutcomeAsc = 'totalOutcome_ASC',
   TotalOutcomeDesc = 'totalOutcome_DESC',
+  IsLatestAsc = 'isLatest_ASC',
+  IsLatestDesc = 'isLatest_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -55817,6 +56386,58 @@ export enum SortBankAccountReportHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortBankAccountReportTaskHistoryRecordsBy {
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  ProgressAsc = 'progress_ASC',
+  ProgressDesc = 'progress_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortBankAccountReportTasksBy {
+  AccountAsc = 'account_ASC',
+  AccountDesc = 'account_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  ProgressAsc = 'progress_ASC',
+  ProgressDesc = 'progress_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortBankAccountReportsBy {
@@ -55840,6 +56461,8 @@ export enum SortBankAccountReportsBy {
   TotalIncomeDesc = 'totalIncome_DESC',
   TotalOutcomeAsc = 'totalOutcome_ASC',
   TotalOutcomeDesc = 'totalOutcome_DESC',
+  IsLatestAsc = 'isLatest_ASC',
+  IsLatestDesc = 'isLatest_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -58679,6 +59302,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManagePropertyScopesDesc = 'canManagePropertyScopes_DESC',
   CanManageBankAccountsAsc = 'canManageBankAccounts_ASC',
   CanManageBankAccountsDesc = 'canManageBankAccounts_DESC',
+  CanManageBankAccountReportTasksAsc = 'canManageBankAccountReportTasks_ASC',
+  CanManageBankAccountReportTasksDesc = 'canManageBankAccountReportTasks_DESC',
   CanManageBankIntegrationAccountContextsAsc = 'canManageBankIntegrationAccountContexts_ASC',
   CanManageBankIntegrationAccountContextsDesc = 'canManageBankIntegrationAccountContexts_DESC',
   CanManageBankIntegrationOrganizationContextsAsc = 'canManageBankIntegrationOrganizationContexts_ASC',
@@ -58760,6 +59385,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManagePropertyScopesDesc = 'canManagePropertyScopes_DESC',
   CanManageBankAccountsAsc = 'canManageBankAccounts_ASC',
   CanManageBankAccountsDesc = 'canManageBankAccounts_DESC',
+  CanManageBankAccountReportTasksAsc = 'canManageBankAccountReportTasks_ASC',
+  CanManageBankAccountReportTasksDesc = 'canManageBankAccountReportTasks_DESC',
   CanManageBankIntegrationAccountContextsAsc = 'canManageBankIntegrationAccountContexts_ASC',
   CanManageBankIntegrationAccountContextsDesc = 'canManageBankIntegrationAccountContexts_DESC',
   CanManageBankIntegrationOrganizationContextsAsc = 'canManageBankIntegrationOrganizationContexts_ASC',

@@ -61,7 +61,7 @@ export const BankCostItemProvider: React.FC = ({ children }) => {
 
             incomeCostItems.current = bankCostItems
                 .filter(costItem => !costItem.isOutcome)
-                .map(costItem => ({ ...costItem, name: `banking.costItem.${costItem.name}.name` }))
+                .map(costItem => ({ ...costItem, name: intl.formatMessage({ id: `banking.costItem.${costItem.name}.name` }) }))
         }
     }, [bankCostItems, loading, intl])
 

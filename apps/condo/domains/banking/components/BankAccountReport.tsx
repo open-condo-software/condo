@@ -1,4 +1,3 @@
-import { BankAccountReport as BankAccountReportType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Row, Col } from 'antd'
 import dayjs from 'dayjs'
@@ -8,17 +7,20 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Tabs, Card, Typography, Select, Option, Space } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 import type { CardProps } from '@open-condo/ui'
 
+import { useBankReportTaskButton } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { BankAccountReport as BankAccountReportClient } from '@condo/domains/banking/utils/clientSchema'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { TotalBalanceIcon, BalanceOutIcon, BalanceInIcon } from '@condo/domains/common/components/icons/TotalBalance'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 
+import type { BankAccountReport as BankAccountReportType, OrganizationEmployeeRole as OrganizationEmployeeRoleType } from '@app/condo/schema'
 import type { BankAccount as BankAccountType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 import type { EChartsOption, EChartsReactProps } from 'echarts-for-react'
@@ -141,7 +143,15 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const chartInstance = useRef(null)
 
     const bankAccountReport = get(bankAccountReports, selectedPeriod)
-    const categoryGroups = get(bankAccountReport, 'data.categoryGroups', [])
+    const categoryGroups = get(bankAccountReport, 'data.categoryGroups', []).filter(categoryGroup => {
+        if (activeCategory === ReportCategories.Total) {
+            return true
+        } else if (activeCategory === ReportCategories.Income) {
+            return categoryGroup.costItemGroups.some(item => item.isOutcome === false)
+        } else if (activeCategory === ReportCategories.Withdrawal) {
+            return categoryGroup.costItemGroups.some(item => item.isOutcome === true)
+        }
+    })
 
     let chartData = get(find(categoryGroups, { id: activeTab }), 'costItemGroups', [])
     if (activeCategory !== ReportCategories.Total) {
@@ -181,19 +191,21 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                             .map(e => e.sum)
                             .reduce((prev, cur) => prev + cur, 0)
                         const value = intl.formatNumber(totalSum, { style: 'currency', currency: currencyCode }) + '\n'
+                        const isOutcome = get(chartData, '0.isOutcome', false)
 
                         return value + truncate(intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.totalSumTitle' }, {
-                            sumItem: WithdrawalTitle.toLowerCase(),
+                            sumItem: isOutcome ? WithdrawalTitle.toLowerCase() : IncomeTitle.toLowerCase(),
                         }), LABEL_TRUNCATE_LENGTH)
                     },
                 },
                 data: chartData.map(categoryInfo => ({
                     value: categoryInfo.sum,
-                    name: intl.formatMessage({ id: categoryInfo.name }),
+                    name: intl.formatMessage({ id: `banking.costItem.${categoryInfo.name}.name` }),
+                    isOutcome: categoryInfo.isOutcome,
                 })),
             },
         ],
-    }), [chartData, WithdrawalTitle, currencyCode, intl])
+    }), [chartData, WithdrawalTitle, IncomeTitle, currencyCode, intl])
 
     const onChangeTabs = useCallback((key) => {
         setActiveTab(key)
@@ -225,17 +237,8 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     }), [])
 
     const tabsItems = useMemo(() => categoryGroups
-        .filter(categoryGroup => {
-            if (activeCategory === ReportCategories.Total) {
-                return true
-            } else if (activeCategory === ReportCategories.Income) {
-                return categoryGroup.costItemGroups.some(item => item.isOutcome === false)
-            } else if (activeCategory === ReportCategories.Withdrawal) {
-                return categoryGroup.costItemGroups.some(item => item.isOutcome === true)
-            }
-        })
-        .map(reportData => ({ label: intl.formatMessage({ id: reportData.name }), key: reportData.id }))
-    , [categoryGroups, activeCategory, intl])
+        .map(reportData => ({ label: intl.formatMessage({ id: `banking.category.${reportData.name}.name` }), key: reportData.id }))
+    , [categoryGroups, intl])
     const reportOptionItems = useMemo(() => bankAccountReports
         .map((bankAccountReport, reportIndex) => (
             <Option
@@ -247,7 +250,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
         )), [bankAccountReports])
     const chartLegendItems = useMemo(() => {
         return chartData.map((item, index) => {
-            const itemName = intl.formatMessage({ id: item.name })
+            const itemName = intl.formatMessage({ id: `banking.costItem.${item.name}.name` })
             return (
                 <LegendContainer
                     key={'legend-item-' + index}
@@ -366,15 +369,26 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
 }
 
 interface IBankAccountReport {
-    ({ bankAccount, organizationId }: { bankAccount: BankAccountType, organizationId: string }): React.ReactElement
+    ({ bankAccount, organizationId, role }: { bankAccount: BankAccountType, organizationId: string, role: OrganizationEmployeeRoleType }): React.ReactElement
 }
 
-const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId }) => {
+const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId, role }) => {
+    const intl = useIntl()
+    const NoDataTitle = intl.formatMessage({ id: 'NoData' })
+
+    const { user } = useAuth()
     const { objs: bankAccountReports, loading } = BankAccountReportClient.useObjects({
         where: {
+            isLatest: true,
             account: { id: bankAccount.id },
             organization: { id: organizationId },
         },
+    })
+
+    const { BankReportTaskButton } = useBankReportTaskButton({
+        organizationId,
+        user,
+        bankAccount,
     })
 
     if (loading) {
@@ -383,14 +397,28 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId }) 
 
     const sortedBankAccountReports = [...bankAccountReports]
         .sort((a, b) => dayjs(a.period).isBefore(b.period) ? 1 : -1)
+    const canManageBankAccountReportTasks = get(role, 'canManageBankAccountReportTasks', false)
 
     return (
         <Row>
             <Col span={24}>
-                <BankAccountReportContent
-                    bankAccountReports={sortedBankAccountReports}
-                    currencyCode={bankAccount.currencyCode}
-                />
+                {isEmpty(sortedBankAccountReports)
+                    ? (
+                        <BasicEmptyListView image='/dino/searching@2x.png'>
+                            <Space size={16} direction='vertical'>
+                                <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
+                                {canManageBankAccountReportTasks && (
+                                    <BankReportTaskButton />
+                                )}
+                            </Space>
+                        </BasicEmptyListView>
+                    ) : (
+                        <BankAccountReportContent
+                            bankAccountReports={sortedBankAccountReports}
+                            currencyCode={bankAccount.currencyCode}
+                        />
+                    )
+                }
             </Col>
         </Row>
     )
