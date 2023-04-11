@@ -128,6 +128,7 @@ async function getReceiptsForServiceConsumer (context, date, serviceConsumer, bi
         ...billingIntegrationContextCondition,
         ...periodCondition,
         ...extraArgs,
+        deletedAt: null,
     })
 }
 
@@ -149,11 +150,13 @@ async function filterPaidBillingReceipts (context, billingReceipts) {
     // map to receipt ids
     const payedBillIds = payments.map(payment => payment.receipt.id)
 
-    return billingReceipts.filter(receipt => {
+    const notPaidBillsIds = billingReceipts.filter(receipt => {
         const { id } = receipt
 
         return !payedBillIds.includes(id)
-    })
+    }).map(receipt => receipt.id)
+
+    return await BillingReceipt.getAll(context, { id_in: notPaidBillsIds, deletedAt: null })
 }
 
 async function getReadyForProcessingPaymentsPage (context, pageSize, offset, extraArgs) {

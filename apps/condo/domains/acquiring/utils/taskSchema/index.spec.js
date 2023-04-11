@@ -46,6 +46,9 @@ const {
     createTestRecurrentPayment,
     updateTestRecurrentPaymentContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    BillingReceipt,
+} = require('@condo/domains/billing/utils/serverSchema')
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
@@ -416,6 +419,28 @@ describe('task schema queries', () => {
             expect(receipts).toHaveLength(0)
         })
 
+        it('should return not deleted receipts', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 2)
+            const [batch] = batches
+            const {
+                serviceConsumer,
+                billingReceipts: [{
+                    id,
+                    category,
+                    period,
+                }],
+            } = batch
+            const today = dayjs(period).date(15)
+
+            // delete the second billingReceipt
+            await BillingReceipt.softDelete(adminContext, batch.billingReceipts[1].id, dvAndSender)
+
+            // get receipts
+            const receipts = await getReceiptsForServiceConsumer(adminContext, today, serviceConsumer, category)
+            expect(receipts).toHaveLength(1)
+            expect(receipts[0].id).toEqual(id)
+        })
+
         it('should validate inputs', async () => {
             const { serviceConsumer } = await makeClientWithServiceConsumer()
 
@@ -451,6 +476,22 @@ describe('task schema queries', () => {
             const receipts = await filterPaidBillingReceipts(adminContext, billingReceipts)
 
             expect(receipts).toHaveLength(billingReceipts.length)
+        })
+
+        it('should return one receipt - deleted receipt case', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 2)
+            const [batch] = batches
+            const {
+                billingReceipts,
+            } = batch
+
+            // delete the second billingReceipt
+            await BillingReceipt.softDelete(adminContext, batch.billingReceipts[1].id, dvAndSender)
+
+            // get receipts
+            const receipts = await filterPaidBillingReceipts(adminContext, billingReceipts)
+            expect(receipts).toHaveLength(1)
+            expect(receipts[0].id).toEqual(billingReceipts[0].id)
         })
 
         it('should return all receipts - payments with not certain status', async () => {
