@@ -6,7 +6,7 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
 type TabUpdateHandler = (key: string) => void
 
-export function useBillingQuery (includeExtension: boolean): [string, TabUpdateHandler] {
+export function useQueryTab (includeExtension: boolean): [string, TabUpdateHandler] {
     const availableTabs = [ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY]
     if (includeExtension) {
         availableTabs.push(EXTENSION_TAB_KEY)

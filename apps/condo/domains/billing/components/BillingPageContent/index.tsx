@@ -1,3 +1,4 @@
+import get from 'lodash/get'
 import Head from 'next/head'
 import React, { useCallback, useMemo } from 'react'
 
@@ -8,47 +9,28 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { PageWrapper, PageHeader, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
+import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { EmptyContent } from './EmptyContent'
 import { MainContent } from './MainContent'
 
-
-import type { BillingIntegrationProblem } from '@app/condo/schema'
-
-type BillingPageContentProps = {
-    billingName: string
-    instructionLink?: string
-    connectedMessage?: string
-    uploadUrl?: string
-    uploadMessage?: string
-    hasReceipts: boolean
-    extendsBillingPage: boolean
-    billingPageTitle?: string
-    appUrl?: string
-    problem?: Pick<BillingIntegrationProblem, 'title' | 'message'>
-}
-
-export const BillingPageContent: React.FC<BillingPageContentProps> = ({
-    billingName,
-    connectedMessage,
-    instructionLink,
-    uploadUrl,
-    uploadMessage,
-    problem,
-    hasReceipts,
-    extendsBillingPage,
-    billingPageTitle,
-    appUrl,
-}) => {
+export const BillingPageContent: React.FC = () => {
     const intl = useIntl()
+    const { billingContext } = useBillingAndAcquiringContexts()
+    const billingName = get(billingContext, ['integration', 'name'], '')
     const PageTitle = intl.formatMessage({ id: 'global.section.accrualsAndPayments' })
     const ConnectedStatusMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.statusTag.connected' }, { name: billingName })
     const ErrorStatusMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.statusTag.error' }, { name: billingName })
     const DefaultUploadMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.uploadReceiptsAction.defaultMessage' })
 
+    const currentProblem = get(billingContext, 'currentProblem')
+    const uploadUrl = get(billingContext, ['integration', 'uploadUrl'])
+    const uploadMessage = get(billingContext, ['integration', 'uploadMessage'])
+    const lastReport = get(billingContext, 'lastReport')
+
     const [spawnModal, ModalContextHandler] = Modal.useModal()
 
-    const tagBg = problem ? colors.red['5'] : colors.green['5']
-    const tagMessage = problem ? ErrorStatusMessage : ConnectedStatusMessage
+    const tagBg = currentProblem ? colors.red['5'] : colors.green['5']
+    const tagMessage = currentProblem ? ErrorStatusMessage : ConnectedStatusMessage
 
     const handleUploadClick = useCallback(() => {
         if (uploadUrl) {
@@ -79,21 +61,11 @@ export const BillingPageContent: React.FC<BillingPageContentProps> = ({
                 <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} extra={<Tag bgColor={tagBg} textColor={colors.white}>{tagMessage}</Tag>}/>
                 <TablePageContent>
                     {
-                        hasReceipts
+                        lastReport
                             ? (
-                                <MainContent
-                                    billingName={billingName}
-                                    extendsBillingPage={extendsBillingPage}
-                                    billingPageTitle={billingPageTitle}
-                                    appUrl={appUrl}
-                                />
+                                <MainContent uploadComponent={UploadAction}/>
                             ) : (
-                                <EmptyContent
-                                    problem={problem}
-                                    connectedMessage={connectedMessage}
-                                    uploadComponent={UploadAction}
-                                    instructionUrl={instructionLink}
-                                />
+                                <EmptyContent uploadComponent={UploadAction}/>
                             )
                     }
                 </TablePageContent>

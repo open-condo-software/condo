@@ -7,7 +7,7 @@ import { Space, Typography, Button } from '@open-condo/ui'
 
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 
-import type { BillingIntegrationProblem } from '@app/condo/schema'
+import { useBillingAndAcquiringContexts } from './ContextProvider'
 
 const BLOCK_GAP = 24
 const BLOCK_CONTENT_GAP = 16
@@ -16,25 +16,25 @@ const SUCCESS_DINO_IMG = 'dino/searching@2x.png'
 const IMG_STYLES: CSSProperties = { marginBottom: 24 }
 
 type EmptyContentProps = {
-    connectedMessage?: string
     uploadComponent?: React.ReactElement
-    instructionUrl?: string
-    problem?: Pick<BillingIntegrationProblem, 'title' | 'message'>
 }
 
 export const EmptyContent: React.FC<EmptyContentProps> = ({
-    problem,
-    connectedMessage,
-    instructionUrl,
     uploadComponent,
 }) => {
     const intl = useIntl()
     const NoReceiptsTitle = intl.formatMessage({ id: 'accrualsAndPayments.billing.noReceiptsYet' })
     const InstructionButtonLabel = intl.formatMessage({ id: 'accrualsAndPayments.setupBilling.instruction.instructionButtonLabel' })
 
-    const title = problem ? get(problem, 'title', '') : NoReceiptsTitle
-    const message = problem ? get(problem, 'message', '') : connectedMessage
-    const dinoImg = problem ? ERROR_DINO_IMG : SUCCESS_DINO_IMG
+    const { billingContext } = useBillingAndAcquiringContexts()
+
+    const currentProblem = get(billingContext, 'currentProblem')
+    const connectedMessage = get(billingContext, ['integration', 'connectedMessage'])
+    const instructionUrl = get(billingContext, ['integration', 'instructionExtraLink'])
+
+    const title = currentProblem ? get(currentProblem, 'title', '') : NoReceiptsTitle
+    const message = currentProblem ? get(currentProblem, 'message', '') : connectedMessage
+    const dinoImg = currentProblem ? ERROR_DINO_IMG : SUCCESS_DINO_IMG
 
 
     return (

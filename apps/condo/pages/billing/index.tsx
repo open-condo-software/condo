@@ -6,6 +6,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { AcquiringIntegrationContext as AcquiringContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingPageContent } from '@condo/domains/billing/components/BillingPageContent'
+import { BillingAndAcquiringContext } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { BillingOnboardingPage } from '@condo/domains/billing/components/OnBoarding'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -51,18 +52,9 @@ const AccrualsAndPaymentsPage: PageType = () => {
 
     if (billingCtx && acquiringCtx) {
         return (
-            <BillingPageContent
-                billingName={get(billingCtx, ['integration', 'name'], '')}
-                extendsBillingPage={get(billingCtx, ['integration', 'extendsBillingPage'], false)}
-                billingPageTitle={get(billingCtx, ['integration', 'billingPageTitle'])}
-                hasReceipts={Boolean(billingCtx.lastReport)}
-                problem={billingCtx.currentProblem}
-                connectedMessage={get(billingCtx, ['integration', 'connectedMessage'])}
-                instructionLink={get(billingCtx, ['integration', 'instructionExtraLink'])}
-                uploadUrl={get(billingCtx, ['integration', 'uploadUrl'])}
-                uploadMessage={get(billingCtx, ['integration', 'uploadMessage'])}
-                appUrl={get(billingCtx, ['integration', 'appUrl'])}
-            />
+            <BillingAndAcquiringContext.Provider value={{ billingContext: billingCtx, acquiringContext: acquiringCtx }}>
+                <BillingPageContent/>
+            </BillingAndAcquiringContext.Provider>
         )
     }
 
