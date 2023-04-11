@@ -108,7 +108,7 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
                 throw new GQLError(GQL_ERRORS.RECURRENT_PAYMENT_CONTEXT_NO_TRIGGER_SET_UP_ERROR)
             }
         },
-    }
+    },
 })
 
 module.exports = {
