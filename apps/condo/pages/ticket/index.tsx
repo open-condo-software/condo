@@ -298,25 +298,27 @@ const TicketTable = ({
             </Col>
             {
                 !loading && ticketsWithFiltersCount > 0 && (
-                    <ActionBar>
-                        {selectedTicketKeys.length > 0 && (
-                            <Typography.Text strong>
-                                {CountSelectedTicketLabel}: {selectedTicketKeys.length}
-                            </Typography.Text>
-                        )}
-                        {selectedTicketKeys.length > 0 && (
-                            <TicketBlanksExportToPdfButton disabled={selectedTicketKeys.length > MAX_TICKET_BLANKS_EXPORT} />
-                        )}
-                        {selectedTicketKeys.length < 1 && <TicketsExportToXlsxButton />}
-                        {selectedTicketKeys.length > 0 && (
-                            <Button
-                                type='secondary'
-                                children={CancelSelectedTicketLabel}
-                                onClick={handleResetSelectedTickets}
-                                icon={<Close size='medium' />}
-                            />
-                        )}
-                    </ActionBar>
+                    <ActionBar
+                        message={selectedTicketKeys.length > 0 && `${CountSelectedTicketLabel}: ${selectedTicketKeys.length}`}
+                        actions={[
+                            selectedTicketKeys.length > 0 && (
+                                <TicketBlanksExportToPdfButton
+                                    key='exportToPdf'
+                                    disabled={selectedTicketKeys.length > MAX_TICKET_BLANKS_EXPORT}
+                                />
+                            ),
+                            selectedTicketKeys.length < 1 && <TicketsExportToXlsxButton key='exportToXlsx' />,
+                            selectedTicketKeys.length > 0 && (
+                                <Button
+                                    key='cancelSelectedTicket'
+                                    type='secondary'
+                                    children={CancelSelectedTicketLabel}
+                                    onClick={handleResetSelectedTickets}
+                                    icon={<Close size='medium' />}
+                                />
+                            ),
+                        ]}
+                    />
                 )
             }
             {TicketBlanksExportToPdfModal}
@@ -505,23 +507,18 @@ const FiltersButton = ({ appliedFiltersCount, setIsMultipleFiltersModalVisible }
     }, [setIsMultipleFiltersModalVisible])
 
     return (
-        <CommonButton
-            secondary
-            type='sberBlack'
+        <Button
+            type='secondary'
             onClick={handleOpenMultipleFilter}
             data-cy='ticket__filters-button'
-            style={FILTERS_BUTTON_STYLES}
+            icon={<Filter size='medium'/>}
         >
-            <Filter size='medium'/>
-            {FiltersButtonLabel}
             {
-                appliedFiltersCount > 0 ? (
-                    <AppliedFiltersCounter>
-                        {appliedFiltersCount}
-                    </AppliedFiltersCounter>
-                ) : null
+                appliedFiltersCount > 0 ?
+                    `${FiltersButtonLabel} (${appliedFiltersCount})`
+                    : FiltersButtonLabel
             }
-        </CommonButton>
+        </Button>
     )
 }
 

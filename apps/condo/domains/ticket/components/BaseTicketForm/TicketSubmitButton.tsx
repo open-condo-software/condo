@@ -3,9 +3,8 @@ import isEmpty from 'lodash/isEmpty'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Tooltip } from '@open-condo/ui'
 
-import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
+import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
 
 interface IErrorsContainerProps {
     ApplyChangesMessage: string
@@ -21,7 +20,7 @@ interface IErrorsContainerProps {
     isRequiredDeadline?: boolean
 }
 
-export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({
+export const TicketSubmitButton: React.FC<IErrorsContainerProps> = ({
     ApplyChangesMessage,
     handleSave,
     isLoading,
@@ -56,19 +55,15 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({
     const errors = [requiredErrorMessage, propertyMismatchError].filter(Boolean).join(',')
 
     return (
-        <Tooltip key='submit' title={disabledCondition ? errors : null}>
-            <div style={{ cursor: disabledCondition ? 'not-allowed' : 'auto', width: '100%' }}>
-                <Button
-                    key='submit'
-                    onClick={handleSave}
-                    type='primary'
-                    loading={isLoading}
-                    disabled={disabledCondition}
-                    data-cy={get(otherProps, 'data-cy')}
-                >
-                    {ApplyChangesMessage}
-                </Button>
-            </div>
-        </Tooltip>
+        <ButtonWithDisabledTooltip
+            title={errors}
+            onClick={handleSave}
+            type='primary'
+            loading={isLoading}
+            disabled={disabledCondition}
+            data-cy={get(otherProps, 'data-cy')}
+        >
+            {ApplyChangesMessage}
+        </ButtonWithDisabledTooltip>
     )
 }

@@ -1,21 +1,20 @@
-import { Form, Typography, Space } from 'antd'
+import { Form, Typography } from 'antd'
 import { get, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
+import { TicketSubmitButton } from '@condo/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
-import { BaseTicketForm } from '../BaseTicketForm'
-import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
 
 export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
     const intl = useIntl()
@@ -51,28 +50,15 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
                         || ticketSettingLoading
 
                     return (
-                        <ActionBar isFormActionBar>
-                            <Button
-                                key='cancel'
-                                onClick={onCancel}
-                                type='sberDefaultGradient'
-                                secondary
-                            >
-                                {CancelLabel}
-                            </Button>
-                            <Space size={12}>
-                                <Button
+                        <ActionBar
+                            actions={[
+                                <TicketSubmitButton
                                     key='submit'
-                                    onClick={handleSave}
-                                    type='sberDefaultGradient'
-                                    loading={isLoading}
-                                    disabled={disabledCondition}
+                                    ApplyChangesMessage={ApplyChangesMessage}
+                                    handleSave={handleSave}
+                                    isLoading={isLoading}
                                     data-cy='ticket__apply-changes-button'
-                                >
-                                    {ApplyChangesMessage}
-                                </Button>
-                                <ErrorsContainer
-                                    isVisible={disabledCondition}
+                                    disabledCondition={disabledCondition}
                                     property={property}
                                     details={details}
                                     placeClassifier={placeClassifier}
@@ -80,8 +66,16 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
                                     deadline={deadline}
                                     propertyMismatchError={propertyMismatchError}
                                     isRequiredDeadline={isRequiredDeadline}
-                                />
-                            </Space>
+                                />,
+                                <Button
+                                    key='cancel'
+                                    onClick={onCancel}
+                                    type='secondary'
+                                >
+                                    {CancelLabel}
+                                </Button>,
+                            ]}
+                        >
                         </ActionBar>
                     )
                 }

@@ -1,4 +1,3 @@
-import { PlusCircleOutlined } from '@ant-design/icons'
 import { SortPropertyScopesBy } from '@app/condo/schema'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -6,10 +5,12 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
+import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Button } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
+
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -19,6 +20,7 @@ import { EXPORT_PROPERTY_SCOPE_QUERY } from '@condo/domains/scope/gql'
 import { usePropertyScopeColumns } from '@condo/domains/scope/hooks/useTableColumns'
 import { usePropertyScopeTableFilters } from '@condo/domains/scope/hooks/useTableFilters'
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
+
 
 const SORTABLE_PROPERTIES = ['name']
 const PROPERTY_SCOPES_DEFAULT_SORT_BY = ['createdAt_DESC']
@@ -101,16 +103,18 @@ export const PropertyScopeSettingsContent = () => {
                             sortBy={sortBy}
                             exportToExcelQuery={EXPORT_PROPERTY_SCOPE_QUERY}
                             useTimeZone={false}
-                        >
-                            <Button
-                                eventName='PropertyScopeVisitCreate'
-                                type='sberDefaultGradient'
-                                icon={<PlusCircleOutlined/>}
-                                onClick={handleAddHintButtonClick}
-                            >
-                                {CreatePropertyScopeMessage}
-                            </Button>
-                        </ExportToExcelActionBar>
+                            actions={[
+                                <Button
+                                    key='createPropertyScope'
+                                    id='PropertyScopeVisitCreate'
+                                    type='primary'
+                                    icon={<PlusCircle size='medium'/>}
+                                    onClick={handleAddHintButtonClick}
+                                >
+                                    {CreatePropertyScopeMessage}
+                                </Button>,
+                            ]}
+                        />
                     </Col>
                 )
             }

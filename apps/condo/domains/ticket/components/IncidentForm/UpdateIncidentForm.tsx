@@ -4,14 +4,12 @@ import { useRouter } from 'next/router'
 import React, { ComponentProps, useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Button } from '@open-condo/ui'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { Incident, IncidentProperty, IncidentClassifierIncident } from '@condo/domains/ticket/utils/clientSchema'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
-
 
 
 export interface IUpdateIncidentForm {
@@ -26,14 +24,17 @@ export const UpdateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
     const { handleSave, isLoading } = props
 
     return (
-        <ActionBar>
-            <Button
-                type='primary'
-                children={UpdateLabel}
-                onClick={handleSave}
-                disabled={isLoading}
-            />
-        </ActionBar>
+        <ActionBar
+            actions={[
+                <Button
+                    key='update'
+                    type='primary'
+                    children={UpdateLabel}
+                    onClick={handleSave}
+                    disabled={isLoading}
+                />,
+            ]}
+        />
     )
 }
 

@@ -21,10 +21,9 @@ import React, { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo,
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Carousel, Typography as UITypography } from '@open-condo/ui'
+import { ActionBar, Button, Carousel, Typography as UITypography } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
+import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { BuildingIcon } from '@condo/domains/common/components/icons/BuildingIcon'
 import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
@@ -137,7 +136,7 @@ const StyledAddressTabContent = styled.div`
   flex-direction: column;
   row-gap: 12px;
 `
-const StyledAddAddressButton = styled(Button)`
+const StyledAddAddressButton = styled(DeprecatedButton)`
   height: 165px;
   width: 100%;
   border: 1px dashed ${colors.inputBorderHover};
@@ -445,29 +444,30 @@ const ClientCardTabContent = ({
                     </>
                 )
             }
-            <ActionBar>
-                <Button
-                    key='submit'
-                    onClick={handleCreateTicket}
-                    type='sberDefaultGradient'
-                    eventName='ClientCardCreateTicketClick'
-                >
-                    {CreateTicketMessage}
-                </Button>
-                {
-                    canManageContacts && handleContactEditClick && (
+            <Col span={24}>
+                <ActionBar
+                    actions={[
                         <Button
                             key='submit'
-                            onClick={handleContactEditClick}
-                            type='sberDefaultGradient'
-                            secondary
-                            eventName='ClientCardEditContactClick'
+                            onClick={handleCreateTicket}
+                            type='primary'
+                            id='ClientCardCreateTicketClick'
                         >
-                            {EditContactMessage}
-                        </Button>
-                    )
-                }
-            </ActionBar>
+                            {CreateTicketMessage}
+                        </Button>,
+                        canManageContacts && handleContactEditClick && (
+                            <Button
+                                key='edit'
+                                onClick={handleContactEditClick}
+                                type='secondary'
+                                id='ClientCardEditContactClick'
+                            >
+                                {EditContactMessage}
+                            </Button>
+                        ),
+                    ]}
+                />
+            </Col>
         </Row>
     )
 }
