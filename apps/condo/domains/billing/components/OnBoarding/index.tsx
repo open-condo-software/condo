@@ -1,19 +1,23 @@
 import { Row, Col } from 'antd'
+import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Steps } from '@open-condo/ui'
 import type { StepItem } from '@open-condo/ui'
 
 import { useOnboardingProgress } from '@condo/domains/billing/hooks/useOnboardingProgress'
 import { PageHeader, PageWrapper, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 
 import { SelectBilling } from './SelectBilling'
 import { SetupAcquiring } from './SetupAcquiring'
 import { SetupBilling } from './SetupBilling'
 import { WelcomeModal } from './WelcomeModal'
+
 
 import type { RowProps } from 'antd'
 
@@ -31,6 +35,10 @@ export const BillingOnboardingPage: React.FC<BillingOnboardingPageProps> = ({ on
     const SetupBillingTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.setupBillingStep.title' })
     const SetupAcquiringTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.setupAcquiringStep.title' })
     const StepNoReturnMessage = intl.formatMessage({ id: 'accrualsAndPayments.setup.noReturn' })
+    const NoPermissionMessage = intl.formatMessage({ id:'global.noPageViewPermission' })
+
+    const userOrganization = useOrganization()
+    const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
 
     const router = useRouter()
     const [welcomeShown, setWelcomeShown] = useState(false)
@@ -62,6 +70,10 @@ export const BillingOnboardingPage: React.FC<BillingOnboardingPageProps> = ({ on
 
         return <SelectBilling/>
     }, [currentStep, onFinish])
+
+    if (!canManageIntegrations) {
+        return <LoadingOrErrorPage error={NoPermissionMessage}/>
+    }
 
     return (
         <>

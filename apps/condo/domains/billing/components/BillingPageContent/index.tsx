@@ -3,10 +3,12 @@ import Head from 'next/head'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Tag, Modal, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { PageWrapper, PageHeader, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
@@ -14,13 +16,19 @@ import { EmptyContent } from './EmptyContent'
 import { MainContent } from './MainContent'
 
 export const BillingPageContent: React.FC = () => {
-    const intl = useIntl()
     const { billingContext } = useBillingAndAcquiringContexts()
     const billingName = get(billingContext, ['integration', 'name'], '')
+
+    const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.accrualsAndPayments' })
     const ConnectedStatusMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.statusTag.connected' }, { name: billingName })
     const ErrorStatusMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.statusTag.error' }, { name: billingName })
     const DefaultUploadMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.uploadReceiptsAction.defaultMessage' })
+    const NoPermissionMessage = intl.formatMessage({ id:'global.noPageViewPermission' })
+
+    const userOrganization = useOrganization()
+    const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
+    const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
 
     const currentProblem = get(billingContext, 'currentProblem')
     const uploadUrl = get(billingContext, ['integration', 'uploadUrl'])
@@ -51,6 +59,10 @@ export const BillingPageContent: React.FC = () => {
             </Button>
         )
     }, [handleUploadClick, uploadUrl, uploadMessage, DefaultUploadMessage])
+
+    if (!canReadBillingReceipts || !canReadPayments) {
+        return <LoadingOrErrorPage error={NoPermissionMessage}/>
+    }
 
     return (
         <>
