@@ -56991,7 +56991,7 @@ type WebhookSubscriptionHistoryRecord {
   fields: String
   filters: JSON
   maxPackSize: Int
-  operations: JSON
+  operation: String
   id: ID!
   v: Int
   createdAt: String
@@ -57104,10 +57104,24 @@ input WebhookSubscriptionHistoryRecordWhereInput {
   maxPackSize_gte: Int
   maxPackSize_in: [Int]
   maxPackSize_not_in: [Int]
-  operations: JSON
-  operations_not: JSON
-  operations_in: [JSON]
-  operations_not_in: [JSON]
+  operation: String
+  operation_not: String
+  operation_contains: String
+  operation_not_contains: String
+  operation_starts_with: String
+  operation_not_starts_with: String
+  operation_ends_with: String
+  operation_not_ends_with: String
+  operation_i: String
+  operation_not_i: String
+  operation_contains_i: String
+  operation_not_contains_i: String
+  operation_starts_with_i: String
+  operation_not_starts_with_i: String
+  operation_ends_with_i: String
+  operation_not_ends_with_i: String
+  operation_in: [String]
+  operation_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57205,6 +57219,8 @@ enum SortWebhookSubscriptionHistoryRecordsBy {
   fields_DESC
   maxPackSize_ASC
   maxPackSize_DESC
+  operation_ASC
+  operation_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -57233,7 +57249,7 @@ input WebhookSubscriptionHistoryRecordUpdateInput {
   fields: String
   filters: JSON
   maxPackSize: Int
-  operations: JSON
+  operation: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -57263,7 +57279,7 @@ input WebhookSubscriptionHistoryRecordCreateInput {
   fields: String
   filters: JSON
   maxPackSize: Int
-  operations: JSON
+  operation: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -57289,16 +57305,10 @@ input WebhookRelateToOneInput {
   disconnectAll: Boolean
 }
 
-type WebhookSubscriptionOperations {
-  create: Boolean
-  update: Boolean
-  delete: Boolean
-}
-
-input WebhookSubscriptionOperationsInput {
-  create: Boolean
-  update: Boolean
-  delete: Boolean
+enum WebhookSubscriptionOperationType {
+  create
+  update
+  delete
 }
 
 """ Determines which models the WebHook will be subscribed to. When model changes subscription task will be triggered to resolve changed data and send a webhook 
@@ -57347,9 +57357,9 @@ type WebhookSubscription {
   """
   maxPackSize: Int
 
-  """ The operations that the webhook is subscribed to.. Subscribed to all updates by default. But you can specify the ones you need (create, update, delete). (The "update" operation includes creating and deleting.) If nothing is specified, then subscribes to all operations. 
+  """ Operation that the webhook is subscribed to. (create/update/delete)If nothing is specified, this subscription applies to any operations 
   """
-  operations: WebhookSubscriptionOperations
+  operation: WebhookSubscriptionOperationType
   id: ID!
   v: Int
   createdAt: String
@@ -57454,10 +57464,10 @@ input WebhookSubscriptionWhereInput {
   maxPackSize_gte: Int
   maxPackSize_in: [Int]
   maxPackSize_not_in: [Int]
-  operations: WebhookSubscriptionOperationsInput
-  operations_not: WebhookSubscriptionOperationsInput
-  operations_in: [WebhookSubscriptionOperationsInput]
-  operations_not_in: [WebhookSubscriptionOperationsInput]
+  operation: WebhookSubscriptionOperationType
+  operation_not: WebhookSubscriptionOperationType
+  operation_in: [WebhookSubscriptionOperationType]
+  operation_not_in: [WebhookSubscriptionOperationType]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57537,6 +57547,8 @@ enum SortWebhookSubscriptionsBy {
   fields_DESC
   maxPackSize_ASC
   maxPackSize_DESC
+  operation_ASC
+  operation_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -57565,7 +57577,7 @@ input WebhookSubscriptionUpdateInput {
   fields: String
   filters: JSON
   maxPackSize: Int
-  operations: WebhookSubscriptionOperationsInput
+  operation: WebhookSubscriptionOperationType
   v: Int
   createdAt: String
   updatedAt: String
@@ -57592,7 +57604,7 @@ input WebhookSubscriptionCreateInput {
   fields: String
   filters: JSON
   maxPackSize: Int
-  operations: WebhookSubscriptionOperationsInput
+  operation: WebhookSubscriptionOperationType
   v: Int
   createdAt: String
   updatedAt: String

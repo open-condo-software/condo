@@ -4,10 +4,9 @@ const conf = require('@open-condo/config')
 const { Json } = require('@open-condo/keystone/fields')
 const { uuided, versioned, tracked, softDeleted, dvAndSender, historical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
-const { DEFAULT_MAX_PACK_SIZE, DEFAULT_UNAVAILABILITY_THRESHOLD } = require('@open-condo/webhooks/constants')
+const { DEFAULT_MAX_PACK_SIZE, DEFAULT_UNAVAILABILITY_THRESHOLD, WEBHOOK_OPERATIONS } = require('@open-condo/webhooks/constants')
 const { WebHookModelValidator, getModelValidator, setModelValidator } = require('@open-condo/webhooks/model-validator')
 const access = require('@open-condo/webhooks/schema/access/WebhookSubscription')
-const { WEBHOOK_SUBSCRIPTION_OPERATIONS_FIELD } = require('@open-condo/webhooks/schema/models/fields/WebhookSubscriptionOperations')
 
 const UNAVAILABILITY_THRESHOLD = (typeof conf['WEBHOOK_BLOCK_THRESHOLD'] === 'number' && conf['WEBHOOK_BLOCK_THRESHOLD'] > 0)
     ? conf['WEBHOOK_BLOCK_THRESHOLD']
@@ -173,7 +172,14 @@ function getWebhookSubscriptionModel (schemaPath) {
                     },
                 },
             },
-            operations: WEBHOOK_SUBSCRIPTION_OPERATIONS_FIELD,
+            operation: {
+                schemaDoc: 'Operation that the webhook is subscribed to. (create/update/delete)' +
+                    'If nothing is specified, this subscription applies to any operations',
+                type: Select,
+                options: Object.values(WEBHOOK_OPERATIONS).join(','),
+                isRequired: false,
+                kmigratorOptions: { null: true },
+            },
         },
         plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
         access: {

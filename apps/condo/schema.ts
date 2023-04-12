@@ -63514,6 +63514,8 @@ export enum SortWebhookSubscriptionHistoryRecordsBy {
   FieldsDesc = 'fields_DESC',
   MaxPackSizeAsc = 'maxPackSize_ASC',
   MaxPackSizeDesc = 'maxPackSize_DESC',
+  OperationAsc = 'operation_ASC',
+  OperationDesc = 'operation_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -63549,6 +63551,8 @@ export enum SortWebhookSubscriptionsBy {
   FieldsDesc = 'fields_DESC',
   MaxPackSizeAsc = 'maxPackSize_ASC',
   MaxPackSizeDesc = 'maxPackSize_DESC',
+  OperationAsc = 'operation_ASC',
+  OperationDesc = 'operation_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -74257,8 +74261,8 @@ export type WebhookSubscription = {
   filters?: Maybe<Scalars['JSON']>;
   /**  The maximum number of objects that the server can send in one request. The default is 100, and maxPackSize cannot be set beyond this value. In most cases, you do not need to override this field, but it is recommended to lower this value for requests with a large number of related fields or in case of external restrictions of the server accepting webhooks.  */
   maxPackSize?: Maybe<Scalars['Int']>;
-  /**  The operations that the webhook is subscribed to.. Subscribed to all updates by default. But you can specify the ones you need (create, update, delete). (The "update" operation includes creating and deleting.) If nothing is specified, then subscribes to all operations.  */
-  operations?: Maybe<WebhookSubscriptionOperations>;
+  /**  Operation that the webhook is subscribed to. (create/update/delete)If nothing is specified, this subscription applies to any operations  */
+  operation?: Maybe<WebhookSubscriptionOperationType>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -74285,7 +74289,7 @@ export type WebhookSubscriptionCreateInput = {
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
   maxPackSize?: Maybe<Scalars['Int']>;
-  operations?: Maybe<WebhookSubscriptionOperationsInput>;
+  operation?: Maybe<WebhookSubscriptionOperationType>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -74317,7 +74321,7 @@ export type WebhookSubscriptionHistoryRecord = {
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
   maxPackSize?: Maybe<Scalars['Int']>;
-  operations?: Maybe<Scalars['JSON']>;
+  operation?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -74343,7 +74347,7 @@ export type WebhookSubscriptionHistoryRecordCreateInput = {
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
   maxPackSize?: Maybe<Scalars['Int']>;
-  operations?: Maybe<Scalars['JSON']>;
+  operation?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -74374,7 +74378,7 @@ export type WebhookSubscriptionHistoryRecordUpdateInput = {
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
   maxPackSize?: Maybe<Scalars['Int']>;
-  operations?: Maybe<Scalars['JSON']>;
+  operation?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -74486,10 +74490,24 @@ export type WebhookSubscriptionHistoryRecordWhereInput = {
   maxPackSize_gte?: Maybe<Scalars['Int']>;
   maxPackSize_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   maxPackSize_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  operations?: Maybe<Scalars['JSON']>;
-  operations_not?: Maybe<Scalars['JSON']>;
-  operations_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  operations_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  operation?: Maybe<Scalars['String']>;
+  operation_not?: Maybe<Scalars['String']>;
+  operation_contains?: Maybe<Scalars['String']>;
+  operation_not_contains?: Maybe<Scalars['String']>;
+  operation_starts_with?: Maybe<Scalars['String']>;
+  operation_not_starts_with?: Maybe<Scalars['String']>;
+  operation_ends_with?: Maybe<Scalars['String']>;
+  operation_not_ends_with?: Maybe<Scalars['String']>;
+  operation_i?: Maybe<Scalars['String']>;
+  operation_not_i?: Maybe<Scalars['String']>;
+  operation_contains_i?: Maybe<Scalars['String']>;
+  operation_not_contains_i?: Maybe<Scalars['String']>;
+  operation_starts_with_i?: Maybe<Scalars['String']>;
+  operation_not_starts_with_i?: Maybe<Scalars['String']>;
+  operation_ends_with_i?: Maybe<Scalars['String']>;
+  operation_not_ends_with_i?: Maybe<Scalars['String']>;
+  operation_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  operation_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -74581,18 +74599,11 @@ export type WebhookSubscriptionHistoryRecordsUpdateInput = {
   data?: Maybe<WebhookSubscriptionHistoryRecordUpdateInput>;
 };
 
-export type WebhookSubscriptionOperations = {
-  __typename?: 'WebhookSubscriptionOperations';
-  create?: Maybe<Scalars['Boolean']>;
-  update?: Maybe<Scalars['Boolean']>;
-  delete?: Maybe<Scalars['Boolean']>;
-};
-
-export type WebhookSubscriptionOperationsInput = {
-  create?: Maybe<Scalars['Boolean']>;
-  update?: Maybe<Scalars['Boolean']>;
-  delete?: Maybe<Scalars['Boolean']>;
-};
+export enum WebhookSubscriptionOperationType {
+  Create = 'create',
+  Update = 'update',
+  Delete = 'delete'
+}
 
 export type WebhookSubscriptionUpdateInput = {
   webhook?: Maybe<WebhookRelateToOneInput>;
@@ -74604,7 +74615,7 @@ export type WebhookSubscriptionUpdateInput = {
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
   maxPackSize?: Maybe<Scalars['Int']>;
-  operations?: Maybe<WebhookSubscriptionOperationsInput>;
+  operation?: Maybe<WebhookSubscriptionOperationType>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -74697,10 +74708,10 @@ export type WebhookSubscriptionWhereInput = {
   maxPackSize_gte?: Maybe<Scalars['Int']>;
   maxPackSize_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   maxPackSize_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  operations?: Maybe<WebhookSubscriptionOperationsInput>;
-  operations_not?: Maybe<WebhookSubscriptionOperationsInput>;
-  operations_in?: Maybe<Array<Maybe<WebhookSubscriptionOperationsInput>>>;
-  operations_not_in?: Maybe<Array<Maybe<WebhookSubscriptionOperationsInput>>>;
+  operation?: Maybe<WebhookSubscriptionOperationType>;
+  operation_not?: Maybe<WebhookSubscriptionOperationType>;
+  operation_in?: Maybe<Array<Maybe<WebhookSubscriptionOperationType>>>;
+  operation_not_in?: Maybe<Array<Maybe<WebhookSubscriptionOperationType>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
