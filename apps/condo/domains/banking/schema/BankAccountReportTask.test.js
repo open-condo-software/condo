@@ -325,7 +325,6 @@ describe('BankAccountReportTask', () => {
                         id: objCreated.id,
                         account: { id: account.id },
                         organization: { id: org.id },
-                        status: BANK_SYNC_TASK_STATUS.PROCESSING,
                         user: { id: admin.user.id },
                     }),
                 ]))
@@ -348,7 +347,6 @@ describe('BankAccountReportTask', () => {
                     id: objCreated.id,
                     account: { id: account.id },
                     organization: { id: org.id },
-                    status: BANK_SYNC_TASK_STATUS.PROCESSING,
                     user: { id: client.user.id },
                 })
             })

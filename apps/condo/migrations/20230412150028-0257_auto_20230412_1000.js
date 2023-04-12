@@ -9,12 +9,12 @@ exports.up = async (knex) => {
             --
             SET statement_timeout = '1500s';  
             UPDATE "OrganizationEmployeeRole"
-            SET "canManageBankAccountReports" = true
-            SET "canManageBankTransactions" = true
-            SET "canManageBankContractorAccounts" = true
-            SET "canManageBankIntegrationOrganizationContexts" = true
-            SET "canManageBankIntegrationAccountContexts" = true
-            SET "canManageBankAccounts" = true
+            SET "canManageBankAccountReports" = true, 
+                "canManageBankTransactions" = true, 
+                "canManageBankContractorAccounts" = true,
+                "canManageBankIntegrationOrganizationContexts" = true,
+                "canManageBankIntegrationAccountContexts" = true,
+                "canManageBankAccounts" = true
             WHERE "name" = 'employee.role.Administrator.name';
             --
             -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
