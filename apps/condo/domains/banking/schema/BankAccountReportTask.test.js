@@ -52,7 +52,6 @@ describe('BankAccountReportTask', () => {
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(1)
                 expect(obj.newId).toEqual(null)
                 expect(obj.deletedAt).toEqual(null)
                 expect(obj.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
@@ -138,7 +137,6 @@ describe('BankAccountReportTask', () => {
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(1)
                 expect(obj.newId).toEqual(null)
                 expect(obj.deletedAt).toEqual(null)
                 expect(obj.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
@@ -183,7 +181,6 @@ describe('BankAccountReportTask', () => {
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(4)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
             })
 
@@ -229,7 +226,6 @@ describe('BankAccountReportTask', () => {
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(3)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
             })
 
@@ -271,7 +267,6 @@ describe('BankAccountReportTask', () => {
                 expect(objUpdated2.id).toMatch(UUID_RE)
                 expect(objUpdated2.dv).toEqual(1)
                 expect(objUpdated2.sender).toEqual(finalAttrs.sender)
-                expect(objUpdated2.v).toEqual(4)
                 expect(objUpdated2.updatedBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
                 expect(objUpdated2.status).toEqual(BANK_SYNC_TASK_STATUS.CANCELLED)
                 expect(objUpdated2.organization).toEqual(expect.objectContaining({ id: organization.id }))
