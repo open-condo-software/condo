@@ -3,7 +3,13 @@
   "version": "1.0.0",
   "main": "./index.js",
   "exports": {
-    "./": "./"
+    "./fields": "./fields/index.js",
+    "./logging": "./logging/index.js",
+    "./plugins": "./plugins/index.js",
+    "./plugins/utils": "./plugins/utils/index.js",
+    "./plugins/utils/address-service-client": "./plugins/utils/address-service-client/index.js",
+    "./preprocessors": "./preprocessors/index.js",
+    "./*": "./*.js"
   },
   "dependencies": {
     "@apollo/client": "3.3.20",
