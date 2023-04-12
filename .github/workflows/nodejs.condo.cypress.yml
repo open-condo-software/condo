@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [ 14.x ]
+        node-version: [ "16.10" ]
         database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
 
     steps:
@@ -64,6 +64,7 @@ jobs:
           export NOTIFICATION__DISABLE_LOGGING=true
           export FAKE_ADDRESS_SUGGESTIONS=true
           export WORKER_CONCURRENCY=50
+          export NODE_OPTIONS="--max_old_space_size=4096"
 
           yarn workspace @app/condo migrate
           
