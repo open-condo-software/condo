@@ -60,9 +60,9 @@ describe('Provider detector', () => {
                 ...(providersEligibleConfigs[providerName] || {}),
             }
             if (expected) {
-                expect(getSearchProvider()).toBeInstanceOf(expected)
+                expect(getSearchProvider({ req: { id: 'some-uuid' } })).toBeInstanceOf(expected)
             } else {
-                expect(getSearchProvider()).toBeUndefined()
+                expect(getSearchProvider({ req: { id: 'some-uuid' } })).toBeUndefined()
             }
         })
     })
