@@ -11,6 +11,7 @@ import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 import { AccrualsTab } from './AccrualsTab'
 import { useBillingAndAcquiringContexts } from './ContextProvider'
+import { PaymentsTab } from './PaymentsTab'
 
 type MainContentProps = {
     uploadComponent?: React.ReactElement
@@ -41,8 +42,11 @@ export const MainContent: React.FC<MainContentProps> = ({
             key: ACCRUALS_TAB_KEY,
             children: <AccrualsTab uploadComponent={uploadComponent}/>,
         },
-        { label: PaymentsTabTitle, key: PAYMENTS_TAB_KEY },
-        ]
+        {
+            label: PaymentsTabTitle,
+            key: PAYMENTS_TAB_KEY,
+            children: <PaymentsTab/>,
+        }]
 
         if (shouldIncludeAppTab) {
             result.push({

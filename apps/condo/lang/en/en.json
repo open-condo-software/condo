@@ -219,6 +219,8 @@
   "accrualsAndPayments.billing.statusTag.error": "{name}: error",
   "accrualsAndPayments.billing.noReceiptsYet": "Connected, but no receipt yet",
   "accrualsAndPayments.billing.uploadReceiptsAction.defaultMessage": "Upload receipts",
+  "accrualsAndPayments.payments.noPaymentsYet.title": "No payments yet",
+  "accrualsAndPayments.payments.noPaymentsYet.message": "Residents have not yet paid any receipts. As soon as this happens, the transaction information will appear here.",
   "miniapps.catalog.banner.more": "More",
   "miniapps.catalog.noServicesInCategory": "There are no services in this category yet",
   "miniapps.catalog.noServicesFound": "There is no such service",

@@ -12,7 +12,7 @@ import { useBillingAndAcquiringContexts } from './ContextProvider'
 const BLOCK_GAP = 24
 const BLOCK_CONTENT_GAP = 16
 const ERROR_DINO_IMG = 'dino/fail@2x.png'
-const SUCCESS_DINO_IMG = 'dino/searching@2x.png'
+const SEARCHING_DINO_IMG = 'dino/searching@2x.png'
 const IMG_STYLES: CSSProperties = { marginBottom: 24 }
 
 type EmptyContentProps = {
@@ -34,7 +34,7 @@ export const EmptyContent: React.FC<EmptyContentProps> = ({
 
     const title = currentProblem ? get(currentProblem, 'title', '') : NoReceiptsTitle
     const message = currentProblem ? get(currentProblem, 'message', '') : connectedMessage
-    const dinoImg = currentProblem ? ERROR_DINO_IMG : SUCCESS_DINO_IMG
+    const dinoImg = currentProblem ? ERROR_DINO_IMG : SEARCHING_DINO_IMG
 
 
     return (

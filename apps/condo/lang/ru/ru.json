@@ -219,6 +219,8 @@
   "accrualsAndPayments.billing.statusTag.error": "{name}: ошибка",
   "accrualsAndPayments.billing.noReceiptsYet": "Подключено, но квитанций пока нет",
   "accrualsAndPayments.billing.uploadReceiptsAction.defaultMessage": "Загрузить квитанции",
+  "accrualsAndPayments.payments.noPaymentsYet.title": "Оплат пока нет",
+  "accrualsAndPayments.payments.noPaymentsYet.message": "Жители не оплатили ни одной квитанции. Как только это случится, информация о транзакциях появится здесь.",
   "miniapps.catalog.banner.more": "Подробнее",
   "miniapps.catalog.noServicesInCategory": "Сервисов в этой категории пока нет",
   "miniapps.catalog.noServicesFound": "Такого сервиса нет",
