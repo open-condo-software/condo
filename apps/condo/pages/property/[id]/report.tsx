@@ -448,7 +448,7 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
         where: { account: { id: get(bankAccount, 'id') } },
     })
     const { objs: bankAccountReports, loading: bankAccountReportsLoading } = BankAccountReportClient.useObjects({
-        where: { account: { id: get(bankAccount, 'id') }, organization: { id: link.organization.id } },
+        where: { account: { id: get(bankAccount, 'id') }, organization: { id: link.organization.id }, isLatest: true },
     })
 
     const isBankAccountLoading = loading || isCountLoading || bankAccountReportsLoading
@@ -507,8 +507,8 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
                     <>
                         <Col span={24}>
                             <BankAccountReport
+                                bankAccountReports={bankAccountReports}
                                 bankAccount={bankAccount}
-                                organizationId={link.organization.id}
                                 role={link.role}
                             />
                         </Col>

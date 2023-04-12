@@ -15,11 +15,9 @@ import type { TypographyTextProps } from '@open-condo/ui'
 import type { CardProps } from '@open-condo/ui'
 
 import { useBankReportTaskButton } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
-import { BankAccountReport as BankAccountReportClient } from '@condo/domains/banking/utils/clientSchema'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { TotalBalanceIcon, BalanceOutIcon, BalanceInIcon } from '@condo/domains/common/components/icons/TotalBalance'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { Loader } from '@condo/domains/common/components/Loader'
 
 import type { BankAccountReport as BankAccountReportType, OrganizationEmployeeRole as OrganizationEmployeeRoleType } from '@app/condo/schema'
 import type { BankAccount as BankAccountType } from '@app/condo/schema'
@@ -137,7 +135,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const NoDataTitle = intl.formatMessage({ id: 'NoData' })
 
     const { isSmall, isMobile } = useLayoutContext()
-    const { push, asPath } = useRouter()
+    const router = useRouter()
 
     const [activeTab, setActiveTab] = useState(get(bankAccountReports, '0.data.categoryGroups.0.id'))
     const [selectedPeriod, setSelectedPeriod] = useState(0)
@@ -216,9 +214,12 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
         setSelectedPeriod(periodIndex)
 
         if (!isEmpty(bankAccountReports)) {
-            await push(`${asPath.split('?')[0]}?period=${bankAccountReports[periodIndex].period}`)
+            await router.push({
+                pathname: router.pathname,
+                query: { ...router.query, period: bankAccountReports[periodIndex].period },
+            })
         }
-    }, [asPath, push, bankAccountReports])
+    }, [router, bankAccountReports])
     const onMouseOver = useCallback((itemName) => () => {
         chartInstance.current.setOption({ series: [{ label: { show: false } }] })
         chartInstance.current._api.dispatchAction({
@@ -284,10 +285,13 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     ), [NoDataTitle])
 
     useEffect(() => {
-        if (!asPath.includes('?period') && !isEmpty(bankAccountReports)) {
-            push(`${asPath}?period=${bankAccountReports[selectedPeriod].period}`)
+        if (!router.query.period && !isEmpty(bankAccountReports)) {
+            router.push({
+                pathname: router.pathname,
+                query: { ...router.query, period:bankAccountReports[selectedPeriod].period },
+            })
         }
-    }, [asPath])
+    }, [router])
 
     useEffect(() => {
         const defaultSelectedTab = get(bankAccountReports, [selectedPeriod, 'data', 'categoryGroups', '0', 'id'])
@@ -382,35 +386,25 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
 
 type BankAccountReportProps = {
     bankAccountReports: Array<BankAccountReportType>
-    currencyCode: string
+    bankAccount: BankAccountType
+    role: OrganizationEmployeeRoleType
 }
 
 interface IBankAccountReport {
-    ({ bankAccount, organizationId, role }: { bankAccount: BankAccountType, organizationId: string, role: OrganizationEmployeeRoleType }): React.ReactElement
+    (props: BankAccountReportProps): React.ReactElement
 }
 
-const BankAccountReport: IBankAccountReport = ({ bankAccount, organizationId, role }) => {
+const BankAccountReport: IBankAccountReport = ({ bankAccount, bankAccountReports, role }) => {
     const intl = useIntl()
     const NoDataTitle = intl.formatMessage({ id: 'NoData' })
 
     const { user } = useAuth()
-    const { objs: bankAccountReports, loading } = BankAccountReportClient.useObjects({
-        where: {
-            isLatest: true,
-            account: { id: bankAccount.id },
-            organization: { id: organizationId },
-        },
-    })
 
     const { BankReportTaskButton } = useBankReportTaskButton({
-        organizationId,
+        organizationId: bankAccount.organization.id,
         user,
         bankAccount,
     })
-
-    if (loading) {
-        return <Loader />
-    }
 
     const sortedBankAccountReports = [...bankAccountReports]
         .sort((a, b) => dayjs(a.period).isBefore(b.period) ? 1 : -1)

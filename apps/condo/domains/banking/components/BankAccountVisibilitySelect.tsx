@@ -1,4 +1,4 @@
-import { BankAccountReport as BankAccountReportType, Maybe } from '@app/condo/schema'
+import { BankAccountReport as BankAccountReportType } from '@app/condo/schema'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
