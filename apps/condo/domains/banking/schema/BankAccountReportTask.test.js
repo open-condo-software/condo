@@ -13,7 +13,7 @@ const {
 
 const { BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { BankAccountReportTask, createTestBankAccountReportTask, updateTestBankAccountReportTask, createTestBankAccount, BankAccountReport, createTestBankTransaction } = require('@condo/domains/banking/utils/testSchema')
+const { BankAccountReportTask, createTestBankAccountReportTask, updateTestBankAccountReportTask, createTestBankAccount, BankAccountReport, createTestBankTransaction, updateTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBankIntegrationAccountContext, createTestBankContractorAccount, BankIntegration, createTestBankCategory, createTestBankCostItem, createTestBankSyncTask, updateTestBankSyncTask } = require('@condo/domains/banking/utils/testSchema')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -571,6 +571,178 @@ describe('BankAccountReportTask', () => {
             expect(report.amountAt).toEqual(`${dayjs().format('YYYY-MM-DD')}T00:00:00.000Z`)
             expect(Number(report.totalIncome)).toEqual(250)
             expect(report.data.categoryGroups[0].costItemGroups[0].sum).toEqual(50)
+        })
+
+        it('do not create a new BankAccountReport instance if the transaction pool has not changed', async () => {
+            const [org] = await createTestOrganization(admin)
+            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org)
+            const [account] = await createTestBankAccount(admin, org, {
+                integrationContext: { connect: { id: integrationContext.id } },
+                meta: {
+                    amount: '250',
+                    amountAt: dayjs().format('YYYY-MM-DD'),
+                },
+            })
+
+            const [costItem1] = await createTestBankCostItem(admin, category, {
+                isOutcome: false,
+            })
+
+            const [contractorAccount1] = await createTestBankContractorAccount(admin, org, {
+                costItem: { connect: { id: costItem1.id } },
+            })
+
+            const date = dayjs().format('YYYY-MM-DD')
+            for (let i = 0; i < 5; i++) {
+                const [createdTransaction] = await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
+                    date,
+                    amount: '50',
+                    isOutcome: false,
+                })
+            }
+
+            const [createdReportTask] = await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
+
+
+            await waitFor(async () => {
+                const updatedTask = await BankAccountReportTask.getOne(admin, {
+                    id: createdReportTask.id,
+                    status: BANK_SYNC_TASK_STATUS.COMPLETED,
+                })
+                expect(updatedTask).toBeDefined()
+
+                const bankAccountReport = await BankAccountReport.getOne(admin, {
+                    organization: { id: org.id },
+                })
+                expect(bankAccountReport).toBeDefined()
+            })
+            const report = await BankAccountReport.getOne(admin, {
+                organization: { id: org.id },
+            })
+            expect(report.version).toEqual(1)
+            expect(Number(report.amount)).toEqual(250)
+            expect(report.amountAt).toEqual(`${dayjs().format('YYYY-MM-DD')}T00:00:00.000Z`)
+            expect(Number(report.totalIncome)).toEqual(250)
+            expect(report.data.categoryGroups[0].costItemGroups[0].sum).toEqual(250)
+
+            const [createdReportTask2] = await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
+            await waitFor(async () => {
+                const updatedTask = await BankAccountReportTask.getOne(admin, {
+                    id: createdReportTask.id,
+                    status: BANK_SYNC_TASK_STATUS.COMPLETED,
+                })
+                expect(updatedTask).toBeDefined()
+
+                const bankAccountReport = await BankAccountReport.getOne(admin, {
+                    organization: { id: org.id },
+                })
+                expect(bankAccountReport).toBeDefined()
+            })
+
+            const reports = await BankAccountReport.getAll(admin, {
+                organization: { id: org.id },
+            })
+            expect(reports).toHaveLength(1)
+        })
+
+        it('regenerate BankAccountReport with version===2 and isLatest===true if transactions pull will be expanded', async () => {
+            const date = dayjs().format('YYYY-MM-DD')
+            const [org] = await createTestOrganization(admin)
+            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org)
+            const [account] = await createTestBankAccount(admin, org, {
+                integrationContext: { connect: { id: integrationContext.id } },
+                meta: {
+                    amount: '250',
+                    amountAt: date,
+                },
+            })
+
+            const [costItem1] = await createTestBankCostItem(admin, category, {
+                isOutcome: false,
+            })
+
+            const [costItem2] = await createTestBankCostItem(admin, category, {
+                isOutcome: true,
+            })
+
+            const [contractorAccount1] = await createTestBankContractorAccount(admin, org, {
+                costItem: { connect: { id: costItem1.id } },
+            })
+
+            for (let i = 0; i < 5; i++) {
+                const [createdTransaction] = await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
+                    date,
+                    amount: '50',
+                    isOutcome: false,
+                })
+            }
+
+            const [createdReportTask] = await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
+
+            await waitFor(async () => {
+                const updatedTask = await BankAccountReportTask.getOne(admin, {
+                    id: createdReportTask.id,
+                    status: BANK_SYNC_TASK_STATUS.COMPLETED,
+                })
+                expect(updatedTask).toBeDefined()
+
+                const bankAccountReport = await BankAccountReport.getOne(admin, {
+                    organization: { id: org.id },
+                })
+                expect(bankAccountReport).toBeDefined()
+            })
+            const report = await BankAccountReport.getOne(admin, {
+                organization: { id: org.id },
+            })
+            expect(report.version).toEqual(1)
+            expect(Number(report.amount)).toEqual(250)
+            expect(report.amountAt).toEqual(`${dayjs().format('YYYY-MM-DD')}T00:00:00.000Z`)
+            expect(Number(report.totalIncome)).toEqual(250)
+            expect(report.data.categoryGroups[0].costItemGroups[0].sum).toEqual(250)
+
+            await updateTestBankAccount(admin, account.id, {
+                meta: {
+                    amount: '0',
+                    amountAt: date,
+                },
+            })
+
+            for (let i = 0; i < 5; i++) {
+                const [createdTransaction] = await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
+                    date,
+                    amount: '50',
+                    isOutcome: true,
+                    contractorAccount: undefined,
+                    costItem: { connect: { id: costItem2.id } },
+                })
+            }
+
+            const [createdReportTask2] = await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
+            await waitFor(async () => {
+                const updatedTask = await BankAccountReportTask.getOne(admin, {
+                    id: createdReportTask2.id,
+                    status: BANK_SYNC_TASK_STATUS.COMPLETED,
+                })
+                expect(updatedTask).toBeDefined()
+
+                const bankAccountReport = await BankAccountReport.getOne(admin, {
+                    organization: { id: org.id },
+                    isLatest: true,
+                })
+                expect(bankAccountReport).toBeDefined()
+            })
+            const reportLatest = await BankAccountReport.getOne(admin, {
+                organization: { id: org.id },
+                isLatest: true,
+            })
+
+            expect(reportLatest.version).toEqual(2)
+            expect(Number(reportLatest.amount)).toEqual(0)
+            expect(reportLatest.amountAt).toEqual(`${dayjs().format('YYYY-MM-DD')}T00:00:00.000Z`)
+            expect(Number(reportLatest.totalIncome)).toEqual(250)
+            expect(Number(reportLatest.totalOutcome)).toEqual(250)
+            expect(reportLatest.data.categoryGroups[0].costItemGroups[0].sum).toEqual(250)
+            expect(reportLatest.data.categoryGroups[0].costItemGroups[1].sum).toEqual(250)
         })
     })
 })
