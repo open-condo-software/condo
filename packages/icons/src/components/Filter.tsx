@@ -16,11 +16,10 @@ export const Filter: React.FC<IconProps> = ({ svgProps: props, ...restProps }) =
                     {...props}
                 >
                     <path
-                        d='M22 3H2l8 9.46V19l4 2v-8.54L22 3Z'
-                        stroke='currentColor'
-                        strokeWidth={2}
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
+                        fillRule='evenodd'
+                        clipRule='evenodd'
+                        d='M1.093 2.58A1 1 0 0 1 2 2h20a1 1 0 0 1 .764 1.646L15 12.826V21a1 1 0 0 1-1.447.894l-4-2A1 1 0 0 1 9 19v-6.174l-7.764-9.18a1 1 0 0 1-.143-1.067ZM4.155 4l6.609 7.814a1 1 0 0 1 .236.646v5.922l2 1V12.46a1 1 0 0 1 .236-.646L19.845 4H4.155Z'
+                        fill='currentColor'
                     />
                 </svg>
             }
