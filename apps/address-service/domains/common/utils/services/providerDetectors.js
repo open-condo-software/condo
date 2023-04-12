@@ -13,9 +13,15 @@ const {
 } = require('@address-service/domains/common/utils/services/suggest/providers')
 
 /**
+ * @typedef {Object} ProviderDetectorArgs
+ * @property {IncomingMessage & {id: String}} [req] Express request object
+ */
+
+/**
+ * @param {ProviderDetectorArgs} args
  * @returns {AbstractSearchProvider}
  */
-function getSearchProvider () {
+function getSearchProvider (args) {
     const provider = get(conf, 'PROVIDER')
 
     /** @type {AbstractSearchProvider} */
@@ -23,10 +29,10 @@ function getSearchProvider () {
 
     switch (provider) {
         case DADATA_PROVIDER:
-            searchProvider = new DadataSearchProvider()
+            searchProvider = new DadataSearchProvider(args)
             break
         case GOOGLE_PROVIDER:
-            searchProvider = new GoogleSearchProvider()
+            searchProvider = new GoogleSearchProvider(args)
             break
     }
 
@@ -34,9 +40,10 @@ function getSearchProvider () {
 }
 
 /**
+ * @param {ProviderDetectorArgs} args
  * @returns {AbstractSuggestionProvider}
  */
-function getSuggestionsProvider () {
+function getSuggestionsProvider (args) {
     const provider = get(conf, 'PROVIDER')
 
     /** @type {AbstractSuggestionProvider} */
@@ -44,10 +51,10 @@ function getSuggestionsProvider () {
 
     switch (provider) {
         case GOOGLE_PROVIDER:
-            suggestionProvider = new GoogleSuggestionProvider()
+            suggestionProvider = new GoogleSuggestionProvider(args)
             break
         case DADATA_PROVIDER:
-            suggestionProvider = new DadataSuggestionProvider()
+            suggestionProvider = new DadataSuggestionProvider(args)
             break
     }
 

@@ -3,6 +3,7 @@ const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { Keystone } = require('@keystonejs/keystone')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
+const bodyParser = require('body-parser')
 const identity = require('lodash/identity')
 const nextCookie = require('next-cookies')
 const { v4 } = require('uuid')
@@ -27,7 +28,6 @@ const { SearchKeystoneApp } = require('@address-service/domains/common/utils/ser
 const { SuggestionKeystoneApp } = require('@address-service/domains/common/utils/services/suggest/SuggestionKeystoneApp')
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
 
@@ -98,6 +98,8 @@ module.exports = {
     ].filter(identity),
     configureExpress: (app) => {
         app.set('trust proxy', 1) // trust first proxy
+        app.use(bodyParser.json({ limit: '100mb', extended: true }))
+        app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }))
 
         const requestIdHeaderName = 'X-Request-Id'
         app.use(function reqId (req, res, next) {

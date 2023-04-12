@@ -44,8 +44,12 @@ function normalizedGoogleAddressValue (item) {
 }
 
 class GoogleSuggestionProvider extends AbstractSuggestionProvider {
-    constructor () {
-        super()
+
+    /**
+     * @param {ProviderDetectorArgs} args
+     */
+    constructor (args) {
+        super(args)
 
         const apiKey = get(conf, CONFIG_KEY)
         if (!apiKey) {

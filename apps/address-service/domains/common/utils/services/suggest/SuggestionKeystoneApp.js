@@ -16,7 +16,7 @@ const { getSuggestionsProvider } = require('@address-service/domains/common/util
 const SUGGEST_ENDPOINT = '/suggest'
 
 /**
- * @param {Request} req express request
+ * @param {IncomingMessage} req express request
  * @param {string} param Parameter to extract from body or query
  * @param {*} [defaultValue] Default value
  */
@@ -101,6 +101,7 @@ class SuggestionKeystoneApp {
             const helpers = getReqJson(req, 'helpers', {})
 
             if (!s) {
+                this.logger.warn({ msg: 'No string to search suggestions', reqId: req.id })
                 res.send(400)
                 return
             }
@@ -108,7 +109,7 @@ class SuggestionKeystoneApp {
             let suggestions = []
 
             // 1. Detect the suggestion provider
-            const suggestionProvider = getSuggestionsProvider()
+            const suggestionProvider = getSuggestionsProvider({ req })
 
             // 2. Get suggestions array
             if (suggestionProvider) {

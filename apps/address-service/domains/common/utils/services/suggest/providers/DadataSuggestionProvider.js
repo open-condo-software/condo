@@ -128,8 +128,12 @@ const ORGANIZATION_KLADR_FIELDS = ['settlement_kladr_id', 'city_kladr_id', 'regi
  * @link https://dadata.ru/api/suggest/address/
  */
 class DadataSuggestionProvider extends AbstractSuggestionProvider {
-    constructor () {
-        super()
+
+    /**
+     * @param {ProviderDetectorArgs} args
+     */
+    constructor (args) {
+        super(args)
 
         const dadataConfigStr = get(conf, CONFIG_KEY)
         if (!dadataConfigStr) {
@@ -165,7 +169,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * @returns {Promise<*|null>}
      */
     async callToDadata (url, body) {
-        this.logger.info({ msg: 'call to dadata', url, body })
+        this.logger.info({ msg: 'call to dadata', url, body, reqId: this.req.id })
         const result = await fetch(
             url,
             {

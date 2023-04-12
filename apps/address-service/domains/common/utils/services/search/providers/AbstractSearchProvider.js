@@ -26,8 +26,12 @@ const { searchContexts } = require('@address-service/domains/common/constants/co
  */
 class AbstractSearchProvider {
 
-    constructor () {
+    /**
+     * @param {ProviderDetectorArgs} args
+     */
+    constructor (args) {
         this.logger = getLogger(this.constructor.name)
+        this.req = get(args, 'req')
     }
 
     /**
