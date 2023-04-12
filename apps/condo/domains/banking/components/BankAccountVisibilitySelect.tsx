@@ -1,10 +1,14 @@
-import { BankAccount as BankAccountType } from '@app/condo/schema'
-import React, { useCallback, useRef, useState } from 'react'
+import { BankAccountReport as BankAccountReportType } from '@app/condo/schema'
+import find from 'lodash/find'
+import get from 'lodash/get'
+import isNull from 'lodash/isNull'
+import { useRouter } from 'next/router'
+import React, { useCallback, useRef, useState, useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Select, Option, Typography } from '@open-condo/ui'
 
-import { BankAccount } from '@condo/domains/banking/utils/clientSchema'
+import { BankAccountReport } from '@condo/domains/banking/utils/clientSchema'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 
 enum BankAccountVisibility {
@@ -13,10 +17,10 @@ enum BankAccountVisibility {
 }
 
 interface IBankAccountVisibilitySelect {
-    ({ bankAccount }: { bankAccount: BankAccountType }): React.ReactElement
+    ({ bankAccountReports }: { bankAccountReports: Array<BankAccountReportType> }): React.ReactElement
 }
 
-export const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bankAccount }) => {
+export const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bankAccountReports }) => {
     const intl = useIntl()
     const ReportVisibleTitle = intl.formatMessage({ id: 'pages.condo.property.report.visibility.visible' })
     const ReportHiddenTitle = intl.formatMessage({ id: 'pages.condo.property.report.visibility.hidden' })
@@ -24,32 +28,47 @@ export const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bank
     const ReportHiddenDescription = intl.formatMessage({ id: 'pages.condo.property.report.visibility.hidden.description' })
     const OperationCompletedTitle = intl.formatMessage({ id: 'OperationCompleted' })
 
-    const [isUpdating, setIsUpdating] = useState(false)
-    const reportVisibleRef = useRef<BankAccountVisibility>(Number(bankAccount.reportVisible))
+    const { query } = useRouter()
 
-    const updateBankAccount = BankAccount.useUpdate({}, (result) => {
-        reportVisibleRef.current = Number(result.reportVisible)
+    const selectedBankAccount = find(bankAccountReports, { period: get(query, 'period') })
+
+    const accountVisibility = get(selectedBankAccount, 'publishedAt', null)
+
+    const [isUpdating, setIsUpdating] = useState(false)
+    const reportVisibleRef = useRef<BankAccountVisibility>(Number(!isNull(accountVisibility)))
+
+    const updateBankAccountReport = BankAccountReport.useUpdate({}, (result) => {
+        reportVisibleRef.current = Number(!isNull(result.publishedAt))
         setIsUpdating(false)
     })
 
-    const handleChange = useCallback((value) => {
-        setIsUpdating(true)
+    useEffect(() => {
+        reportVisibleRef.current = Number(!isNull(accountVisibility))
+    }, [accountVisibility])
 
-        runMutation({
-            action: () => updateBankAccount({ reportVisible: Boolean(value) }, bankAccount),
-            intl,
-            OnCompletedMsg: () => ({
-                message: <Typography.Text strong>{OperationCompletedTitle}</Typography.Text>,
-                description: <Typography.Text type='secondary'>
-                    {value ? ReportVisibleDescription : ReportHiddenDescription}
-                </Typography.Text>,
-            }),
-        })
-    }, [intl, updateBankAccount, bankAccount, OperationCompletedTitle, ReportVisibleDescription, ReportHiddenDescription])
+    const handleChange = useCallback((value) => {
+        if (selectedBankAccount) {
+            setIsUpdating(true)
+
+            const publishedAt = reportVisibleRef.current === BankAccountVisibility.hidden
+                ? new Date().toISOString()
+                : null
+
+            runMutation({
+                action: () => updateBankAccountReport({ publishedAt }, selectedBankAccount as BankAccountReportType),
+                intl,
+                OnCompletedMsg: () => ({
+                    message: <Typography.Text strong>{OperationCompletedTitle}</Typography.Text>,
+                    description: <Typography.Text type='secondary'>
+                        {value ? ReportVisibleDescription : ReportHiddenDescription}
+                    </Typography.Text>,
+                }),
+            })
+        }
+    }, [intl, updateBankAccountReport, selectedBankAccount, OperationCompletedTitle, ReportVisibleDescription, ReportHiddenDescription])
 
     return (
         <Select
-            placeholder=''
             value={reportVisibleRef.current}
             onChange={handleChange}
             disabled={isUpdating}

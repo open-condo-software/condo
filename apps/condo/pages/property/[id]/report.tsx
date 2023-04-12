@@ -26,7 +26,12 @@ import { useBankReportTaskButton } from '@condo/domains/banking/hooks/useBankRep
 import useBankTransactionsTable from '@condo/domains/banking/hooks/useBankTransactionsTable'
 import { useCategoryModal } from '@condo/domains/banking/hooks/useCategoryModal'
 import { useFileImport } from '@condo/domains/banking/hooks/useFileImport'
-import { BankAccount, BankTransaction, BankIntegrationAccountContext } from '@condo/domains/banking/utils/clientSchema'
+import {
+    BankAccount,
+    BankTransaction,
+    BankIntegrationAccountContext,
+    BankAccountReport as BankAccountReportClient,
+} from '@condo/domains/banking/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
@@ -442,8 +447,11 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
     const { count, loading: isCountLoading } = BankTransaction.useCount({
         where: { account: { id: get(bankAccount, 'id') } },
     })
+    const { objs: bankAccountReports, loading: bankAccountReportsLoading } = BankAccountReportClient.useObjects({
+        where: { account: { id: get(bankAccount, 'id') }, organization: { id: link.organization.id }, isLatest: true },
+    })
 
-    const isBankAccountLoading = loading || isCountLoading
+    const isBankAccountLoading = loading || isCountLoading || bankAccountReportsLoading
 
     const hasBankAccount = !isBankAccountLoading && !isNull(bankAccount) && count > 0
 
@@ -488,7 +496,7 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
                                 </Col>
                                 {hasBankAccount && (
                                     <Col>
-                                        <BankAccountVisibilitySelect bankAccount={bankAccount} />
+                                        <BankAccountVisibilitySelect bankAccountReports={bankAccountReports} />
                                     </Col>
                                 )}
                             </Row>
@@ -499,8 +507,8 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
                     <>
                         <Col span={24}>
                             <BankAccountReport
+                                bankAccountReports={bankAccountReports}
                                 bankAccount={bankAccount}
-                                organizationId={link.organization.id}
                                 role={link.role}
                             />
                         </Col>

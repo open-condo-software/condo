@@ -62,6 +62,7 @@ export const useCategoryModal: IUseCategoryModal = ({
     const closeModal = useCallback(() => {
         if (!isNull(selectedItem)) {
             setSelectedItem(null)
+            setSelectedCostItem(null)
         }
         setOpen(false)
     }, [setSelectedItem, selectedItem])
@@ -139,10 +140,14 @@ export const useCategoryModal: IUseCategoryModal = ({
             )
         }
 
+        if (!open) {
+            return null
+        }
+
         return (
             <Modal
                 title={modalTitle}
-                open={open}
+                open
                 onCancel={closeModal}
                 width='big'
                 footer={<Button

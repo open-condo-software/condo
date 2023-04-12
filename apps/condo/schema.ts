@@ -5795,8 +5795,6 @@ export type BankAccount = {
   bankName?: Maybe<Scalars['String']>;
   /**  Structured non-typed metadata, can be used by mini-apps or external services to store information  */
   meta?: Maybe<Scalars['JSON']>;
-  /**  Determines visibility of the report for residents  */
-  reportVisible?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -5835,7 +5833,6 @@ export type BankAccountCreateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   bankName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
-  reportVisible?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5874,7 +5871,6 @@ export type BankAccountHistoryRecord = {
   territoryCode?: Maybe<Scalars['String']>;
   bankName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
-  reportVisible?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -5907,7 +5903,6 @@ export type BankAccountHistoryRecordCreateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   bankName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
-  reportVisible?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5945,7 +5940,6 @@ export type BankAccountHistoryRecordUpdateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   bankName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
-  reportVisible?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6143,8 +6137,6 @@ export type BankAccountHistoryRecordWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  reportVisible?: Maybe<Scalars['Boolean']>;
-  reportVisible_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -7201,7 +7193,6 @@ export type BankAccountUpdateInput = {
   territoryCode?: Maybe<Scalars['String']>;
   bankName?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
-  reportVisible?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7360,8 +7351,6 @@ export type BankAccountWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  reportVisible?: Maybe<Scalars['Boolean']>;
-  reportVisible_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -56331,8 +56320,6 @@ export enum SortBankAccountHistoryRecordsBy {
   TerritoryCodeDesc = 'territoryCode_DESC',
   BankNameAsc = 'bankName_ASC',
   BankNameDesc = 'bankName_DESC',
-  ReportVisibleAsc = 'reportVisible_ASC',
-  ReportVisibleDesc = 'reportVisible_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -56508,8 +56495,6 @@ export enum SortBankAccountsBy {
   TerritoryCodeDesc = 'territoryCode_DESC',
   BankNameAsc = 'bankName_ASC',
   BankNameDesc = 'bankName_DESC',
-  ReportVisibleAsc = 'reportVisible_ASC',
-  ReportVisibleDesc = 'reportVisible_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
