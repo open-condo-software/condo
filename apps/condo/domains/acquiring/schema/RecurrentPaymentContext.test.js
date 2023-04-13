@@ -271,6 +271,28 @@ describe('RecurrentPaymentContext', () => {
                 }])
             })
         })
+        test('validate omit trigger fields', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const request = {
+                enabled: false,
+                limit: '10000',
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } },
+                billingCategory: { connect: { id: billingCategory.id } },
+            }
+
+            await catchErrorFrom(async () => {
+                await createTestRecurrentPaymentContext(admin, request)
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        type: RECURRENT_PAYMENT_CONTEXT_NO_TRIGGER_SET_UP_ERROR,
+                        message: 'You have to set at least one trigger',
+                    },
+                }])
+            })
+        })
         test('validate both trigger set up in update paymentDay + autoPayReceipts', async () => {
             const admin = await makeLoggedInAdminClient()
             const request = await getContextRequest()
