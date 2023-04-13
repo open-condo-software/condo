@@ -813,7 +813,7 @@ describe('BankSyncTask', () => {
             await waitFor(async () => {
                 const updatedTask = await BankSyncTask.getOne(adminClient, { id: task.id })
                 expect(updatedTask.meta).toMatchObject({
-                    errorMessage: 'Cannot parse uploaded file in 1CClientBankExchange format. Error: Parse error at line 14: Unexpected key "НеизвестноеСвойство" in node "СекцияРасчСчет"',
+                    errorMessage: 'Cannot parse uploaded file in 1CClientBankExchange format. Error: Line "КонечныйОстаток" not found in node "СекцияРасчСчет".',
                 })
             })
         })

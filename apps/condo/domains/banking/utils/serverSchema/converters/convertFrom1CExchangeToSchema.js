@@ -1,8 +1,12 @@
 const dayjs = require('dayjs')
 const customParseFormat = require('dayjs/plugin/customParseFormat')
+
+const { getLogger } = require('@open-condo/keystone/logging')
 dayjs.extend(customParseFormat)
 
 const DATE_FORMAT = 'DD.MM.YYYY'
+
+const logger = getLogger('convertFrom1CExchangeToSchema')
 
 /**
  * Represents entity, that starts at "begin" marker-line, has key-value body and ends with "end" marker
@@ -26,6 +30,10 @@ class StreamNode {
     #bodyKeys
     // Contains key-values parsed from lines between #begin and #end marker (or #endBodyKey).
     #body
+    // Stores correctly parsed keys
+    #parsedKeys
+    // Keys that we store in the database. If you change them in the converter, you need to change here too.
+    #requiredKeys
     // Determines whether #end marker or #endBodyKey was faced
     #isFinished
 
@@ -36,14 +44,17 @@ class StreamNode {
      * @param {String} [end] - line, that determines end-border of this entity (exact match)
      * @param {String} [endBodyKey] – some entities does not have end markers, but have last keys. After parsing this key, entity will be finished
      * @param {String[]} bodyKeys
+     * @param {String[]} requiredKeys
      * @param {Function} [converter] - mapper to JSON object as a result of parsing this stream node
      */
-    constructor ({ begin, end, endBodyKey, bodyKeys, converter }) {
+    constructor ({ begin, end, endBodyKey, bodyKeys, requiredKeys, converter }) {
         this.#begin = begin
         this.#end = end
         this.#endBodyKey = endBodyKey
         this.#bodyKeys = bodyKeys
         this.#body = {}
+        this.#parsedKeys = []
+        this.#requiredKeys = requiredKeys
         this.#isFinished = false
         this.converter = converter
     }
@@ -53,13 +64,14 @@ class StreamNode {
             this.#isFinished = true
         } else {
             const [key, value] = line.split('=')
+            this.#parsedKeys.push(key)
             if (this.#bodyKeys.includes(key)) {
                 this.#body[key] = value
                 if (this.#endBodyKey === key) {
                     this.#isFinished = true
                 }
             } else {
-                throw new Error(`Unexpected key "${key}" in node "${this.name}"`)
+                logger.warn({ msg: `Unexpected key "${key}" in node "${this.name}"` })
             }
         }
     }
@@ -76,6 +88,14 @@ class StreamNode {
         return this.#begin
     }
 
+    get parsedKeys () {
+        return this.#parsedKeys
+    }
+
+    get requiredKeys () {
+        return this.#requiredKeys
+    }
+
 }
 
 function parseDate (str) {
@@ -85,20 +105,22 @@ function parseDate (str) {
 
 function initNode (line) {
     if (line === '1CClientBankExchange') {
+        const keys = [
+            'ВерсияФормата',
+            'Кодировка',
+            'Отправитель',
+            'Получатель',
+            'ДатаСоздания',
+            'ВремяСоздания',
+            'ДатаНачала',
+            'ДатаКонца',
+            'РасчСчет',
+        ]
         return new StreamNode({
             begin: '1CClientBankExchange',
             endBodyKey: 'РасчСчет',
-            bodyKeys: [
-                'ВерсияФормата',
-                'Кодировка',
-                'Отправитель',
-                'Получатель',
-                'ДатаСоздания',
-                'ВремяСоздания',
-                'ДатаНачала',
-                'ДатаКонца',
-                'РасчСчет',
-            ],
+            requiredKeys: keys,
+            bodyKeys: keys,
         })
     }
 
@@ -114,6 +136,10 @@ function initNode (line) {
                 'ВсегоПоступило',
                 'ВсегоСписано',
                 'КонечныйОстаток',
+            ],
+            requiredKeys: [
+                'КонечныйОстаток',
+                'ДатаКонца',
             ],
             converter: (values) => ({
                 number: values['РасчСчет'],
@@ -164,6 +190,18 @@ function initNode (line) {
                 'Очередность',
                 'НазначениеПлатежа',
             ],
+            requiredKeys: [
+                'ДатаСписано',
+                'Номер',
+                'Дата',
+                'Сумма',
+                'НазначениеПлатежа',
+                'Получатель1',
+                'ПолучательИНН',
+                'ПолучательРасчСчет',
+                'ПолучательБанк1',
+                'ПолучательБИК',
+            ],
             converter: (values) => {
                 const isOutcome = parseDate(values['ДатаСписано']) !== null
                 const transactionData = {
@@ -213,7 +251,7 @@ function convertFrom1CExchangeToSchema (stringContent) {
         if (!currentNode) {
             const newNode = initNode(line)
             if (!newNode) {
-                throw new Error(`Unexpected node name "${line}" at line ${i}`)
+                logger.warn({ msg: `Unexpected node name "${line}" at line ${i}` })
             }
             currentNode = newNode
             continue
@@ -234,13 +272,27 @@ function convertFrom1CExchangeToSchema (stringContent) {
         if (currentNode.isFinished) {
             switch (currentNode.name) {
                 case 'СекцияРасчСчет':
+                    for (let parsedKey of currentNode.requiredKeys) {
+                        if (!currentNode.parsedKeys.includes(parsedKey)) {
+                            throw new Error(`Line "${parsedKey}" not found in node "СекцияРасчСчет".`)
+                        }
+                    }
                     bankAccountData = currentNode.convert()
                     break
                 case 'СекцияДокумент':
+                    for (let key of currentNode.requiredKeys) {
+                        if (!currentNode.parsedKeys.includes(key)) {
+                            throw new Error(`Line "${key}" not found in node "СекцияДокумент".`)
+                        }
+                    }
                     bankTransactionsData.push(currentNode.convert())
                     break
                 case '1CClientBankExchange':
-                    // do nothing
+                    for (let parsedKey of currentNode.requiredKeys) {
+                        if (!currentNode.parsedKeys.includes(parsedKey)) {
+                            throw new Error(`Line "${parsedKey}" not found in node "1CClientBankExchange".`)
+                        }
+                    }
                     break
             }
             currentNode = null
