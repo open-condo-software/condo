@@ -92,13 +92,13 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     }
 
     const columns: Columns = [
-        { name: 'Address', type: 'string', required: true, label: AddressTitle },
-        { name: 'Unit Name', type: 'string', required: true, label: UnitTitle },
-        { name: 'Unit Type', type: 'string', required: true, label: UnitTypeTitle },
-        { name: 'Phones', type: 'string', required: true, label: PhoneTitle },
-        { name: 'Full Name', type: 'string', required: true, label: NameTitle },
-        { name: 'Email', type: 'string', required: false, label: EmailTitle },
-        { name: 'Role', type: 'string', required: false, label: RoleTitle },
+        { name: AddressTitle, type: 'string', required: true },
+        { name: UnitTitle, type: 'string', required: true },
+        { name: UnitTypeTitle, type: 'string', required: true },
+        { name: PhoneTitle, type: 'string', required: true },
+        { name: NameTitle, type: 'string', required: true },
+        { name: EmailTitle, type: 'string', required: false },
+        { name: RoleTitle, type: 'string', required: false },
     ]
 
     const contactNormalizer: RowNormalizer = async (row) => {

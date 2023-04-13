@@ -122,24 +122,24 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const meterReadingCreateAction = MeterReading.useCreate({})
 
     const columns: Columns = useMemo(() => ([
-        { name: AddressColumnMessage, type: 'string', required: true, label: AddressColumnMessage },
-        { name: UnitNameColumnMessage, type: 'string', required: true, label: UnitNameColumnMessage },
-        { name: UnitTypeColumnMessage, type: 'string', required: true, label: UnitTypeColumnMessage },
-        { name: AccountNumberColumnMessage, type: 'string', required: true, label: AccountNumberColumnMessage },
-        { name: MeterTypeColumnMessage, type: 'string', required: true, label: MeterTypeColumnMessage },
-        { name: MeterNumberColumnMessage, type: 'string', required: true, label: MeterNumberColumnMessage },
-        { name: MeterTariffsNumberColumnMessage, type: 'string', required: true, label: MeterTariffsNumberColumnMessage },
-        { name: Value1ColumnMessage, type: 'string', required: false, label: Value1ColumnMessage },
-        { name: Value2ColumnMessage, type: 'string', required: false, label: Value2ColumnMessage },
-        { name: Value3ColumnMessage, type: 'string', required: false, label: Value3ColumnMessage },
-        { name: Value4ColumnMessage, type: 'string', required: false, label: Value4ColumnMessage },
-        { name: ReadingSubmissionDateMessage, type: 'custom', required: true, label: ReadingSubmissionDateMessage },
-        { name: VerificationDateMessage, type: 'date', required: false, label: VerificationDateMessage },
-        { name: NextVerificationDateMessage, type: 'date', required: false, label: NextVerificationDateMessage },
-        { name: InstallationDateMessage, type: 'date', required: false, label: InstallationDateMessage },
-        { name: CommissioningDateMessage, type: 'date', required: false, label: CommissioningDateMessage },
-        { name: SealingDateMessage, type: 'date', required: false, label: SealingDateMessage },
-        { name: ControlReadingsDate, type: 'date', required: false, label: ControlReadingsDate },
+        { name: AddressColumnMessage, type: 'string', required: true },
+        { name: UnitNameColumnMessage, type: 'string', required: true },
+        { name: UnitTypeColumnMessage, type: 'string', required: true },
+        { name: AccountNumberColumnMessage, type: 'string', required: true },
+        { name: MeterTypeColumnMessage, type: 'string', required: true },
+        { name: MeterNumberColumnMessage, type: 'string', required: true },
+        { name: MeterTariffsNumberColumnMessage, type: 'string', required: true },
+        { name: Value1ColumnMessage, type: 'string', required: false },
+        { name: Value2ColumnMessage, type: 'string', required: false },
+        { name: Value3ColumnMessage, type: 'string', required: false },
+        { name: Value4ColumnMessage, type: 'string', required: false },
+        { name: ReadingSubmissionDateMessage, type: 'custom', required: true },
+        { name: VerificationDateMessage, type: 'date', required: false },
+        { name: NextVerificationDateMessage, type: 'date', required: false },
+        { name: InstallationDateMessage, type: 'date', required: false },
+        { name: CommissioningDateMessage, type: 'date', required: false },
+        { name: SealingDateMessage, type: 'date', required: false },
+        { name: ControlReadingsDate, type: 'date', required: false },
     ]), [AccountNumberColumnMessage, AddressColumnMessage, CommissioningDateMessage, ControlReadingsDate,
         InstallationDateMessage, MeterNumberColumnMessage, MeterTariffsNumberColumnMessage, MeterTypeColumnMessage,
         NextVerificationDateMessage, ReadingSubmissionDateMessage, SealingDateMessage, UnitNameColumnMessage,
@@ -164,7 +164,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             accountNumber,
             meterResourceTypeAbbr,
             meterNumber,
-            ,
+            , // tariffs count
             value1,
             value2,
             value3,
@@ -248,10 +248,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         const parkingUnitLabels = mapSectionsToUnitLabels(parking)
 
         processedRow.row.forEach((cell, i) => {
-            switch (columns[i].label) {
+            switch (columns[i].name) {
                 case ReadingSubmissionDateMessage:
                     if (get(processedRow, ['addons', 'invalidReadingSubmissionDate'])) {
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateOrMonthFormatMessage' }, { columnName: columns[i].label, format1: DATE_PARSING_FORMAT, format2: MONTH_PARSING_FORMAT }))
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateOrMonthFormatMessage' }, { columnName: columns[i].name, format1: DATE_PARSING_FORMAT, format2: MONTH_PARSING_FORMAT }))
                     }
                     break
                 case VerificationDateMessage:
@@ -259,14 +259,15 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 case InstallationDateMessage: 
                 case CommissioningDateMessage: 
                 case SealingDateMessage:
-                    if (cell.value && !dayjs(cell.value).isValid()) 
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].label, format: DATE_PARSING_FORMAT }))
+                    if (cell.value && !dayjs(cell.value).isValid()) {
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].name, format: DATE_PARSING_FORMAT }))
+                    }
                     break
                 case UnitNameColumnMessage:
                     if (unitType === PARKING_UNIT_TYPE && parkingUnitLabels.includes(cell.value)) break
                     if (unitType !== PARKING_UNIT_TYPE && sectionsUnitLabels.includes(cell.value)) break
 
-                    errors.push(intl.formatMessage({ id: 'meter.import.error.UnitNameNotFound' }, { columnName: columns[i].label }))
+                    errors.push(intl.formatMessage({ id: 'meter.import.error.UnitNameNotFound' }, { columnName: columns[i].name }))
                     break
                 default: 
                     break

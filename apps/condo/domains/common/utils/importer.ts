@@ -45,7 +45,6 @@ export interface ColumnInfo {
     name: string
     type: ColumnType
     required: boolean
-    label: string
 }
 
 

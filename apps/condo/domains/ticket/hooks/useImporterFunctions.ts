@@ -87,14 +87,14 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const ticketCreateAction = Ticket.useCreate({})
 
     const columns: Columns = [
-        { name: AddressLabel, type: 'string', required: true, label: AddressLabel },
-        { name: UnitNameLabel, type: 'string', required: false, label: UnitNameLabel },
-        { name: IsResidentTicketLabel, type: 'string', required: false, label: IsResidentTicketLabel },
-        { name: PhoneLabel, type: 'string', required: false, label: PhoneLabel },
-        { name: FullNameLabel, type: 'string', required: false, label: FullNameLabel },
-        { name: DetailsLabel, type: 'string', required: true, label: DetailsLabel },
-        { name: OldTicketNumberLabel, type: 'string', required: false, label: OldTicketNumberLabel },
-        { name: CreatedAtLabel, type: 'custom', required: false, label: CreatedAtLabel },
+        { name: AddressLabel, type: 'string', required: true },
+        { name: UnitNameLabel, type: 'string', required: false },
+        { name: IsResidentTicketLabel, type: 'string', required: false },
+        { name: PhoneLabel, type: 'string', required: false },
+        { name: FullNameLabel, type: 'string', required: false },
+        { name: DetailsLabel, type: 'string', required: true },
+        { name: OldTicketNumberLabel, type: 'string', required: false },
+        { name: CreatedAtLabel, type: 'custom', required: false },
     ]
 
     const ticketNormalizer: RowNormalizer = async (row) => {

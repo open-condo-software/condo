@@ -763,6 +763,8 @@ export const TicketsPageContent = ({
     const [columns, ticketNormalizer, ticketValidator, ticketCreator] = useImporterFunctions()
     const loading = baseQueryLoading || ticketsWithoutFiltersCountLoading
 
+    const exampleTemplateLink = useMemo(() => `/ticket-import-example-${intl.locale}.xlsx`, [intl.locale])
+
     const TicketImportButton = useMemo(() => {
         return showImport && isTicketImportFeatureEnabled && (
             <ImportWrapper
@@ -774,7 +776,7 @@ export const TicketsPageContent = ({
                 rowValidator={ticketValidator}
                 rowNormalizer={ticketNormalizer}
                 objectCreator={ticketCreator}
-                exampleTemplateLink='/ticket-import-example.xlsx'
+                exampleTemplateLink={exampleTemplateLink}
                 maxTableLength={
                     hasFeature('bigger_limit_for_import')
                         ? EXTENDED_RECORDS_LIMIT_FOR_IMPORT

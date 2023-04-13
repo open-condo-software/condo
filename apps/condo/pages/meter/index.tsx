@@ -115,6 +115,8 @@ export const MetersPageContent = ({
         [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: MeterNumberExistInOrganizationMessage,
     }), [MeterAccountNumberExistInOtherUnitMessage, MeterNumberExistInOrganizationMessage])
 
+    const exampleTemplateLink = useMemo(() => `/meter-import-example-${intl.locale}.xlsx`, [intl.locale])
+
     return (
         <>
             <Head>
@@ -141,7 +143,7 @@ export const MetersPageContent = ({
                                 rowValidator={meterReadingValidator}
                                 objectCreator={meterReadingCreator}
                                 domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                exampleTemplateLink='/meter-import-example.xlsx'
+                                exampleTemplateLink={exampleTemplateLink}
                                 mutationErrorsToMessages={mutationErrorsToMessages}
                             >
                                 <Button
@@ -229,7 +231,7 @@ export const MetersPageContent = ({
                                             rowValidator={meterReadingValidator}
                                             objectCreator={meterReadingCreator}
                                             domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                            exampleTemplateLink='/meter-import-example.xlsx'
+                                            exampleTemplateLink={exampleTemplateLink}
                                             mutationErrorsToMessages={mutationErrorsToMessages}
                                         >
                                             <Button
