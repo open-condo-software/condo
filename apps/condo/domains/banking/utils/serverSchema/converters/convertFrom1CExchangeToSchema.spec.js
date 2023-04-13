@@ -1,6 +1,5 @@
 const fs = require('fs')
 const path = require('path')
-const { Readable } = require('stream')
 
 const dayjs = require('dayjs')
 const customParseFormat = require('dayjs/plugin/customParseFormat')
@@ -11,20 +10,23 @@ const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const { PARSED_TRANSACTIONS_TO_COMPARE } = require('@condo/domains/banking/utils/testSchema/assets/1CClientBankExchangeToKeystoneObjects')
 
 const { convertFrom1CExchangeToSchema } = require('./convertFrom1CExchangeToSchema')
+const { ConvertToUTF8 } = require('./convertToUTF8')
 
-let fileReadStream
+let fileStringContent
 
 const filePath = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/banking/utils/testSchema/assets/1CClientBankExchange.txt')
+const fileBuffer = fs.readFileSync(filePath)
 
 dayjs.extend(customParseFormat)
 
 describe('convertFrom1CExchangeToSchema', () => {
     beforeAll(() => {
-        fileReadStream = fs.createReadStream(filePath)
+        const { result } = new ConvertToUTF8(fileBuffer).convert()
+        fileStringContent = result
     })
 
-    it('returns parsed bank account and transactions data', async () => {
-        const { bankAccountData, bankTransactionsData } = await convertFrom1CExchangeToSchema(fileReadStream)
+    it('returns parsed bank account and transactions data', () => {
+        const { bankAccountData, bankTransactionsData } = convertFrom1CExchangeToSchema(fileStringContent)
         expect(bankAccountData).toMatchObject({
             number: '40702810801500116391',
             routingNumber: '044525999',
@@ -45,6 +47,7 @@ describe('convertFrom1CExchangeToSchema', () => {
                 },
             },
         })
+
         expect(bankTransactionsData[0]).toMatchObject(PARSED_TRANSACTIONS_TO_COMPARE[0])
         expect(bankTransactionsData[1]).toMatchObject(PARSED_TRANSACTIONS_TO_COMPARE[1])
         expect(bankTransactionsData[2]).toMatchObject(PARSED_TRANSACTIONS_TO_COMPARE[2])
@@ -52,7 +55,7 @@ describe('convertFrom1CExchangeToSchema', () => {
     })
 
     it('throws error on unexpected attribute in "СекцияРасчСчет"', async () => {
-        const readeableStream = Readable.from([
+        const stringContent = [
             '1CClientBankExchange\n' +
             'ВерсияФормата=1.03\n' +
             'Кодировка=Windows\n' +
@@ -73,16 +76,16 @@ describe('convertFrom1CExchangeToSchema', () => {
             'ВсегоСписано=2554737.23\n' +
             'КонечныйОстаток=135394.23\n' +
             'КонецРасчСчет',
-        ])
+        ].join('')
         await catchErrorFrom(async () => {
-            await convertFrom1CExchangeToSchema(readeableStream)
+            convertFrom1CExchangeToSchema(stringContent)
         }, e => {
             expect(e.message).toEqual('Parse error at line 14: Unexpected key "НеизвестноеСвойство" in node "СекцияРасчСчет"')
         })
     })
 
     it('throws error on unexpected attribute in "СекцияДокумент"', async () => {
-        const readeableStream = Readable.from([
+        const stringContent = [
             '1CClientBankExchange\n' +
             'ВерсияФормата=1.03\n' +
             'Кодировка=Windows\n' +
@@ -117,30 +120,30 @@ describe('convertFrom1CExchangeToSchema', () => {
             'ПлательщикБИК=044525999\n' +
             'ПлательщикКорсчет=30101810845250000999\n' +
             'ПолучательСчет=60322810700500000191',
-        ])
+        ].join('')
         await catchErrorFrom(async () => {
-            await convertFrom1CExchangeToSchema(readeableStream)
+            convertFrom1CExchangeToSchema(stringContent)
         }, e => {
             expect(e.message).toEqual('Parse error at line 25: Unexpected key "НеизвестноеСвойство" in node "СекцияДокумент"')
         })
     })
 
     it('throws error on blank line', async () => {
-        const readeableStream = Readable.from([
+        const stringContent = [
             '1CClientBankExchange\n' +
             'ВерсияФормата=1.03\n' +
             '\n' +
             'КонецРасчСчет',
-        ])
+        ].join('')
         await catchErrorFrom(async () => {
-            await convertFrom1CExchangeToSchema(readeableStream)
+            convertFrom1CExchangeToSchema(stringContent)
         }, e => {
             expect(e.message).toEqual('Unexpected blank line 3')
         })
     })
 
     it('throws error on unexpected node', async () => {
-        const readeableStream = Readable.from([
+        const stringContent = [
             '1CClientBankExchange\n' +
             'ВерсияФормата=1.03\n' +
             'Кодировка=Windows\n' +
@@ -161,9 +164,9 @@ describe('convertFrom1CExchangeToSchema', () => {
             'КонечныйОстаток=135394.23\n' +
             'КонецРасчСчет\n' +
             'СекцияНеизвестная',
-        ])
+        ].join('')
         await catchErrorFrom(async () => {
-            await convertFrom1CExchangeToSchema(readeableStream)
+            convertFrom1CExchangeToSchema(stringContent)
         }, e => {
             expect(e.message).toEqual('Unexpected node name "СекцияНеизвестная" at line 20')
         })

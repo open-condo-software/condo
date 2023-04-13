@@ -17,6 +17,7 @@ const {
     predictTransactionClassification,
 } = require('@condo/domains/banking/utils/serverSchema')
 const { convertFrom1CExchangeToSchema } = require('@condo/domains/banking/utils/serverSchema/converters/convertFrom1CExchangeToSchema')
+const { ConvertToUTF8 } = require('@condo/domains/banking/utils/serverSchema/converters/convertToUTF8')
 const { TASK_PROCESSING_STATUS, TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } = require('@condo/domains/common/constants/tasks')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
@@ -61,9 +62,11 @@ const importBankTransactionsWorker = async (taskId) => {
     if (!response.ok) {
         throw new Error(`Could not fetch file by url "${file.publicUrl}". Response code: ${response.status} ${response.statusText}`)
     }
-    const fileStream = response.body
+    const fileBuffer = await response.buffer()
+
+    const { result } = new ConvertToUTF8(fileBuffer).convert()
     try {
-        conversionResult = await convertFrom1CExchangeToSchema(fileStream)
+        conversionResult = convertFrom1CExchangeToSchema(result)
     } catch (error) {
         const errorMessage = `Cannot parse uploaded file in 1CClientBankExchange format. Error: ${error.message}`
         await BankSyncTask.update(context, taskId, {
