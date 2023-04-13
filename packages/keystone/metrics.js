@@ -1,3 +1,14 @@
+/**
+ * This module allows user to send custom metrics to any system, that supports statsd (Datadog, Grafana, Etc)
+ *
+ * To use this module you need to add two environment variables:
+ * STATSD_PORT: Port used by statsd daemon in your system
+ * STATSD_METRIC_PREFIX: Metric prefix
+ *
+ * After these environment variables are set, you can use supplied functions.
+ * To learn more about differences between gauge, histogram and count type metrics, please refer to the datadog documentation
+ * https://docs.datadoghq.com/metrics/custom_metrics/dogstatsd_metrics_submission/
+ */
 const StatsD = require('hot-shots')
 
 const conf = require('@open-condo/config')
@@ -17,6 +28,7 @@ const StatsDClient = new StatsD({
 
 const gauge = ({ name, value }) => {
     StatsDClient.gauge(name, value)
+    logger.warn(`METRIC IS SENT, ${name}`)
 }
 
 const histogram = ({ name, value }) => {
