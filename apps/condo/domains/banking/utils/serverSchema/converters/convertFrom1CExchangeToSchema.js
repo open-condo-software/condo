@@ -1,5 +1,3 @@
-const readline = require('readline')
-
 const dayjs = require('dayjs')
 const customParseFormat = require('dayjs/plugin/customParseFormat')
 dayjs.extend(customParseFormat)
@@ -197,22 +195,16 @@ function initNode (line) {
 }
 
 
-async function convertFrom1CExchangeToSchema (fileStream) {
-    const rl = readline.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity,
-    })
-
+function convertFrom1CExchangeToSchema (stringContent) {
     let i = 0
     let currentNode
 
     let bankAccountData
     const bankTransactionsData = []
 
-    for await (const line of rl) {
+    for (const line of stringContent.split(/\r?\n/)) {
         i++
         if (line === 'КонецФайла') {
-            rl.close()
             break
         }
         if (line === '') {
@@ -229,7 +221,6 @@ async function convertFrom1CExchangeToSchema (fileStream) {
 
         if (i === 1) {
             if (line !== '1CClientBankExchange') {
-                rl.close()
                 throw new Error('Invalid file format. First line should be "1CClientBankExchange"')
             }
         }
@@ -259,8 +250,6 @@ async function convertFrom1CExchangeToSchema (fileStream) {
     if (currentNode) {
         throw new Error(`Unexpected end of file having not finished node "${currentNode.name}"`)
     }
-
-    rl.close()
 
     // Routing number is missing in account section of the document, but it is presented in transactions
     // Find transactions, referencing the same account number and get it
