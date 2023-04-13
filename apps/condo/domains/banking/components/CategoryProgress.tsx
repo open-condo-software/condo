@@ -40,7 +40,7 @@ const CategoryProgress: ICategoryProgress = ({ totalRows, entity, emptyRows }) =
 
     const percent = Math.round( (totalRows - emptyRows) / totalRows * 100)
 
-    if (!emptyRows || isNull(totalRows) || emptyRows === 0 || percent === 100) {
+    if (!emptyRows || isNull(totalRows) || emptyRows === 0 || totalRows === 0 || percent === 100 || totalRows < emptyRows) {
         return null
     }
 

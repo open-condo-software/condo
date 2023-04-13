@@ -11,8 +11,10 @@ import CategoryProgress from '@condo/domains/banking/components/CategoryProgress
 import { BANKING_TABLE_PAGE_SIZE } from '@condo/domains/banking/constants'
 import { BankContractorAccount as BankContractorAccountGQL } from '@condo/domains/banking/gql'
 import { useTableColumns } from '@condo/domains/banking/hooks/useTableColumns'
+import { useBankContractorAccountTableFilters } from '@condo/domains/banking/hooks/useTableFilters'
 import { BankContractorAccount } from '@condo/domains/banking/utils/clientSchema'
 import { Table } from '@condo/domains/common/components/Table/Index'
+import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { parseQuery, getPageIndexFromOffset } from '@condo/domains/common/utils/tables.utils'
 
 import { BaseMutationArgs } from './useBankTransactionsTable'
@@ -44,7 +46,9 @@ interface IUseBankContractorAccountTable {
 
 const useBankContractorAccountTable: IUseBankContractorAccountTable = ({ categoryNotSet, bankAccount }) => {
     const router = useRouter()
-    const { offset } = parseQuery(router.query)
+    const { filters, offset } = parseQuery(router.query)
+    const queryMeta = useBankContractorAccountTableFilters()
+    const { filtersToWhere } = useQueryMappers(queryMeta, [])
     const pageIndex = getPageIndexFromOffset(offset, BANKING_TABLE_PAGE_SIZE)
     const nullCategoryFilter = categoryNotSet ? { costItem_is_null: true } : {}
 
@@ -52,6 +56,7 @@ const useBankContractorAccountTable: IUseBankContractorAccountTable = ({ categor
         where: {
             organization: { id: bankAccount.organization.id },
             ...nullCategoryFilter,
+            ...filtersToWhere(filters),
         },
         first: BANKING_TABLE_PAGE_SIZE,
         skip: (pageIndex - 1) * BANKING_TABLE_PAGE_SIZE,

@@ -12,7 +12,7 @@ import CategoryProgress from '@condo/domains/banking/components/CategoryProgress
 import { BANKING_TABLE_PAGE_SIZE } from '@condo/domains/banking/constants'
 import { BankTransaction as BankTransactionGQL } from '@condo/domains/banking/gql'
 import { useTableColumns } from '@condo/domains/banking/hooks/useTableColumns'
-import { useTableFilters } from '@condo/domains/banking/hooks/useTableFilters'
+import { useBankTransactionTableFilters } from '@condo/domains/banking/hooks/useTableFilters'
 import { BankTransaction } from '@condo/domains/banking/utils/clientSchema'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -52,7 +52,7 @@ interface IUseBankContractorAccountTable {
 const useBankContractorAccountTable: IUseBankContractorAccountTable = (props) => {
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
-    const queryMeta = useTableFilters()
+    const queryMeta = useBankTransactionTableFilters()
     const { filtersToWhere } = useQueryMappers(queryMeta, [])
     const { bankCostItems, loading: bankCostItemsLoading, setSelectedItem } = useBankCostItemContext()
 
