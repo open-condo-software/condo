@@ -23,6 +23,7 @@ function generateAddressKey (normalizedBuilding) {
         get(data, 'street_type_full'),
         get(data, 'street'),
         get(data, 'house'),
+        get(data, 'block_type_full'),
         get(data, 'block'),
     ]
 
