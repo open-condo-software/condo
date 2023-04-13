@@ -58,7 +58,9 @@ const useBankContractorAccountTable: IUseBankContractorAccountTable = (props) =>
 
     const { bankAccount, type, categoryNotSet } = props
 
-    const nullCategoryFilter = categoryNotSet ? { costItem_is_null: true } : {}
+    const nullCategoryFilter = categoryNotSet
+        ? { AND: [{ costItem_is_null: true }, { contractorAccount: { costItem_is_null: true } }] }
+        : {}
     const pageIndex = getPageIndexFromOffset(offset, BANKING_TABLE_PAGE_SIZE)
 
     const { objs: bankTransactions, loading, refetch, count: totalRows } = BankTransaction.useObjects({
