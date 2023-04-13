@@ -14,8 +14,6 @@ import { MapEdit } from '../components/panels/Builder/MapConstructor'
 import { Property } from '../utils/clientSchema'
 
 
-
-
 const createPropertyUnitsMap = (units, sections, floors) => {
     const unitsOnFloor = Math.floor(units / (floors * sections))
     if (!unitsOnFloor) {
@@ -49,10 +47,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const intl = useIntl()
     const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
     const PropertyDuplicateMessage = intl.formatMessage({ id: 'errors.import.PropertyDuplicate' })
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const UnitLabel = intl.formatMessage({ id: 'field.Unit' })
-    const SectionLabel = intl.formatMessage({ id: 'field.Section' })
-    const FloorLabel = intl.formatMessage({ id: 'field.Floor' })
+    const AddressLabel = intl.formatMessage({ id: 'property.import.column.Address' })
+    const UnitLabel = intl.formatMessage({ id: 'property.import.column.Units' })
+    const SectionLabel = intl.formatMessage({ id: 'property.import.column.Sections' })
+    const FloorLabel = intl.formatMessage({ id: 'property.import.column.Floors' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -67,10 +65,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const createPropertyAction = Property.useCreate({})
 
     const columns: Columns = [
-        { name: 'address', type: 'string', required: true, label: AddressLabel },
-        { name: 'units', type: 'number', required: true, label: UnitLabel },
-        { name: 'sections', type: 'number', required: true, label: SectionLabel },
-        { name: 'floors', type: 'number', required: true, label: FloorLabel },
+        { name: AddressLabel, type: 'string', required: true },
+        { name: UnitLabel, type: 'number', required: true },
+        { name: SectionLabel, type: 'number', required: true },
+        { name: FloorLabel, type: 'number', required: true },
     ]
 
     const propertyNormalizer: RowNormalizer = (row: TableRow) => {
@@ -83,7 +81,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     }
 
     const propertyValidator: RowValidator = (row) => {
-        if (!row ) return Promise.resolve(false)
+        if (!row) return Promise.resolve(false)
         const address = get(row, ['addons', 'suggestion', 'value'])
         if (!address) {
             row.errors = [AddressNotFoundMessage]

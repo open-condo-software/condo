@@ -4,7 +4,7 @@ import { get } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { FileDown, PlusCircle, Search } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
@@ -97,6 +97,7 @@ export const ContactsPageContent = ({
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
     const isNoContactsData = isEmpty(contacts) && isEmpty(filtersFromQuery) && !contactsLoading && !loading
     const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoContactsData ? 'flex' : 'none' }
+    const exampleTemplateLink = useMemo(() => `/contact-import-example-${intl.locale}.xlsx`, [intl.locale])
 
     return (
         <>
@@ -124,7 +125,7 @@ export const ContactsPageContent = ({
                                 rowValidator={contactValidator}
                                 objectCreator={contactCreator}
                                 domainTranslate={ContactTitle}
-                                exampleTemplateLink='/contact-import-example.xlsx'
+                                exampleTemplateLink={exampleTemplateLink}
                             >
                                 <Button
                                     type='secondary'
@@ -190,7 +191,7 @@ export const ContactsPageContent = ({
                                                         rowValidator={contactValidator}
                                                         objectCreator={contactCreator}
                                                         domainTranslate={ContactTitle}
-                                                        exampleTemplateLink='/contact-import-example.xlsx'
+                                                        exampleTemplateLink={exampleTemplateLink}
                                                     >
                                                         <Button
                                                             type='secondary'

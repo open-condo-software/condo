@@ -11,7 +11,7 @@ import { ColumnsType } from 'antd/lib/table'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { FileDown, PlusCircle, Search, Sheet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -104,6 +104,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const canManageProperties = get(role, 'canManageProperties', false)
     const isDownloadButtonHidden = !get(role, 'canManageProperties', canDownloadProperties === true)
     const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoBuildingsData ? 'flex' : 'none', paddingTop : canManageProperties ? 'inherit' : '5%' }
+    const exampleTemplateLink = useMemo(() => `/buildings-import-example-${intl.locale}.xlsx`, [intl.locale])
 
     function onExportToExcelButtonClicked () {
         exportToExcel({
@@ -188,7 +189,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                     rowValidator={propertyValidator}
                                     domainTranslate={PropertyTitle}
                                     objectCreator={propertyCreator}
-                                    exampleTemplateLink='/buildings-import-example.xlsx'
+                                    exampleTemplateLink={exampleTemplateLink}
                                 >
                                     <Button
                                         type='secondary'
