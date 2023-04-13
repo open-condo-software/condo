@@ -2,6 +2,7 @@
  * @typedef {Object} SearchPluginParams
  * @property {String} searchContext
  * @property {Object} keystoneContext
+ * @property {IncomingMessage & {id: String}} req Express request object
  */
 
 /**
@@ -25,6 +26,7 @@ class AbstractSearchPlugin {
     prepare (params) {
         this.searchContext = params.searchContext
         this.keystoneContext = params.keystoneContext
+        this.req = params.req
 
         return this
     }

@@ -10,10 +10,13 @@ const { AbstractSearchProvider } = require('./AbstractSearchProvider')
  */
 class DadataSearchProvider extends AbstractSearchProvider {
 
-    constructor () {
-        super()
+    /**
+     * @param {ProviderDetectorArgs} args
+     */
+    constructor (args) {
+        super(args)
         // Use the suggestions API instead of the standardization API. At least yet.
-        this.suggestionProvider = new DadataSuggestionProvider()
+        this.suggestionProvider = new DadataSuggestionProvider({ req: this.req })
     }
 
     getProviderName () {

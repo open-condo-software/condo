@@ -9,8 +9,12 @@ const { suggestionContexts } = require('@address-service/domains/common/constant
  */
 class AbstractSuggestionProvider {
 
-    constructor () {
+    /**
+     * @param {ProviderDetectorArgs} args
+     */
+    constructor (args) {
         this.logger = getLogger(this.constructor.name)
+        this.req = get(args, 'req')
     }
 
     /**

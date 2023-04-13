@@ -21,7 +21,7 @@ class SearchByFiasId extends AbstractSearchPlugin {
      */
     isEnabled (s, params) {
         const [type, fiasId] = s.split(SEPARATOR, 2)
-        const provider = getSearchProvider()
+        const provider = getSearchProvider({ req: params.req })
 
         return type === 'fiasId' && !!fiasId && !!provider && provider.getProviderName() === DADATA_PROVIDER
     }
@@ -33,7 +33,7 @@ class SearchByFiasId extends AbstractSearchPlugin {
      */
     async search (s) {
         const [, fiasId] = s.split(SEPARATOR, 2)
-        const suggestionProvider = new DadataSuggestionProvider()
+        const suggestionProvider = new DadataSuggestionProvider({ req: this.req })
         const godContext = this.keystoneContext.sudo()
         const dvSender = this.getDvAndSender(this.constructor.name)
 

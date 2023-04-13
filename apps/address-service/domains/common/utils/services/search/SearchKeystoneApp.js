@@ -68,8 +68,6 @@ class SearchKeystoneApp {
              * @returns {Promise<void>}
              */
             async (req, res, next) => {
-                this.logger.info({ msg: 'incoming request', req })
-
                 /**
                  * User's search string
                  * @type {string}
@@ -89,7 +87,7 @@ class SearchKeystoneApp {
                 }
 
                 const keystoneContext = await keystone.createContext()
-                const pluginParams = { searchContext, keystoneContext }
+                const pluginParams = { searchContext, keystoneContext, req }
 
                 const plugins = this.plugins.filter((plugin) => plugin.isEnabled(s, pluginParams))
                 if (plugins.length === 0) {

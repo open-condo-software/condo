@@ -20,7 +20,7 @@ class SearchByGooglePlaceId extends AbstractSearchPlugin {
      */
     isEnabled (s, params) {
         const [type, placeId] = s.split(SEPARATOR, 2)
-        const provider = getSearchProvider()
+        const provider = getSearchProvider({ req: params.req })
 
         return type === 'googlePlaceId' && !!placeId && !!provider && provider.getProviderName() === GOOGLE_PROVIDER
     }

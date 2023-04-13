@@ -32,8 +32,11 @@ const CONFIG_KEY = 'GOOGLE_API_KEY'
  */
 class GoogleSearchProvider extends AbstractSearchProvider {
 
-    constructor () {
-        super()
+    /**
+     * @param {ProviderDetectorArgs} args
+     */
+    constructor (args) {
+        super(args)
 
         const apiKey = get(conf, CONFIG_KEY)
         if (!apiKey) {
