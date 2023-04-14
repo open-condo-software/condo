@@ -20,21 +20,45 @@ const logger = getLogger('metrics')
 const STATSD_METRIC_PREFIX = conf['STATSD_METRIC_PREFIX'] || 'condo.'
 const STATSD_PORT = conf['STATSD_PORT'] || 8125
 
+const nameChecker = new RegExp('^[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*\\.?$')
+if (!nameChecker.test(STATSD_METRIC_PREFIX)) { throw new Error(`You prefix ${STATSD_METRIC_PREFIX} is badly named! PLease check metric.js module for explanations`) }
+
 const StatsDClient = new StatsD({
     port: STATSD_PORT,
     prefix: STATSD_METRIC_PREFIX,
     errorHandler: (err) => logger.error({ 'msg':'Something went wrong when sending metrics:', 'err': err }),
 })
 
+/**
+ * Name shoud contain only alphanumeric characters (A-z, 0-9) and dot delimiter
+ * Best practice to use this template:
+ *
+ * <domain>.<file>.<metric-name>
+ *
+ * Examples:
+ * - billing.registerBillingReceipts.totalCreatedReceipts
+ * - billing.allResidentBillingReceipts.executionTime
+ * - adapterCache.hitrate
+ * - adapterCache.size
+ *
+ * @param name
+ */
+const validateName = (name) => {
+    if (!nameChecker.test(name)) { throw new Error(`You metric ${name} is badly named! PLease check metric.js module for explanations`) }
+}
+
 const gauge = ({ name, value }) => {
+    validateName(name)
     StatsDClient.gauge(name, value)
 }
 
 const histogram = ({ name, value }) => {
+    validateName(name)
     StatsDClient.histogram(name, value)
 }
 
 const count = ({ name, value }) => {
+    validateName(name)
     StatsDClient.count(name, value)
 }
 
