@@ -28,7 +28,6 @@ const StatsDClient = new StatsD({
 
 const gauge = ({ name, value }) => {
     StatsDClient.gauge(name, value)
-    logger.warn(`METRIC IS SENT, ${name}`)
 }
 
 const histogram = ({ name, value }) => {
