@@ -33,7 +33,7 @@ async function changeClientSecret ({ clientId, currentClientSecret, newClientSec
         throw new Error(`Not found service User with id=${serviceUserId} to change Client Secret for SBBOL integration with clientId=${clientId}`)
     }
 
-    const [accessToken] = await getAccessTokenForUser(user.id)
+    const { accessToken } = await getAccessTokenForUser(user.id)
 
     const requestApi = new SbbolRequestApi({
         accessToken,
