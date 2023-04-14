@@ -9,17 +9,24 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItem')
-const { EMPTY_VALID_BEFORE_DATE } = require('@condo/domains/news/constants/errors')
+const { EMPTY_VALID_BEFORE_DATE, EDIT_DENIED_ALREADY_SENT } = require('@condo/domains/news/constants/errors')
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 
 const ERRORS = {
-    FIELD_MUST_BE_NOT_EMPTY: {
+    EMPTY_VALID_BEFORE_DATE: {
         code: BAD_USER_INPUT,
         type: EMPTY_VALID_BEFORE_DATE,
         message: 'The date the news item valid before is empty',
         messageForUser: 'api.newsItem.EMPTY_VALID_BEFORE_DATE',
         mutation: 'createNewsItem',
         variable: ['data', 'validBefore'],
+    },
+    EDIT_DENIED_ALREADY_SENT: {
+        code: BAD_USER_INPUT,
+        type: EDIT_DENIED_ALREADY_SENT,
+        message: 'The sent news item is restricted from editing',
+        messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
+        mutation: 'updateNewsItem',
     },
 }
 
@@ -88,10 +95,15 @@ const NewsItem = new GQLListSchema('NewsItem', {
             return resolvedData
         },
         validateInput: async (args) => {
-            const { resolvedData, existingItem, context } = args
+            const { resolvedData, existingItem, context, operation } = args
             const resultItemData = { ...existingItem, ...resolvedData }
+
+            if (operation === 'update' && get(existingItem, 'sentAt')) {
+                throw new GQLError(ERRORS.EDIT_DENIED_ALREADY_SENT, context)
+            }
+
             if (get(resultItemData, 'type') === NEWS_TYPE_EMERGENCY && !get(resultItemData, 'validBefore')) {
-                throw new GQLError(ERRORS.FIELD_MUST_BE_NOT_EMPTY, context)
+                throw new GQLError(ERRORS.EMPTY_VALID_BEFORE_DATE, context)
             }
         },
     },
