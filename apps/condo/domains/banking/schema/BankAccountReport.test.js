@@ -17,6 +17,7 @@ const { BankAccountReport, createTestBankAccountReport, updateTestBankAccountRep
 const { createTestBankIntegrationAccountContext, createTestBankAccount, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { Property } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -294,6 +295,31 @@ describe('BankAccountReport', () => {
                 const objsForNotResident = await BankAccountReport.getAll(notResidentUserClient, {}, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objsForNotResident).toHaveLength(0)
+            })
+
+            test('user can filter bank account report by his property', async () => {
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [bankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
+                const [account] = await createTestBankAccount(adminClient, organization, {
+                    integrationContext: { connect: { id: bankIntegrationAccountContext.id } },
+                    property: { connect: { id: property.id } },
+                })
+                const [obj] = await createTestBankAccountReport(adminClient, account, organization)
+
+                const userClient = await makeClientWithResidentUser()
+                await createTestResident(adminClient, userClient.user, property)
+
+                const residentProperties = await Property.getAll(userClient, {})
+                expect(residentProperties).toHaveLength(1)
+                expect(residentProperties[0]).toHaveProperty('id', property.id)
+
+                const objs = await BankAccountReport.getAll(userClient, {
+                    account: { property: { id: residentProperties[0].id } },
+                })
+
+                expect(objs).toHaveLength(1)
+                expect(objs[0]).toHaveProperty('id', obj.id)
             })
 
             test('user can read only records, associated with organization where it is an employee', async () => {
