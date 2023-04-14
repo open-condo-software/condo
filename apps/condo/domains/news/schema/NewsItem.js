@@ -65,6 +65,11 @@ const NewsItem = new GQLListSchema('NewsItem', {
             type: 'DateTimeUtc',
         },
 
+        sentAt: {
+            schemaDoc: 'The date when newsItem was sent to residents',
+            type: 'DateTimeUtc',
+        },
+
         scopes: {
             type: 'Relationship',
             ref: 'NewsItemScope.newsItem',
