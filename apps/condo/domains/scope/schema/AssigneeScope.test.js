@@ -54,7 +54,7 @@ describe('AssigneeScope', () => {
             })
         })
 
-        describe('employee', async () => {
+        describe('employee',  () => {
             it('can read AssigneeScopes with user matches to client user', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -125,7 +125,7 @@ describe('AssigneeScope', () => {
             })
         })
 
-        describe('anonymous', async () => {
+        describe('anonymous',  () => {
             it('cannot read AssigneeScope', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const anonClient = await makeClient()

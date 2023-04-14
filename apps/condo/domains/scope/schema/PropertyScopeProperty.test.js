@@ -44,7 +44,7 @@ describe('PropertyScopeProperty', () => {
             })
         })
 
-        describe('employee', async () => {
+        describe('employee',  () => {
             it('employee with canManagePropertyScopes ability: can create PropertyScopeProperty with property and propertyScope from his organization', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -180,7 +180,7 @@ describe('PropertyScopeProperty', () => {
             })
         })
 
-        describe('anonymous', async () => {
+        describe('anonymous', () => {
             it('cannot create PropertyScopeProperty', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const anonymous = await makeClient()

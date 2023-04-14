@@ -58,7 +58,7 @@ describe('reopenDeferredTickets', () => {
 
     const cases = ['blocked', 'deleted']
 
-    describe.each(cases)('%p employees', async (type) => {
+    describe.each(cases)('%p employees', (type) => {
         let employeePayload = {}
         beforeAll(() => {
             switch (type) {

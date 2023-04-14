@@ -205,7 +205,7 @@ describe('TicketPropertyHintProperty', () => {
                 })
             })
 
-            describe('user', async () => {
+            describe('user', () => {
                 it('can read TicketPropertyHintProperty in the organization in which he is an employee', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const user = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -272,7 +272,7 @@ describe('TicketPropertyHintProperty', () => {
         })
     })
 
-    describe('Server-side soft delete tests', async () => {
+    describe('Server-side soft delete tests', () => {
         it('soft deleted when soft deleting linked property', async () => {
             const admin = await makeLoggedInAdminClient()
 

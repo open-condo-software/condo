@@ -259,7 +259,7 @@ describe('MessageUserBlackList', () => {
         })
     })
 
-    describe('validations', async () => {
+    describe('validations', () => {
         it('throw validation error if create MessageUserBlackList with empty user, phone and email fields', async () => {
             const supportClient = await makeClientWithSupportUser()
 

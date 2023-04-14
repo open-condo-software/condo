@@ -4,7 +4,6 @@
 
 const index = require('@app/condo/index')
 const faker = require('faker')
-const { v4: uuid } = require('uuid')
 
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
@@ -35,7 +34,7 @@ describe('syncUser from SberId', () => {
     })
 
     it('should create user', async () => {
-        const identityId = uuid()
+        const identityId = faker.datatype.uuid()
         const userInfo = mockUserInfo(identityId)
 
         // act
@@ -67,7 +66,7 @@ describe('syncUser from SberId', () => {
     })
 
     it('should create user external identity', async () => {
-        const identityId = uuid()
+        const identityId = faker.datatype.uuid()
         const { userAttrs: { phone: existingUserPhone }, user: existingUser } = await makeClientWithRegisteredOrganization()
         const userInfo = mockUserInfo(identityId, existingUserPhone)
 
@@ -91,13 +90,13 @@ describe('syncUser from SberId', () => {
     })
 
     it('should return user id', async () => {
-        const identityId = uuid()
+        const identityId = faker.datatype.uuid()
         const { userAttrs: { phone: existingUserPhone }, user: existingUser } = await makeClientWithRegisteredOrganization()
         const userInfo = mockUserInfo(identityId, existingUserPhone)
 
         await UserExternalIdentityApi.create(context, {
             dv: 1,
-            sender: { dv: 1, fingerprint: uuid() },
+            sender: { dv: 1, fingerprint: faker.datatype.uuid() },
             user: { connect: { id: existingUser.id } },
             identityId: userInfo.id,
             identityType: SBER_ID_IDP_TYPE,

@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import get from 'lodash/get'
 import sum from 'lodash/sum'
 import dynamic from 'next/dynamic'
+import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
 
 
@@ -11,16 +12,15 @@ import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import TicketChart from '@condo/domains/analytics/components/TicketChart'
+import TicketChart, { TicketSelectTypes, ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
 import TicketListView from '@condo/domains/analytics/components/TicketListView'
 import { TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
-import { filterToQuery, getAggregatedData } from '@condo/domains/analytics/utils/helpers'
+import { filterToQuery, getAggregatedData, GroupTicketsByTypes } from '@condo/domains/analytics/utils/helpers'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { colors } from '@condo/domains/common/constants/style'
 import { createPdfWithPageBreaks } from '@condo/domains/common/utils/pdf'
-import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
     DATE_DISPLAY_FORMAT,
@@ -43,6 +43,8 @@ const PdfView = () => {
     const EmptyCategoryClassifierTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.CategoryClassifier' })
     const EmptyExecutorTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Executor' })
     const EmptyAssigneeTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Assignee' })
+
+    const router = useRouter()
 
     const containerRef = useRef<null | HTMLDivElement>(null)
     const queryParamsRef = useRef(null)
@@ -81,7 +83,8 @@ const PdfView = () => {
         },
     })
     useEffect(() => {
-        const queryParams = getQueryParams()
+        // TODO(DOMA-5907): Clean this mess with and fix deps array. Also remove a type cast
+        const queryParams = router.query as Record<string, string>
         queryParamsRef.current = queryParams
         const dateFrom = get(queryParams, 'dateFrom', dayjs().subtract(1, 'week'))
         const dateTo = get(queryParams, 'dateTo', dayjs())
@@ -89,10 +92,10 @@ const PdfView = () => {
         const classifierList = JSON.parse(get(queryParams, 'categoryClassifierList', '[]'))
         const executorList = JSON.parse(get(queryParams, 'executorList', '[]'))
         const assigneeList = JSON.parse(get(queryParams, 'assigneeList', '[]'))
-        const mainGroup = get(queryParams, 'groupBy', 'status')
-        const specification = get(queryParams, 'specification', 'day')
-        const viewMode = get(queryParams, 'viewMode', 'line')
-        const ticketType = get(queryParams, 'ticketType', 'all')
+        const mainGroup = get(queryParams, 'groupBy', 'status') as GroupTicketsByTypes
+        const specification = get(queryParams, 'specification', 'day') as 'day' | 'week' | 'month'
+        const viewMode = get(queryParams, 'viewMode', 'line') as ViewModeTypes
+        const ticketType = get(queryParams, 'ticketType', 'all') as TicketSelectTypes
         const { AND, groupBy } = filterToQuery({
             viewMode,
             ticketType,
@@ -279,16 +282,17 @@ const PdfView = () => {
                 },
                 pie: {
                     chart: (viewMode, ticketGroupedCounter) => {
-                        const queryParams = getQueryParams()
+                        // TODO(DOMA-5907): Clean this mess with and fix deps array. Also remove a type cast
+                        const queryParams = router.query as Record<string, string>
                         const dateFrom = get(queryParams, 'dateFrom', dayjs().subtract(1, 'week'))
                         const dateTo = get(queryParams, 'dateTo', dayjs())
                         const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
                         const classifierList = JSON.parse(get(queryParams, 'categoryClassifierList', '[]'))
                         const executorList = JSON.parse(get(queryParams, 'executorList', '[]'))
                         const assigneeList = JSON.parse(get(queryParams, 'assigneeList', '[]'))
-                        const mainGroup = get(queryParams, 'groupBy', 'status')
-                        const specification = get(queryParams, 'specification', 'day')
-                        const ticketType = get(queryParams, 'ticketType', 'all')
+                        const mainGroup = get(queryParams, 'groupBy', 'status') as GroupTicketsByTypes
+                        const specification = get(queryParams, 'specification', 'day') as 'day' | 'month' | 'week'
+                        const ticketType = get(queryParams, 'ticketType', 'all') as TicketSelectTypes
                         const { groupBy } = filterToQuery({
                             viewMode,
                             ticketType,
@@ -361,12 +365,13 @@ const PdfView = () => {
                         return { series, legend, color: ticketLabelsRef.current.map(({ color }) => color) }
                     },
                     table: (viewMode, ticketGroupedCounter, restOptions) => {
-                        const queryParams = getQueryParams()
+                        // TODO(DOMA-5907): Clean this mess with and fix deps array. Also remove a type cast
+                        const queryParams = router.query as Record<string, string>
                         const dateFrom = get(queryParams, 'dateFrom', dayjs().subtract(1, 'week'))
                         const dateTo = get(queryParams, 'dateTo', dayjs())
-                        const mainGroup = get(queryParams, 'groupBy', 'status')
-                        const specification = get(queryParams, 'specification', 'day')
-                        const ticketType = get(queryParams, 'ticketType', 'all')
+                        const mainGroup = get(queryParams, 'groupBy', 'status') as GroupTicketsByTypes
+                        const specification = get(queryParams, 'specification', 'day') as 'day' | 'month' | 'week'
+                        const ticketType = get(queryParams, 'ticketType', 'all') as TicketSelectTypes
                         const { groupBy } = filterToQuery({
                             viewMode,
                             ticketType,

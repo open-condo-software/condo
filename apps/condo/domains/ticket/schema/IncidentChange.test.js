@@ -192,8 +192,9 @@ describe('IncidentChange', () => {
                 expect(incidentChanges[0]).toHaveProperty('incident.id', incident.id)
             })
 
-            describe('Must be have all tracked fields', async () => {
+            describe('Must be have all tracked fields', () => {
                 test.each(INCIDENT_CHANGE_DATA_FIELDS)('Must be have field %p', (fieldName) => {
+                    expect(incidentChanges).toHaveLength(1)
                     expect(incidentChanges[0]).toHaveProperty(fieldName)
                 })
             })

@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [ "16.10" ]
+        node-version: [ 16.x ]
         database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
 
     steps:
@@ -53,7 +53,9 @@ jobs:
           echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> .env
 
       - name: Test apps build
-        run: turbo build --filter="./apps/*"
+        run: |
+          export NODE_OPTIONS="--max_old_space_size=4096"
+          turbo build --filter="./apps/*"
 
       - name: Test artifacts existence
         run: |

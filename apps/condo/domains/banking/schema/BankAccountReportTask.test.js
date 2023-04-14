@@ -14,22 +14,12 @@ const {
 const { BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { BankAccountReportTask, createTestBankAccountReportTask, updateTestBankAccountReportTask, createTestBankAccount, BankAccountReport, createTestBankTransaction, updateTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
-const { createTestBankIntegrationAccountContext, createTestBankContractorAccount, BankIntegration, createTestBankCategory, createTestBankCostItem, createTestBankSyncTask, updateTestBankSyncTask } = require('@condo/domains/banking/utils/testSchema')
+const { createTestBankIntegrationAccountContext, createTestBankContractorAccount, BankIntegration, createTestBankCategory, createTestBankCostItem } = require('@condo/domains/banking/utils/testSchema')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
-
-
-function generateDateArray (dateStart, interval) {
-    const dateInterval = [dateStart]
-    for (let i = 1; i <= interval; i++) {
-        dateInterval.push(dayjs(dateInterval[dateInterval.length - 1]).add(1, 'day').format('YYYY-MM-DD'))
-    }
-    return dateInterval
-}
 
 describe('BankAccountReportTask', () => {
     let admin, bankIntegration, category
@@ -238,7 +228,7 @@ describe('BankAccountReportTask', () => {
                 await createTestOrganizationEmployee(admin, organization, userClient.user, role)
                 const [account] = await createTestBankAccount(admin, organization)
 
-                const [objCreated, attrs] = await createTestBankAccountReportTask(userClient, account, organization, userClient.user.id)
+                const [objCreated] = await createTestBankAccountReportTask(userClient, account, organization, userClient.user.id)
 
                 await catchErrorFrom(async () => {
                     await updateTestBankAccountReportTask(userClient, objCreated.id, {
@@ -314,7 +304,7 @@ describe('BankAccountReportTask', () => {
                     account: { id: account.id },
                 }, { sortBy: ['updatedAt_DESC'] })
 
-                expect(objs.length).toEqual(1)
+                expect(objs).toHaveLength(1)
                 expect(objs).toEqual(expect.arrayContaining([
                     expect.objectContaining({
                         id: objCreated.id,
@@ -356,7 +346,7 @@ describe('BankAccountReportTask', () => {
                 })
                 await createTestOrganizationEmployee(admin, org, client1.user, role)
                 await createTestOrganizationEmployee(admin, org, client2.user, role)
-                const [objCreated] = await createTestBankAccountReportTask(client1, account, org, client1.user.id, { progress: 0 })
+                await createTestBankAccountReportTask(client1, account, org, client1.user.id, { progress: 0 })
 
                 const objs = await BankAccountReportTask.getAll(client2, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -373,7 +363,7 @@ describe('BankAccountReportTask', () => {
         })
     })
     
-    describe('BankAccountReportTask afterChange', async () => {
+    describe('BankAccountReportTask afterChange', () => {
 
         it('create BankAccountReport', async () => {
             const [org] = await createTestOrganization(admin)
@@ -404,7 +394,7 @@ describe('BankAccountReportTask', () => {
 
             const date = dayjs().format('YYYY-MM-DD')
             for (let i = 0; i < 5; i++) {
-                const [createdTransaction] = await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
+                await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
                     date,
                     amount: '50',
                     isOutcome: false,
@@ -412,7 +402,7 @@ describe('BankAccountReportTask', () => {
 
             }
             for (let i = 0; i < 5; i++) {
-                const [createdTransaction] = await createTestBankTransaction(admin, account, contractorAccount2, integrationContext, org, {
+                await createTestBankTransaction(admin, account, contractorAccount2, integrationContext, org, {
                     date,
                     amount: '10',
                     isOutcome: true,
@@ -467,7 +457,7 @@ describe('BankAccountReportTask', () => {
 
             const date = dayjs().format('YYYY-MM-DD')
             for (let i = 0; i < 5; i++) {
-                const [createdTransaction] = await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
+                await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
                     date,
                     amount: '50',
                     isOutcome: false,
@@ -475,7 +465,7 @@ describe('BankAccountReportTask', () => {
 
             }
             for (let i = 0; i < 5; i++) {
-                const [createdTransaction] = await createTestBankTransaction(admin, account, { id: faker.datatype.uuid() }, integrationContext, org, {
+                await createTestBankTransaction(admin, account, { id: faker.datatype.uuid() }, integrationContext, org, {
                     date,
                     amount: '10',
                     isOutcome: true,
@@ -528,7 +518,7 @@ describe('BankAccountReportTask', () => {
 
             const date = dayjs().format('YYYY-MM-DD')
             for (let i = 0; i < 4; i++) {
-                const [createdTransaction] = await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
+                await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
                     date,
                     amount: '50',
                     isOutcome: false,
@@ -587,7 +577,7 @@ describe('BankAccountReportTask', () => {
 
             const date = dayjs().format('YYYY-MM-DD')
             for (let i = 0; i < 5; i++) {
-                const [createdTransaction] = await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
+                await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
                     date,
                     amount: '50',
                     isOutcome: false,
@@ -618,7 +608,7 @@ describe('BankAccountReportTask', () => {
             expect(Number(report.totalIncome)).toEqual(250)
             expect(report.data.categoryGroups[0].costItemGroups[0].sum).toEqual(250)
 
-            const [createdReportTask2] = await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
+            await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
             await waitFor(async () => {
                 const updatedTask = await BankAccountReportTask.getOne(admin, {
                     id: createdReportTask.id,
@@ -663,7 +653,7 @@ describe('BankAccountReportTask', () => {
             })
 
             for (let i = 0; i < 5; i++) {
-                const [createdTransaction] = await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
+                await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
                     date,
                     amount: '50',
                     isOutcome: false,
@@ -701,7 +691,7 @@ describe('BankAccountReportTask', () => {
             })
 
             for (let i = 0; i < 5; i++) {
-                const [createdTransaction] = await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
+                await createTestBankTransaction(admin, account, contractorAccount1, integrationContext, org, {
                     date,
                     amount: '50',
                     isOutcome: true,

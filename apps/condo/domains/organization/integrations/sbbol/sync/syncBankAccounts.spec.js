@@ -36,7 +36,7 @@ describe('syncBankAccount from SBBOL', () => {
         commonOrganization = await Organization.update(adminClient, createdOrganization.id, { tin: generateTin(RUSSIA_COUNTRY).toString(), ...dvSenderFields })
     })
 
-    describe('syncBankAccounts', async () => {
+    describe('syncBankAccounts', () => {
         let accountNumber1, accountNumber2, accountNumber3, routingNumber
         beforeAll(async () => {
             routingNumber = createValidRuRoutingNumber()

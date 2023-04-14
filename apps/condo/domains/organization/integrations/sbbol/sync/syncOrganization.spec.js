@@ -3,7 +3,7 @@
  */
 
 const index = require('@app/condo/index')
-const { v4: uuid } = require('uuid')
+const faker = require('faker')
 
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
@@ -100,7 +100,7 @@ describe('syncOrganization from SBBOL', () => {
         })
 
         it('should create new organization and create new user', async () => {
-            const identityId = uuid()
+            const identityId = faker.datatype.uuid()
             const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const context = {
