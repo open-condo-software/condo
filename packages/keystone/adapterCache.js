@@ -58,7 +58,7 @@ const { getRedisClient } = require('./redis')
 const UPDATED_AT_FIELD = 'updatedAt'
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 const ADAPTER_CACHE_HITRATE_METRIC_NAME = 'adapterCache.hitrate'
-const ADAPTER_CACHE_KEYS_METRIC_NAME = 'adapterCache$keys'
+const ADAPTER_CACHE_KEYS_METRIC_NAME = 'adapterCache.keys'
 
 const logger = getLogger('adapterCache')
 
