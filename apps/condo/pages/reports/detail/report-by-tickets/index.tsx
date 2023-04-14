@@ -13,6 +13,7 @@ import { useRouter } from 'next/router'
 import qs from 'qs'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useApolloClient, useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -44,7 +45,6 @@ import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangeP
 import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
     DATE_DISPLAY_FORMAT,
@@ -176,7 +176,8 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     }, [dateRange, specification, addressList, responsibleList, responsibleList, classifierList, viewMode, groupTicketsBy])
 
     useEffect(() => {
-        const queryParams = getQueryParams()
+        // TODO(DOMA-5907): Clean this mess with and fix deps array. Also remove a type cast
+        const queryParams = router.query as Record<string, string>
         const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
         const classifierList = JSON.parse(get(queryParams, 'classifierList', '[]'))
         const executorList = JSON.parse(get(queryParams, 'executorList', '[]'))
@@ -192,6 +193,8 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             setExecutorList(executorList.length ? executorList.map(e => e.value) : [])
             setResponsibleList(responsibleList.length ? responsibleList.map(e => e.value) : [])
             setDateRange(range)
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             setSpecification(specificationUrl)
         }
         isEmpty(queryParams) && updateUrlFilters()
@@ -763,11 +766,12 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         }
     }, [userOrganizationId, viewMode, groupTicketsBy])
 
-    useEffect(() => {
-        const queryParams = getQueryParams()
-        setGroupTicketsBy(get(queryParams, 'groupTicketsBy', 'status'))
-        setViewMode(get(queryParams, 'viewMode', 'line'))
-    }, [])
+    useDeepCompareEffect(() => {
+        // TODO(DOMA-5907): Clean this mess with and fix deps array. Also remove a type cast
+        const queryParams = router.query as Record<string, string>
+        setGroupTicketsBy(get(queryParams, 'groupTicketsBy', 'status') as GroupTicketsByTypes)
+        setViewMode(get(queryParams, 'viewMode', 'line') as ViewModeTypes)
+    }, [router.query])
 
     useEffect(() => {
         ticketTypeRef.current = ticketType

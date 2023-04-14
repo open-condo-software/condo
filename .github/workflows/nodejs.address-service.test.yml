@@ -23,7 +23,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [ "16.10" ]
+        node-version: [ 16.x ]
         database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
 
     steps:
@@ -90,7 +90,7 @@ jobs:
           sleep 3
 
           # TESTS
-          yarn workspace @app/address-service test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail 2>&1 > address-service.test.log
+          yarn workspace @app/address-service test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail 2>&1 > address-service.test.log
           
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'

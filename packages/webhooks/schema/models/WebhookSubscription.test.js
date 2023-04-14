@@ -237,7 +237,7 @@ const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
                         }, 'Invalid maxPackSize value')
                     })
                 })
-                describe('Must pass with correct values', async () => {
+                describe('Must pass with correct values', () => {
                     const cases = [
                         ['Positive values: small', 20],
                         ['Single record', 1],

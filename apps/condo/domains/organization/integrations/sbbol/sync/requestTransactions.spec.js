@@ -94,7 +94,7 @@ describe('syncBankTransaction from SBBOL', () => {
 
     })
 
-    describe('requestTransactions', async () => {
+    describe('requestTransactions', () => {
         it('Request transactions from SBBOL', async () => {
             const transactions = await requestTransactions({
                 date: dayjs().format('YYYY-MM-DD'),

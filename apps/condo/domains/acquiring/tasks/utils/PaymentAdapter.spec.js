@@ -1,4 +1,4 @@
-const { v4: uuid } = require('uuid')
+const faker = require('faker')
 
 const {
     RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
@@ -6,10 +6,10 @@ const {
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
 const { PaymentAdapter } = require('@condo/domains/acquiring/tasks/utils/PaymentAdapter')
 
-const cardId = uuid()
+const cardId = faker.datatype.uuid()
 const getCardTokensUrl = 'http://testHost/api/clients/xxx/card-tokens'
 const directPaymentUrl = 'http://testHost/api/pay/xxx'
-const multiPaymentId = uuid()
+const multiPaymentId = faker.datatype.uuid()
 const successBindingPaymentUrl = 'http://testHost/api/payment/success'
 const successNonBindingPaymentUrl = 'http://testHost/payment/form'
 
@@ -38,7 +38,7 @@ describe('PaymentAdapter', () => {
             })
             adapter.doCall = async (url) => {
                 expect(url).toEqual(getCardTokensUrl)
-                return { cardTokens: [{ id: uuid() }] }
+                return { cardTokens: [{ id: faker.datatype.uuid() }] }
             }
 
             expect(await adapter.checkCardToken(cardId)).not.toBeTruthy()
@@ -64,7 +64,7 @@ describe('PaymentAdapter', () => {
             const adapter = new PaymentAdapter({
                 multiPaymentId, directPaymentUrl, getCardTokensUrl,
             })
-            adapter.doCall = async (url) => {
+            adapter.doCall = async () => {
                 throw new Error()
             }
 
@@ -82,7 +82,7 @@ describe('PaymentAdapter', () => {
                 expect(url).toEqual(directPaymentUrl)
                 return {
                     status: 200,
-                    data: { orderId: uuid(), url: successBindingPaymentUrl },
+                    data: { orderId: faker.datatype.uuid(), url: successBindingPaymentUrl },
                 }
             }
             const result  = await adapter.proceedPayment(cardId)
@@ -102,7 +102,7 @@ describe('PaymentAdapter', () => {
                 expect(url).toEqual(directPaymentUrl)
                 return {
                     status: 200,
-                    data: { orderId: uuid(), url: successNonBindingPaymentUrl },
+                    data: { orderId: faker.datatype.uuid(), url: successNonBindingPaymentUrl },
                 }
             }
             const result  = await adapter.proceedPayment(cardId)
@@ -148,7 +148,7 @@ describe('PaymentAdapter', () => {
                 expect(url).toEqual(directPaymentUrl)
                 return {
                     status: 404,
-                    data: { orderId: uuid(), error },
+                    data: { orderId: faker.datatype.uuid(), error },
                 }
             }
             const result  = await adapter.proceedPayment(cardId)

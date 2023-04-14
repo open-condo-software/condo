@@ -145,7 +145,7 @@ describe('Address', () => {
 
         describe('read', () => {
             test('admin can', async () => {
-                const [obj, attrs] = await createTestAddress(adminClient)
+                const [obj] = await createTestAddress(adminClient)
 
                 const objs = await Address.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -158,7 +158,7 @@ describe('Address', () => {
             })
 
             test('support can', async () => {
-                const [obj, attrs] = await createTestAddress(adminClient)
+                const [obj] = await createTestAddress(adminClient)
 
                 const objs = await Address.getAll(supportClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -171,7 +171,7 @@ describe('Address', () => {
             })
 
             test('user can\'t', async () => {
-                const [obj, attrs] = await createTestAddress(adminClient)
+                await createTestAddress(adminClient)
 
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
                     await Address.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
@@ -179,7 +179,7 @@ describe('Address', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [obj, attrs] = await createTestAddress(adminClient)
+                await createTestAddress(adminClient)
 
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await Address.getAll(anonymousClient, {}, { sortBy: ['updatedAt_DESC'] })
@@ -188,7 +188,7 @@ describe('Address', () => {
         })
     })
 
-    describe('Overriding', async () => {
+    describe('Overriding', () => {
         test('throw an error if no field to override', async () => {
             await catchErrorFrom(
                 async () => {
@@ -392,7 +392,7 @@ describe('Address', () => {
         })
     })
 
-    describe('Use cases', async () => {
+    describe('Use cases',  () => {
         test('The house keeps the firstly created address', async () => {
             const source1 = faker.random.alphaNumeric(42)
             const source2 = faker.random.alphaNumeric(42)

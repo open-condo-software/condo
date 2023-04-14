@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const dayjs = require('dayjs')
 
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')

@@ -4,7 +4,6 @@
 
 const dayjs = require('dayjs')
 const faker = require('faker')
-const { v4: uuid } = require('uuid')
 
 const {
     makeLoggedInAdminClient,
@@ -27,10 +26,7 @@ const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('RecurrentPayment', () => {
-    let admin, 
-        support,
-        user,
-        anonymous,
+    let admin,
         getContextRequest,
         getPaymentRequest,
         billingCategory,
@@ -145,7 +141,7 @@ describe('RecurrentPayment', () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestRecurrentPayment(client, uuid(), getPaymentRequest())
+                    await updateTestRecurrentPayment(client, faker.datatype.uuid(), getPaymentRequest())
                 })
             })
 
@@ -153,7 +149,7 @@ describe('RecurrentPayment', () => {
                 const client = await makeClient()
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestRecurrentPayment(client, uuid(), getPaymentRequest())
+                    await updateTestRecurrentPayment(client, faker.datatype.uuid(), getPaymentRequest())
                 })
             })
         })
@@ -163,7 +159,7 @@ describe('RecurrentPayment', () => {
                 const admin = await makeLoggedInAdminClient()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await RecurrentPayment.delete(admin, uuid())
+                    await RecurrentPayment.delete(admin, faker.datatype.uuid())
                 })
             })
 
@@ -171,7 +167,7 @@ describe('RecurrentPayment', () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await RecurrentPayment.delete(client, uuid())
+                    await RecurrentPayment.delete(client, faker.datatype.uuid())
                 })
             })
 
@@ -179,7 +175,7 @@ describe('RecurrentPayment', () => {
                 const client = await makeClient()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await RecurrentPayment.delete(client, uuid())
+                    await RecurrentPayment.delete(client, faker.datatype.uuid())
                 })
             })
         })
@@ -251,7 +247,7 @@ describe('RecurrentPayment', () => {
                 const client = await makeClient()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await RecurrentPayment.delete(client, uuid())
+                    await RecurrentPayment.delete(client, faker.datatype.uuid())
                 })
             })
         })

@@ -4,7 +4,7 @@
 
 const index = require('@app/condo/index')
 const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
-const { v4: uuid } = require('uuid')
+const faker = require('faker')
 
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
@@ -27,7 +27,7 @@ describe('syncUser from SBBOL', () => {
 
     describe('User with given phone does not exists', function () {
         it('should create user', async () => {
-            const identityId = uuid()
+            const identityId = faker.datatype.uuid()
             const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const context = {
@@ -47,7 +47,7 @@ describe('syncUser from SBBOL', () => {
             expect(newUser.phone).toEqual(userData.phone)
         })
         it('should create onboarding', async () => {
-            const identityId = uuid()
+            const identityId = faker.datatype.uuid()
             const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const context = {
@@ -61,7 +61,7 @@ describe('syncUser from SBBOL', () => {
     })
     describe('User with given phone already existed', () => {
         it('should create user external identity', async () => {
-            const identityId = uuid()
+            const identityId = faker.datatype.uuid()
             const { userAttrs: { phone: existingUserPhone }, user: existingUser } = await makeClientWithRegisteredOrganization()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const context = {
@@ -81,7 +81,7 @@ describe('syncUser from SBBOL', () => {
             expect(checkedIdentity.identityType).toEqual(SBBOL_IDP_TYPE)
         })
         it('should work with resident and phone collision', async () => {
-            const identityId = uuid()
+            const identityId = faker.datatype.uuid()
             const residentClient = await makeClientWithResidentUser()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const context = {
@@ -128,7 +128,7 @@ describe('syncUser from SBBOL', () => {
     describe('Another first user with given email already exist', () => {
         describe('another second user with given phone does not exist', () => {
             it('should clean email of first another user and create new user with given email and phone', async () => {
-                const identityId = uuid()
+                const identityId = faker.datatype.uuid()
                 const adminContext = await keystone.createContext({ skipAccessControl: true })
                 const context = {
                     keystone,
@@ -152,7 +152,7 @@ describe('syncUser from SBBOL', () => {
         })
         describe('Another second user with given phone already exist', () => {
             it('should clean email of first another user and update another second user with info from SBBOL', async () => {
-                const identityId = uuid()
+                const identityId = faker.datatype.uuid()
                 const adminContext = await keystone.createContext({ skipAccessControl: true })
                 const context = {
                     keystone,

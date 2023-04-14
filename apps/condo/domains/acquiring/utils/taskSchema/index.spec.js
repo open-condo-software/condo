@@ -4,7 +4,6 @@
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 const faker = require('faker')
-const { v4: uuid } = require('uuid')
 
 const {
     setFakeClientMode,
@@ -307,7 +306,7 @@ describe('task schema queries', () => {
 
         it('should throw error for wrong id', async () => {
             await catchErrorFrom(async () => {
-                await getServiceConsumer(adminContext, uuid())
+                await getServiceConsumer(adminContext, faker.datatype.uuid())
             }, (error) => {
                 expect(error.message).toContain('ServiceConsumer not found for id')
             })
@@ -1260,7 +1259,7 @@ describe('task schema queries', () => {
 
             await catchErrorFrom(async () => {
                 await registerMultiPayment(adminContext, {
-                    id: uuid(),
+                    id: faker.datatype.uuid(),
                 })
             }, (error) => {
                 expect(error.message).toContain('invalid recurrentPayment argument')
@@ -1268,7 +1267,7 @@ describe('task schema queries', () => {
 
             await catchErrorFrom(async () => {
                 await registerMultiPayment(adminContext, {
-                    id: uuid(),
+                    id: faker.datatype.uuid(),
                     billingReceipts: [],
                 })
             }, (error) => {
@@ -1277,7 +1276,7 @@ describe('task schema queries', () => {
 
             await catchErrorFrom(async () => {
                 await registerMultiPayment(adminContext, {
-                    id: uuid(),
+                    id: faker.datatype.uuid(),
                     billingReceipts: [],
                     recurrentPaymentContext: {},
                 })
@@ -1372,7 +1371,7 @@ describe('task schema queries', () => {
 
             await catchErrorFrom(async () => {
                 await setRecurrentPaymentAsSuccess(adminContext, {
-                    id: uuid(),
+                    id: faker.datatype.uuid(),
                 })
             }, (error) => {
                 expect(error.message).toContain('invalid recurrentPayment argument')
@@ -1575,7 +1574,7 @@ describe('task schema queries', () => {
             })
 
             await catchErrorFrom(async () => {
-                await setRecurrentPaymentAsFailed(adminContext, { id: uuid() }, errorMessage, errorCode)
+                await setRecurrentPaymentAsFailed(adminContext, { id: faker.datatype.uuid() }, errorMessage, errorCode)
             }, (error) => {
                 expect(error.message).toContain('invalid recurrentPayment argument')
             })
@@ -1583,7 +1582,7 @@ describe('task schema queries', () => {
             await catchErrorFrom(async () => {
                 await setRecurrentPaymentAsFailed(
                     adminContext,
-                    { id: uuid(), tryCount: 0 },
+                    { id: faker.datatype.uuid(), tryCount: 0 },
                     null,
                     errorCode,
                 )
@@ -1594,7 +1593,7 @@ describe('task schema queries', () => {
             await catchErrorFrom(async () => {
                 await setRecurrentPaymentAsFailed(
                     adminContext,
-                    { id: uuid(), tryCount: 0 },
+                    { id: faker.datatype.uuid(), tryCount: 0 },
                     errorMessage,
                     null,
                 )
