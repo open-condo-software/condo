@@ -1,6 +1,7 @@
 const express = require('express')
 
-const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
+const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
+
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const { SberIdRoutes } = require('@condo/domains/user/integration/sberid/routes')
 
