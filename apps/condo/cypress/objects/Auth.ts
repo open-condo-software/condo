@@ -4,8 +4,6 @@ const SIGNIN_URL = '/auth/signin/'
 const FORGOT_PASSWORD_URL = '/auth/forgot'
 const REGISTER_URL = '/auth/register/'
 
-// const Metrics = require('@open-condo/keystone/metrics')
-
 class SignIn{
 /*
     Elements:
@@ -25,10 +23,10 @@ class SignIn{
             p.measure('pageLoad', 'start-loading', 'end-loading')
             const measure = p.getEntriesByName('pageLoad')[0]
 
-            // Metrics.gauge({ name: 'signin.page.load', value: measure })
-
             cy.log(`MEASURE!!!! SIGNIN_PAGE_LOAD ${measure.duration}`)
             console.log(`MEASURE!!!! SIGNIN_PAGE_LOAD ${measure.duration}`)
+
+            cy.task('metrics:log', ['cypress.auth.signin.pageload', measure.duration])
         })
         return this
     }
