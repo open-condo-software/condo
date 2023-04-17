@@ -16,7 +16,7 @@ const NoParamsValidator = ajv.compile(NoParamsSchema)
 const CondoWebSendAnalyticsEventParamsSchema = {
     type: 'object',
     properties: {
-        event: { type: 'string', enum: ['click', 'check'] },
+        event: { type: 'string', enum: ['click', 'check', 'change', 'select'] },
         location: { type: 'string' },
         component: { type: 'string' },
     },
