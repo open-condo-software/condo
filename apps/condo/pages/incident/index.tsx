@@ -14,10 +14,11 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { PlusCircle } from '@open-condo/icons'
+import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Checkbox, Button, ActionBar } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -112,12 +113,13 @@ const FilterContainer: React.FC<FilterContainerProps> = () => {
                                     value={search}
                                     allowClear
                                     id='searchIncidents'
+                                    suffix={<Search size='medium' color={colors.gray[7]} />}
                                 />
                             </Col>
                         </Row>
                     </Col>
                     <Col xs={24} md={16}>
-                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS}>
+                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS} align='middle'>
                             <Col>
                                 <Checkbox
                                     onChange={handleAttributeCheckboxChange(IS_ACTUAL_ATTRIBUTE_NAME)}

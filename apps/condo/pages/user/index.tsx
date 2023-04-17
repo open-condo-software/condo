@@ -1,4 +1,3 @@
-import { EditFilled } from '@ant-design/icons'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
@@ -6,12 +5,12 @@ import Head from 'next/head'
 import Link from 'next/link'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
+import { Edit } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { LocaleContext, useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Select } from '@open-condo/ui'
+import { ActionBar, Button, Select } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
@@ -70,102 +69,108 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
             <FeatureFlagsController/>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={ROW_GUTTER_MID} justify='center'>
-                        <Col xs={10} lg={3}>
-                            <UserAvatar borderRadius={24}/>
-                        </Col>
-                        <Col xs={24} lg={20} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
-                            <Row gutter={ROW_GUTTER_BIG}>
-                                <Col span={24}>
-                                    <Row gutter={ROW_GUTTER_MID}>
+                    <Row gutter={ROW_GUTTER_BIG}>
+                        <Col span={24}>
+                            <Row gutter={ROW_GUTTER_MID} justify='center'>
+                                <Col xs={10} lg={3}>
+                                    <UserAvatar borderRadius={24}/>
+                                </Col>
+                                <Col xs={24} lg={20} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
+                                    <Row gutter={ROW_GUTTER_BIG}>
                                         <Col span={24}>
-                                            <Typography.Title
-                                                level={1}
-                                                style={{ margin: 0, fontWeight: 'bold' }}
-                                            >
-                                                {name}
-                                            </Typography.Title>
-                                        </Col>
-                                        <Col span={24}>
-                                            <Row gutter={ROW_GUTTER_SMALL}>
-                                                <Col lg={3} xs={10}>
-                                                    <Typography.Text type='secondary'>
-                                                        {PhoneMessage}
-                                                    </Typography.Text>
+                                            <Row gutter={ROW_GUTTER_MID}>
+                                                <Col span={24}>
+                                                    <Typography.Title
+                                                        level={1}
+                                                        style={{ margin: 0, fontWeight: 'bold' }}
+                                                    >
+                                                        {name}
+                                                    </Typography.Title>
                                                 </Col>
-                                                <Col lg={19} xs={10} offset={2}>
-                                                    <NotDefinedField value={get(user, 'phone')}/>
-                                                </Col>
-                                                {
-                                                    email && <>
+                                                <Col span={24}>
+                                                    <Row gutter={ROW_GUTTER_SMALL}>
                                                         <Col lg={3} xs={10}>
                                                             <Typography.Text type='secondary'>
-                                                                {EmailMessage}
+                                                                {PhoneMessage}
                                                             </Typography.Text>
                                                         </Col>
                                                         <Col lg={19} xs={10} offset={2}>
-                                                            <NotDefinedField value={get(user, 'email')}/>
+                                                            <NotDefinedField value={get(user, 'phone')}/>
                                                         </Col>
-                                                    </>
-                                                }
-                                                <Col lg={3} xs={10}>
-                                                    <Typography.Text type='secondary'>
-                                                        {PasswordMessage}
-                                                    </Typography.Text>
-                                                </Col>
-                                                <Col lg={19} xs={10} offset={2}>
-                                                    <NotDefinedField value='******'/>
+                                                        {
+                                                            email && <>
+                                                                <Col lg={3} xs={10}>
+                                                                    <Typography.Text type='secondary'>
+                                                                        {EmailMessage}
+                                                                    </Typography.Text>
+                                                                </Col>
+                                                                <Col lg={19} xs={10} offset={2}>
+                                                                    <NotDefinedField value={get(user, 'email')}/>
+                                                                </Col>
+                                                            </>
+                                                        }
+                                                        <Col lg={3} xs={10}>
+                                                            <Typography.Text type='secondary'>
+                                                                {PasswordMessage}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                        <Col lg={19} xs={10} offset={2}>
+                                                            <NotDefinedField value='******'/>
+                                                        </Col>
+                                                    </Row>
                                                 </Col>
                                             </Row>
                                         </Col>
                                         <Col span={24}>
-                                            <Link href='/user/update'>
-                                                <Button
-                                                    color='green'
-                                                    type='sberPrimary'
-                                                    secondary
-                                                    icon={<EditFilled/>}
-                                                >
-                                                    {UpdateMessage}
-                                                </Button>
-                                            </Link>
+                                            {
+                                                userOrganization
+                                                    ? (<UserOrganizationsList
+                                                        userOrganization={userOrganization}
+                                                        organizationEmployeesQuery={organizationEmployeesQuery}
+                                                    />)
+                                                    : null
+                                            }
                                         </Col>
-                                    </Row>
-                                </Col>
-                                <Col span={24}>
-                                    {
-                                        userOrganization
-                                            ? (<UserOrganizationsList
-                                                userOrganization={userOrganization}
-                                                organizationEmployeesQuery={organizationEmployeesQuery}
-                                            />)
-                                            : null
-                                    }
-                                </Col>
-                                <Col span={24}>
-                                    <Row gutter={ROW_GUTTER_MID}>
-                                        <Col lg={3} xs={10}>
-                                            <Typography.Text type='secondary'>
-                                                {InterfaceLanguageTitle}
-                                            </Typography.Text>
-                                        </Col>
-                                        <Col lg={5} offset={2}>
-                                            <LocaleContext.Consumer>
-                                                {({ locale, setLocale }) => {
-                                                    return (
-                                                        <Select
-                                                            options={possibleLocalesOptions}
-                                                            value={locale}
-                                                            placeholder={ChooseInterfaceLanguageTitle}
-                                                            onChange={localeChangeHandler(setLocale)}
-                                                        />
-                                                    )
-                                                }}
-                                            </LocaleContext.Consumer>
+                                        <Col span={24}>
+                                            <Row gutter={ROW_GUTTER_MID}>
+                                                <Col lg={3} xs={10}>
+                                                    <Typography.Text type='secondary'>
+                                                        {InterfaceLanguageTitle}
+                                                    </Typography.Text>
+                                                </Col>
+                                                <Col lg={5} offset={2}>
+                                                    <LocaleContext.Consumer>
+                                                        {({ locale, setLocale }) => {
+                                                            return (
+                                                                <Select
+                                                                    options={possibleLocalesOptions}
+                                                                    value={locale}
+                                                                    placeholder={ChooseInterfaceLanguageTitle}
+                                                                    onChange={localeChangeHandler(setLocale)}
+                                                                />
+                                                            )
+                                                        }}
+                                                    </LocaleContext.Consumer>
+                                                </Col>
+                                            </Row>
                                         </Col>
                                     </Row>
                                 </Col>
                             </Row>
+                        </Col>
+                        <Col span={24}>
+                            <ActionBar
+                                actions={[
+                                    <Link key='update' href='/user/update'>
+                                        <Button
+                                            type='primary'
+                                            icon={<Edit size='medium'/>}
+                                        >
+                                            {UpdateMessage}
+                                        </Button>
+                                    </Link>,
+                                ]}
+                            />
                         </Col>
                     </Row>
                 </PageContent>

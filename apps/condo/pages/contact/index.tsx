@@ -6,11 +6,12 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
-import { FileDown } from '@open-condo/icons'
+import { FileDown, PlusCircle, Search } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
@@ -36,7 +37,6 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
-const ROW_HORIZONTAL_GUTTERS: [Gutter, Gutter] = [10, 0]
 
 export const ContactsPageContent = ({
     tableColumns,
@@ -53,6 +53,7 @@ export const ContactsPageContent = ({
     const CreateContact = intl.formatMessage({ id: 'AddContact' })
     const ContactsMessage = intl.formatMessage({ id: 'global.section.contacts' })
     const ContactTitle = intl.formatMessage({ id: 'pages.condo.contact.ImportTitle' })
+    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const { user } = useAuth() as { user: { id: string } }
     const router = useRouter()
@@ -138,66 +139,15 @@ export const ContactsPageContent = ({
                     <Row gutter={ROW_VERTICAL_GUTTERS} align='middle' justify='start' hidden={isNoContactsData}>
                         <Col span={24}>
                             <TableFiltersContainer>
-                                <Row justify='space-between' gutter={ROW_VERTICAL_GUTTERS}>
-                                    <Col xs={24} lg={6}>
-                                        <Input
-                                            placeholder={SearchPlaceholder}
-                                            onChange={(e) => {
-                                                handleSearchChange(e.target.value)
-                                            }}
-                                            value={search}
-                                            allowClear
-                                        />
-                                    </Col>
-                                    <Col>
-                                        <Row
-                                            gutter={ROW_HORIZONTAL_GUTTERS}
-                                            align='middle'
-                                            justify='center'
-                                        >
-                                            <Col hidden={!breakpoints.TABLET_LARGE}>
-                                                {
-                                                    canManageContacts && (
-                                                        <ImportWrapper
-                                                            objectsName={ContactsMessage}
-                                                            accessCheck={canManageContacts}
-                                                            onFinish={refetch}
-                                                            columns={columns}
-                                                            maxTableLength={hasFeature('bigger_limit_for_import') ?
-                                                                EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                                                DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                                                            }
-                                                            rowNormalizer={contactNormalizer}
-                                                            rowValidator={contactValidator}
-                                                            objectCreator={contactCreator}
-                                                            domainTranslate={ContactTitle}
-                                                            exampleTemplateLink='/contact-import-example.xlsx'
-                                                        >
-                                                            <Button
-                                                                type='secondary'
-                                                                icon={<FileDown size='medium'/>}
-                                                            />
-                                                        </ImportWrapper>
-                                                    )
-                                                }
-                                            </Col>
-                                            <Col>
-                                                {
-                                                    canManageContacts && (
-                                                        <Button
-                                                            block={breakpoints.TABLET_LARGE}
-                                                            key='left'
-                                                            type='primary'
-                                                            onClick={() => router.push(ADD_CONTACT_ROUTE)}
-                                                        >
-                                                            {CreateContact}
-                                                        </Button>
-                                                    )
-                                                }
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                </Row>
+                                <Input
+                                    placeholder={SearchPlaceholder}
+                                    onChange={(e) => {
+                                        handleSearchChange(e.target.value)
+                                    }}
+                                    value={search}
+                                    allowClear
+                                    suffix={<Search size='medium' color={colors.gray[7]} />}
+                                />
                             </TableFiltersContainer>
                         </Col>
                         <Col span={24}>
@@ -215,6 +165,43 @@ export const ContactsPageContent = ({
                                 <Col span={24}>
                                     <ActionBar
                                         actions={[
+                                            canManageContacts && (
+                                                <>
+                                                    <Button
+                                                        block={breakpoints.TABLET_LARGE}
+                                                        key='left'
+                                                        type='primary'
+                                                        onClick={() => router.push(ADD_CONTACT_ROUTE)}
+                                                        icon={<PlusCircle size='medium'/>}
+                                                    >
+                                                        {CreateContact}
+                                                    </Button>
+                                                    <ImportWrapper
+                                                        key='import'
+                                                        objectsName={ContactsMessage}
+                                                        accessCheck={canManageContacts}
+                                                        onFinish={refetch}
+                                                        columns={columns}
+                                                        maxTableLength={hasFeature('bigger_limit_for_import') ?
+                                                            EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
+                                                            DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                                                        }
+                                                        rowNormalizer={contactNormalizer}
+                                                        rowValidator={contactValidator}
+                                                        objectCreator={contactCreator}
+                                                        domainTranslate={ContactTitle}
+                                                        exampleTemplateLink='/contact-import-example.xlsx'
+                                                    >
+                                                        <Button
+                                                            type='secondary'
+                                                            icon={<FileDown size='medium'/>}
+                                                        >
+                                                            {ImportButtonMessage}
+                                                        </Button>
+                                                    </ImportWrapper>
+                                                </>
+
+                                            ),
                                             <ExportButton key='export' />,
                                         ]}
                                     />

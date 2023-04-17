@@ -6,10 +6,11 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
-import { PlusCircle } from '@open-condo/icons'
+import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -79,18 +80,15 @@ export const EmployeesPageContent = ({
                             : <Row gutter={[0, 40]} align='middle'>
                                 <Col span={24}>
                                     <TableFiltersContainer>
-                                        <Row justify='space-between' gutter={[0, 40]}>
-                                            <Col xs={24} lg={6}>
-                                                <Input
-                                                    placeholder={SearchPlaceholder}
-                                                    onChange={(e) => {
-                                                        handleSearchChange(e.target.value)
-                                                    }}
-                                                    value={search}
-                                                    allowClear={true}
-                                                />
-                                            </Col>
-                                        </Row>
+                                        <Input
+                                            placeholder={SearchPlaceholder}
+                                            onChange={(e) => {
+                                                handleSearchChange(e.target.value)
+                                            }}
+                                            value={search}
+                                            allowClear
+                                            suffix={<Search size='medium' color={colors.gray[7]} />}
+                                        />
                                     </TableFiltersContainer>
                                 </Col>
                                 <Col span={24}>

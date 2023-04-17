@@ -66,10 +66,8 @@ export default function GlobalStyle () {
                 }
                 
                 .ant-checkbox {
-                  background-color: ${colors.white};
-                  
                   .ant-checkbox-inner {
-                    background-color: inherit;
+                    background-color: ${colors.white};
                     border: 1px solid ${colors.inputBorderGrey};
                     border-radius: 4px;
                     
@@ -100,10 +98,6 @@ export default function GlobalStyle () {
                 width: 24px;
                 height: 24px;
                 border-color: ${colors.inputBorderGrey};
-              }
-              
-              .ant-checkbox-input:focus:not(:checked) + .ant-checkbox-inner {
-                background-color: inherit;
               }
 
               .ant-form-item input[type="checkbox"] {
@@ -176,7 +170,7 @@ export default function GlobalStyle () {
               }
 
               .ant-input-affix-wrapper input, .ant-input-affix-wrapper:focus, .ant-input-affix-wrapper-focused {
-                border-color: ${colors.black};
+                border-color: ${colors.inputBorderHover};
                 box-shadow: none !important;
               }
 

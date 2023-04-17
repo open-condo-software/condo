@@ -427,17 +427,21 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                         <Col span={24} lg={24} xl={22}>
                             <IncidentContent incident={incident} withOrganization={withOrganization} />
                         </Col>
-                        <Col span={24} lg={24} xl={22}>
-                            <ChangeHistory
-                                <IIncidentChange>
-                                items={incidentChanges}
-                                loading={incidentChangesLoading}
-                                total={incidentChangesCount}
-                                title={ChangeHistoryTitle}
-                                useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
-                                Diff={ChangeHistoryDiff}
-                            />
-                        </Col>
+                        {
+                            incidentChanges && (
+                                <Col span={24} lg={24} xl={22}>
+                                    <ChangeHistory
+                                        <IIncidentChange>
+                                        items={incidentChanges}
+                                        loading={incidentChangesLoading}
+                                        total={incidentChangesCount}
+                                        title={ChangeHistoryTitle}
+                                        useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
+                                        Diff={ChangeHistoryDiff}
+                                    />
+                                </Col>
+                            )
+                        }
                         <Col span={24}>
                             <ActionBar
                                 actions={[

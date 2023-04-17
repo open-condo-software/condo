@@ -21,9 +21,6 @@ import { Button } from '../Button'
 import { CommentWithFiles } from './index'
 
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-
-
-
 interface ICommentProps {
     comment: CommentWithFiles,
     setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>

@@ -210,7 +210,9 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                             exampleTemplateLink={exampleTemplateLink}
                             domainTranslate={domainTranslate}
                         />}
-                    >{props.children}</Popover>
+                    >
+                        {props.children}
+                    </Popover>
                 </DataImporter>
                 {contextHolder}
             </ModalContext.Provider>
