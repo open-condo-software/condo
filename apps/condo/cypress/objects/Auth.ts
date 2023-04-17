@@ -4,7 +4,9 @@ const SIGNIN_URL = '/auth/signin/'
 const FORGOT_PASSWORD_URL = '/auth/forgot'
 const REGISTER_URL = '/auth/register/'
 
-class SignIn {
+// const Metrics = require('@open-condo/keystone/metrics')
+
+class SignIn{
 /*
     Elements:
         signin-phone-item
@@ -12,7 +14,22 @@ class SignIn {
         signin-button
 */
     visit (): this {
-        cy.visit(SIGNIN_URL)
+        cy.visit(SIGNIN_URL, {
+            onBeforeLoad: (win) => {
+                win.performance.mark('start-loading')
+            },
+            onLoad: (win) => {
+                win.performance.mark('end-loading')
+            },
+        }).its('performance').then((p) => {
+            p.measure('pageLoad', 'start-loading', 'end-loading')
+            const measure = p.getEntriesByName('pageLoad')[0]
+
+            // Metrics.gauge({ name: 'signin.page.load', value: measure })
+
+            cy.log(`MEASURE!!!! SIGNIN_PAGE_LOAD ${measure.duration}`)
+            console.log(`MEASURE!!!! SIGNIN_PAGE_LOAD ${measure.duration}`)
+        })
         return this
     }
 
