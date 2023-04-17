@@ -51,6 +51,7 @@ describe('Auth scenarios', () => {
                     .fillPassword(user.password)
                     .fillConfirmPassword(user.password)
                     .completeRegistrationClick()
+
             })
         })
     })
