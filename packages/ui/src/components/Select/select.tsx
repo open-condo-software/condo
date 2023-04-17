@@ -6,7 +6,7 @@ import React, { useCallback } from 'react'
 import { ChevronDown, Close, Check, Inbox } from '@open-condo/icons'
 import { Typography } from '@open-condo/ui/src'
 import type { TypographyTextProps } from '@open-condo/ui/src'
-import { sendAnalyticsSelectEvent, extractChildrenContent } from '@open-condo/ui/src/components/_utils/analytics'
+import { sendAnalyticsChangeEvent, extractChildrenContent } from '@open-condo/ui/src/components/_utils/analytics'
 
 import { SELECT_TYPES } from './constants'
 
@@ -66,8 +66,8 @@ const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueT
         }
 
         if (title) {
-            // TODO(DOMA-5597): Move it to change event; Also key should be used as well
-            sendAnalyticsSelectEvent('Select', { label: title, value: String(value), id })
+            // TODO(DOMA-5597): Key prop should be used here
+            sendAnalyticsChangeEvent('Select', { label: title, value: String(value), id })
         }
 
         if (onChange) {
