@@ -68,7 +68,7 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             },
         },
     },
-    plugins: [uuided(), addressService({}), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), addressService({ fieldsHooks: {}, resolveAddressFields: ({ addressFields }) => addressFields }), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadBillingProperties,
         create: access.canManageBillingProperties,
