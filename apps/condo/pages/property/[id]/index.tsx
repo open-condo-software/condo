@@ -15,7 +15,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, ListProps } from '@open-condo/ui'
 import { List, Typography, Button } from '@open-condo/ui'
 
-import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import {
     DeleteButtonWithConfirmModal,
@@ -31,7 +31,6 @@ const PROPERTY_PAGE_CONTENT_ROW_GUTTER: RowProps['gutter'] = [12, 40]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER: RowProps['gutter'] = [52, 24]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE: React.CSSProperties = { marginTop: '80px' }
 const PROPERTY_PAGE_CONTENT_ROW_STYLE: React.CSSProperties = { marginTop: '60px' }
-const PROPERTY_PAGE_ACTION_BAR_SPACE_STYLE: React.CSSProperties = { marginBottom: 0 }
 const PROPERTY_PAGE_SPACE_STYLE: React.CSSProperties = { width: '100%' }
 
 export const PropertyPageContent = ({ property, role = null, organizationId = null }) => {
@@ -56,6 +55,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     const ParkingNotAvailableTitle = intl.formatMessage({ id: 'global.notAvailable' })
 
     const { push } = useRouter()
+    const { breakpoints } = useLayoutContext()
 
     const softDeleteAction = Property.useSoftDelete( () => push('/property/'))
 
@@ -154,47 +154,53 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
                     <PropertyReportCard property={property} organizationId={organizationId} role={role} />
                 </Col>
             </Row>
-            <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>
-                <Col span={24} css={CustomScrollbarCss}>
-                    <PropertyPanels
-                        mode='view'
-                        map={property.map}
-                        address={property.address}
-                        canManageProperties={canManageProperties}
-                    />
-                </Col>
-            </Row>
+            {
+                breakpoints.TABLET_LARGE && (
+                    <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>
+                        <Col span={24} css={CustomScrollbarCss}>
+                            <PropertyPanels
+                                mode='view'
+                                map={property.map}
+                                address={property.address}
+                                canManageProperties={canManageProperties}
+                            />
+                        </Col>
+                    </Row>
+                )
+            }
             {
                 canManageProperties ? (
-                    <ActionBar
-                        actions={[
-                            <Link key='editProperty' href={`/property/${property.id}/update`}>
-                                <Button
-                                    type='primary'
-                                >
-                                    {EditPropertyTitle}
-                                </Button>
-                            </Link>,
-                            !isNull(get(property, 'map')) && (
-                                <Link key='editPropertyMap' href={`/property/${property.id}/map/update`}>
+                    <Col span={24} style={!breakpoints.TABLET_LARGE && PROPERTY_PAGE_CONTENT_ROW_STYLE}>
+                        <ActionBar
+                            actions={[
+                                <Link key='editProperty' href={`/property/${property.id}/update`}>
                                     <Button
-                                        type='secondary'
-                                        data-cy='property-map__update-button'
+                                        type='primary'
                                     >
-                                        {EditPropertyMapTitle}
+                                        {EditPropertyTitle}
                                     </Button>
-                                </Link>
-                            ),
-                            <DeleteButtonWithConfirmModal
-                                key='delete'
-                                title={ConfirmDeleteTitle}
-                                message={ConfirmDeleteMessage}
-                                okButtonLabel={DeletePropertyLabel}
-                                action={() => softDeleteAction(property)}
-                                buttonContent={DeletePropertyLabel}
-                            />,
-                        ]}
-                    />
+                                </Link>,
+                                !isNull(get(property, 'map')) && breakpoints.TABLET_LARGE && (
+                                    <Link key='editPropertyMap' href={`/property/${property.id}/map/update`}>
+                                        <Button
+                                            type='secondary'
+                                            data-cy='property-map__update-button'
+                                        >
+                                            {EditPropertyMapTitle}
+                                        </Button>
+                                    </Link>
+                                ),
+                                <DeleteButtonWithConfirmModal
+                                    key='delete'
+                                    title={ConfirmDeleteTitle}
+                                    message={ConfirmDeleteMessage}
+                                    okButtonLabel={DeletePropertyLabel}
+                                    action={() => softDeleteAction(property)}
+                                    buttonContent={DeletePropertyLabel}
+                                />,
+                            ]}
+                        />
+                    </Col>
                 ) : null
             }
         </>

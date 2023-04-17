@@ -102,11 +102,11 @@ const StyledCarouselWrapper = styled(Col)`
     }
 
     & .slick-prev {
-      left: -8px;
+      left: -8px !important;
     }
 
     & .slick-next {
-      right: -32px;
+      right: -32px !important;
     }
   }
 `

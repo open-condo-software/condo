@@ -603,122 +603,126 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         <Col span={24}>
                             <Row gutter={BIG_HORIZONTAL_GUTTER} justify='space-between'>
                                 <Col span={propertyInfoColSpan}>
-                                    <Row gutter={BIG_VERTICAL_GUTTER}>
-                                        <Col span={24} lg={7}>
-                                            <TicketSourceSelect />
-                                        </Col>
-                                        <Col span={24}>
-                                            <Row gutter={BIG_HORIZONTAL_GUTTER} justify='space-between'>
-                                                <Col span={24}>
-                                                    <Row gutter={BIG_VERTICAL_GUTTER}>
-                                                        <Col span={24}>
-                                                            <Row gutter={SMALL_VERTICAL_GUTTER}>
-                                                                {NoPropertiesAlert}
-                                                                <Col span={24} data-cy='ticket__property-address-search-input'>
-                                                                    <TicketFormItem
-                                                                        name='property'
-                                                                        label={AddressLabel}
-                                                                        rules={PROPERTY_VALIDATION_RULES}
-                                                                    >
-                                                                        <PropertyAddressSearchInput
-                                                                            organization={organization}
-                                                                            autoFocus
-                                                                            onSelect={handlePropertySelectChange(form)}
-                                                                            onClear={handlePropertiesSelectClear(form)}
-                                                                            placeholder={AddressPlaceholder}
-                                                                            notFoundContent={AddressNotFoundContent}
-                                                                            setIsMatchSelectedProperty={setIsMatchSelectedProperty}
-                                                                        />
-                                                                    </TicketFormItem>
-                                                                </Col>
-                                                                {selectedPropertyId && (
-                                                                    <UnitInfo
-                                                                        property={property}
-                                                                        loading={organizationPropertiesLoading}
-                                                                        setSelectedUnitName={setSelectedUnitName}
-                                                                        setSelectedUnitType={setSelectedUnitType}
-                                                                        selectedUnitName={selectedUnitName}
-                                                                        setSelectedSectionType={setSelectedSectionType}
-                                                                        selectedSectionType={selectedSectionType}
-                                                                        mode={UnitInfoMode.All}
-                                                                        initialValues={initialTicketValues}
-                                                                        form={form}
-                                                                    />
-                                                                )}
-                                                            </Row>
-                                                        </Col>
-                                                        {
-                                                            selectedPropertyId && !breakpoints.DESKTOP_LARGE && (
-                                                                <Col span={24}>
-                                                                    {hintsBlock}
-                                                                </Col>
-                                                            )
-                                                        }
-                                                        <ContactsInfo
-                                                            ContactsEditorComponent={ContactsEditorComponent}
-                                                            form={form}
-                                                            initialValues={initialTicketValues}
-                                                            selectedPropertyId={selectedPropertyId}
-                                                        />
-                                                    </Row>
+                                    <Row gutter={[0, 20]}>
+                                        <Col>
+                                            <Row gutter={BIG_VERTICAL_GUTTER}>
+                                                <Col span={24} lg={7}>
+                                                    <TicketSourceSelect />
                                                 </Col>
-
-                                            </Row>
-                                        </Col>
-                                        <Col span={24}>
-                                            <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
-                                                {
-                                                    ({ getFieldsValue }) => {
-                                                        const {
-                                                            property,
-                                                            categoryClassifier,
-                                                        } = getFieldsValue(['property', 'categoryClassifier'])
-
-                                                        const disableUserInteraction = !property
-
-                                                        return (
+                                                <Col span={24}>
+                                                    <Row gutter={BIG_HORIZONTAL_GUTTER} justify='space-between'>
+                                                        <Col span={24}>
                                                             <Row gutter={BIG_VERTICAL_GUTTER}>
-                                                                <TicketInfo
-                                                                    form={form}
-                                                                    UploadComponent={UploadComponent}
-                                                                    validations={validations}
-                                                                    initialValues={initialValues}
-                                                                    disableUserInteraction={disableUserInteraction}
-                                                                />
-                                                                <Col>
-                                                                    <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false}>
-                                                                        <Row gutter={BIG_VERTICAL_GUTTER}>
-                                                                            <TicketAssignments
-                                                                                disableUserInteraction={disableUserInteraction}
-                                                                                validations={validations}
-                                                                                organizationId={get(organization, 'id')}
-                                                                                propertyId={selectedPropertyId}
-                                                                                autoAssign={autoAssign}
-                                                                                categoryClassifier={categoryClassifier}
+                                                                <Col span={24}>
+                                                                    <Row gutter={SMALL_VERTICAL_GUTTER}>
+                                                                        {NoPropertiesAlert}
+                                                                        <Col span={24} data-cy='ticket__property-address-search-input'>
+                                                                            <TicketFormItem
+                                                                                name='property'
+                                                                                label={AddressLabel}
+                                                                                rules={PROPERTY_VALIDATION_RULES}
+                                                                            >
+                                                                                <PropertyAddressSearchInput
+                                                                                    organization={organization}
+                                                                                    autoFocus
+                                                                                    onSelect={handlePropertySelectChange(form)}
+                                                                                    onClear={handlePropertiesSelectClear(form)}
+                                                                                    placeholder={AddressPlaceholder}
+                                                                                    notFoundContent={AddressNotFoundContent}
+                                                                                    setIsMatchSelectedProperty={setIsMatchSelectedProperty}
+                                                                                />
+                                                                            </TicketFormItem>
+                                                                        </Col>
+                                                                        {selectedPropertyId && (
+                                                                            <UnitInfo
+                                                                                property={property}
+                                                                                loading={organizationPropertiesLoading}
+                                                                                setSelectedUnitName={setSelectedUnitName}
+                                                                                setSelectedUnitType={setSelectedUnitType}
+                                                                                selectedUnitName={selectedUnitName}
+                                                                                setSelectedSectionType={setSelectedSectionType}
+                                                                                selectedSectionType={selectedSectionType}
+                                                                                mode={UnitInfoMode.All}
+                                                                                initialValues={initialTicketValues}
                                                                                 form={form}
                                                                             />
-                                                                            {
-                                                                                !isResidentTicket && (
-                                                                                    <Col span={24}>
-                                                                                        <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
-                                                                                            <Checkbox
-                                                                                                disabled={disableUserInteraction}
-                                                                                                eventName='TicketCreateCheckboxCanReadByResident'
-                                                                                            >
-                                                                                                {CanReadByResidentMessage}
-                                                                                            </Checkbox>
-                                                                                        </Form.Item>
-                                                                                    </Col>
-                                                                                )
-                                                                            }
-                                                                        </Row>
-                                                                    </FrontLayerContainer>
+                                                                        )}
+                                                                    </Row>
                                                                 </Col>
+                                                                {
+                                                                    selectedPropertyId && !breakpoints.DESKTOP_LARGE && (
+                                                                        <Col span={24}>
+                                                                            {hintsBlock}
+                                                                        </Col>
+                                                                    )
+                                                                }
+                                                                <ContactsInfo
+                                                                    ContactsEditorComponent={ContactsEditorComponent}
+                                                                    form={form}
+                                                                    initialValues={initialTicketValues}
+                                                                    selectedPropertyId={selectedPropertyId}
+                                                                />
                                                             </Row>
-                                                        )
-                                                    }
-                                                }
-                                            </Form.Item>
+                                                        </Col>
+
+                                                    </Row>
+                                                </Col>
+                                                <Col span={24}>
+                                                    <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
+                                                        {
+                                                            ({ getFieldsValue }) => {
+                                                                const {
+                                                                    property,
+                                                                    categoryClassifier,
+                                                                } = getFieldsValue(['property', 'categoryClassifier'])
+
+                                                                const disableUserInteraction = !property
+
+                                                                return (
+                                                                    <Row gutter={BIG_VERTICAL_GUTTER}>
+                                                                        <TicketInfo
+                                                                            form={form}
+                                                                            UploadComponent={UploadComponent}
+                                                                            validations={validations}
+                                                                            initialValues={initialValues}
+                                                                            disableUserInteraction={disableUserInteraction}
+                                                                        />
+                                                                        <Col>
+                                                                            <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false}>
+                                                                                <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+                                                                                    <TicketAssignments
+                                                                                        disableUserInteraction={disableUserInteraction}
+                                                                                        validations={validations}
+                                                                                        organizationId={get(organization, 'id')}
+                                                                                        propertyId={selectedPropertyId}
+                                                                                        autoAssign={autoAssign}
+                                                                                        categoryClassifier={categoryClassifier}
+                                                                                        form={form}
+                                                                                    />
+                                                                                    {
+                                                                                        !isResidentTicket && (
+                                                                                            <Col span={24}>
+                                                                                                <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
+                                                                                                    <Checkbox
+                                                                                                        disabled={disableUserInteraction}
+                                                                                                        eventName='TicketCreateCheckboxCanReadByResident'
+                                                                                                    >
+                                                                                                        {CanReadByResidentMessage}
+                                                                                                    </Checkbox>
+                                                                                                </Form.Item>
+                                                                                            </Col>
+                                                                                        )
+                                                                                    }
+                                                                                </Row>
+                                                                            </FrontLayerContainer>
+                                                                        </Col>
+                                                                    </Row>
+                                                                )
+                                                            }
+                                                        }
+                                                    </Form.Item>
+                                                </Col>
+                                            </Row>
                                         </Col>
                                         {isFunction(props.children) && (
                                             <Col span={24}>

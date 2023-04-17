@@ -66,6 +66,7 @@ export const MetersPageContent = ({
     const MeterReadingImportObjectsNameManyGenitive = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many.genitive' })
     const MeterAccountNumberExistInOtherUnitMessage = intl.formatMessage({ id: 'meter.import.error.MeterAccountNumberExistInOtherUnit' })
     const MeterNumberExistInOrganizationMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberExistInOrganization' })
+    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
@@ -179,33 +180,6 @@ export const MetersPageContent = ({
                                                     </Col>
                                                 ) : null
                                             }
-                                            {
-                                                canManageMeterReadings && (
-                                                    <Col>
-                                                        <ImportWrapper
-                                                            objectsName={MeterReadingImportObjectsName}
-                                                            accessCheck={canManageMeterReadings}
-                                                            onFinish={refetch}
-                                                            columns={columns}
-                                                            maxTableLength={hasFeature('bigger_limit_for_import') ?
-                                                                EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                                                DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                                                            }
-                                                            rowNormalizer={meterReadingNormalizer}
-                                                            rowValidator={meterReadingValidator}
-                                                            objectCreator={meterReadingCreator}
-                                                            domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                                            exampleTemplateLink='/meter-import-example.xlsx'
-                                                            mutationErrorsToMessages={mutationErrorsToMessages}
-                                                        >
-                                                            <Button
-                                                                type='secondary'
-                                                                icon={<FileDown size='medium' />}
-                                                            />
-                                                        </ImportWrapper>
-                                                    </Col>
-                                                )
-                                            }
                                             <Col>
                                                 <Button
                                                     type='secondary'
@@ -239,6 +213,34 @@ export const MetersPageContent = ({
                                 searchObjectsQuery={searchMeterReadingsQuery}
                                 exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
                                 sortBy={sortBy}
+                                actions={[
+                                    canManageMeterReadings && (
+                                        <ImportWrapper
+                                            key='import'
+                                            objectsName={MeterReadingImportObjectsName}
+                                            accessCheck={canManageMeterReadings}
+                                            onFinish={refetch}
+                                            columns={columns}
+                                            maxTableLength={hasFeature('bigger_limit_for_import') ?
+                                                EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
+                                                DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                                            }
+                                            rowNormalizer={meterReadingNormalizer}
+                                            rowValidator={meterReadingValidator}
+                                            objectCreator={meterReadingCreator}
+                                            domainTranslate={MeterReadingImportObjectsNameManyGenitive}
+                                            exampleTemplateLink='/meter-import-example.xlsx'
+                                            mutationErrorsToMessages={mutationErrorsToMessages}
+                                        >
+                                            <Button
+                                                type='secondary'
+                                                icon={<FileDown size='medium' />}
+                                            >
+                                                {ImportButtonMessage}
+                                            </Button>
+                                        </ImportWrapper>
+                                    ),
+                                ]}
                             />
                         </Col>
                     </Row>

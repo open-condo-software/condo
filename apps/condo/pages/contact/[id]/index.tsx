@@ -1,17 +1,17 @@
-import { EditFilled } from '@ant-design/icons'
 import { BuildingUnitSubType } from '@app/condo/schema'
-import { Col, Row, Space, Typography } from 'antd'
+import { Col, Row, Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback } from 'react'
 
+import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import { Button } from '@condo/domains/common/components/Button'
 import { PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
@@ -22,7 +22,6 @@ import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-
 
 const FieldPairRow = (props) => {
     const {
@@ -59,6 +58,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
     const ContactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
     const VerifiedMessage = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
+    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
 
     const contactId = get(contact, 'id', null)
     const contactName = get(contact, 'name')
@@ -86,13 +86,13 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                 <title>{contactName}</title>
             </Head>
             <PageWrapper>
-                <Row gutter={[0, 40]} justify='center'>
+                <Row gutter={[0, 40]}>
                     <Col xs={10} lg={3}>
                         <UserAvatar borderRadius={24}/>
                     </Col>
-                    <Col xs={24} lg={20} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
-                        <Row gutter={[0, 60]}>
-                            <Col lg={15} xs={24}>
+                    <Col xs={24} lg={20} offset={!breakpoints.DESKTOP_SMALL ? 0 : 1}>
+                        <Row gutter={[0, 20]}>
+                            <Col xs={24} lg={15}>
                                 <Row gutter={[0, 40]}>
                                     <Col span={24}>
                                         <Typography.Title>
@@ -143,35 +143,61 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                             </Row>
                                         </FrontLayerContainer>
                                     </Col>
-                                    {isContactEditable && (
+                                    {isContactEditable && breakpoints.DESKTOP_SMALL && (
                                         <Col span={24}>
-                                            <Space direction='horizontal' size={40}>
-                                                <Link href={`/contact/${get(contact, 'id')}/update`}>
-                                                    <Button
-                                                        color='green'
-                                                        type='sberPrimary'
-                                                        secondary
-                                                        icon={<EditFilled />}
-                                                    >
-                                                        {UpdateMessage}
-                                                    </Button>
-                                                </Link>
-                                                <DeleteButtonWithConfirmModal
-                                                    title={ConfirmDeleteTitle}
-                                                    message={ConfirmDeleteMessage}
-                                                    okButtonLabel={ConfirmDeleteButtonLabel}
-                                                    action={deleteCallback}
-                                                />
-                                            </Space>
+                                            <ActionBar
+                                                actions={[
+                                                    <Link key='update' href={`/contact/${get(contact, 'id')}/update`}>
+                                                        <Button
+                                                            type='primary'
+                                                            icon={<Edit size='medium' />}
+                                                        >
+                                                            {UpdateMessage}
+                                                        </Button>
+                                                    </Link>,
+                                                    <DeleteButtonWithConfirmModal
+                                                        key='delete'
+                                                        title={ConfirmDeleteTitle}
+                                                        message={ConfirmDeleteMessage}
+                                                        okButtonLabel={ConfirmDeleteButtonLabel}
+                                                        action={deleteCallback}
+                                                        buttonContent={DeleteMessage}
+                                                    />,
+                                                ]}
+                                            />
                                         </Col>
                                     )}
                                 </Row>
                             </Col>
-                            <Col xs={24} lg={8} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
+                            <Col xs={24} sm={24} lg={8} offset={!breakpoints.DESKTOP_SMALL ? 0 : 1}>
                                 <TicketCardList
                                     contactId={contactId}
                                 />
                             </Col>
+                            {isContactEditable && !breakpoints.DESKTOP_SMALL && (
+                                <Col span={24}>
+                                    <ActionBar
+                                        actions={[
+                                            <Link key='update' href={`/contact/${get(contact, 'id')}/update`}>
+                                                <Button
+                                                    type='primary'
+                                                    icon={<Edit size='medium' />}
+                                                >
+                                                    {UpdateMessage}
+                                                </Button>
+                                            </Link>,
+                                            <DeleteButtonWithConfirmModal
+                                                key='delete'
+                                                title={ConfirmDeleteTitle}
+                                                message={ConfirmDeleteMessage}
+                                                okButtonLabel={ConfirmDeleteButtonLabel}
+                                                action={deleteCallback}
+                                                buttonContent={DeleteMessage}
+                                            />,
+                                        ]}
+                                    />
+                                </Col>
+                            )}
                         </Row>
                     </Col>
                 </Row>

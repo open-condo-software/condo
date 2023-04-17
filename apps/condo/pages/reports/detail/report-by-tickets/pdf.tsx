@@ -19,7 +19,6 @@ import { TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
 import { filterToQuery, getAggregatedData, GroupTicketsByTypes } from '@condo/domains/analytics/utils/helpers'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Logo } from '@condo/domains/common/components/Logo'
-import { colors } from '@condo/domains/common/constants/style'
 import { createPdfWithPageBreaks } from '@condo/domains/common/utils/pdf'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
@@ -510,7 +509,7 @@ const PdfView = () => {
         >
             <Col flex={1} style={{ visibility: loading ? 'hidden' : 'visible', position: 'relative' }}>
                 <Typography.Paragraph style={{ position: 'absolute', top: 0, right: 0 }}>
-                    <Logo onClick={undefined} fillColor={colors.lightGrey[6]} />
+                    <Logo />
                 </Typography.Paragraph>
                 {chartLoading &&
                     <Typography.Paragraph>

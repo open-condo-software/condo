@@ -6,7 +6,6 @@ import { useAuth } from '@open-condo/next/auth'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
-import { colors } from '@condo/domains/common/constants/style'
 
 import { ActionContainer, Header, MobileHeader } from './styles'
 
@@ -35,30 +34,23 @@ export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
     return (
         !breakpoints.TABLET_LARGE
             ? (
-                <>
-                    <MobileHeader>
-                        <Row style={LOGO_HEADER_STYLES}>
-                            <Col style={HEADER_LOGO_STYLE}>
-                                <Logo fillColor={colors.backgroundLightGrey} onClick={handleLogoClick}/>
-                            </Col>
-                            <Col style={HEADER_ACTION_STYLES}>
-                                <ActionContainer>{headerAction}</ActionContainer>
-                            </Col>
-                        </Row>
-                        <Row justify='center'>
-                            <Col style={MINI_POSTER_STYLES}>
-                                <Image preview={false} src='/miniPoster.png'/>
-                            </Col>
-                        </Row>
-                    </MobileHeader>
-                </>
+                <MobileHeader>
+                    <Row style={LOGO_HEADER_STYLES}>
+                        <Col style={HEADER_LOGO_STYLE}>
+                            <Logo onClick={handleLogoClick}/>
+                        </Col>
+                        <Col style={HEADER_ACTION_STYLES}>
+                            <ActionContainer>{headerAction}</ActionContainer>
+                        </Col>
+                    </Row>
+                </MobileHeader>
             )
             : (
                 <Row>
                     <Header>
                         <Row style={LOGO_HEADER_STYLES}>
                             <Col style={HEADER_LOGO_STYLE}>
-                                <Logo fillColor={colors.scampi} onClick={handleLogoClick}/>
+                                <Logo onClick={handleLogoClick}/>
                             </Col>
                             <Col style={HEADER_ACTION_STYLES}>
                                 {headerAction}

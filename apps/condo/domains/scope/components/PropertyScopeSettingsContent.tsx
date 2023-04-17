@@ -98,7 +98,6 @@ export const PropertyScopeSettingsContent = () => {
                 canManagePropertyScopes && (
                     <Col span={24}>
                         <ExportToExcelActionBar
-                            hidden={!breakpoints.TABLET_LARGE}
                             searchObjectsQuery={searchPropertyScopesQuery}
                             sortBy={sortBy}
                             exportToExcelQuery={EXPORT_PROPERTY_SCOPE_QUERY}
