@@ -306,7 +306,9 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                     </Col>
                                 </Row>
                             </Col>
-                            {children({ handleSave, isLoading, form })}
+                            <Col span={24}>
+                                {children({ handleSave, isLoading, form })}
+                            </Col>
                         </Row>
                     )}
                 </FormWithAction>

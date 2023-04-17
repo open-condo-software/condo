@@ -1,10 +1,10 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
+import { Col, Layout, PageHeader as AntPageHeader, PageHeaderProps, Row } from 'antd'
 import MenuItem from 'antd/lib/menu/MenuItem'
 import classnames from 'classnames'
 import Router from 'next/router'
-import React, { CSSProperties, FunctionComponent, useEffect, ElementType } from 'react'
+import React, { CSSProperties, FunctionComponent, useEffect, ElementType, ReactElement } from 'react'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'

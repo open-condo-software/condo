@@ -1,37 +1,33 @@
 import { EditFilled } from '@ant-design/icons'
-import { Alert, Col, Row, Space, Switch, Tag, Typography } from 'antd'
+import { Col, Row, Space, Switch } from 'antd'
 import { map } from 'lodash'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import Router from 'next/router'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 
+import { Edit } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Alert, Button, Tag, Typography } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
 import {
     PageContent,
-    PageHeader,
     PageWrapper,
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-
-
-
 
 
 const ReInviteActionAlert = ({ employee }) => {
@@ -123,7 +119,6 @@ export const EmployeePageContent = ({
                                         <Col span={24}>
                                             <Typography.Title
                                                 level={1}
-                                                style={{ margin: 0, fontWeight: 'bold' }}
                                             >
                                                 {name}
                                             </Typography.Title>
@@ -133,7 +128,6 @@ export const EmployeePageContent = ({
                                                 render={(value) => (
                                                     <Typography.Title
                                                         level={2}
-                                                        style={{ margin: '8px 0 0', fontWeight: 400 }}
                                                     >
                                                         {value}
                                                     </Typography.Title>
@@ -152,12 +146,12 @@ export const EmployeePageContent = ({
                                                             defaultChecked={isEmployeeBlocked}
                                                             disabled={isMyEmployee}
                                                         />
-                                                        <Typography.Text type='danger' style={{ fontSize: fontSizes.content }}>
+                                                        <Typography.Text type='danger'>
                                                             {BlockUserMessage}
                                                         </Typography.Text>
                                                         {
                                                             (isMyEmployee) ?
-                                                                <Typography.Text style={{ fontSize: fontSizes.content }}>
+                                                                <Typography.Text>
                                                                     {CanNotBlockYourselfMessage}
                                                                 </Typography.Text>
                                                                 :
@@ -188,7 +182,7 @@ export const EmployeePageContent = ({
                                                         <NotDefinedField
                                                             value={get(employee, ['role', 'name'])}
                                                             render={
-                                                                (roleName) => (
+                                                                (roleName: string) => (
                                                                     <Tag color='default'>{roleName}</Tag>
                                                                 )
                                                             }
@@ -204,13 +198,12 @@ export const EmployeePageContent = ({
                                                         <NotDefinedField
                                                             value={get(employee, 'position')}
                                                             render={
-                                                                (value) => (
+                                                                (value: string) => (
                                                                     <Tag color='default'>{value}</Tag>
                                                                 )
                                                             }
                                                         />
                                                     </Col>
-
                                                     <Col lg={4} xs={10}>
                                                         <Typography.Text type='secondary'>
                                                             {SpecializationsMessage}
@@ -243,26 +236,27 @@ export const EmployeePageContent = ({
                                         </Col>
                                         {isEmployeeEditable && (
                                             <Col span={24}>
-                                                <Space direction='horizontal' size={40}>
-                                                    <Link href={`/employee/${get(employee, 'id')}/update`}>
-                                                        <Button
-                                                            color='green'
-                                                            type='sberDefaultGradient'
-                                                            icon={<EditFilled />}
-                                                        >
-                                                            {UpdateMessage}
-                                                        </Button>
-                                                    </Link>
-                                                    {(!isMyEmployee) ?
-                                                        <DeleteButtonWithConfirmModal
-                                                            title={ConfirmDeleteTitle}
-                                                            message={ConfirmDeleteMessage}
-                                                            okButtonLabel={ConfirmDeleteButtonLabel}
-                                                            action={() => softDeleteAction(employee)}
-                                                            buttonContent={DeleteMessage}
-                                                        />
-                                                        : null}
-                                                </Space>
+                                                <ActionBar
+                                                    actions={[
+                                                        <Link key='update' href={`/employee/${get(employee, 'id')}/update`}>
+                                                            <Button
+                                                                type='primary'
+                                                                icon={<Edit size='medium'/>}
+                                                            >
+                                                                {UpdateMessage}
+                                                            </Button>
+                                                        </Link>,
+                                                        !isMyEmployee &&
+                                                            <DeleteButtonWithConfirmModal
+                                                                key='delete'
+                                                                title={ConfirmDeleteTitle}
+                                                                message={ConfirmDeleteMessage}
+                                                                okButtonLabel={ConfirmDeleteButtonLabel}
+                                                                action={() => softDeleteAction(employee)}
+                                                                buttonContent={DeleteMessage}
+                                                            />,
+                                                    ]}
+                                                />
                                             </Col>
                                         )}
                                     </Row>

@@ -164,7 +164,7 @@ export const CreateEmployeeForm: React.FC = () => {
                         <>
                             <Row>
                                 <Col lg={14} xs={24}>
-                                    <Row gutter={[0, 40]}>
+                                    <Row gutter={[0, 60]}>
                                         <Col span={24}>
                                             <Row gutter={[0, 40]}>
                                                 <Col span={24}>
@@ -243,6 +243,30 @@ export const CreateEmployeeForm: React.FC = () => {
                                                 </Col>
                                             </Row>
                                         </Col>
+                                        <Col span={24}>
+                                            <Form.Item noStyle dependencies={['phone']}>
+                                                {
+                                                    ({ getFieldsValue }) => {
+                                                        const { phone } = getFieldsValue(['phone'])
+                                                        return (
+                                                            <ActionBar
+                                                                actions={[
+                                                                    <Button
+                                                                        key='submit'
+                                                                        onClick={handleSave}
+                                                                        type='primary'
+                                                                        loading={isLoading}
+                                                                        disabled={!phone}
+                                                                    >
+                                                                        {InviteEmployeeLabel}
+                                                                    </Button>,
+                                                                ]}
+                                                            />
+                                                        )
+                                                    }
+                                                }
+                                            </Form.Item>
+                                        </Col>
                                     </Row>
                                 </Col>
                                 {breakpoints.TABLET_LARGE && (
@@ -265,28 +289,6 @@ export const CreateEmployeeForm: React.FC = () => {
                                     </Col>
                                 )}
                             </Row>
-                            <Form.Item noStyle dependencies={['phone']}>
-                                {
-                                    ({ getFieldsValue }) => {
-                                        const { phone } = getFieldsValue(['phone'])
-                                        return (
-                                            <ActionBar
-                                                actions={[
-                                                    <Button
-                                                        key='submit'
-                                                        onClick={handleSave}
-                                                        type='primary'
-                                                        loading={isLoading}
-                                                        disabled={!phone}
-                                                    >
-                                                        {InviteEmployeeLabel}
-                                                    </Button>,
-                                                ]}
-                                            />
-                                        )
-                                    }
-                                }
-                            </Form.Item>
                         </>
                     )
                 }

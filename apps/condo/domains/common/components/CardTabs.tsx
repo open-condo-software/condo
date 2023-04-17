@@ -41,8 +41,8 @@ export const CardTabs = styled(Tabs)`
 
       &:not(.condo-tabs-tab-active):hover .condo-tabs-tab-label * {
         background: linear-gradient(90deg, #4cd174 0%, #6db8f2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
       }
     }
   }

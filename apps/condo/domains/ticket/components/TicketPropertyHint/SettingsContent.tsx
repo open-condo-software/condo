@@ -7,12 +7,14 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { PlusCircle } from '@open-condo/icons'
+import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
+import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -25,6 +27,7 @@ import {
 } from '@condo/domains/ticket/hooks/useTicketPropertyHintTableFilters'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
 
 const SORTABLE_PROPERTIES = ['name']
 const TICKET_HINTS_DEFAULT_SORT_BY = ['createdAt_DESC']
@@ -48,6 +51,8 @@ export const SettingsContent = () => {
     const canManageTicketPropertyHints = useMemo(() => get(userOrganization, ['link', 'role', 'canManageTicketPropertyHints']), [userOrganization])
 
     const [search, handleSearchChange] = useSearch<IFilters>()
+
+    const { breakpoints } = useLayoutContext()
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
@@ -126,16 +131,13 @@ export const SettingsContent = () => {
             </Col>
             <Col span={24}>
                 <TableFiltersContainer>
-                    <Row>
-                        <Col span={10}>
-                            <Input
-                                placeholder={SearchPlaceholder}
-                                onChange={handleSearch}
-                                value={search}
-                                allowClear
-                            />
-                        </Col>
-                    </Row>
+                    <Input
+                        placeholder={SearchPlaceholder}
+                        onChange={handleSearch}
+                        value={search}
+                        allowClear
+                        suffix={<Search size='medium' color={colors.gray[7]} />}
+                    />
                 </TableFiltersContainer>
             </Col>
             <Col span={24}>

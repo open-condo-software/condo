@@ -34,7 +34,6 @@ export const EmployeeUpdatePage = () => {
                             <UpdateEmployeeForm/>
                         </Col>
                     </Row>
-
                 </PageContent>
             </PageWrapper>
         </>
