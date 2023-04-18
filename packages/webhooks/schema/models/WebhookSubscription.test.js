@@ -8,7 +8,7 @@ const {
     expectToThrowValidationFailureError,
     expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
-const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
+const { DEFAULT_MAX_PACK_SIZE, WEBHOOK_OPERATIONS } = require('@open-condo/webhooks/constants')
 const { WebHookModelValidator } = require('@open-condo/webhooks/model-validator')
 const {
     createTestWebhook,
@@ -18,8 +18,6 @@ const {
     softDeleteTestWebhookSubscription,
     WebhookSubscription,
 } = require('@open-condo/webhooks/schema/utils/testSchema')
-
-const { WEBHOOK_OPERATIONS } = require('../../constants')
 
 const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
     describe(`WebhookSubscription tests for ${appName} app`, () => {
@@ -224,7 +222,7 @@ const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
                     })
                 })
             })
-            describe('maxPackSize must be in valid range',  () => {
+            describe('"maxPackSize" must be in valid range',  () => {
                 describe('Must throw validation error on invalid values', () => {
                     const cases = [
                         ['Negative values: small', -1],
@@ -256,49 +254,64 @@ const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
                     })
                 })
             })
-            test('syncedAmount should be reset on syncedAt update', async () => {
-                const [subscription] = await createTestWebhookSubscription(actors.admin, hook)
-                expect(subscription).toBeDefined()
-                expect(subscription).toHaveProperty('syncedAmount', 0)
-                const [onlyAmountUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
-                    syncedAmount: 100,
+            describe('"syncedAmount" field', () => {
+                const cases = [
+                    ['syncedAt', dayjs().toISOString()],
+                    ['model', 'User'],
+                    ['fields', '{ id }'],
+                    ['filters', {}],
+                    ['maxPackSize', 10],
+                    ['operation', 'update'],
+                ]
+                test.each(cases)('"syncedAmount" should be reset on "%s" update', async (fieldName, fieldValue) => {
+                    const [subscription] = await createTestWebhookSubscription(actors.admin, hook)
+                    expect(subscription).toBeDefined()
+                    expect(subscription).toHaveProperty('syncedAmount', 0)
+                    const [onlyAmountUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                        syncedAmount: 100,
+                    })
+                    expect(onlyAmountUpdate).toHaveProperty('syncedAmount', 100)
+                    const [onlyTimeUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                        [fieldName]: fieldValue,
+                    })
+                    expect(onlyTimeUpdate).toHaveProperty('syncedAmount', 0)
+                    const [bothUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                        [fieldName]: fieldValue,
+                        syncedAmount: 7,
+                    })
+                    expect(bothUpdate).toHaveProperty('syncedAmount', 7)
+                    await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
                 })
-                expect(onlyAmountUpdate).toHaveProperty('syncedAmount', 100)
-                const [onlyTimeUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
-                    syncedAt: dayjs().toISOString(),
-                })
-                expect(onlyTimeUpdate).toHaveProperty('syncedAmount', 0)
-                const [bothUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
-                    syncedAt: dayjs().toISOString(),
-                    syncedAmount: 7,
-                })
-                expect(bothUpdate).toHaveProperty('syncedAmount', 7)
-                await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
             })
-            test('failuresCount should be reset on "synced" fields update', async () => {
-                const [subscription] = await createTestWebhookSubscription(actors.admin, hook)
-                expect(subscription).toBeDefined()
-                expect(subscription).toHaveProperty('failuresCount', 0)
-                const [failuresUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
-                    failuresCount: 1,
+            describe('"failuresCount" field', () => {
+                const cases = [
+                    ['syncedAt', dayjs().toISOString()],
+                    ['syncedAmount', 30],
+                    ['model', 'User'],
+                    ['fields', '{ id }'],
+                    ['filters', {}],
+                    ['maxPackSize', 10],
+                    ['operation', 'update'],
+                ]
+                test.each(cases)('"failuresCount" should be reset on "%s" field update', async (fieldName, fieldValue) => {
+                    const [subscription] = await createTestWebhookSubscription(actors.admin, hook)
+                    expect(subscription).toBeDefined()
+                    expect(subscription).toHaveProperty('failuresCount', 0)
+                    const [onlyAmountUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                        failuresCount: 1,
+                    })
+                    expect(onlyAmountUpdate).toHaveProperty('failuresCount', 1)
+                    const [onlyTimeUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                        [fieldName]: fieldValue,
+                    })
+                    expect(onlyTimeUpdate).toHaveProperty('failuresCount', 0)
+                    const [bothUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                        [fieldName]: fieldValue,
+                        failuresCount: 1,
+                    })
+                    expect(bothUpdate).toHaveProperty('failuresCount', 1)
+                    await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
                 })
-                expect(failuresUpdate).toHaveProperty('failuresCount', 1)
-                const [batchSentUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
-                    syncedAmount: 30,
-                })
-                expect(batchSentUpdate).toHaveProperty('failuresCount', 0)
-                const [newFailuresUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
-                    failuresCount: 1,
-                })
-                expect(newFailuresUpdate).toHaveProperty('failuresCount', 1)
-                expect(newFailuresUpdate).toHaveProperty('syncedAmount', 30)
-
-                const [allSentUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
-                    syncedAt: dayjs().toISOString(),
-                })
-                expect(allSentUpdate).toHaveProperty('syncedAmount', 0)
-                expect(allSentUpdate).toHaveProperty('failuresCount', 0)
-                await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
             })
             describe('"operations" field', () => {
                 describe('Must throw validation error on wrong operations', async () => {
@@ -334,6 +347,26 @@ const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
 
                         await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
                     })
+                })
+            })
+        })
+        describe('Accesses', () => {
+            describe('"webhook" field', () => {
+                test('cannot update', async () => {
+                    const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
+                    const [secondHook] = await createTestWebhook(actors.admin, actors.admin.user)
+                    const [subscription] = await createTestWebhookSubscription(actors.admin, hook)
+                    expect(subscription.webhook.id).toEqual(hook.id)
+
+                    await expectToThrowGraphQLRequestError(async () => {
+                        await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                            webhook: { connect: { id: secondHook.id } },
+                        })
+                    }, 'Field "webhook" is not defined')
+
+                    await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+                    await softDeleteTestWebhook(actors.admin, hook.id)
+                    await softDeleteTestWebhook(actors.admin, secondHook.id)
                 })
             })
         })

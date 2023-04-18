@@ -1,4 +1,5 @@
 const { Relationship, DateTimeUtc, Select, Text, Integer } = require('@keystonejs/fields')
+const { isNil } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { Json } = require('@open-condo/keystone/fields')
@@ -11,6 +12,9 @@ const access = require('@open-condo/webhooks/schema/access/WebhookSubscription')
 const UNAVAILABILITY_THRESHOLD = (typeof conf['WEBHOOK_BLOCK_THRESHOLD'] === 'number' && conf['WEBHOOK_BLOCK_THRESHOLD'] > 0)
     ? conf['WEBHOOK_BLOCK_THRESHOLD']
     : DEFAULT_UNAVAILABILITY_THRESHOLD
+
+const FIELDS_THAT_RESET_SYNCED_AMOUNT = ['syncedAt', 'model', 'fields', 'filters', 'maxPackSize', 'operation']
+const FIELDS_THAT_RESET_FAILURES_COUNT = ['syncedAt', 'syncedAmount', 'model', 'fields', 'filters', 'maxPackSize', 'operation']
 
 function getWebhookSubscriptionModel (schemaPath) {
     if (!getModelValidator()) {
@@ -63,6 +67,9 @@ function getWebhookSubscriptionModel (schemaPath) {
                 isRequired: true,
                 knexOptions: { isNotNullable: true },
                 kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+                access: {
+                    update: false,
+                },
             },
             url: {
                 schemaDoc: 'Webhook target URL to which requests will be sent. Overrides url from webhook relation. ' +
@@ -84,7 +91,11 @@ function getWebhookSubscriptionModel (schemaPath) {
                 defaultValue: 0,
                 hooks: {
                     resolveInput: ({ resolvedData, fieldPath }) => {
-                        if (resolvedData['syncedAt'] && !resolvedData[fieldPath]) {
+                        const shouldResetValue = (
+                            Object.entries(resolvedData).some(([fieldName, value]) => !isNil(value) && FIELDS_THAT_RESET_SYNCED_AMOUNT.includes(fieldName))
+                        ) && !resolvedData[fieldPath]
+
+                        if (shouldResetValue) {
                             return 0
                         } else {
                             return resolvedData[fieldPath]
@@ -107,7 +118,11 @@ function getWebhookSubscriptionModel (schemaPath) {
                 defaultValue: 0,
                 hooks: {
                     resolveInput: ({ resolvedData, fieldPath }) => {
-                        if ((resolvedData['syncedAt'] || resolvedData['syncedAmount']) && !resolvedData[fieldPath]) {
+                        const shouldResetValue = (
+                            Object.entries(resolvedData).some(([fieldName, value]) => !isNil(value) && FIELDS_THAT_RESET_FAILURES_COUNT.includes(fieldName))
+                        ) && !resolvedData[fieldPath]
+
+                        if (shouldResetValue) {
                             return 0
                         } else {
                             return resolvedData[fieldPath]
