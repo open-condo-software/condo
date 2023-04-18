@@ -138,76 +138,12 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 }
 
                 // banking domain
-                const bankAccountReports = await loadListByChunks({
-                    context,
-                    list: BankAccountReport,
-                    chunkSize: 20,
-                    limit: 100000,
-                    where: {
-                        deletedAt: null,
-                        organization: { id: organizationId },
-                    },
-                })
-                for (let bankAccountReport of bankAccountReports) {
-                    await BankAccountReport.softDelete(context, bankAccountReport.id, DV_SENDER)
-                }
-
-                const bankAccountReportTasks = await loadListByChunks({
-                    context,
-                    list: BankAccountReportTask,
-                    chunkSize: 20,
-                    limit: 100000,
-                    where: {
-                        deletedAt: null,
-                        organization: { id: organizationId },
-                    },
-                })
-                for (let bankAccountReportTask of bankAccountReportTasks) {
-                    await BankAccountReportTask.softDelete(context, bankAccountReportTask.id, DV_SENDER)
-                }
-
-                const bankSyncTasks = await loadListByChunks({
-                    context,
-                    list: BankSyncTask,
-                    chunkSize: 20,
-                    limit: 1000000,
-                    where: {
-                        deletedAt: null,
-                        organization: { id: organizationId },
-                    },
-                })
-                for (let bankSyncTask of bankSyncTasks) {
-                    await BankSyncTask.softDelete(context, bankSyncTask.id, DV_SENDER)
-                }
-
-                const bankTransactions = await loadListByChunks({
-                    context,
-                    list: BankTransaction,
-                    chunkSize: 20,
-                    limit: 1000000,
-                    where: {
-                        deletedAt: null,
-                        organization: { id: organizationId },
-                    },
-                })
-                for (let bankTransaction of bankTransactions) {
-                    await BankTransaction.softDelete(context, bankTransaction.id, DV_SENDER)
-                }
-
                 const bankIntegrationOrganizationContexts = await BankIntegrationOrganizationContext.getAll(context, {
                     deletedAt: null,
                     organization: { id: organizationId },
                 })
                 for (let bankIntegrationOrganizationContext of bankIntegrationOrganizationContexts) {
                     await BankIntegrationOrganizationContext.softDelete(context, bankIntegrationOrganizationContext.id, DV_SENDER)
-                }
-
-                const bankContractorAccounts = await BankContractorAccount.getAll(context, {
-                    deletedAt: null,
-                    organization: { id: organizationId },
-                })
-                for (let bankContractorAccount of bankContractorAccounts) {
-                    await BankContractorAccount.softDelete(context, bankContractorAccount.id, DV_SENDER)
                 }
 
                 const BankIntegrationAccountCtxs = await loadListByChunks({
@@ -222,20 +158,6 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 })
                 for (let bankIntegrationAccountCtx of BankIntegrationAccountCtxs) {
                     await BankIntegrationAccountContext.softDelete(context, bankIntegrationAccountCtx.id, DV_SENDER)
-                }
-
-                const bankAccounts = await loadListByChunks({
-                    context,
-                    list: BankAccount,
-                    chunkSize: 20,
-                    limit: 10000,
-                    where: {
-                        deletedAt: null,
-                        organization: { id: organizationId },
-                    },
-                })
-                for (let bankAccount of bankAccounts) {
-                    await BankAccount.softDelete(context, bankAccount.id, DV_SENDER)
                 }
 
                 const newOrganizationData = {
