@@ -29,6 +29,7 @@ const { registerServiceConsumerByTestClient } = require('@condo/domains/resident
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
+const { SEARCH_BILLING_RECEIPTS_WITHOUT_CONSUMER_QUERY } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -752,6 +753,21 @@ function generateServicesData(count=3, toPay=''){
     return services
 }
 
+async function searchBillingReceiptsWithoutConsumerByTestClient(client, args, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!args) throw new Error('no data')
+
+    const attrs = {
+        ...args,
+    }
+    const { data, errors } = await client.query(SEARCH_BILLING_RECEIPTS_WITHOUT_CONSUMER_QUERY, { data: attrs })
+
+    if (!extraAttrs.raw) {
+        throwIfError(data, errors)
+    }
+
+    return [data.obj, errors, attrs]
+}
 
 module.exports = {
     BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration,
@@ -775,7 +791,8 @@ module.exports = {
     makeServiceUserForIntegration,
     registerBillingReceiptsByTestClient,
     createRegisterBillingReceiptsPayload,
-    generateServicesData
+    generateServicesData,
+    searchBillingReceiptsWithoutConsumerByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

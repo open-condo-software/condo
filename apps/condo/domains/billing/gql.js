@@ -22,7 +22,7 @@ const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegra
 const BILLING_INTEGRATION_PROBLEM_FIELDS = `{ context { id } title message meta ${COMMON_FIELDS} }`
 const BillingIntegrationProblem = generateGqlQueries('BillingIntegrationProblem', BILLING_INTEGRATION_PROBLEM_FIELDS)
 
-const BILLING_PROPERTY_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} property { id } importId address raw globalId meta ${COMMON_FIELDS} }`
+const BILLING_PROPERTY_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} property { id } importId address addressKey raw globalId meta ${COMMON_FIELDS} }`
 const BillingProperty = generateGqlQueries('BillingProperty', BILLING_PROPERTY_FIELDS)
 
 const BILLING_ACCOUNT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id, address } number unitName unitType raw globalId meta fullName ${COMMON_FIELDS} }`
@@ -50,6 +50,12 @@ const REGISTER_BILLING_RECEIPTS_MUTATION = gql`
     }
 `
 
+const SEARCH_BILLING_RECEIPTS_WITHOUT_CONSUMER_QUERY = gql`
+    query searchBillingReceiptsWithoutConsumer ($data: SearchBillingReceiptsWithoutConsumerInput!) {
+        obj: searchBillingReceiptsWithoutConsumer(data: $data) { residentReceipts { resident { id } receipts { id } } }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -65,6 +71,7 @@ module.exports = {
     BillingRecipient,
     BillingCategory,
     REGISTER_BILLING_RECEIPTS_MUTATION,
+    SEARCH_BILLING_RECEIPTS_WITHOUT_CONSUMER_QUERY,
 
     /* AUTOGENERATE MARKER <EXPORTS> */
 }
