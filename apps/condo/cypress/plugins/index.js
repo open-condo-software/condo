@@ -30,15 +30,14 @@ module.exports = async (on, config) => {
         throw new Error('Please provide cypress with support credentials for correct user creation')
     }
 
-    const supportClient = await makeLoggedInClient({ email: supportEmail, password: supportPassword })
-
+    // const supportClient = await makeLoggedInClient({ email: supportEmail, password: supportPassword })
 
     const admin = await makeLoggedInAdminClient()
 
     on('task', {
-        async 'metrics:log' ([name, value]) {
+        async 'metrics:histogram' ([name, value]) {
             console.log(`Logged metric: ${name} : ${value}`)
-            Metrics.gauge({ name, value })
+            Metrics.histogram({ name: 'cypress.' + name, value })
             return null
         },
         // async 'keystone:createUser' () {

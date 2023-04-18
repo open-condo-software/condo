@@ -17036,6 +17036,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"amocrm_service@workspace:apps/amocrm":
+  version: 0.0.0-use.local
+  resolution: "amocrm_service@workspace:apps/amocrm"
+  dependencies:
+    axios: ^0.21.4
+    cookie-parser: ^1.4.5
+    cookies: ^0.8.0
+    dotenv: ^10.0.0
+    express: ^4.17.1
+    knex: ^0.95.11
+    node-fetch: ^3.0.0
+    pg: ^8.7.1
+    tough-cookie: ^4.0.0
+  languageName: unknown
+  linkType: soft
+
 "amplitude-js@npm:^8.18.1":
   version: 8.19.0
   resolution: "amplitude-js@npm:8.19.0"
