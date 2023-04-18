@@ -76,6 +76,7 @@ const SearchBillingReceiptsWithoutConsumerService = new GQLCustomSchema('SearchB
                 // firstly try to retrieve all residents passed to the service
                 const residents = await Resident.getAll(context, {
                     id_in: uniqueResidentIds,
+                    user: { id: context.authedItem.id },
                     deletedAt: null,
                 })
 

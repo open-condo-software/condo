@@ -217,6 +217,45 @@ describe('SearchBillingReceiptsWithoutConsumerService', () => {
             })
         })
 
+        test('missing residents: for another user resident', async () => {
+            // let's create a service consumer with connected resident
+            const { batches: [anotherBatch] } = await makePayerWithMultipleConsumers(1, 1)
+            const { commonData, batches: [batch] } = await makePayerWithMultipleConsumers(1, 1)
+            const {
+                billingContext: { id: billingContextId },
+                serviceConsumer: { id: serviceConsumerId },
+            } = batch
+
+            // set billing integration organization context as FINISHED
+            await BillingIntegrationOrganizationContext.update(adminContext, billingContextId, {
+                ...dvAndSender,
+                status: CONTEXT_FINISHED_STATUS,
+            })
+
+            // let's delete ServiceConsumer
+            await ServiceConsumer.softDelete(adminContext, serviceConsumerId, dvAndSender)
+
+            // search
+            await catchErrorFrom(async () => {
+                await searchBillingReceiptsWithoutConsumerByTestClient(commonData.client, {
+                    residents: [{ id: anotherBatch.resident.id }],
+                })
+            }, ({ errors, data }) => {
+                expect(errors).toMatchObject([{
+                    message: 'Can not find some residents',
+                    name: 'GQLError',
+                    path: ['obj'],
+                    extensions: {
+                        mutation: 'searchBillingReceiptsWithoutConsumer',
+                        variable: ['data', 'residents'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'NOT_UNIQUE',
+                        message: 'Can not find some residents',
+                    },
+                }])
+            })
+        })
+
         test('missing resident property', async () => {
             // let's create a service consumer with connected resident
             const { commonData, batches: [batch] } = await makePayerWithMultipleConsumers(1, 1)
