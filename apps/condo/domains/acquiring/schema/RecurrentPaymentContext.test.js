@@ -3,7 +3,7 @@
  */
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowUniqueConstraintViolationError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, catchErrorFrom,
@@ -342,11 +342,9 @@ describe('RecurrentPaymentContext', () => {
 
             await createTestRecurrentPaymentContext(admin, await getContextRequest())
 
-            await catchErrorFrom(async () => {
+            await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestRecurrentPaymentContext(admin, await getContextRequest())
-            }, ({ errors }) => {
-                expect(errors[0].message).toContain('duplicate key value violates unique constraint')
-            })
+            }, 'recurrentPaymentContext_unique_serviceConsumer_and_billingCategory')
         })
         test('validate serviceConsumer', async () => {
             const resident = await makeClientWithServiceConsumer()

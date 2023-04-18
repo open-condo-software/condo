@@ -138,6 +138,7 @@ const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
 /**
  * @param {function} callable
  * @param {Object} params
+ * @param logRequestResponse
  * @returns {Promise<Object>}
  */
 async function doGqlRequest (callable, { mutation, query, variables }, logRequestResponse) {
@@ -672,6 +673,34 @@ const expectValuesOfCommonFields = (obj, attrs, client) => {
     expect(obj.updatedAt).toMatch(DATETIME_RE)
 }
 
+/**
+ * Returns actual name of database entity, that may be different from specified at Keystone level
+ * @param name
+ * @returns {*}
+ */
+const actualDatabaseEntityName = (name) => {
+    // The system uses no more than NAMEDATALEN-1 bytes of an identifier; longer names can be written in commands, but they will be truncated.
+    // By default, NAMEDATALEN is 64 so the maximum identifier length is 63 bytes.
+    // https://www.postgresql.org/docs/13/sql-syntax-lexical.html
+    const NAMEDATALEN = 63
+    return name.slice(0, NAMEDATALEN)
+}
+
+
+/**
+ * Handles maximum characters count of Postgres for naming of database entities while checking violation of a specified unique constraint
+ * @param testFunc
+ * @param constraintName - full name of constraint as presented in Keystone schema
+ * @returns {Promise<void>}
+ */
+const expectToThrowUniqueConstraintViolationError = async (testFunc, constraintName) => {
+    await catchErrorFrom(async () => {
+        await testFunc()
+    }, ({ errors }) => {
+        expect(errors[0].message).toContain(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)
+    })
+}
+
 module.exports = {
     waitFor,
     isPostgres, isMongo,
@@ -707,4 +736,5 @@ module.exports = {
     expectToThrowGQLError,
     expectToThrowGraphQLRequestError,
     expectValuesOfCommonFields,
+    expectToThrowUniqueConstraintViolationError,
 }
