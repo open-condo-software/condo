@@ -53,9 +53,7 @@ jobs:
           echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> .env
 
       - name: Test apps build
-        run: |
-          export NODE_OPTIONS="--max_old_space_size=4096"
-          turbo build --filter="./apps/*"
+        run: turbo build --filter="./apps/*"
 
       - name: Test artifacts existence
         run: |
