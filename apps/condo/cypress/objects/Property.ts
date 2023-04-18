@@ -1,9 +1,11 @@
+import { trackedVisit } from './helpers'
+
 const PROPERTY_URL = '/property'
 const PROPERTY_MAP_UPDATE_URL = '/map/update'
 
 class BasePropertyTest {
     visit (): this {
-        cy.visit(PROPERTY_URL)
+        trackedVisit(PROPERTY_URL)
         cy.wait('@getAllOnBoardings')
 
         cy.location('pathname').should('contain', PROPERTY_URL)
