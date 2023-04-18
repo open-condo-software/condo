@@ -29,7 +29,6 @@ async function canReadTickets ({ authentication: { item: user } }) {
 
         return {
             client: { id: user.id },
-            canReadByResident: true,
         }
     }
 

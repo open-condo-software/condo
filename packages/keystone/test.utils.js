@@ -514,6 +514,27 @@ const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
     await expectToThrowAccessDeniedError(testFunc, 'result')
 }
 
+const expectToThrowAccessDeniedToFieldsError = async (testFunc, ...fieldPaths) => {
+    if (!fieldPaths) throw new Error('path is not specified')
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(caught).toMatchObject({
+            name: 'TestClientResponseError',
+            errors: fieldPaths.map(path => expect.objectContaining({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': path,
+                'locations': [expect.objectContaining({
+                    line: expect.anything(),
+                    column: expect.anything(),
+                })],
+                'extensions': {
+                    'code': 'INTERNAL_SERVER_ERROR',
+                },
+            })),
+        })
+    })
+}
+
 /**
  * Expects a GraphQL 'AuthenticationError' Error, thrown by access check if case of UNAUTHENTICATED user access.
  * Should be used to examine access to `getAll` GraphQL utility wrapper, that returns `objs`.
@@ -730,12 +751,12 @@ module.exports = {
     UUID_RE,
     NUMBER_RE,
     UploadingFile,
-    setIsFeatureFlagsEnabled,
     catchErrorFrom,
     expectToThrowAccessDeniedError,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAccessDeniedErrorToResult,
+    expectToThrowAccessDeniedToFieldsError,
     expectToThrowAuthenticationError,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,

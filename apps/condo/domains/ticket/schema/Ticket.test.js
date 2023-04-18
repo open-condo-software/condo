@@ -15,6 +15,8 @@ const {
     expectToThrowValidationFailureError,
     expectToThrowGQLError,
     expectValuesOfCommonFields,
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAccessDeniedToFieldsError,
 } = require('@open-condo/keystone/test.utils')
 
 const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
@@ -646,7 +648,7 @@ describe('Ticket', () => {
             expect(tickets[1].id).toMatch(ticket2.id)
         })
 
-        test('resident: cannot read ticket from crm with "canReadByResident": false', async () => {
+        test('resident: cannot read ticket details with "canReadByResident": false', async () => {
             const residentClient = await makeClientWithResidentUser()
 
             const [organization] = await createTestOrganization(admin)
@@ -661,21 +663,15 @@ describe('Ticket', () => {
                 phone,
                 unitName,
             })
-            await createTestTicket(admin, organization, property, {
+            const [ticket] = await createTestTicket(admin, organization, property, {
                 unitName,
                 contact: { connect: { id: contact.id } },
                 canReadByResident: false,
             })
-            const [visibleTicket] = await createTestTicket(admin, organization, property, {
-                unitName,
-                contact: { connect: { id: contact.id } },
-                canReadByResident: true,
-            })
 
-            const tickets = await Ticket.getAll(residentClient, {})
-
-            expect(tickets).toHaveLength(1)
-            expect(tickets[0].id).toEqual(visibleTicket.id)
+            await expectToThrowAccessDeniedToFieldsError(async () => {
+                await Ticket.getOne(residentClient, { id: ticket.id })
+            }, ['objs', 0, 'details'])
         })
 
         test('resident: can read ticket from crm if first it was hidden to him then it became showed', async () => {
@@ -699,9 +695,9 @@ describe('Ticket', () => {
                 canReadByResident: false,
             })
 
-            const tickets = await Ticket.getAll(residentClient, {})
-
-            expect(tickets).toHaveLength(0)
+            await expectToThrowAccessDeniedToFieldsError(async () => {
+                await Ticket.getOne(residentClient, { id: ticket.id })
+            }, ['objs', 0, 'details'])
 
             await updateTestTicket(admin, ticket.id, {
                 canReadByResident: true,
@@ -743,9 +739,9 @@ describe('Ticket', () => {
                 canReadByResident: false,
             })
 
-            const ticketsAfterHiddenTicketToResident = await Ticket.getAll(residentClient, {})
-
-            expect(ticketsAfterHiddenTicketToResident).toHaveLength(0)
+            await expectToThrowAccessDeniedToFieldsError(async () => {
+                await Ticket.getOne(residentClient, { id: ticket.id })
+            }, ['objs', 0, 'details'])
         })
 
         test('resident: cannot update ticket from crm', async () => {

@@ -300,6 +300,15 @@ const Ticket = new GQLListSchema('Ticket', {
                     return normalizeText(resolvedData['details'])
                 },
             },
+            access: {
+                read: ({ authentication: { item: user }, existingItem }) => {
+                    if (user.type === RESIDENT && !existingItem.canReadByResident) {
+                        return false
+                    }
+
+                    return true
+                },
+            },
         },
         related: {
             schemaDoc: 'Sometimes, it is important for us to show related issues. For example, to show related issues',
