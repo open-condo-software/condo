@@ -57,6 +57,7 @@ const VOIP_INCOMING_CALL_MESSAGE_TYPE = 'VOIP_INCOMING_CALL_MESSAGE'
 const RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE'
 const RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE'
 const RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE'
+const B2C_APP_MESSAGE_PUSH_TYPE = 'B2C_APP_MESSAGE_PUSH'
 
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -98,6 +99,7 @@ const MESSAGE_TYPES = [
     RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
+    B2C_APP_MESSAGE_PUSH_TYPE,
 ]
 
 /**
@@ -110,6 +112,7 @@ const MESSAGE_TYPES_TRANSPORTS = {
     [SHARE_TICKET_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
     [BANK_ACCOUNT_CREATION_REQUEST_TYPE]: [EMAIL_TRANSPORT],
     [VOIP_INCOMING_CALL_MESSAGE_TYPE]: [PUSH_TRANSPORT],
+    [B2C_APP_MESSAGE_PUSH_TYPE]: [PUSH_TRANSPORT],
 }
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
@@ -416,7 +419,18 @@ const MESSAGE_META = {
         body: { required: true },
         data: {
             B2CAppId: { required: true },
-            callId: { required: true },
+            B2CAppContext: { required: false },
+            B2CAppName: { required: true },
+        },
+    },
+    [B2C_APP_MESSAGE_PUSH_TYPE]: {
+        dv: { required: true },
+        title: { required: false },
+        body: { required: true },
+        data: {
+            B2CAppId: { required: true },
+            B2CAppContext: { required: false },
+            B2CAppName: { required: true },
         },
     },
     [RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE]: {
@@ -538,6 +552,11 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
         isVoIP: true,
+    },
+    [B2C_APP_MESSAGE_PUSH_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
     },
 }
 
@@ -721,6 +740,7 @@ module.exports = {
     MESSAGE_DELIVERY_SLOW_PRIORITY,
     MESSAGE_DELIVERY_FAST_PRIORITY,
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
+    B2C_APP_MESSAGE_PUSH_TYPE,
     APPLE_CONFIG_ENV,
     APPLE_CONFIG_TEST_PUSHTOKEN_ENV,
     APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV,
@@ -729,3 +749,4 @@ module.exports = {
     RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
 }
+
