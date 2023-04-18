@@ -64,7 +64,6 @@ jobs:
           export NOTIFICATION__DISABLE_LOGGING=true
           export FAKE_ADDRESS_SUGGESTIONS=true
           export WORKER_CONCURRENCY=50
-          export NODE_OPTIONS="--max_old_space_size=4096"
 
           yarn workspace @app/condo migrate
           
@@ -77,7 +76,6 @@ jobs:
 
       - name: run cypress tests
         run: |
-          export NODE_OPTIONS="--max_old_space_size=4096"
           yarn workspace @app/condo cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }} -b chrome -C ./cypress/cypress.config.ts
 
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
