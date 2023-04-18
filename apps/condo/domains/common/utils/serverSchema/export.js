@@ -146,12 +146,19 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
 
 const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecordToFileRow, baseAttrs, taskServerUtils, totalRecordsCount, taskId }) => {
     const filename = getTmpFile('csv')
+    console.debug('>>> filename', filename)
+
+    console.debug('>>> createWriteStreamForExport…')
     const writeStream = createWriteStreamForExport(filename)
+
+    console.debug('>>> createWriteStreamForExport done')
 
     const task = await taskServerUtils.getOne(context, { id: taskId })
     const columns = getHeadersTranslations(EXPORT_TYPE_TICKETS, task.locale)
     const stringifier = stringify({ header: true, columns, delimiter: CSV_DELIMITER })
     stringifier.pipe(writeStream)
+
+    console.debug('>>> processRecords…')
 
     await processRecords({
         context,
@@ -165,19 +172,38 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
         baseAttrs, taskServerUtils, totalRecordsCount, taskId,
     })
 
-    writeStream.close()
+    stringifier.end()
+    stringifier.unpipe(writeStream)
+
+    console.debug('>>> processRecords done')
+
+
+
+    console.debug('>>> writeStream.close')
+
+    // if (!fs.existsSync(filename)) {
+    //     return
+    // }
 
     const stream = fs.createReadStream(filename, { encoding: 'utf8' })
+
+    console.debug('>>> buildUploadInputFrom…')
+
     const file = buildUploadInputFrom({
         stream, filename: `export_${dayjs().format('DD_MM')}.csv`, mimetype: 'text/csv', encoding: 'utf8',
         meta: { listkey: taskServerUtils.gql.SINGULAR_FORM, id: taskId },
     })
 
-    return await taskServerUtils.update(context, taskId, {
+    console.debug('>>> buildUploadInputFrom…done')
+
+    await taskServerUtils.update(context, taskId, {
         ...baseAttrs,
         status: COMPLETED,
         file,
     })
+
+    // fs.unlinkSync(filename)
+    writeStream.close()
 }
 
 module.exports = {

@@ -31,19 +31,31 @@ const mockConvertRecordToFileRow = () => (
 )
 
 describe('export', () => {
+    beforeAll(() => {
+        console.debug('>>> Node ', process.version)
+    })
     const numberOfIterationsVsTotalRecords = [
         // TODO(DOMA-5932, antonal): fix commented case
-        // [1, 0],
+        // Any next test case after case `[1, 0]` will be failed because of strange race condition
+        // A `filename` variable in `exportRecordsAsCsvFile` function seems to have a value of this case in next test case
+        // This leads to following error:
+        // > Error: ENOENT: no such file or directory, open '/var/folders/5g/1_1gv14n7y55cfw182lby3640000gn/T/8af5c380a4a8.csv'
+        [1, 0],
+
+        // If executed after `[1, 0]`, the `filename` variable in `exportRecordsAsCsvFile` will have the same value `...8af5c380a4a8.csv` as in test case `[1, 0]`
         [1, 1],
-        [1, 99],
-        [1, 100],
-        [2, 101],
-        [2, 199],
-        [2, 200],
-        [3, 201],
+
+        // TODO(antonal): Uncomment all cases below that was commented to focus on error investigation
+        // [1, 99],
+        // [1, 100],
+        // [2, 101],
+        // [2, 199],
+        // [2, 200],
+        // [3, 201],
     ]
 
     test.each(numberOfIterationsVsTotalRecords)('takes %i iteration(s) when total records is %i', async (numberOfIterations, totalRecordsCount) => {
+        console.debug('>>> Node ', process.version)
         const task = {
             id: faker.datatype.uuid(),
             status: 'processing',
