@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker'
 import sample from 'lodash/sample'
 
+import { SimpleTracer } from '../../objects/helpers'
 import { TicketCreate, TicketView, TicketEdit, TicketImport } from '../../objects/Ticket'
 import { authUserWithCookies } from '../../plugins/auth'
 
@@ -11,12 +12,17 @@ describe('Ticket',  function () {
         })
 
         it('can create ticket',  () => {
+            const tracer = new SimpleTracer('ticket.user.canCreateTicket')
+            const spanPrepare = tracer.startSpan('1.createUserWithProperty')
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
+                spanPrepare.finish()
+
                 const { address: propertyAddress, map: propertyMap } = response.property
                 const propertyUnits = propertyMap.sections
                     .map(section => section.floors.map(floor => floor.units.map(unit => unit.label))).flat(2)
 
+                const span = tracer.startSpan('2.createTicket')
                 const ticketCreate = new TicketCreate()
                 ticketCreate
                     .visit()
@@ -27,16 +33,23 @@ describe('Ticket',  function () {
                     .clickAndInputDescription(faker.lorem.sentence(3))
                     .selectProblemWithCategoryClassifier()
                     .clickOnSubmitButton()
+                span.finish()
             })
         })
 
         it('can view and filter tickets with table', () => {
+            const tracer = new SimpleTracer('ticket.user.canViewAndFilterTicketsWithTable')
+            const spanPrepare = tracer.startSpan('1.createUserWithProperty')
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
+                spanPrepare.finish()
 
+                const spanCreateTickets = tracer.startSpan('2.createTickets')
                 cy.task('keystone:createTickets', response).then(() => {
                     const { address: propertyAddress } = response.property
+                    spanCreateTickets.finish()
 
+                    const spanSearchTickets = tracer.startSpan('2.viewTickets')
                     const ticketView = new TicketView()
                     ticketView
                         .visit()
@@ -45,15 +58,24 @@ describe('Ticket',  function () {
                         .clickIsEmergencyCheckbox()
                         .clickOnGlobalFiltersButton()
                         .typeAddressSearchInput(propertyAddress)
+                    spanSearchTickets.finish()
                 })
             })
         })
 
         it('can view and edit ticket', () => {
+            const tracer = new SimpleTracer('ticket.user.canViewAndEditTicket')
+            const spanPrepare = tracer.startSpan('1.createUserWithProperty')
+
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
+                spanPrepare.finish()
 
+                const spanCreateTickets = tracer.startSpan('1.createTickets')
                 cy.task('keystone:createTickets', response).then((ticket) => {
+                    spanCreateTickets.finish()
+
+                    const spanEditTickets = tracer.startSpan('3.editTickets')
                     const ticketEdit = new TicketEdit()
                     ticketEdit
                         .visit(ticket)
@@ -61,6 +83,7 @@ describe('Ticket',  function () {
                         .clickTicketDeadline()
                         .clickAssigneeInput()
                         .clickApplyChanges()
+                    spanEditTickets.finish()
                 })
             })
         })
