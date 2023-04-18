@@ -9076,11 +9076,14 @@ type BillingPropertyHistoryRecord {
   importId: String
   raw: JSON
   globalId: String
-  address: String
   normalizedAddress: String
   meta: JSON
   property: JSON
   id: ID!
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -9142,24 +9145,6 @@ input BillingPropertyHistoryRecordWhereInput {
   globalId_not_ends_with_i: String
   globalId_in: [String]
   globalId_not_in: [String]
-  address: String
-  address_not: String
-  address_contains: String
-  address_not_contains: String
-  address_starts_with: String
-  address_not_starts_with: String
-  address_ends_with: String
-  address_not_ends_with: String
-  address_i: String
-  address_not_i: String
-  address_contains_i: String
-  address_not_contains_i: String
-  address_starts_with_i: String
-  address_not_starts_with_i: String
-  address_ends_with_i: String
-  address_not_ends_with_i: String
-  address_in: [String]
-  address_not_in: [String]
   normalizedAddress: String
   normalizedAddress_not: String
   normalizedAddress_contains: String
@@ -9190,6 +9175,50 @@ input BillingPropertyHistoryRecordWhereInput {
   id_not: ID
   id_in: [ID]
   id_not_in: [ID]
+  address: String
+  address_not: String
+  address_contains: String
+  address_not_contains: String
+  address_starts_with: String
+  address_not_starts_with: String
+  address_ends_with: String
+  address_not_ends_with: String
+  address_i: String
+  address_not_i: String
+  address_contains_i: String
+  address_not_contains_i: String
+  address_starts_with_i: String
+  address_not_starts_with_i: String
+  address_ends_with_i: String
+  address_not_ends_with_i: String
+  address_in: [String]
+  address_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -9273,12 +9302,14 @@ enum SortBillingPropertyHistoryRecordsBy {
   importId_DESC
   globalId_ASC
   globalId_DESC
-  address_ASC
-  address_DESC
   normalizedAddress_ASC
   normalizedAddress_DESC
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -9300,10 +9331,13 @@ input BillingPropertyHistoryRecordUpdateInput {
   importId: String
   raw: JSON
   globalId: String
-  address: String
   normalizedAddress: String
   meta: JSON
   property: JSON
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -9328,10 +9362,13 @@ input BillingPropertyHistoryRecordCreateInput {
   importId: String
   raw: JSON
   globalId: String
-  address: String
   normalizedAddress: String
   meta: JSON
   property: JSON
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -9376,11 +9413,7 @@ type BillingProperty {
   """
   globalId: String
 
-  """ The non-modified address from the `billing data source`. Used in `receipt template` 
-  """
-  address: String
-
-  """ Normalized address from `billing data source`. Used to map Properties to BillingProperties 
+  """ [DEPRECATED] Normalized address from `billing data source`. Used to map Properties to BillingProperties 
   """
   normalizedAddress: String
 
@@ -9391,6 +9424,19 @@ type BillingProperty {
   """ Link to the property model """
   property: Property
   id: ID!
+
+  """ Normalized address """
+  address: String
+
+  """ The unique key of the address """
+  addressKey: String
+
+  """ Property address components """
+  addressMeta: AddressMetaField
+
+  """ The origins of the address (some strings which may looks like real address or some id) 
+  """
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -9458,24 +9504,6 @@ input BillingPropertyWhereInput {
   globalId_not_ends_with_i: String
   globalId_in: [String]
   globalId_not_in: [String]
-  address: String
-  address_not: String
-  address_contains: String
-  address_not_contains: String
-  address_starts_with: String
-  address_not_starts_with: String
-  address_ends_with: String
-  address_not_ends_with: String
-  address_i: String
-  address_not_i: String
-  address_contains_i: String
-  address_not_contains_i: String
-  address_starts_with_i: String
-  address_not_starts_with_i: String
-  address_ends_with_i: String
-  address_not_ends_with_i: String
-  address_in: [String]
-  address_not_in: [String]
   normalizedAddress: String
   normalizedAddress_not: String
   normalizedAddress_contains: String
@@ -9502,6 +9530,50 @@ input BillingPropertyWhereInput {
   id_not: ID
   id_in: [ID]
   id_not_in: [ID]
+  address: String
+  address_not: String
+  address_contains: String
+  address_not_contains: String
+  address_starts_with: String
+  address_not_starts_with: String
+  address_ends_with: String
+  address_not_ends_with: String
+  address_i: String
+  address_not_i: String
+  address_contains_i: String
+  address_not_contains_i: String
+  address_starts_with_i: String
+  address_not_starts_with_i: String
+  address_ends_with_i: String
+  address_not_ends_with_i: String
+  address_in: [String]
+  address_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -9567,12 +9639,14 @@ enum SortBillingPropertiesBy {
   importId_DESC
   globalId_ASC
   globalId_DESC
-  address_ASC
-  address_DESC
   normalizedAddress_ASC
   normalizedAddress_DESC
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -9594,9 +9668,12 @@ input BillingPropertyUpdateInput {
   importId: String
   raw: JSON
   globalId: String
-  address: String
   normalizedAddress: String
   meta: JSON
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -9618,9 +9695,12 @@ input BillingPropertyCreateInput {
   importId: String
   raw: JSON
   globalId: String
-  address: String
   normalizedAddress: String
   meta: JSON
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
