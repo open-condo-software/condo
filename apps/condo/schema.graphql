@@ -57428,6 +57428,19 @@ input RegisterBillingReceiptsInput {
   receipts: [RegisterBillingReceiptInput!]!
 }
 
+input SearchBillingReceiptsWithoutConsumerInput {
+  residents: [ResidentWhereUniqueInput!]!
+}
+
+type SearchBillingReceiptsWithoutConsumerReceiptsGroup {
+  resident: Resident
+  receipts: [BillingReceipt!]!
+}
+
+type SearchBillingReceiptsWithoutConsumerOutput {
+  residentReceipts: [SearchBillingReceiptsWithoutConsumerReceiptsGroup!]!
+}
+
 input CreateBankAccountRequestInput {
   dv: Int!
   sender: JSON!
@@ -60955,6 +60968,7 @@ type Query {
   checkPropertyWithAddressExist(data: CheckPropertyWithAddressExistInput!): CheckPropertyWithAddressExistOutput
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
+  searchBillingReceiptsWithoutConsumer(data: SearchBillingReceiptsWithoutConsumerInput!): SearchBillingReceiptsWithoutConsumerOutput
 
   """
   Returns id of BankCostItem corresponding to specified payment purpose string
