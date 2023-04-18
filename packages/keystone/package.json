@@ -51,7 +51,6 @@
     "ensure-error": "^3.0.1",
     "express": "^4.17.1",
     "express-session": "^1.17.2",
-    "faker": "^5.5.3",
     "falsey": "^1.0.0",
     "form-data": "^4.0.0",
     "graphql": "^15.6.1",

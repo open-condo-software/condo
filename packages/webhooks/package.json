@@ -39,7 +39,6 @@
   },
   "devDependencies": {
     "dayjs": "^1.11.6",
-    "faker": "^6.6.6",
     "falsey": "^1.0.0",
     "jest": "^29.4.0",
     "jest-environment-jsdom": "^29.4.0",

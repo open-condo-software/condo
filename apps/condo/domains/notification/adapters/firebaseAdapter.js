@@ -1,4 +1,4 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const admin = require('firebase-admin')
 const { isEmpty, isNull, get, isObject } = require('lodash')
 

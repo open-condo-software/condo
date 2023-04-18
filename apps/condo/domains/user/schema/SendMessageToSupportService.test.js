@@ -4,7 +4,7 @@
 
 const path = require('path')
 
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, UploadingFile } = require('@open-condo/keystone/test.utils')

@@ -1,4 +1,4 @@
-import faker from 'faker'
+import { faker } from '@faker-js/faker'
 import sample from 'lodash/sample'
 
 import { TicketCreate, TicketView, TicketEdit, TicketImport } from '../../objects/Ticket'

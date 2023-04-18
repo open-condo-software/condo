@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 const index = require('@app/condo/index')
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const {
     setFakeClientMode,

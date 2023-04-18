@@ -1,7 +1,7 @@
 const path = require('path')
 
+const { faker } = require('@faker-js/faker')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const faker = require('faker')
 const get = require('lodash/get')
 
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')

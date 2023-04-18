@@ -1,5 +1,5 @@
 
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, expectToThrowInternalError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')

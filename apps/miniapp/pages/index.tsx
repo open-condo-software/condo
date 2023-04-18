@@ -1,6 +1,6 @@
+import { faker } from '@faker-js/faker'
 import { Typography } from 'antd'
 import dayjs from 'dayjs'
-import faker from 'faker'
 import { get } from 'lodash'
 import getConfig from 'next/config'
 import Head from 'next/head'
