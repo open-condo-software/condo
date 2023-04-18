@@ -7,6 +7,8 @@ const faker = require('faker')
 const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration, AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
+const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
+const { createTestBankIntegrationAccountContext, createTestBankAccount, createTestBankTransaction, createTestBankContractorAccount, createTestBankIntegrationOrganizationContext, createTestBankSyncTask, createTestBankAccountReport, createTestBankAccountReportTask, BankIntegrationAccountContext, BankAccount, BankContractorAccount, BankTransaction, BankIntegrationOrganizationContext, BankSyncTask, BankAccountReportTask, BankAccountReport } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { createTestB2BAppContext, B2BAppContext, createTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
 const { DELETED_ORGANIZATION_NAME } = require('@condo/domains/organization/constants/common')
@@ -17,7 +19,7 @@ const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSch
 const { makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
 
-describe('ResetOrganizationService', async () => {
+describe('ResetOrganizationService', () => {
     let support, admin
 
     beforeAll(async () => {
@@ -137,6 +139,21 @@ describe('ResetOrganizationService', async () => {
         const [b2BApp] = await createTestB2BApp(admin)
         const [createdB2BAppCtx] = await createTestB2BAppContext(admin, b2BApp, createdOrganization)
 
+        const [createdBankAccountContext] = await createTestBankIntegrationAccountContext(admin, { id: BANK_INTEGRATION_IDS.SBBOL }, createdOrganization)
+        const [createdBankAccount] = await createTestBankAccount(admin, createdOrganization, {
+            integrationContext: { connect: { id: createdBankAccountContext.id } },
+        })
+
+        const [createdBankContractorAccount] = await createTestBankContractorAccount(admin, createdOrganization)
+        const [createdBankTransaction] = await createTestBankTransaction(admin, createdBankAccount, createdBankContractorAccount, createdBankAccountContext, createdOrganization)
+
+        const [createdBankIntegrationOrganizationContext] = await createTestBankIntegrationOrganizationContext(admin, { id: BANK_INTEGRATION_IDS.SBBOL }, createdOrganization)
+
+        const [createdBankSyncTask] = await createTestBankSyncTask(admin, createdOrganization)
+
+        const [createdBankAccountReportTask] = await createTestBankAccountReportTask(admin, createdBankAccount, createdOrganization, admin.user.id)
+        const [createdBankAccountReport] = await createTestBankAccountReport(admin, createdBankAccount, createdOrganization)
+
         await resetOrganizationByTestClient(admin, { organizationId: createdOrganization.id })
 
         const employees = await OrganizationEmployee.getAll(admin, {
@@ -158,6 +175,30 @@ describe('ResetOrganizationService', async () => {
 
         const acquiringIntegrationCtx = await AcquiringIntegrationContext.getAll(admin, { id: createdAcquiringIntegrationCtx.id })
         expect(acquiringIntegrationCtx).toHaveLength(0)
+
+        const bankAccountContexts = await BankIntegrationAccountContext.getAll(admin, { id: createdBankAccountContext.id })
+        expect(bankAccountContexts).toHaveLength(0)
+
+        const bankAccounts = await BankAccount.getAll(admin, { id: createdBankAccount.id })
+        expect(bankAccounts).toHaveLength(0)
+
+        const bankContractorAccounts = await BankContractorAccount.getAll(admin, { id: createdBankContractorAccount.id })
+        expect(bankContractorAccounts).toHaveLength(0)
+
+        const bankTransactions = await BankTransaction.getAll(admin, { id: createdBankTransaction.id })
+        expect(bankTransactions).toHaveLength(0)
+
+        const bankIntegrationOrganizationContexts = await BankIntegrationOrganizationContext.getAll(admin, { id: createdBankIntegrationOrganizationContext.id })
+        expect(bankIntegrationOrganizationContexts).toHaveLength(0)
+
+        const bankSyncTasks = await BankSyncTask.getAll(admin, { id: createdBankSyncTask.id })
+        expect(bankSyncTasks).toHaveLength(0)
+
+        const bankAccountReportTasks = await BankAccountReportTask.getAll(admin, { id: createdBankAccountReportTask.id })
+        expect(bankAccountReportTasks).toHaveLength(0)
+
+        const bankAccountReports = await BankAccountReport.getAll(admin, { id: createdBankAccountReport.id })
+        expect(bankAccountReports).toHaveLength(0)
 
         const b2BAppCtx = await B2BAppContext.getAll(admin, { id: createdB2BAppCtx.id })
         expect(b2BAppCtx).toHaveLength(0)

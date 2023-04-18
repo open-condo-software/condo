@@ -3,9 +3,11 @@
  */
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
+const { BankIntegrationAccountContext, BankAccountReport, BankAccount, BankTransaction, BankContractorAccount, BankIntegrationOrganizationContext, BankSyncTask, BankAccountReportTask } = require('@condo/domains/banking/utils/serverSchema')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
 const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -61,14 +63,9 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
             schema: 'resetOrganization(data: ResetOrganizationInput!): ResetOrganizationOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { dv, sender, organizationId } } = args
+                checkDvAndSender({ dv, sender }, { ...errors.DV_VERSION_MISMATCH, mutation: 'resetOrganization' }, { ...errors.SENDER_MISMATCH, mutation: 'resetOrganization' }, context)
 
-                if (dv !== 1) {
-                    throw new GQLError(errors.DV_VERSION_MISMATCH, context)
-                }
-                if (!sender || sender.dv !== 1 || !sender.fingerprint) {
-                    throw new GQLError(errors.SENDER_MISMATCH, context)
-                }
-                const DV_SENDER = { dv: 1, sender }
+                const DV_SENDER = { dv, sender }
 
                 if (!organizationId) throw new Error('resetOrganization(): no organizationId')
 
@@ -78,7 +75,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 }
 
                 const properties = await loadListByChunks({
-                    context: context,
+                    context,
                     list: Property,
                     chunkSize: 20,
                     limit: 100000,
@@ -92,7 +89,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 }
 
                 const employees = await loadListByChunks({
-                    context: context,
+                    context,
                     list: OrganizationEmployee,
                     chunkSize: 20,
                     limit: 100000,
@@ -138,6 +135,107 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 })
                 for (let b2BAppCtx of b2BAppCtxs) {
                     await B2BAppContext.softDelete(context, b2BAppCtx.id, DV_SENDER)
+                }
+
+                // banking domain
+                const bankAccountReports = await loadListByChunks({
+                    context,
+                    list: BankAccountReport,
+                    chunkSize: 20,
+                    limit: 100000,
+                    where: {
+                        deletedAt: null,
+                        organization: { id: organizationId },
+                    },
+                })
+                for (let bankAccountReport of bankAccountReports) {
+                    await BankAccountReport.softDelete(context, bankAccountReport.id, DV_SENDER)
+                }
+
+                const bankAccountReportTasks = await loadListByChunks({
+                    context,
+                    list: BankAccountReportTask,
+                    chunkSize: 20,
+                    limit: 100000,
+                    where: {
+                        deletedAt: null,
+                        organization: { id: organizationId },
+                    },
+                })
+                for (let bankAccountReportTask of bankAccountReportTasks) {
+                    await BankAccountReportTask.softDelete(context, bankAccountReportTask.id, DV_SENDER)
+                }
+
+                const bankSyncTasks = await loadListByChunks({
+                    context,
+                    list: BankSyncTask,
+                    chunkSize: 20,
+                    limit: 1000000,
+                    where: {
+                        deletedAt: null,
+                        organization: { id: organizationId },
+                    },
+                })
+                for (let bankSyncTask of bankSyncTasks) {
+                    await BankSyncTask.softDelete(context, bankSyncTask.id, DV_SENDER)
+                }
+
+                const bankTransactions = await loadListByChunks({
+                    context,
+                    list: BankTransaction,
+                    chunkSize: 20,
+                    limit: 1000000,
+                    where: {
+                        deletedAt: null,
+                        organization: { id: organizationId },
+                    },
+                })
+                for (let bankTransaction of bankTransactions) {
+                    await BankTransaction.softDelete(context, bankTransaction.id, DV_SENDER)
+                }
+
+                const bankIntegrationOrganizationContexts = await BankIntegrationOrganizationContext.getAll(context, {
+                    deletedAt: null,
+                    organization: { id: organizationId },
+                })
+                for (let bankIntegrationOrganizationContext of bankIntegrationOrganizationContexts) {
+                    await BankIntegrationOrganizationContext.softDelete(context, bankIntegrationOrganizationContext.id, DV_SENDER)
+                }
+
+                const bankContractorAccounts = await BankContractorAccount.getAll(context, {
+                    deletedAt: null,
+                    organization: { id: organizationId },
+                })
+                for (let bankContractorAccount of bankContractorAccounts) {
+                    await BankContractorAccount.softDelete(context, bankContractorAccount.id, DV_SENDER)
+                }
+
+                const BankIntegrationAccountCtxs = await loadListByChunks({
+                    context,
+                    list: BankIntegrationAccountContext,
+                    chunkSize: 20,
+                    limit: 10000,
+                    where: {
+                        deletedAt: null,
+                        organization: { id: organizationId },
+                    },
+                })
+                for (let bankIntegrationAccountCtx of BankIntegrationAccountCtxs) {
+                    await BankIntegrationAccountContext.softDelete(context, bankIntegrationAccountCtx.id, DV_SENDER)
+                }
+
+                const bankAccounts = await loadListByChunks({
+                    context,
+                    list: BankAccount,
+                    chunkSize: 20,
+                    limit: 10000,
+                    where: {
+                        deletedAt: null,
+                        organization: { id: organizationId },
+                    },
+                })
+                for (let bankAccount of bankAccounts) {
+                    await BankAccount.softDelete(context, bankAccount.id, DV_SENDER)
                 }
 
                 const newOrganizationData = {
