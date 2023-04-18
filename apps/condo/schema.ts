@@ -47604,6 +47604,7 @@ export type Query = {
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
+  searchBillingReceiptsWithoutConsumer?: Maybe<SearchBillingReceiptsWithoutConsumerOutput>;
   /**
    * Returns id of BankCostItem corresponding to specified payment purpose string
    *
@@ -52785,6 +52786,11 @@ export type QueryAllResidentBillingReceiptsArgs = {
 };
 
 
+export type QuerySearchBillingReceiptsWithoutConsumerArgs = {
+  data: SearchBillingReceiptsWithoutConsumerInput;
+};
+
+
 export type QueryPredictTransactionClassificationArgs = {
   data: PredictTransactionClassificationInput;
 };
@@ -55194,6 +55200,21 @@ export type ResidentsCreateInput = {
 export type ResidentsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<ResidentUpdateInput>;
+};
+
+export type SearchBillingReceiptsWithoutConsumerInput = {
+  residents: Array<ResidentWhereUniqueInput>;
+};
+
+export type SearchBillingReceiptsWithoutConsumerOutput = {
+  __typename?: 'SearchBillingReceiptsWithoutConsumerOutput';
+  residentReceipts: Array<SearchBillingReceiptsWithoutConsumerReceiptsGroup>;
+};
+
+export type SearchBillingReceiptsWithoutConsumerReceiptsGroup = {
+  __typename?: 'SearchBillingReceiptsWithoutConsumerReceiptsGroup';
+  resident?: Maybe<Resident>;
+  receipts: Array<BillingReceipt>;
 };
 
 export type SendAppPushMessageData = {
