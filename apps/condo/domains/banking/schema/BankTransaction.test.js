@@ -7,15 +7,14 @@ const faker = require('faker')
 const { pick } = require('lodash')
 
 const {
-    makeLoggedInAdminClient,
     makeClient,
+    makeLoggedInAdminClient,
     expectToThrowValidationFailureError,
-    expectValuesOfCommonFields,
-} = require('@open-condo/keystone/test.utils')
-const {
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
-    catchErrorFrom,
+    expectToThrowUniqueConstraintViolationError,
+    expectValuesOfCommonFields,
 } = require('@open-condo/keystone/test.utils')
 
 
@@ -599,14 +598,12 @@ describe('BankTransaction', () => {
             
             expect(obj1).toBeDefined()
 
-            await catchErrorFrom(async () => {
+            await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestBankTransaction(admin, account, contractorAccount, integrationContext, organization, {
                     date,
                     number,
                 })
-            }, ({ errors }) => {
-                expect(errors[0].message).toContain('duplicate key value violates unique constraint "Bank_transaction_unique_number_date_organization"')
-            })
+            }, 'Bank_transaction_unique_number_date_organization')
         })
 
         it('cannot be created with same importId, importRemoteSystem, organization', async () => {
@@ -627,15 +624,12 @@ describe('BankTransaction', () => {
 
             expect(obj1).toBeDefined()
 
-            await catchErrorFrom(async () => {
+            await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestBankTransaction(admin, account, contractorAccount, integrationContext, organization, {
                     importId,
                     importRemoteSystem,
                 })
-            }, ({ errors }) => {
-                // NOTE(antonal): Postgres has maximum 64 characters on name of constraint
-                expect(errors[0].message).toContain('duplicate key value violates unique constraint "Bank_transaction_unique_importId_importRemoteSystem_organizatio"')
-            })
+            }, 'Bank_transaction_unique_importId_importRemoteSystem_organization')
         })
     })
 })

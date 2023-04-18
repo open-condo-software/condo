@@ -4,7 +4,14 @@
 
 const { pick } = require('lodash')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowValidationFailureError, UUID_RE, expectValuesOfCommonFields } = require('@open-condo/keystone/test.utils')
+const {
+    makeClient,
+    makeLoggedInAdminClient,
+    UUID_RE,
+    expectToThrowValidationFailureError,
+    expectToThrowUniqueConstraintViolationError,
+    expectValuesOfCommonFields,
+} = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, catchErrorFrom,
@@ -19,8 +26,11 @@ const {
     createTestBankIntegrationAccountContext,
     createTestBankIntegrationOrganizationContext,
 } = require('@condo/domains/banking/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const {
+    createTestOrganization,
+    createTestOrganizationEmployee,
+    createTestOrganizationEmployeeRole,
+} = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -525,18 +535,13 @@ describe('BankAccount', () => {
 
             const [bankAccount] = await createTestBankAccount(adminClient, organization)
 
-            await catchErrorFrom(
-                async () => {
-                    await createTestBankAccount(adminClient, organization, {
-                        tin: bankAccount.tin,
-                        routingNumber: bankAccount.routingNumber,
-                        number: bankAccount.number,
-                    })
-                }, (e) => {
-                    const msg = e.errors[0].message
-                    expect(msg).toContain('duplicate key value violates unique constraint')
-                }
-            )
+            await expectToThrowUniqueConstraintViolationError(async () => {
+                await createTestBankAccount(adminClient, organization, {
+                    tin: bankAccount.tin,
+                    routingNumber: bankAccount.routingNumber,
+                    number: bankAccount.number,
+                })
+            }, 'Bank_account_unique_organization_tin_routingNumber_number')
         })
 
         test('can delete and then create another BankAccount with same requisites', async () => {
