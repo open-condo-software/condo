@@ -4,13 +4,14 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const { Organization: OrganizationGQL } = require('@condo/domains/organization/gql')
 const { OrganizationEmployee: OrganizationEmployeeGQL } = require('@condo/domains/organization/gql')
 const { OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
 const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
+const { RESET_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Organization = generateServerUtils(OrganizationGQL)
@@ -18,6 +19,20 @@ const OrganizationEmployee = generateServerUtils(OrganizationEmployeeGQL)
 const OrganizationEmployeeRole = generateServerUtils(OrganizationEmployeeRoleGQL)
 const OrganizationLink = generateServerUtils(OrganizationLinkGQL)
 const OrganizationEmployeeSpecialization = generateServerUtils(OrganizationEmployeeSpecializationGQL)
+async function resetOrganization (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    if (!data.organizationId) throw new Error('no data.organizationId')
+
+    return await execGqlWithoutAccess(context, {
+        query: RESET_ORGANIZATION_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to resetOrganization',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -26,5 +41,6 @@ module.exports = {
     OrganizationEmployeeRole,
     OrganizationLink,
     OrganizationEmployeeSpecialization,
+    resetOrganization,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
