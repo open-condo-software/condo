@@ -28,6 +28,9 @@ describe('Auth scenarios', () => {
     describe('Anonymous', () => {
         it('can register after confirming phone', () => {
 
+            // Open telemterty ?
+            // Snap ? Spin ?
+            // Traces
             performance.mark('start')
 
             const registration = new Registration()

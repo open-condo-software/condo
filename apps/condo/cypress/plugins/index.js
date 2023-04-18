@@ -41,7 +41,7 @@ module.exports = async (on, config) => {
             return null
         },
         // async 'keystone:createUser' () {
-        //     return await createTestUser(supportClient)
+        //     return await createTestUser(supportClient)=
         // },
         async 'keystone:createUser' () {
             return await createTestUser(admin)

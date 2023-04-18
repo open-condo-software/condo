@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { trackedVisit } from './helpers'
+
 const TICKET_CREATE_URL = '/ticket/create'
 const TICKET_VIEW_URL = '/ticket'
 
@@ -19,7 +21,7 @@ class TicketCreate {
 */
 
     visit (): this {
-        cy.visit(TICKET_CREATE_URL)
+        trackedVisit(TICKET_CREATE_URL)
         return this
     }
 
@@ -299,7 +301,7 @@ Elements:
 */
 
     visitTicketsPage (): this {
-        cy.visit(TICKET_VIEW_URL)
+        trackedVisit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
         cy.wait(['@getAllTickets'])
 
