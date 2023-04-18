@@ -1,11 +1,14 @@
 import { faker } from '@faker-js/faker'
 
 import { SignIn, ForgotPassword, Registration }  from '../../objects/Auth'
+import { SimpleTracer } from '../../objects/helpers'
 
 describe('Auth scenarios', () => {
 
     describe('User', () => {
         it('can start password recovery', () => {
+            const tracer = new SimpleTracer('auth.user.canStartPasswordRecovery')
+            const span = tracer.startSpan('1.startPasswordRecovery')
             cy.task('keystone:createUser').then(([, user]) => {
                 const forgot = new ForgotPassword()
                 forgot
@@ -13,8 +16,11 @@ describe('Auth scenarios', () => {
                     .fillPhone(user.phone)
                     .startPasswordRecoveryClick()
             })
+            span.finish()
         })
         it('can signin with correct password and phone', () => {
+            const tracer = new SimpleTracer('auth.user.canSigninWithCorrectPasswordAndPhone')
+            const span = tracer.startSpan('1.signIn')
             cy.task('keystone:createUser').then(([, user]) => {
                 const signIn = new SignIn()
                 signIn
@@ -23,15 +29,14 @@ describe('Auth scenarios', () => {
                     .fillPassword(user.password)
                     .signinClick()
             })
+            span.finish()
         })
     })
     describe('Anonymous', () => {
         it('can register after confirming phone', () => {
 
-            // Open telemterty ?
-            // Snap ? Spin ?
-            // Traces
-            performance.mark('start')
+            const tracer = new SimpleTracer('auth.anonymous.canRegisterAfterConfirmingPhone')
+            const registrationSpan = tracer.startSpan('1.loadingRegistration')
 
             const registration = new Registration()
             const user = {
@@ -46,8 +51,9 @@ describe('Auth scenarios', () => {
                 .fillPhone(user.phone)
                 .startRegistrationClick()
             cy.url().should('contain', 'step=validatePhone')
-            performance.mark('registrationClicked')
+            registrationSpan.finish()
 
+            const getConfirmPhoneActionSpan = tracer.startSpan('2.completingRegistration')
             cy.task('keystone:getConfirmPhoneAction', user.phone).then(([{ smsCode }]) => {
                 // step 2
                 registration.fillSMSCode(smsCode)
@@ -59,15 +65,7 @@ describe('Auth scenarios', () => {
                     .fillConfirmPassword(user.password)
                     .completeRegistrationClick()
             })
-            performance.mark('end')
-
-            const startToEnd = performance.measure('startToEnd', 'start', 'end').duration
-            const startToRegistrationClicked = performance.measure('startToRegistrationClicked', 'start', 'registrationClicked').duration
-            const registrationClickedToEnd = performance.measure('registrationClickedToEnd', 'registrationClicked', 'end').duration
-
-            cy.task('metrics:histogram', ['auth.test.anonymous.canRegisterAfterConfirmingPhone.total.duration', startToEnd])
-            cy.task('metrics:histogram', ['auth.test.anonymous.canRegisterAfterConfirmingPhone.startToRegistrationClicked.duration', startToRegistrationClicked])
-            cy.task('metrics:histogram', ['auth.test.anonymous.canRegisterAfterConfirmingPhone.registrationClickedToEnd.duration', registrationClickedToEnd])
+            getConfirmPhoneActionSpan.finish()
         })
     })
 })

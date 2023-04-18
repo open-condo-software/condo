@@ -33,17 +33,19 @@ type Span = {
  */
 class SimpleTracer {
     name: string
+    perf: Performance
 
     constructor (name: string) {
         this.name = name
+        this.perf = performance
     }
 
     startSpan: (spanName: string) => Span = (spanName) => {
         const [spanStartMark, spanEndMark] = this._getSpanMarkNames(spanName)
-        performance.mark(spanStartMark)
+        this.perf.mark(spanStartMark)
         return {
             finish: () => {
-                performance.mark(spanEndMark)
+                this.perf.mark(spanEndMark)
                 this._registerSpan(spanName)
             },
         }
@@ -57,7 +59,7 @@ class SimpleTracer {
 
     _registerSpan: (spanName: string) => void = (spanName) => {
         const [spanStartMark, spanEndMark] = this._getSpanMarkNames(spanName)
-        const measure = performance.measure(this.name + '.' + spanName, spanStartMark, spanEndMark)
+        const measure = this.perf.measure(this.name + '.' + spanName, spanStartMark, spanEndMark)
         cy.task('metrics:histogram', [`${this.name}.${spanName}`, measure.duration])
     }
 }
