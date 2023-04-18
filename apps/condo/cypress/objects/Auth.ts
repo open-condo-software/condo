@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
+import { trackedVisit } from './helpers'
+
 const SIGNIN_URL = '/auth/signin/'
 const FORGOT_PASSWORD_URL = '/auth/forgot'
 const REGISTER_URL = '/auth/register/'
+
 
 class SignIn{
 /*
@@ -12,22 +15,7 @@ class SignIn{
         signin-button
 */
     visit (): this {
-        cy.visit(SIGNIN_URL, {
-            onBeforeLoad: (win) => {
-                win.performance.mark('start-loading')
-            },
-            onLoad: (win) => {
-                win.performance.mark('end-loading')
-            },
-        }).its('performance').then((p) => {
-            p.measure('pageLoad', 'start-loading', 'end-loading')
-            const measure = p.getEntriesByName('pageLoad')[0]
-
-            cy.log(`MEASURE!!!! SIGNIN_PAGE_LOAD ${measure.duration}`)
-            console.log(`MEASURE!!!! SIGNIN_PAGE_LOAD ${measure.duration}`)
-
-            cy.task('metrics:log', ['cypress.auth.signin.pageload', measure.duration])
-        })
+        trackedVisit(SIGNIN_URL)
         return this
     }
 
@@ -67,7 +55,7 @@ class ForgotPassword {
         forgot-success-message
 */
     visit (): this {
-        cy.visit(FORGOT_PASSWORD_URL)
+        trackedVisit(FORGOT_PASSWORD_URL)
         return this
     }
 
@@ -107,7 +95,7 @@ class Registration {
             registercomplete-button
 */
     visit (): this {
-        cy.visit(REGISTER_URL)
+        trackedVisit(REGISTER_URL)
         return this
     }
 

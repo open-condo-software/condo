@@ -7,7 +7,7 @@ const { Client } = require('pg')
 const spawn = util.promisify(require('child_process').spawn)
 const exec = util.promisify(require('child_process').exec)
 
-const RUN_TESTS_COMMAND = 'yarn workspace @app/condo cypress run -b chrome -C ./cypress/cypress.config.ts'
+const RUN_TESTS_COMMAND = 'yarn workspace @app/condo cypress run -b chrome -C ./cypress/cypress.config.ts --spec "./cypress/e2e/pages/auth.cy.js"'
 
 const runCypressInParallel = async (instances) => {
     const cypressInstances = []

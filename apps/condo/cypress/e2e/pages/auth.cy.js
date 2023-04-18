@@ -27,6 +27,9 @@ describe('Auth scenarios', () => {
     })
     describe('Anonymous', () => {
         it('can register after confirming phone', () => {
+
+            performance.mark('start')
+
             const registration = new Registration()
             const user = {
                 phone: faker.phone.number('+7922#######'),
@@ -40,6 +43,7 @@ describe('Auth scenarios', () => {
                 .fillPhone(user.phone)
                 .startRegistrationClick()
             cy.url().should('contain', 'step=validatePhone')
+            performance.mark('registrationClicked')
 
             cy.task('keystone:getConfirmPhoneAction', user.phone).then(([{ smsCode }]) => {
                 // step 2
@@ -51,8 +55,16 @@ describe('Auth scenarios', () => {
                     .fillPassword(user.password)
                     .fillConfirmPassword(user.password)
                     .completeRegistrationClick()
-
             })
+            performance.mark('end')
+
+            const startToEnd = performance.measure('startToEnd', 'start', 'end').duration
+            const startToRegistrationClicked = performance.measure('startToRegistrationClicked', 'start', 'registrationClicked').duration
+            const registrationClickedToEnd = performance.measure('registrationClickedToEnd', 'registrationClicked', 'end').duration
+
+            cy.task('metrics:histogram', ['auth.test.anonymous.canRegisterAfterConfirmingPhone.total.duration', startToEnd])
+            cy.task('metrics:histogram', ['auth.test.anonymous.canRegisterAfterConfirmingPhone.startToRegistrationClicked.duration', startToRegistrationClicked])
+            cy.task('metrics:histogram', ['auth.test.anonymous.canRegisterAfterConfirmingPhone.registrationClickedToEnd.duration', registrationClickedToEnd])
         })
     })
 })
