@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const { get } = require('lodash')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
@@ -122,7 +122,7 @@ async function createTestTicketStatus (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.random.alphaNumeric(8)
-    const type = faker.random.arrayElement(TICKET_STATUS_TYPES)
+    const type = faker.helpers.arrayElement(TICKET_STATUS_TYPES)
 
     const attrs = {
         dv: 1,

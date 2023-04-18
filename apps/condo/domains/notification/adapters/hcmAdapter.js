@@ -1,4 +1,4 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const { isEmpty, isObject, isNull, get } = require('lodash')
 
 const conf = require('@open-condo/config')

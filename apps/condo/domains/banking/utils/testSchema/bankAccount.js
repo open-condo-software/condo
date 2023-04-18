@@ -1,4 +1,4 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const { RU_NUMBER_WEIGHTS, getRuTinControlSum } = require('@condo/domains/banking/utils/validate/countrySpecificValidators/ru.validator')
 

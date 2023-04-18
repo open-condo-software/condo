@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
@@ -149,7 +149,7 @@ async function createTestMeterReading (client, meter, source, extraAttrs = {}) {
         meter: { connect: { id: meter.id } },
         source: { connect: { id: source.id } },
         date: faker.date.recent(),
-        value1: String(faker.random.number()),
+        value1: String(faker.datatype.number()),
         ...extraAttrs,
     }
     const obj = await MeterReading.create(client, attrs)

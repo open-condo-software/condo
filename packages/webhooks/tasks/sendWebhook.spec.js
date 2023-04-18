@@ -1,5 +1,5 @@
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const faker = require('faker')
 
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const {

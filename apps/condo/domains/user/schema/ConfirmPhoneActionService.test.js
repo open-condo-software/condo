@@ -1,4 +1,4 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')

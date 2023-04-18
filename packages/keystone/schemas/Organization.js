@@ -1,6 +1,6 @@
+const { faker } = require('@faker-js/faker')
 const { Text, Checkbox, Relationship, Uuid, Select } = require('@keystonejs/fields')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
-const faker = require('faker')
 const { v4: uuid } = require('uuid')
 
 const access = require('@open-condo/keystone/access')

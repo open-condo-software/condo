@@ -2,8 +2,8 @@
  * @jest-environment node
  */
 const index = require('@app/condo/index')
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const faker = require('faker')
 
 const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 

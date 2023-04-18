@@ -1,6 +1,6 @@
 const path = require('path')
 
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 

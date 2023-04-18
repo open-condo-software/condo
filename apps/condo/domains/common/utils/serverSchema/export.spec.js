@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const fill = require('lodash/fill')
 
 const { exportRecordsAsCsvFile } = require('./export')

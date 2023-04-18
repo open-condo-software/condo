@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const conf = require('@open-condo/config')
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const {
     generateGQLTestUtils,

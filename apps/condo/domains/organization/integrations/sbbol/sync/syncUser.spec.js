@@ -3,8 +3,8 @@
  */
 
 const index = require('@app/condo/index')
+const { faker } = require('@faker-js/faker')
 const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
-const faker = require('faker')
 
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 

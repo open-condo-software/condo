@@ -3,7 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const { getRandomString, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')

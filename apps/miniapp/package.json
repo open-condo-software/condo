@@ -60,7 +60,6 @@
     "emotion-server": "^10.0.27",
     "express": "^4.17.1",
     "facepaint": "^1.2.1",
-    "faker": "^5.5.3",
     "get-contrast": "^2.0.0",
     "graphql": "^15.6.1",
     "graphql-tag": "^2.12.6",

@@ -1,5 +1,5 @@
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const faker = require('faker')
 const isEmpty = require('lodash/isEmpty')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')

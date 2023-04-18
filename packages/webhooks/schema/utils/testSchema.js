@@ -1,7 +1,7 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { WebhookGQL, WebhookSubscriptionGQL } = require('@open-condo/webhooks/schema/gql')
 const Webhook = generateGQLTestUtils(WebhookGQL)
 const WebhookSubscription = generateGQLTestUtils(WebhookSubscriptionGQL)
