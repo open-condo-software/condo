@@ -9,7 +9,6 @@ import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import {
     Columns,
@@ -19,10 +18,9 @@ import {
     RowValidator,
 } from '@condo/domains/common/utils/importer'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
-import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { searchContacts, searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
 const normalizeIsResidentTicket = (value: string, yes: string, no: string) => {
@@ -86,7 +84,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         userOrganizationIdRef.current = userOrganizationId
     }, [userOrganizationId])
 
-    const contactCreateAction = Contact.useCreate({})
     const ticketCreateAction = Ticket.useCreate({})
 
     const columns: Columns = [
@@ -110,7 +107,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             fullName: null,
             details: null,
             isResidentTicket: null,
-            contacts: null,
             unitName: null,
             unitType: null,
             createdAt: null,
@@ -143,14 +139,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         addons.unitName = unitName.value ? String(unitName.value).trim() : null
         addons.unitType = addons.unitName ? 'flat' : null
         addons.isEmptyDetails = Boolean(String(get(details, 'value', '')).trim())
-
-        const { data: { objs } } = await searchContacts(client, {
-            organizationId: userOrganizationIdRef.current,
-            propertyId: addons.propertyId,
-            unitName: undefined,
-            unitType: undefined,
-        })
-        addons.contacts = objs
 
         return { row, addons }
     }
@@ -185,7 +173,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const ticketCreator: ObjectCreator = async (row) => {
         if (!row) return
         const phone = get(row, ['addons', 'phone'])
-        const contacts = get(row, ['addons', 'contacts'], [])
         const fullName = get(row, ['addons', 'fullName'])
         const details = get(row, ['addons', 'details'])
         const propertyId = get(row, ['addons', 'propertyId'])
@@ -207,22 +194,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             source: { connect: { id: SOURCE_IMPORT_ID } },
             unitName,
             unitType,
-        }
-
-        if (isResidentTicket) {
-            const existingContact = contacts.find(contact => contact.phone === phone && contact.name === fullName)
-            if (existingContact) {
-                ticketPayload.contact = { connect: { id: get(existingContact, 'id') } }
-            } else {
-                const newContact = await contactCreateAction({
-                    organization: { connect: { id: String(userOrganizationIdRef.current) } },
-                    property: { connect: { id: propertyId } },
-                    unitName: String(unitName.value),
-                    phone,
-                    name: row.addons.fullName,
-                })
-                ticketPayload.contact = { connect: { id: get(newContact, 'id') } }
-            }
         }
 
         return ticketCreateAction(ticketPayload)
