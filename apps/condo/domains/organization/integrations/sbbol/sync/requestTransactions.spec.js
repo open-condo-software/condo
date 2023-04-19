@@ -63,6 +63,7 @@ jest.mock('@condo/domains/organization/integrations/sbbol/SbbolFintechApi',  () 
 
 describe('syncBankTransaction from SBBOL', () => {
     setFakeClientMode(index)
+    jest.setTimeout(60000)
     let adminClient, commonClient, adminContext, context, commonOrganization, commonBankAccount
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
@@ -97,7 +98,7 @@ describe('syncBankTransaction from SBBOL', () => {
     describe('requestTransactions', () => {
         it('Request transactions from SBBOL', async () => {
             const transactions = await requestTransactions({
-                date: dayjs().format('YYYY-MM-DD'),
+                dateInterval: [dayjs().format('YYYY-MM-DD')],
                 userId: commonClient.user.id,
                 organization: commonOrganization,
             })
@@ -105,12 +106,12 @@ describe('syncBankTransaction from SBBOL', () => {
             const bankAccountBalance = await BankAccount.getOne(adminClient, { id: commonBankAccount.id })
             expect(get(bankAccountBalance, 'meta.amount')).toBeDefined()
             expect(get(bankAccountBalance, 'meta.amountAt')).toBeDefined()
-            expect(transactions).toHaveLength(5)
+            expect(transactions[0]).toHaveLength(5)
         })
 
         it('Check taskStatus when request transactions from SBBOL', async () => {
             const transactions = await requestTransactions({
-                date: dayjs().format('YYYY-MM-DD'),
+                dateInterval: [dayjs().format('YYYY-MM-DD')],
                 userId: commonClient.user.id,
                 organization: commonOrganization,
             })
@@ -118,7 +119,7 @@ describe('syncBankTransaction from SBBOL', () => {
                 meta: { syncTransactionsTaskStatus: 'completed' },
             })
             expect(bankAccounts.length).toBeGreaterThanOrEqual(1)
-            expect(transactions).toHaveLength(5)
+            expect(transactions[0]).toHaveLength(5)
         })
 
         it('Expect an error if trying to get a statement for a future date', async () => {
@@ -126,7 +127,7 @@ describe('syncBankTransaction from SBBOL', () => {
 
             try {
                 await requestTransactions({
-                    date:  dayjs().add(7, 'day').format('YYYY-MM-DD'),
+                    dateInterval:  [dayjs().add(7, 'day').format('YYYY-MM-DD')],
                     userId: commonClient.user.id,
                     organization: commonOrganization,
                 })
@@ -142,7 +143,7 @@ describe('syncBankTransaction from SBBOL', () => {
 
             try {
                 await requestTransactions({
-                    date:  'h3ge4jh32',
+                    dateInterval:  ['h3ge4jh32'],
                     userId: commonClient.user.id,
                     organization: commonOrganization,
                 })

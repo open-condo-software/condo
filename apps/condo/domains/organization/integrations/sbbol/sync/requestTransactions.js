@@ -230,15 +230,14 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
 
 /**
  * Synchronizes SBBOL transaction data with data in the system
- * @param {String} date
  * @param {String[]} dateInterval
  * @param {String} userId
  * @param {Organization} organization
  * @returns {Promise<Transaction[]>}
  */
-async function requestTransactions ({ date, dateInterval, userId, organization }) {
+async function requestTransactions ({ dateInterval, userId, organization }) {
     if (!uuidValidate(userId)) return logger.error(`passed userId is not a valid uuid. userId: ${userId}`)
-    if (!date && !dateInterval) return logger.error('date or dateInterval is required')
+    if (!dateInterval) return logger.error('dateInterval is required')
 
     const { keystone: context } = await getSchemaCtx('Organization')
     // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
@@ -254,24 +253,10 @@ async function requestTransactions ({ date, dateInterval, userId, organization }
     })
     const today = dayjs().format('YYYY-MM-DD')
 
-    if (date) {
-        if (dayjs(date).format('YYYY-MM-DD') === 'Invalid Date') throw new Error(`${INVALID_DATE_RECEIVED_MESSAGE} ${date}`)
-
-        // you can't request a report by a date in the future
-        if (today < date) throw new Error(ERROR_PASSED_DATE_IN_THE_FUTURE)
-
-        return await requestTransactionsForDate({
-            userId,
-            bankAccounts,
-            context,
-            statementDate: date,
-            organizationId: organization.id,
-        })
-    }
     if (dateInterval){
         const transactions = []
         for (const statementDate of dateInterval) {
-            if (dayjs(statementDate).format('YYYY-MM-DD') === 'Invalid Date') throw new Error(`${INVALID_DATE_RECEIVED_MESSAGE} ${date}`)
+            if (dayjs(statementDate).format('YYYY-MM-DD') === 'Invalid Date') throw new Error(`${INVALID_DATE_RECEIVED_MESSAGE} ${statementDate}`)
 
             if (today < statementDate) throw new Error(ERROR_PASSED_DATE_IN_THE_FUTURE)
 
