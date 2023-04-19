@@ -135,6 +135,7 @@ if (!IS_BUILD_PHASE) {
         require('@condo/domains/resident/tasks'),
         require('@condo/domains/scope/tasks'),
         require('@open-condo/webhooks/tasks'),
+        require('@condo/domains/news/tasks'),
     ])
 }
 
