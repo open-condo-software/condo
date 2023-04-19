@@ -15971,6 +15971,7 @@ export type ChangePhoneNumberResidentUserInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   token: Scalars['String'];
+  removeUserExternalIdentitiesIfPhoneDifferent?: Maybe<Scalars['Boolean']>;
 };
 
 export type ChangePhoneNumberResidentUserOutput = {
@@ -29835,6 +29836,18 @@ export type Mutation = {
    *     "token"
    *   ],
    *   "messageForUser": "api.user.changePhoneNumberResidentUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_VALUE",
+   *   "mutation": "changePhoneNumberResidentUser",
+   *   "message": "Unable to change phone number since user has external identity and phone number are different",
+   *   "variable": [
+   *     "data",
+   *     "token"
+   *   ],
+   *   "messageForUser": "api.user.changePhoneNumberResidentUser.USER_HAS_CONNECTED_EXTERNAL_IDENTITY_WITH_DIFFERENT_PHONE"
    * }`
    */
   changePhoneNumberResidentUser?: Maybe<ChangePhoneNumberResidentUserOutput>;
