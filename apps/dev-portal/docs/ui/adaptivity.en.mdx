@@ -1,0 +1,57 @@
+To create adaptive pages and components, Condo UI provides developers with 2 React-hooks: `useContainerSize` and `useBreakpoints`.
+
+## useContainerSize
+
+This hook observes your container with `React.ref` and returns the dimensions of that container,
+allowing you to modify its contents based on those dimensions:
+
+```typescript jsx
+import React from 'react'
+import { useContainerSize } from '@open-condo/ui/hooks'
+const MIN_COL_WIDTH = 250
+
+const CardGrid: React.FC = () => {
+    const [{ width, height }, setRef] = useContainerSize()
+    const cardsPerRow = Math.max(1, Math.floor(width / MIN_COL_WIDTH))
+
+    return (
+        <div className='my-container' ref={setRef}>
+        {/*  ...   */}
+        </div>
+    )
+}
+```
+
+## useBreakpoints
+We divide all devices into 6 groups:
+
+| Device category | Min. device width (px) |
+|-----------------|------------------------|
+| MOBILE_SMALL    | 0                      |
+| MOBILE_LARGE    | 360                    |
+| TABLET_SMALL    | 480                    |
+| TABLET_LARGE    | 768                    |
+| DESKTOP_SMALL   | 992                    |
+| DESKTOP_LARGE   | 1200                   |
+
+The `useBreakpoints` hook returns an object with all active breakpoints. This is what the data looks like for a window width of `900px`:
+```typescript
+import { useBreakpoints } from '@open-condo/ui/hooks'
+
+const { breakpoints } = useBreakpoints()
+
+console.log(breakpoints.MOBILE_SMALL) // true, 900px >= 0px
+console.log(breakpoints.TABLET_LARGE) // true, 900px >= 768px
+console.log(breakpoints.DESKTOP_SMALL) // false, 900px < 992px
+```
+Thus, to change the layout on all tablets, the following condition must be met:
+```typescript
+import { useBreakpoints } from '@open-condo/ui/hooks'
+
+const { breakpoints } = useBreakpoints()
+
+if (breakpoints.TABLET_SMALL && !breakpoints.DESKTOP_SMALL) {
+    // at least small tablet, but not small desktop yet
+}
+```
+<Alert type={'warning'} description={'Note that for mini-applications, the width of the window is not the size of the browser tab, but the size of the IFrame window in which the application is opened.'} showIcon/>

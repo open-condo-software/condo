@@ -15,3 +15,7 @@
 .ant-anchor-ink::before {
   display: none !important;
 }
+
+.condo-markdown div[role="tabpanel"] > pre {
+  margin-top: 0;
+}
