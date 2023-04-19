@@ -65,6 +65,9 @@ const BankAccountReport = generateGqlQueries('BankAccountReport', BANK_ACCOUNT_R
 const BANK_ACCOUNT_REPORT_TASK_FIELDS = `{ account { id } organization { id } status progress user { id } meta ${COMMON_FIELDS} }`
 const BankAccountReportTask = generateGqlQueries('BankAccountReportTask', BANK_ACCOUNT_REPORT_TASK_FIELDS)
 
+const BANK_TRANSACTIONS_SYNC_TASK_FIELDS = `{ account { id } organization { id } user { id } status dateFrom dateTo meta ${COMMON_FIELDS} }`
+const BankTransactionsSyncTask = generateGqlQueries('BankTransactionsSyncTask', BANK_TRANSACTIONS_SYNC_TASK_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -83,5 +86,6 @@ module.exports = {
     PREDICT_TRANSACTION_CLASSIFICATION_QUERY,
     BankAccountReport,
     BankAccountReportTask,
+    BankTransactionsSyncTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

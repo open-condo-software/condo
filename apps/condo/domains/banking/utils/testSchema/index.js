@@ -23,6 +23,7 @@ const { PREDICT_TRANSACTION_CLASSIFICATION_QUERY } = require('@condo/domains/ban
 const { BankAccountReport: BankAccountReportGQL } = require('@condo/domains/banking/gql')
 const { EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM } = require('@condo/domains/banking/constants')
 const { BankAccountReportTask: BankAccountReportTaskGQL } = require('@condo/domains/banking/gql')
+const { BankTransactionsSyncTask: BankTransactionsSyncTaskGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BankCategory = generateGQLTestUtils(BankCategoryGQL)
@@ -38,6 +39,7 @@ const BankIntegrationOrganizationContext = generateGQLTestUtils(BankIntegrationO
 const BankIntegrationAccessRight = generateGQLTestUtils(BankIntegrationAccessRightGQL)
 const BankAccountReport = generateGQLTestUtils(BankAccountReportGQL)
 const BankAccountReportTask = generateGQLTestUtils(BankAccountReportTaskGQL)
+const BankTransactionsSyncTask = generateGQLTestUtils(BankTransactionsSyncTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBankCategory (client, extraAttrs = {}) {
@@ -498,6 +500,41 @@ async function updateTestBankAccountReportTask (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestBankTransactionsSyncTask (client, account, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!account || !account.id) throw new Error('no account.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBankTransactionsSyncTask logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        account: { connect: { id: account.id } },
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await BankTransactionsSyncTask.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBankTransactionsSyncTask (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestBankTransactionsSyncTask logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BankTransactionsSyncTask.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -516,5 +553,6 @@ module.exports = {
     predictTransactionClassificationByTestClient,
     BankAccountReport, createTestBankAccountReport, updateTestBankAccountReport,
     BankAccountReportTask, createTestBankAccountReportTask, updateTestBankAccountReportTask,
+    BankTransactionsSyncTask, createTestBankTransactionsSyncTask, updateTestBankTransactionsSyncTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
