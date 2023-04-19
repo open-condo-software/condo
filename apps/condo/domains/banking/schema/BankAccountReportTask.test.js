@@ -5,7 +5,7 @@
 const dayjs = require('dayjs')
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor, catchErrorFrom, expectValuesOfCommonFields } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -39,15 +39,7 @@ describe('BankAccountReportTask', () => {
                 const [obj, attrs] = await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
 
                 // 3) check
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.newId).toEqual(null)
-                expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-                expect(obj.createdAt).toMatch(DATETIME_RE)
-                expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expectValuesOfCommonFields(obj, attrs, admin)
                 expect(obj.account.id).toEqual(account.id)
                 expect(obj.status).toEqual(BANK_SYNC_TASK_STATUS.PROCESSING)
                 expect(obj.organization.id).toEqual(org.id)
@@ -63,18 +55,18 @@ describe('BankAccountReportTask', () => {
 
             test('user can', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [org] = await createTestOrganization(admin)
-                const [account] = await createTestBankAccount(admin, org)
-                const [role] = await createTestOrganizationEmployeeRole(admin, org, {
+                const [organization] = await createTestOrganization(admin)
+                const [account] = await createTestBankAccount(admin, organization)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                     canManageBankAccountReportTasks: true,
                 })
-                await createTestOrganizationEmployee(admin, org, client.user, role)
+                await createTestOrganizationEmployee(admin, organization, client.user, role)
 
-                const [obj, attrs] = await createTestBankAccountReportTask(client, account, org, client.user.id, { progress: 0 })
+                const [obj, attrs] = await createTestBankAccountReportTask(client, account, organization, client.user.id, { progress: 0 })
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                expectValuesOfCommonFields(obj, attrs, client)
+                expect(obj.account.id).toEqual(account.id)
+                expect(obj.organization.id).toEqual(organization.id)
             })
 
             test('user cannot if it is an employee of organization without "canManageBankAccountReportTasks" permission', async () => {
@@ -104,7 +96,6 @@ describe('BankAccountReportTask', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestBankAccountReportTask(userClient, account, organization, userClient.user.id)
-
                 })
             })
 
@@ -122,15 +113,7 @@ describe('BankAccountReportTask', () => {
 
                 const [obj, attrs] = await createTestBankAccountReportTask(userClient, account, childOrganization, userClient.user.id)
 
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.newId).toEqual(null)
-                expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
-                expect(obj.createdAt).toMatch(DATETIME_RE)
-                expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expectValuesOfCommonFields(obj, attrs, userClient)
             })
 
             test('user cannot if it is an employee of linked organization without "canManageBankAccountReportTasks" permission', async () => {
@@ -168,6 +151,7 @@ describe('BankAccountReportTask', () => {
                 const [obj, attrs] = await updateTestBankAccountReportTask(admin, objCreated.id)
 
                 expect(obj.dv).toEqual(1)
+                expect(obj.sender).toMatchObject(attrs.sender)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
             })
 
@@ -212,6 +196,7 @@ describe('BankAccountReportTask', () => {
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
             })
 

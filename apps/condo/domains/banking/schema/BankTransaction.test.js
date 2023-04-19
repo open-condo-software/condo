@@ -4,7 +4,12 @@
 
 const { pick } = require('lodash')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowValidationFailureError } = require('@open-condo/keystone/test.utils')
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    expectToThrowValidationFailureError,
+    expectValuesOfCommonFields,
+} = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -25,7 +30,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
-const { createTestBankCategory, createTestBankCostItem, BankIntegrationAccessRight, createTestBankIntegrationOrganizationContext, createTestBankIntegrationAccessRight } = require('../utils/testSchema')
+const { createTestBankCategory, createTestBankCostItem, createTestBankIntegrationOrganizationContext, createTestBankIntegrationAccessRight } = require('../utils/testSchema')
 
 let admin
 let support
@@ -56,16 +61,7 @@ describe('BankTransaction', () => {
                 const [contractorAccount] = await createTestBankContractorAccount(support, organization)
                 const [obj, attrs] = await createTestBankTransaction(admin, account, contractorAccount, integrationContext, organization)
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(1)
-                expect(obj.newId).toEqual(null)
-                expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-                expect(obj.createdAt).toMatch(DATETIME_RE)
-                expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expectValuesOfCommonFields(obj, attrs, admin)
                 expect(obj.number).toEqual(attrs.number)
                 expect(obj.date).toEqual(attrs.date)
                 expect(parseFloat(obj.amount)).toBeCloseTo(parseFloat(attrs.amount), 2)
@@ -87,16 +83,7 @@ describe('BankTransaction', () => {
 
                 const [obj, attrs] = await createTestBankTransaction(serviceClient, account, contractorAccount, accountContext, organization)
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(1)
-                expect(obj.newId).toEqual(null)
-                expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: serviceClient.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: serviceClient.user.id }))
-                expect(obj.createdAt).toMatch(DATETIME_RE)
-                expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expectValuesOfCommonFields(obj, attrs, serviceClient)
                 expect(obj.number).toEqual(attrs.number)
                 expect(obj.date).toEqual(attrs.date)
                 expect(parseFloat(obj.amount)).toBeCloseTo(parseFloat(attrs.amount), 2)
@@ -137,10 +124,7 @@ describe('BankTransaction', () => {
 
                 const [obj, attrs] = await createTestBankTransaction(userClient, account, contractorAccount, integrationContext, organization)
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
+                expectValuesOfCommonFields(obj, attrs, userClient)
             })
 
             test('user cannot if it is an employee of organization without "canManageBankTransactions" permission', async () => {
@@ -197,10 +181,7 @@ describe('BankTransaction', () => {
 
                 const [obj, attrs] = await createTestBankTransaction(userClient, account, contractorAccount, integrationContext, childOrganization)
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
+                expectValuesOfCommonFields(obj, attrs, userClient)
             })
 
             test('user cannot if it is an employee of linked organization without "canManageBankTransactions" permission', async () => {
@@ -548,7 +529,6 @@ describe('BankTransaction', () => {
             const [contractorAccount] = await createTestBankContractorAccount(support, organization)
             const [obj] = await createTestBankTransaction(admin, account, contractorAccount, integrationContext, organization)
 
-            expect(obj.id).toMatch(UUID_RE)
             expect(obj.dv).toEqual(1)
         })
 
