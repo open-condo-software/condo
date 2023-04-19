@@ -8,8 +8,8 @@ const dayjs = require('dayjs')
 const { pick } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowGQLError, catchErrorFrom,
-    expectToThrowValidationFailureError, waitFor,
+const { makeLoggedInAdminClient, makeClient, UUID_RE,  expectToThrowGQLError, catchErrorFrom,
+    expectToThrowValidationFailureError, waitFor, expectValuesOfCommonFields,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -62,16 +62,7 @@ describe('BankSyncTask', () => {
                     file: new UploadingFile(pathToCorrectFile),
                 })
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(1)
-                expect(obj.newId).toEqual(null)
-                expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-                expect(obj.createdAt).toMatch(DATETIME_RE)
-                expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expectValuesOfCommonFields(obj, attrs, adminClient)
                 expect(obj.account.id).toMatch(account.id)
                 expect(obj.integrationContext.id).toMatch(integrationContext.id)
                 expect(obj.file).toBeDefined()
@@ -82,16 +73,7 @@ describe('BankSyncTask', () => {
 
                 const [obj, attrs] = await createTestBankSyncTask(adminClient, organization)
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(1)
-                expect(obj.newId).toEqual(null)
-                expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-                expect(obj.createdAt).toMatch(DATETIME_RE)
-                expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expectValuesOfCommonFields(obj, attrs, adminClient)
             })
 
             test('user can if it is an employee of organization with "canManageBankAccounts" permission', async () => {
@@ -111,16 +93,7 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(1)
-                expect(obj.newId).toEqual(null)
-                expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
-                expect(obj.createdAt).toMatch(DATETIME_RE)
-                expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expectValuesOfCommonFields(obj, attrs, userClient)
             })
 
             test('user cannot if it is an employee of organization without "canManageBankAccounts" permission', async () => {
@@ -186,16 +159,7 @@ describe('BankSyncTask', () => {
                     integrationContext: { connect: { id: integrationContext.id } },
                 })
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(1)
-                expect(obj.newId).toEqual(null)
-                expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
-                expect(obj.createdAt).toMatch(DATETIME_RE)
-                expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expectValuesOfCommonFields(obj, attrs, userClient)
             })
 
             test('user cannot if it is an employee of linked organization without "canManageBankAccounts" permission', async () => {
@@ -280,7 +244,6 @@ describe('BankSyncTask', () => {
                     status: BANK_SYNC_TASK_STATUS.CANCELLED,
                 })
 
-                expect(objUpdated.id).toMatch(UUID_RE)
                 expect(objUpdated.dv).toEqual(1)
                 expect(objUpdated.sender).toEqual(attrs.sender)
                 expect(objUpdated.v).toEqual(2)
@@ -533,7 +496,6 @@ describe('BankSyncTask', () => {
                 property: { connect: { id: property.id } },
             })
 
-            expect(obj.id).toMatch(UUID_RE)
             expect(obj.property).toBeDefined()
             expect(obj.property.id).toEqual(property.id)
 

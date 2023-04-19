@@ -5,7 +5,12 @@
 const dayjs = require('dayjs')
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowValidationFailureError } = require('@open-condo/keystone/test.utils')
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    expectToThrowValidationFailureError,
+    expectValuesOfCommonFields,
+} = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -38,16 +43,7 @@ describe('BankAccountReport', () => {
                 })
                 const [obj, attrs] = await createTestBankAccountReport(adminClient, account, organization)
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(1)
-                expect(obj.newId).toEqual(null)
-                expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
-                expect(obj.createdAt).toMatch(DATETIME_RE)
-                expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expectValuesOfCommonFields(obj, attrs, adminClient)
                 expect(obj.account.id).toEqual(account.id)
                 expect(obj.version).toEqual(attrs.version)
                 expect(obj.template).toEqual(attrs.template)
@@ -346,7 +342,6 @@ describe('BankAccountReport', () => {
             })
             const [obj] = await createTestBankAccountReport(adminClient, account, organization)
 
-            expect(obj.id).toMatch(UUID_RE)
             expect(obj.dv).toEqual(1)
         })
 
