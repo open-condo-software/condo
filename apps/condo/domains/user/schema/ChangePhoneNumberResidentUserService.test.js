@@ -146,6 +146,32 @@ describe('ChangePhoneNumberResidentUserService', () => {
                     }])
                 })
             })
+            it('can change phone with connected external identity pointed to another phone if remove flag provided', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const anotherPhone = createTestPhone()
+                const [{ token, phone }] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
+                const client = await makeClientWithResidentUser({ type: RESIDENT, isPhoneVerified: true })
+
+                // create user external identity pointed to another phone
+                await createTestUserExternalIdentity(admin, {
+                    user: { connect: { id: client.user.id } },
+                    identityId: faker.random.alphaNumeric(8),
+                    identityType: SBER_ID_IDP_TYPE,
+                    meta: {
+                        dv: 1, city: faker.address.city(), county: faker.address.county(), phoneNumber: anotherPhone,
+                    },
+                })
+                const [result] = await changePhoneNumberResidentUserByTestClient(client,
+                    { token, removeUserExternalIdentitiesIfPhoneDifferent: true },
+                )
+                expect(result).toEqual({ 'status': 'ok' })
+                const updatedUser = await UserAdmin.getOne(admin, { phone })
+                expect(updatedUser).toMatchObject({
+                    id: client.user.id,
+                    phone: phone,
+                    isPhoneVerified: true,
+                })
+            })
         })
         describe('Staff', () => {
             it('can not change phone with token', async () => {

@@ -55,7 +55,7 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
     types: [
         {
             access: true,
-            type: 'input ChangePhoneNumberResidentUserInput { dv: Int!, sender: SenderFieldInput!, token: String! }',
+            type: 'input ChangePhoneNumberResidentUserInput { dv: Int!, sender: SenderFieldInput!, token: String!, removeUserExternalIdentitiesIfPhoneDifferent: Boolean }',
         },
         {
             access: true,
@@ -73,7 +73,7 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { token, sender } = data
+                const { token, sender, removeUserExternalIdentitiesIfPhoneDifferent } = data
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
                 if (!context.authedItem.id) throw new Error('Internal error inside the access check. We assume that the user should exists!')
                 const userId = context.authedItem.id
@@ -105,7 +105,13 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
 
                     // if exists, throw exception if number is not equal to the new one
                     if (phoneNumber && normalizePhone(phoneNumber) !== normalizePhone(phone)) {
-                        throw new GQLError(ERRORS.USER_HAS_CONNECTED_EXTERNAL_IDENTITY_WITH_DIFFERENT_PHONE, context)
+                        // if we have a flag removeUserExternalIdentitiesIfPhoneDifferent == true
+                        // let's remove that UserExternalIdentity
+                        if (removeUserExternalIdentitiesIfPhoneDifferent) {
+                            await UserExternalIdentity.softDelete(context, externalIdentity.id, { dv: 1, sender })
+                        } else {
+                            throw new GQLError(ERRORS.USER_HAS_CONNECTED_EXTERNAL_IDENTITY_WITH_DIFFERENT_PHONE, context)
+                        }
                     }
                 }
 
