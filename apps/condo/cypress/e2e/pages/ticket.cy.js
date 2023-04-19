@@ -49,7 +49,7 @@ describe('Ticket',  function () {
                     const { address: propertyAddress } = response.property
                     spanCreateTickets.finish()
 
-                    const spanSearchTickets = tracer.startSpan('2.viewTickets')
+                    const spanSearchTickets = tracer.startSpan('3.viewTickets')
                     const ticketView = new TicketView()
                     ticketView
                         .visit()
@@ -71,7 +71,7 @@ describe('Ticket',  function () {
                 authUserWithCookies(response)
                 spanPrepare.finish()
 
-                const spanCreateTickets = tracer.startSpan('1.createTickets')
+                const spanCreateTickets = tracer.startSpan('2.createTickets')
                 cy.task('keystone:createTickets', response).then((ticket) => {
                     spanCreateTickets.finish()
 
