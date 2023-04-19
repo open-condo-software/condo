@@ -15971,6 +15971,7 @@ export type ChangePhoneNumberResidentUserInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   token: Scalars['String'];
+  removeUserExternalIdentitiesIfPhoneDifferent?: Maybe<Scalars['Boolean']>;
 };
 
 export type ChangePhoneNumberResidentUserOutput = {

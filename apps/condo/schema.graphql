@@ -57139,6 +57139,7 @@ input ChangePhoneNumberResidentUserInput {
   dv: Int!
   sender: SenderFieldInput!
   token: String!
+  removeUserExternalIdentitiesIfPhoneDifferent: Boolean
 }
 
 type ChangePhoneNumberResidentUserOutput {
