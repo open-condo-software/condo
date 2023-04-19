@@ -54,7 +54,7 @@ class SuggestionKeystoneApp {
             next()
         }
 
-        async function processRequest (req, res, next) {
+        const processRequest = async (req, res, next) => {
             /**
              * User's search string
              * @type {?string}
