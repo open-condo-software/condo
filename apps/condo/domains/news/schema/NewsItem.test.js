@@ -454,6 +454,37 @@ describe('NewsItems', () => {
                     expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
                 ]))
             })
+
+            test('eligible resident can not see the delayed news item', async () => {
+                const residentClient1 = await makeClientWithResidentUser()
+                const [o10n1] = await createTestOrganization(adminClient)
+                const [property1] = await createTestProperty(adminClient, o10n1)
+
+                const unitType1 = FLAT_UNIT_TYPE
+                const unitName1 = faker.lorem.word()
+
+                await createTestResident(adminClient, residentClient1.user, property1, {
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+                // Schedule publication at 1 hour later
+                const [newsItem1] = await createTestNewsItem(adminClient, o10n1, { sendAt: dayjs().add(1, 'hour').toISOString() })
+                await createTestNewsItemScope(adminClient, newsItem1, {
+                    property: { connect: { id: property1.id } },
+                })
+
+                const newsItems1 = await NewsItem.getAll(residentClient1, {})
+
+                expect(newsItems1).toHaveLength(0)
+
+                // Imagine that publication scheduled at 1 hour ago
+                await updateTestNewsItem(adminClient, newsItem1.id, { sendAt: dayjs().subtract(1, 'hour').toISOString() })
+
+                const newsItems2 = await NewsItem.getAll(residentClient1, {})
+
+                expect(newsItems2).toHaveLength(1)
+            })
         })
     })
 
