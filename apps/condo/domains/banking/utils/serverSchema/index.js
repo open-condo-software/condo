@@ -20,7 +20,6 @@ const { BankIntegrationAccessRight: BankIntegrationAccessRightGQL } = require('@
 const { PREDICT_TRANSACTION_CLASSIFICATION_QUERY } = require('@condo/domains/banking/gql')
 const { BankAccountReport: BankAccountReportGQL } = require('@condo/domains/banking/gql')
 const { BankAccountReportTask: BankAccountReportTaskGQL } = require('@condo/domains/banking/gql')
-const { BankTransactionsSyncTask: BankTransactionsSyncTaskGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BankAccount = generateServerUtils(BankAccountGQL)
@@ -61,7 +60,6 @@ async function predictTransactionClassification (context, data) {
     })
 }
 
-const BankTransactionsSyncTask = generateServerUtils(BankTransactionsSyncTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -79,6 +77,5 @@ module.exports = {
     createBankAccountRequest,
     predictTransactionClassification,
     BankAccountReportTask,
-    BankTransactionsSyncTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
