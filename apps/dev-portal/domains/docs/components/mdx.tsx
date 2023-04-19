@@ -1,4 +1,5 @@
 import { Link } from 'domains/docs/components/Link'
+import { Tabs } from 'domains/docs/components/Tabs'
 import omit from 'lodash/omit'
 import React from 'react'
 
@@ -19,4 +20,5 @@ export const MDXMapping: MDXComponents = {
     pre: (props) => <MarkdownCodeWrapper {...props}/>,
     a: (props) => <Link {...props}/>,
     Alert,
+    Tabs,
 }
