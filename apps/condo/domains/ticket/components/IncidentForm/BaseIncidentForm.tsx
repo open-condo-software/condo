@@ -40,6 +40,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { Loader } from '@condo/domains/common/components/Loader'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import Prompt from '@condo/domains/common/components/Prompt'
+import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_WORK_TYPE_EMERGENCY } from '@condo/domains/ticket/constants/incident'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
@@ -316,6 +317,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const { breakpoints } = useLayoutContext()
     const isSmallWindow = !breakpoints.TABLET_LARGE
     const { requiredValidator } = useValidations()
+    const Details = useInputWithCounter(TextArea, 500)
+    const TextForResident = useInputWithCounter(TextArea, 500)
 
     const createIncidentProperty = IncidentProperty.useCreate({})
     const softDeleteIncidentProperty = IncidentProperty.useSoftDelete()
@@ -539,22 +542,36 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item
-                                        label={DetailsLabel}
-                                        name='details'
-                                        required
-                                        rules={detailsRules}
-                                    >
-                                        <TextArea maxLength={500} placeholder={DetailsPlaceholderMessage}/>
-                                    </Form.Item>
+                                    <Row justify='end'>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                label={DetailsLabel}
+                                                name='details'
+                                                required
+                                                rules={detailsRules}
+                                            >
+                                                <Details.InputWithCounter rows={4} placeholder={DetailsPlaceholderMessage} />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col>
+                                            <Details.Counter />
+                                        </Col>
+                                    </Row>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item
-                                        label={TextForResidentLabel}
-                                        name='textForResident'
-                                    >
-                                        <TextArea maxLength={500} placeholder={TextForResidentPlaceholderMessage} />
-                                    </Form.Item>
+                                    <Row justify='end'>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                label={TextForResidentLabel}
+                                                name='textForResident'
+                                            >
+                                                <TextForResident.InputWithCounter rows={4} placeholder={TextForResidentPlaceholderMessage} />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col>
+                                            <TextForResident.Counter />
+                                        </Col>
+                                    </Row>
                                 </Col>
                                 {
                                     isFunction(ActionBar)
