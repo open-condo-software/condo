@@ -27,7 +27,6 @@ const logger = getLogger('sbbol/CronTaskSyncTransactions')
 
 /**
  * Synchronizes SBBOL transaction data with data in the system
- * @returns {Promise<void|Transaction[]>}
  */
 async function syncSbbolTransactions (dateInterval, userId = '', organization = {}) {
     // if userId and organization is passed, receive transactions only for it. Case when it's not a cron task
@@ -64,7 +63,6 @@ async function syncSbbolTransactions (dateInterval, userId = '', organization = 
 
 /**
  * Synchronizes SBBOL transaction data with data in the system
- * @returns {Promise<void|Transaction[]>}
  */
 async function syncSbbolTransactionsBankSyncTask (dateInterval, userId, organization, taskId) {
     const { keystone: context } = await getSchemaCtx('User')

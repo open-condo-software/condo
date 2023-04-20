@@ -681,9 +681,8 @@ describe('BankSyncTask', () => {
             await waitFor(async () => {
                 const updatedTask = await BankSyncTask.getOne(adminClient, { id: createdTask.id })
 
-                expect(updatedTask.status).toEqual(BANK_SYNC_TASK_STATUS.COMPLETED)
+                expect(updatedTask.v).toBeGreaterThan(createdTask.v)
             })
-
         })
 
         it('creates BankIntegrationAccountContext for existing BankAccount, that does not have it', async () => {

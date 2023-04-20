@@ -145,16 +145,8 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
         },
     },
     hooks: {
-        resolveInput: async ({ resolvedData, context, operation }) => {
-            if (operation === 'create' && get(resolvedData, 'options.type') === 'SBBOL'){
-                const dateFrom = dayjs(get(resolvedData, 'options.dateFrom')).format('YYYY-MM-DD')
-                const dateTo = dayjs(get(resolvedData, 'options.dateTo')).format('YYYY-MM-DD')
-                if (!dateFrom || !dateTo || dateFrom === 'Invalid Date' || dateTo === 'Invalid Date') {
-                    throw new GQLError(INVALID_DATE, context)
-                }
-                resolvedData.options.dateFrom = dateFrom
-                resolvedData.options.dateTo = dateTo
-
+        beforeChange: async ({ resolvedData, context, operation }) => {
+            if (operation === 'create' && get(resolvedData, 'options.type') === 'SBBOL') {
                 if (!resolvedData.account) {
                     throw new GQLError(ACCOUNT_IS_REQUIRED, context)
                 }
@@ -167,6 +159,17 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
                         sender: { dv: 1, fingerprint: 'BankSyncTask' },
                     })
                 }
+            }
+        },
+        resolveInput: async ({ resolvedData, context, operation }) => {
+            if (operation === 'create' && get(resolvedData, 'options.type') === 'SBBOL'){
+                const dateFrom = dayjs(get(resolvedData, 'options.dateFrom')).format('YYYY-MM-DD')
+                const dateTo = dayjs(get(resolvedData, 'options.dateTo')).format('YYYY-MM-DD')
+                if (!dateFrom || !dateTo || dateFrom === 'Invalid Date' || dateTo === 'Invalid Date') {
+                    throw new GQLError(INVALID_DATE, context)
+                }
+                resolvedData.options.dateFrom = dateFrom
+                resolvedData.options.dateTo = dateTo
             }
 
             return resolvedData
