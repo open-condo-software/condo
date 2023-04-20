@@ -14,8 +14,8 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/banking/access/BankSyncTask')
-const { BANK_SYNC_TASK_STATUS, BANK_INTEGRATION_IDS, _1C_CLIENT_BANK_EXCHANGE, INVALID_DATE } = require('@condo/domains/banking/constants')
-const { INCORRECT_DATE_INTERVAL, WRONG_INTEGRATION, ACCOUNT_IS_REQUIRED } = require('@condo/domains/banking/constants')
+const { BANK_SYNC_TASK_STATUS, BANK_INTEGRATION_IDS, _1C_CLIENT_BANK_EXCHANGE } = require('@condo/domains/banking/constants')
+const { INCORRECT_DATE_INTERVAL, ACCOUNT_IS_REQUIRED } = require('@condo/domains/banking/constants')
 const { BANK_SYNC_TASK_OPTIONS } = require('@condo/domains/banking/schema/fields/BankSyncTaskOptions')
 const { importBankTransactionsTask } = require('@condo/domains/banking/tasks/importBankTransactions')
 const { BankAccount } = require('@condo/domains/banking/utils/serverSchema')
@@ -23,8 +23,6 @@ const { getValidator } = require('@condo/domains/common/schema/json.utils')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { syncSbbolTransactionsBankSyncTask } = require('@condo/domains/organization/tasks/syncSbbolTransactions')
-
-
 
 
 const BANK_SYNC_TASK_FOLDER_NAME = 'BankSyncTask'
@@ -145,6 +143,15 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
         },
     },
     hooks: {
+        validateInput: async ({ resolvedData, context, operation }) => {
+            if (operation === 'create' && get(resolvedData, 'options.type') === 'SBBOL') {
+                const dateFrom = get(resolvedData, 'options.dateFrom')
+                const dateTo = get(resolvedData, 'options.dateTo')
+                if (dateFrom > dateTo) {
+                    throw new GQLError(INCORRECT_DATE_INTERVAL, context)
+                }
+            }
+        },
         beforeChange: async ({ resolvedData, context, operation }) => {
             if (operation === 'create' && get(resolvedData, 'options.type') === 'SBBOL') {
                 if (!resolvedData.account) {
@@ -158,15 +165,6 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
                         dv: 1,
                         sender: { dv: 1, fingerprint: 'BankSyncTask' },
                     })
-                }
-            }
-        },
-        validateInput: async ({ originalInput, resolvedData, context, operation, existingItem }) => {
-            if (operation === 'create' && get(resolvedData, 'options.type') === 'SBBOL') {
-                const dateFrom = get(resolvedData, 'options.dateFrom')
-                const dateTo = get(resolvedData, 'options.dateTo')
-                if (dateFrom > dateTo) {
-                    throw new GQLError(INCORRECT_DATE_INTERVAL, context)
                 }
             }
         },
