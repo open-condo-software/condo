@@ -25,6 +25,7 @@ const trackedVisit: (url) => Cypress.Chainable<Performance> = (url) => {
 }
 
 type Span = {
+    name: string
     finish: () => void,
 }
 
@@ -34,21 +35,38 @@ type Span = {
 class SimpleTracer {
     name: string
     perf: Performance
+    spans: Array<Span>
+    private _finished: boolean
 
     constructor (name: string) {
         this.name = name
         this.perf = performance
+        this.spans = []
+        this._finished = false
     }
 
     startSpan: (spanName: string) => Span = (spanName) => {
+        if (this._finished == true) {
+            throw new Error(`You can't start spans on a finished trace! Trace: ${this.name}, Span: ${spanName}`)
+        }
+        
         const [spanStartMark, spanEndMark] = this._getSpanMarkNames(spanName)
         this.perf.mark(spanStartMark)
-        return {
+        const span = {
+            name: spanName,
+            fullName: this.name + '.' + spanName,
             finish: () => {
                 this.perf.mark(spanEndMark)
                 this._registerSpan(spanName)
             },
         }
+        this.spans.push(span)
+        return span
+    }
+
+    finish: () => Cypress.Chainable<unknown> = () => {
+        this._finished = true
+        return cy.task('grafana:drawTrace', [this.name, this.spans])
     }
 
     _getSpanMarkNames: (spanName: string) => [string, string] = (spanName) => {

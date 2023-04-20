@@ -9,12 +9,12 @@ describe('Property', function () {
         })
 
         it('can create property map', () => {
-            const tracer = new SimpleTracer('property.user.canCreatePropertyMap')
-            const spanPrepare = tracer.startSpan('1.createUserWithProperty')
+            const trace = new SimpleTracer('property.user.canCreatePropertyMap')
+            const spanPrepare = trace.startSpan('1.createUserWithProperty')
             cy.task('keystone:createUserWithProperty', true).then((response) => {
                 authUserWithCookies(response)
                 spanPrepare.finish()
-                const spanCreate = tracer.startSpan('2.propertyMapCreate')
+                const spanCreate = trace.startSpan('2.propertyMapCreate')
                 const propertyMapCreate = new PropertyMapCreate()
                 propertyMapCreate
                     .visit()
@@ -29,6 +29,8 @@ describe('Property', function () {
                     .clickSubmitButton()
                     .clickSavePropertyMap()
                 spanCreate.finish()
+            }).then(() => {
+                trace.finish()
             })
         })
 
