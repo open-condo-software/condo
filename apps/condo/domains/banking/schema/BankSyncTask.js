@@ -163,13 +163,13 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
         },
         resolveInput: async ({ resolvedData, context, operation }) => {
             if (operation === 'create' && get(resolvedData, 'options.type') === 'SBBOL'){
-                const dateFrom = dayjs(get(resolvedData, 'options.dateFrom')).format('YYYY-MM-DD')
-                const dateTo = dayjs(get(resolvedData, 'options.dateTo')).format('YYYY-MM-DD')
-                if (!dateFrom || !dateTo || dateFrom === 'Invalid Date' || dateTo === 'Invalid Date') {
+                const dateFrom = dayjs(get(resolvedData, 'options.dateFrom'))
+                const dateTo = dayjs(get(resolvedData, 'options.dateTo'))
+                if (!dateFrom.isValid() || !dateTo.isValid() ) {
                     throw new GQLError(INVALID_DATE, context)
                 }
-                resolvedData.options.dateFrom = dateFrom
-                resolvedData.options.dateTo = dateTo
+                resolvedData.options.dateFrom = dateFrom.format('YYYY-MM-DD')
+                resolvedData.options.dateTo = dateTo.format('YYYY-MM-DD')
             }
 
             return resolvedData
