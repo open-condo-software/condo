@@ -385,7 +385,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
             {
                 (totalSelectedItems || fileImportIntegration) && (
                     <ActionBar
-                        message={totalSelectedItems && itemsSelectedTitle}
+                        message={totalSelectedItems ? itemsSelectedTitle : null}
                         actions={totalSelectedItems ? [
                             <Button
                                 key='edit'
