@@ -18,6 +18,9 @@ export default defineConfig({
         env: {
             supportPassword: conf['CYPRESS_SERVER_SUPPORT_PASSWORD'],
             supportEmail: conf['CYPRESS_SERVER_SUPPORT_EMAIL'],
+            grafanaApiUrl: conf['CYPRESS_GRAFANA_API_URL'],
+            grafanaApiKey: conf['CYPRESS_GRAFANA_API_KEY'],
+            grafanaDashboardUid: conf['CYPRESS_GRAFANA_DASHBOARD_UID'],
         },
         requestTimeout: 10000,
         pageLoadTimeout: 10000,
