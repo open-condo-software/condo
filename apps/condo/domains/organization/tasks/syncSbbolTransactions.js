@@ -6,12 +6,22 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask, createCronTask } = require('@open-condo/keystone/tasks')
 
+const { BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
+const { BankSyncTask } = require('@condo/domains/banking/utils/serverSchema')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { requestTransactions } = require('@condo/domains/organization/integrations/sbbol/sync/requestTransactions')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/common')
 const { UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
 
+const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'syncSbbolTransactions' } }
+
+async function bankSyncTaskUpdateStatus (context, taskId, status) {
+    return await BankSyncTask.update(context, taskId, {
+        status,
+        ...dvAndSender,
+    })
+}
 
 const logger = getLogger('sbbol/CronTaskSyncTransactions')
 
@@ -52,10 +62,33 @@ async function syncSbbolTransactions (dateInterval, userId = '', organization = 
     }
 }
 
+/**
+ * Synchronizes SBBOL transaction data with data in the system
+ * @returns {Promise<void|Transaction[]>}
+ */
+async function syncSbbolTransactionsBankSyncTask (dateInterval, userId, organization, taskId) {
+    const { keystone: context } = await getSchemaCtx('User')
+
+    if (!dateInterval || !userId || !organization || !taskId) {
+        await bankSyncTaskUpdateStatus(context, taskId, BANK_SYNC_TASK_STATUS.ERROR)
+        throw new Error('Missing setup args')
+    }
+
+    try {
+        await requestTransactions({ dateInterval, userId, organization })
+    } catch (e) {
+        await bankSyncTaskUpdateStatus(context, taskId, BANK_SYNC_TASK_STATUS.ERROR)
+        throw new Error(`Cannot requestTransactions. ${e}`)
+    }
+
+    await bankSyncTaskUpdateStatus(context, taskId, BANK_SYNC_TASK_STATUS.COMPLETED)
+}
+
 module.exports = {
     syncSbbolTransactionsCron: createCronTask('syncSbbolTransactionsCron', '0 0 * * *', async () => {
         const date = dayjs().format('YYYY-MM-DD')
         await syncSbbolTransactions([date])
     }),
+    syncSbbolTransactionsBankSyncTask: createTask('syncSbbolTransactionsBankSyncTask', syncSbbolTransactionsBankSyncTask, { priority: 2 }),
     syncSbbolTransactions: createTask('syncSbbolTransactions', syncSbbolTransactions, { priority: 2 }),
 }

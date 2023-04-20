@@ -15,14 +15,14 @@ const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/banking/access/BankSyncTask')
 const { BANK_SYNC_TASK_STATUS, BANK_INTEGRATION_IDS, _1C_CLIENT_BANK_EXCHANGE, INVALID_DATE } = require('@condo/domains/banking/constants')
-const { INCORRECT_DATE_INTERVAL, WRONG_INTEGRATION } = require('@condo/domains/banking/constants')
+const { INCORRECT_DATE_INTERVAL, WRONG_INTEGRATION, ACCOUNT_IS_REQUIRED } = require('@condo/domains/banking/constants')
 const { BANK_SYNC_TASK_OPTIONS } = require('@condo/domains/banking/schema/fields/BankSyncTaskOptions')
 const { importBankTransactionsTask } = require('@condo/domains/banking/tasks/importBankTransactions')
 const { BankAccount } = require('@condo/domains/banking/utils/serverSchema')
 const { getValidator } = require('@condo/domains/common/schema/json.utils')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { syncSbbolTransactions } = require('@condo/domains/organization/tasks')
+const { syncSbbolTransactionsBankSyncTask } = require('@condo/domains/organization/tasks/syncSbbolTransactions')
 
 
 
@@ -146,17 +146,20 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
     },
     hooks: {
         resolveInput: async ({ resolvedData, context, operation }) => {
-            if (operation === 'create' && resolvedData.options.type === 'SBBOL'){
+            if (operation === 'create' && get(resolvedData, 'options.type') === 'SBBOL'){
                 const dateFrom = dayjs(get(resolvedData, 'options.dateFrom')).format('YYYY-MM-DD')
                 const dateTo = dayjs(get(resolvedData, 'options.dateTo')).format('YYYY-MM-DD')
-                if (dateFrom === 'Invalid Date' || dateTo === 'Invalid Date') {
+                if (!dateFrom || !dateTo || dateFrom === 'Invalid Date' || dateTo === 'Invalid Date') {
                     throw new GQLError(INVALID_DATE, context)
                 }
                 resolvedData.options.dateFrom = dateFrom
                 resolvedData.options.dateTo = dateTo
 
+                if (!resolvedData.account) {
+                    throw new GQLError(ACCOUNT_IS_REQUIRED, context)
+                }
                 const account = await BankAccount.getOne(context, { id: resolvedData.account })
-                const integration = get(account, 'integrationContext.integration')
+                const integration = get(account, 'integrationContext.integration.id')
                 if (!integration) {
                     await BankAccount.update(context, account.id, {
                         integrationContext: { connect: { id: BANK_INTEGRATION_IDS.SBBOL } },
@@ -168,15 +171,15 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
 
             return resolvedData
         },
-        validateInput: async ({ resolvedData, context, operation, existingItem }) => {
-            if (operation === 'create' && resolvedData.options.type === 'SBBOL') {
+        validateInput: async ({ originalInput, resolvedData, context, operation, existingItem }) => {
+            if (operation === 'create' && get(resolvedData, 'options.type') === 'SBBOL') {
                 const dateFrom = get(resolvedData, 'options.dateFrom')
                 const dateTo = get(resolvedData, 'options.dateTo')
                 if (dateFrom > dateTo) {
                     throw new GQLError(INCORRECT_DATE_INTERVAL, context)
                 }
 
-                const account = await BankAccount.getOne(context, { id: resolvedData.account.id })
+                const account = await BankAccount.getOne(context, { id: resolvedData.account })
                 const integration = get(account, 'integrationContext.integration.id')
                 if (integration === BANK_INTEGRATION_IDS['1CClientBankExchange']) {
                     throw new GQLError(WRONG_INTEGRATION, context)
@@ -186,7 +189,7 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
         afterChange: async (args) => {
             const { updatedItem, operation } = args
             if (operation === 'create') {
-                if (updatedItem.options.type === _1C_CLIENT_BANK_EXCHANGE) {
+                if (get(updatedItem, 'options.type') === _1C_CLIENT_BANK_EXCHANGE) {
                     await importBankTransactionsTask.delay(updatedItem.id)
                 }
                 if (updatedItem.options.type === 'SBBOL') {
@@ -194,7 +197,8 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
                     while (dateInterval[dateInterval.length - 1] < updatedItem.options.dateTo) {
                         dateInterval.push(dayjs(dateInterval[dateInterval.length - 1]).add(1, 'day').format('YYYY-MM-DD'))
                     }
-                    await syncSbbolTransactions.delay(dateInterval, updatedItem.user.id, updatedItem.organization)                }
+                    await syncSbbolTransactionsBankSyncTask.delay(dateInterval, updatedItem.user, updatedItem.organization, updatedItem.id)
+                }
             }
         },
     },

@@ -21,7 +21,7 @@ const { BankIntegrationOrganizationContext: BankIntegrationOrganizationContextGQ
 const { BankIntegrationAccessRight: BankIntegrationAccessRightGQL } = require('@condo/domains/banking/gql')
 const { PREDICT_TRANSACTION_CLASSIFICATION_QUERY } = require('@condo/domains/banking/gql')
 const { BankAccountReport: BankAccountReportGQL } = require('@condo/domains/banking/gql')
-const { EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM } = require('@condo/domains/banking/constants')
+const { EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM, _1C_CLIENT_BANK_EXCHANGE } = require('@condo/domains/banking/constants')
 const { BankAccountReportTask: BankAccountReportTaskGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -289,6 +289,7 @@ async function createTestBankSyncTask (client, organization, extraAttrs = {}) {
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
+        options: { type: _1C_CLIENT_BANK_EXCHANGE },
         ...extraAttrs,
     }
     if (client.user) {

@@ -10175,6 +10175,8 @@ export type BankSyncTask = {
   processedCount?: Maybe<Scalars['Int']>;
   /**  User that requested this operation. Will be used for read access checks to display all tasks somewhere and to display progress indicator of ongoing exporting task for current user  */
   user?: Maybe<User>;
+  /**  Options for launching tasks for banking domain  */
+  options?: Maybe<BankSyncTaskOptions>;
   /**  Additional data, specific to used integration  */
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -10203,6 +10205,7 @@ export type BankSyncTaskCreateInput = {
   totalCount?: Maybe<Scalars['Int']>;
   processedCount?: Maybe<Scalars['Int']>;
   user?: Maybe<UserRelateToOneInput>;
+  options?: Maybe<BankSyncTaskOptionsInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -10235,6 +10238,7 @@ export type BankSyncTaskHistoryRecord = {
   totalCount?: Maybe<Scalars['Int']>;
   processedCount?: Maybe<Scalars['Int']>;
   user?: Maybe<Scalars['String']>;
+  options?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -10261,6 +10265,7 @@ export type BankSyncTaskHistoryRecordCreateInput = {
   totalCount?: Maybe<Scalars['Int']>;
   processedCount?: Maybe<Scalars['Int']>;
   user?: Maybe<Scalars['String']>;
+  options?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -10292,6 +10297,7 @@ export type BankSyncTaskHistoryRecordUpdateInput = {
   totalCount?: Maybe<Scalars['Int']>;
   processedCount?: Maybe<Scalars['Int']>;
   user?: Maybe<Scalars['String']>;
+  options?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -10368,6 +10374,10 @@ export type BankSyncTaskHistoryRecordWhereInput = {
   user_not?: Maybe<Scalars['String']>;
   user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  options?: Maybe<Scalars['JSON']>;
+  options_not?: Maybe<Scalars['JSON']>;
+  options_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  options_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -10463,6 +10473,19 @@ export type BankSyncTaskHistoryRecordsUpdateInput = {
   data?: Maybe<BankSyncTaskHistoryRecordUpdateInput>;
 };
 
+export type BankSyncTaskOptions = {
+  __typename?: 'BankSyncTaskOptions';
+  type?: Maybe<Scalars['String']>;
+  dateFrom?: Maybe<Scalars['String']>;
+  dateTo?: Maybe<Scalars['String']>;
+};
+
+export type BankSyncTaskOptionsInput = {
+  type?: Maybe<Scalars['String']>;
+  dateFrom?: Maybe<Scalars['String']>;
+  dateTo?: Maybe<Scalars['String']>;
+};
+
 export enum BankSyncTaskStatusType {
   Processing = 'processing',
   Completed = 'completed',
@@ -10480,6 +10503,7 @@ export type BankSyncTaskUpdateInput = {
   totalCount?: Maybe<Scalars['Int']>;
   processedCount?: Maybe<Scalars['Int']>;
   user?: Maybe<UserRelateToOneInput>;
+  options?: Maybe<BankSyncTaskOptionsInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -10529,6 +10553,10 @@ export type BankSyncTaskWhereInput = {
   processedCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   user?: Maybe<UserWhereInput>;
   user_is_null?: Maybe<Scalars['Boolean']>;
+  options?: Maybe<BankSyncTaskOptionsInput>;
+  options_not?: Maybe<BankSyncTaskOptionsInput>;
+  options_in?: Maybe<Array<Maybe<BankSyncTaskOptionsInput>>>;
+  options_not_in?: Maybe<Array<Maybe<BankSyncTaskOptionsInput>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;

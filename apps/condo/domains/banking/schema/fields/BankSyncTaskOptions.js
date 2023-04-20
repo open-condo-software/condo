@@ -33,6 +33,7 @@ const bankSyncTaskOptionsSchema = {
         dateFrom: { type: 'string' },
         dateTo: { type: 'string' },
     },
+    required: ['type'],
     additionalProperties: false,
 }
 

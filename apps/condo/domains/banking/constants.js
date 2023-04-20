@@ -28,6 +28,7 @@ const INCORRECT_PROPERTY_ID = 'INCORRECT_PROPERTY_ID'
 const EMPTY_BANK_ACCOUNT_REQUEST_EMAIL_TARGET_VALUE = 'EMPTY_BANK_ACCOUNT_REQUEST_EMAIL_TARGET_VALUE'
 const INCORRECT_DATE_INTERVAL = 'dateTo cannot be later than dateFrom'
 const INVALID_DATE = 'Invalid options.dateTo or options.DateFrom'
+const ACCOUNT_IS_REQUIRED = 'The "account" field is required to request transactions from SBBOL'
 const WRONG_INTEGRATION = 'BankAccount connected to another integration'
 
 module.exports = {
@@ -42,5 +43,6 @@ module.exports = {
     BANK_ACCOUNT_REPORT_TEMPLATE_VALUES,
     INCORRECT_DATE_INTERVAL,
     INVALID_DATE,
+    ACCOUNT_IS_REQUIRED,
     WRONG_INTEGRATION,
 }
