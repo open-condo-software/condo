@@ -192,7 +192,7 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
                 if (get(updatedItem, 'options.type') === _1C_CLIENT_BANK_EXCHANGE) {
                     await importBankTransactionsTask.delay(updatedItem.id)
                 }
-                if (updatedItem.options.type === 'SBBOL') {
+                if (get(updatedItem, 'options.type') === 'SBBOL') {
                     const dateInterval = [updatedItem.options.dateFrom]
                     while (dateInterval[dateInterval.length - 1] < updatedItem.options.dateTo) {
                         dateInterval.push(dayjs(dateInterval[dateInterval.length - 1]).add(1, 'day').format('YYYY-MM-DD'))
