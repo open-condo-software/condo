@@ -14,6 +14,8 @@ const DEFAULT_ORGANIZATION_TIMEZONE = 'Europe/Moscow'
 
 const ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP = /ООО|"|«|»|“|”|„|‟/ig
 
+const DELETED_ORGANIZATION_NAME = 'Deleted Organization'
+
 const DEFAULT_ROLES = {
     // Administrator role is required for mutation logic
     'Administrator': {
@@ -212,6 +214,7 @@ const DEFAULT_ROLES = {
 module.exports = {
     TIN_LENGTH,
     DEFAULT_ORGANIZATION_TIMEZONE,
+    DELETED_ORGANIZATION_NAME,
     DEFAULT_ROLES,
     ORGANIZATION_TICKET_VISIBILITY,
     PROPERTY_TICKET_VISIBILITY,

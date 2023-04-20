@@ -30037,6 +30037,7 @@ export type Mutation = {
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
+  resetOrganization?: Maybe<ResetOrganizationOutput>;
   registerBillingReceipts?: Maybe<Array<Maybe<BillingReceipt>>>;
   createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
@@ -37446,6 +37447,11 @@ export type MutationAcceptOrRejectOrganizationInviteByIdArgs = {
 export type MutationAcceptOrRejectOrganizationInviteByCodeArgs = {
   inviteCode: Scalars['String'];
   data: AcceptOrRejectOrganizationInviteInput;
+};
+
+
+export type MutationResetOrganizationArgs = {
+  data: ResetOrganizationInput;
 };
 
 
@@ -54491,6 +54497,17 @@ export type ResendMessageOutput = {
   __typename?: 'ResendMessageOutput';
   status: Scalars['String'];
   id: Scalars['String'];
+};
+
+export type ResetOrganizationInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  organizationId: Scalars['ID'];
+};
+
+export type ResetOrganizationOutput = {
+  __typename?: 'ResetOrganizationOutput';
+  status: Scalars['String'];
 };
 
 export type ResetUserInput = {

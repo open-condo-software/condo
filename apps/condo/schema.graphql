@@ -57253,6 +57253,16 @@ input AcceptOrRejectOrganizationInviteInput {
   isAccepted: Boolean
 }
 
+input ResetOrganizationInput {
+  dv: Int!
+  sender: JSON!
+  organizationId: ID!
+}
+
+type ResetOrganizationOutput {
+  status: String!
+}
+
 input CheckPropertyWithAddressExistInput {
   address: String!
   addressMeta: AddressMetaFieldInput!
@@ -65348,6 +65358,7 @@ type Mutation {
   reInviteOrganizationEmployee(data: ReInviteOrganizationEmployeeInput!): OrganizationEmployee
   acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
+  resetOrganization(data: ResetOrganizationInput!): ResetOrganizationOutput
   registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]
   createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
