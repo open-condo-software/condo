@@ -14,7 +14,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { get, isNull } from 'lodash'
 
 import { LOCALES } from '@condo/domains/common/constants/locale'
-import { CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE, DEFERRED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE, DEFERRED_STATUS_TYPE, COMPLETED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { DEFAULT_TICKET_DEADLINE_DURATION } from '@condo/domains/ticket/constants/common'
 
 dayjs.extend(duration)
@@ -355,15 +355,11 @@ export const formatDate = (intl, dateStr?: string): string => {
     return localizedDate.format(pattern)
 }
 
-export type specificationTypes = 'day' | 'week' | 'month'
-export type addressPickerType = { id: string; value: string; }
-
 function getDeadlineStopPoint (ticket: Ticket) {
-    const ticketStatusType = get(ticket, ['status', 'type'])
     const ticketStatusUpdatedAt = get(ticket, ['statusUpdatedAt'])
     let deadlineStopPoint = dayjs().startOf('day')
 
-    if (ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE) {
+    if (isCompletedTicket(ticket)) {
         deadlineStopPoint = dayjs(ticketStatusUpdatedAt).startOf('day')
     }
 
@@ -461,5 +457,5 @@ export function getTicketDefaultDeadline (ticketSetting: TicketOrganizationSetti
 
 export function isCompletedTicket (ticket: Ticket): boolean {
     const ticketStatusType = get(ticket, ['status', 'type'])
-    return ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE
+    return ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE || ticketStatusType === COMPLETED_STATUS_TYPE
 }
