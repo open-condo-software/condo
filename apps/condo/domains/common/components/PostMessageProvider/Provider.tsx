@@ -4,7 +4,8 @@ import omit from 'lodash/omit'
 import React, { useEffect, createContext, useState, useContext, useCallback } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
-import { ERROR_CODES } from './errors'
+import type { ErrorReason, ErrorCode } from '@open-condo/bridge'
+
 import {
     handleNotification,
     useGetActiveProgressBarsHandler,
@@ -16,7 +17,6 @@ import {
 } from './globalHandlers'
 import { validators } from './validators'
 
-import type { ErrorReason } from './errors'
 import type {
     AllRequestMethods,
     RequestHandler,
@@ -84,8 +84,9 @@ const messageSchema = {
 }
 const validateMessage: ValidateFunction<MessageType> = ajv.compile(messageSchema)
 
-function getClientErrorMessage<Method extends AllRequestMethods> (
-    reason: ErrorReason,
+function getClientErrorMessage<Method extends AllRequestMethods, Reason extends ErrorReason> (
+    reason: Reason,
+    code: ErrorCode<Reason>,
     message: string,
     requestId?: RequestIdType,
     method?: Method
@@ -94,7 +95,7 @@ function getClientErrorMessage<Method extends AllRequestMethods> (
         type: method ? `${method}Error` : 'CondoWebAppCommonError',
         data: {
             errorType: 'client',
-            errorCode: ERROR_CODES[reason],
+            errorCode: code,
             errorReason: reason,
             errorMessage: message,
             ...(typeof requestId !== 'undefined' ? { requestId } : null),
@@ -202,7 +203,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
 
             if (!method) {
                 return event.source.postMessage(
-                    getClientErrorMessage('UNKNOWN_METHOD', 'Unknown method was provided. Make sure your runtime environment supports it.', requestId),
+                    getClientErrorMessage('UNKNOWN_METHOD', 2, 'Unknown method was provided. Make sure your runtime environment supports it.', requestId),
                     event.origin,
                 )
             }
@@ -216,7 +217,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
 
                 if (!registeredFrame) {
                     return event.source.postMessage(
-                        getClientErrorMessage('ACCESS_DENIED', 'Message was received from unregistered origin', requestId),
+                        getClientErrorMessage('ACCESS_DENIED', 0,  'Message was received from unregistered origin', requestId),
                         event.origin,
                     )
                 }
@@ -229,7 +230,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
             const handler = localHandler || globalHandler as RequestHandler<typeof method>
             if (!handler) {
                 return event.source.postMessage(
-                    getClientErrorMessage('UNKNOWN_ERROR', 'There\'s no handler for this type of event. This is most likely a bug. We would be glad if you let us know about it', requestId),
+                    getClientErrorMessage('UNKNOWN_ERROR', 1, 'There\'s no handler for this type of event. This is most likely a bug. We would be glad if you let us know about it', requestId),
                     event.origin
                 )
             }
@@ -247,13 +248,13 @@ export const PostMessageProvider: React.FC = ({ children }) => {
                     }, event.origin)
                 } catch (err) {
                     return event.source.postMessage(
-                        getClientErrorMessage('HANDLER_ERROR', err.message, requestId, method),
+                        getClientErrorMessage('HANDLER_ERROR', 4, err.message, requestId, method),
                         event.origin
                     )
                 }
             } else {
                 return event.source.postMessage(
-                    getClientErrorMessage('INVALID_PARAMETERS', JSON.stringify(validator.errors), requestId, method),
+                    getClientErrorMessage('INVALID_PARAMETERS', 3, JSON.stringify(validator.errors), requestId, method),
                     event.origin
                 )
             }

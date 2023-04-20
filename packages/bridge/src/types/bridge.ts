@@ -1,3 +1,4 @@
+import type { ErrorCode, ErrorReason } from './errors'
 import type { RequestMethodsParamsMap, ResultResponseDataMap, ResponseEventNamesMap } from './methods'
 
 export type AnyRequestMethodName = keyof RequestMethodsParamsMap
@@ -15,13 +16,13 @@ export type BaseResponseEvent<ResponseType extends string, Data> = {
 export type ResultResponseEventName<Method extends AnyRequestMethodName> = ResponseEventNamesMap[Method]['result']
 export type ResultResponseData<Method extends AnyResponseMethodName> = ResultResponseDataMap[Method]
 export type ErrorResponseEventName<Method extends AnyResponseMethodName> = ResponseEventNamesMap[Method]['error']
-export type ClientErrorResponseData = {
+export type ClientErrorResponseData<Reason extends ErrorReason> = {
     errorType: 'client',
-    errorCode: number,
-    errorReason: string
+    errorReason: Reason
+    errorCode: ErrorCode<Reason>,
     errorMessage: string
 }
-export type ErrorResponseData = ClientErrorResponseData
+export type ErrorResponseData = ClientErrorResponseData<ErrorReason>
 
 export type CondoBridgeResultResponseEvent<Method extends AnyResponseMethodName> = BaseResponseEvent<ResultResponseEventName<Method>, ResultResponseData<Method> & RequestId>
 export type CondoBridgeErrorResponseEvent<Method extends AnyResponseMethodName> = BaseResponseEvent<ErrorResponseEventName<Method>, ErrorResponseData & RequestId>

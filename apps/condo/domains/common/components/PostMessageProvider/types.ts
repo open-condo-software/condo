@@ -1,3 +1,4 @@
+import type { ErrorCode, ErrorReason } from '@open-condo/bridge'
 import type { 
     RequestParams as BridgeRequestParams,
     ResultResponseData as BridgeResponseData,
@@ -7,7 +8,6 @@ import type {
 } from '@open-condo/bridge/src'
 import type { AnalyticsParams } from '@open-condo/ui/src/components/_utils/analytics'
 
-import type { ErrorCode, ErrorReason } from './errors'
 import type { ValidateFunction } from 'ajv'
 
 export const COMMON_ERROR_PREFIX = 'CondoWebAppCommonError' as const
