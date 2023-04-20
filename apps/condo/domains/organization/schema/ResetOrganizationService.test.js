@@ -8,7 +8,7 @@ const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowAccess
 
 const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration, AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { createTestBankIntegrationAccountContext, createTestBankIntegrationOrganizationContext, BankIntegrationAccountContext, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/testSchema')
+const { createTestBankIntegrationAccountContext, createTestBankIntegrationOrganizationContext, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { createTestB2BAppContext, B2BAppContext, createTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
 const { DELETED_ORGANIZATION_NAME } = require('@condo/domains/organization/constants/common')
@@ -164,9 +164,6 @@ describe('ResetOrganizationService', () => {
 
         const acquiringIntegrationCtx = await AcquiringIntegrationContext.getAll(admin, { id: createdAcquiringIntegrationCtx.id })
         expect(acquiringIntegrationCtx).toHaveLength(0)
-
-        const bankAccountContexts = await BankIntegrationAccountContext.getAll(admin, { id: createdBankAccountContext.id })
-        expect(bankAccountContexts).toHaveLength(0)
 
         const bankIntegrationOrganizationContexts = await BankIntegrationOrganizationContext.getAll(admin, { id: createdBankIntegrationOrganizationContext.id })
         expect(bankIntegrationOrganizationContexts).toHaveLength(0)

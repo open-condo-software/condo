@@ -21,7 +21,7 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const errors = {
+const ERRORS = {
     DV_VERSION_MISMATCH: {
         mutation: 'resetOrganization',
         variable: ['data', 'dv'],
@@ -63,7 +63,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
             schema: 'resetOrganization(data: ResetOrganizationInput!): ResetOrganizationOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { dv, sender, organizationId } } = args
-                checkDvAndSender({ dv, sender }, { ...errors.DV_VERSION_MISMATCH, mutation: 'resetOrganization' }, { ...errors.SENDER_MISMATCH, mutation: 'resetOrganization' }, context)
+                checkDvAndSender({ dv, sender }, { ...ERRORS.DV_VERSION_MISMATCH, mutation: 'resetOrganization' }, { ...ERRORS.SENDER_MISMATCH, mutation: 'resetOrganization' }, context)
 
                 const DV_SENDER = { dv, sender }
 
@@ -71,7 +71,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
 
                 const organizationEntity = await getById('Organization', organizationId)
                 if (!organizationEntity) {
-                    throw new GQLError(errors.ORGANIZATION_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
 
                 const properties = await loadListByChunks({
@@ -144,20 +144,6 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 })
                 for (let bankIntegrationOrganizationContext of bankIntegrationOrganizationContexts) {
                     await BankIntegrationOrganizationContext.softDelete(context, bankIntegrationOrganizationContext.id, DV_SENDER)
-                }
-
-                const BankIntegrationAccountCtxs = await loadListByChunks({
-                    context,
-                    list: BankIntegrationAccountContext,
-                    chunkSize: 20,
-                    limit: 10000,
-                    where: {
-                        deletedAt: null,
-                        organization: { id: organizationId },
-                    },
-                })
-                for (let bankIntegrationAccountCtx of BankIntegrationAccountCtxs) {
-                    await BankIntegrationAccountContext.softDelete(context, bankIntegrationAccountCtx.id, DV_SENDER)
                 }
 
                 const newOrganizationData = {
