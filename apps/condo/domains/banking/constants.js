@@ -11,10 +11,6 @@ const _1C_CLIENT_BANK_EXCHANGE = '1CClientBankExchange'
 
 const IMPORT_REMOTE_SYSTEM_VALUES = [_1C_CLIENT_BANK_EXCHANGE]
 
-// Errors
-const INCORRECT_PROPERTY_ID = 'INCORRECT_PROPERTY_ID'
-const EMPTY_BANK_ACCOUNT_REQUEST_EMAIL_TARGET_VALUE = 'EMPTY_BANK_ACCOUNT_REQUEST_EMAIL_TARGET_VALUE'
-
 const BANKING_TABLE_PAGE_SIZE = 10
 
 const BANK_SYNC_TASK_STATUS = {
@@ -27,6 +23,26 @@ const BANK_SYNC_TASK_STATUS = {
 const EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM = 'expenses_grouped_by_category_and_cost_item'
 const BANK_ACCOUNT_REPORT_TEMPLATE_VALUES = [EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM]
 
+// Errors
+const INCORRECT_PROPERTY_ID = 'INCORRECT_PROPERTY_ID'
+const EMPTY_BANK_ACCOUNT_REQUEST_EMAIL_TARGET_VALUE = 'EMPTY_BANK_ACCOUNT_REQUEST_EMAIL_TARGET_VALUE'
+const WRONG_INTEGRATION = {
+    message: 'BankAccount connected to another integration',
+    messageForUser: 'api.banking.BankSyncTask.WRONG_INTEGRATION',
+}
+const ACCOUNT_IS_REQUIRED = {
+    message: 'The "account" field is required to request transactions from SBBOL',
+    messageForUser: 'api.banking.BankSyncTask.ACCOUNT_IS_REQUIRED',
+}
+const INCORRECT_DATE_INTERVAL = {
+    message: 'dateTo cannot be later than dateFrom',
+    messageForUser: 'api.banking.BankSyncTask.INCORRECT_DATE_INTERVAL',
+}
+const INVALID_DATE = {
+    message: 'Invalid options.dateTo or options.DateFrom',
+    messageForUser: 'api.banking.BankSyncTask.INVALID_DATE',
+}
+
 module.exports = {
     BANK_INTEGRATION_IDS,
     _1C_CLIENT_BANK_EXCHANGE,
@@ -37,4 +53,8 @@ module.exports = {
     BANKING_TABLE_PAGE_SIZE,
     EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM,
     BANK_ACCOUNT_REPORT_TEMPLATE_VALUES,
+    INCORRECT_DATE_INTERVAL,
+    INVALID_DATE,
+    ACCOUNT_IS_REQUIRED,
+    WRONG_INTEGRATION,
 }

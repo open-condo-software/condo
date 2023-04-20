@@ -16706,6 +16706,7 @@ type BankSyncTaskHistoryRecord {
   totalCount: Int
   processedCount: Int
   user: String
+  options: JSON
   meta: JSON
   id: ID!
   v: Int
@@ -16783,6 +16784,10 @@ input BankSyncTaskHistoryRecordWhereInput {
   user_not: String
   user_in: [String]
   user_not_in: [String]
+  options: JSON
+  options_not: JSON
+  options_in: [JSON]
+  options_not_in: [JSON]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -16904,6 +16909,7 @@ input BankSyncTaskHistoryRecordUpdateInput {
   totalCount: Int
   processedCount: Int
   user: String
+  options: JSON
   meta: JSON
   v: Int
   createdAt: String
@@ -16934,6 +16940,7 @@ input BankSyncTaskHistoryRecordCreateInput {
   totalCount: Int
   processedCount: Int
   user: String
+  options: JSON
   meta: JSON
   v: Int
   createdAt: String
@@ -16958,6 +16965,18 @@ enum BankSyncTaskStatusType {
   completed
   error
   cancelled
+}
+
+type BankSyncTaskOptions {
+  type: String
+  dateFrom: String
+  dateTo: String
+}
+
+input BankSyncTaskOptionsInput {
+  type: String
+  dateFrom: String
+  dateTo: String
 }
 
 """ information about synchronization process of transactions with external source of from uploaded file 
@@ -17005,6 +17024,9 @@ type BankSyncTask {
   """ User that requested this operation. Will be used for read access checks to display all tasks somewhere and to display progress indicator of ongoing exporting task for current user 
   """
   user: User
+
+  """ Options for launching tasks for banking domain """
+  options: BankSyncTaskOptions
 
   """ Additional data, specific to used integration """
   meta: JSON
@@ -17068,6 +17090,10 @@ input BankSyncTaskWhereInput {
   processedCount_not_in: [Int]
   user: UserWhereInput
   user_is_null: Boolean
+  options: BankSyncTaskOptionsInput
+  options_not: BankSyncTaskOptionsInput
+  options_in: [BankSyncTaskOptionsInput]
+  options_not_in: [BankSyncTaskOptionsInput]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -17179,6 +17205,7 @@ input BankSyncTaskUpdateInput {
   totalCount: Int
   processedCount: Int
   user: UserRelateToOneInput
+  options: BankSyncTaskOptionsInput
   meta: JSON
   v: Int
   createdAt: String
@@ -17206,6 +17233,7 @@ input BankSyncTaskCreateInput {
   totalCount: Int
   processedCount: Int
   user: UserRelateToOneInput
+  options: BankSyncTaskOptionsInput
   meta: JSON
   v: Int
   createdAt: String

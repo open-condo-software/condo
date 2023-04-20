@@ -34,11 +34,12 @@ const { PARSED_TRANSACTIONS_TO_COMPARE } = require('../utils/testSchema/assets/1
 const pathToCorrectFile = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/banking/utils/testSchema/assets/1CClientBankExchange.txt')
 const pathToInvalidFile = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/banking/utils/testSchema/assets/1CClientBankExchange-Invalid.txt')
 
-let adminClient
-let bankIntegration
-let anonymousClient
 
 describe('BankSyncTask', () => {
+    let adminClient
+    let bankIntegration
+    let anonymousClient
+
     beforeAll(async () => {
         anonymousClient = await makeClient()
         adminClient = await makeLoggedInAdminClient()
@@ -655,6 +656,32 @@ describe('BankSyncTask', () => {
                 expectCorrectBankTransaction(transactions[1], PARSED_TRANSACTIONS_TO_COMPARE[1], organization, createdBankAccount)
                 expectCorrectBankTransaction(transactions[2], PARSED_TRANSACTIONS_TO_COMPARE[2], organization, createdBankAccount)
                 expectCorrectBankTransaction(transactions[3], PARSED_TRANSACTIONS_TO_COMPARE[3], organization, createdBankAccount)
+            })
+        })
+
+        it('create BankSyncTask with sbbol options', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
+            const [BankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
+            const [account] = await createTestBankAccount(adminClient, organization, {
+                number: '40702810801500116391',
+                routingNumber: '044525999',
+                integrationContext: { connect: { id: BankIntegrationAccountContext.id } },
+            })
+
+            const [createdTask] = await createTestBankSyncTask(adminClient, organization, {
+                account: { connect: { id: account.id } },
+                user: { connect: { id: adminClient.user.id } },
+                options: {
+                    type: 'SBBOL',
+                    dateFrom: dayjs().format('YYYY-MM-DD'),
+                    dateTo: dayjs().format('YYYY-MM-DD'),
+                },
+            })
+            await waitFor(async () => {
+                const updatedTask = await BankSyncTask.getOne(adminClient, { id: createdTask.id })
+
+                expect(updatedTask.v).toBeGreaterThan(createdTask.v)
             })
         })
 
