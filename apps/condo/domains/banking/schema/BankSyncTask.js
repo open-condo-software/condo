@@ -161,31 +161,12 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
                 }
             }
         },
-        resolveInput: async ({ resolvedData, context, operation }) => {
-            if (operation === 'create' && get(resolvedData, 'options.type') === 'SBBOL'){
-                const dateFrom = dayjs(get(resolvedData, 'options.dateFrom'))
-                const dateTo = dayjs(get(resolvedData, 'options.dateTo'))
-                if (!dateFrom.isValid() || !dateTo.isValid() ) {
-                    throw new GQLError(INVALID_DATE, context)
-                }
-                resolvedData.options.dateFrom = dateFrom.format('YYYY-MM-DD')
-                resolvedData.options.dateTo = dateTo.format('YYYY-MM-DD')
-            }
-
-            return resolvedData
-        },
         validateInput: async ({ originalInput, resolvedData, context, operation, existingItem }) => {
             if (operation === 'create' && get(resolvedData, 'options.type') === 'SBBOL') {
                 const dateFrom = get(resolvedData, 'options.dateFrom')
                 const dateTo = get(resolvedData, 'options.dateTo')
                 if (dateFrom > dateTo) {
                     throw new GQLError(INCORRECT_DATE_INTERVAL, context)
-                }
-
-                const account = await BankAccount.getOne(context, { id: resolvedData.account })
-                const integration = get(account, 'integrationContext.integration.id')
-                if (integration === BANK_INTEGRATION_IDS['1CClientBankExchange']) {
-                    throw new GQLError(WRONG_INTEGRATION, context)
                 }
             }
         },

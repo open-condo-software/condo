@@ -674,8 +674,8 @@ describe('BankSyncTask', () => {
                 user: { connect: { id: adminClient.user.id } },
                 options: {
                     type: 'SBBOL',
-                    dateFrom: dayjs(),
-                    dateTo: dayjs(),
+                    dateFrom: dayjs().format('YYYY-MM-DD'),
+                    dateTo: dayjs().format('YYYY-MM-DD'),
                 },
             })
             await waitFor(async () => {

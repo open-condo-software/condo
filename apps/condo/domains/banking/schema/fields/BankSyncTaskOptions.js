@@ -1,4 +1,5 @@
 const Ajv = require('ajv')
+const addFormats = require('ajv-formats')
 
 const { Json } = require('@open-condo/keystone/fields')
 
@@ -30,13 +31,13 @@ const bankSyncTaskOptionsSchema = {
     type: 'object',
     properties: {
         type: { type: 'string' },
-        dateFrom: { type: 'string' },
-        dateTo: { type: 'string' },
+        dateFrom: { type: 'string', format: 'date' },
+        dateTo: { type: 'string', format: 'date' },
     },
     required: ['type'],
     additionalProperties: false,
 }
-
+addFormats(ajv)
 const bankSyncTaskOptionValidator = getValidator(ajv.compile(bankSyncTaskOptionsSchema))
 
 const BANK_SYNC_TASK_OPTIONS = {
