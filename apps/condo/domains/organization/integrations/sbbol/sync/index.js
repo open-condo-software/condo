@@ -3,10 +3,11 @@ const faker = require('faker')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 
+const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
+const { BankSyncTask, BankAccount } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { syncSbbolTransactions } = require('@condo/domains/organization/tasks/syncSbbolTransactions')
 
 const { syncFeatures } = require('./features')
 const { syncBankAccounts } = require('./syncBankAccounts')
@@ -103,7 +104,6 @@ const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
         password: faker.internet.password(),
     }
 
-    const date = dayjs().format('YYYY-MM-DD')
     const user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid })
     const { organization, employee } = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
     const sbbolSecretStorage = getSbbolSecretStorage()
@@ -114,7 +114,43 @@ const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
 
     if (await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL)) {
         await syncBankAccounts(user.id, organization)
-        await syncSbbolTransactions.delay(date, user.id, organization)
+
+        const bankAccounts = await BankAccount.getAll(adminContext, {
+            organization: {
+                id: organization.id,
+            },
+            integrationContext: {
+                integration: BANK_INTEGRATION_IDS.SBBOL,
+                deletedAt: null,
+            },
+            deletedAt: null,
+        })
+        for (let bankAccount of bankAccounts) {
+            const bankSyncTask = await BankSyncTask.getAll(adminContext, {
+                account: { id: bankAccount.id },
+                option: {
+                    type: 'SBBOL',
+                },
+            }, { first: 1 })
+            /*
+                If this account has already been loading transactions, then I do not do it again.
+                Without this check, each time the user logs in, there will be spam from a large number of progressBars.
+                1 progressBar per bankAccount
+            */
+            if (!bankSyncTask) {
+                await BankSyncTask.create(adminContext, {
+                    account: { connect: { id: bankAccount.id } },
+                    user: { connect: { id: user.id } },
+                    totalCount: 0,
+                    options: {
+                        type: 'SBBOL',
+                        dateFrom: dayjs().subtract(1, 'day').format('YYYY-MM-DD'), // a full statement can be obtained only for the past day
+                        dateTo: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                    },
+                    ...dvSenderFields,
+                })
+            }
+        }
     }
 
     return {
