@@ -57,4 +57,24 @@
       }
     }
   }
+
+  &-active {
+    .condo-card-body {
+      box-shadow: @condo-global-box-shadow-active;
+      background: linear-gradient(#fff, #fff) padding-box,
+      @condo-global-color-brand-gradient-5 border-box;
+      border: 1px solid transparent;
+    }
+
+    &:hover {
+      box-shadow: @condo-global-box-shadow-active;
+
+      .condo-card-body {
+        border-color: transparent;
+        background: linear-gradient(#fff, #fff) padding-box,
+        @condo-global-color-brand-gradient-7 border-box;
+      }
+
+    }
+  }
 }
