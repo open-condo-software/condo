@@ -557,7 +557,7 @@ describe('BankSyncTask', () => {
         })
     })
 
-    describe('importBankTransactionsWorker after change', () => {
+    describe('usage to execute importBankTransactionsTask worker after change', () => {
 
         const expectCorrectBankTransaction = (obj, transactionDataToCompare, organization, bankAccount) => {
             expect(obj.id).toMatch(UUID_RE)
@@ -618,32 +618,6 @@ describe('BankSyncTask', () => {
                 expectCorrectBankTransaction(transactions[1], PARSED_TRANSACTIONS_TO_COMPARE[1], organization, createdBankAccount)
                 expectCorrectBankTransaction(transactions[2], PARSED_TRANSACTIONS_TO_COMPARE[2], organization, createdBankAccount)
                 expectCorrectBankTransaction(transactions[3], PARSED_TRANSACTIONS_TO_COMPARE[3], organization, createdBankAccount)
-            })
-        })
-
-        it('create BankSyncTask with sbbol options', async () => {
-            const [organization] = await createTestOrganization(adminClient)
-            const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
-            const [BankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
-            const [account] = await createTestBankAccount(adminClient, organization, {
-                number: '40702810801500116391',
-                routingNumber: '044525999',
-                integrationContext: { connect: { id: BankIntegrationAccountContext.id } },
-            })
-
-            const [createdTask] = await createTestBankSyncTask(adminClient, organization, {
-                account: { connect: { id: account.id } },
-                user: { connect: { id: adminClient.user.id } },
-                options: {
-                    type: 'SBBOL',
-                    dateFrom: dayjs().format('YYYY-MM-DD'),
-                    dateTo: dayjs().format('YYYY-MM-DD'),
-                },
-            })
-            await waitFor(async () => {
-                const updatedTask = await BankSyncTask.getOne(adminClient, { id: createdTask.id })
-
-                expect(updatedTask.v).toBeGreaterThan(createdTask.v)
             })
         })
 
@@ -805,6 +779,82 @@ describe('BankSyncTask', () => {
                     errorMessage: 'Cannot parse uploaded file in 1CClientBankExchange format. Error: Line "КонечныйОстаток" not found in node "СекцияРасчСчет".',
                 })
             })
+        })
+    })
+
+    describe('usage to execute syncSbbolTransactionsBankSyncTask worker after change', () => {
+        it('starts task worker that updates BankSyncTask inside of worker', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
+            const [BankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
+            const [account] = await createTestBankAccount(adminClient, organization, {
+                number: '40702810801500116391',
+                routingNumber: '044525999',
+                integrationContext: { connect: { id: BankIntegrationAccountContext.id } },
+            })
+
+            const [createdTask] = await createTestBankSyncTask(adminClient, organization, {
+                account: { connect: { id: account.id } },
+                user: { connect: { id: adminClient.user.id } },
+                options: {
+                    type: 'sbbol',
+                    dateFrom: dayjs().format('YYYY-MM-DD'),
+                    dateTo: dayjs().format('YYYY-MM-DD'),
+                },
+            })
+            expect(createdTask).toBeDefined()
+
+            await waitFor(async () => {
+                const updatedTask = await BankSyncTask.getOne(adminClient, { id: createdTask.id })
+                expect(updatedTask.v).toBeGreaterThan(createdTask.v)
+            })
+        })
+
+        it('validates value of "options" field', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
+            const [BankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
+            const [account] = await createTestBankAccount(adminClient, organization, {
+                number: '40702810801500116391',
+                routingNumber: '044525999',
+                integrationContext: { connect: { id: BankIntegrationAccountContext.id } },
+            })
+
+            await expectToThrowValidationFailureError(async () => {
+                await createTestBankSyncTask(adminClient, organization, {
+                    account: { connect: { id: account.id } },
+                    user: { connect: { id: adminClient.user.id } },
+                    options: {
+                        type: 'wrong-value',
+                        dateFrom: dayjs().format('YYYY-MM-DD'),
+                        dateTo: dayjs().format('YYYY-MM-DD'),
+                    },
+                })
+            }, 'options field validation error. JSON not in the correct format - path: msg:value of tag "type" must be in oneOf')
+
+            await expectToThrowValidationFailureError(async () => {
+                await createTestBankSyncTask(adminClient, organization, {
+                    account: { connect: { id: account.id } },
+                    user: { connect: { id: adminClient.user.id } },
+                    options: {
+                        type: 'sbbol',
+                        dateFrom: 'wrong-value',
+                        dateTo: dayjs().format('YYYY-MM-DD'),
+                    },
+                })
+            }, 'options field validation error. JSON not in the correct format - path:/dateFrom msg:must match format "date"')
+
+            await expectToThrowValidationFailureError(async () => {
+                await createTestBankSyncTask(adminClient, organization, {
+                    account: { connect: { id: account.id } },
+                    user: { connect: { id: adminClient.user.id } },
+                    options: {
+                        type: 'sbbol',
+                        dateFrom: dayjs().format('YYYY-MM-DD'),
+                        dateTo: 'wrong-value',
+                    },
+                })
+            }, 'options field validation error. JSON not in the correct format - path:/dateTo msg:must match format "date"')
         })
     })
 })

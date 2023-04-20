@@ -3,11 +3,11 @@ const addFormats = require('ajv-formats')
 
 const { Json } = require('@open-condo/keystone/fields')
 
-const { _1C_CLIENT_BANK_EXCHANGE, SBBOL } = require('@condo/domains/banking/constants')
+const { SBBOL, _1C_CLIENT_BANK_EXCHANGE } = require('@condo/domains/banking/constants')
 const { getValidator, render } = require('@condo/domains/common/schema/json.utils')
 
-
-const ajv = new Ajv()
+const ajv = new Ajv({ discriminator: true })
+addFormats(ajv)
 
 const BANK_SYNC_TASK_OPTIONS_TYPE_NAME = 'BankSyncTaskOptions'
 const BANK_SYNC_TASK_OPTIONS_INPUT_NAME = 'BankSyncTaskOptionsInput'
@@ -30,15 +30,27 @@ const BANK_SYNC_TASK_OPTIONS_TYPES = `
 
 const bankSyncTaskOptionsSchema = {
     type: 'object',
-    properties: {
-        type: { type: 'string', enum: [SBBOL, _1C_CLIENT_BANK_EXCHANGE] },
-        dateFrom: { type: 'string', format: 'date' },
-        dateTo: { type: 'string', format: 'date' },
-    },
+    discriminator: { propertyName: 'type' },
+    oneOf: [
+        {
+            properties: {
+                type: { const: SBBOL },
+                dateFrom: { type: 'string', format: 'date' },
+                dateTo: { type: 'string', format: 'date' },
+            },
+            additionalProperties: false,
+            required: ['dateFrom', 'dateTo'],
+        },
+        {
+            properties: {
+                type: { const: _1C_CLIENT_BANK_EXCHANGE },
+                additionalProperties: false,
+            },
+        },
+    ],
     required: ['type'],
-    additionalProperties: false,
 }
-addFormats(ajv)
+
 const bankSyncTaskOptionValidator = getValidator(ajv.compile(bankSyncTaskOptionsSchema))
 
 const BANK_SYNC_TASK_OPTIONS = {

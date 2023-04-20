@@ -14,7 +14,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/banking/access/BankSyncTask')
-const { BANK_SYNC_TASK_STATUS, BANK_INTEGRATION_IDS, _1C_CLIENT_BANK_EXCHANGE } = require('@condo/domains/banking/constants')
+const { BANK_SYNC_TASK_STATUS, BANK_INTEGRATION_IDS, _1C_CLIENT_BANK_EXCHANGE, SBBOL } = require('@condo/domains/banking/constants')
 const { INCORRECT_DATE_INTERVAL, ACCOUNT_IS_REQUIRED } = require('@condo/domains/banking/constants')
 const { BANK_SYNC_TASK_OPTIONS } = require('@condo/domains/banking/schema/fields/BankSyncTaskOptions')
 const { importBankTransactionsTask } = require('@condo/domains/banking/tasks/importBankTransactions')
@@ -153,7 +153,7 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
             }
         },
         beforeChange: async ({ resolvedData, context, operation }) => {
-            if (operation === 'create' && get(resolvedData, 'options.type') === 'SBBOL') {
+            if (operation === 'create' && get(resolvedData, 'options.type') === SBBOL) {
                 if (!resolvedData.account) {
                     throw new GQLError(ACCOUNT_IS_REQUIRED, context)
                 }
@@ -171,10 +171,11 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
         afterChange: async (args) => {
             const { updatedItem, operation } = args
             if (operation === 'create') {
-                if (get(updatedItem, 'options.type') === _1C_CLIENT_BANK_EXCHANGE) {
+                const type = get(updatedItem, 'options.type')
+                if (type === _1C_CLIENT_BANK_EXCHANGE) {
                     await importBankTransactionsTask.delay(updatedItem.id)
                 }
-                if (get(updatedItem, 'options.type') === 'SBBOL') {
+                if (type === SBBOL) {
                     const dateInterval = [updatedItem.options.dateFrom]
                     while (dateInterval[dateInterval.length - 1] < updatedItem.options.dateTo) {
                         dateInterval.push(dayjs(dateInterval[dateInterval.length - 1]).add(1, 'day').format('YYYY-MM-DD'))
