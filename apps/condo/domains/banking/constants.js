@@ -26,10 +26,22 @@ const BANK_ACCOUNT_REPORT_TEMPLATE_VALUES = [EXPENSES_GROUPED_BY_CATEGORY_AND_CO
 // Errors
 const INCORRECT_PROPERTY_ID = 'INCORRECT_PROPERTY_ID'
 const EMPTY_BANK_ACCOUNT_REQUEST_EMAIL_TARGET_VALUE = 'EMPTY_BANK_ACCOUNT_REQUEST_EMAIL_TARGET_VALUE'
-const INCORRECT_DATE_INTERVAL = 'dateTo cannot be later than dateFrom'
-const INVALID_DATE = 'Invalid options.dateTo or options.DateFrom'
-const ACCOUNT_IS_REQUIRED = 'The "account" field is required to request transactions from SBBOL'
-const WRONG_INTEGRATION = 'BankAccount connected to another integration'
+const WRONG_INTEGRATION = {
+    message: 'BankAccount connected to another integration',
+    messageForUser: 'api.banking.BankSyncTask.WRONG_INTEGRATION',
+}
+const ACCOUNT_IS_REQUIRED = {
+    message: 'The "account" field is required to request transactions from SBBOL',
+    messageForUser: 'api.banking.BankSyncTask.ACCOUNT_IS_REQUIRED',
+}
+const INCORRECT_DATE_INTERVAL = {
+    message: 'dateTo cannot be later than dateFrom',
+    messageForUser: 'api.banking.BankSyncTask.INCORRECT_DATE_INTERVAL',
+}
+const INVALID_DATE = {
+    message: 'Invalid options.dateTo or options.DateFrom',
+    messageForUser: 'api.banking.BankSyncTask.INVALID_DATE',
+}
 
 module.exports = {
     BANK_INTEGRATION_IDS,
