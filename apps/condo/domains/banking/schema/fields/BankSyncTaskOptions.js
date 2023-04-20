@@ -3,6 +3,7 @@ const addFormats = require('ajv-formats')
 
 const { Json } = require('@open-condo/keystone/fields')
 
+const { _1C_CLIENT_BANK_EXCHANGE, SBBOL } = require('@condo/domains/banking/constants')
 const { getValidator, render } = require('@condo/domains/common/schema/json.utils')
 
 
@@ -30,7 +31,7 @@ const BANK_SYNC_TASK_OPTIONS_TYPES = `
 const bankSyncTaskOptionsSchema = {
     type: 'object',
     properties: {
-        type: { type: 'string' },
+        type: { type: 'string', enum: [SBBOL, _1C_CLIENT_BANK_EXCHANGE] },
         dateFrom: { type: 'string', format: 'date' },
         dateTo: { type: 'string', format: 'date' },
     },
