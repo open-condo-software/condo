@@ -12,7 +12,8 @@ export default defineConfig({
         retries: 3,
         setupNodeEvents (on, config) {
             // eslint-disable-next-line import/order
-            return require('./plugins/index.js')(on, config)
+            require('./plugins/index.js')(on, config)
+            require('./plugins/grafana.js')(on, config)
         },
         env: {
             supportPassword: conf['CYPRESS_SERVER_SUPPORT_PASSWORD'],
