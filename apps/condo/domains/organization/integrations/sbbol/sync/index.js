@@ -1,5 +1,6 @@
 const dayjs = require('dayjs')
 const faker = require('faker')
+const isEmpty = require('lodash/isEmpty')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 
@@ -120,7 +121,9 @@ const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
                 id: organization.id,
             },
             integrationContext: {
-                integration: BANK_INTEGRATION_IDS.SBBOL,
+                integration: {
+                    id: BANK_INTEGRATION_IDS.SBBOL,
+                },
                 deletedAt: null,
             },
             deletedAt: null,
@@ -128,7 +131,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
         for (let bankAccount of bankAccounts) {
             const bankSyncTask = await BankSyncTask.getAll(adminContext, {
                 account: { id: bankAccount.id },
-                option: {
+                options: {
                     type: 'SBBOL',
                 },
             }, { first: 1 })
@@ -137,9 +140,10 @@ const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
                 Without this check, each time the user logs in, there will be spam from a large number of progressBars.
                 1 progressBar per bankAccount
             */
-            if (!bankSyncTask) {
+            if (isEmpty(bankSyncTask)) {
                 await BankSyncTask.create(adminContext, {
                     account: { connect: { id: bankAccount.id } },
+                    organization: { connect: { id: organization.id } },
                     user: { connect: { id: user.id } },
                     totalCount: 0,
                     options: {
