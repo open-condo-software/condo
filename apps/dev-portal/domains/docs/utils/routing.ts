@@ -1,11 +1,12 @@
 import fs from 'fs'
 import path from 'path'
 
-import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
 import merge from 'lodash/merge'
 import pickBy from 'lodash/pickBy'
 import uniq from 'lodash/uniq'
 import getTitle from 'title'
+
+import { DEFAULT_LOCALE } from '@/domains/common/constants/locales'
 
 
 /**
