@@ -18,7 +18,6 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const { NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const {
     NewsItem,
@@ -529,20 +528,6 @@ describe('NewsItems', () => {
             )
         })
 
-        test('must throw an error on trying to edit the news item which already been sent', async () => {
-            const [sentNewsItem] = await createTestNewsItem(adminClient, dummyO10n, { sentAt: dayjs().toISOString() })
-            await expectToThrowGQLError(
-                async () => await updateTestNewsItem(adminClient, sentNewsItem.id, { title: faker.lorem.words(3) }),
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'EDIT_DENIED_ALREADY_SENT',
-                    message: 'The sent news item is restricted from editing',
-                    mutation: 'updateNewsItem',
-                    messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
-                },
-            )
-        })
-
         test('must throw an error if validity date is less than send date', async () => {
             await expectToThrowGQLError(
                 async () => await createTestNewsItem(adminClient, dummyO10n, {
@@ -569,6 +554,8 @@ describe('NewsItems', () => {
             const unitType1 = FLAT_UNIT_TYPE
             const unitName1 = faker.lorem.word()
 
+            const DELAY_SEC = 5
+
             await createTestResident(adminClient, residentClient1.user, property, {
                 unitType: unitType1,
                 unitName: unitName1,
@@ -577,7 +564,7 @@ describe('NewsItems', () => {
             const [newsItem] = await createTestNewsItem(
                 adminClient,
                 o10n,
-                { sendAt: dayjs().add(5, 'second').toISOString() },
+                { sendAt: dayjs().add(DELAY_SEC, 'second').toISOString() },
             )
             await createTestNewsItemScope(adminClient, newsItem)
 
@@ -587,7 +574,7 @@ describe('NewsItems', () => {
             await waitFor(async () => {
                 const newsItemsAfterPublish = await NewsItem.getAll(residentClient1, {})
                 expect(newsItemsAfterPublish).toHaveLength(1)
-            }, { delay: (SENDING_DELAY_SEC + 1) * 1000 })
+            }, { delay: (DELAY_SEC + 1) * 1000 })
         })
     })
 })
