@@ -21,6 +21,7 @@ export default defineConfig({
             grafanaApiUrl: conf['CYPRESS_GRAFANA_API_URL'],
             grafanaApiKey: conf['CYPRESS_GRAFANA_API_KEY'],
             grafanaDashboardUid: conf['CYPRESS_GRAFANA_DASHBOARD_UID'],
+            grafanaDashboardNamePrefix: conf['CYPRESS_GRAFANA_DASHBOARD_ROW_PREFIX'],
         },
         requestTimeout: 10000,
         pageLoadTimeout: 10000,
