@@ -23,6 +23,7 @@ import { SbbolImportModal } from '@condo/domains/banking/components/SbbolImportM
 import { BANK_INTEGRATION_IDS } from '@condo/domains/banking/constants'
 import useBankContractorAccountTable from '@condo/domains/banking/hooks/useBankContractorAccountTable'
 import { useBankReportTaskButton } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
+import { useBankSyncTaskExternalModal } from '@condo/domains/banking/hooks/useBankSyncTaskExternalModal'
 import useBankTransactionsTable from '@condo/domains/banking/hooks/useBankTransactionsTable'
 import { useCategoryModal } from '@condo/domains/banking/hooks/useCategoryModal'
 import { useFileImport } from '@condo/domains/banking/hooks/useFileImport'
@@ -232,6 +233,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
     const EditTitle = intl.formatMessage({ id: 'Edit' })
     const CancelSelectionTitle = intl.formatMessage({ id: 'pages.condo.ticket.index.CancelSelectedTicket' })
     const DeleteTitle = intl.formatMessage({ id: 'Delete' })
+    const SyncSbbolTransactions = intl.formatMessage({ id: 'pages.banking.report.sbbolSyncTitle' })
 
     // Local state
     const [tab, setTab] = useState<PropertyReportTypes>('income')
@@ -266,6 +268,10 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
         bankAccount,
         organizationId: get(bankAccount, 'organization.id'),
     })
+    const {
+        handleOpen: handleOpenSbbolImportModal,
+        ModalComponent: SbbolImportModal,
+    } = useBankSyncTaskExternalModal({ propertyId, bankAccount })
 
     const { BankReportTaskButton } = useBankReportTaskButton({
         bankAccount, user, organizationId: bankAccount.organization.id, type: 'secondary',
@@ -338,6 +344,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
     const fileImportIntegration = get(bankAccount, ['integrationContext', 'integration', 'id']) === BANK_INTEGRATION_IDS['1CClientBankExchange']
     const reportDeleteEntities = useFlag(PROPERTY_REPORT_DELETE_ENTITIES)
     const canManageBankAccountReportTasks = get(role, 'canManageBankAccountReportTasks', false)
+    const canManageBankAccounts = get(role, 'canManageBankAccounts', false)
 
     return (
         <>
@@ -381,55 +388,57 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
                     {tabContent}
                     {CategoryModal}
                 </Col>
+                {!fileImportIntegration && SbbolImportModal}
             </Row>
-            {
-                (totalSelectedItems || fileImportIntegration) && (
-                    <ActionBar
-                        message={totalSelectedItems ? itemsSelectedTitle : null}
-                        actions={totalSelectedItems ? [
-                            <Button
-                                key='edit'
-                                type='primary'
-                                onClick={handleEditSelectedRows}
-                            >
-                                {EditTitle}
-                            </Button>,
-                            reportDeleteEntities && (
-                                <DeleteButtonWithConfirmModal
-                                    key='delete'
-                                    title={deleteModalTitle}
-                                    message={deleteModalDescription}
-                                    okButtonLabel={DeleteTitle}
-                                    buttonContent={DeleteTitle}
-                                    action={handleDeleteSelected}
-                                    showCancelButton
-                                />
-                            ),
-                            <Button
-                                key='cancel'
-                                type='secondary'
-                                onClick={handleClearSelection}
-                            >
-                                {CancelSelectionTitle}
-                            </Button>,
-                            canManageBankAccountReportTasks && (
-                                <BankReportTaskButton key='reportTask' />
-                            ),
-                        ] : [
-                            <FileImportButton
-                                key='import'
-                                hidden={!fileImportIntegration}
-                                type='primary'
-                            >
-                                {UploadFileTitle}
-                            </FileImportButton>,
-                            canManageBankAccountReportTasks && (
-                                <BankReportTaskButton key='reportTask' />
-                            ),
-                        ]}
-                    />
-                )
-            }
+            <ActionBar
+                message={totalSelectedItems ? itemsSelectedTitle : null}
+                actions={totalSelectedItems ? [
+                    <Button
+                        key='edit'
+                        type='primary'
+                        onClick={handleEditSelectedRows}
+                    >
+                        {EditTitle}
+                    </Button>,
+                    reportDeleteEntities && (
+                        <DeleteButtonWithConfirmModal
+                            key='delete'
+                            title={deleteModalTitle}
+                            message={deleteModalDescription}
+                            okButtonLabel={DeleteTitle}
+                            buttonContent={DeleteTitle}
+                            action={handleDeleteSelected}
+                            showCancelButton
+                        />
+                    ),
+                    <Button
+                        key='cancel'
+                        type='secondary'
+                        onClick={handleClearSelection}
+                    >
+                        {CancelSelectionTitle}
+                    </Button>,
+                    canManageBankAccountReportTasks && (
+                        <BankReportTaskButton key='reportTask' />
+                    ),
+                ] : [
+                    <FileImportButton
+                        key='import'
+                        hidden={!fileImportIntegration}
+                        type='primary'
+                    >
+                        {UploadFileTitle}
+                    </FileImportButton>,
+                    canManageBankAccounts && (
+                        <Button type='primary' key='import-sbbol' onClick={handleOpenSbbolImportModal}>
+                            {SyncSbbolTransactions}
+                        </Button>
+                    ),
+                    canManageBankAccountReportTasks && (
+                        <BankReportTaskButton key='reportTask' />
+                    ),
+                ]}
+            />
         </>
     )
 }
