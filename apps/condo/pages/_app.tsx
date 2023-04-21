@@ -131,6 +131,7 @@ const MenuItems: React.FC = () => {
             path: 'incident',
             icon: OnOff,
             label: 'global.section.incidents',
+            access: () => !isAssignedVisibilityType,
         },  {
             path: 'property',
             icon: Building,

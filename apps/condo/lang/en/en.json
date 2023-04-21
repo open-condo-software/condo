@@ -1461,6 +1461,7 @@
   "errors.LoadingError": "Sorry, an error has occurred, please try refreshing the page",
   "errors.import.IncorrectRowFormat": "Incorrect row format",
   "errors.import.AddressNotFound": "The building with the given address was not found in the address database",
+  "errors.import.AddressValidationError": "It doesn't look like a house address. Check if you have specified everything correctly.",
   "errors.import.PropertyNotFound": "There's no property with this address in your organization",
   "errors.import.PropertyDuplicate": "Your organization already got property with same address",
   "errors.import.IncorrectContactName": "Incorrect contact name",

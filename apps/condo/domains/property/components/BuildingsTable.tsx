@@ -133,6 +133,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         rowValidator={propertyValidator}
                         domainTranslate={PropertyTitle}
                         objectCreator={propertyCreator}
+                        exampleTemplateLink={exampleTemplateLink}
                     >
                         <Button
                             type='secondary'
