@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 import type { TypographyTitleProps } from '@open-condo/ui'
 import { Typography } from '@open-condo/ui'
 
-import type { NavItem } from 'domains/docs/utils/routing'
+import type { NavItem } from '@/domains/docs/utils/routing'
 
 type TitleLevel = TypographyTitleProps['level']
 type MenuItem = Required<MenuProps>['items'][number]

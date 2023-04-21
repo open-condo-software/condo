@@ -1,12 +1,13 @@
-import { Open_Sans, Noto_Sans_Mono }  from '@next/font/google'
 import { ConfigProvider, Layout } from 'antd'
-import { Header } from 'domains/common/components/Header'
-import { theme } from 'domains/common/constants/antd'
-import { LOCALES, DEFAULT_LOCALE } from 'domains/common/constants/locales'
 import en from 'lang/en.json'
 import ru from 'lang/ru.json'
 import get from 'lodash/get'
+import { Open_Sans, Noto_Sans_Mono }  from 'next/font/google'
 import { IntlProvider } from 'react-intl'
+
+import { Header } from '@/domains/common/components/Header'
+import { theme } from '@/domains/common/constants/antd'
+import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
 
 const mainFont = Open_Sans({
     subsets: ['latin', 'cyrillic'],
