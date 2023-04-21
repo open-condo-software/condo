@@ -11,7 +11,6 @@ const {
     UUID_RE,
     DATETIME_RE,
     expectToThrowGQLError,
-    waitFor,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -455,37 +454,6 @@ describe('NewsItems', () => {
                     expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
                 ]))
             })
-
-            test('eligible resident can not see the delayed news item', async () => {
-                const residentClient1 = await makeClientWithResidentUser()
-                const [o10n1] = await createTestOrganization(adminClient)
-                const [property1] = await createTestProperty(adminClient, o10n1)
-
-                const unitType1 = FLAT_UNIT_TYPE
-                const unitName1 = faker.lorem.word()
-
-                await createTestResident(adminClient, residentClient1.user, property1, {
-                    unitType: unitType1,
-                    unitName: unitName1,
-                })
-
-                // Schedule publication at 1 hour later
-                const [newsItem1] = await createTestNewsItem(adminClient, o10n1, { sendAt: dayjs().add(1, 'hour').toISOString() })
-                await createTestNewsItemScope(adminClient, newsItem1, {
-                    property: { connect: { id: property1.id } },
-                })
-
-                const newsItems1 = await NewsItem.getAll(residentClient1, {})
-
-                expect(newsItems1).toHaveLength(0)
-
-                // Imagine that publication scheduled at 1 hour ago
-                await updateTestNewsItem(adminClient, newsItem1.id, { sendAt: dayjs().subtract(1, 'hour').toISOString() })
-
-                const newsItems2 = await NewsItem.getAll(residentClient1, {})
-
-                expect(newsItems2).toHaveLength(1)
-            })
         })
     })
 
@@ -546,35 +514,35 @@ describe('NewsItems', () => {
     })
 
     describe('Delayed news items', () => {
-        test('delayed news item will shown in time', async () => {
+        test('eligible resident can not see the delayed news item', async () => {
             const residentClient1 = await makeClientWithResidentUser()
-            const [o10n] = await createTestOrganization(adminClient)
-            const [property] = await createTestProperty(adminClient, o10n)
+            const [o10n1] = await createTestOrganization(adminClient)
+            const [property1] = await createTestProperty(adminClient, o10n1)
 
             const unitType1 = FLAT_UNIT_TYPE
             const unitName1 = faker.lorem.word()
 
-            const DELAY_SEC = 5
-
-            await createTestResident(adminClient, residentClient1.user, property, {
+            await createTestResident(adminClient, residentClient1.user, property1, {
                 unitType: unitType1,
                 unitName: unitName1,
             })
 
-            const [newsItem] = await createTestNewsItem(
-                adminClient,
-                o10n,
-                { sendAt: dayjs().add(DELAY_SEC, 'second').toISOString() },
-            )
-            await createTestNewsItemScope(adminClient, newsItem)
+            // Schedule publication at 1 hour later
+            const [newsItem1] = await createTestNewsItem(adminClient, o10n1, { sendAt: dayjs().add(1, 'hour').toISOString() })
+            await createTestNewsItemScope(adminClient, newsItem1, {
+                property: { connect: { id: property1.id } },
+            })
 
-            const newsItemsBeforePublish = await NewsItem.getAll(residentClient1, {})
-            expect(newsItemsBeforePublish).toHaveLength(0)
+            const newsItems1 = await NewsItem.getAll(residentClient1, {})
 
-            await waitFor(async () => {
-                const newsItemsAfterPublish = await NewsItem.getAll(residentClient1, {})
-                expect(newsItemsAfterPublish).toHaveLength(1)
-            }, { delay: (DELAY_SEC + 1) * 1000 })
+            expect(newsItems1).toHaveLength(0)
+
+            // Imagine that publication scheduled at 1 hour ago
+            await updateTestNewsItem(adminClient, newsItem1.id, { sendAt: dayjs().subtract(1, 'hour').toISOString() })
+
+            const newsItems2 = await NewsItem.getAll(residentClient1, {})
+
+            expect(newsItems2).toHaveLength(1)
         })
     })
 })
