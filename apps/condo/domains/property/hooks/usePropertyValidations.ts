@@ -5,8 +5,10 @@ import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-
 import { Property } from '@condo/domains/property/utils/clientSchema'
+
+
+const MIN_YEAR_OF_CONSTRUCTION = 1500
 
 export const usePropertyValidations = ({ organizationId, addressValidatorError, address }) => {
     const intl = useIntl()
@@ -41,12 +43,14 @@ export const usePropertyValidations = ({ organizationId, addressValidatorError, 
 
     const yearOfConstructionValidator: Rule = useMemo(() => ({
         validator: (_, value) => {
-            if (value === null) return Promise.resolve()
+            if (value === null || value === '') return Promise.resolve()
 
             const receivedDate = dayjs().year(value)
-            const yearIsValidLength = value.length === 0 || value.length === 4
+            const isValidDate = receivedDate.isValid()
+                && receivedDate.isBefore(dayjs().add(1, 'day'))
+                && receivedDate.isAfter(dayjs().year(MIN_YEAR_OF_CONSTRUCTION).subtract(1, 'day'))
 
-            if (yearIsValidLength && receivedDate.isValid() && receivedDate.isBefore(dayjs().add(1, 'day'))) {
+            if (isValidDate) {
                 return Promise.resolve()
             }
 
