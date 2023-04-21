@@ -9,17 +9,27 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItem')
-const { EMPTY_VALID_BEFORE_DATE } = require('@condo/domains/news/constants/errors')
+const {
+    EMPTY_VALID_BEFORE_DATE,
+    VALIDITY_DATE_LESS_THAN_SEND_DATE,
+} = require('@condo/domains/news/constants/errors')
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 
 const ERRORS = {
-    FIELD_MUST_BE_NOT_EMPTY: {
+    EMPTY_VALID_BEFORE_DATE: {
         code: BAD_USER_INPUT,
         type: EMPTY_VALID_BEFORE_DATE,
         message: 'The date the news item valid before is empty',
         messageForUser: 'api.newsItem.EMPTY_VALID_BEFORE_DATE',
         mutation: 'createNewsItem',
         variable: ['data', 'validBefore'],
+    },
+    VALIDITY_DATE_LESS_THAN_SEND_DATE: {
+        code: BAD_USER_INPUT,
+        type: VALIDITY_DATE_LESS_THAN_SEND_DATE,
+        message: 'The validity date is less than send date',
+        messageForUser: 'api.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE',
+        mutation: 'updateNewsItem',
     },
 }
 
@@ -83,10 +93,18 @@ const NewsItem = new GQLListSchema('NewsItem', {
             return resolvedData
         },
         validateInput: async (args) => {
-            const { resolvedData, existingItem, context } = args
+            const { resolvedData, existingItem, context, operation } = args
             const resultItemData = { ...existingItem, ...resolvedData }
-            if (get(resultItemData, 'type') === NEWS_TYPE_EMERGENCY && !get(resultItemData, 'validBefore')) {
-                throw new GQLError(ERRORS.FIELD_MUST_BE_NOT_EMPTY, context)
+
+            const sendAt = get(resultItemData, 'sendAt')
+            const validBefore = get(resultItemData, 'validBefore')
+
+            if (get(resultItemData, 'type') === NEWS_TYPE_EMERGENCY && !validBefore) {
+                throw new GQLError(ERRORS.EMPTY_VALID_BEFORE_DATE, context)
+            }
+
+            if (sendAt && validBefore && Date.parse(validBefore) < Date.parse(sendAt)) {
+                throw new GQLError(ERRORS.VALIDITY_DATE_LESS_THAN_SEND_DATE, context)
             }
         },
     },

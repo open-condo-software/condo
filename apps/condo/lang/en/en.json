@@ -1547,6 +1547,8 @@
   "api.banking.createBankAccountRequest.INCORRECT_PROPERTY_ID": "Incorrect propertyId was provided. Please check that this id related to passed organizationId",
   "api.incident.WORK_FINISH_EARLY_THAN_WORK_START": "The end of the works cannot be earlier than the start",
   "api.newsItem.EMPTY_VALID_BEFORE_DATE": "Validity date is required",
+  "api.newsItem.EDIT_DENIED_ALREADY_SENT": "You cannot edit the news item which already been sent",
+  "api.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE": "The validity date is less than send date",
   "api.ticket.QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE": "Additional quality control parameters must match the specified scoring",
   "api.ticket.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED": "When specifying a comment or additional evaluation parameters, you must specify the evaluation itself",
   "excelExport.header.contacts.forAllTime": "Contacts for all time",

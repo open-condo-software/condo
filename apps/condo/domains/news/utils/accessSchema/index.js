@@ -57,6 +57,42 @@ function queryFindNewsItemsScopesByResidents (residents) {
     }
 }
 
+/**
+ * @param {NewsItem} newsItem
+ * @param {NewsItemScope[]} newsItemScopes
+ */
+function queryFindResidentsByNewsItemAndScopes (newsItem, newsItemScopes) {
+    return {
+        AND: [
+            { organization: { id: newsItem.organization } },
+            {
+                OR: newsItemScopes.map((scope) => {
+                    const propertyId = get(scope, 'property')
+                    const unitType = get(scope, 'unitType')
+                    const unitName = get(scope, 'unitName')
+
+                    const AND = []
+
+                    if (propertyId) {
+                        AND.push({ property: { id: propertyId } })
+                    }
+
+                    if (unitType) {
+                        AND.push({ unitType })
+                    }
+
+                    if (unitName) {
+                        AND.push({ unitName })
+                    }
+
+                    return { AND }
+                }),
+            },
+        ],
+    }
+}
+
 module.exports = {
     queryFindNewsItemsScopesByResidents,
+    queryFindResidentsByNewsItemAndScopes,
 }

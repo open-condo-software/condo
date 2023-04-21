@@ -1547,6 +1547,8 @@
   "api.banking.createBankAccountRequest.INCORRECT_PROPERTY_ID": "Неверное значение propertyId. Данный дом не принадлежит выбранной организации",
   "api.incident.WORK_FINISH_EARLY_THAN_WORK_START": "Окончание работ не может быть раньше начала",
   "api.newsItem.EMPTY_VALID_BEFORE_DATE": "Дата актуальности новости обязательна",
+  "api.newsItem.EDIT_DENIED_ALREADY_SENT": "Нельзя редактировать уже отправленную новость",
+  "api.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE": "Дата актуальности меньше чем дата отправки",
   "api.ticket.QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE": "Дополнительные параметры контроля качества должны соответсоввать указанной оценке",
   "api.ticket.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED": "При указании комментария или дополнительных параметров оценки нужно указать саму оценку",
   "excelExport.header.contacts.forAllTime": "Контакты за всё время",
