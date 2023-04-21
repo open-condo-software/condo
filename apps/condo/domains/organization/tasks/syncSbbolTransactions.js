@@ -16,7 +16,7 @@ const { UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema
 
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'syncSbbolTransactions' } }
 
-async function bankSyncTaskUpdateStatus (context, taskId, status) {
+async function updateStatusOfBankSyncTask (context, taskId, status) {
     return await BankSyncTask.update(context, taskId, {
         status,
         ...dvAndSender,
@@ -68,18 +68,22 @@ async function syncSbbolTransactionsBankSyncTask (dateInterval, userId, organiza
     const { keystone: context } = await getSchemaCtx('User')
 
     if (!dateInterval || !userId || !organization || !taskId) {
-        await bankSyncTaskUpdateStatus(context, taskId, BANK_SYNC_TASK_STATUS.ERROR)
+        await updateStatusOfBankSyncTask(context, taskId, BANK_SYNC_TASK_STATUS.ERROR)
         throw new Error('Missing setup args')
     }
 
     try {
-        await requestTransactions({ dateInterval, userId, organization })
+        await requestTransactions({ dateInterval, userId, organization, bankSyncTaskId: taskId })
     } catch (e) {
-        await bankSyncTaskUpdateStatus(context, taskId, BANK_SYNC_TASK_STATUS.ERROR)
+        await updateStatusOfBankSyncTask(context, taskId, BANK_SYNC_TASK_STATUS.ERROR)
         throw new Error(`Cannot requestTransactions. ${e}`)
     }
-
-    await bankSyncTaskUpdateStatus(context, taskId, BANK_SYNC_TASK_STATUS.COMPLETED)
+    const bankSyncTask = await BankSyncTask.getOne(context, {
+        id: taskId,
+    })
+    if (bankSyncTask.status !== BANK_SYNC_TASK_STATUS.ERROR || bankSyncTask.status !== BANK_SYNC_TASK_STATUS.CANCELLED) {
+        await updateStatusOfBankSyncTask(context, taskId, BANK_SYNC_TASK_STATUS.COMPLETED)
+    }
 }
 
 module.exports = {
