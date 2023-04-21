@@ -202,6 +202,7 @@ const importBankTransactionsWorker = async (taskId) => {
             purpose: transactionData.purpose,
             currencyCode: 'RUB',
             amount: transactionData.amount.toString(),
+            // NOTE(antonal): 1CClientBankExchange does not have required field with some unique identifier, rely on value from "number" field
             importId: transactionData.number,
             importRemoteSystem: _1C_CLIENT_BANK_EXCHANGE,
             organization: { connect: { id: organization.id } },
