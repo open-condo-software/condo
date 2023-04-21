@@ -4,6 +4,24 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+    
+    -- Before applying unique constraint "Bank_transaction_unique_number_date_organization" all duplicated records should be deleted 
+    DELETE FROM "BankTransaction" t1
+    USING "BankTransaction" t2
+    WHERE
+        t1.id != t2.id AND
+        t1.organization = t2.organization AND
+        t1.number = t2.number AND
+        t1.date = t2.date;
+        
+    -- Before applying unique constraint "Bank_transaction_unique_importId_importRemoteSystem_organization" all duplicated records should be deleted 
+    DELETE FROM "BankTransaction" t1
+    USING "BankTransaction" t2
+    WHERE
+        t1.id != t2.id AND
+        t1.organization = t2.organization AND
+        t1."importId" = t2."importId" AND
+        t1."importRemoteSystem" = t2."importRemoteSystem";
 --
 -- Create constraint Bank_transaction_unique_number_date_organization on model banktransaction
 --
