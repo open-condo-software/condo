@@ -11,12 +11,14 @@ const {
     UUID_RE,
     DATETIME_RE,
     expectToThrowGQLError,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const { NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const {
     NewsItem,
@@ -555,6 +557,37 @@ describe('NewsItems', () => {
                     messageForUser: 'api.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE',
                 },
             )
+        })
+    })
+
+    describe('Delayed news items', () => {
+        test('delayed news item will shown in time', async () => {
+            const residentClient1 = await makeClientWithResidentUser()
+            const [o10n] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, o10n)
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+
+            await createTestResident(adminClient, residentClient1.user, property, {
+                unitType: unitType1,
+                unitName: unitName1,
+            })
+
+            const [newsItem] = await createTestNewsItem(
+                adminClient,
+                o10n,
+                { sendAt: dayjs().add(5, 'second').toISOString() },
+            )
+            await createTestNewsItemScope(adminClient, newsItem)
+
+            const newsItemsBeforePublish = await NewsItem.getAll(residentClient1, {})
+            expect(newsItemsBeforePublish).toHaveLength(0)
+
+            await waitFor(async () => {
+                const newsItemsAfterPublish = await NewsItem.getAll(residentClient1, {})
+                expect(newsItemsAfterPublish).toHaveLength(1)
+            }, { delay: (SENDING_DELAY_SEC + 1) * 1000 })
         })
     })
 })

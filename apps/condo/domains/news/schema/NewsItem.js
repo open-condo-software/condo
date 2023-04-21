@@ -15,7 +15,6 @@ const {
     VALIDITY_DATE_LESS_THAN_SEND_DATE,
 } = require('@condo/domains/news/constants/errors')
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
-const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem')
 
 const ERRORS = {
     EMPTY_VALID_BEFORE_DATE: {
@@ -84,11 +83,6 @@ const NewsItem = new GQLListSchema('NewsItem', {
             type: 'DateTimeUtc',
         },
 
-        sentAt: {
-            schemaDoc: 'The date when newsItem was sent to residents',
-            type: 'DateTimeUtc',
-        },
-
         scopes: {
             type: 'Relationship',
             ref: 'NewsItemScope.newsItem',
@@ -123,11 +117,6 @@ const NewsItem = new GQLListSchema('NewsItem', {
 
             if (sendAt && validBefore && Date.parse(validBefore) < Date.parse(sendAt)) {
                 throw new GQLError(ERRORS.VALIDITY_DATE_LESS_THAN_SEND_DATE, context)
-            }
-        },
-        afterChange: async ({ context, operation, existingItem, updatedItem }) => {
-            if (!updatedItem.sendAt && !updatedItem.sentAt) {
-                await notifyResidentsAboutNewsItem.delay(updatedItem.id)
             }
         },
     },

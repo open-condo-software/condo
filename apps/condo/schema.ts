@@ -37591,8 +37591,6 @@ export type NewsItem = {
   validBefore?: Maybe<Scalars['String']>;
   /**  Date to publish the news item and to send notifications  */
   sendAt?: Maybe<Scalars['String']>;
-  /**  The date when newsItem was sent to residents  */
-  sentAt?: Maybe<Scalars['String']>;
   scopes: Array<NewsItemScope>;
   _scopesMeta?: Maybe<_QueryMeta>;
   id: Scalars['ID'];
@@ -37640,7 +37638,6 @@ export type NewsItemCreateInput = {
   type?: Maybe<NewsItemTypeType>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  sentAt?: Maybe<Scalars['String']>;
   scopes?: Maybe<NewsItemScopeRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -37670,7 +37667,6 @@ export type NewsItemHistoryRecord = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  sentAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -37693,7 +37689,6 @@ export type NewsItemHistoryRecordCreateInput = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  sentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37721,7 +37716,6 @@ export type NewsItemHistoryRecordUpdateInput = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  sentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -37813,14 +37807,6 @@ export type NewsItemHistoryRecordWhereInput = {
   sendAt_gte?: Maybe<Scalars['String']>;
   sendAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sendAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  sentAt?: Maybe<Scalars['String']>;
-  sentAt_not?: Maybe<Scalars['String']>;
-  sentAt_lt?: Maybe<Scalars['String']>;
-  sentAt_lte?: Maybe<Scalars['String']>;
-  sentAt_gt?: Maybe<Scalars['String']>;
-  sentAt_gte?: Maybe<Scalars['String']>;
-  sentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  sentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -38705,7 +38691,6 @@ export type NewsItemUpdateInput = {
   type?: Maybe<NewsItemTypeType>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
-  sentAt?: Maybe<Scalars['String']>;
   scopes?: Maybe<NewsItemScopeRelateToManyInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -39086,14 +39071,6 @@ export type NewsItemWhereInput = {
   sendAt_gte?: Maybe<Scalars['String']>;
   sendAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sendAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  sentAt?: Maybe<Scalars['String']>;
-  sentAt_not?: Maybe<Scalars['String']>;
-  sentAt_lt?: Maybe<Scalars['String']>;
-  sentAt_lte?: Maybe<Scalars['String']>;
-  sentAt_gt?: Maybe<Scalars['String']>;
-  sentAt_gte?: Maybe<Scalars['String']>;
-  sentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  sentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   /**  condition must be true for all nodes  */
   scopes_every?: Maybe<NewsItemScopeWhereInput>;
   /**  condition must be true for at least 1 node  */
@@ -59631,8 +59608,6 @@ export enum SortNewsItemHistoryRecordsBy {
   ValidBeforeDesc = 'validBefore_DESC',
   SendAtAsc = 'sendAt_ASC',
   SendAtDesc = 'sendAt_DESC',
-  SentAtAsc = 'sentAt_ASC',
-  SentAtDesc = 'sentAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -59804,8 +59779,6 @@ export enum SortNewsItemsBy {
   ValidBeforeDesc = 'validBefore_DESC',
   SendAtAsc = 'sendAt_ASC',
   SendAtDesc = 'sendAt_DESC',
-  SentAtAsc = 'sentAt_ASC',
-  SentAtDesc = 'sentAt_DESC',
   ScopesAsc = 'scopes_ASC',
   ScopesDesc = 'scopes_DESC',
   IdAsc = 'id_ASC',
