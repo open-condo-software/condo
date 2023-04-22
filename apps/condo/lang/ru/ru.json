@@ -1872,5 +1872,21 @@
   "incident.changeHistory.workStart": "дату начала работ",
   "incident.changeHistory.workFinish": "дату завершения работ",
   "incident.changeHistory.workType": "тип работ",
-  "incident.hints.more.label": "Подробнее"
+  "incident.hints.more.label": "Подробнее",
+  "rb.selfservice.offerPage.Title": "Оферта о комиссии",
+  "rb.selfservice.offerPage.Alert.Title": "Выберите процент комиссии перед публикацией начислений",
+  "rb.selfservice.offerPage.Alert.Text": "Сделать это нужно один раз. Последующие публикации будут учитывать ваш выбор и условия оферты.",
+  "rb.selfservice.offerPage.Subtitle": "Комиссия",
+  "rb.selfservice.offerPage.Subtitle.Text": "Выберите тип комиссии, которая будет взиматься с вас или жителя:",
+  "rb.selfservice.offerPage.UpperFee.Info": "Верхняя комиссия, взимается с жителя",
+  "rb.selfservice.offerPage.LowerFee.Info": "Нижняя комиссия, взимается с вас",
+  "rb.selfservice.offerPage.Info.Title": "Информирование о новом платеже",
+  "rb.selfservice.offerPage.Info.Text": "На указанную почту будет приходить детализация по оплатам жителей. Также эта информация отобразится в разделе «Начисления и оплаты».",
+  "rb.selfservice.offerPage.Email": "E-mail (можно указать несколько адресов через запятую)",
+  "rb.selfservice.offerPage.Rules.RulesLink": "Правила системы по приему платежей за жилищно-коммунальные и прочие услуги",
+  "rb.selfservice.offerPage.Rules.OfferLink": "Договор оферты на присоединение поставщика услуг к правилам",
+  "rb.selfservice.offerPage.Rules": "Я принимаю {rulesLink} и {offerLink}",
+  "rb.selfservice.offerPage.DownloadOfferButton": "Скачать оферту",
+  "rb.selfservice.offerPage.SignOfferButton": "Подписать оферту",
+  "condorb.emails.invalidMessage": "Неверный формат E-mail адресов"
 }
