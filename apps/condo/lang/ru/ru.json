@@ -1886,5 +1886,6 @@
   "incident.changeHistory.workStart": "дату начала работ",
   "incident.changeHistory.workFinish": "дату завершения работ",
   "incident.changeHistory.workType": "тип работ",
-  "incident.hints.more.label": "Подробнее"
+  "incident.hints.more.label": "Подробнее",
+  "condorb.emails.invalidMessage": "Неверный формат E-mail адресов"
 }
