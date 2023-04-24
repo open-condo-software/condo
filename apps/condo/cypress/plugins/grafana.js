@@ -4,7 +4,7 @@
 
 const fetch = require('isomorphic-fetch')
 
-const totalTargetConfig = {
+const TOTAL_TARGET_CONFIG = {
     'datasource': {
         'name': 'Expression',
         'type': '__expr__',
@@ -16,7 +16,7 @@ const totalTargetConfig = {
     'type': 'math',
 }
 
-const panelConfig = {
+const PANEL_CONFIG = {
     'datasource': {
         'type': 'prometheus',
         'uid': 'P4169E866C3094E38',
@@ -127,7 +127,7 @@ const panelConfig = {
     'type': 'timeseries',
 }
 
-const targetConfig = {
+const TARGET_CONFIG = {
     'datasource': {
         'type': 'prometheus',
         'uid': 'P4169E866C3094E38',
@@ -141,6 +141,110 @@ const targetConfig = {
     'range': true,
     'refId': '',
 }
+
+
+const getRequestHeaders = (apiKey) => {
+    return {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + apiKey,
+    }
+}
+
+const getNewDashboardPanelConfigFromTraces = (traces) => {
+
+    const panels = traces.map(trace => {
+        const newPanel = { ...{}, ...PANEL_CONFIG }
+
+        newPanel.id = null
+        newPanel.title = trace.name
+        newPanel.targets = []
+
+        trace.spans.forEach(span => {
+            const target = { ...{}, ...TARGET_CONFIG }
+            target.expr = ('condo_test_cypress_' + span.fullName + '_avg').replaceAll('.', '_')
+            target.legendFormat = span.name
+            target.refId = newPanel.targets.length.toString()
+            newPanel.targets.push(target)
+            console.log(`Pushed new target: ${span.name} : ${span.fullName} : ${target}`)
+        })
+
+        const totalTarget = { ...{}, ...TOTAL_TARGET_CONFIG }
+        totalTarget.expression = newPanel.targets.map(t => '$' + t.refId).join('+')
+        newPanel.targets.push(totalTarget)
+
+        return newPanel
+    })
+
+    return panels
+}
+
+const getOldGrafanaDashboard = async ({ apiUrl, apiKey, dashboardUid }) => {
+    const dashboardResponse = await fetch(`${apiUrl}/dashboards/uid/${dashboardUid}`, { headers: getRequestHeaders(apiKey) })
+
+    let dashboard = null
+    if (dashboardResponse.status === 200) {
+        const dashboardResponseParsed = await dashboardResponse.json()
+        dashboard = dashboardResponseParsed.dashboard
+        return dashboard
+    } else {
+        throw new Error(`Couldn't get dashboard by uid! Status-code: ${dashboardResponse.status}`)
+    }
+}
+
+const updateGrafanaDashboard = async (newDashboard, { apiUrl, apiKey, dashboardUid }) => {
+
+    const updateDashboardMessage = 'Update Dashboard from cypress integration'
+
+    const postDashboardResponse = await fetch(
+        `${apiUrl}/dashboards/db`,
+        {
+            headers: getRequestHeaders(apiKey),
+            method: 'POST',
+            body: JSON.stringify({
+                dashboard: newDashboard,
+                message: updateDashboardMessage,
+                overwrite: true,
+            }),
+        },
+    )
+    if (postDashboardResponse.status === 200) {
+        return postDashboardResponse.json()
+    } else {
+        throw new Error(`Couldn't update dashboard by uid! Status-code: ${postDashboardResponse.status}`)
+    }
+
+}
+
+const syncGrafanaDashboard = async (traces, config) => {
+    const {
+        apiUrl,
+        apiKey,
+        dashboardUid,
+        enable,
+    } = config
+
+    if (!enable) {
+        console.log('Cypress to Grafana plugin is disabled')
+        return null
+    }
+
+    const oldDashboard = await getOldGrafanaDashboard(config)
+
+    const newPanelConfig = getNewDashboardPanelConfigFromTraces(traces)
+
+    const newDashboard = oldDashboard
+    newDashboard.panels = newPanelConfig
+
+    const response = await updateGrafanaDashboard(newDashboard, config)
+
+    console.log(response)
+}
+
+
+
+// *** //
+
 
 
 /**
@@ -191,14 +295,14 @@ module.exports = async (on, config) => {
 
             // CREATE NEW PANEL
 
-            const newPanel = { ...{}, ...panelConfig }
+            const newPanel = { ...{}, ...PANEL_CONFIG }
 
             newPanel.id = null
             newPanel.title = traceName
             newPanel.targets = []
 
             spans.forEach(span => {
-                const target = { ...{}, ...targetConfig }
+                const target = { ...{}, ...TARGET_CONFIG }
                 target.expr = ('condo_test_cypress_' + span.fullName + '_avg').replaceAll('.', '_')
                 target.legendFormat = span.name
                 target.refId = newPanel.targets.length.toString()
@@ -206,7 +310,7 @@ module.exports = async (on, config) => {
                 console.log(`Pushed new target: ${span.name} : ${span.fullName} : ${target}`)
             })
 
-            const totalTarget = { ...{}, ...totalTargetConfig }
+            const totalTarget = { ...{}, ...TOTAL_TARGET_CONFIG }
             totalTarget.expression = newPanel.targets.map(t => '$' + t.refId).join('+')
             newPanel.targets.push(totalTarget)
 
