@@ -511,6 +511,47 @@ describe('NewsItems', () => {
                 },
             )
         })
+
+        test('must throw an error on trying to edit the news item which already been sent', async () => {
+            const [sentNewsItem] = await createTestNewsItem(adminClient, dummyO10n, { sentAt: dayjs().toISOString() })
+            await expectToThrowGQLError(
+                async () => await updateTestNewsItem(adminClient, sentNewsItem.id, { title: faker.lorem.words(3) }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'EDIT_DENIED_ALREADY_SENT',
+                    message: 'The sent news item is restricted from editing',
+                    mutation: 'updateNewsItem',
+                    messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
+                },
+            )
+        })
+
+        test('must throw an error on trying to edit the published news item', async () => {
+            const [sentNewsItem] = await createTestNewsItem(adminClient, dummyO10n, { isPublished: true })
+            await expectToThrowGQLError(
+                async () => await updateTestNewsItem(adminClient, sentNewsItem.id, { title: faker.lorem.words(3) }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'EDIT_DENIED_PUBLISHED',
+                    message: 'The published news item is restricted from editing',
+                    mutation: 'updateNewsItem',
+                    messageForUser: 'api.newsItem.EDIT_DENIED_PUBLISHED',
+                },
+            )
+        })
+
+        test('must throw an error if send date is wrong', async () => {
+            await expectToThrowGQLError(
+                async () => await createTestNewsItem(adminClient, dummyO10n, { sendAt: dayjs().subtract(10, 'second').toISOString() }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'WRONG_SEND_DATE',
+                    message: 'The send date is wrong',
+                    mutation: 'updateNewsItem',
+                    messageForUser: 'api.newsItem.WRONG_SEND_DATE',
+                },
+            )
+        })
     })
 
     describe('Delayed news items', () => {
