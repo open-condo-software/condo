@@ -38,10 +38,10 @@ const { EXCEL } = require('@condo/domains/common/constants/export')
 const { Incident: IncidentGQL } = require('@condo/domains/ticket/gql')
 const { IncidentProperty: IncidentPropertyGQL } = require('@condo/domains/ticket/gql')
 const { IncidentChange: IncidentChangeGQL } = require('@condo/domains/ticket/gql')
-const { EXPORT_INCIDENTS_TO_EXCEL_QUERY } = require('@condo/domains/ticket/gql')
 const { IncidentClassifier: IncidentClassifierGQL } = require('@condo/domains/ticket/gql')
 const { IncidentClassifierIncident: IncidentClassifierIncidentGQL } = require('@condo/domains/ticket/gql')
 const { UserFavoriteTicket: UserFavoriteTicketGQL } = require('@condo/domains/ticket/gql')
+const { IncidentExportTask: IncidentExportTaskGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -72,6 +72,7 @@ const IncidentChange = generateGQLTestUtils(IncidentChangeGQL)
 const IncidentClassifier = generateGQLTestUtils(IncidentClassifierGQL)
 const IncidentClassifierIncident = generateGQLTestUtils(IncidentClassifierIncidentGQL)
 const UserFavoriteTicket = generateGQLTestUtils(UserFavoriteTicketGQL)
+const IncidentExportTask = generateGQLTestUtils(IncidentExportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -747,20 +748,6 @@ async function updateTestIncidentChange (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function exportIncidentsToExcelByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(EXPORT_INCIDENTS_TO_EXCEL_QUERY, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
-
 async function createTestIncidentClassifier (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -853,6 +840,40 @@ async function updateTestUserFavoriteTicket (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestIncidentExportTask (client, user, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        format: EXCEL,
+        where: {},
+        sortBy: ['createdAt_DESC'],
+        locale: faker.random.locale(),
+        timeZone: 'Europe/Moscow',
+        user: { connect: { id: user.id } },
+        ...extraAttrs,
+    }
+    const obj = await IncidentExportTask.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestIncidentExportTask (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await IncidentExportTask.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -900,9 +921,9 @@ module.exports = {
     Incident, createTestIncident, updateTestIncident,
     IncidentProperty, createTestIncidentProperty, updateTestIncidentProperty,
     IncidentChange, createTestIncidentChange, updateTestIncidentChange,
-    exportIncidentsToExcelByTestClient,
     IncidentClassifier, createTestIncidentClassifier, updateTestIncidentClassifier,
     IncidentClassifierIncident, createTestIncidentClassifierIncident, updateTestIncidentClassifierIncident,
     UserFavoriteTicket, createTestUserFavoriteTicket, updateTestUserFavoriteTicket,
+    IncidentExportTask, createTestIncidentExportTask, updateTestIncidentExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

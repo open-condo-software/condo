@@ -31804,6 +31804,647 @@ input UserFavoriteTicketsCreateInput {
   data: UserFavoriteTicketCreateInput
 }
 
+enum IncidentExportTaskHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type IncidentExportTaskHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the IncidentExportTaskHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the IncidentExportTaskHistoryRecord List config, or
+   3. As an alias to a 'name' field on the IncidentExportTaskHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the IncidentExportTaskHistoryRecord List.
+  """
+  _label_: String
+  status: String
+  format: String
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: JSON
+  meta: JSON
+  where: JSON
+  sortBy: JSON
+  locale: String
+  timeZone: String
+  user: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: IncidentExportTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input IncidentExportTaskHistoryRecordWhereInput {
+  AND: [IncidentExportTaskHistoryRecordWhereInput]
+  OR: [IncidentExportTaskHistoryRecordWhereInput]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  format: String
+  format_not: String
+  format_contains: String
+  format_not_contains: String
+  format_starts_with: String
+  format_not_starts_with: String
+  format_ends_with: String
+  format_not_ends_with: String
+  format_i: String
+  format_not_i: String
+  format_contains_i: String
+  format_not_contains_i: String
+  format_starts_with_i: String
+  format_not_starts_with_i: String
+  format_ends_with_i: String
+  format_not_ends_with_i: String
+  format_in: [String]
+  format_not_in: [String]
+  exportedRecordsCount: Int
+  exportedRecordsCount_not: Int
+  exportedRecordsCount_lt: Int
+  exportedRecordsCount_lte: Int
+  exportedRecordsCount_gt: Int
+  exportedRecordsCount_gte: Int
+  exportedRecordsCount_in: [Int]
+  exportedRecordsCount_not_in: [Int]
+  totalRecordsCount: Int
+  totalRecordsCount_not: Int
+  totalRecordsCount_lt: Int
+  totalRecordsCount_lte: Int
+  totalRecordsCount_gt: Int
+  totalRecordsCount_gte: Int
+  totalRecordsCount_in: [Int]
+  totalRecordsCount_not_in: [Int]
+  file: JSON
+  file_not: JSON
+  file_in: [JSON]
+  file_not_in: [JSON]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  where: JSON
+  where_not: JSON
+  where_in: [JSON]
+  where_not_in: [JSON]
+  sortBy: JSON
+  sortBy_not: JSON
+  sortBy_in: [JSON]
+  sortBy_not_in: [JSON]
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
+  timeZone: String
+  timeZone_not: String
+  timeZone_contains: String
+  timeZone_not_contains: String
+  timeZone_starts_with: String
+  timeZone_not_starts_with: String
+  timeZone_ends_with: String
+  timeZone_not_ends_with: String
+  timeZone_i: String
+  timeZone_not_i: String
+  timeZone_contains_i: String
+  timeZone_not_contains_i: String
+  timeZone_starts_with_i: String
+  timeZone_not_starts_with_i: String
+  timeZone_ends_with_i: String
+  timeZone_not_ends_with_i: String
+  timeZone_in: [String]
+  timeZone_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: IncidentExportTaskHistoryRecordHistoryActionType
+  history_action_not: IncidentExportTaskHistoryRecordHistoryActionType
+  history_action_in: [IncidentExportTaskHistoryRecordHistoryActionType]
+  history_action_not_in: [IncidentExportTaskHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input IncidentExportTaskHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortIncidentExportTaskHistoryRecordsBy {
+  status_ASC
+  status_DESC
+  format_ASC
+  format_DESC
+  exportedRecordsCount_ASC
+  exportedRecordsCount_DESC
+  totalRecordsCount_ASC
+  totalRecordsCount_DESC
+  locale_ASC
+  locale_DESC
+  timeZone_ASC
+  timeZone_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input IncidentExportTaskHistoryRecordUpdateInput {
+  status: String
+  format: String
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: JSON
+  meta: JSON
+  where: JSON
+  sortBy: JSON
+  locale: String
+  timeZone: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: IncidentExportTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input IncidentExportTaskHistoryRecordsUpdateInput {
+  id: ID!
+  data: IncidentExportTaskHistoryRecordUpdateInput
+}
+
+input IncidentExportTaskHistoryRecordCreateInput {
+  status: String
+  format: String
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: JSON
+  meta: JSON
+  where: JSON
+  sortBy: JSON
+  locale: String
+  timeZone: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: IncidentExportTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input IncidentExportTaskHistoryRecordsCreateInput {
+  data: IncidentExportTaskHistoryRecordCreateInput
+}
+
+enum IncidentExportTaskStatusType {
+  processing
+  completed
+  error
+  cancelled
+}
+
+enum IncidentExportTaskFormatType {
+  excel
+}
+
+""" Stores requested export format, status of export job, link to exported file and information about progress of export job 
+"""
+type IncidentExportTask {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the IncidentExportTask List config, or
+   2. As an alias to the field set on 'labelField' in the IncidentExportTask List config, or
+   3. As an alias to a 'name' field on the IncidentExportTask List (if one exists), or
+   4. As an alias to the 'id' field on the IncidentExportTask List.
+  """
+  _label_: String
+
+  """ Status of the job. Used at client side progress information component 
+  """
+  status: IncidentExportTaskStatusType
+
+  """ Requested export file format """
+  format: IncidentExportTaskFormatType
+
+  """ How many records at the moment are exported """
+  exportedRecordsCount: Int
+
+  """ Total records to export that will be determined at server side in export operation 
+  """
+  totalRecordsCount: Int
+
+  """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
+  """
+  file: File
+
+  """ Stores information about query and ids of exported and failed records 
+  """
+  meta: JSON
+
+  """ Filtering conditions for records to export """
+  where: JSON
+
+  """ Sorting parameters for records to export """
+  sortBy: JSON
+
+  """ Requested export locale, in that the resulting file will be rendered """
+  locale: String
+
+  """ To requested timeZone all datetime fields will be converted """
+  timeZone: String
+
+  """ User that requested this exporting operation. Will be used for read access checks to display all exported tasks somewhere and to display progress indicator of ongoing exporting task for current user 
+  """
+  user: User
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input IncidentExportTaskWhereInput {
+  AND: [IncidentExportTaskWhereInput]
+  OR: [IncidentExportTaskWhereInput]
+  status: IncidentExportTaskStatusType
+  status_not: IncidentExportTaskStatusType
+  status_in: [IncidentExportTaskStatusType]
+  status_not_in: [IncidentExportTaskStatusType]
+  format: IncidentExportTaskFormatType
+  format_not: IncidentExportTaskFormatType
+  format_in: [IncidentExportTaskFormatType]
+  format_not_in: [IncidentExportTaskFormatType]
+  exportedRecordsCount: Int
+  exportedRecordsCount_not: Int
+  exportedRecordsCount_lt: Int
+  exportedRecordsCount_lte: Int
+  exportedRecordsCount_gt: Int
+  exportedRecordsCount_gte: Int
+  exportedRecordsCount_in: [Int]
+  exportedRecordsCount_not_in: [Int]
+  totalRecordsCount: Int
+  totalRecordsCount_not: Int
+  totalRecordsCount_lt: Int
+  totalRecordsCount_lte: Int
+  totalRecordsCount_gt: Int
+  totalRecordsCount_gte: Int
+  totalRecordsCount_in: [Int]
+  totalRecordsCount_not_in: [Int]
+  file: String
+  file_not: String
+  file_in: [String]
+  file_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  where: JSON
+  where_not: JSON
+  where_in: [JSON]
+  where_not_in: [JSON]
+  sortBy: JSON
+  sortBy_not: JSON
+  sortBy_in: [JSON]
+  sortBy_not_in: [JSON]
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
+  timeZone: String
+  timeZone_not: String
+  timeZone_contains: String
+  timeZone_not_contains: String
+  timeZone_starts_with: String
+  timeZone_not_starts_with: String
+  timeZone_ends_with: String
+  timeZone_not_ends_with: String
+  timeZone_i: String
+  timeZone_not_i: String
+  timeZone_contains_i: String
+  timeZone_not_contains_i: String
+  timeZone_starts_with_i: String
+  timeZone_not_starts_with_i: String
+  timeZone_ends_with_i: String
+  timeZone_not_ends_with_i: String
+  timeZone_in: [String]
+  timeZone_not_in: [String]
+  user: UserWhereInput
+  user_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input IncidentExportTaskWhereUniqueInput {
+  id: ID!
+}
+
+enum SortIncidentExportTasksBy {
+  status_ASC
+  status_DESC
+  format_ASC
+  format_DESC
+  exportedRecordsCount_ASC
+  exportedRecordsCount_DESC
+  totalRecordsCount_ASC
+  totalRecordsCount_DESC
+  locale_ASC
+  locale_DESC
+  timeZone_ASC
+  timeZone_DESC
+  user_ASC
+  user_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input IncidentExportTaskUpdateInput {
+  status: IncidentExportTaskStatusType
+  format: IncidentExportTaskFormatType
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: Upload
+  meta: JSON
+  where: JSON
+  sortBy: JSON
+  locale: String
+  timeZone: String
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input IncidentExportTasksUpdateInput {
+  id: ID!
+  data: IncidentExportTaskUpdateInput
+}
+
+input IncidentExportTaskCreateInput {
+  status: IncidentExportTaskStatusType
+  format: IncidentExportTaskFormatType
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: Upload
+  meta: JSON
+  where: JSON
+  sortBy: JSON
+  locale: String
+  timeZone: String
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input IncidentExportTasksCreateInput {
+  data: IncidentExportTaskCreateInput
+}
+
 enum MessageHistoryRecordHistoryActionType {
   c
   u
@@ -57492,19 +58133,6 @@ input PredictTicketClassificationInput {
   details: String!
 }
 
-input ExportIncidentsToExcelInput {
-  dv: Int!
-  sender: SenderFieldInput!
-  where: IncidentWhereInput!
-  sortBy: [SortIncidentsBy!]
-  timeZone: String
-}
-
-type ExportIncidentsToExcelOutput {
-  status: String!
-  linkToFile: String!
-}
-
 enum SendMessageLang {
   ru
   en
@@ -59606,6 +60234,35 @@ type Query {
   """ Retrieve the meta-data for the UserFavoriteTicket list. """
   _UserFavoriteTicketsMeta: _ListMeta
 
+  """ Search for all IncidentExportTaskHistoryRecord items which match the where clause. 
+  """
+  allIncidentExportTaskHistoryRecords(where: IncidentExportTaskHistoryRecordWhereInput, search: String, sortBy: [SortIncidentExportTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [IncidentExportTaskHistoryRecord]
+
+  """ Search for the IncidentExportTaskHistoryRecord item with the matching ID. 
+  """
+  IncidentExportTaskHistoryRecord(where: IncidentExportTaskHistoryRecordWhereUniqueInput!): IncidentExportTaskHistoryRecord
+
+  """ Perform a meta-query on all IncidentExportTaskHistoryRecord items which match the where clause. 
+  """
+  _allIncidentExportTaskHistoryRecordsMeta(where: IncidentExportTaskHistoryRecordWhereInput, search: String, sortBy: [SortIncidentExportTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the IncidentExportTaskHistoryRecord list. """
+  _IncidentExportTaskHistoryRecordsMeta: _ListMeta
+
+  """ Search for all IncidentExportTask items which match the where clause. 
+  """
+  allIncidentExportTasks(where: IncidentExportTaskWhereInput, search: String, sortBy: [SortIncidentExportTasksBy!], orderBy: String, first: Int, skip: Int): [IncidentExportTask]
+
+  """ Search for the IncidentExportTask item with the matching ID. """
+  IncidentExportTask(where: IncidentExportTaskWhereUniqueInput!): IncidentExportTask
+
+  """ Perform a meta-query on all IncidentExportTask items which match the where clause. 
+  """
+  _allIncidentExportTasksMeta(where: IncidentExportTaskWhereInput, search: String, sortBy: [SortIncidentExportTasksBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the IncidentExportTask list. """
+  _IncidentExportTasksMeta: _ListMeta
+
   """ Search for all MessageHistoryRecord items which match the where clause. 
   """
   allMessageHistoryRecords(where: MessageHistoryRecordWhereInput, search: String, sortBy: [SortMessageHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MessageHistoryRecord]
@@ -61053,7 +61710,6 @@ type Query {
   """
   predictTransactionClassification(data: PredictTransactionClassificationInput!): PredictTransactionClassificationOutput
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
-  exportIncidentsToExcel(data: ExportIncidentsToExcelInput!): ExportIncidentsToExcelOutput
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
@@ -63094,6 +63750,42 @@ type Mutation {
 
   """ Delete multiple UserFavoriteTicket items by ID. """
   deleteUserFavoriteTickets(ids: [ID!]): [UserFavoriteTicket]
+
+  """ Create a single IncidentExportTaskHistoryRecord item. """
+  createIncidentExportTaskHistoryRecord(data: IncidentExportTaskHistoryRecordCreateInput): IncidentExportTaskHistoryRecord
+
+  """ Create multiple IncidentExportTaskHistoryRecord items. """
+  createIncidentExportTaskHistoryRecords(data: [IncidentExportTaskHistoryRecordsCreateInput]): [IncidentExportTaskHistoryRecord]
+
+  """ Update a single IncidentExportTaskHistoryRecord item by ID. """
+  updateIncidentExportTaskHistoryRecord(id: ID!, data: IncidentExportTaskHistoryRecordUpdateInput): IncidentExportTaskHistoryRecord
+
+  """ Update multiple IncidentExportTaskHistoryRecord items by ID. """
+  updateIncidentExportTaskHistoryRecords(data: [IncidentExportTaskHistoryRecordsUpdateInput]): [IncidentExportTaskHistoryRecord]
+
+  """ Delete a single IncidentExportTaskHistoryRecord item by ID. """
+  deleteIncidentExportTaskHistoryRecord(id: ID!): IncidentExportTaskHistoryRecord
+
+  """ Delete multiple IncidentExportTaskHistoryRecord items by ID. """
+  deleteIncidentExportTaskHistoryRecords(ids: [ID!]): [IncidentExportTaskHistoryRecord]
+
+  """ Create a single IncidentExportTask item. """
+  createIncidentExportTask(data: IncidentExportTaskCreateInput): IncidentExportTask
+
+  """ Create multiple IncidentExportTask items. """
+  createIncidentExportTasks(data: [IncidentExportTasksCreateInput]): [IncidentExportTask]
+
+  """ Update a single IncidentExportTask item by ID. """
+  updateIncidentExportTask(id: ID!, data: IncidentExportTaskUpdateInput): IncidentExportTask
+
+  """ Update multiple IncidentExportTask items by ID. """
+  updateIncidentExportTasks(data: [IncidentExportTasksUpdateInput]): [IncidentExportTask]
+
+  """ Delete a single IncidentExportTask item by ID. """
+  deleteIncidentExportTask(id: ID!): IncidentExportTask
+
+  """ Delete multiple IncidentExportTask items by ID. """
+  deleteIncidentExportTasks(ids: [ID!]): [IncidentExportTask]
 
   """ Create a single MessageHistoryRecord item. """
   createMessageHistoryRecord(data: MessageHistoryRecordCreateInput): MessageHistoryRecord

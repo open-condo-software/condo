@@ -215,12 +215,6 @@ const INCIDENT_CHANGE_DATA_FIELDS = [
 const INCIDENT_CHANGE_FIELDS = `{ incident { id } ${COMMON_CHANGE_HISTORY_FIELDS} ${INCIDENT_CHANGE_DATA_FIELDS.join(' ')} }`
 const IncidentChange = generateGqlQueries('IncidentChange', INCIDENT_CHANGE_FIELDS)
 
-const EXPORT_INCIDENTS_TO_EXCEL_QUERY = gql`
-    query exportIncidentsToExcel($data: ExportIncidentsToExcelInput!) {
-        result: exportIncidentsToExcel(data: $data) { status, linkToFile }
-    }
-`
-
 const INCIDENT_CLASSIFIER_FIELDS = `{ organization { id name } category { id name } problem { id name } ${COMMON_FIELDS} }`
 const IncidentClassifier = generateGqlQueries('IncidentClassifier', INCIDENT_CLASSIFIER_FIELDS)
 
@@ -229,6 +223,9 @@ const IncidentClassifierIncident = generateGqlQueries('IncidentClassifierInciden
 
 const USER_FAVORITE_TICKET_FIELDS = `{ user { id } ticket { id } ${COMMON_FIELDS} }`
 const UserFavoriteTicket = generateGqlQueries('UserFavoriteTicket', USER_FAVORITE_TICKET_FIELDS)
+
+const INCIDENT_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone __typename user { id } ${COMMON_FIELDS} }`
+const IncidentExportTask = generateGqlQueries('IncidentExportTask', INCIDENT_EXPORT_TASK_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
@@ -260,9 +257,9 @@ module.exports = {
     IncidentProperty,
     INCIDENT_CHANGE_DATA_FIELDS,
     IncidentChange,
-    EXPORT_INCIDENTS_TO_EXCEL_QUERY,
     IncidentClassifier,
     IncidentClassifierIncident,
     UserFavoriteTicket,
+    IncidentExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

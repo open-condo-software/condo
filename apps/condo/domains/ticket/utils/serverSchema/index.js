@@ -32,10 +32,10 @@ const { TicketPropertyHint: TicketPropertyHintGQL } = require('@condo/domains/ti
 const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@condo/domains/ticket/gql')
 const { TicketOrganizationSetting: TicketOrganizationSettingGQL } = require('@condo/domains/ticket/gql')
 const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
-const { EXPORT_INCIDENTS_TO_EXCEL_QUERY } = require('@condo/domains/ticket/gql')
 const { IncidentClassifier: IncidentClassifierGQL } = require('@condo/domains/ticket/gql')
 const { IncidentClassifierIncident: IncidentClassifierIncidentGQL } = require('@condo/domains/ticket/gql')
 const { UserFavoriteTicket: UserFavoriteTicketGQL } = require('@condo/domains/ticket/gql')
+const { IncidentExportTask: IncidentExportTaskGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -79,22 +79,10 @@ const Incident = generateServerUtils(IncidentGQL)
 const IncidentProperty = generateServerUtils(IncidentPropertyGQL)
 const IncidentChange = generateServerUtils(IncidentChangeGQL)
 
-async function exportIncidentsToExcel (context, data) {
-    if (!context) throw new Error('no context')
-    if (!data) throw new Error('no data')
-    if (!data.sender) throw new Error('no data.sender')
-
-    return await execGqlWithoutAccess(context, {
-        query: EXPORT_INCIDENTS_TO_EXCEL_QUERY,
-        variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to exportIncidentsToExcel',
-        dataPath: 'obj',
-    })
-}
-
 const IncidentClassifier = generateServerUtils(IncidentClassifierGQL)
 const IncidentClassifierIncident = generateServerUtils(IncidentClassifierIncidentGQL)
 const UserFavoriteTicket = generateServerUtils(UserFavoriteTicketGQL)
+const IncidentExportTask = generateServerUtils(IncidentExportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -227,20 +215,6 @@ const loadTicketCommentsForPdfExport = async ({ where = {}, sortBy = ['createdAt
     return await ticketCommentsLoader.load()
 }
 
-const loadIncidentsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
-    const incidentsLoader = new GqlWithKnexLoadList({
-        listKey: 'Incident',
-        fields: 'id number details status textForResident workStart workFinish workType isScheduled isEmergency hasAllProperties createdAt',
-        singleRelations: [
-            ['User', 'createdBy', 'name'],
-            ['Organization', 'organization', 'name'],
-        ],
-        sortBy,
-        where,
-    })
-    return await incidentsLoader.load()
-}
-
 const loadIncidentPropertiesForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const incidentPropertiesLoader = new GqlWithKnexLoadList({
         listKey: 'IncidentProperty',
@@ -283,6 +257,19 @@ const loadIncidentClassifiersForExcelExport = async ({ where = {}, sortBy = ['cr
     return await incidentClassifiersLoader.load()
 }
 
+const buildIncidentsLoader = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    return new GqlWithKnexLoadList({
+        listKey: 'Incident',
+        fields: 'id number details status textForResident workStart workFinish workType isScheduled isEmergency hasAllProperties createdAt',
+        singleRelations: [
+            ['User', 'createdBy', 'name'],
+            ['Organization', 'organization', 'name'],
+        ],
+        sortBy,
+        where,
+    })
+}
+
 module.exports = {
     Ticket,
     TicketStatus,
@@ -312,13 +299,13 @@ module.exports = {
     Incident,
     IncidentProperty,
     IncidentChange,
-    exportIncidentsToExcel,
-    loadIncidentsForExcelExport,
     loadIncidentPropertiesForExcelExport,
     loadIncidentClassifierIncidentsForExcelExport,
     loadIncidentClassifiersForExcelExport,
+    buildIncidentsLoader,
     IncidentClassifier,
     IncidentClassifierIncident,
     UserFavoriteTicket,
+    IncidentExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
