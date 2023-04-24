@@ -42,7 +42,7 @@ export const useValidations: UseValidations = (settings = {}) => {
     const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
     const TinValueIsInvalidMessage = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
-    const EmailsAreInvalidMessage = intl.formatMessage({ id: 'condorb.emails.invalidMessage' })
+    const EmailsAreInvalidMessage = intl.formatMessage({ id: 'global.input.error.wrongEmails' })
 
     const { allowLandLine } = settings
 

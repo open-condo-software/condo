@@ -202,6 +202,7 @@
   "global.select.deletedOption": "Удалено",
   "global.filters.dateRange.start": "Начальная дата",
   "global.filters.dateRange.end": "Конечная дата",
+  "global.input.error.wrongEmails": "Неверный формат E-mail адресов",
   "miniapps.catalog.banner.more": "Подробнее",
   "miniapps.catalog.noServicesInCategory": "Сервисов в этой категории пока нет",
   "miniapps.catalog.noServicesFound": "Такого сервиса нет",
@@ -1886,6 +1887,5 @@
   "incident.changeHistory.workStart": "дату начала работ",
   "incident.changeHistory.workFinish": "дату завершения работ",
   "incident.changeHistory.workType": "тип работ",
-  "incident.hints.more.label": "Подробнее",
-  "condorb.emails.invalidMessage": "Неверный формат E-mail адресов"
+  "incident.hints.more.label": "Подробнее"
 }
