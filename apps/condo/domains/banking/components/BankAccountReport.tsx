@@ -11,7 +11,7 @@ import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Tabs, Card, Typography, Select, Option, Space } from '@open-condo/ui'
-import type { TypographyTextProps } from '@open-condo/ui'
+import type { TypographyTitleProps } from '@open-condo/ui'
 import type { CardProps } from '@open-condo/ui'
 
 import { useBankReportTaskButton } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
@@ -87,7 +87,7 @@ type InfoCardProps = {
     isSmall: boolean
     onClick?: CardProps['onClick']
     currencyCode?: string
-    valueType?: TypographyTextProps['type']
+    valueType?: TypographyTitleProps['type']
 }
 interface IInfoCard { (props: InfoCardProps): React.ReactElement }
 const InfoCard: IInfoCard = ({ value, currencyCode = 'RUB',  ...props }) => {
