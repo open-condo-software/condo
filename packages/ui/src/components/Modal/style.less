@@ -82,8 +82,8 @@
       .condo-modal-wrapper {
         width: fit-content;
         min-width: 100%;
-        overflow: hidden;
         padding: 1px;
+        overflow: hidden;
       }
     }
 
@@ -96,22 +96,22 @@
       }
     }
 
-    @media @from-mobile-small @to-tablet-small {
+    @media @from-mobile-small and @to-tablet-small {
       position: absolute;
-      left: 0;
+      top: initial;
       right: 0;
       bottom: 0;
-      top: initial;
-      max-width: 100%;
+      left: 0;
       width: auto !important;
+      max-width: 100%;
       margin: @condo-global-spacing-16;
 
       .condo-modal-header {
         padding:
-                @condo-modal-mobile-spacing
-                @condo-modal-mobile-header-padding-right
-                @condo-modal-mobile-spacing
-                @condo-modal-mobile-spacing;
+          @condo-modal-mobile-spacing
+          @condo-modal-mobile-header-padding-right
+          @condo-modal-mobile-spacing
+          @condo-modal-mobile-spacing;
       }
 
       .condo-modal-close {

@@ -7,14 +7,13 @@
 @select-padding-left: 12px;
 @select-padding-right: 36px;
 
+.condo-select-dropdown .condo-select-item-empty .condo-typography {
+  margin-left: 8px;
+  color: @condo-global-color-gray-7;
+}
+
 .condo-select {
   align-items: center;
-
-  &:hover {
-    .condo-select-clear {
-      opacity: 1;
-    }
-  }
 
   // Display modes
   &-fit-content {
@@ -41,10 +40,6 @@
 
   &-clear {
     background-color: @condo-global-color-white;
-  }
-
-  &-disabled:not(.condo-select-customize-input) &-arrow {
-    color: @condo-global-color-gray-3;
   }
 
   &-open &-arrow {
@@ -118,6 +113,63 @@
     }
   }
 
+  // Select types
+  .condo-select-type("danger", @condo-global-color-red-5);
+  .condo-select-type("success", @condo-global-color-green-5);
+  .condo-select-type("warning", @condo-global-color-orange-5);
+  .condo-select-type("info", @condo-global-color-blue-5);
+  .condo-select-type("secondary", @condo-global-color-gray-7);
+
+  &-danger,
+  &-warning,
+  &-info,
+  &-secondary,
+  &-success {
+    .condo-select-arrow,
+    .condo-select-clear {
+      color: @condo-global-color-white;
+    }
+  }
+
+  &-disabled:not(.condo-select-customize-input) &-arrow {
+    color: @condo-global-color-gray-3;
+  }
+
+  &-danger .condo-select-clear {
+    background-color: @condo-global-color-red-5;
+  }
+
+  &-warning .condo-select-clear {
+    background-color: @condo-global-color-orange-5;
+  }
+
+  &-info .condo-select-clear {
+    background-color: @condo-global-color-blue-5;
+  }
+
+  &-secondary .condo-select-clear {
+    background-color: @condo-global-color-gray-7;
+  }
+
+  &-success .condo-select-clear {
+    background-color: @condo-global-color-green-5;
+  }
+
+  &-danger:not(.condo-select-customize-input),
+  &-warning:not(.condo-select-customize-input),
+  &-info:not(.condo-select-customize-input),
+  &-secondary:not(.condo-select-customize-input),
+  &-success:not(.condo-select-customize-input) {
+    .condo-select-selector {
+      .condo-select-selection-placeholder,
+      .condo-select-selection-search-input,
+      .condo-select-selection-item,
+      .condo-select-selection-item > * {
+        color: @condo-global-color-white;
+      }
+    }
+  }
+
   &.condo-select-multiple:not(.condo-select-customize-input) .condo-select-selector {
     height: inherit;
     min-height: 48px;
@@ -173,68 +225,14 @@
   }
 
   // Hover
-  &:not(.condo-select-disabled):hover {
-    .condo-select-selector {
-      border-color: transparent;
-    }
-
-    &:not(.condo-select-success, .condo-select-warning, .condo-select-secondary,
-  .condo-select-danger, .condo-select-info) .condo-select-selector {
-      border-color: @condo-global-color-gray-7;
-    }
-  }
-
-  // Select types
-  .condo-select-type("danger", @condo-global-color-red-5);
-  .condo-select-type("success", @condo-global-color-green-5);
-  .condo-select-type("warning", @condo-global-color-orange-5);
-  .condo-select-type("info", @condo-global-color-blue-5);
-  .condo-select-type("secondary", @condo-global-color-gray-7);
-
-  &-danger,
-  &-warning,
-  &-info,
-  &-secondary,
-  &-success {
-    .condo-select-arrow,
+  &:hover {
     .condo-select-clear {
-      color: @condo-global-color-white;
+      opacity: 1;
     }
   }
 
-  &-danger .condo-select-clear {
-    background-color: @condo-global-color-red-5;
-  }
-
-  &-warning .condo-select-clear {
-    background-color: @condo-global-color-orange-5;
-  }
-
-  &-info .condo-select-clear {
-    background-color: @condo-global-color-blue-5;
-  }
-
-  &-secondary .condo-select-clear {
-    background-color: @condo-global-color-gray-7;
-  }
-
-  &-success .condo-select-clear {
-    background-color: @condo-global-color-green-5;
-  }
-
-  &-danger:not(.condo-select-customize-input),
-  &-warning:not(.condo-select-customize-input),
-  &-info:not(.condo-select-customize-input),
-  &-secondary:not(.condo-select-customize-input),
-  &-success:not(.condo-select-customize-input) {
-    .condo-select-selector {
-      .condo-select-selection-placeholder,
-      .condo-select-selection-search-input,
-      .condo-select-selection-item,
-      .condo-select-selection-item > * {
-        color: @condo-global-color-white;
-      }
-    }
+  &:not(.condo-select-disabled):hover .condo-select-selector {
+    border-color: transparent;
   }
 }
 
@@ -290,11 +288,6 @@
     justify-content: center;
     padding: 20px;
     color: @condo-global-color-gray-7;
-
-    .condo-typography {
-      margin-left: 8px;
-      color: @condo-global-color-gray-7;
-    }
   }
 
   .condo-select-item-option-state {

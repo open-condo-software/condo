@@ -39,6 +39,9 @@ jobs:
       - name: Basic lint of Less variables
         run: yarn stylelint "packages/ui/src/tokens/**/*.less"
 
+      - name: Lint less files
+        run: yarn stylelint "packages/ui/**/*.less"
+
       - name: Generate color set
         run: yarn workspace @open-condo/ui build:colors
 

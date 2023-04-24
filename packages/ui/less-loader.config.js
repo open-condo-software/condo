@@ -1,6 +1,6 @@
 const get = require('lodash/get')
 
-const tokens = require('@open-condo/ui/src/tokens/tokens.json')
+const tokens = require('./src/tokens/tokens.json')
 
 const textColor = get(tokens, ['global', 'color', 'black', 'value'], '#222')
 
