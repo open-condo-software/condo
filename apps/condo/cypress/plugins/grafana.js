@@ -213,7 +213,7 @@ module.exports = async (on, config) => {
             // FINALIZE PAYLOAD AND SEND
 
             const newDashboard = { ...{}, ...dashboard }
-            newDashboard.panels = [newPanel]
+            newDashboard.panels.push(newPanel)
 
             const updateDashboardMessage = 'UPDATE DB FROM CODE'
 
