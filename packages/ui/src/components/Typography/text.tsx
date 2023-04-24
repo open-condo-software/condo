@@ -24,7 +24,7 @@ export type TypographyTextProps = Omit<DefaultTextProps,
 }
 
 const Text = React.forwardRef<HTMLSpanElement, TypographyTextProps>((props, ref) => {
-    const { type, size = 'lg', ellipsis, onClick, lineWrapping, ...rest } = props
+    const { type = 'primary', size = 'lg', ellipsis, onClick, lineWrapping, ...rest } = props
     const className = classNames({
         [`${TYPOGRAPHY_CLASS_PREFIX}-${type}`]: type,
         [`${TYPOGRAPHY_CLASS_PREFIX}-${size}`]: size,

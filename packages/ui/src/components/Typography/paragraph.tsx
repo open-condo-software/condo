@@ -20,7 +20,7 @@ export type TypographyParagraphProps = Omit<DefaultParagraphProps,
 }
 
 const Paragraph = React.forwardRef<HTMLSpanElement, TypographyParagraphProps>((props, ref) => {
-    const { type, size = 'lg', ...rest } = props
+    const { type = 'primary', size = 'lg', ...rest } = props
     const className = classNames({
         [`${TYPOGRAPHY_CLASS_PREFIX}-${type}`]: type,
         [`${TYPOGRAPHY_CLASS_PREFIX}-${size}`]: size,
