@@ -29,7 +29,7 @@ async function canReadNewsItems ({ authentication: { item: user } }) {
         return {
             scopes_some: queryFindNewsItemsScopesByResidents(residents),
             OR: [
-                { AND: [{ sendAt_not: null }, { sendAt_lte: dayjs().toISOString() }] },
+                { AND: [{ sendAt_not: null }, { sendAt_lte: dayjs().toISOString(), isPublished: true }] },
                 { sendAt: null },
             ],
         }

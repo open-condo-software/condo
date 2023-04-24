@@ -575,15 +575,19 @@ describe('NewsItems', () => {
             })
 
             const newsItems1 = await NewsItem.getAll(residentClient1, {})
-
             expect(newsItems1).toHaveLength(0)
 
             // Imagine that publication scheduled at 1 hour ago
             await updateTestNewsItem(adminClient, newsItem1.id, { sendAt: dayjs().subtract(1, 'hour').toISOString() })
 
             const newsItems2 = await NewsItem.getAll(residentClient1, {})
+            expect(newsItems2).toHaveLength(0)
 
-            expect(newsItems2).toHaveLength(1)
+            // Make news item published
+            await updateTestNewsItem(adminClient, newsItem1.id, { isPublished: true })
+
+            const newsItems3 = await NewsItem.getAll(residentClient1, {})
+            expect(newsItems3).toHaveLength(1)
         })
     })
 })
