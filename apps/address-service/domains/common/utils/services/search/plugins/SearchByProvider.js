@@ -27,7 +27,11 @@ class SearchByProvider extends AbstractSearchPlugin {
         const godContext = this.keystoneContext.sudo()
         const dvSender = this.getDvAndSender(this.constructor.name)
 
-        const denormalizedRows = await searchProvider.get({ query: s, context: this.searchContext })
+        const denormalizedRows = await searchProvider.get({
+            query: s,
+            context: this.searchContext,
+            helpers: this.helpers,
+        })
         const searchResults = searchProvider ? searchProvider.normalize(denormalizedRows) : []
 
         if (searchResults.length === 0) {

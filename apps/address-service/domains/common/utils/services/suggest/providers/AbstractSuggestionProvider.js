@@ -52,10 +52,10 @@ class AbstractSuggestionProvider {
      * Sends search string to external suggestions service
      * @param {string} query
      * @param {string} session
-     * @param {string} context {@see suggestionContexts}
+     * @param {string} [context] {@see suggestionContexts}
      * @param {string} language
      * @param {number|NaN} count
-     * @param {SuggestionHelpersType} helpers
+     * @param {SuggestionHelpersType} [helpers]
      * @returns {Promise<Array>} the array of denormalized suggestions
      * @abstract
      * @public
