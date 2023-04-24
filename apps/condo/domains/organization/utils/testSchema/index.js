@@ -162,13 +162,13 @@ async function createTestOrganizationEmployeeRole (client, organization, extraAt
 /**
  * Simplifies creating series of instances
  */
-async function makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee () {
+async function makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee (roleAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const [organization] = await createTestOrganization(admin)
-    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
+    const [role] = await createTestOrganizationEmployeeRole(admin, organization, roleAttrs)
     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
     const [employee] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
-    return { employee, role, organization, admin }
+    return { employee, role, organization, admin, userClient }
 }
 
 async function updateTestOrganizationEmployeeRole (client, id, extraAttrs = {}) {

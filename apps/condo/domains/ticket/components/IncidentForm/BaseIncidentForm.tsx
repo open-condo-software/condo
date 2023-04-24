@@ -279,6 +279,9 @@ export const handleChangeDate: handleChangeDateType = (form, fieldName) => (valu
     form.setFieldValue(fieldName, value.set('seconds', 0).set('milliseconds', 0))
 }
 
+
+const INITIAL_VALUES = {} as BaseIncidentFormProps['initialValues']
+
 export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const intl = useIntl()
     const CheckAllLabel = intl.formatMessage({ id: 'incident.fields.properties.checkAll.label' })
@@ -306,7 +309,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         action: createOrUpdateIncident,
         ActionBar,
         afterAction,
-        initialValues = {} as BaseIncidentFormProps['initialValues'],
+        initialValues = INITIAL_VALUES,
         loading,
         organizationId,
         showOrganization = false,

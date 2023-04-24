@@ -18004,20 +18004,6 @@ export type DisconnectUserFromRemoteClientOutput = {
   status: Scalars['String'];
 };
 
-export type ExportIncidentsToExcelInput = {
-  dv: Scalars['Int'];
-  sender: SenderFieldInput;
-  where: IncidentWhereInput;
-  sortBy?: Maybe<Array<SortIncidentsBy>>;
-  timeZone?: Maybe<Scalars['String']>;
-};
-
-export type ExportIncidentsToExcelOutput = {
-  __typename?: 'ExportIncidentsToExcelOutput';
-  status: Scalars['String'];
-  linkToFile: Scalars['String'];
-};
-
 export type ExportMeterReadingsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -20426,6 +20412,561 @@ export type IncidentCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+};
+
+/**  Stores requested export format, status of export job, link to exported file and information about progress of export job  */
+export type IncidentExportTask = {
+  __typename?: 'IncidentExportTask';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the IncidentExportTask List config, or
+   *  2. As an alias to the field set on 'labelField' in the IncidentExportTask List config, or
+   *  3. As an alias to a 'name' field on the IncidentExportTask List (if one exists), or
+   *  4. As an alias to the 'id' field on the IncidentExportTask List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Status of the job. Used at client side progress information component  */
+  status?: Maybe<IncidentExportTaskStatusType>;
+  /**  Requested export file format  */
+  format?: Maybe<IncidentExportTaskFormatType>;
+  /**  How many records at the moment are exported  */
+  exportedRecordsCount?: Maybe<Scalars['Int']>;
+  /**  Total records to export that will be determined at server side in export operation  */
+  totalRecordsCount?: Maybe<Scalars['Int']>;
+  /**  Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.  */
+  file?: Maybe<File>;
+  /**  Stores information about query and ids of exported and failed records  */
+  meta?: Maybe<Scalars['JSON']>;
+  /**  Filtering conditions for records to export  */
+  where?: Maybe<Scalars['JSON']>;
+  /**  Sorting parameters for records to export  */
+  sortBy?: Maybe<Scalars['JSON']>;
+  /**  Requested export locale, in that the resulting file will be rendered  */
+  locale?: Maybe<Scalars['String']>;
+  /**  To requested timeZone all datetime fields will be converted  */
+  timeZone?: Maybe<Scalars['String']>;
+  /**  User that requested this exporting operation. Will be used for read access checks to display all exported tasks somewhere and to display progress indicator of ongoing exporting task for current user  */
+  user?: Maybe<User>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type IncidentExportTaskCreateInput = {
+  status?: Maybe<IncidentExportTaskStatusType>;
+  format?: Maybe<IncidentExportTaskFormatType>;
+  exportedRecordsCount?: Maybe<Scalars['Int']>;
+  totalRecordsCount?: Maybe<Scalars['Int']>;
+  file?: Maybe<Scalars['Upload']>;
+  meta?: Maybe<Scalars['JSON']>;
+  where?: Maybe<Scalars['JSON']>;
+  sortBy?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<Scalars['String']>;
+  timeZone?: Maybe<Scalars['String']>;
+  user?: Maybe<UserRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export enum IncidentExportTaskFormatType {
+  Excel = 'excel'
+}
+
+/**  A keystone list  */
+export type IncidentExportTaskHistoryRecord = {
+  __typename?: 'IncidentExportTaskHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the IncidentExportTaskHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the IncidentExportTaskHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the IncidentExportTaskHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the IncidentExportTaskHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  format?: Maybe<Scalars['String']>;
+  exportedRecordsCount?: Maybe<Scalars['Int']>;
+  totalRecordsCount?: Maybe<Scalars['Int']>;
+  file?: Maybe<Scalars['JSON']>;
+  meta?: Maybe<Scalars['JSON']>;
+  where?: Maybe<Scalars['JSON']>;
+  sortBy?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<Scalars['String']>;
+  timeZone?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<IncidentExportTaskHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type IncidentExportTaskHistoryRecordCreateInput = {
+  status?: Maybe<Scalars['String']>;
+  format?: Maybe<Scalars['String']>;
+  exportedRecordsCount?: Maybe<Scalars['Int']>;
+  totalRecordsCount?: Maybe<Scalars['Int']>;
+  file?: Maybe<Scalars['JSON']>;
+  meta?: Maybe<Scalars['JSON']>;
+  where?: Maybe<Scalars['JSON']>;
+  sortBy?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<Scalars['String']>;
+  timeZone?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<IncidentExportTaskHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum IncidentExportTaskHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type IncidentExportTaskHistoryRecordUpdateInput = {
+  status?: Maybe<Scalars['String']>;
+  format?: Maybe<Scalars['String']>;
+  exportedRecordsCount?: Maybe<Scalars['Int']>;
+  totalRecordsCount?: Maybe<Scalars['Int']>;
+  file?: Maybe<Scalars['JSON']>;
+  meta?: Maybe<Scalars['JSON']>;
+  where?: Maybe<Scalars['JSON']>;
+  sortBy?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<Scalars['String']>;
+  timeZone?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<IncidentExportTaskHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type IncidentExportTaskHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<IncidentExportTaskHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<IncidentExportTaskHistoryRecordWhereInput>>>;
+  status?: Maybe<Scalars['String']>;
+  status_not?: Maybe<Scalars['String']>;
+  status_contains?: Maybe<Scalars['String']>;
+  status_not_contains?: Maybe<Scalars['String']>;
+  status_starts_with?: Maybe<Scalars['String']>;
+  status_not_starts_with?: Maybe<Scalars['String']>;
+  status_ends_with?: Maybe<Scalars['String']>;
+  status_not_ends_with?: Maybe<Scalars['String']>;
+  status_i?: Maybe<Scalars['String']>;
+  status_not_i?: Maybe<Scalars['String']>;
+  status_contains_i?: Maybe<Scalars['String']>;
+  status_not_contains_i?: Maybe<Scalars['String']>;
+  status_starts_with_i?: Maybe<Scalars['String']>;
+  status_not_starts_with_i?: Maybe<Scalars['String']>;
+  status_ends_with_i?: Maybe<Scalars['String']>;
+  status_not_ends_with_i?: Maybe<Scalars['String']>;
+  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  format?: Maybe<Scalars['String']>;
+  format_not?: Maybe<Scalars['String']>;
+  format_contains?: Maybe<Scalars['String']>;
+  format_not_contains?: Maybe<Scalars['String']>;
+  format_starts_with?: Maybe<Scalars['String']>;
+  format_not_starts_with?: Maybe<Scalars['String']>;
+  format_ends_with?: Maybe<Scalars['String']>;
+  format_not_ends_with?: Maybe<Scalars['String']>;
+  format_i?: Maybe<Scalars['String']>;
+  format_not_i?: Maybe<Scalars['String']>;
+  format_contains_i?: Maybe<Scalars['String']>;
+  format_not_contains_i?: Maybe<Scalars['String']>;
+  format_starts_with_i?: Maybe<Scalars['String']>;
+  format_not_starts_with_i?: Maybe<Scalars['String']>;
+  format_ends_with_i?: Maybe<Scalars['String']>;
+  format_not_ends_with_i?: Maybe<Scalars['String']>;
+  format_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  format_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  exportedRecordsCount?: Maybe<Scalars['Int']>;
+  exportedRecordsCount_not?: Maybe<Scalars['Int']>;
+  exportedRecordsCount_lt?: Maybe<Scalars['Int']>;
+  exportedRecordsCount_lte?: Maybe<Scalars['Int']>;
+  exportedRecordsCount_gt?: Maybe<Scalars['Int']>;
+  exportedRecordsCount_gte?: Maybe<Scalars['Int']>;
+  exportedRecordsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  exportedRecordsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  totalRecordsCount?: Maybe<Scalars['Int']>;
+  totalRecordsCount_not?: Maybe<Scalars['Int']>;
+  totalRecordsCount_lt?: Maybe<Scalars['Int']>;
+  totalRecordsCount_lte?: Maybe<Scalars['Int']>;
+  totalRecordsCount_gt?: Maybe<Scalars['Int']>;
+  totalRecordsCount_gte?: Maybe<Scalars['Int']>;
+  totalRecordsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  totalRecordsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  file?: Maybe<Scalars['JSON']>;
+  file_not?: Maybe<Scalars['JSON']>;
+  file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  where?: Maybe<Scalars['JSON']>;
+  where_not?: Maybe<Scalars['JSON']>;
+  where_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  where_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sortBy?: Maybe<Scalars['JSON']>;
+  sortBy_not?: Maybe<Scalars['JSON']>;
+  sortBy_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sortBy_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  locale?: Maybe<Scalars['String']>;
+  locale_not?: Maybe<Scalars['String']>;
+  locale_contains?: Maybe<Scalars['String']>;
+  locale_not_contains?: Maybe<Scalars['String']>;
+  locale_starts_with?: Maybe<Scalars['String']>;
+  locale_not_starts_with?: Maybe<Scalars['String']>;
+  locale_ends_with?: Maybe<Scalars['String']>;
+  locale_not_ends_with?: Maybe<Scalars['String']>;
+  locale_i?: Maybe<Scalars['String']>;
+  locale_not_i?: Maybe<Scalars['String']>;
+  locale_contains_i?: Maybe<Scalars['String']>;
+  locale_not_contains_i?: Maybe<Scalars['String']>;
+  locale_starts_with_i?: Maybe<Scalars['String']>;
+  locale_not_starts_with_i?: Maybe<Scalars['String']>;
+  locale_ends_with_i?: Maybe<Scalars['String']>;
+  locale_not_ends_with_i?: Maybe<Scalars['String']>;
+  locale_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  locale_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  timeZone?: Maybe<Scalars['String']>;
+  timeZone_not?: Maybe<Scalars['String']>;
+  timeZone_contains?: Maybe<Scalars['String']>;
+  timeZone_not_contains?: Maybe<Scalars['String']>;
+  timeZone_starts_with?: Maybe<Scalars['String']>;
+  timeZone_not_starts_with?: Maybe<Scalars['String']>;
+  timeZone_ends_with?: Maybe<Scalars['String']>;
+  timeZone_not_ends_with?: Maybe<Scalars['String']>;
+  timeZone_i?: Maybe<Scalars['String']>;
+  timeZone_not_i?: Maybe<Scalars['String']>;
+  timeZone_contains_i?: Maybe<Scalars['String']>;
+  timeZone_not_contains_i?: Maybe<Scalars['String']>;
+  timeZone_starts_with_i?: Maybe<Scalars['String']>;
+  timeZone_not_starts_with_i?: Maybe<Scalars['String']>;
+  timeZone_ends_with_i?: Maybe<Scalars['String']>;
+  timeZone_not_ends_with_i?: Maybe<Scalars['String']>;
+  timeZone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  timeZone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<IncidentExportTaskHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<IncidentExportTaskHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<IncidentExportTaskHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<IncidentExportTaskHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type IncidentExportTaskHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type IncidentExportTaskHistoryRecordsCreateInput = {
+  data?: Maybe<IncidentExportTaskHistoryRecordCreateInput>;
+};
+
+export type IncidentExportTaskHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<IncidentExportTaskHistoryRecordUpdateInput>;
+};
+
+export enum IncidentExportTaskStatusType {
+  Processing = 'processing',
+  Completed = 'completed',
+  Error = 'error',
+  Cancelled = 'cancelled'
+}
+
+export type IncidentExportTaskUpdateInput = {
+  status?: Maybe<IncidentExportTaskStatusType>;
+  format?: Maybe<IncidentExportTaskFormatType>;
+  exportedRecordsCount?: Maybe<Scalars['Int']>;
+  totalRecordsCount?: Maybe<Scalars['Int']>;
+  file?: Maybe<Scalars['Upload']>;
+  meta?: Maybe<Scalars['JSON']>;
+  where?: Maybe<Scalars['JSON']>;
+  sortBy?: Maybe<Scalars['JSON']>;
+  locale?: Maybe<Scalars['String']>;
+  timeZone?: Maybe<Scalars['String']>;
+  user?: Maybe<UserRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type IncidentExportTaskWhereInput = {
+  AND?: Maybe<Array<Maybe<IncidentExportTaskWhereInput>>>;
+  OR?: Maybe<Array<Maybe<IncidentExportTaskWhereInput>>>;
+  status?: Maybe<IncidentExportTaskStatusType>;
+  status_not?: Maybe<IncidentExportTaskStatusType>;
+  status_in?: Maybe<Array<Maybe<IncidentExportTaskStatusType>>>;
+  status_not_in?: Maybe<Array<Maybe<IncidentExportTaskStatusType>>>;
+  format?: Maybe<IncidentExportTaskFormatType>;
+  format_not?: Maybe<IncidentExportTaskFormatType>;
+  format_in?: Maybe<Array<Maybe<IncidentExportTaskFormatType>>>;
+  format_not_in?: Maybe<Array<Maybe<IncidentExportTaskFormatType>>>;
+  exportedRecordsCount?: Maybe<Scalars['Int']>;
+  exportedRecordsCount_not?: Maybe<Scalars['Int']>;
+  exportedRecordsCount_lt?: Maybe<Scalars['Int']>;
+  exportedRecordsCount_lte?: Maybe<Scalars['Int']>;
+  exportedRecordsCount_gt?: Maybe<Scalars['Int']>;
+  exportedRecordsCount_gte?: Maybe<Scalars['Int']>;
+  exportedRecordsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  exportedRecordsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  totalRecordsCount?: Maybe<Scalars['Int']>;
+  totalRecordsCount_not?: Maybe<Scalars['Int']>;
+  totalRecordsCount_lt?: Maybe<Scalars['Int']>;
+  totalRecordsCount_lte?: Maybe<Scalars['Int']>;
+  totalRecordsCount_gt?: Maybe<Scalars['Int']>;
+  totalRecordsCount_gte?: Maybe<Scalars['Int']>;
+  totalRecordsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  totalRecordsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  file?: Maybe<Scalars['String']>;
+  file_not?: Maybe<Scalars['String']>;
+  file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  where?: Maybe<Scalars['JSON']>;
+  where_not?: Maybe<Scalars['JSON']>;
+  where_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  where_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sortBy?: Maybe<Scalars['JSON']>;
+  sortBy_not?: Maybe<Scalars['JSON']>;
+  sortBy_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sortBy_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  locale?: Maybe<Scalars['String']>;
+  locale_not?: Maybe<Scalars['String']>;
+  locale_contains?: Maybe<Scalars['String']>;
+  locale_not_contains?: Maybe<Scalars['String']>;
+  locale_starts_with?: Maybe<Scalars['String']>;
+  locale_not_starts_with?: Maybe<Scalars['String']>;
+  locale_ends_with?: Maybe<Scalars['String']>;
+  locale_not_ends_with?: Maybe<Scalars['String']>;
+  locale_i?: Maybe<Scalars['String']>;
+  locale_not_i?: Maybe<Scalars['String']>;
+  locale_contains_i?: Maybe<Scalars['String']>;
+  locale_not_contains_i?: Maybe<Scalars['String']>;
+  locale_starts_with_i?: Maybe<Scalars['String']>;
+  locale_not_starts_with_i?: Maybe<Scalars['String']>;
+  locale_ends_with_i?: Maybe<Scalars['String']>;
+  locale_not_ends_with_i?: Maybe<Scalars['String']>;
+  locale_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  locale_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  timeZone?: Maybe<Scalars['String']>;
+  timeZone_not?: Maybe<Scalars['String']>;
+  timeZone_contains?: Maybe<Scalars['String']>;
+  timeZone_not_contains?: Maybe<Scalars['String']>;
+  timeZone_starts_with?: Maybe<Scalars['String']>;
+  timeZone_not_starts_with?: Maybe<Scalars['String']>;
+  timeZone_ends_with?: Maybe<Scalars['String']>;
+  timeZone_not_ends_with?: Maybe<Scalars['String']>;
+  timeZone_i?: Maybe<Scalars['String']>;
+  timeZone_not_i?: Maybe<Scalars['String']>;
+  timeZone_contains_i?: Maybe<Scalars['String']>;
+  timeZone_not_contains_i?: Maybe<Scalars['String']>;
+  timeZone_starts_with_i?: Maybe<Scalars['String']>;
+  timeZone_not_starts_with_i?: Maybe<Scalars['String']>;
+  timeZone_ends_with_i?: Maybe<Scalars['String']>;
+  timeZone_not_ends_with_i?: Maybe<Scalars['String']>;
+  timeZone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  timeZone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type IncidentExportTaskWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type IncidentExportTasksCreateInput = {
+  data?: Maybe<IncidentExportTaskCreateInput>;
+};
+
+export type IncidentExportTasksUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<IncidentExportTaskUpdateInput>;
 };
 
 /**  A keystone list  */
@@ -28307,6 +28848,30 @@ export type Mutation = {
   deleteUserFavoriteTicket?: Maybe<UserFavoriteTicket>;
   /**  Delete multiple UserFavoriteTicket items by ID.  */
   deleteUserFavoriteTickets?: Maybe<Array<Maybe<UserFavoriteTicket>>>;
+  /**  Create a single IncidentExportTaskHistoryRecord item.  */
+  createIncidentExportTaskHistoryRecord?: Maybe<IncidentExportTaskHistoryRecord>;
+  /**  Create multiple IncidentExportTaskHistoryRecord items.  */
+  createIncidentExportTaskHistoryRecords?: Maybe<Array<Maybe<IncidentExportTaskHistoryRecord>>>;
+  /**  Update a single IncidentExportTaskHistoryRecord item by ID.  */
+  updateIncidentExportTaskHistoryRecord?: Maybe<IncidentExportTaskHistoryRecord>;
+  /**  Update multiple IncidentExportTaskHistoryRecord items by ID.  */
+  updateIncidentExportTaskHistoryRecords?: Maybe<Array<Maybe<IncidentExportTaskHistoryRecord>>>;
+  /**  Delete a single IncidentExportTaskHistoryRecord item by ID.  */
+  deleteIncidentExportTaskHistoryRecord?: Maybe<IncidentExportTaskHistoryRecord>;
+  /**  Delete multiple IncidentExportTaskHistoryRecord items by ID.  */
+  deleteIncidentExportTaskHistoryRecords?: Maybe<Array<Maybe<IncidentExportTaskHistoryRecord>>>;
+  /**  Create a single IncidentExportTask item.  */
+  createIncidentExportTask?: Maybe<IncidentExportTask>;
+  /**  Create multiple IncidentExportTask items.  */
+  createIncidentExportTasks?: Maybe<Array<Maybe<IncidentExportTask>>>;
+  /**  Update a single IncidentExportTask item by ID.  */
+  updateIncidentExportTask?: Maybe<IncidentExportTask>;
+  /**  Update multiple IncidentExportTask items by ID.  */
+  updateIncidentExportTasks?: Maybe<Array<Maybe<IncidentExportTask>>>;
+  /**  Delete a single IncidentExportTask item by ID.  */
+  deleteIncidentExportTask?: Maybe<IncidentExportTask>;
+  /**  Delete multiple IncidentExportTask items by ID.  */
+  deleteIncidentExportTasks?: Maybe<Array<Maybe<IncidentExportTask>>>;
   /**  Create a single MessageHistoryRecord item.  */
   createMessageHistoryRecord?: Maybe<MessageHistoryRecord>;
   /**  Create multiple MessageHistoryRecord items.  */
@@ -34650,6 +35215,68 @@ export type MutationDeleteUserFavoriteTicketArgs = {
 
 
 export type MutationDeleteUserFavoriteTicketsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateIncidentExportTaskHistoryRecordArgs = {
+  data?: Maybe<IncidentExportTaskHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateIncidentExportTaskHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<IncidentExportTaskHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateIncidentExportTaskHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<IncidentExportTaskHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateIncidentExportTaskHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<IncidentExportTaskHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteIncidentExportTaskHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteIncidentExportTaskHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateIncidentExportTaskArgs = {
+  data?: Maybe<IncidentExportTaskCreateInput>;
+};
+
+
+export type MutationCreateIncidentExportTasksArgs = {
+  data?: Maybe<Array<Maybe<IncidentExportTasksCreateInput>>>;
+};
+
+
+export type MutationUpdateIncidentExportTaskArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<IncidentExportTaskUpdateInput>;
+};
+
+
+export type MutationUpdateIncidentExportTasksArgs = {
+  data?: Maybe<Array<Maybe<IncidentExportTasksUpdateInput>>>;
+};
+
+
+export type MutationDeleteIncidentExportTaskArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteIncidentExportTasksArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -46916,6 +47543,22 @@ export type Query = {
   _allUserFavoriteTicketsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the UserFavoriteTicket list.  */
   _UserFavoriteTicketsMeta?: Maybe<_ListMeta>;
+  /**  Search for all IncidentExportTaskHistoryRecord items which match the where clause.  */
+  allIncidentExportTaskHistoryRecords?: Maybe<Array<Maybe<IncidentExportTaskHistoryRecord>>>;
+  /**  Search for the IncidentExportTaskHistoryRecord item with the matching ID.  */
+  IncidentExportTaskHistoryRecord?: Maybe<IncidentExportTaskHistoryRecord>;
+  /**  Perform a meta-query on all IncidentExportTaskHistoryRecord items which match the where clause.  */
+  _allIncidentExportTaskHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the IncidentExportTaskHistoryRecord list.  */
+  _IncidentExportTaskHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all IncidentExportTask items which match the where clause.  */
+  allIncidentExportTasks?: Maybe<Array<Maybe<IncidentExportTask>>>;
+  /**  Search for the IncidentExportTask item with the matching ID.  */
+  IncidentExportTask?: Maybe<IncidentExportTask>;
+  /**  Perform a meta-query on all IncidentExportTask items which match the where clause.  */
+  _allIncidentExportTasksMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the IncidentExportTask list.  */
+  _IncidentExportTasksMeta?: Maybe<_ListMeta>;
   /**  Search for all MessageHistoryRecord items which match the where clause.  */
   allMessageHistoryRecords?: Maybe<Array<Maybe<MessageHistoryRecord>>>;
   /**  Search for the MessageHistoryRecord item with the matching ID.  */
@@ -47796,7 +48439,6 @@ export type Query = {
    */
   predictTransactionClassification?: Maybe<PredictTransactionClassificationOutput>;
   predictTicketClassification?: Maybe<TicketClassifier>;
-  exportIncidentsToExcel?: Maybe<ExportIncidentsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
   generatePaymentLink?: Maybe<GeneratePaymentLinkOutput>;
@@ -50588,6 +51230,56 @@ export type Query_AllUserFavoriteTicketsMetaArgs = {
 };
 
 
+export type QueryAllIncidentExportTaskHistoryRecordsArgs = {
+  where?: Maybe<IncidentExportTaskHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortIncidentExportTaskHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryIncidentExportTaskHistoryRecordArgs = {
+  where: IncidentExportTaskHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllIncidentExportTaskHistoryRecordsMetaArgs = {
+  where?: Maybe<IncidentExportTaskHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortIncidentExportTaskHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllIncidentExportTasksArgs = {
+  where?: Maybe<IncidentExportTaskWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortIncidentExportTasksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryIncidentExportTaskArgs = {
+  where: IncidentExportTaskWhereUniqueInput;
+};
+
+
+export type Query_AllIncidentExportTasksMetaArgs = {
+  where?: Maybe<IncidentExportTaskWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortIncidentExportTasksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type QueryAllMessageHistoryRecordsArgs = {
   where?: Maybe<MessageHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
@@ -52933,11 +53625,6 @@ export type QueryPredictTransactionClassificationArgs = {
 
 export type QueryPredictTicketClassificationArgs = {
   data: PredictTicketClassificationInput;
-};
-
-
-export type QueryExportIncidentsToExcelArgs = {
-  data: ExportIncidentsToExcelInput;
 };
 
 
@@ -58927,6 +59614,70 @@ export enum SortIncidentClassifiersBy {
   CategoryDesc = 'category_DESC',
   ProblemAsc = 'problem_ASC',
   ProblemDesc = 'problem_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortIncidentExportTaskHistoryRecordsBy {
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  FormatAsc = 'format_ASC',
+  FormatDesc = 'format_DESC',
+  ExportedRecordsCountAsc = 'exportedRecordsCount_ASC',
+  ExportedRecordsCountDesc = 'exportedRecordsCount_DESC',
+  TotalRecordsCountAsc = 'totalRecordsCount_ASC',
+  TotalRecordsCountDesc = 'totalRecordsCount_DESC',
+  LocaleAsc = 'locale_ASC',
+  LocaleDesc = 'locale_DESC',
+  TimeZoneAsc = 'timeZone_ASC',
+  TimeZoneDesc = 'timeZone_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortIncidentExportTasksBy {
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  FormatAsc = 'format_ASC',
+  FormatDesc = 'format_DESC',
+  ExportedRecordsCountAsc = 'exportedRecordsCount_ASC',
+  ExportedRecordsCountDesc = 'exportedRecordsCount_DESC',
+  TotalRecordsCountAsc = 'totalRecordsCount_ASC',
+  TotalRecordsCountDesc = 'totalRecordsCount_DESC',
+  LocaleAsc = 'locale_ASC',
+  LocaleDesc = 'locale_DESC',
+  TimeZoneAsc = 'timeZone_ASC',
+  TimeZoneDesc = 'timeZone_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
