@@ -157,7 +157,7 @@ export const useValidations: UseValidations = (settings = {}) => {
         (emails) => {
             return {
                 validator: () => {
-                    const regex = /^[\w+.-]+@[a-z\d.-]+\.[a-z]{2,}(\s*,\s*[\w+.-]+@[a-z\d.-]+\.[a-z]{2,})*$/
+                    const regex = /^[\w+.-]+@[a-z\d.-]+\.[a-z]{2,}(\s*,\s*[\w+.-]+@[a-z\d.-]+\.[a-z]{2,})*$/i
                     if (!regex.test(emails) && emails !== '') return Promise.reject(EmailsAreInvalidMessage)
 
                     return Promise.resolve()
