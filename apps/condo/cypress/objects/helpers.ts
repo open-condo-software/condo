@@ -25,7 +25,8 @@ const trackedVisit: (url) => Cypress.Chainable<Performance> = (url) => {
 }
 
 type Span = {
-    name: string
+    name: string,
+    fullName: string,
     finish: () => void,
 }
 
