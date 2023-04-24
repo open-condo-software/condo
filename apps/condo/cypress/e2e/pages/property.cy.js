@@ -35,12 +35,12 @@ describe('Property', function () {
         })
 
         it('can create and copy section', () => {
-            const tracer = new SimpleTracer('property.user.canCreateAndCopySection')
-            const spanPrepare = tracer.startSpan('1.createUserWithProperty')
+            const trace = new SimpleTracer('property.user.canCreateAndCopySection')
+            const spanPrepare = trace.startSpan('1.createUserWithProperty')
             cy.task('keystone:createUserWithProperty', true).then((response) => {
                 authUserWithCookies(response)
                 spanPrepare.finish()
-                const spanEdit = tracer.startSpan('2.editPropertyMap')
+                const spanEdit = trace.startSpan('2.editPropertyMap')
                 const propertyMapEdit = new PropertyMapEdit()
                 propertyMapEdit
                     .visit()
@@ -55,16 +55,18 @@ describe('Property', function () {
                     .clickSavePropertyMap()
                 // TODO: @toplenboren (Doma-5845) await for loading!
                 spanEdit.finish()
+            }).then(() => {
+                trace.finish()
             })
         })
 
         it('can add, remove and update section unit', () => {
-            const tracer = new SimpleTracer('property.user.canAddRemoveAndUpdateSectionUnit')
-            const spanPrepare = tracer.startSpan('1.createUserWithProperty')
+            const trace = new SimpleTracer('property.user.canAddRemoveAndUpdateSectionUnit')
+            const spanPrepare = trace.startSpan('1.createUserWithProperty')
             cy.task('keystone:createUserWithProperty', true).then((response) => {
                 authUserWithCookies(response)
                 spanPrepare.finish()
-                const spanEdit = tracer.startSpan('2.editPropertyMap')
+                const spanEdit = trace.startSpan('2.editPropertyMap')
                 const propertyMapUnitEdit = new PropertyMapUnitEdit()
                 propertyMapUnitEdit
                     .visit()
@@ -83,6 +85,8 @@ describe('Property', function () {
                     .renameUnit()
                     .clickSavePropertyMap()
                 spanEdit.finish()
+            }).then(() => {
+                trace.finish()
             })
         })
     })

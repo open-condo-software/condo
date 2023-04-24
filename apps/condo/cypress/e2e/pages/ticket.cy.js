@@ -12,8 +12,8 @@ describe('Ticket',  function () {
         })
 
         it('can create ticket',  () => {
-            const tracer = new SimpleTracer('ticket.user.canCreateTicket')
-            const spanPrepare = tracer.startSpan('1.createUserWithProperty')
+            const trace = new SimpleTracer('ticket.user.canCreateTicket')
+            const spanPrepare = trace.startSpan('1.createUserWithProperty')
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
                 spanPrepare.finish()
@@ -22,7 +22,7 @@ describe('Ticket',  function () {
                 const propertyUnits = propertyMap.sections
                     .map(section => section.floors.map(floor => floor.units.map(unit => unit.label))).flat(2)
 
-                const span = tracer.startSpan('2.createTicket')
+                const span = trace.startSpan('2.createTicket')
                 const ticketCreate = new TicketCreate()
                 ticketCreate
                     .visit()
@@ -34,22 +34,24 @@ describe('Ticket',  function () {
                     .selectProblemWithCategoryClassifier()
                     .clickOnSubmitButton()
                 span.finish()
+            }).then(() => {
+                trace.finish()
             })
         })
 
         it('can view and filter tickets with table', () => {
-            const tracer = new SimpleTracer('ticket.user.canViewAndFilterTicketsWithTable')
-            const spanPrepare = tracer.startSpan('1.createUserWithProperty')
+            const trace = new SimpleTracer('ticket.user.canViewAndFilterTicketsWithTable')
+            const spanPrepare = trace.startSpan('1.createUserWithProperty')
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
                 spanPrepare.finish()
 
-                const spanCreateTickets = tracer.startSpan('2.createTickets')
+                const spanCreateTickets = trace.startSpan('2.createTickets')
                 cy.task('keystone:createTickets', response).then(() => {
                     const { address: propertyAddress } = response.property
                     spanCreateTickets.finish()
 
-                    const spanSearchTickets = tracer.startSpan('3.viewTickets')
+                    const spanSearchTickets = trace.startSpan('3.viewTickets')
                     const ticketView = new TicketView()
                     ticketView
                         .visit()
@@ -60,22 +62,24 @@ describe('Ticket',  function () {
                         .typeAddressSearchInput(propertyAddress)
                     spanSearchTickets.finish()
                 })
+            }).then(() => {
+                trace.finish()
             })
         })
 
         it('can view and edit ticket', () => {
-            const tracer = new SimpleTracer('ticket.user.canViewAndEditTicket')
-            const spanPrepare = tracer.startSpan('1.createUserWithProperty')
+            const trace = new SimpleTracer('ticket.user.canViewAndEditTicket')
+            const spanPrepare = trace.startSpan('1.createUserWithProperty')
 
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
                 spanPrepare.finish()
 
-                const spanCreateTickets = tracer.startSpan('2.createTickets')
+                const spanCreateTickets = trace.startSpan('2.createTickets')
                 cy.task('keystone:createTickets', response).then((ticket) => {
                     spanCreateTickets.finish()
 
-                    const spanEditTickets = tracer.startSpan('3.editTickets')
+                    const spanEditTickets = trace.startSpan('3.editTickets')
                     const ticketEdit = new TicketEdit()
                     ticketEdit
                         .visit(ticket)
@@ -85,6 +89,8 @@ describe('Ticket',  function () {
                         .clickApplyChanges()
                     spanEditTickets.finish()
                 })
+            }).then(() => {
+                trace.finish()
             })
         })
     })

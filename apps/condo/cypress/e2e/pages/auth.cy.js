@@ -7,20 +7,22 @@ describe('Auth scenarios', () => {
 
     describe('User', () => {
         it('can start password recovery', () => {
-            const tracer = new SimpleTracer('auth.user.canStartPasswordRecovery')
-            const span = tracer.startSpan('1.startPasswordRecovery')
+            const trace = new SimpleTracer('auth.user.canStartPasswordRecovery')
+            const span = trace.startSpan('1.startPasswordRecovery')
             cy.task('keystone:createUser').then(([, user]) => {
                 const forgot = new ForgotPassword()
                 forgot
                     .visit()
                     .fillPhone(user.phone)
                     .startPasswordRecoveryClick()
+            }).then(() => {
+                span.finish()
+                trace.finish()
             })
-            span.finish()
         })
         it('can signin with correct password and phone', () => {
-            const tracer = new SimpleTracer('auth.user.canSigninWithCorrectPasswordAndPhone')
-            const span = tracer.startSpan('1.signIn')
+            const trace = new SimpleTracer('auth.user.canSigninWithCorrectPasswordAndPhone')
+            const span = trace.startSpan('1.signIn')
             cy.task('keystone:createUser').then(([, user]) => {
                 const signIn = new SignIn()
                 signIn
@@ -28,15 +30,17 @@ describe('Auth scenarios', () => {
                     .fillPhone(user.phone)
                     .fillPassword(user.password)
                     .signinClick()
+            }).then(() => {
+                span.finish()
+                trace.finish()
             })
-            span.finish()
         })
     })
     describe('Anonymous', () => {
         it('can register after confirming phone', () => {
 
-            const tracer = new SimpleTracer('auth.anonymous.canRegisterAfterConfirmingPhone')
-            const registrationSpan = tracer.startSpan('1.loadingRegistration')
+            const trace = new SimpleTracer('auth.anonymous.canRegisterAfterConfirmingPhone')
+            const registrationSpan = trace.startSpan('1.loadingRegistration')
 
             const registration = new Registration()
             const user = {
@@ -53,7 +57,7 @@ describe('Auth scenarios', () => {
             cy.url().should('contain', 'step=validatePhone')
             registrationSpan.finish()
 
-            const getConfirmPhoneActionSpan = tracer.startSpan('2.completingRegistration')
+            const getConfirmPhoneActionSpan = trace.startSpan('2.completingRegistration')
             cy.task('keystone:getConfirmPhoneAction', user.phone).then(([{ smsCode }]) => {
                 // step 2
                 registration.fillSMSCode(smsCode)
@@ -64,8 +68,11 @@ describe('Auth scenarios', () => {
                     .fillPassword(user.password)
                     .fillConfirmPassword(user.password)
                     .completeRegistrationClick()
+            }).then(() => {
+                getConfirmPhoneActionSpan.finish()
+                trace.finish()
             })
-            getConfirmPhoneActionSpan.finish()
+
         })
     })
 })
