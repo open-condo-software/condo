@@ -6,7 +6,6 @@
 .condo-typography {
   @condo-typography-decoration-thickness: 1px;
 
-  color: @condo-global-color-black;
   word-break: break-word;
 
   &-break-spaces {
@@ -24,6 +23,10 @@
 
   &-small {
     .condo-typography-text-small();
+  }
+
+  &-primary {
+    color: @condo-global-color-black;
   }
 
   &-secondary {
@@ -48,6 +51,10 @@
 
   &-danger {
     color: @condo-global-color-red-5;
+  }
+
+  &-inherit {
+    color: inherit;
   }
 
   &-disabled {

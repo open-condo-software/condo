@@ -9,13 +9,14 @@ import { colors } from '@open-condo/ui/src/colors'
 
 
 const AVAILABLE_TYPES: Array<TypographyParagraphProps['type']> = [
-    undefined,
+    'primary',
     'secondary',
     'inverted',
     'danger',
     'warning',
     'info',
     'success',
+    'inherit',
 ]
 
 const InvertedBackground = styled.div`
