@@ -106,5 +106,4 @@ module.exports = {
         await syncSbbolTransactions([date])
     }),
     syncSbbolTransactionsBankSyncTask: createTask('syncSbbolTransactionsBankSyncTask', syncSbbolTransactionsBankSyncTask, { priority: 2 }),
-    syncSbbolTransactions: createTask('syncSbbolTransactions', syncSbbolTransactions, { priority: 2 }),
 }
