@@ -9735,6 +9735,8 @@ export type BankIntegrationOrganizationContext = {
   integration?: Maybe<BankIntegration>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
+  /**  Controls availability of sync operation for this integration in scope of organization. Can be disabled by support in some cases, when client dont wants to have automatic synchronization via API, for example  */
+  enabled?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -9754,6 +9756,7 @@ export type BankIntegrationOrganizationContext = {
 export type BankIntegrationOrganizationContextCreateInput = {
   integration?: Maybe<BankIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
+  enabled?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9778,6 +9781,7 @@ export type BankIntegrationOrganizationContextHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  enabled?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -9796,6 +9800,7 @@ export type BankIntegrationOrganizationContextHistoryRecord = {
 export type BankIntegrationOrganizationContextHistoryRecordCreateInput = {
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  enabled?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9819,6 +9824,7 @@ export enum BankIntegrationOrganizationContextHistoryRecordHistoryActionType {
 export type BankIntegrationOrganizationContextHistoryRecordUpdateInput = {
   integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  enabled?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9844,6 +9850,8 @@ export type BankIntegrationOrganizationContextHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  enabled?: Maybe<Scalars['Boolean']>;
+  enabled_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -9938,6 +9946,7 @@ export type BankIntegrationOrganizationContextHistoryRecordsUpdateInput = {
 export type BankIntegrationOrganizationContextUpdateInput = {
   integration?: Maybe<BankIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
+  enabled?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9956,6 +9965,8 @@ export type BankIntegrationOrganizationContextWhereInput = {
   integration_is_null?: Maybe<Scalars['Boolean']>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
+  enabled?: Maybe<Scalars['Boolean']>;
+  enabled_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -58370,6 +58381,8 @@ export enum SortBankIntegrationHistoryRecordsBy {
 }
 
 export enum SortBankIntegrationOrganizationContextHistoryRecordsBy {
+  EnabledAsc = 'enabled_ASC',
+  EnabledDesc = 'enabled_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -58393,6 +58406,8 @@ export enum SortBankIntegrationOrganizationContextsBy {
   IntegrationDesc = 'integration_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
+  EnabledAsc = 'enabled_ASC',
+  EnabledDesc = 'enabled_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

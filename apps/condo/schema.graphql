@@ -17268,6 +17268,7 @@ type BankIntegrationOrganizationContextHistoryRecord {
   _label_: String
   integration: String
   organization: String
+  enabled: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -17294,6 +17295,8 @@ input BankIntegrationOrganizationContextHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
+  enabled: Boolean
+  enabled_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -17377,6 +17380,8 @@ input BankIntegrationOrganizationContextHistoryRecordWhereUniqueInput {
 }
 
 enum SortBankIntegrationOrganizationContextHistoryRecordsBy {
+  enabled_ASC
+  enabled_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -17398,6 +17403,7 @@ enum SortBankIntegrationOrganizationContextHistoryRecordsBy {
 input BankIntegrationOrganizationContextHistoryRecordUpdateInput {
   integration: String
   organization: String
+  enabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -17420,6 +17426,7 @@ input BankIntegrationOrganizationContextHistoryRecordsUpdateInput {
 input BankIntegrationOrganizationContextHistoryRecordCreateInput {
   integration: String
   organization: String
+  enabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -17455,6 +17462,10 @@ type BankIntegrationOrganizationContext {
   """ Ref to the organization. The object will be deleted if the organization ceases to exist 
   """
   organization: Organization
+
+  """ Controls availability of sync operation for this integration in scope of organization. Can be disabled by support in some cases, when client dont wants to have automatic synchronization via API, for example 
+  """
+  enabled: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -17485,6 +17496,8 @@ input BankIntegrationOrganizationContextWhereInput {
   integration_is_null: Boolean
   organization: OrganizationWhereInput
   organization_is_null: Boolean
+  enabled: Boolean
+  enabled_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -17552,6 +17565,8 @@ enum SortBankIntegrationOrganizationContextsBy {
   integration_DESC
   organization_ASC
   organization_DESC
+  enabled_ASC
+  enabled_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -17573,6 +17588,7 @@ enum SortBankIntegrationOrganizationContextsBy {
 input BankIntegrationOrganizationContextUpdateInput {
   integration: BankIntegrationRelateToOneInput
   organization: OrganizationRelateToOneInput
+  enabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -17592,6 +17608,7 @@ input BankIntegrationOrganizationContextsUpdateInput {
 input BankIntegrationOrganizationContextCreateInput {
   integration: BankIntegrationRelateToOneInput
   organization: OrganizationRelateToOneInput
+  enabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
