@@ -202,6 +202,7 @@
   "global.select.deletedOption": "Deleted",
   "global.filters.dateRange.start": "Start date",
   "global.filters.dateRange.end": "Final date",
+  "global.input.error.wrongEmails": "Wrong format of E-mail addresses",
   "miniapps.catalog.banner.more": "More",
   "miniapps.catalog.noServicesInCategory": "There are no services in this category yet",
   "miniapps.catalog.noServicesFound": "There is no such service",
