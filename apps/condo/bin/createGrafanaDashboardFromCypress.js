@@ -173,7 +173,6 @@ const getRequestHeaders = (apiKey) => {
     }
 }
 
-
 const getPanelFromTrace = (trace, { posX = 0, posY = 0 }) => {
     const panel = { ...{}, ...PANEL_CONFIG }
 
@@ -275,6 +274,12 @@ const updateGrafanaDashboard = async (newDashboard, { apiUrl, apiKey }) => {
     }
 }
 
+/**
+ *
+ * @param traces
+ * @param config
+ * @returns {Promise<*>}
+ */
 const syncGrafanaDashboard = async (traces, config) => {
     const {
         apiUrl,
