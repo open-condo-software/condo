@@ -1,24 +1,31 @@
 const MOBILE_SMALL = 'MOBILE_SMALL'
+const MOBILE_SMALL_MIN_WIDTH = 0
 const MOBILE_LARGE = 'MOBILE_LARGE'
+const MOBILE_LARGE_MIN_WIDTH = 360
 const TABLET_SMALL = 'TABLET_SMALL'
+const TABLET_SMALL_MIN_WIDTH = 480
 const TABLET_LARGE = 'TABLET_LARGE'
+const TABLET_LARGE_MIN_WIDTH = 768
 const DESKTOP_SMALL = 'DESKTOP_SMALL'
+const DESKTOP_SMALL_MIN_WIDTH = 992
 const DESKTOP_LARGE = 'DESKTOP_LARGE'
+const DESKTOP_LARGE_MIN_WIDTH = 1200
 
-export const BREAKPOINTS = [MOBILE_SMALL, MOBILE_LARGE, TABLET_SMALL, TABLET_LARGE, DESKTOP_SMALL, DESKTOP_LARGE] as const
+export const BREAKPOINTS = {
+    [MOBILE_SMALL]: MOBILE_SMALL_MIN_WIDTH,
+    [MOBILE_LARGE]: MOBILE_LARGE_MIN_WIDTH,
+    [TABLET_SMALL]: TABLET_SMALL_MIN_WIDTH,
+    [TABLET_LARGE]: TABLET_LARGE_MIN_WIDTH,
+    [DESKTOP_SMALL]: DESKTOP_SMALL_MIN_WIDTH,
+    [DESKTOP_LARGE]: DESKTOP_LARGE_MIN_WIDTH,
+} as const
 
-export type Breakpoint = typeof BREAKPOINTS[number]
-type BreakpointMap = { [Key in Breakpoint]: string }
+export type Breakpoint = keyof typeof BREAKPOINTS
 
 export type ScreenMap = Partial<Record<Breakpoint, boolean>>
 
-export const responsiveMap: BreakpointMap = {
-    MOBILE_SMALL: '(min-width: 0px)',
-    MOBILE_LARGE: '(min-width: 360px)',
-    TABLET_SMALL: '(min-width: 480px)',
-    TABLET_LARGE: '(min-width: 768px)',
-    DESKTOP_SMALL: '(min-width: 992px)',
-    DESKTOP_LARGE: '(min-width: 1200px)',
+function getMediaQuery (minWidth: number) {
+    return `(min-width: ${minWidth}px)`
 }
 
 type SubscribeFunc = (screens: ScreenMap) => void
@@ -52,16 +59,16 @@ const responsiveObserve = {
         if (!subscribers.size) this.unregister()
     },
     unregister (): void {
-        Object.keys(responsiveMap).forEach((screen) => {
-            const matchMediaQuery = responsiveMap[screen as Breakpoint]
+        Object.values(BREAKPOINTS).forEach((breakpoint) => {
+            const matchMediaQuery = getMediaQuery(breakpoint)
             const handler = this.matchHandlers[matchMediaQuery]
             handler?.mql.removeEventListener('change', handler?.listener)
         })
         subscribers.clear()
     },
     register (): void {
-        Object.keys(responsiveMap).forEach((screen) => {
-            const matchMediaQuery = responsiveMap[screen as Breakpoint]
+        Object.keys(BREAKPOINTS).forEach((screen) => {
+            const matchMediaQuery = getMediaQuery(BREAKPOINTS[screen as Breakpoint])
             const listener = ({ matches }: { matches: boolean }) => {
                 this.dispatch({
                     ...screens,
