@@ -1,3 +1,4 @@
+const { randomUUID } = require('crypto')
 const fs = require('fs')
 
 const fetch = require('isomorphic-fetch')
@@ -143,6 +144,26 @@ const TARGET_CONFIG = {
     'refId': 'INSERT',
 }
 
+const ROW_PANEL_CONFIG = {
+    'collapsed': false,
+    'gridPos': {
+        'h': 1,
+        'w': 24,
+        'x': 0,
+        'y': 0,
+    },
+    'id': null,
+    'panels': [],
+    'title': '',
+    'type': 'row',
+}
+
+const METRICS_PREFIX = conf['STATSD_METRIC_PREFIX'] + 'cypress.'
+const METRICS_POSTFIX = '.avg'
+
+const GRAFANA_DASHBOARD_PANEL_WIDTH = 8
+const GRAFANA_DASHBOARD_PANEL_HEIGHT = 8
+const GRAFANA_DASHBOARD_ROW_WIDTH = 24
 
 const getRequestHeaders = (apiKey) => {
     return {
@@ -152,32 +173,71 @@ const getRequestHeaders = (apiKey) => {
     }
 }
 
-const getNewDashboardPanelConfigFromTraces = (traces) => {
 
-    const panels = traces.map(trace => {
-        const newPanel = { ...{}, ...PANEL_CONFIG }
+const getPanelFromTrace = (trace, { posX = 0, posY = 0 }) => {
+    const panel = { ...{}, ...PANEL_CONFIG }
 
-        newPanel.id = null
-        newPanel.title = trace.name
-        newPanel.targets = []
+    panel.id = null
+    panel.title = trace.name.replace('.', ' ')
+    panel.targets = []
+    panel.gridPos = {
+        x: posX,
+        y: posY,
+        h: GRAFANA_DASHBOARD_PANEL_HEIGHT,
+        w: GRAFANA_DASHBOARD_PANEL_WIDTH,
+    }
 
-        trace.spans.forEach(span => {
-            const target = { ...{}, ...TARGET_CONFIG }
-            target.expr = ('condo_test_cypress_' + span.fullName + '_avg').replaceAll('.', '_')
-            target.legendFormat = span.name
-            target.refId = newPanel.targets.length.toString()
-            newPanel.targets.push(target)
-            console.log(`Pushed new target: ${span.name} : ${span.fullName} : ${target}`)
-        })
-
-        const totalTarget = { ...{}, ...TOTAL_TARGET_CONFIG }
-        totalTarget.expression = newPanel.targets.map(t => '$' + t.refId).join('+')
-        newPanel.targets.push(totalTarget)
-
-        return newPanel
+    trace.spans.forEach(span => {
+        const target = { ...{}, ...TARGET_CONFIG }
+        target.expr = (METRICS_PREFIX + span.fullName + METRICS_POSTFIX).replaceAll('.', '_')
+        target.legendFormat = span.name
+        target.refId = panel.targets.length.toString()
+        panel.targets.push(target)
+        console.log(`Pushed new target: ${span.name} : ${span.fullName} : ${target}`)
     })
 
-    return panels
+    if (panel.targets.length > 1) {
+        const totalTarget = { ...{}, ...TOTAL_TARGET_CONFIG }
+        totalTarget.expression = '0+' + panel.targets.map(t => '$' + t.refId).join('+')
+        panel.targets.push(totalTarget)
+    }
+
+    return panel
+}
+
+
+const getRowPanelFromGroup = (group) => {
+    const result = { ...{}, ...ROW_PANEL_CONFIG }
+    result.title = group
+    result.id = randomUUID()
+    return result
+}
+
+
+const getNewPanelsFromTraces = (traces) => {
+
+    let newPanels = []
+
+    const tracesByGroups = {}
+
+    traces.forEach(trace => {
+        const group = trace.group
+        if (!tracesByGroups[group]) { tracesByGroups[group] = [] }
+        tracesByGroups[group].push(trace)
+    })
+
+    Object.entries(tracesByGroups).forEach(([group, traces]) => {
+        let offsetX = 0
+        const groupPanels = []
+        groupPanels.push(getRowPanelFromGroup(group))
+        traces.forEach(trace => {
+            groupPanels.push(getPanelFromTrace(trace, { posX: offsetX }))
+            offsetX += GRAFANA_DASHBOARD_PANEL_WIDTH % GRAFANA_DASHBOARD_ROW_WIDTH
+        })
+        newPanels = newPanels.concat(groupPanels)
+    })
+
+    return newPanels
 }
 
 const getOldGrafanaDashboard = async ({ apiUrl, apiKey, dashboardUid }) => {
@@ -193,7 +253,7 @@ const getOldGrafanaDashboard = async ({ apiUrl, apiKey, dashboardUid }) => {
     }
 }
 
-const updateGrafanaDashboard = async (newDashboard, { apiUrl, apiKey, dashboardUid }) => {
+const updateGrafanaDashboard = async (newDashboard, { apiUrl, apiKey }) => {
 
     const updateDashboardMessage = 'Update Dashboard from cypress integration'
 
@@ -229,10 +289,10 @@ const syncGrafanaDashboard = async (traces, config) => {
 
     const oldDashboard = await getOldGrafanaDashboard(config)
 
-    const newPanelConfig = getNewDashboardPanelConfigFromTraces(traces)
+    const newPanels = getNewPanelsFromTraces(traces)
 
     const newDashboard = oldDashboard
-    newDashboard.panels = newPanelConfig
+    newDashboard.panels = newPanels
 
     const response = await updateGrafanaDashboard(newDashboard, config)
 

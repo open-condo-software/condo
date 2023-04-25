@@ -79,8 +79,7 @@ class TicketCreate {
     }
 
     clickOnSubmitButton (): this {
-        cy.get('[data-cy=ticket__submit-button]')
-            .click()
+        cy.get('[data-cy=ticket__submit-button]').click()
         cy.wait('@createTicket')
 
         cy.location('pathname', { timeout: 10000 }).should('contain', TICKET_VIEW_URL)
