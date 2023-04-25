@@ -17,7 +17,14 @@ const {
     UploadingFile,
 } = require('@open-condo/keystone/test.utils')
 
-const { BankSyncTask, createTestBankSyncTask, updateTestBankSyncTask } = require('@condo/domains/banking/utils/testSchema')
+const {
+    BankSyncTask,
+    BankIntegrationAccountContext,
+    BankIntegrationOrganizationContext,
+    createTestBankSyncTask,
+    updateTestBankSyncTask,
+    updateTestBankIntegrationOrganizationContext,
+} = require('@condo/domains/banking/utils/testSchema')
 const { createTestBankIntegrationAccountContext, createTestBankAccount, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
 const {
     createTestOrganization,
@@ -557,6 +564,7 @@ describe('BankSyncTask', () => {
         })
     })
 
+    // NOTE: These tests require to have real running server because `importBankTransaction` uses real fetch request
     describe('usage to execute importBankTransactionsTask worker after change', () => {
 
         const expectCorrectBankTransaction = (obj, transactionDataToCompare, organization, bankAccount) => {
@@ -573,7 +581,7 @@ describe('BankSyncTask', () => {
             expect(obj.integrationContext.id).toEqual(bankAccount.integrationContext.id)
         }
 
-        it('creates BankAccount, BankIntegrationAccountContext, BankTransaction and BankContractorAccount records', async () => {
+        it('creates BankAccount, BankIntegrationOrganizationContext, BankIntegrationAccountContext, BankTransaction and BankContractorAccount records', async () => {
             const [organization] = await createTestOrganization(adminClient)
 
             await createTestBankSyncTask(adminClient, organization, {
@@ -609,6 +617,17 @@ describe('BankSyncTask', () => {
                 })
                 // TODO(antonal): Due to difference in time zone offset between localhost and CI/CD calendar days saved from dayjs objects to Keystone cannot be compared using hardcoded values
                 // expect(dayjs(createdBankAccount.meta.amountAt, 'YYYY-MM-DD').diff(dayjs('2022-10-27', 'YYYY-MM-DD'), 'day')).toEqual(0)
+
+                const createdBankIntegrationAccountContext = await BankIntegrationAccountContext.getOne(adminClient, {
+                    id: createdBankAccount.integrationContext.id,
+                })
+                expect(createdBankIntegrationAccountContext).toBeDefined()
+                const createdBankIntegrationOrganizationContext = await BankIntegrationOrganizationContext.getOne(adminClient, {
+                    organization: { id: organization.id },
+                    enabled: true,
+                })
+                expect(createdBankIntegrationOrganizationContext).toBeDefined()
+                expect(createdBankIntegrationOrganizationContext.enabled).toBeTruthy()
 
                 const transactions = await BankTransaction.getAll(adminClient, {
                     account: { id: createdBankAccount.id },
@@ -777,6 +796,43 @@ describe('BankSyncTask', () => {
                 const updatedTask = await BankSyncTask.getOne(adminClient, { id: task.id })
                 expect(updatedTask.meta).toMatchObject({
                     errorMessage: 'Cannot parse uploaded file in 1CClientBankExchange format. Error: Line "КонечныйОстаток" not found in node "СекцияРасчСчет".',
+                })
+            })
+        })
+
+        it('sets error to task in case of disabled BankIntegrationOrganizationContext', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+
+            await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+            })
+
+            await waitFor(async () => {
+                const createdBankAccount = await BankAccount.getOne(adminClient, {
+                    organization: { id: organization.id },
+                })
+                expect(createdBankAccount).toBeDefined()
+            })
+
+            const obj = await BankIntegrationOrganizationContext.getOne(adminClient, {
+                organization: { id: organization.id },
+                enabled: true,
+            })
+            expect(obj).toBeDefined()
+            expect(obj.enabled).toBeTruthy()
+
+            await updateTestBankIntegrationOrganizationContext(adminClient, obj.id, {
+                enabled: false,
+            })
+
+            const [task2] = await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+            })
+
+            await waitFor(async () => {
+                const updatedTask = await BankSyncTask.getOne(adminClient, { id: task2.id })
+                expect(updatedTask.meta).toMatchObject({
+                    errorMessage: `Manually disabled BankIntegrationOrganizationContext(id="${obj.id}") was found for Organization(id="${organization.id}"). Operation cannot be executed.`,
                 })
             })
         })
