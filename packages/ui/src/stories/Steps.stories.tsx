@@ -8,13 +8,6 @@ export default {
     component: Component,
     argTypes: {
         items: { control: false },
-        itemSize: {
-            defaultValue: 'large',
-            options: ['large', 'small'],
-            control: {
-                type: 'select',
-            },
-        },
         noReturnMessage: { control: 'text' },
     },
 } as ComponentMeta<typeof Component>
