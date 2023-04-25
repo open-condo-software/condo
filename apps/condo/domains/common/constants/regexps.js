@@ -10,6 +10,7 @@ const LINEAR_GRADIENT_REGEXP = /^linear-gradient\([^(]*(\([^)]*\)[^(]*)*[^)]*\)$
 const HEX_CODE_REGEXP = /^#(([0-9a-f]){3}){1,2}$/i
 const TWO_OR_MORE_SPACES_REGEXP = /\s\s+/g
 const OMIT_SEARCH_CHARACTERS_REGEXP = /[^\p{Alphabetic}\p{Decimal_Number}\s/]/igu
+const MULTIPLE_EMAILS_REGEX = /^[\w+.-]+@[a-z\d.-]+\.[a-z]{2,}(\s*,\s*[\w+.-]+@[a-z\d.-]+\.[a-z]{2,})*$/i
 
 module.exports = {
     ALPHANUMERIC_REGEXP,
@@ -24,4 +25,5 @@ module.exports = {
     HEX_CODE_REGEXP,
     TWO_OR_MORE_SPACES_REGEXP,
     OMIT_SEARCH_CHARACTERS_REGEXP,
+    MULTIPLE_EMAILS_REGEX,
 }

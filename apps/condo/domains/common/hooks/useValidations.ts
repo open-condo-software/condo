@@ -2,7 +2,7 @@ import { Rule } from 'rc-field-form/lib/interface'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'
+import { SPECIAL_CHAR_REGEXP, MULTIPLE_EMAILS_REGEX } from '@condo/domains/common/constants/regexps'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { isValidTin } from '@condo/domains/organization/utils/tin.utils'
 
@@ -157,8 +157,7 @@ export const useValidations: UseValidations = (settings = {}) => {
         (emails) => {
             return {
                 validator: () => {
-                    const regex = /^[\w+.-]+@[a-z\d.-]+\.[a-z]{2,}(\s*,\s*[\w+.-]+@[a-z\d.-]+\.[a-z]{2,})*$/i
-                    if (!regex.test(emails) && emails !== '') return Promise.reject(EmailsAreInvalidMessage)
+                    if (!MULTIPLE_EMAILS_REGEX.test(emails) && emails !== '') return Promise.reject(EmailsAreInvalidMessage)
 
                     return Promise.resolve()
                 },
