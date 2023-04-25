@@ -1,9 +1,9 @@
 /**
  * @typedef {Object} SearchPluginParams
- * @property {String} searchContext
+ * @property {String} [searchContext]
  * @property {Object} keystoneContext
  * @property {IncomingMessage & {id: String}} req Express request object
- * @property {SuggestionHelpersType} helpers
+ * @property {SuggestionHelpersType} [helpers]
  */
 
 /**
