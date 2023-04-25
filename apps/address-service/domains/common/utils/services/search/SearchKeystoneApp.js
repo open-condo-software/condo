@@ -50,6 +50,7 @@ class SearchKeystoneApp {
         let keystoneContext
 
         const app = express()
+        const addressParser = new AddressFromStringParser()
 
         function setNoCache (req, res, next) {
             res.set('Pragma', 'no-cache')
@@ -61,17 +62,29 @@ class SearchKeystoneApp {
          * @param {string} searchContext
          * @param {IncomingMessage & {id: string}} req
          * @param {string} s
-         * @param {SuggestionHelpersType} helpers
-         * @returns {Promise<{[err]: string, [data]: string|{address: string, addressKey: string, addressMeta: NormalizedBuilding, addressSources: string[]}}>}
+         * @param {SuggestionHelpersType} [helpers]
+         * @param {boolean} [extractUnit] In the case the address string contains unit data, we may try to extract unitType and unitName
+         * @returns {Promise<{[err]: string, [data]:AddressData & {[unitType]: string, [unitName]: string}}>}
          */
-        const searchAddress = async ({ searchContext, req, s, helpers = {} }) => {
+        const searchAddress = async ({ searchContext, req, s, helpers = {}, extractUnit = false }) => {
             if (!keystoneContext) {
                 keystoneContext = await keystone.createContext()
             }
 
+            // Extract unitType and unitName
+            let searchString = s, unitType, unitName
+            if (extractUnit) {
+                const { address, unitType: ut, unitName: un } = addressParser.parse(s)
+                searchString = address
+                if (!!ut && !!un) {
+                    unitType = ut
+                    unitName = un
+                }
+            }
+
             const pluginParams = { searchContext, keystoneContext, req, helpers }
 
-            const plugins = this.plugins.filter((plugin) => plugin.isEnabled(s, pluginParams))
+            const plugins = this.plugins.filter((plugin) => plugin.isEnabled(searchString, pluginParams))
             if (plugins.length === 0) {
                 return { err: SEARCH_ERROR_NO_PLUGINS }
             }
@@ -85,7 +98,7 @@ class SearchKeystoneApp {
                         break
                     }
 
-                    searchResult = await plugin.prepare(pluginParams).search(s)
+                    searchResult = await plugin.prepare(pluginParams).search(searchString)
                 }
             } catch (e) {
                 return { err: SEARCH_ERROR_COMMON, data: e.message }
@@ -105,12 +118,18 @@ class SearchKeystoneApp {
                 set(searchResult, `${OVERRIDING_ROOT}.${path}`, value)
             })
 
+            const addressData = await createReturnObject({
+                context: keystoneContext.sudo(),
+                addressModel: searchResult,
+                overridden,
+            })
+
             return {
-                data: await createReturnObject({
-                    context: keystoneContext.sudo(),
-                    addressModel: searchResult,
-                    overridden,
-                }),
+                data: {
+                    ...addressData,
+                    unitType,
+                    unitName,
+                },
             }
         }
 
@@ -144,12 +163,18 @@ class SearchKeystoneApp {
                  */
                 const searchContext = String(get(req, ['query', 'context'], ''))
 
+                /**
+                 * In the case the address string contains unit data, we may try to extract unitType and unitName
+                 * @type {boolean}
+                 */
+                const extractUnit = Boolean(get(req, ['query', 'extractUnit'], false))
+
                 if (!s) {
                     res.send(400)
                     return
                 }
 
-                const searchResult = await searchAddress({ searchContext, req, s })
+                const searchResult = await searchAddress({ searchContext, req, s, extractUnit })
                 const err = get(searchResult, 'err')
                 if (err) {
                     switch (err) {
@@ -203,18 +228,29 @@ class SearchKeystoneApp {
                  */
                 const helpers = get(req, ['body', 'helpers'], {})
 
-                let result = {}
-                const parser = new AddressFromStringParser()
+                /**
+                 * In the case the address string contains unit data, we may try to extract unitType and unitName
+                 * @type {boolean}
+                 */
+                const extractUnit = Boolean(get(req, ['body', 'extractUnit'], false))
+
+                let result = { addresses: {}, map: {} }
 
                 for (const item of items) {
-                    // Extract unitType and unitName
-                    const { address, unit: unitName, unitType } = parser.parse(item)
+                    const searchedAddress = await searchAddress({ searchContext, req, s: item, helpers, extractUnit })
 
-                    result[item] = {
-                        address: await searchAddress({ searchContext, req, s: address, helpers }),
-                        unitType,
-                        unitName,
+                    const err = get(searchedAddress, 'err')
+                    let data
+
+                    if (err) {
+                        data = get(searchedAddress, 'data', err)
+                    } else {
+                        const addressKey = get(searchedAddress, ['data', 'addressKey'])
+                        const { unitType, unitName, ...restAddressFields } = get(searchedAddress, 'data')
+                        result.addresses[addressKey] = restAddressFields
+                        data = { addressKey, unitType, unitName }
                     }
+                    result.map[item] = { err, data }
                 }
 
                 res.json(result)
