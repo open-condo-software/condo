@@ -54,6 +54,7 @@ class SearchByProvider extends AbstractSearchPlugin {
                 value: searchResult.value,
                 unrestricted_value: searchResult.unrestricted_value,
                 data: get(searchResult, 'data', {}),
+                helpers: this.helpers,
             },
         }
 
