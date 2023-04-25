@@ -133,6 +133,9 @@ const importBankTransactionsWorker = async (taskId) => {
             if (get(bankAccount, ['integrationContext', 'integration', 'id']) !== BANK_INTEGRATION_IDS['1CClientBankExchange']) {
                 await throwErrorAndSetErrorStatusToTask(context, task, 'Another integration is used for this bank account, that fetches transactions in a different way. You cannot import transactions from file in this case')
             }
+            if (get(bankAccount, ['integrationContext', 'enabled']) === false) {
+                await throwErrorAndSetErrorStatusToTask(context, task, `Manually disabled BankIntegrationAccountContext(id="${bankAccount.integrationContext.id}") for BankAccount(id="${bankAccount.id}"). Operation cannot be executed`)
+            }
             integrationContext = bankAccount.integrationContext
         } else {
             integrationContext = await BankIntegrationAccountContext.create(context, {

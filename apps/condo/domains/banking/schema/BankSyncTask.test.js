@@ -23,7 +23,7 @@ const {
     BankIntegrationOrganizationContext,
     createTestBankSyncTask,
     updateTestBankSyncTask,
-    updateTestBankIntegrationOrganizationContext,
+    updateTestBankIntegrationOrganizationContext, updateTestBankIntegrationAccountContext,
 } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBankIntegrationAccountContext, createTestBankAccount, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
 const {
@@ -825,14 +825,45 @@ describe('BankSyncTask', () => {
                 enabled: false,
             })
 
-            const [task2] = await createTestBankSyncTask(adminClient, organization, {
+            const [task] = await createTestBankSyncTask(adminClient, organization, {
                 file: new UploadingFile(pathToCorrectFile),
             })
 
             await waitFor(async () => {
-                const updatedTask = await BankSyncTask.getOne(adminClient, { id: task2.id })
+                const updatedTask = await BankSyncTask.getOne(adminClient, { id: task.id })
                 expect(updatedTask.meta).toMatchObject({
                     errorMessage: `Manually disabled BankIntegrationOrganizationContext(id="${obj.id}") was found for Organization(id="${organization.id}"). Operation cannot be executed.`,
+                })
+            })
+        })
+
+        it('sets error to task in case of disabled BankIntegrationAccountContext', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+
+            await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+            })
+
+            let bankAccount
+            await waitFor(async () => {
+                bankAccount = await BankAccount.getOne(adminClient, {
+                    organization: { id: organization.id },
+                })
+                expect(bankAccount).toBeDefined()
+            })
+
+            await updateTestBankIntegrationAccountContext(adminClient, bankAccount.integrationContext.id, {
+                enabled: false,
+            })
+
+            const [task] = await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+            })
+
+            await waitFor(async () => {
+                const updatedTask = await BankSyncTask.getOne(adminClient, { id: task.id })
+                expect(updatedTask.meta).toMatchObject({
+                    errorMessage: `Manually disabled BankIntegrationAccountContext(id="${bankAccount.integrationContext.id}") for BankAccount(id="${bankAccount.id}"). Operation cannot be executed`,
                 })
             })
         })
