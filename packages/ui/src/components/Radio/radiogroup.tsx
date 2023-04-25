@@ -14,7 +14,7 @@ type ItemGroupOptionType = Pick<RadioProps, 'value' | 'label'> & {
     radioProps?: Partial<Pick<RadioProps, 'labelProps' | 'disabled'>>
 }
 
-type ItemGroupProps = {
+export type ItemGroupProps = {
     name: string
     options: Array<ItemGroupOptionType>
 }

@@ -50,6 +50,10 @@
     color: @condo-global-color-black;
   }
 
+  &.condo-select-single.condo-select-show-arrow .condo-select-selection-item {
+    color: @condo-global-color-black;
+  }
+
   .condo-select-selection-placeholder {
     color: @condo-global-color-gray-7;
   }
@@ -232,7 +236,7 @@
   }
 
   &:not(.condo-select-disabled):hover .condo-select-selector {
-    border-color: transparent;
+    border-color: @condo-global-color-gray-7;
   }
 }
 
@@ -298,6 +302,10 @@
   .condo-select-item {
     min-height: @condo-global-line-height-text-m;
     line-height: @condo-global-line-height-text-s;
+  }
+
+  .condo-select-item-hidden {
+    display: none;
   }
 
   .condo-select-item-option-selected:not(.condo-select-item-option-disabled) {

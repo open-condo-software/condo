@@ -1,6 +1,7 @@
 import { Select as DefaultSelect } from 'antd'
 import classNames from 'classnames'
 import compact from 'lodash/compact'
+import isEmpty from 'lodash/isEmpty'
 import React, { useCallback } from 'react'
 
 import { ChevronDown, Close, Check, Inbox } from '@open-condo/icons'
@@ -9,28 +10,53 @@ import type { TypographyTextProps } from '@open-condo/ui/src'
 import { sendAnalyticsChangeEvent, extractChildrenContent } from '@open-condo/ui/src/components/_utils/analytics'
 
 import { SELECT_TYPES } from './constants'
+import { useItems } from './hooks/useItems'
 
+import type { Either } from '../_utils/types'
 import type { SelectProps as DefaultSelectProps } from 'antd'
 
-const SELECT_CLASS_PREFIX = 'condo-select'
-const Option: typeof DefaultSelect.Option = DefaultSelect.Option
-const OptGroup: typeof DefaultSelect.OptGroup = DefaultSelect.OptGroup
+export const SELECT_CLASS_PREFIX = 'condo-select'
+export const Option: typeof DefaultSelect.Option = DefaultSelect.Option
+export const OptGroup: typeof DefaultSelect.OptGroup = DefaultSelect.OptGroup
 
-export type OptionType = React.PropsWithChildren<{
-    label: React.ReactNode
+export type OptionType = {
+    label: string
     value?: string | number | null
     disabled?: boolean
     textType?: TypographyTextProps['type']
     title?: string
+    key?: React.Key
+    hidden?: boolean
+}
+
+export type OptionsGroupType = {
+    label: string
+    options: Array<OptionType>
+    key?: React.Key
+}
+
+export type OptionsItem = Either<OptionType, OptionsGroupType> | null
+
+type OnChangeType = (
+    value: OptionType['value'] | Array<OptionType['value']>,
+    option: React.PropsWithChildren<OptionType> | Array<React.PropsWithChildren<OptionType>>
+) => void
+
+/**
+ * NOTE: Ant have bad interface for Select
+ * It may work with multiple values, but it is not specified in the interface.
+ */
+type CustomSelectProps<ValueType = SelectValueTypeBase> = Either<{
+    value?: ValueType | null
+}, {
+    mode: 'multiple'
+    value?: Array<ValueType>
 }>
-type OnChangeType = (value: OptionType['value'], option: OptionType | Array<OptionType>) => void
 
 type SelectValueTypeBase = string | number | null | undefined
 export type SelectProps<ValueType = SelectValueTypeBase> = Pick<DefaultSelectProps<ValueType, OptionType>,
 'disabled'
-| 'value'
 | 'loading'
-| 'children'
 | 'id'
 | 'dropdownAlign'
 | 'filterOption'
@@ -40,46 +66,48 @@ export type SelectProps<ValueType = SelectValueTypeBase> = Pick<DefaultSelectPro
 | 'defaultValue'
 > & {
     placeholder?: string
-    options?: Array<OptionType>
+    options: Array<OptionsItem>
     displayMode?: 'fill-parent' | 'fit-content'
     type?: typeof SELECT_TYPES[number]
     onChange?: OnChangeType
-    isMultiple?: boolean
     notFoundContentLabel?: string
-}
+} & CustomSelectProps<ValueType>
 
 const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueType>): React.ReactElement => {
-    const { options, children, displayMode = 'fill-parent', type, onChange, id, isMultiple, notFoundContentLabel,  ...rest } = props
+    const { mode, options, displayMode = 'fill-parent', type, onChange, id, notFoundContentLabel, value,  ...rest } = props
+
+    const children = useItems(options)
 
     const className = classNames({
         [`${SELECT_CLASS_PREFIX}-${displayMode}`]: displayMode,
-        [`${SELECT_CLASS_PREFIX}-${type}`]: !isMultiple && type,
+        [`${SELECT_CLASS_PREFIX}-${type}`]: !mode && type,
     })
 
-    // TODO(DOMA-5597): Fix value types on multiple-select
     const handleChange = useCallback<OnChangeType>((value, option) => {
         let title
-        if (Array.isArray(option)) {
+        let selectedValue
+        if (!!mode && Array.isArray(option) && !isEmpty(option)) {
             title = compact(option.map(opt => extractChildrenContent(opt.children)))
-        } else {
+            selectedValue = compact(option.map(opt => String(opt.value)))
+        } else if (!mode && !Array.isArray(option) && option) {
             title = extractChildrenContent(option.children)
+            selectedValue = String(option.value)
         }
 
-        if (title) {
-            // TODO(DOMA-5597): Key prop should be used here
-            sendAnalyticsChangeEvent('Select', { label: title, value: String(value), id })
+        if (title && selectedValue) {
+            sendAnalyticsChangeEvent('Select', { label: title, value: selectedValue, id })
         }
 
         if (onChange) {
             onChange(value, option)
         }
-    }, [id, onChange])
+    }, [id, mode, onChange])
 
     return (
         <DefaultSelect
             {...rest}
             id={id}
-            mode={isMultiple ? 'multiple' : undefined}
+            mode={mode}
             prefixCls={SELECT_CLASS_PREFIX}
             className={className}
             suffixIcon={<ChevronDown size='small' />}
@@ -88,6 +116,7 @@ const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueT
             clearIcon={<Close size='small' />}
             menuItemSelectedIcon={<Check size='small' />}
             showArrow
+            value={value}
             notFoundContent={
                 <>
                     <Inbox size='large' />
@@ -97,25 +126,11 @@ const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueT
                 </>
             }
         >
-            {options
-                ? options.map(({ label, value, textType, disabled, title }, optionIndex) => (
-                    <Option
-                        key={optionIndex}
-                        value={value}
-                        disabled={disabled}
-                        title={(title || typeof label !== 'string') ? title : label}
-                    >
-                        <Typography.Text size='medium' disabled={disabled} type={textType} children={label} />
-                    </Option>
-                ))
-                : children
-            }
+            {children}
         </DefaultSelect>
     )
 }
 
 export {
     Select,
-    Option,
-    OptGroup,
 }

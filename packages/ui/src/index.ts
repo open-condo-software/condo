@@ -1,5 +1,8 @@
 import '@open-condo/ui/src/components/style/core/global.less'
 
+export type { ActionBarProps } from './components/ActionBar'
+export { ActionBar } from './components/ActionBar'
+
 export { Alert } from './components/Alert'
 export type { AlertProps } from './components/Alert'
 
@@ -27,8 +30,14 @@ export type { MarkdownProps } from './components/Markdown'
 export { Modal } from './components/Modal'
 export type { ModalProps } from './components/Modal'
 
-export { Select, Option, OptGroup } from './components/Select'
-export type { SelectProps } from './components/Select'
+export { Radio, RadioGroup } from './components/Radio'
+export type { RadioProps, RadioGroupProps, ItemGroupProps } from './components/Radio'
+
+export { Select } from './components/Select'
+export type { SelectProps, OptionsGroupType, OptionsItem, OptionType } from './components/Select'
+
+export { Space } from './components/Space'
+export type { SpaceProps } from './components/Space'
 
 export { Steps } from './components/Steps'
 export type { StepsProps, StepItem } from './components/Steps'
@@ -51,12 +60,3 @@ export type {
     TypographyLinkProps,
     TypographyParagraphProps,
 } from './components/Typography'
-
-export { Radio, RadioGroup } from './components/Radio'
-export type { RadioProps, RadioGroupProps } from './components/Radio'
-
-export { Space } from './components/Space'
-export type { SpaceProps } from './components/Space'
-
-export type { ActionBarProps } from './components/ActionBar'
-export { ActionBar } from './components/ActionBar'

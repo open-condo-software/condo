@@ -1,5 +1,5 @@
-import { Select, Option, OptGroup } from './select'
+import { Select } from './select'
 import './style.less'
 
-export type { SelectProps } from './select'
-export { Select, Option, OptGroup }
+export type { SelectProps, OptionsGroupType, OptionsItem, OptionType } from './select'
+export { Select }

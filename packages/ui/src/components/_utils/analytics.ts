@@ -26,7 +26,7 @@ type ComponentSpecificCheckEventProps = {
 type ComponentSpecificChangeEventProps = {
     Tabs: { activeKey: string }
     Steps: { activeStep: number }
-    Select: { value: string, label: string | Array<string> }
+    Select: { value: string | Array<string>, label: string | Array<string> }
 }
 
 type ComponentNames = {
