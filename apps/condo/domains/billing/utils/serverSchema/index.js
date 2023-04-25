@@ -72,7 +72,7 @@ const getPaymentsSum = async (context, organizationId, accountNumber, period, bi
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
 
-async function searchBillingReceiptsWithoutConsumer (context, data) {
+async function searchBillingAccountsWithoutConsumer (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -80,7 +80,7 @@ async function searchBillingReceiptsWithoutConsumer (context, data) {
     return await execGqlWithoutAccess(context, {
         query: SEARCH_BILLING_RECEIPTS_WITHOUT_CONSUMER_QUERY,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to searchBillingReceiptsWithoutConsumer',
+        errorMessage: '[error] Unable to searchBillingAccountsWithoutConsumer',
         dataPath: 'obj',
     })
 }
@@ -100,6 +100,6 @@ module.exports = {
     BillingCategory,
     registerBillingReceipts,
     getPaymentsSum,
-    searchBillingReceiptsWithoutConsumer,
+    searchBillingAccountsWithoutConsumer,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

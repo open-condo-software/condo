@@ -14,7 +14,7 @@ const { BillingProperty } = require('./BillingProperty')
 const { BillingReceipt } = require('./BillingReceipt')
 const { BillingRecipient } = require('./BillingRecipient')
 const { RegisterBillingReceiptsService } = require('./RegisterBillingReceiptsService')
-const { SearchBillingReceiptsWithoutConsumerService } = require('./SearchBillingReceiptsWithoutConsumerService')
+const { SearchBillingAccountsWithoutConsumerService } = require('./SearchBillingAccountsWithoutConsumerService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -29,6 +29,6 @@ module.exports = {
     BillingRecipient,
     BillingCategory,
     RegisterBillingReceiptsService,
-    SearchBillingReceiptsWithoutConsumerService,
+    SearchBillingAccountsWithoutConsumerService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

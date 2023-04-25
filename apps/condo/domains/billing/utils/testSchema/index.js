@@ -753,7 +753,7 @@ function generateServicesData(count=3, toPay=''){
     return services
 }
 
-async function searchBillingReceiptsWithoutConsumerByTestClient(client, args, extraAttrs = {}) {
+async function searchBillingAccountsWithoutConsumerByTestClient(client, args, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!args) throw new Error('no data')
 
@@ -792,7 +792,7 @@ module.exports = {
     registerBillingReceiptsByTestClient,
     createRegisterBillingReceiptsPayload,
     generateServicesData,
-    searchBillingReceiptsWithoutConsumerByTestClient,
+    searchBillingAccountsWithoutConsumerByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

@@ -51,8 +51,8 @@ const REGISTER_BILLING_RECEIPTS_MUTATION = gql`
 `
 
 const SEARCH_BILLING_RECEIPTS_WITHOUT_CONSUMER_QUERY = gql`
-    query searchBillingReceiptsWithoutConsumer ($data: SearchBillingReceiptsWithoutConsumerInput!) {
-        obj: searchBillingReceiptsWithoutConsumer(data: $data) { residentReceipts { resident { id } receipts { id } } }
+    query searchBillingAccountsWithoutConsumer ($data: SearchBillingAccountsWithoutConsumerInput!) {
+        obj: searchBillingAccountsWithoutConsumer(data: $data) { residentsAccounts { resident { id } accounts { number } } }
     }
 `
 

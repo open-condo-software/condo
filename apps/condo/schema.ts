@@ -47604,7 +47604,7 @@ export type Query = {
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
-  searchBillingReceiptsWithoutConsumer?: Maybe<SearchBillingReceiptsWithoutConsumerOutput>;
+  searchBillingAccountsWithoutConsumer?: Maybe<SearchBillingAccountsWithoutConsumerOutput>;
   /**
    * Returns id of BankCostItem corresponding to specified payment purpose string
    *
@@ -52786,8 +52786,8 @@ export type QueryAllResidentBillingReceiptsArgs = {
 };
 
 
-export type QuerySearchBillingReceiptsWithoutConsumerArgs = {
-  data: SearchBillingReceiptsWithoutConsumerInput;
+export type QuerySearchBillingAccountsWithoutConsumerArgs = {
+  data: SearchBillingAccountsWithoutConsumerInput;
 };
 
 
@@ -55202,19 +55202,19 @@ export type ResidentsUpdateInput = {
   data?: Maybe<ResidentUpdateInput>;
 };
 
-export type SearchBillingReceiptsWithoutConsumerInput = {
+export type SearchBillingAccountsWithoutConsumerAccountsGroup = {
+  __typename?: 'SearchBillingAccountsWithoutConsumerAccountsGroup';
+  resident?: Maybe<Resident>;
+  accounts: Array<BillingAccount>;
+};
+
+export type SearchBillingAccountsWithoutConsumerInput = {
   residents: Array<ResidentWhereUniqueInput>;
 };
 
-export type SearchBillingReceiptsWithoutConsumerOutput = {
-  __typename?: 'SearchBillingReceiptsWithoutConsumerOutput';
-  residentReceipts: Array<SearchBillingReceiptsWithoutConsumerReceiptsGroup>;
-};
-
-export type SearchBillingReceiptsWithoutConsumerReceiptsGroup = {
-  __typename?: 'SearchBillingReceiptsWithoutConsumerReceiptsGroup';
-  resident?: Maybe<Resident>;
-  receipts: Array<BillingReceipt>;
+export type SearchBillingAccountsWithoutConsumerOutput = {
+  __typename?: 'SearchBillingAccountsWithoutConsumerOutput';
+  residentsAccounts: Array<SearchBillingAccountsWithoutConsumerAccountsGroup>;
 };
 
 export type SendAppPushMessageData = {

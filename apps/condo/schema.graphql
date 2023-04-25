@@ -57428,17 +57428,17 @@ input RegisterBillingReceiptsInput {
   receipts: [RegisterBillingReceiptInput!]!
 }
 
-input SearchBillingReceiptsWithoutConsumerInput {
+input SearchBillingAccountsWithoutConsumerInput {
   residents: [ResidentWhereUniqueInput!]!
 }
 
-type SearchBillingReceiptsWithoutConsumerReceiptsGroup {
+type SearchBillingAccountsWithoutConsumerAccountsGroup {
   resident: Resident
-  receipts: [BillingReceipt!]!
+  accounts: [BillingAccount!]!
 }
 
-type SearchBillingReceiptsWithoutConsumerOutput {
-  residentReceipts: [SearchBillingReceiptsWithoutConsumerReceiptsGroup!]!
+type SearchBillingAccountsWithoutConsumerOutput {
+  residentsAccounts: [SearchBillingAccountsWithoutConsumerAccountsGroup!]!
 }
 
 input CreateBankAccountRequestInput {
@@ -60968,7 +60968,7 @@ type Query {
   checkPropertyWithAddressExist(data: CheckPropertyWithAddressExistInput!): CheckPropertyWithAddressExistOutput
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
-  searchBillingReceiptsWithoutConsumer(data: SearchBillingReceiptsWithoutConsumerInput!): SearchBillingReceiptsWithoutConsumerOutput
+  searchBillingAccountsWithoutConsumer(data: SearchBillingAccountsWithoutConsumerInput!): SearchBillingAccountsWithoutConsumerOutput
 
   """
   Returns id of BankCostItem corresponding to specified payment purpose string
