@@ -2,9 +2,8 @@ import { Row, Col } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
 
-import { Alert } from '@open-condo/ui'
+import { Alert, ActionBar } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { ReceiptsTable } from './ReceiptsTable'
@@ -38,10 +37,7 @@ export const AccrualsTab: React.FC<AccrualsTabProps> = ({ uploadComponent }) => 
             </Col>
             {Boolean(uploadComponent) && (
                 <Col span={FULL_SPAN}>
-                    {/* TODO(DOMA-5837) Replace it with UI-kit version */}
-                    <ActionBar expandWidth={24}>
-                        {uploadComponent}
-                    </ActionBar>
+                    <ActionBar actions={[uploadComponent]}/>
                 </Col>
             )}
         </Row>
