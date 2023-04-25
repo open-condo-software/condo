@@ -154,7 +154,7 @@ const ROW_PANEL_CONFIG = {
     },
     'id': null,
     'panels': [],
-    'title': '',
+    'title': 'INSERT',
     'type': 'row',
 }
 
@@ -193,7 +193,6 @@ const getPanelFromTrace = (trace, { posX = 0, posY = 0 }) => {
         target.legendFormat = span.name
         target.refId = panel.targets.length.toString()
         panel.targets.push(target)
-        console.log(`Pushed new target: ${span.name} : ${span.fullName} : ${target}`)
     })
 
     if (panel.targets.length > 1) {
@@ -206,9 +205,9 @@ const getPanelFromTrace = (trace, { posX = 0, posY = 0 }) => {
 }
 
 
-const getRowPanelFromGroup = (group) => {
+const getRowPanel = (title) => {
     const result = { ...{}, ...ROW_PANEL_CONFIG }
-    result.title = group
+    result.title = title
     result.id = randomUUID()
     return result
 }
@@ -229,7 +228,7 @@ const getNewPanelsFromTraces = (traces) => {
     Object.entries(tracesByGroups).forEach(([group, traces]) => {
         let offsetX = 0
         const groupPanels = []
-        groupPanels.push(getRowPanelFromGroup(group))
+        groupPanels.push(getRowPanel(group))
         traces.forEach(trace => {
             groupPanels.push(getPanelFromTrace(trace, { posX: offsetX }))
             offsetX += GRAFANA_DASHBOARD_PANEL_WIDTH % GRAFANA_DASHBOARD_ROW_WIDTH
@@ -291,14 +290,15 @@ const syncGrafanaDashboard = async (traces, config) => {
 
     const newPanels = getNewPanelsFromTraces(traces)
 
+    const disclaimer = getRowPanel('Warning: this dashboard is auto generated and will reset. Do not change this dashboard by hand!')
+
     const newDashboard = oldDashboard
-    newDashboard.panels = newPanels
+    newDashboard.panels = [disclaimer].concat(newPanels)
 
     const response = await updateGrafanaDashboard(newDashboard, config)
 
-    console.log(response)
-
-    return response
+    // TODO!
+    return apiUrl.replace('/api', '') + response.url
 }
 
 const cypressTracesPath = '../cypress/metrics/traces.json'
@@ -308,9 +308,9 @@ const traces = JSON.parse(cypressTraces)
 const config = JSON.parse(conf['CYPRESS_GRAFANA_CONFIG'])
 
 syncGrafanaDashboard(traces, config)
-    .then(() => {
+    .then((url) => {
         console.log('\r\n')
-        console.log('All done, please check the dashboard in grafana')
+        console.log(`All done, please check the dashboard in grafana: ${url} `)
         process.exit(0)
     }).catch((err) => {
         console.error('Failed to done', err)
