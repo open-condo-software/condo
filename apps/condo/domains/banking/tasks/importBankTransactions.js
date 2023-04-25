@@ -10,6 +10,7 @@ const { BANK_INTEGRATION_IDS, _1C_CLIENT_BANK_EXCHANGE } = require('@condo/domai
 const {
     BankIntegration,
     BankAccount,
+    BankIntegrationOrganizationContext,
     BankIntegrationAccountContext,
     BankTransaction,
     BankContractorAccount,
@@ -33,6 +34,19 @@ const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'importBankTransactions
 
 const logger = getLogger('importBankTransactions')
 
+async function throwErrorAndSetErrorStatusToTask (context, task, errorMessage) {
+    const { meta } = task
+    await BankSyncTask.update(context, task.id, {
+        ...DV_SENDER,
+        status: TASK_ERROR_STATUS,
+        meta: {
+            ...meta,
+            errorMessage,
+        },
+    })
+    throw new Error(errorMessage)
+}
+
 /**
  * Imports bank transactions according to specified BankSyncTask
  * @param taskId
@@ -45,12 +59,26 @@ const importBankTransactionsWorker = async (taskId) => {
     if (!task) {
         throw new Error(`Cannot find BankSyncTask by id="${taskId}"`)
     }
+    const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS['1CClientBankExchange'] })
+    if (!integration) {
+        throw new Error('Cannot find BankIntegration with id "61e3d767-bd62-40e3-a503-f885b242d262" corresponding to import from file in "1CClientBankExchange" format. This is a system error, not an wrong input. Record of this integration should be presented in database.')
+    }
 
-    const { file, organization, property, meta } = task
+    const { file, organization, property } = task
 
     const taskOrganization = await Organization.getOne(context, {
         id: organization.id,
     })
+
+    const existingIntegrationOrganizationContext = await BankIntegrationOrganizationContext.getOne(context, {
+        integration: { id: integration.id },
+        organization: { id: organization.id },
+    })
+    // Check for manually disabled integration context
+    // At this stage there is no matter, when it does not exist
+    if (existingIntegrationOrganizationContext && !existingIntegrationOrganizationContext.enabled) {
+        await throwErrorAndSetErrorStatusToTask(context, task, `Manually disabled BankIntegrationOrganizationContext(id="${existingIntegrationOrganizationContext.id}") was found for Organization(id="${organization.id}"). Operation cannot be executed.`)
+    }
 
     let conversionResult
     let response
@@ -68,19 +96,9 @@ const importBankTransactionsWorker = async (taskId) => {
     try {
         conversionResult = convertFrom1CExchangeToSchema(result)
     } catch (error) {
-        const errorMessage = `Cannot parse uploaded file in 1CClientBankExchange format. Error: ${error.message}`
-        await BankSyncTask.update(context, taskId, {
-            ...DV_SENDER,
-            status: TASK_ERROR_STATUS,
-            meta: {
-                ...meta,
-                errorMessage,
-            },
-        })
-        throw new Error(errorMessage)
+        await throwErrorAndSetErrorStatusToTask(context, task, `Cannot parse uploaded file in 1CClientBankExchange format. Error: ${error.message}`)
     }
     const { bankAccountData, bankTransactionsData } = conversionResult
-    const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS['1CClientBankExchange'] })
     let bankAccount = await BankAccount.getOne(context, {
         number: bankAccountData.number,
         organization: { id: organization.id },
@@ -88,9 +106,6 @@ const importBankTransactionsWorker = async (taskId) => {
     })
     let integrationContext
     if (!bankAccount) {
-        if (!integration) {
-            throw new Error('Cannot find BankIntegration with id "61e3d767-bd62-40e3-a503-f885b242d262" corresponding to import from file in "1CClientBankExchange" format')
-        }
         integrationContext = await BankIntegrationAccountContext.create(context, {
             ...DV_SENDER,
             integration: { connect: { id: integration.id } },
@@ -110,23 +125,13 @@ const importBankTransactionsWorker = async (taskId) => {
 
         if (property) data.property = { connect: { id: property.id } }
         bankAccount = await BankAccount.create(context, data)
-
     } else {
         const bankAccountUpdatePayload = {
             meta: bankAccountData.meta,
         }
         if (bankAccount.integrationContext) {
             if (get(bankAccount, ['integrationContext', 'integration', 'id']) !== BANK_INTEGRATION_IDS['1CClientBankExchange']) {
-                const errorMessage = 'Another integration is used for this bank account, that fetches transactions in a different way. You cannot import transactions from file in this case'
-                await BankSyncTask.update(context, taskId, {
-                    ...DV_SENDER,
-                    status: TASK_ERROR_STATUS,
-                    meta: {
-                        ...meta,
-                        errorMessage,
-                    },
-                })
-                throw new Error(errorMessage)
+                await throwErrorAndSetErrorStatusToTask(context, task, 'Another integration is used for this bank account, that fetches transactions in a different way. You cannot import transactions from file in this case')
             }
             integrationContext = bankAccount.integrationContext
         } else {
@@ -143,6 +148,14 @@ const importBankTransactionsWorker = async (taskId) => {
         bankAccount = await BankAccount.update(context, bankAccount.id, {
             ...DV_SENDER,
             ...bankAccountUpdatePayload,
+        })
+    }
+
+    if (!existingIntegrationOrganizationContext) {
+        await BankIntegrationOrganizationContext.create(context, {
+            ...DV_SENDER,
+            integration: { connect: { id: integration.id } },
+            organization: { connect: { id: organization.id } },
         })
     }
 
