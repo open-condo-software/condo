@@ -137,8 +137,10 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const { breakpoints, isMobile } = useLayoutContext()
     const router = useRouter()
 
+    const initialSelectValue = bankAccountReports.map(({ period }) => period).indexOf(get(router, 'query.period'))
+
     const [activeTab, setActiveTab] = useState(get(bankAccountReports, '0.data.categoryGroups.0.id'))
-    const [selectedPeriod, setSelectedPeriod] = useState(0)
+    const [selectedPeriod, setSelectedPeriod] = useState(initialSelectValue !== -1 ? initialSelectValue : 0)
     const [activeCategory, setActiveCategory] = useState<ReportCategories>(ReportCategories.Total)
     const chartInstance = useRef(null)
 
@@ -288,7 +290,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
         if (!router.query.period && !isEmpty(bankAccountReports)) {
             router.push({
                 pathname: router.pathname,
-                query: { ...router.query, period:bankAccountReports[selectedPeriod].period },
+                query: { ...router.query, period: bankAccountReports[selectedPeriod].period },
             })
         }
     }, [router])
@@ -435,6 +437,8 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, bankAccountReports
     )
 }
 
+const MemoizedBankAccountReport = React.memo(BankAccountReport)
+
 export {
-    BankAccountReport,
+    MemoizedBankAccountReport as BankAccountReport,
 }
