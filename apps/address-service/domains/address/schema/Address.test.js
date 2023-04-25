@@ -25,7 +25,10 @@ const {
     createTestAddress,
     updateTestAddress,
 } = require('@address-service/domains/address/utils/testSchema')
-const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
+const {
+    createOrUpdateAddressWithSource,
+    hashJSON,
+} = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 const { createReturnObject } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -392,14 +395,14 @@ describe('Address', () => {
         })
     })
 
-    describe('Use cases',  () => {
+    describe('Use cases', () => {
         test('The house keeps the firstly created address', async () => {
             const source1 = faker.random.alphaNumeric(42)
             const source2 = faker.random.alphaNumeric(42)
             const address1 = `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
             const address2 = `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
 
-            const fakeSearchResult = {
+            const fakeMeta = {
                 value: '',
                 unrestricted_value: '',
                 data: {
@@ -423,13 +426,13 @@ describe('Address', () => {
 
             const addressData1 = {
                 address: address1,
-                meta: fakeSearchResult,
+                meta: fakeMeta,
                 key,
             }
 
             const addressData2 = {
                 address: address2,
-                meta: fakeSearchResult,
+                meta: fakeMeta,
                 key,
             }
 
@@ -452,6 +455,55 @@ describe('Address', () => {
             expect(sources).toEqual(expect.arrayContaining([
                 expect.objectContaining({ source: source1 }),
                 expect.objectContaining({ source: source2 }),
+            ]))
+        })
+
+        test('Helpers used correctly during models creation', async () => {
+            const helpers = { tin: faker.random.numeric(12) }
+            const source = faker.address.streetAddress(true)
+            const address = `${faker.address.cityName()} ${source}`
+
+            const fakeMeta = {
+                value: '',
+                unrestricted_value: '',
+                data: {
+                    country: faker.address.country(),
+                    region: faker.address.state(),
+                    area: faker.address.state(),
+                    city: faker.address.cityName(),
+                    city_district: faker.address.cityName(),
+                    settlement: faker.address.cityName(),
+                    street: faker.address.streetName(),
+                    house: faker.random.alphaNumeric(2),
+                    block: faker.random.alphaNumeric(3),
+                },
+                provider: {
+                    name: 'test',
+                    rawData: {},
+                },
+                helpers,
+            }
+
+            const key = faker.datatype.uuid()
+
+            const addressData = {
+                address: address,
+                meta: fakeMeta,
+                key,
+            }
+
+            const addressModel = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData, source, {
+                dv: 1,
+                sender,
+            })
+
+            const sources = await AddressSource.getAll(adminClient, { address: { id: addressModel.id } })
+            const helpersHash = hashJSON(helpers)
+            const fullSource = `${source}|helpers:${helpersHash}`
+
+            expect(sources).toHaveLength(1)
+            expect(sources).toEqual(expect.arrayContaining([
+                expect.objectContaining({ source: fullSource }),
             ]))
         })
     })
