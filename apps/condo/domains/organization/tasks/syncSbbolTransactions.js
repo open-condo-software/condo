@@ -28,10 +28,7 @@ const logger = getLogger('sbbol/CronTaskSyncTransactions')
 /**
  * Synchronizes SBBOL transaction data with data in the system
  */
-async function syncSbbolTransactions (dateInterval, userId = '', organization = {}) {
-    // if userId and organization is passed, receive transactions only for it. Case when it's not a cron task
-    if (userId && !isEmpty(organization)) return await requestTransactions({ dateInterval, userId, organization })
-
+async function syncSbbolTransactions (dateInterval) {
     const { keystone: context } = await getSchemaCtx('User')
     // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
     const usersWithSBBOLExternalIdentity = await UserExternalIdentity.getAll(context, {
