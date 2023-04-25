@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react'
 
-import ResponsiveObserve, { ScreenMap, BREAKPOINTS } from '../responsiveObserve'
+import ResponsiveObserve, { type ScreenMap, type Breakpoint, BREAKPOINTS } from '../responsiveObserve'
 
 import { useForceUpdate } from './index'
 
 // NOTE: In ssr we do not know the width of the window, so we set all breakpoints to true by default
-const DEFAULT_BREAKPOINTS_VALUE = BREAKPOINTS.reduce((acc, curr) => {
+const DEFAULT_BREAKPOINTS_VALUE = (Object.keys(BREAKPOINTS) as Array<Breakpoint>).reduce((acc, curr) => {
     acc[curr] = true
     return acc
 }, {} as ScreenMap)

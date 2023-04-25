@@ -1,4 +1,23 @@
-Для создания адаптивных страниц и компонентов Condo UI предоставляет разработчикам 2 React-хука: `useContainerSize` и `useBreakpoints`.
+Мы разделяем все устройства на 6 групп:
+
+| Категория     | Мин.размер экрана (px) |
+|---------------|------------------------|
+| MOBILE_SMALL  | 0                      |
+| MOBILE_LARGE  | 360                    |
+| TABLET_SMALL  | 480                    |
+| TABLET_LARGE  | 768                    |
+| DESKTOP_SMALL | 992                    |
+| DESKTOP_LARGE | 1200                   |
+
+Получить данные значения для динамической обработки можно следующим образом:
+```typescript
+import { BREAKPOINTS } from '@open-condo/ui/hooks'
+
+console.log(BREAKPOINTS.TABLET_LARGE) // 768
+```
+
+Однако в большинстве случаев обрабатывать значения вручную вам не придется, потому что
+для создания адаптивных страниц и компонентов Condo UI предоставляет разработчикам 2 React-хука: `useContainerSize` и `useBreakpoints`.
 
 ## useContainerSize
 Данный хук наблюдает за вашим контейнером с помощью `React-ref` и возвращает размеры этого контейнера,
@@ -21,23 +40,17 @@ const CardGrid: React.FC = () => {
 }
 ```
 
-## useBreakpoints
-Мы разделяем все устройства на 6 групп:
+Основное применение данного хука - динамическое определение колонок в сетке, а также определение наполнения
+и позиционирование дочерних суб-компонентов внутри родительского контейнера, однако он может быть использован
+для произвольных целей, в том числе и в комбинации со значениями представленными выше.
 
-| Категория     | Мин.размер экрана (px) |
-|---------------|------------------------|
-| MOBILE_SMALL  | 0                      |
-| MOBILE_LARGE  | 360                    |
-| TABLET_SMALL  | 480                    |
-| TABLET_LARGE  | 768                    |
-| DESKTOP_SMALL | 992                    |
-| DESKTOP_LARGE | 1200                   |
+## useBreakpoints
 
 Хук `useBreakpoints` возвращает объект со всеми активными брейкпоинтами. Так например выглядит данные при ширине окна в `900px`:
 ```typescript
 import { useBreakpoints } from '@open-condo/ui/hooks'
 
-const { breakpoints } = useBreakpoints()
+const breakpoints = useBreakpoints()
 
 console.log(breakpoints.MOBILE_SMALL) // true, 900px >= 0px
 console.log(breakpoints.TABLET_LARGE) // true, 900px >= 768px
@@ -47,7 +60,7 @@ console.log(breakpoints.DESKTOP_SMALL) // false, 900px < 992px
 ```typescript
 import { useBreakpoints } from '@open-condo/ui/hooks'
 
-const { breakpoints } = useBreakpoints()
+const breakpoints = useBreakpoints()
 
 if (breakpoints.TABLET_SMALL && !breakpoints.DESKTOP_SMALL) {
     // at least small tablet, but not small desktop yet
