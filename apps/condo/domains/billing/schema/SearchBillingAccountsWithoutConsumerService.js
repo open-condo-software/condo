@@ -8,6 +8,7 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/billing/access/SearchBillingAccountsWithoutConsumerService')
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { NOT_UNIQUE } = require('@condo/domains/common/constants/errors')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
@@ -74,10 +75,14 @@ const SearchBillingAccountsWithoutConsumerService = new GQLCustomSchema('SearchB
                 }
 
                 // firstly try to retrieve all residents passed to the service
-                const residents = await Resident.getAll(context, {
-                    id_in: uniqueResidentIds,
-                    user: { id: context.authedItem.id },
-                    deletedAt: null,
+                const residents = await loadListByChunks({
+                    context,
+                    list: Resident,
+                    where: {
+                        id_in: uniqueResidentIds,
+                        user: { id: context.authedItem.id },
+                        deletedAt: null,
+                    },
                 })
 
                 if (residents.length !== residentIds.length) {
@@ -85,9 +90,13 @@ const SearchBillingAccountsWithoutConsumerService = new GQLCustomSchema('SearchB
                 }
 
                 // retrieve related ServiceConsumers
-                const consumers = await ServiceConsumer.getAll(context, {
-                    resident: { id_in: uniqueResidentIds },
-                    deletedAt: null,
+                const consumers = await loadListByChunks({
+                    context,
+                    list: ServiceConsumer,
+                    where: {
+                        resident: { id_in: uniqueResidentIds },
+                        deletedAt: null,
+                    },
                 })
 
                 // filter residents that have service consumer
@@ -114,9 +123,9 @@ const SearchBillingAccountsWithoutConsumerService = new GQLCustomSchema('SearchB
                     // assemble conditions
                     const addressCondition = {
                         OR: [
-                            { property: { address: property.address } },
+                            { property: { address_i: property.address } },
                             { property: { addressKey: property.addressKey } },
-                            { property: { normalizedAddress: property.address } },
+                            { property: { normalizedAddress_i: property.address } },
                         ],
                     }
                     const unitCondition = {
@@ -129,11 +138,15 @@ const SearchBillingAccountsWithoutConsumerService = new GQLCustomSchema('SearchB
                         },
                     }
 
-                    const accounts = await BillingAccount.getAll(context, {
-                        ...addressCondition,
-                        ...unitCondition,
-                        ...integrationCondition,
-                        deletedAt: null,
+                    const accounts = await loadListByChunks({
+                        context,
+                        list: BillingAccount,
+                        where: {
+                            ...addressCondition,
+                            ...unitCondition,
+                            ...integrationCondition,
+                            deletedAt: null,
+                        },
                     })
 
                     residentsAccounts.push({
