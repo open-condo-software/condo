@@ -17,6 +17,7 @@ const {
     UploadingFile,
 } = require('@open-condo/keystone/test.utils')
 
+const { ACCOUNT_IS_REQUIRED } = require('@condo/domains/banking/constants')
 const {
     BankSyncTask,
     BankIntegrationAccountContext,
@@ -895,6 +896,21 @@ describe('BankSyncTask', () => {
                 const updatedTask = await BankSyncTask.getOne(adminClient, { id: createdTask.id })
                 expect(updatedTask.v).toBeGreaterThan(createdTask.v)
             })
+        })
+
+        it('requires value for "account" field', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+
+            await expectToThrowGQLError(async () => {
+                await createTestBankSyncTask(adminClient, organization, {
+                    user: { connect: { id: adminClient.user.id } },
+                    options: {
+                        type: 'sbbol',
+                        dateFrom: dayjs().format('YYYY-MM-DD'),
+                        dateTo: dayjs().format('YYYY-MM-DD'),
+                    },
+                })
+            }, ACCOUNT_IS_REQUIRED)
         })
 
         it('validates value of "options" field', async () => {
