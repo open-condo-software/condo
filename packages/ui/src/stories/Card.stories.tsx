@@ -29,10 +29,20 @@ const Template: ComponentStory<typeof Component> = ({ children, ...rest }) => {
 
 export const Simple = Template.bind({})
 export const WithTitle = Template.bind({})
+export const Active = Template.bind({})
+export const ActiveWithTitle = Template.bind({})
 WithTitle.args = {
     title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
     titlePadding: 24,
 }
 WithTitle.argTypes = {
     title: { control: false },
+}
+Active.args = {
+    active: true,
+}
+ActiveWithTitle.args = {
+    title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
+    titlePadding: 24,
+    active: true,
 }
