@@ -88,8 +88,7 @@ class TicketCreate {
     }
 
     clickOnSubmitButton (): this {
-        cy.get('[data-cy=ticket__submit-button]')
-            .click()
+        cy.get('[data-cy=ticket__submit-button]').click()
         cy.wait('@createTicket')
 
         cy.location('pathname').should('not.eq', TICKET_CREATE_URL)

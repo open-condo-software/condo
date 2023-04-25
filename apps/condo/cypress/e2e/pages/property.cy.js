@@ -9,7 +9,7 @@ describe('Property', function () {
         })
 
         it('can create property map', () => {
-            const trace = new SimpleTracer('property.user.canCreatePropertyMap')
+            const trace = new SimpleTracer('user.canCreatePropertyMap', 'property')
             const spanPrepare = trace.startSpan('1.createUserWithProperty')
             cy.task('keystone:createUserWithProperty', true).then((response) => {
                 authUserWithCookies(response)
@@ -35,7 +35,7 @@ describe('Property', function () {
         })
 
         it('can create and copy section', () => {
-            const trace = new SimpleTracer('property.user.canCreateAndCopySection')
+            const trace = new SimpleTracer('user.canCreateAndCopySection', 'property')
             const spanPrepare = trace.startSpan('1.createUserWithProperty')
             cy.task('keystone:createUserWithProperty', true).then((response) => {
                 authUserWithCookies(response)
@@ -61,11 +61,12 @@ describe('Property', function () {
         })
 
         it('can add, remove and update section unit', () => {
-            const trace = new SimpleTracer('property.user.canAddRemoveAndUpdateSectionUnit')
+            const trace = new SimpleTracer('user.canAddRemoveAndUpdateSectionUnit', 'property')
             const spanPrepare = trace.startSpan('1.createUserWithProperty')
             cy.task('keystone:createUserWithProperty', true).then((response) => {
                 authUserWithCookies(response)
                 spanPrepare.finish()
+
                 const spanEdit = trace.startSpan('2.editPropertyMap')
                 const propertyMapUnitEdit = new PropertyMapUnitEdit()
                 propertyMapUnitEdit

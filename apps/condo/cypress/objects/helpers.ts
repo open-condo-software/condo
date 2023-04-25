@@ -38,10 +38,13 @@ class SimpleTracer {
     name: string
     perf: Performance
     spans: Array<Span>
+    group: string
     private _finished: boolean
 
-    constructor (name: string) {
+    constructor (name: string, group: string) {
         this.name = name
+        this.group = group
+
         this.perf = performance
         this.spans = []
         this._finished = false
@@ -71,7 +74,7 @@ class SimpleTracer {
 
     finish: () => Cypress.Chainable<unknown> = () => {
         this._finished = true
-        return cy.task('metrics:endTrace', [{ name: this.name, spans: this.spans }])
+        return cy.task('metrics:endTrace', [{ name: this.name, group: this.group, spans: this.spans }])
     }
 
     _getSpanMarkNames: (spanName: string) => [string, string] = (spanName) => {

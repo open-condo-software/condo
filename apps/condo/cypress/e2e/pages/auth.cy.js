@@ -7,7 +7,7 @@ describe('Auth scenarios', () => {
 
     describe('User', () => {
         it('can start password recovery', () => {
-            const trace = new SimpleTracer('auth.user.canStartPasswordRecovery')
+            const trace = new SimpleTracer('user.canStartPasswordRecovery', 'auth')
             const span = trace.startSpan('1.startPasswordRecovery')
             cy.task('keystone:createUser').then(([, user]) => {
                 const forgot = new ForgotPassword()
@@ -21,7 +21,7 @@ describe('Auth scenarios', () => {
             })
         })
         it('can signin with correct password and phone', () => {
-            const trace = new SimpleTracer('auth.user.canSigninWithCorrectPasswordAndPhone')
+            const trace = new SimpleTracer('user.canSigninWithCorrectPasswordAndPhone', 'auth')
             const span = trace.startSpan('1.signIn')
             cy.task('keystone:createUser').then(([, user]) => {
                 const signIn = new SignIn()
@@ -39,7 +39,7 @@ describe('Auth scenarios', () => {
     describe('Anonymous', () => {
         it('can register after confirming phone', () => {
 
-            const trace = new SimpleTracer('auth.anonymous.canRegisterAfterConfirmingPhone')
+            const trace = new SimpleTracer('anonymous.canRegisterAfterConfirmingPhone', 'auth')
             const registrationSpan = trace.startSpan('1.loadingRegistration')
 
             const registration = new Registration()
