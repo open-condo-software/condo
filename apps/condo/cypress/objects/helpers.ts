@@ -28,6 +28,7 @@ type Span = {
     name: string,
     fullName: string,
     finish: () => void,
+    duration: number,
 }
 
 /**
@@ -58,8 +59,11 @@ class SimpleTracer {
             fullName: this.name + '.' + spanName,
             finish: () => {
                 this.perf.mark(spanEndMark)
-                this._registerSpan(spanName)
+                const duration = this._getSpanDuration(spanName)
+                span.duration = duration
+                cy.task('metrics:histogram', [`${this.name}.${spanName}`, duration])
             },
+            duration: 0,
         }
         this.spans.push(span)
         return span
@@ -67,7 +71,7 @@ class SimpleTracer {
 
     finish: () => Cypress.Chainable<unknown> = () => {
         this._finished = true
-        return cy.task('grafana:drawTrace', [this.name, this.spans])
+        return cy.task('metrics:endTrace', [{ name: this.name, spans: this.spans }])
     }
 
     _getSpanMarkNames: (spanName: string) => [string, string] = (spanName) => {
@@ -76,10 +80,10 @@ class SimpleTracer {
         return [ spanStartMark, spanEndMark ]
     }
 
-    _registerSpan: (spanName: string) => void = (spanName) => {
+    _getSpanDuration: (spanName: string) => number = (spanName) => {
         const [spanStartMark, spanEndMark] = this._getSpanMarkNames(spanName)
         const measure = this.perf.measure(this.name + '.' + spanName, spanStartMark, spanEndMark)
-        cy.task('metrics:histogram', [`${this.name}.${spanName}`, measure.duration])
+        return measure.duration
     }
 }
 

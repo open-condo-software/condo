@@ -13,15 +13,12 @@ export default defineConfig({
         setupNodeEvents (on, config) {
             // eslint-disable-next-line import/order
             require('./plugins/index.js')(on, config)
-            require('./plugins/grafana.js')(on, config)
+            require('./plugins/metrics.js')(on, config)
         },
         env: {
             supportPassword: conf['CYPRESS_SERVER_SUPPORT_PASSWORD'],
             supportEmail: conf['CYPRESS_SERVER_SUPPORT_EMAIL'],
-            grafanaApiUrl: conf['CYPRESS_GRAFANA_API_URL'],
-            grafanaApiKey: conf['CYPRESS_GRAFANA_API_KEY'],
-            grafanaDashboardUid: conf['CYPRESS_GRAFANA_DASHBOARD_UID'],
-            grafanaDashboardNamePrefix: conf['CYPRESS_GRAFANA_DASHBOARD_ROW_PREFIX'],
+            grafanaConfig: conf['CYPRESS_GRAFANA_CONFIG'],
         },
         requestTimeout: 10000,
         pageLoadTimeout: 10000,

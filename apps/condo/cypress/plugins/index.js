@@ -3,7 +3,6 @@
  */
 const isEmpty = require('lodash/isEmpty')
 
-const Metrics = require('@open-condo/keystone/metrics')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -35,11 +34,6 @@ module.exports = async (on, config) => {
     const admin = await makeLoggedInAdminClient()
 
     on('task', {
-        async 'metrics:histogram' ([name, value]) {
-            console.log(`Logged metric: ${name} : ${value}`)
-            Metrics.histogram({ name: 'cypress.' + name, value })
-            return null
-        },
         // async 'keystone:createUser' () {
         //     return await createTestUser(supportClient)=
         // },
