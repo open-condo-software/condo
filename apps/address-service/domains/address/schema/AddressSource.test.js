@@ -194,7 +194,7 @@ describe('AddressSource', () => {
 
         describe('read', () => {
             test('admin can', async () => {
-                const [obj, attrs] = await createTestAddressSource(adminClient)
+                const [obj] = await createTestAddressSource(adminClient)
 
                 const objs = await AddressSource.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -207,7 +207,7 @@ describe('AddressSource', () => {
             })
 
             test('support can', async () => {
-                const [obj, attrs] = await createTestAddressSource(adminClient)
+                const [obj] = await createTestAddressSource(adminClient)
 
                 const objs = await AddressSource.getAll(supportClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -220,7 +220,7 @@ describe('AddressSource', () => {
             })
 
             test('user can\'t', async () => {
-                const [obj, attrs] = await createTestAddressSource(adminClient)
+                await createTestAddressSource(adminClient)
 
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
                     await AddressSource.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
@@ -228,7 +228,7 @@ describe('AddressSource', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [obj, attrs] = await createTestAddressSource(adminClient)
+                await createTestAddressSource(adminClient)
 
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await AddressSource.getAll(anonymousClient, {}, { sortBy: ['updatedAt_DESC'] })
