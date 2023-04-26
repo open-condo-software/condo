@@ -64,21 +64,31 @@ async function syncSbbolTransactions (dateInterval, userId = '', organization = 
 /**
  * Synchronizes SBBOL transaction data with data in the system
  */
-async function syncSbbolTransactionsBankSyncTask (dateInterval, userId, organization, taskId) {
+async function syncSbbolTransactionsBankSyncTask (taskId) {
+    if (!taskId) {
+        await updateStatusOfBankSyncTask(context, taskId, BANK_SYNC_TASK_STATUS.ERROR)
+        throw new Error('Missing taskId')
+    }
     const { keystone: context } = await getSchemaCtx('User')
 
-    if (!dateInterval || !userId || !organization || !taskId) {
-        await updateStatusOfBankSyncTask(context, taskId, BANK_SYNC_TASK_STATUS.ERROR)
-        throw new Error('Missing setup args')
+    let bankSyncTask
+
+    bankSyncTask = await BankSyncTask.getOne(context, {
+        id: taskId,
+    })
+
+    const dateInterval = [get(bankSyncTask, 'options.dateFrom')]
+    while (dateInterval[dateInterval.length - 1] < get(bankSyncTask, 'options.dateTo')) {
+        dateInterval.push(dayjs(dateInterval[dateInterval.length - 1]).add(1, 'day').format('YYYY-MM-DD'))
     }
 
     try {
-        await requestTransactions({ dateInterval, userId, organization, bankSyncTaskId: taskId })
+        await requestTransactions({ dateInterval, userId: bankSyncTask.user.id, organization: bankSyncTask.organization, bankSyncTaskId: taskId })
     } catch (e) {
         await updateStatusOfBankSyncTask(context, taskId, BANK_SYNC_TASK_STATUS.ERROR)
         throw new Error(`Cannot requestTransactions. ${e}`)
     }
-    const bankSyncTask = await BankSyncTask.getOne(context, {
+    bankSyncTask = await BankSyncTask.getOne(context, {
         id: taskId,
     })
     if (bankSyncTask.status !== BANK_SYNC_TASK_STATUS.ERROR || bankSyncTask.status !== BANK_SYNC_TASK_STATUS.CANCELLED) {

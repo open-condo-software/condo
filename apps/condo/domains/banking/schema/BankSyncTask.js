@@ -176,11 +176,7 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
                     await importBankTransactionsTask.delay(updatedItem.id)
                 }
                 if (type === SBBOL) {
-                    const dateInterval = [updatedItem.options.dateFrom]
-                    while (dateInterval[dateInterval.length - 1] < updatedItem.options.dateTo) {
-                        dateInterval.push(dayjs(dateInterval[dateInterval.length - 1]).add(1, 'day').format('YYYY-MM-DD'))
-                    }
-                    await syncSbbolTransactionsBankSyncTask.delay(dateInterval, updatedItem.user, updatedItem.organization, updatedItem.id)
+                    await syncSbbolTransactionsBankSyncTask.delay(updatedItem.id)
                 }
             }
         },

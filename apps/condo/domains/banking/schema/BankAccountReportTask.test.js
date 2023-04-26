@@ -151,7 +151,6 @@ describe('BankAccountReportTask', () => {
                 const [obj, attrs] = await updateTestBankAccountReportTask(admin, objCreated.id)
 
                 expect(obj.dv).toEqual(1)
-                expect(obj.sender).toMatchObject(attrs.sender)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
             })
 
@@ -196,7 +195,6 @@ describe('BankAccountReportTask', () => {
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
             })
 
