@@ -86,7 +86,7 @@ describe('AddressSource', () => {
             })
 
             test('Can not create two sources with the same address', async () => {
-                const source = `${faker.address.city()}, ${faker.address.streetName()}, ${faker.datatype.number()}, ${faker.datatype.number()}`
+                const source = `${faker.address.city()}, ${faker.address.street() }, ${faker.datatype.number()}, ${faker.datatype.number()}`
                 await createTestAddressSource(adminClient, { source })
 
                 await catchErrorFrom(async () => {
@@ -138,8 +138,8 @@ describe('AddressSource', () => {
             })
 
             test('Can not rename the source to the existing one', async () => {
-                const source1 = `${faker.address.city()}, ${faker.address.streetName()}, ${faker.datatype.number()}, ${faker.datatype.number()}`
-                const source2 = `${faker.address.city()}, ${faker.address.streetName()}, ${faker.datatype.number()}, ${faker.datatype.number()}`
+                const source1 = `${faker.address.city()}, ${faker.address.street() }, ${faker.datatype.number()}, ${faker.datatype.number()}`
+                const source2 = `${faker.address.city()}, ${faker.address.street() }, ${faker.datatype.number()}, ${faker.datatype.number()}`
 
                 const [obj1] = await createTestAddressSource(adminClient, { source: source1 })
                 await createTestAddressSource(adminClient, { source: source2 })
@@ -154,8 +154,8 @@ describe('AddressSource', () => {
             })
 
             test('Can change source', async () => {
-                const source = `${faker.address.city()}, ${faker.address.streetName()}, ${faker.datatype.number()}, ${faker.datatype.number()}`
-                const source2 = `${faker.address.city()}, ${faker.address.streetName()}, ${faker.datatype.number()}, ${faker.datatype.number()}`
+                const source = `${faker.address.city()}, ${faker.address.street() }, ${faker.datatype.number()}, ${faker.datatype.number()}`
+                const source2 = `${faker.address.city()}, ${faker.address.street() }, ${faker.datatype.number()}, ${faker.datatype.number()}`
 
                 const [obj] = await createTestAddressSource(adminClient, { source })
 

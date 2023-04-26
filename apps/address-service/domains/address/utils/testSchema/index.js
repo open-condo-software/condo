@@ -31,7 +31,7 @@ async function createTestAddress (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const address = `${faker.address.city()}, ${faker.address.streetName()}`
+    const address = `${faker.address.city()}, ${faker.address.street() }`
 
     const attrs = {
         dv: 1,
@@ -96,7 +96,7 @@ async function createTestAddressInjection (client, extraAttrs = {}) {
         city: createTestAddressPartWithType(faker.address.city()),
         cityDistrict: createTestAddressPartWithType(faker.address.state()),
         settlement: createTestAddressPartWithType(faker.address.city()),
-        street: createTestAddressPartWithType(faker.address.streetName()),
+        street: createTestAddressPartWithType(faker.address.street() ),
         house: createTestAddressPartWithType(`${faker.datatype.number()}${faker.datatype.string(1)}`),
         block: createTestAddressPartWithType(faker.datatype.number()),
         dv: 1,
@@ -145,7 +145,7 @@ async function createTestAddressSource (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const source = `${faker.address.city()}${faker.random.alphaNumeric(8)}, ${faker.address.streetName()}, ${faker.random.alphaNumeric(8)}`
+    const source = `${faker.address.city()}${faker.random.alphaNumeric(8)}, ${faker.address.street() }, ${faker.random.alphaNumeric(8)}`
 
     const attrs = {
         dv: 1,

@@ -60,7 +60,7 @@ async function createTestOrganization (client, extraAttrs = {}) {
         kpp: faker.random.alphaNumeric(9),
         city: faker.address.city(),
         zipCode: faker.address.zipCode(),
-        street: faker.address.streetName(),
+        street: faker.address.street(),
         number: faker.address.secondaryAddress(),
         country: country,
     }
@@ -89,7 +89,7 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
         kpp: faker.random.alphaNumeric(9),
         city: faker.address.city(),
         zipCode: faker.address.zipCode(),
-        street: faker.address.streetName(),
+        street: faker.address.street(),
         number: faker.address.secondaryAddress(),
     }
 
