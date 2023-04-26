@@ -40,11 +40,13 @@ async function syncSbbolTransactions (dateInterval, userId = '', organization = 
     })
     if (isEmpty(usersWithSBBOLExternalIdentity)) return logger.info('No users imported from SBBOL found. Cancel sync transactions')
 
+    const syncedOrgIds = []
     for (const identity of usersWithSBBOLExternalIdentity) {
         const userId = identity.user.id
         const [employee] = await OrganizationEmployee.getAll(context, {
             user: { id: userId },
             organization: {
+                id_not_in: syncedOrgIds,
                 importRemoteSystem: SBBOL_IMPORT_NAME,
                 deletedAt: null,
             },
@@ -52,11 +54,13 @@ async function syncSbbolTransactions (dateInterval, userId = '', organization = 
         }, { first: 1 })
 
         if (employee) {
+            const organization = get(employee, 'organization')
             await requestTransactions({
                 dateInterval,
                 userId,
-                organization: get(employee, 'organization'),
+                organization,
             })
+            syncedOrgIds.push(organization.id)
         }
     }
 }
