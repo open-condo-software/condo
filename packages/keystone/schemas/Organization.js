@@ -18,7 +18,7 @@ const { getById } = require('../schema')
 const Organization = new GQLListSchema('Organization', {
     fields: {
         name: {
-            factory: () => faker.company.companyName(),
+            factory: () => faker.company.name(),
             type: Text,
             isRequired: true,
             kmigratorOptions: { null: false },
@@ -499,7 +499,7 @@ async function accessAllowOnlyForRoleOwner ({ operation, authentication: { item:
     return res.length === 1
 }
 
-async function allowAccessForRoleOwnerForInviteNewUserToOrganizationService ({ authentication: { item: user }, args, context }) {
+async function allowAccessForRoleOwnerForInviteNewUserToOrganizationService ({ authentication: { item: user }, args }) {
     if (!user || !user.id) return false
     if (user.isAdmin) return true
     if (!args || !args.data || !args.data.organization || !args.data.organization.id) return false
@@ -512,7 +512,7 @@ async function allowAccessForRoleOwnerForInviteNewUserToOrganizationService ({ a
     return res.length === 1
 }
 
-async function allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService ({ authentication: { item: user }, args, context }) {
+async function allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService ({ authentication: { item: user }, args }) {
     if (!user || !user.id) return false
     if (user.isAdmin) return true
     if (!args || !args.id) return false
@@ -524,7 +524,7 @@ async function allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService
     return String(link.user) === String(user.id)
 }
 
-async function allowAccessForNotAssignedInvitesForAcceptOrRejectOrganizationInviteService ({ authentication: { item: user }, args, context }) {
+async function allowAccessForNotAssignedInvitesForAcceptOrRejectOrganizationInviteService ({ authentication: { item: user }, args }) {
     if (!user || !user.id) return false
     if (user.isAdmin) return true
     if (!args || !args.code) return false

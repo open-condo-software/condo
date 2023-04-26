@@ -10,8 +10,6 @@ const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { throwIfError, generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/constants')
 const {
-    PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, VOIP_INCOMING_CALL_MESSAGE_TYPE,
-    MESSAGE_BATCH_TYPE_OPTIONS, PUSH_TRANSPORT_FIREBASE, PUSH_FAKE_TOKEN_SUCCESS,
     B2C_APP_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
@@ -74,9 +72,9 @@ async function createTestB2BApp (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        name: faker.company.companyName().replace(/ /, '-').toUpperCase() + ' B2B APP',
+        name: faker.company.name().replace(/ /, '-').toUpperCase() + ' B2B APP',
         shortDescription: faker.commerce.productDescription(),
-        developer: faker.company.companyName(),
+        developer: faker.company.name(),
         detailedDescription: faker.lorem.paragraphs(5),
         isHidden: true,
         ...extraAttrs,

@@ -52,7 +52,7 @@ async function createTestOrganization (client, extraAttrs = {}) {
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const country = DEFAULT_ENGLISH_COUNTRY
-    const name = faker.company.companyName()
+    const name = faker.company.name()
     const description = faker.company.catchPhrase()
     const tin = generateTin(country)
     const meta = {
@@ -98,7 +98,7 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
         sender,
         meta,
         tin,
-        name: faker.company.companyName(),
+        name: faker.company.name(),
         description: faker.company.catchPhrase(),
         country: DEFAULT_ENGLISH_COUNTRY,
         ...extraAttrs,

@@ -93,7 +93,7 @@ function getRandomImplicitFeeDistribution () {
 async function createTestAcquiringIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST ACQUIRING'
+    const name = faker.company.name().replace(/ /, '-').toUpperCase() + ' TEST ACQUIRING'
     const hostUrl = faker.internet.url()
     const attrs = {
         dv: 1,
@@ -101,7 +101,7 @@ async function createTestAcquiringIntegration (client, extraAttrs = {}) {
         name,
         hostUrl,
         shortDescription: faker.commerce.productDescription(),
-        developer: faker.company.companyName(),
+        developer: faker.company.name(),
         detailedDescription: faker.lorem.paragraphs(5),
         explicitFeeDistributionSchema: getRandomExplicitFeeDistribution(),
         ...extraAttrs

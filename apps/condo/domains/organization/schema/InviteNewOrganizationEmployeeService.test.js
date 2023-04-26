@@ -512,7 +512,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
 //     const user2 = await createUser()
 //     const client = await makeLoggedInClient(user)
 //     const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
-//         data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
+//         data: { name: faker.company.name(), description: faker.lorem.paragraph() },
 //     })
 //     expect(errors).toEqual(undefined)
 //
@@ -542,7 +542,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
 //     const user2 = await createUser()
 //     const client = await makeLoggedInClient(user)
 //     const { data, errors } = await client.mutate(REGISTER_NEW_ORGANIZATION_MUTATION, {
-//         data: { name: faker.company.companyName(), description: faker.lorem.paragraph() },
+//         data: { name: faker.company.name(), description: faker.lorem.paragraph() },
 //     })
 //     expect(errors).toEqual(undefined)
 //
