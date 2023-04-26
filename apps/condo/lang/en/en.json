@@ -1516,6 +1516,7 @@
   "api.banking.BankSyncTask.INVALID_DATE": "Incorrect start or end date of the statement",
   "api.banking.BankSyncTask.INCORRECT_DATE_INTERVAL": "Incorrect date interval",
   "api.banking.BankSyncTask.ACCOUNT_IS_REQUIRED": "Bank account is required",
+  "api.banking.BankSyncTask.DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT": "Integration is disabled for current organization",
   "api.user.PASSWORD_IS_TOO_SHORT": "Password length is less then {min} characters",
   "api.user.PASSWORD_IS_FREQUENTLY_USED": "This password is weak or too obvious please choose something more secure",
   "api.user.TOO_MANY_REQUESTS": "You have to wait {secondsRemaining} sec. to be able to send request again",

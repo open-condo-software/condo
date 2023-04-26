@@ -1516,6 +1516,7 @@
   "api.banking.BankSyncTask.INVALID_DATE": "Некорректная дата начала или конца выписки",
   "api.banking.BankSyncTask.INCORRECT_DATE_INTERVAL": "Некорректный период",
   "api.banking.BankSyncTask.ACCOUNT_IS_REQUIRED": "Требуется расчетный счет",
+  "api.banking.BankSyncTask.DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT": "Интеграция отключена для текущей организации",
   "api.user.PASSWORD_IS_TOO_SHORT": "Длина введённого пароля меньше {min} символов",
   "api.user.PASSWORD_IS_FREQUENTLY_USED": "Пароль слишком простой. Нужно использовать что-то более безопасное",
   "api.user.TOO_MANY_REQUESTS": "Подождите {secondsRemaining} сек., чтобы отправить запрос снова",
