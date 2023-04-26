@@ -19,13 +19,7 @@ export type ItemGroupProps = {
     options: Array<ItemGroupOptionType>
 }
 
-// TODO(DOMA-5430): breaking changes (v2.0.0)
-export type RadioGroupProps = {
-    /**
-     * @deprecated should use "children" and "RadioGroup.ItemGroup" instead of "groups". "groups" will be removed in the next major release (v2).
-     */
-    groups?: Array<ItemGroupProps>
-} & Pick<DefaultRadioGroupProps, 'value' | 'onChange' | 'disabled' | 'children'>
+export type RadioGroupProps = Pick<DefaultRadioGroupProps, 'value' | 'onChange' | 'disabled' | 'children'>
 
 type CompoundedComponent = React.FC<RadioGroupProps> & {
     ItemGroup: React.FC<ItemGroupProps>
@@ -64,17 +58,12 @@ const ItemGroup: React.FC<ItemGroupProps> = ({ name, options }) => {
 }
 
 const CondoRadioGroup: React.FC<RadioGroupProps> = (props) => {
-    const { groups, children, ...rest } = props
 
     return (
         <DefaultRadio.Group
-            {...rest}
+            {...props}
             prefixCls={RADIO_GROUP_CLASS_PREFIX}
-        >
-            {groups ? groups.map(group => (
-                <ItemGroup name={group.name} options={group.options} key={group.name} />
-            )) : children}
-        </DefaultRadio.Group>
+        />
     )
 }
 
