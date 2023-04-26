@@ -17,7 +17,10 @@ const {
     UploadingFile,
 } = require('@open-condo/keystone/test.utils')
 
-const { ACCOUNT_IS_REQUIRED } = require('@condo/domains/banking/constants')
+const {
+    ACCOUNT_IS_REQUIRED,
+    DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT, _1C_CLIENT_BANK_EXCHANGE,
+} = require('@condo/domains/banking/constants')
 const {
     BankSyncTask,
     BankIntegrationAccountContext,
@@ -36,7 +39,7 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { BANK_INTEGRATION_IDS, BANK_SYNC_TASK_STATUS } = require('../constants')
-const { BankAccount, BankTransaction } = require('../utils/testSchema')
+const { BankAccount, BankTransaction, createTestBankIntegrationOrganizationContext } = require('../utils/testSchema')
 const { PARSED_TRANSACTIONS_TO_COMPARE } = require('../utils/testSchema/assets/1CClientBankExchangeToKeystoneObjects')
 
 const pathToCorrectFile = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/banking/utils/testSchema/assets/1CClientBankExchange.txt')
@@ -582,10 +585,58 @@ describe('BankSyncTask', () => {
                 })
             }, 'Required field "options" is null or undefined')
         })
+
+        it('fails to create if existing BankIntegrationOrganizationContext of corresponding type is disabled', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+
+            const [first1cTask] = await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+                options: {
+                    type: _1C_CLIENT_BANK_EXCHANGE,
+                },
+            })
+            expect(first1cTask).toBeDefined()
+
+            let _1cBankIntegrationOrganizationContext
+
+            await waitFor(async () => {
+                _1cBankIntegrationOrganizationContext = await BankIntegrationOrganizationContext.getOne(adminClient, {
+                    organization: { id: organization.id },
+                    enabled: true,
+                })
+                expect(_1cBankIntegrationOrganizationContext).toBeDefined()
+                expect(_1cBankIntegrationOrganizationContext.enabled).toBeTruthy()
+                expect(_1cBankIntegrationOrganizationContext.integration.id).toEqual(BANK_INTEGRATION_IDS['1CClientBankExchange'])
+            })
+
+            const anotherIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
+            const anotherBankIntegrationOrganizationContext = await createTestBankIntegrationOrganizationContext(adminClient, anotherIntegration, organization, {
+                enabled: false,
+            })
+            expect(anotherBankIntegrationOrganizationContext).toBeDefined()
+
+            const [secondSbbolTask] = await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+                options: {
+                    type: _1C_CLIENT_BANK_EXCHANGE,
+                },
+            })
+            expect(secondSbbolTask).toBeDefined()
+
+            await updateTestBankIntegrationOrganizationContext(adminClient, _1cBankIntegrationOrganizationContext.id, {
+                enabled: false,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await createTestBankSyncTask(adminClient, organization, {
+                    file: new UploadingFile(pathToCorrectFile),
+                })
+            }, DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT)
+        })
     })
 
     // NOTE: These tests require to have real running server because `importBankTransaction` uses real fetch request
-    describe('usage to execute importBankTransactionsTask worker after change', () => {
+    describe('usage for 1CClientBankExchange integration', () => {
 
         const expectCorrectBankTransaction = (obj, transactionDataToCompare, organization, bankAccount) => {
             expect(obj.id).toMatch(UUID_RE)
@@ -736,6 +787,44 @@ describe('BankSyncTask', () => {
             })
         })
 
+        it('reuses existing BankIntegrationOrganizationContext of the same integration', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+
+            await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+            })
+
+            let obj
+
+            await waitFor(async () => {
+                obj = await BankIntegrationOrganizationContext.getOne(adminClient, {
+                    organization: { id: organization.id },
+                    enabled: true,
+                })
+                expect(obj).toBeDefined()
+                expect(obj.enabled).toBeTruthy()
+                expect(obj.integration.id).toEqual(BANK_INTEGRATION_IDS['1CClientBankExchange'])
+            })
+
+            const [secondTask] = await createTestBankSyncTask(adminClient, organization, {
+                file: new UploadingFile(pathToCorrectFile),
+            })
+
+            await waitFor(async () => {
+                // Before getting records, produced by worker operation we should wait until it will be completed
+                // Otherwise, checks below will use records, produced by previous worker operation
+                const secondUpdatedTask = await BankSyncTask.getOne(adminClient, { id: secondTask.id })
+                expect(secondUpdatedTask.status).toEqual(BANK_SYNC_TASK_STATUS.COMPLETED)
+
+                const sameObj = await BankIntegrationOrganizationContext.getOne(adminClient, {
+                    organization: { id: organization.id },
+                    enabled: true,
+                })
+                expect(sameObj).toBeDefined()
+                expect(sameObj.id).toEqual(obj.id)
+            })
+        })
+
         it('skips duplicated BankTransaction records by (number, date) uniqueness rule', async () => {
             const [organization] = await createTestOrganization(adminClient)
 
@@ -820,43 +909,6 @@ describe('BankSyncTask', () => {
             })
         })
 
-        it('sets error to task in case of disabled BankIntegrationOrganizationContext', async () => {
-            const [organization] = await createTestOrganization(adminClient)
-
-            await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
-            })
-
-            await waitFor(async () => {
-                const createdBankAccount = await BankAccount.getOne(adminClient, {
-                    organization: { id: organization.id },
-                })
-                expect(createdBankAccount).toBeDefined()
-            })
-
-            const obj = await BankIntegrationOrganizationContext.getOne(adminClient, {
-                organization: { id: organization.id },
-                enabled: true,
-            })
-            expect(obj).toBeDefined()
-            expect(obj.enabled).toBeTruthy()
-
-            await updateTestBankIntegrationOrganizationContext(adminClient, obj.id, {
-                enabled: false,
-            })
-
-            const [task] = await createTestBankSyncTask(adminClient, organization, {
-                file: new UploadingFile(pathToCorrectFile),
-            })
-
-            await waitFor(async () => {
-                const updatedTask = await BankSyncTask.getOne(adminClient, { id: task.id })
-                expect(updatedTask.meta).toMatchObject({
-                    errorMessage: `Manually disabled BankIntegrationOrganizationContext(id="${obj.id}") was found for Organization(id="${organization.id}"). Operation cannot be executed.`,
-                })
-            })
-        })
-
         it('sets error to task in case of disabled BankIntegrationAccountContext', async () => {
             const [organization] = await createTestOrganization(adminClient)
 
@@ -917,7 +969,7 @@ describe('BankSyncTask', () => {
         })
     })
 
-    describe('usage to execute syncSbbolTransactionsBankSyncTask worker after change', () => {
+    describe('usage for SBBOL integration', () => {
         it('starts task worker that updates BankSyncTask inside of worker', async () => {
             const [organization] = await createTestOrganization(adminClient)
             const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })

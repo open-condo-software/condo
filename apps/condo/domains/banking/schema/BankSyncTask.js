@@ -4,7 +4,6 @@
 
 const { Relationship, Integer, Select, File } = require('@keystonejs/fields')
 const Ajv = require('ajv')
-const dayjs = require('dayjs')
 const { values, get } = require('lodash')
 
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
@@ -14,11 +13,17 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/banking/access/BankSyncTask')
-const { BANK_SYNC_TASK_STATUS, BANK_INTEGRATION_IDS, _1C_CLIENT_BANK_EXCHANGE, SBBOL } = require('@condo/domains/banking/constants')
+const {
+    BANK_SYNC_TASK_STATUS,
+    BANK_INTEGRATION_IDS,
+    _1C_CLIENT_BANK_EXCHANGE,
+    SBBOL,
+    DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT,
+} = require('@condo/domains/banking/constants')
 const { INCORRECT_DATE_INTERVAL, ACCOUNT_IS_REQUIRED } = require('@condo/domains/banking/constants')
 const { BANK_SYNC_TASK_OPTIONS } = require('@condo/domains/banking/schema/fields/BankSyncTaskOptions')
 const { importBankTransactionsTask } = require('@condo/domains/banking/tasks/importBankTransactions')
-const { BankAccount } = require('@condo/domains/banking/utils/serverSchema')
+const { BankAccount, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/serverSchema')
 const { getValidator } = require('@condo/domains/common/schema/json.utils')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -144,27 +149,57 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
     },
     hooks: {
         validateInput: async ({ resolvedData, context, operation }) => {
-            if (operation === 'create' && get(resolvedData, 'options.type') === 'SBBOL') {
-                const dateFrom = get(resolvedData, 'options.dateFrom')
-                const dateTo = get(resolvedData, 'options.dateTo')
-                if (dateFrom > dateTo) {
-                    throw new GQLError(INCORRECT_DATE_INTERVAL, context)
+            const type = get(resolvedData, 'options.type')
+
+            if (operation === 'create') {
+                let integrationId
+
+                if (type === SBBOL) {
+                    integrationId = BANK_INTEGRATION_IDS.SBBOL
+                } else if (type === _1C_CLIENT_BANK_EXCHANGE) {
+                    integrationId = BANK_INTEGRATION_IDS['1CClientBankExchange']
+                }
+                const bankIntegrationOrganizationContext = await BankIntegrationOrganizationContext.getOne(context, {
+                    organization: { id: resolvedData.organization },
+                    integration: {
+                        id: integrationId,
+                    },
+                })
+                // After first execution of sync operations, a record for BankIntegrationOrganizationContext will be created automatically
+                // For integration with SBBOL it will be created in sync operation right after completed authorization flow
+                // For integration with 1C, it will be created in importBankTransactions worker
+                // We should inspect only existing record
+                if (bankIntegrationOrganizationContext && bankIntegrationOrganizationContext.enabled === false) {
+                    throw new GQLError(DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT, context)
+                }
+                if (type === SBBOL) {
+                    // This check cannot be used in "validateInput" hook of "account" field, because it is marked as not required
+                    // and will not be triggered if field value is missing. Since we have conditional validation, here is the only place
+                    if (!resolvedData.account) {
+                        throw new GQLError(ACCOUNT_IS_REQUIRED, context)
+                    }
+
+                    const dateFrom = get(resolvedData, 'options.dateFrom')
+                    const dateTo = get(resolvedData, 'options.dateTo')
+                    if (dateFrom > dateTo) {
+                        throw new GQLError(INCORRECT_DATE_INTERVAL, context)
+                    }
                 }
             }
         },
         beforeChange: async ({ resolvedData, context, operation }) => {
-            if (operation === 'create' && get(resolvedData, 'options.type') === SBBOL) {
-                if (!resolvedData.account) {
-                    throw new GQLError(ACCOUNT_IS_REQUIRED, context)
-                }
-                const account = await BankAccount.getOne(context, { id: resolvedData.account })
-                const integration = get(account, 'integrationContext.integration.id')
-                if (!integration) {
-                    await BankAccount.update(context, account.id, {
-                        integrationContext: { connect: { id: BANK_INTEGRATION_IDS.SBBOL } },
-                        dv: 1,
-                        sender: { dv: 1, fingerprint: 'BankSyncTask' },
-                    })
+            const type = get(resolvedData, 'options.type')
+            if (operation === 'create') {
+                if (type === SBBOL) {
+                    const account = await BankAccount.getOne(context, { id: resolvedData.account })
+                    const integration = get(account, 'integrationContext.integration.id')
+                    if (!integration) {
+                        await BankAccount.update(context, account.id, {
+                            integrationContext: { connect: { id: BANK_INTEGRATION_IDS.SBBOL } },
+                            dv: 1,
+                            sender: { dv: 1, fingerprint: 'BankSyncTask' },
+                        })
+                    }
                 }
             }
         },

@@ -49,6 +49,12 @@ const INVALID_DATE = {
     message: 'Invalid options.dateTo or options.DateFrom',
     messageForUser: 'api.banking.BankSyncTask.INVALID_DATE',
 }
+const DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT = {
+    code: BAD_USER_INPUT,
+    type: 'DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT',
+    message: 'Disabled BankIntegrationContext for current organization does not allow to execute data synchronization operations',
+    messageForUser: 'api.banking.BankSyncTask.DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT',
+}
 
 module.exports = {
     BANK_INTEGRATION_IDS,
@@ -63,6 +69,7 @@ module.exports = {
     BANK_ACCOUNT_REPORT_TEMPLATE_VALUES,
     INCORRECT_DATE_INTERVAL,
     INVALID_DATE,
+    DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT,
     ACCOUNT_IS_REQUIRED,
     WRONG_INTEGRATION,
 }
