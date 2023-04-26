@@ -43,18 +43,44 @@
       transition-duration: @condo-global-transition-duration-default;
       transition-property: border-color;
     }
+  }
 
-    &:hover {
-      box-shadow: @condo-global-box-shadow-default;
+  &-active {
+    background:
+      linear-gradient(#fff, #fff) padding-box,
+      @condo-global-color-brand-gradient-5 border-box;
+    border: @condo-global-border-width-default solid transparent;
+    box-shadow: @condo-global-box-shadow-active;
 
-      .condo-card-head {
-        background-color: @condo-global-color-gray-1;
-        border-color: @condo-global-color-gray-1;
-      }
-
-      .condo-card-body {
-        border-color: @condo-global-color-white;
-      }
+    .condo-card-body {
+      // can't use "none" because it produces black border flicker
+      border: 0 solid transparent;
     }
+
+    .condo-card-head {
+      // can't use "none" because it produces black border flicker
+      border: 0 solid transparent;
+      border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-3;
+    }
+  }
+
+  &-hoverable:hover {
+    box-shadow: @condo-global-box-shadow-default;
+
+    .condo-card-head {
+      background-color: @condo-global-color-gray-1;
+      border-color: @condo-global-color-gray-1;
+    }
+
+    .condo-card-body {
+      border-color: @condo-global-color-white;
+    }
+  }
+
+  &-active&-hoverable:hover {
+    background:
+      linear-gradient(#fff, #fff) padding-box,
+      @condo-global-color-brand-gradient-7 border-box;
+    box-shadow: @condo-global-box-shadow-active;
   }
 }
