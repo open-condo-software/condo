@@ -37,9 +37,9 @@ describe('B2BApp', () => {
         })
         describe('Create', () => {
             const createPayload = {
-                name: faker.company.companyName().replace(/ /, '-').toUpperCase() + ' B2B APP',
+                name: faker.company.name().replace(/ /, '-').toUpperCase() + ' B2B APP',
                 shortDescription: faker.commerce.productDescription(),
-                developer: faker.company.companyName(),
+                developer: faker.company.name(),
                 detailedDescription: faker.datatype.string(),
             }
             test('Admin can', async () => {
@@ -106,7 +106,7 @@ describe('B2BApp', () => {
         describe('Update', () => {
             let createdApp
             const updatePayload = {
-                name: faker.company.companyName().replace(/ /, '-').toUpperCase() + ' B2B APP',
+                name: faker.company.name().replace(/ /, '-').toUpperCase() + ' B2B APP',
             }
             beforeEach(async () => {
                 [createdApp] = await createTestB2BApp(admin)

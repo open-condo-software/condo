@@ -36,7 +36,7 @@ describe('B2CApp', () => {
             })
             test('Support can', async () => {
                 const payload = {
-                    name: faker.company.companyName(),
+                    name: faker.company.name(),
                 }
                 const [app] = await createTestB2CApp(support, payload)
                 expect(app).toBeDefined()
@@ -57,7 +57,7 @@ describe('B2CApp', () => {
         describe('Read', () => {
             let app
             const payload = {
-                name: faker.company.companyName(),
+                name: faker.company.name(),
                 isHidden: false,
             }
             beforeAll(async () => {
@@ -102,7 +102,7 @@ describe('B2CApp', () => {
                 [app] = await createTestB2CApp(admin)
             })
             beforeEach(() => {
-                payload = { name: faker.company.companyName() }
+                payload = { name: faker.company.name() }
             })
             describe('Admin', () => {
                 test('Can update', async () => {

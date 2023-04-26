@@ -17,7 +17,7 @@ function bulidValidRequisitesForRuBankAccount (extra = {}) {
         country: 'ru',
         routingNumber,
         number,
-        bankName: faker.company.companyName(),
+        bankName: faker.company.name(),
         currencyCode: 'RUB',
         territoryCode: faker.datatype.number().toString(),
     }

@@ -50,7 +50,7 @@ const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.ut
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST BILLING INTEGRATION'
+    const name = faker.company.name().replace(/ /, '-').toUpperCase() + ' TEST BILLING INTEGRATION'
     const currencyCode = 'RUB'
 
     const attrs = {
@@ -60,7 +60,7 @@ async function createTestBillingIntegration (client, extraAttrs = {}) {
         currencyCode,
         isHidden: true,
         shortDescription: faker.commerce.productDescription(),
-        developer: faker.company.companyName(),
+        developer: faker.company.name(),
         detailedDescription: faker.lorem.paragraphs(5),
         ...extraAttrs,
     }
@@ -662,12 +662,12 @@ async function makeClientWithPropertyAndBilling({ billingIntegrationContextArgs,
 function createTestRecipient (extra = {}) {
     const range = (length) => ({ min: Math.pow(10,length - 1), max: Math.pow(10,length)-1 })
     const validRecipient = {
-        name: faker.company.companyName(),
+        name: faker.company.name(),
         tin: faker.datatype.number(range(10)).toString(),
         iec: faker.datatype.number(range(9)).toString(),
         bic: faker.finance.bic().toString(),
         bankAccount: faker.finance.account(12).toString(),
-        bankName: faker.company.companyName(),
+        bankName: faker.company.name(),
         territoryCode: faker.datatype.number().toString(),
         offsettingAccount: faker.finance.account(12).toString(),
     }
