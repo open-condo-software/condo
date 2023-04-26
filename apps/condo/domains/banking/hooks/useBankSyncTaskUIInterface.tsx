@@ -23,8 +23,9 @@ export const useBankSyncTaskUIInterface = () => {
 
     const { reload, push } = useRouter()
 
-    const onCompleteButtonClick = useCallback((taskRecord) => () => {
+    const getCompleteButtonClickHandler = useCallback((taskRecord) => () => {
         const propertyId = get(taskRecord, 'property.id')
+
         if (propertyId) {
             push(`/property/${propertyId}/report/`)
         } else {
@@ -57,7 +58,7 @@ export const useBankSyncTaskUIInterface = () => {
         onComplete: (taskRecord) => {
             notification.success({
                 message: BankSyncTaskProgressDescriptionCompleted,
-                btn: <Button onClick={onCompleteButtonClick(taskRecord)} type='primary'>{UpdateTitle}</Button>,
+                btn: <Button onClick={getCompleteButtonClickHandler(taskRecord)} type='primary'>{UpdateTitle}</Button>,
                 duration: 0,
             })
         },

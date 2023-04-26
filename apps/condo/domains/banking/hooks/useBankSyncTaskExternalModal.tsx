@@ -52,9 +52,8 @@ export const useBankSyncTaskExternalModal: IUseBankSyncTaskExternalModal = (prop
     })
 
     const handleCancel = useCallback(() => {
-        if (!isNull(dateRange)) {
-            setDateRange(null)
-        }
+        if (!isNull(dateRange)) setDateRange(null)
+
         setOpen(false)
     }, [dateRange])
     const handleOpen = useCallback(() => setOpen(true), [])

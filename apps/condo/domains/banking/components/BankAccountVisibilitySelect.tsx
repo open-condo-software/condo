@@ -23,6 +23,8 @@ interface IBankAccountVisibilitySelect {
     }): React.ReactElement
 }
 
+const transformVisibilityValue = (value: BankAccountReportType['publishedAt']) => Number(!isNull(value))
+
 const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bankAccountReports, refetch }) => {
     const intl = useIntl()
     const ReportVisibleTitle = intl.formatMessage({ id: 'pages.condo.property.report.visibility.visible' })
@@ -38,23 +40,23 @@ const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bankAccount
     const accountVisibility = get(selectedBankAccount, 'publishedAt', null)
 
     const [isUpdating, setIsUpdating] = useState(false)
-    const [reportVisible, setReportVisible] = useState<BankAccountVisibility>(Number(!isNull(accountVisibility)))
+    const [isReportVisible, setIsReportVisible] = useState<BankAccountVisibility>(transformVisibilityValue(accountVisibility))
 
     const updateBankAccountReport = BankAccountReport.useUpdate({}, (result) => {
-        setReportVisible(Number(!isNull(result.publishedAt)))
+        setIsReportVisible(transformVisibilityValue(result.publishedAt))
         refetch()
         setIsUpdating(false)
     })
 
     useEffect(() => {
-        setReportVisible(Number(!isNull(accountVisibility)))
+        setIsReportVisible(transformVisibilityValue(accountVisibility))
     }, [accountVisibility])
 
     const handleChange = useCallback((value) => {
         if (selectedBankAccount) {
             setIsUpdating(true)
 
-            const publishedAt = reportVisible === BankAccountVisibility.hidden
+            const publishedAt = isReportVisible === BankAccountVisibility.hidden
                 ? new Date().toISOString()
                 : null
 
@@ -69,7 +71,7 @@ const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bankAccount
                 }),
             })
         }
-    }, [intl, updateBankAccountReport, selectedBankAccount, OperationCompletedTitle, ReportVisibleDescription, ReportHiddenDescription, reportVisible])
+    }, [intl, updateBankAccountReport, selectedBankAccount, OperationCompletedTitle, ReportVisibleDescription, ReportHiddenDescription, isReportVisible])
 
     if (!bankAccountReports) {
         return null
@@ -77,17 +79,17 @@ const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bankAccount
 
     return (
         <Select
-            value={reportVisible}
+            value={isReportVisible}
             onChange={handleChange}
             disabled={isUpdating}
-            type={reportVisible ? 'success' : 'danger'}
+            type={isReportVisible ? 'success' : 'danger'}
         >
-            <Option value={BankAccountVisibility.visible} hidden={reportVisible}>
+            <Option value={BankAccountVisibility.visible} hidden={isReportVisible}>
                 <Typography.Text type='success'>
                     {ReportVisibleTitle}
                 </Typography.Text>
             </Option>
-            <Option value={BankAccountVisibility.hidden} hidden={!reportVisible}>
+            <Option value={BankAccountVisibility.hidden} hidden={!isReportVisible}>
                 <Typography.Text type='danger'>
                     {ReportHiddenTitle}
                 </Typography.Text>

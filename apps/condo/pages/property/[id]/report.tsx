@@ -132,18 +132,14 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
             }
         }
 
-        if (fileImportLoading) {
-            setIsProcessing(true)
-        }
+        if (fileImportLoading) setIsProcessing(true)
     }, [fileImportLoading, bankSyncTasksLoading, bankSyncTasksCount, isProcessing, stopPolling])
 
     const handleOpenSbbolModal = useCallback(async () => {
         await push(`${asPath}?${SBBOL_SYNC_CALLBACK_QUERY}`)
     }, [asPath, push])
 
-    if (isNull(bankSyncTasksCount) && bankSyncTasksLoading) {
-        return <Loader fill size='large' />
-    }
+    if (isNull(bankSyncTasksCount) && bankSyncTasksLoading) return <Loader fill size='large' />
 
     const hasSuccessCallback = query.hasOwnProperty(SBBOL_SYNC_CALLBACK_QUERY)
     const fileImportIntegration = get(bankAccount, ['integrationContext', 'integration', 'id']) === BANK_INTEGRATION_IDS['1CClientBankExchange']
