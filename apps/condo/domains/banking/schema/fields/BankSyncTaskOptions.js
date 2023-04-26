@@ -59,6 +59,7 @@ const BANK_SYNC_TASK_OPTIONS = {
     graphQLInputType: BANK_SYNC_TASK_OPTIONS_INPUT_NAME,
     graphQLReturnType: BANK_SYNC_TASK_OPTIONS_TYPE_NAME,
     extendGraphQLTypes: [BANK_SYNC_TASK_OPTIONS_TYPES],
+    graphQLAdminFragment: `{ ${Object.keys(bankSyncTaskOptionsFields).join(' ')} }`,
     hooks: {
         validateInput: bankSyncTaskOptionValidator,
     },

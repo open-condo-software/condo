@@ -1,5 +1,7 @@
 import { notification } from 'antd'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
+import { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
@@ -19,7 +21,17 @@ export const useBankSyncTaskUIInterface = () => {
     const BankSyncTaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.BankSyncTask.progress.description.completed' })
     const UpdateTitle = intl.formatMessage({ id: 'Update' })
 
-    const { reload } = useRouter()
+    const { reload, push } = useRouter()
+
+    const getCompleteButtonClickHandler = useCallback((taskRecord) => () => {
+        const propertyId = get(taskRecord, 'property.id')
+
+        if (propertyId) {
+            push(`/property/${propertyId}/report/`)
+        } else {
+            reload()
+        }
+    }, [reload, push])
 
     const TaskUIInterface: ITask = {
         storage: new TasksCondoStorage({
@@ -43,10 +55,10 @@ export const useBankSyncTaskUIInterface = () => {
         calculateProgress: (task: BankSyncTaskType) => {
             return Math.floor(task.processedCount / task.totalCount) * 100
         },
-        onComplete: () => {
+        onComplete: (taskRecord) => {
             notification.success({
                 message: BankSyncTaskProgressDescriptionCompleted,
-                btn: <Button onClick={() => reload()} type='primary'>{UpdateTitle}</Button>,
+                btn: <Button onClick={getCompleteButtonClickHandler(taskRecord)} type='primary'>{UpdateTitle}</Button>,
                 duration: 0,
             })
         },

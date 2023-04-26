@@ -138,11 +138,11 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const router = useRouter()
 
     const [activeTab, setActiveTab] = useState(get(bankAccountReports, '0.data.categoryGroups.0.id'))
-    const [selectedPeriod, setSelectedPeriod] = useState(0)
+    const [selectedPeriod, setSelectedPeriod] = useState(get(router, 'query.period') || get(bankAccountReports, '0.period'))
     const [activeCategory, setActiveCategory] = useState<ReportCategories>(ReportCategories.Total)
     const chartInstance = useRef(null)
 
-    const bankAccountReport = get(bankAccountReports, selectedPeriod)
+    const bankAccountReport = find(bankAccountReports, { period: selectedPeriod })
     const categoryGroups = get(bankAccountReport, 'data.categoryGroups', []).filter(categoryGroup => {
         if (activeCategory === ReportCategories.Total) {
             return true
@@ -210,13 +210,13 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const onChangeTabs = useCallback((key) => {
         setActiveTab(key)
     }, [])
-    const onReportPeriodSelectChange = useCallback(async (periodIndex) => {
-        setSelectedPeriod(periodIndex)
+    const onReportPeriodSelectChange = useCallback(async (period) => {
+        setSelectedPeriod(period)
 
         if (!isEmpty(bankAccountReports)) {
             await router.push({
                 pathname: router.pathname,
-                query: { ...router.query, period: bankAccountReports[periodIndex].period },
+                query: { ...router.query, period },
             })
         }
     }, [router, bankAccountReports])
@@ -247,10 +247,10 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
         .map(reportData => ({ label: intl.formatMessage({ id: `banking.category.${reportData.name}.name` }), key: reportData.id }))
     , [categoryGroups, intl])
     const reportOptionItems = useMemo(() => bankAccountReports
-        .map((bankAccountReport, reportIndex) => (
+        .map((bankAccountReport) => (
             <Option
                 key={bankAccountReport.id}
-                value={reportIndex}
+                value={bankAccountReport.period}
             >
                 {dayjs(bankAccountReport.period).format('MMMM YYYY')}
             </Option>
@@ -288,18 +288,18 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
         if (!router.query.period && !isEmpty(bankAccountReports)) {
             router.push({
                 pathname: router.pathname,
-                query: { ...router.query, period:bankAccountReports[selectedPeriod].period },
+                query: { ...router.query, period: selectedPeriod },
             })
         }
     }, [router])
 
     useEffect(() => {
-        const defaultSelectedTab = get(bankAccountReports, [selectedPeriod, 'data', 'categoryGroups', '0', 'id'])
+        const defaultSelectedTab = get(bankAccountReport, ['data', 'categoryGroups', '0', 'id'])
 
         if (defaultSelectedTab) {
             setActiveTab(defaultSelectedTab)
         }
-    }, [bankAccountReports, selectedPeriod])
+    }, [bankAccountReport])
 
     useEffect(() => {
         if (isEmpty(chartData) && !isEmpty(categoryGroups)) {
@@ -435,6 +435,8 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, bankAccountReports
     )
 }
 
+const MemoizedBankAccountReport = React.memo(BankAccountReport)
+
 export {
-    BankAccountReport,
+    MemoizedBankAccountReport as BankAccountReport,
 }

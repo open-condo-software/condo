@@ -1,9 +1,10 @@
+import { BankSyncTaskStatusType } from '@app/condo/schema'
 import { Row, Col, Tabs } from 'antd'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react'
+import React, { useCallback, useMemo, useState, useEffect } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
@@ -23,15 +24,16 @@ import { SbbolImportModal } from '@condo/domains/banking/components/SbbolImportM
 import { BANK_INTEGRATION_IDS } from '@condo/domains/banking/constants'
 import useBankContractorAccountTable from '@condo/domains/banking/hooks/useBankContractorAccountTable'
 import { useBankReportTaskButton } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
+import { useBankSyncTaskExternalModal } from '@condo/domains/banking/hooks/useBankSyncTaskExternalModal'
 import useBankTransactionsTable from '@condo/domains/banking/hooks/useBankTransactionsTable'
 import { useCategoryModal } from '@condo/domains/banking/hooks/useCategoryModal'
 import { useFileImport } from '@condo/domains/banking/hooks/useFileImport'
 import {
     BankAccount,
     BankTransaction,
-    BankIntegrationAccountContext,
     BankAccountReport as BankAccountReportClient,
 } from '@condo/domains/banking/utils/clientSchema'
+import { BankSyncTask } from '@condo/domains/banking/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -54,7 +56,6 @@ import type {
     BankAccount as BankAccountType,
     BankTransaction as BankTransactionType,
     BankContractorAccount as BankContractorAccountType,
-    BankIntegrationAccountContext as BankIntegrationAccountContextType,
     MakeOptional,
     OrganizationEmployeeRole as OrganizationEmployeeRoleType,
 } from '@app/condo/schema'
@@ -94,21 +95,6 @@ interface IPropertyReport {
     ): React.ReactElement
 }
 
-// This statuses will use only at MVP version of the app
-enum IntegrationContextStatus {
-    'InProgress' = 'inProgress',
-    'Completed' = 'completed',
-    'Failed' = 'failed',
-}
-
-/**
- * Collect total BankIntegrationAccountContext sync status from meta field
- * @deprecated
- */
-function getIntegrationsSyncStatus (integrationContexts: Array<BankIntegrationAccountContextType>, status: IntegrationContextStatus) {
-    return integrationContexts.some(context => get(context, 'meta.syncTransactionsTaskStatus') === status)
-}
-
 const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankAccount, organizationId, refetchBankAccount }) => {
     const intl = useIntl()
     const ImportBankAccountTitle = intl.formatMessage({ id: 'pages.condo.property.report.importBankTransaction.title' })
@@ -118,10 +104,8 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
     const LoginBySBBOLTitle = intl.formatMessage({ id: 'LoginBySBBOL' })
     const ImportSBBOLTitle = intl.formatMessage({ id: 'pages.condo.property.report.importBankTransaction.importSbbolTitle' })
     const ImportFileTitle = intl.formatMessage({ id: 'pages.condo.property.report.importBankTransaction.importFileTitle' })
-    const SyncSuccessTitle = intl.formatMessage({ id: 'pages.banking.report.syncSuccess.title' })
 
-    const [isCompleted, setIsCompleted] = useState(false)
-    const isProcessing = useRef(false)
+    const [isProcessing, setIsProcessing] = useState(false)
 
     const { query, asPath, push } = useRouter()
     const { id } = query
@@ -130,84 +114,73 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
         organizationId,
         bankAccount,
     })
-
-    // If current property already connected to the BankAccount -> query only it's context.
-    // Otherwise -> query by current organization
-    // Not null bankAccount prop means that current property already had a report without imported transactions
-    const { objs: bankIntegrationContexts, loading, stopPolling } = BankIntegrationAccountContext.useObjects({
-        where: get(bankAccount, 'integrationContext.id', false)
-            ? { id: get(bankAccount, 'integrationContext.id') }
-            : { organization: { id: organizationId } },
+    const { count: bankSyncTasksCount, loading: bankSyncTasksLoading, stopPolling } = BankSyncTask.useObjects({
+        where: {
+            status: BankSyncTaskStatusType.Processing,
+            organization: { id: organizationId },
+        },
     }, { pollInterval: BANK_INTEGRATION_CONTEXT_POLL_INTERVAL })
 
     // Fetch transactions sync status. If it not equals to processing -> stop poll results
     useEffect(() => {
-        if (fileImportLoading) {
-            if (!isProcessing.current) {
+        if (!bankSyncTasksLoading) {
+            if (bankSyncTasksCount > 0) {
+                setIsProcessing(true)
+            } else {
                 stopPolling()
-                isProcessing.current = true
-            }
-        } else if (!loading) {
-            isProcessing.current = getIntegrationsSyncStatus(bankIntegrationContexts, IntegrationContextStatus.InProgress)
-
-            if (!isProcessing.current) {
-                stopPolling()
-                setIsCompleted(getIntegrationsSyncStatus(bankIntegrationContexts, IntegrationContextStatus.Completed))
+                setIsProcessing(false)
             }
         }
-    }, [bankIntegrationContexts, loading, stopPolling, SyncSuccessTitle, intl, id, fileImportLoading])
+
+        if (fileImportLoading) setIsProcessing(true)
+    }, [fileImportLoading, bankSyncTasksLoading, bankSyncTasksCount, isProcessing, stopPolling])
 
     const handleOpenSbbolModal = useCallback(async () => {
         await push(`${asPath}?${SBBOL_SYNC_CALLBACK_QUERY}`)
     }, [asPath, push])
 
-    if (loading) {
-        return <Loader fill size='large' />
-    }
+    if (isNull(bankSyncTasksCount) && bankSyncTasksLoading) return <Loader fill size='large' />
 
     const hasSuccessCallback = query.hasOwnProperty(SBBOL_SYNC_CALLBACK_QUERY)
-    const hasSyncedData = isNull(bankAccount) && isCompleted
     const fileImportIntegration = get(bankAccount, ['integrationContext', 'integration', 'id']) === BANK_INTEGRATION_IDS['1CClientBankExchange']
 
     return (
-        <BasicEmptyListView image={isProcessing.current ? PROCESSING_IMAGE_PATH : EMPTY_IMAGE_PATH} spaceSize={20}>
+        <BasicEmptyListView image={isProcessing ? PROCESSING_IMAGE_PATH : EMPTY_IMAGE_PATH} spaceSize={20}>
             <Typography.Title level={3}>
-                {isProcessing.current ? ProcessingTitle : ImportBankAccountTitle}
+                {isProcessing ? ProcessingTitle : ImportBankAccountTitle}
             </Typography.Title>
             <Typography.Paragraph>
-                {isProcessing.current ? ProcessingDescription : ImportBankAccountDescription}
+                {isProcessing ? ProcessingDescription : ImportBankAccountDescription}
             </Typography.Paragraph>
-            {!isProcessing.current && (
+            {!isProcessing && (
                 <>
-                    {hasSyncedData
-                        ? (
-                            <DeprecatedButton
-                                key='submit'
-                                type='sberAction'
-                                secondary
-                                icon={<SberIconWithoutLabel/>}
-                                onClick={handleOpenSbbolModal}
-                                block
-                                {...(!isNull(bankAccount) && { hidden: fileImportIntegration })}
-                                disabled={fileImportLoading}
-                            >
-                                {ImportSBBOLTitle}
-                            </DeprecatedButton>
-                        )
-                        : (
-                            <DeprecatedButton
-                                key='submit'
-                                type='sberAction'
-                                secondary
-                                icon={<SberIconWithoutLabel/>}
-                                href={`/api/sbbol/auth?redirectUrl=${asPath}?${SBBOL_SYNC_CALLBACK_QUERY}`}
-                                block
-                                {...(!isNull(bankAccount) && { hidden: fileImportIntegration })}
-                                disabled={fileImportLoading}
-                            >
-                                {LoginBySBBOLTitle}
-                            </DeprecatedButton>
-                        )
+                    {isNull(bankAccount) ? (
+                        <DeprecatedButton
+                            key='submit'
+                            type='sberAction'
+                            secondary
+                            icon={<SberIconWithoutLabel/>}
+                            href={`/api/sbbol/auth?redirectUrl=${asPath}?${SBBOL_SYNC_CALLBACK_QUERY}`}
+                            block
+                            {...(!isNull(bankAccount) && { hidden: fileImportIntegration })}
+                            disabled={fileImportLoading}
+                        >
+                            {LoginBySBBOLTitle}
+                        </DeprecatedButton>
+                    ) : (
+                        <DeprecatedButton
+                            key='submit'
+                            type='sberAction'
+                            secondary
+                            icon={<SberIconWithoutLabel/>}
+                            onClick={handleOpenSbbolModal}
+                            block
+                            {...(!isNull(bankAccount) && { hidden: fileImportIntegration })}
+                            disabled={fileImportLoading}
+                        >
+                            {ImportSBBOLTitle}
+                        </DeprecatedButton>
+                    )
                     }
                     <FileImportButton type='secondary' {...(!isNull(bankAccount) && { hidden: !fileImportIntegration })}>
                         {ImportFileTitle}
@@ -232,6 +205,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
     const EditTitle = intl.formatMessage({ id: 'Edit' })
     const CancelSelectionTitle = intl.formatMessage({ id: 'pages.condo.ticket.index.CancelSelectedTicket' })
     const DeleteTitle = intl.formatMessage({ id: 'Delete' })
+    const SyncSbbolTransactions = intl.formatMessage({ id: 'pages.banking.report.sbbolSyncTitle' })
 
     // Local state
     const [tab, setTab] = useState<PropertyReportTypes>('income')
@@ -266,6 +240,10 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
         bankAccount,
         organizationId: get(bankAccount, 'organization.id'),
     })
+    const {
+        handleOpen: handleOpenSbbolImportModal,
+        ModalComponent: SbbolImportModal,
+    } = useBankSyncTaskExternalModal({ propertyId, bankAccount })
 
     const { BankReportTaskButton } = useBankReportTaskButton({
         bankAccount, user, organizationId: bankAccount.organization.id, type: 'secondary',
@@ -338,6 +316,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
     const fileImportIntegration = get(bankAccount, ['integrationContext', 'integration', 'id']) === BANK_INTEGRATION_IDS['1CClientBankExchange']
     const reportDeleteEntities = useFlag(PROPERTY_REPORT_DELETE_ENTITIES)
     const canManageBankAccountReportTasks = get(role, 'canManageBankAccountReportTasks', false)
+    const canManageBankAccounts = get(role, 'canManageBankAccounts', false)
 
     return (
         <>
@@ -381,55 +360,54 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
                     {tabContent}
                     {CategoryModal}
                 </Col>
+                {!fileImportIntegration && SbbolImportModal}
             </Row>
-            {
-                (totalSelectedItems || fileImportIntegration) && (
-                    <ActionBar
-                        message={totalSelectedItems && itemsSelectedTitle}
-                        actions={totalSelectedItems ? [
-                            <Button
-                                key='edit'
-                                type='primary'
-                                onClick={handleEditSelectedRows}
-                            >
-                                {EditTitle}
-                            </Button>,
-                            reportDeleteEntities && (
-                                <DeleteButtonWithConfirmModal
-                                    key='delete'
-                                    title={deleteModalTitle}
-                                    message={deleteModalDescription}
-                                    okButtonLabel={DeleteTitle}
-                                    buttonContent={DeleteTitle}
-                                    action={handleDeleteSelected}
-                                    showCancelButton
-                                />
-                            ),
-                            <Button
-                                key='cancel'
-                                type='secondary'
-                                onClick={handleClearSelection}
-                            >
-                                {CancelSelectionTitle}
-                            </Button>,
-                            canManageBankAccountReportTasks && (
-                                <BankReportTaskButton key='reportTask' />
-                            ),
-                        ] : [
-                            <FileImportButton
-                                key='import'
-                                hidden={!fileImportIntegration}
-                                type='primary'
-                            >
-                                {UploadFileTitle}
-                            </FileImportButton>,
-                            canManageBankAccountReportTasks && (
-                                <BankReportTaskButton key='reportTask' />
-                            ),
-                        ]}
-                    />
-                )
-            }
+            <ActionBar
+                message={totalSelectedItems ? itemsSelectedTitle : null}
+                actions={totalSelectedItems ? [
+                    <Button
+                        key='edit'
+                        type='primary'
+                        onClick={handleEditSelectedRows}
+                    >
+                        {EditTitle}
+                    </Button>,
+                    reportDeleteEntities && (
+                        <DeleteButtonWithConfirmModal
+                            key='delete'
+                            title={deleteModalTitle}
+                            message={deleteModalDescription}
+                            okButtonLabel={DeleteTitle}
+                            buttonContent={DeleteTitle}
+                            action={handleDeleteSelected}
+                            showCancelButton
+                        />
+                    ),
+                    <Button
+                        key='cancel'
+                        type='secondary'
+                        onClick={handleClearSelection}
+                    >
+                        {CancelSelectionTitle}
+                    </Button>,
+                ] : [
+                    <FileImportButton
+                        key='import'
+                        hidden={!fileImportIntegration}
+                        type='primary'
+                    >
+                        {UploadFileTitle}
+                    </FileImportButton>,
+                    (canManageBankAccounts && !fileImportIntegration) && (
+                        <Button type='primary' key='import-sbbol' onClick={handleOpenSbbolImportModal}>
+                            {SyncSbbolTransactions}
+                        </Button>
+                    ),
+                    canManageBankAccountReportTasks && (
+                        <BankReportTaskButton key='reportTask' />
+                    ),
+                ]}
+            />
         </>
     )
 }
@@ -449,11 +427,15 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
     const { count, loading: isCountLoading } = BankTransaction.useCount({
         where: { account: { id: get(bankAccount, 'id') } },
     })
-    const { objs: bankAccountReports, loading: bankAccountReportsLoading } = BankAccountReportClient.useObjects({
+    const {
+        objs: bankAccountReports,
+        loading: bankAccountReportsLoading,
+        refetch: refetchBankAccountReports,
+    } = BankAccountReportClient.useObjects({
         where: { account: { id: get(bankAccount, 'id') }, organization: { id: link.organization.id }, isLatest: true },
     })
 
-    const isBankAccountLoading = loading || isCountLoading || bankAccountReportsLoading
+    const isBankAccountLoading = loading || isCountLoading || (isNull(bankAccountReports) && bankAccountReportsLoading)
 
     const hasBankAccount = !isBankAccountLoading && !isNull(bankAccount) && count > 0
 
@@ -498,7 +480,7 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
                                 </Col>
                                 {hasBankAccount && (
                                     <Col>
-                                        <BankAccountVisibilitySelect bankAccountReports={bankAccountReports} />
+                                        <BankAccountVisibilitySelect bankAccountReports={bankAccountReports} refetch={refetchBankAccountReports} />
                                     </Col>
                                 )}
                             </Row>
