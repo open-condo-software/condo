@@ -409,7 +409,7 @@ describe('Address', () => {
                     city: faker.address.cityName(),
                     city_district: faker.address.cityName(),
                     settlement: faker.address.cityName(),
-                    street: faker.address.streetName(),
+                    street: faker.address.street(),
                     house: faker.random.alphaNumeric(2),
                     block: faker.random.alphaNumeric(3),
                 },

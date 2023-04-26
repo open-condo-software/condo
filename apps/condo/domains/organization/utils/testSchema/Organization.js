@@ -34,7 +34,7 @@ async function registerNewOrganization (client, extraAttrs = {}) {
     const tin = '6670428515'
     const meta = {
         dv: 1, kpp: '667001001', city: faker.address.city(), zipCode: faker.address.zipCode(),
-        street: faker.address.streetName(), number: faker.address.secondaryAddress(),
+        street: faker.address.street(), number: faker.address.secondaryAddress(),
         county: faker.address.county(),
     }
 
