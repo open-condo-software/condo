@@ -49,16 +49,16 @@
     background:
       linear-gradient(#fff, #fff) padding-box,
       @condo-global-color-brand-gradient-5 border-box;
-    border: 1px solid transparent;
+    border: @condo-global-border-width-default solid transparent;
     box-shadow: @condo-global-box-shadow-active;
 
     .condo-card-body {
-      border-color: transparent;
+      border: none;
     }
 
     .condo-card-head {
-      border-color: transparent;
-      border-bottom-color: @condo-global-color-gray-3;
+      border: none;
+      border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-3;
     }
   }
 
