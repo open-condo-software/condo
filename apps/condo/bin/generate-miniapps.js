@@ -1,6 +1,7 @@
 const path = require('path')
 
 const { faker } = require('@faker-js/faker')
+const random = require('lodash/random')
 
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
@@ -15,8 +16,7 @@ const bannerVariants = [
 ]
 
 function randomChoice (choices) {
-    const index = Math.floor(Math.random() * choices.length)
-    return choices[index]
+    return choices[random(choices.length - 1)]
 }
 
 class AppsGenerator {
