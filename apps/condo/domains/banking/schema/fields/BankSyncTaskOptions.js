@@ -63,6 +63,7 @@ const BANK_SYNC_TASK_OPTIONS = {
     hooks: {
         validateInput: bankSyncTaskOptionValidator,
     },
+    isRequired: true,
     access: {
         read: true,
         create: true,

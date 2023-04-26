@@ -563,6 +563,25 @@ describe('BankSyncTask', () => {
                 errorMessage: 'Test error message',
             })
         })
+
+        it('requires value of "options" field', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
+            const [BankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
+            const [account] = await createTestBankAccount(adminClient, organization, {
+                number: '40702810801500116391',
+                routingNumber: '044525999',
+                integrationContext: { connect: { id: BankIntegrationAccountContext.id } },
+            })
+
+            await expectToThrowValidationFailureError(async () => {
+                await createTestBankSyncTask(adminClient, organization, {
+                    account: { connect: { id: account.id } },
+                    user: { connect: { id: adminClient.user.id } },
+                    options: null,
+                })
+            }, 'Required field "options" is null or undefined')
+        })
     })
 
     // NOTE: These tests require to have real running server because `importBankTransaction` uses real fetch request
@@ -868,6 +887,34 @@ describe('BankSyncTask', () => {
                 })
             })
         })
+
+        it('validates value of "options" field', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
+            const [BankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
+            const [account] = await createTestBankAccount(adminClient, organization, {
+                number: '40702810801500116391',
+                routingNumber: '044525999',
+                integrationContext: { connect: { id: BankIntegrationAccountContext.id } },
+            })
+
+            await expectToThrowValidationFailureError(async () => {
+                await createTestBankSyncTask(adminClient, organization, {
+                    account: { connect: { id: account.id } },
+                    user: { connect: { id: adminClient.user.id } },
+                    options: { },
+                })
+            }, 'options field validation error. JSON not in the correct format - path: msg:must have required property \'type\'')
+
+            const [obj, attrs] = await createTestBankSyncTask(adminClient, organization, {
+                account: { connect: { id: account.id } },
+                user: { connect: { id: adminClient.user.id } },
+                options: {
+                    type: '1CClientBankExchange',
+                },
+            })
+            expect(obj.options).toMatchObject(attrs.options)
+        })
     })
 
     describe('usage to execute syncSbbolTransactionsBankSyncTask worker after change', () => {
@@ -958,6 +1005,18 @@ describe('BankSyncTask', () => {
                     },
                 })
             }, 'options field validation error. JSON not in the correct format - path:/dateTo msg:must match format "date"')
+
+            const [obj, attrs] = await createTestBankSyncTask(adminClient, organization, {
+                account: { connect: { id: account.id } },
+                user: { connect: { id: adminClient.user.id } },
+                options: {
+                    type: 'sbbol',
+                    dateFrom: dayjs().format('YYYY-MM-DD'),
+                    dateTo: dayjs().format('YYYY-MM-DD'),
+                },
+            })
+
+            expect(obj.options).toMatchObject(attrs.options)
         })
     })
 })
