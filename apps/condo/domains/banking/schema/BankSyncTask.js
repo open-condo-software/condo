@@ -7,7 +7,7 @@ const Ajv = require('ajv')
 const { values, get } = require('lodash')
 
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
-const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
@@ -18,9 +18,7 @@ const {
     BANK_INTEGRATION_IDS,
     _1C_CLIENT_BANK_EXCHANGE,
     SBBOL,
-    DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT,
 } = require('@condo/domains/banking/constants')
-const { INCORRECT_DATE_INTERVAL, ACCOUNT_IS_REQUIRED } = require('@condo/domains/banking/constants')
 const { BANK_SYNC_TASK_OPTIONS } = require('@condo/domains/banking/schema/fields/BankSyncTaskOptions')
 const { importBankTransactionsFrom1CClientBankExchange } = require('@condo/domains/banking/tasks/importBankTransactionsFrom1CClientBankExchange')
 const { BankAccount, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/serverSchema')
@@ -32,6 +30,27 @@ const { syncSbbolTransactionsBankSyncTask } = require('@condo/domains/organizati
 
 const BANK_SYNC_TASK_FOLDER_NAME = 'BankSyncTask'
 const BankSyncTaskFileAdapter = new FileAdapter(BANK_SYNC_TASK_FOLDER_NAME, true)
+
+const errors = {
+    ACCOUNT_IS_REQUIRED: {
+        code: BAD_USER_INPUT,
+        type: 'ACCOUNT_IS_REQUIRED',
+        message: 'The "account" field is required to request transactions from SBBOL',
+        messageForUser: 'api.banking.BankSyncTask.ACCOUNT_IS_REQUIRED',
+    },
+    INCORRECT_DATE_INTERVAL: {
+        code: BAD_USER_INPUT,
+        type: 'INCORRECT_DATE_INTERVAL',
+        message: 'dateTo cannot be later than dateFrom',
+        messageForUser: 'api.banking.BankSyncTask.INCORRECT_DATE_INTERVAL',
+    },
+    DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT: {
+        code: BAD_USER_INPUT,
+        type: 'DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT',
+        message: 'Disabled BankIntegrationContext for current organization does not allow to execute data synchronization operations',
+        messageForUser: 'api.banking.BankSyncTask.DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT',
+    },
+}
 
 const BankSyncTask = new GQLListSchema('BankSyncTask', {
     schemaDoc: 'information about synchronization process of transactions with external source of from uploaded file',
@@ -170,19 +189,19 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
                 // For integration with 1C, it will be created in importBankTransactions worker
                 // We should inspect only existing record
                 if (bankIntegrationOrganizationContext && bankIntegrationOrganizationContext.enabled === false) {
-                    throw new GQLError(DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT, context)
+                    throw new GQLError(errors.DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT, context)
                 }
                 if (type === SBBOL) {
                     // This check cannot be used in "validateInput" hook of "account" field, because it is marked as not required
                     // and will not be triggered if field value is missing. Since we have conditional validation, here is the only place
                     if (!resolvedData.account) {
-                        throw new GQLError(ACCOUNT_IS_REQUIRED, context)
+                        throw new GQLError(errors.ACCOUNT_IS_REQUIRED, context)
                     }
 
                     const dateFrom = get(resolvedData, 'options.dateFrom')
                     const dateTo = get(resolvedData, 'options.dateTo')
                     if (dateFrom > dateTo) {
-                        throw new GQLError(INCORRECT_DATE_INTERVAL, context)
+                        throw new GQLError(errors.INCORRECT_DATE_INTERVAL, context)
                     }
                 }
             }
@@ -228,4 +247,5 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
 
 module.exports = {
     BankSyncTask,
+    errors,
 }
