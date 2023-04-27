@@ -4,7 +4,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const { PUSH_TYPE_SILENT_DATA } = require('@condo/domains/notification/constants/constants')
 
-const AppleJSONWebToken = require('./AppleJSONWebToken')
+const { AppleJSONWebToken } = require('./AppleJSONWebToken')
 const AppleSession = require('./AppleSession')
 const {
     UNKNOWN_STATUS,
