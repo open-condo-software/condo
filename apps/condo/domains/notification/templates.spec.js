@@ -70,7 +70,7 @@ function getPossibleTransports (messageType) {
  */
 function isTemplateNeeded (messageType, transport) {
     const transports = getPossibleTransports(messageType)
-    return !isEmpty(transports[transport])
+    return transports.includes(transport)
 }
 
 const ORGANIZATION_NAME_WITH_QUOTES = 'ООО "УК "РЕЗИДЕНЦИЯ У МОРЯ"'
