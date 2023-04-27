@@ -163,6 +163,29 @@ describe('convertFrom1CExchangeToSchema', () => {
         convertFrom1CExchangeToSchema(stringContent)
     })
 
+    it('do not throws error on not required node "ВремяСоздания"', async () => {
+        const stringContent = [
+            '1CClientBankExchange\n' +
+            'ВерсияФормата=1.03\n' +
+            'Кодировка=Windows\n' +
+            'Отправитель=Банк Тестовый\n' +
+            'ДатаНачала=01.04.2022\n' +
+            'ДатаКонца=27.10.2022\n' +
+            'РасчСчет=40702810801500116391\n' +
+            'СекцияРасчСчет\n' +
+            'ДатаНачала=01.04.2022\n' +
+            'ДатаКонца=27.10.2022\n' +
+            'РасчСчет=40702810801500116391\n' +
+            'НачальныйОстаток=8300.00\n' +
+            'ВсегоПоступило=2681831.46\n' +
+            'ВсегоСписано=2554737.23\n' +
+            'КонечныйОстаток=135394.23\n' +
+            'КонецРасчСчет\n' +
+            'СекцияНеизвестная',
+        ].join('')
+        convertFrom1CExchangeToSchema(stringContent)
+    })
+
     it('throw an error if the required key is not found in "СекцияРасчСчет"', async () => {
         const stringContent = [
             '1CClientBankExchange\n' +
