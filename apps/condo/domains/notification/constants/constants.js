@@ -59,6 +59,8 @@ const RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE = 'RECURRENT_PAYM
 const RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE'
 const RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE'
 const B2C_APP_MESSAGE_PUSH_TYPE = 'B2C_APP_MESSAGE_PUSH'
+const NEWS_ITEM_COMMON_MESSAGE_TYPE = 'NEWS_ITEM_COMMON_MESSAGE_TYPE'
+const NEWS_ITEM_EMERGENCY_MESSAGE_TYPE = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE'
 
 /**
  * If some messages types has limited variety of transports, please set it here.
@@ -71,9 +73,21 @@ const MESSAGE_TYPES_TRANSPORTS = {
     [BANK_ACCOUNT_CREATION_REQUEST_TYPE]: [EMAIL_TRANSPORT],
     [VOIP_INCOMING_CALL_MESSAGE_TYPE]: [PUSH_TRANSPORT],
     [B2C_APP_MESSAGE_PUSH_TYPE]: [PUSH_TRANSPORT],
+    [NEWS_ITEM_COMMON_MESSAGE_TYPE]: [PUSH_TRANSPORT],
+    [NEWS_ITEM_EMERGENCY_MESSAGE_TYPE]: [PUSH_TRANSPORT],
 }
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
+
+const newsItemMessageMeta = {
+    dv: { required: true },
+    title: { required: true },
+    body: { required: true },
+    data: {
+        newsItemId: { required: true },
+        organizationId: { required: true },
+    },
+}
 
 //TODO: maybe we should gather all data about messages types in the single object
 //TODO(DOMA-2778) add recursive validation for internal objects like [TICKET_EXECUTOR_CONNECTED_TYPE].data
@@ -433,6 +447,8 @@ const MESSAGE_META = {
             userId: { required: true },
         },
     },
+    [NEWS_ITEM_COMMON_MESSAGE_TYPE]: { ...newsItemMessageMeta },
+    [NEWS_ITEM_EMERGENCY_MESSAGE_TYPE]: { ...newsItemMessageMeta },
 }
 
 /** Used to validate type field for sendMessage mutation payload */
@@ -731,5 +747,7 @@ module.exports = {
     RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
+    NEWS_ITEM_COMMON_MESSAGE_TYPE,
+    NEWS_ITEM_EMERGENCY_MESSAGE_TYPE,
 }
 

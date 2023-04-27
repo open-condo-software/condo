@@ -1,13 +1,16 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 
+const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getById, find, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
 const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
+const { defineMessageType } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem.helpers')
 const { queryFindResidentsByNewsItemAndScopes } = require('@condo/domains/news/utils/accessSchema')
 const { NewsItem } = require('@condo/domains/news/utils/serverSchema')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
 const logger = getLogger('notifyResidentsAboutNewsItem')
 
@@ -46,23 +49,55 @@ async function sendNotifications (newsItem) {
         return
     }
 
+    /** @type {NewsItemScope[]} */
     const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id } })
 
     /** @type {Resident[]} */
     const residents = await find('Resident', queryFindResidentsByNewsItemAndScopes(newsItem, scopes))
 
+    const { keystone: contextMessage } = await getSchemaCtx('Message')
+    for (const resident of residents) {
+        await sendMessage(contextMessage, {
+            ...DV_SENDER,
+            to: { user: { id: resident.user } },
+            lang: conf.DEFAULT_LOCALE,
+            type: defineMessageType(newsItem),
+            meta: {
+                dv: 1,
+                title: newsItem.title,
+                body: newsItem.body,
+                data: {
+                    // TODO(AleX83Xpert) pass residentId and deeplink correctly
+                    newsItemId: newsItem.id,
+                    organizationId: newsItem.organization,
+                },
+            },
+            uniqKey: `resident:${resident.user}_newsItem:${newsItem.id}`,
+        })
+    }
+
     //
     //
     //
-    // TODO(DOMA-5400) send messages to residents
-    console.debug(`Send news item ${newsItem.id} to residents ${residents.map((resident) => resident.id).join(',')}`)
+    // TODO(AleX83Xpert) move to sendMessageToResidentScopes after it starte to support unitType and unitName
+    // sendMessageToResidentScopes(context, {
+    //     type: NEWS_ITEM_COMMON_MESSAGE_TYPE,
+    //     scopes: Promise.all(scopes.map(async (scope) => {
+    //         // if no property - this is news item scope includes all organization
+    //         const nruter = {
+    //             property: { id: scope.property.id },
+    //         }
+    //
+    //         return nruter
+    //     })),
+    // })
     //
     //
     //
 
     // Mark the news item as sent
-    const { keystone: context } = await getSchemaCtx('NewsItem')
-    await NewsItem.update(context, newsItem.id, { sentAt: dayjs().toISOString(), ...DV_SENDER })
+    const { keystone: contextNewsItem } = await getSchemaCtx('NewsItem')
+    await NewsItem.update(contextNewsItem, newsItem.id, { sentAt: dayjs().toISOString(), ...DV_SENDER })
 
 }
 

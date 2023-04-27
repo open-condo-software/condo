@@ -3,6 +3,7 @@
  */
 
 const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -50,6 +51,8 @@ const ERRORS = {
         mutation: 'updateNewsItem',
     },
 }
+
+const readOnlyFieldsWhenPublished = ['organization', 'title', 'body', 'type', 'sendAt']
 
 const NewsItem = new GQLListSchema('NewsItem', {
     schemaDoc: 'The news item created by the organization to show on resident\'s mobile devices',
@@ -114,8 +117,8 @@ const NewsItem = new GQLListSchema('NewsItem', {
     },
     hooks: {
         resolveInput: async (args) => {
-            const { resolvedData } = args
-            if (!get(resolvedData, 'type')) {
+            const { resolvedData, operation } = args
+            if (operation === 'create' && !get(resolvedData, 'type')) {
                 resolvedData['type'] = NEWS_TYPE_COMMON
             }
 
@@ -136,7 +139,11 @@ const NewsItem = new GQLListSchema('NewsItem', {
                     throw new GQLError(ERRORS.EDIT_DENIED_ALREADY_SENT, context)
                 }
                 if (isPublished) {
-                    throw new GQLError(ERRORS.EDIT_DENIED_PUBLISHED, context)
+                    for (const readOnlyField of readOnlyFieldsWhenPublished) {
+                        if (!isEmpty(get(resolvedData, readOnlyField))) {
+                            throw new GQLError(ERRORS.EDIT_DENIED_PUBLISHED, context)
+                        }
+                    }
                 }
             }
 
