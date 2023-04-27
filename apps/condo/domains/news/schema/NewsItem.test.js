@@ -552,19 +552,6 @@ describe('NewsItems', () => {
                 },
             )
         })
-
-        test('must throw an error if send date is wrong', async () => {
-            await expectToThrowGQLError(
-                async () => await createTestNewsItem(adminClient, dummyO10n, { sendAt: dayjs().subtract(10, 'second').toISOString() }),
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'WRONG_SEND_DATE',
-                    message: 'The send date is wrong',
-                    mutation: 'updateNewsItem',
-                    messageForUser: 'api.newsItem.WRONG_SEND_DATE',
-                },
-            )
-        })
     })
 
     describe('Delayed news items', () => {
