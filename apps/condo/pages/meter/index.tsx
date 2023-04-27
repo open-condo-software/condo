@@ -1,5 +1,4 @@
 /** @jsx jsx */
-import { FilterFilled } from '@ant-design/icons'
 import { SortMeterReadingsBy } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Col, Row, Typography } from 'antd'
@@ -29,6 +28,7 @@ import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT, EXTENDED_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
+import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import {
     MultipleFilterContextProvider,
     useMultipleFiltersModal,
@@ -71,6 +71,8 @@ export const MetersPageContent = ({
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+
+    const { GlobalHints } = useGlobalHints()
 
     const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
@@ -123,6 +125,7 @@ export const MetersPageContent = ({
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
+                {GlobalHints}
                 <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
                 <TablePageContent>
                     <EmptyListView

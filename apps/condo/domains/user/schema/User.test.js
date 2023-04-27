@@ -357,6 +357,13 @@ describe('User fields', () => {
         }
         await expect(checkAuthByUpperCaseEmail).rejects.toThrow(WRONG_EMAIL_ERROR)
     })
+
+    test('should auto-set "showGlobalHints" to true if value is not passed explicitly', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [user] = await createTestUser(admin)
+
+        expect(user.showGlobalHints).toBeTruthy()
+    })
 })
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy updatedBy createdAt updatedAt'

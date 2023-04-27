@@ -64206,6 +64206,8 @@ export enum SortUserHistoryRecordsBy {
   IsPhoneVerifiedDesc = 'isPhoneVerified_DESC',
   LocaleAsc = 'locale_ASC',
   LocaleDesc = 'locale_DESC',
+  ShowGlobalHintsAsc = 'showGlobalHints_ASC',
+  ShowGlobalHintsDesc = 'showGlobalHints_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -64293,6 +64295,8 @@ export enum SortUsersBy {
   IsPhoneVerifiedDesc = 'isPhoneVerified_DESC',
   LocaleAsc = 'locale_ASC',
   LocaleDesc = 'locale_DESC',
+  ShowGlobalHintsAsc = 'showGlobalHints_ASC',
+  ShowGlobalHintsDesc = 'showGlobalHints_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -73136,6 +73140,8 @@ export type User = {
   locale?: Maybe<UserLocaleType>;
   /**  Override for business access rights for list or field of provided schema  */
   customAccess?: Maybe<CustomAccess>;
+  /**  Show global hints in CRM or not  */
+  showGlobalHints?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -73172,6 +73178,7 @@ export type UserCreateInput = {
   meta?: Maybe<Scalars['JSON']>;
   locale?: Maybe<UserLocaleType>;
   customAccess?: Maybe<CustomAccessInput>;
+  showGlobalHints?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -73912,6 +73919,7 @@ export type UserHistoryRecord = {
   meta?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
   customAccess?: Maybe<Scalars['JSON']>;
+  showGlobalHints?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -73942,6 +73950,7 @@ export type UserHistoryRecordCreateInput = {
   meta?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
   customAccess?: Maybe<Scalars['JSON']>;
+  showGlobalHints?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -73977,6 +73986,7 @@ export type UserHistoryRecordUpdateInput = {
   meta?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
   customAccess?: Maybe<Scalars['JSON']>;
+  showGlobalHints?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -74126,6 +74136,8 @@ export type UserHistoryRecordWhereInput = {
   customAccess_not?: Maybe<Scalars['JSON']>;
   customAccess_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   customAccess_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  showGlobalHints?: Maybe<Scalars['Boolean']>;
+  showGlobalHints_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -74602,6 +74614,7 @@ export type UserUpdateInput = {
   meta?: Maybe<Scalars['JSON']>;
   locale?: Maybe<UserLocaleType>;
   customAccess?: Maybe<CustomAccessInput>;
+  showGlobalHints?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -74699,6 +74712,8 @@ export type UserWhereInput = {
   customAccess_not?: Maybe<CustomAccessInput>;
   customAccess_in?: Maybe<Array<Maybe<CustomAccessInput>>>;
   customAccess_not_in?: Maybe<Array<Maybe<CustomAccessInput>>>;
+  showGlobalHints?: Maybe<Scalars['Boolean']>;
+  showGlobalHints_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

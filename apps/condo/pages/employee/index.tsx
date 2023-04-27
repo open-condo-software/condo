@@ -1,4 +1,3 @@
-import { PlusCircleOutlined } from '@ant-design/icons'
 import { SortOrganizationEmployeesBy } from '@app/condo/schema'
 import { Col, Row, Typography } from 'antd'
 import { get } from 'lodash'
@@ -18,6 +17,7 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
@@ -50,6 +50,8 @@ export const EmployeesPageContent = ({
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
 
+    const { GlobalHints } = useGlobalHints()
+
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
@@ -68,6 +70,7 @@ export const EmployeesPageContent = ({
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
+                {GlobalHints}
                 <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
                 <TablePageContent>
                     {

@@ -10,17 +10,17 @@ import { Col, Radio, Row, RowProps, Typography } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import {
     PageWrapper,
-    useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import PropertiesMap from '@condo/domains/common/components/PropertiesMap'
+import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -56,12 +56,15 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
 
     const [properties, setShownProperties] = useState<(PropertyType)[]>([])
 
+    const { GlobalHints } = useGlobalHints()
+
     return (
         <>
             <Head>
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
+                {GlobalHints}
                 <TablePageContent>
                     <Row gutter={PAGE_ROW_GUTTER} justify='space-between'>
                         <Col md={12} xs={24}>
