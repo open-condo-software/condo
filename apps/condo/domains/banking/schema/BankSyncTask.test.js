@@ -17,10 +17,7 @@ const {
     UploadingFile,
 } = require('@open-condo/keystone/test.utils')
 
-const {
-    ACCOUNT_IS_REQUIRED,
-    DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT, _1C_CLIENT_BANK_EXCHANGE,
-} = require('@condo/domains/banking/constants')
+const { _1C_CLIENT_BANK_EXCHANGE } = require('@condo/domains/banking/constants')
 const {
     BankSyncTask,
     BankIntegrationAccountContext,
@@ -37,6 +34,8 @@ const {
 } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
+const { errors } = require('./BankSyncTask')
 
 const { BANK_INTEGRATION_IDS, BANK_SYNC_TASK_STATUS } = require('../constants')
 const { BankAccount, BankTransaction, createTestBankIntegrationOrganizationContext } = require('../utils/testSchema')
@@ -631,7 +630,7 @@ describe('BankSyncTask', () => {
                 await createTestBankSyncTask(adminClient, organization, {
                     file: new UploadingFile(pathToCorrectFile),
                 })
-            }, DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT)
+            }, errors.DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT)
         })
     })
 
@@ -1009,7 +1008,7 @@ describe('BankSyncTask', () => {
                         dateTo: dayjs().format('YYYY-MM-DD'),
                     },
                 })
-            }, ACCOUNT_IS_REQUIRED)
+            }, errors.ACCOUNT_IS_REQUIRED)
         })
 
         it('validates value of "options" field', async () => {
