@@ -44,7 +44,7 @@ class PaymentLinkRouter {
         this.context = context
     }
 
-    async checkReceiptNotPaid ({ billingReceiptId }) {
+    async checkReceiptAlreadyPaid ({ billingReceiptId }) {
         const payments = await Payment.getAll(this.context, {
             receipt: { id: billingReceiptId },
             status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
@@ -144,7 +144,7 @@ class PaymentLinkRouter {
 
                 // for regular receipts we can check if billing receipt
                 // is already paid
-                const isAlreadyPaid = await this.checkReceiptNotPaid(params)
+                const isAlreadyPaid = await this.checkReceiptAlreadyPaid(params)
                 if (isAlreadyPaid) {
                     const { failureUrl } = params
                     const errorPageUrl = `${conf.SERVER_URL}/500-error.html`
