@@ -11,12 +11,14 @@ const {
     UUID_RE,
     DATETIME_RE,
     expectToThrowGQLError,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const { NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const {
     NewsItem,
@@ -24,6 +26,17 @@ const {
     updateTestNewsItem,
     createTestNewsItemScope,
 } = require('@condo/domains/news/utils/testSchema')
+const { NEWS_ITEM_COMMON_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const {
+    DEVICE_PLATFORM_ANDROID,
+    APP_RESIDENT_ID_ANDROID,
+    MESSAGE_SENT_STATUS,
+} = require('@condo/domains/notification/constants/constants')
+const { syncRemoteClientByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
+const {
+    getRandomTokenData,
+    getRandomFakeSuccessToken,
+} = require('@condo/domains/notification/utils/testSchema/helpers')
 const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
@@ -588,6 +601,74 @@ describe('NewsItems', () => {
 
             const newsItems3 = await NewsItem.getAll(residentClient1, {})
             expect(newsItems3).toHaveLength(1)
+        })
+    })
+
+    describe('notifications', () => {
+        test('user receives push notification on news item created', async () => {
+            const residentClient1 = await makeClientWithResidentUser()
+            const [o10n] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, o10n)
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+
+            const [resident] = await createTestResident(adminClient, residentClient1.user, property, {
+                unitType: unitType1,
+                unitName: unitName1,
+            })
+
+            // News item for particular unit
+            const [newsItem1, newsItem1Attrs] = await createTestNewsItem(adminClient, o10n)
+            await createTestNewsItemScope(adminClient, newsItem1, {
+                property: { connect: { id: property.id } },
+                unitType: unitType1,
+                unitName: unitName1,
+            })
+            await updateTestNewsItem(adminClient, newsItem1.id, { isPublished: true })
+
+            const payload = getRandomTokenData({
+                devicePlatform: DEVICE_PLATFORM_ANDROID,
+                appId: APP_RESIDENT_ID_ANDROID,
+                pushToken: getRandomFakeSuccessToken(),
+            })
+
+            await syncRemoteClientByTestClient(residentClient1, payload)
+
+            const messageWhere = { user: { id: residentClient1.user.id }, type: NEWS_ITEM_COMMON_MESSAGE_TYPE }
+
+            await waitFor(async () => {
+                const message1 = await Message.getOne(adminClient, messageWhere)
+
+                expect(message1).toBeDefined()
+                expect(message1.id).toMatch(UUID_RE)
+
+                // await waitFor(async () => {
+                //     const message1 = await Message.getOne(adminClient, messageWhere)
+
+                expect(message1).toEqual(expect.objectContaining({
+                    status: MESSAGE_SENT_STATUS,
+                    processingMeta: expect.objectContaining({
+                        // old way check
+                        transport: 'push',
+
+                        // ADR-7 way check
+                        transportsMeta: [expect.objectContaining({
+                            transport: 'push',
+                        })],
+                    }),
+                    meta: expect.objectContaining({
+                        title: newsItem1Attrs['title'],
+                        data: expect.objectContaining({
+                            newsItemId: newsItem1.id,
+                            residentId: resident.id,
+                            userId: residentClient1.user.id,
+                            organizationId: o10n.id,
+                        }),
+                    }),
+                }))
+                // })
+            }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
         })
     })
 })
