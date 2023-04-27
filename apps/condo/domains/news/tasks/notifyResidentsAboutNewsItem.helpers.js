@@ -18,4 +18,8 @@ function defineMessageType (newsItem) {
     }
 }
 
-module.exports = { defineMessageType }
+function generateUniqueMessageKey (userId, newsItemId) {
+    return `user:${userId}_newsItem:${newsItemId}`
+}
+
+module.exports = { defineMessageType, generateUniqueMessageKey }

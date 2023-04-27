@@ -12,6 +12,8 @@ const { queryFindResidentsByNewsItemAndScopes } = require('@condo/domains/news/u
 const { NewsItem } = require('@condo/domains/news/utils/serverSchema')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
+const { generateUniqueMessageKey } = require('./notifyResidentsAboutNewsItem.helpers')
+
 const logger = getLogger('notifyResidentsAboutNewsItem')
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'notifyResidentsAboutNewsItem' } }
@@ -67,12 +69,14 @@ async function sendNotifications (newsItem) {
                 title: newsItem.title,
                 body: newsItem.body,
                 data: {
-                    // TODO(AleX83Xpert) pass residentId and deeplink correctly
                     newsItemId: newsItem.id,
                     organizationId: newsItem.organization,
+                    userId: resident.user,
+                    residentId: resident.id,
+                    url: `${conf.SERVER_URL}/newsItem`,
                 },
             },
-            uniqKey: `resident:${resident.user}_newsItem:${newsItem.id}`,
+            uniqKey: generateUniqueMessageKey(resident.user, newsItem.id),
         })
     }
 
