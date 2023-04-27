@@ -1,6 +1,9 @@
 import classNames from 'classnames'
 import React, { useCallback } from 'react'
 
+import { ChevronRight } from '@open-condo/icons'
+
+import { colors } from '../../colors'
 import { sendAnalyticsClickEvent } from '../_utils/analytics'
 import { useContainerSize } from '../_utils/hooks'
 import { Button } from '../Button'
@@ -15,6 +18,7 @@ export type BannerProps = {
     imgUrl?: string
     invertText?: boolean
     id?: string
+    size?: 'small' | 'medium'
 }
 
 // NOTE: Some ad blockers block elements containing "banner" in classes
@@ -38,6 +42,40 @@ const getSize =  (width: number) => {
     }
 }
 
+const getTextSize = (width: number, bannerSize: BannerProps['size']) => {
+    if (bannerSize === 'small') {
+        return 'medium'
+    }
+
+    return (width >= LG_BARRIER || width < MD_BARRIER) ? 'large' : 'medium'
+}
+
+const getTitleLevel = (width: number, bannerSize: BannerProps['size']) => {
+    if (bannerSize === 'small') {
+        return 4
+    }
+
+    return (width >= LG_BARRIER || (width < MD_BARRIER && width >= SM_BARRIER)) ? 2 : 3
+}
+
+const getTitleRows = (width: number, bannerSize: BannerProps['size']) => {
+    if (bannerSize === 'small') {
+        return width < SM_BARRIER ? 2 : 1
+    }
+
+    return 3
+}
+
+const getShowImage = (width: number, bannerSize: BannerProps['size'], imgUrl: BannerProps['imgUrl']) => {
+    if (!imgUrl) return false
+
+    if (bannerSize === 'small') {
+        return width >= LG_BARRIER
+    }
+
+    return width >= MD_BARRIER
+}
+
 export const Banner: React.FC<BannerProps> = ({
     backgroundColor,
     actionText,
@@ -47,22 +85,25 @@ export const Banner: React.FC<BannerProps> = ({
     imgUrl,
     invertText,
     id,
+    size = 'medium',
 }) => {
     const [{ width }, setRef] = useContainerSize<HTMLDivElement>()
 
-    const showImage = imgUrl && width >= MD_BARRIER
+    const showImage = getShowImage(width, size, imgUrl)
 
     const bannerClasses = classNames({
         [`${CLASS_PREFIX}`]: true,
         [`${CLASS_PREFIX}-no-image`]: !showImage,
+        [`${CLASS_PREFIX}-${size}`]: size,
+        [`${CLASS_PREFIX}-${getSize(width)}`]: getSize(width),
     })
     const contentContainerClasses = classNames({
         [`${CLASS_PREFIX}-content-container`]: true,
-        [`${CLASS_PREFIX}-content-container-${getSize(width)}`]: getSize(width),
     })
 
-    const titleLevel = (width >= LG_BARRIER || (width < MD_BARRIER && width >= SM_BARRIER)) ? 2 : 3
-    const textSize = (width >= LG_BARRIER || width < MD_BARRIER) ? 'large' : 'medium'
+    const titleLevel = getTitleLevel(width, size)
+    const titleRows = getTitleRows(width, size)
+    const textSize = getTextSize(width, size)
 
     const handleClick = useCallback<React.MouseEventHandler<HTMLDivElement>>((event) => {
         sendAnalyticsClickEvent('Banner', { title, id })
@@ -82,30 +123,47 @@ export const Banner: React.FC<BannerProps> = ({
             <div className={contentContainerClasses}>
                 <div className={`${CLASS_PREFIX}-text-container`}>
                     <Typography.Title
-                        type={invertText ? 'inverted' : undefined}
+                        type={invertText ? 'inverted' : 'primary'}
                         level={titleLevel}
-                        ellipsis={{ rows: 3 }}
+                        ellipsis={{ rows: titleRows }}
                     >
                         {title}
                     </Typography.Title>
                     <Typography.Paragraph
-                        type={invertText ? 'inverted' : undefined}
-                        ellipsis={{ rows: 3 }}
+                        type={invertText ? 'inverted' : 'secondary'}
+                        ellipsis={{ rows: size === 'small' ? 2 : 3 }}
                         size={textSize}
                     >
                         {subtitle}
                     </Typography.Paragraph>
                 </div>
                 {Boolean(actionText) && (
-                    <Button
-                        type='primary'
-                        stateless
-                    >
-                        {actionText}
-                    </Button>
+                    size === 'small'
+                        ? (
+                            <div className={`${CLASS_PREFIX}-action-link`}>
+                                <Typography.Text
+                                    type={invertText ? 'inverted' : 'primary'}
+                                >
+                                    {actionText}
+                                </Typography.Text>
+                                <ChevronRight
+                                    color={invertText ? colors.white : colors.black}
+                                    size='small'
+                                    className={`${CLASS_PREFIX}-action-icon`}
+                                />
+                            </div>
+                        )
+                        : (
+                            <Button
+                                type='primary'
+                                stateless
+                            >
+                                {actionText}
+                            </Button>
+                        )
                 )}
             </div>
-            {imgUrl && width > MD_BARRIER && (
+            {showImage && (
                 <div className={`${CLASS_PREFIX}-image-container`}>
                     <img
                         src={imgUrl}

@@ -40,6 +40,7 @@ const HelpRequisites = (conf['HELP_REQUISITES'] && JSON.parse(conf['HELP_REQUISI
 const popupSmartUrl = conf['POPUP_SMART_URL']
 const hasSbbolAuth = Boolean((conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}).client_id)
 const sppConfig = JSON.parse(conf['SPP_CONFIG'] || '{}')
+const globalHints = JSON.parse(conf['GLOBAL_HINTS'] || '{}')
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -63,6 +64,7 @@ module.exports = withTM(withLess(withCSS({
         popupSmartUrl,
         hasSbbolAuth,
         sppConfig,
+        globalHints,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,

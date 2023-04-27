@@ -50,6 +50,7 @@ import {
 } from '@condo/domains/common/constants/import'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
+import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import {
     MultipleFilterContextProvider,
     FiltersTooltip,
@@ -973,6 +974,7 @@ const TicketsPage: ITicketIndexPage = () => {
     const filterMetas = useTicketTableFilters()
 
     const { breakpoints } = useLayoutContext()
+    const { GlobalHints } = useGlobalHints()
 
     const {
         count: ticketsWithoutFiltersCount,
@@ -986,6 +988,7 @@ const TicketsPage: ITicketIndexPage = () => {
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
+                {GlobalHints}
                 <AutoRefetchTicketsContextProvider>
                     <FavoriteTicketsContextProvider
                         extraTicketsQuery={{ ...ticketFilterQuery, organization: { id: userOrganizationId } }}

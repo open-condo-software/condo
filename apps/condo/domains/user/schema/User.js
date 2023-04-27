@@ -180,6 +180,13 @@ const User = new GQLListSchema('User', {
             graphQLReturnType: 'CustomAccess',
             graphQLInputType: 'CustomAccessInput',
         },
+
+        showGlobalHints: {
+            schemaDoc: 'Show global hints in CRM or not',
+            type: 'Checkbox',
+            defaultValue: true,
+            isRequired: true,
+        },
     },
     kmigratorOptions: {
         constraints: [
