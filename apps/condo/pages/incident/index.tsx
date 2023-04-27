@@ -28,6 +28,7 @@ import EmptyListView from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
@@ -348,6 +349,8 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
         loading: incidentTotalLoading,
     } = Incident.useCount({ where: { ...baseQuery } })
 
+    const { GlobalHints } = useGlobalHints()
+
     const PageContet = useMemo(() => {
         if (baseQueryLoading || incidentTotalLoading) {
             return <Loader fill size='large' />
@@ -381,6 +384,7 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
                 <title>{PageTitle}</title>
             </Head>
             <PageWrapper>
+                {GlobalHints}
                 <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
                 <TablePageContent>
                     {PageContet}

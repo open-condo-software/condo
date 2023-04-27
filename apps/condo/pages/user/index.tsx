@@ -1,9 +1,12 @@
-import { Col, Row, Typography } from 'antd'
+import { Col, Row, Switch, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import { SwitchChangeEventHandler } from 'antd/lib/switch'
+import debounce from 'lodash/debounce'
 import get from 'lodash/get'
+import isBoolean from 'lodash/isBoolean'
 import Head from 'next/head'
 import Link from 'next/link'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Edit } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
@@ -35,31 +38,58 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const InterfaceLanguageTitle = intl.formatMessage({ id: 'pages.condo.profile.interfaceLanguage' })
     const ChooseInterfaceLanguageTitle = intl.formatMessage({ id: 'pages.condo.profile.chooseInterfaceLanguage' })
+    const GlobalHintsTitle = intl.formatMessage({ id: 'pages.condo.profile.globalHints' })
     const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
     const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
+
+    const locale = intl.locale
+
+    const [showGlobalHints, setShowGlobalHints] = useState<boolean>(false)
 
     const { user, refetch } = useAuth()
     const userOrganization = useOrganization()
     const { breakpoints } = useLayoutContext()
 
-    useEffect(() => {
-        refetch()
-    }, [refetch])
+    const updateUser = User.useUpdate({})
 
     const name = get(user, 'name')
     const email = get(user, 'email', '')
+    const phone = get(user, 'phone')
+    const initialShowGlobalHints = get(user, 'showGlobalHints')
 
     const possibleLocalesOptions = useMemo(() => ([
         { label: RuTitle, value: 'ru' },
         { label: EnTitle, value: 'en' },
     ]), [EnTitle, RuTitle])
 
-    const updateUser = User.useUpdate({})
-
-    const localeChangeHandler = useCallback((setLocale) => async (newLocale) => {
+    const handleLocaleChange = useCallback((setLocale) => async (newLocale) => {
         await updateUser({ locale: newLocale }, { id: user.id })
         setLocale(newLocale)
-    }, [updateUser, user.id])
+    }, [user.id])
+
+    const updateGlobalHints = useMemo(() => debounce(async (checked) => {
+        try {
+            await updateUser({ showGlobalHints: checked }, { id: user.id })
+            refetch()
+        } catch (e) {
+            console.error('Failed to update field "showGlobalHints"')
+        }
+    }, 400), [user.id])
+
+    const handleGlobalHintsChange: SwitchChangeEventHandler = useCallback(async (checked) => {
+        setShowGlobalHints(checked)
+        await updateGlobalHints(checked)
+    }, [updateGlobalHints])
+
+    useEffect(() => {
+        refetch()
+    }, [])
+
+    useEffect(() => {
+        if (isBoolean(initialShowGlobalHints)) {
+            setShowGlobalHints(initialShowGlobalHints)
+        }
+    }, [initialShowGlobalHints])
 
     return (
         <>
@@ -95,7 +125,7 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
                                                             </Typography.Text>
                                                         </Col>
                                                         <Col lg={19} xs={10} offset={2}>
-                                                            <NotDefinedField value={get(user, 'phone')}/>
+                                                            <NotDefinedField value={phone}/>
                                                         </Col>
                                                         {
                                                             email && <>
@@ -105,7 +135,7 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
                                                                     </Typography.Text>
                                                                 </Col>
                                                                 <Col lg={19} xs={10} offset={2}>
-                                                                    <NotDefinedField value={get(user, 'email')}/>
+                                                                    <NotDefinedField value={email}/>
                                                                 </Col>
                                                             </>
                                                         }
@@ -146,7 +176,7 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
                                                                     options={possibleLocalesOptions}
                                                                     value={locale}
                                                                     placeholder={ChooseInterfaceLanguageTitle}
-                                                                    onChange={localeChangeHandler(setLocale)}
+                                                                    onChange={handleLocaleChange(setLocale)}
                                                                 />
                                                             )
                                                         }}
@@ -154,6 +184,26 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
                                                 </Col>
                                             </Row>
                                         </Col>
+                                        {/* NOTE: At the moment, our support portal only works in 'ru' locale,*/}
+                                        {/* so hints for other locales are hidden*/}
+                                        {locale === 'ru' && (
+                                            <Col span={24}>
+                                                <Row gutter={ROW_GUTTER_MID}>
+                                                    <Col lg={3} xs={10}>
+                                                        <Typography.Text type='secondary'>
+                                                            {GlobalHintsTitle}
+                                                        </Typography.Text>
+                                                    </Col>
+                                                    <Col lg={5} offset={2}>
+                                                        <Switch
+                                                            checked={showGlobalHints}
+                                                            onChange={handleGlobalHintsChange}
+                                                            disabled={!user}
+                                                        />
+                                                    </Col>
+                                                </Row>
+                                            </Col>
+                                        )}
                                     </Row>
                                 </Col>
                             </Row>

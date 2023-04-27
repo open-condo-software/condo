@@ -12,6 +12,12 @@ export default {
             control: 'text',
         },
         onClick: { control: false },
+        size: {
+            control: {
+                type: 'select',
+                options: [undefined, 'compact'],
+            },
+        },
     },
 } as ComponentMeta<typeof Component>
 
@@ -29,7 +35,7 @@ Solid.args = {
 
 export const Gradient = Template.bind({})
 Gradient.args = {
-    backgroundColor: colors.brandGradient['5'],
+    backgroundColor: colors.brandGradient['1'],
     title: 'Some long description that takes 2 rows of texts',
     subtitle: 'Text can also takes up to 2 rows, containing 40 symbols each, so use it wisely',
     imgUrl: 'https://i.imgur.com/1iOC5BE.png',
@@ -44,4 +50,15 @@ NoAction.args = {
     subtitle: 'Text can also takes up to 2 rows, containing 40 symbols each, so use it wisely',
     imgUrl: 'https://i.imgur.com/ambPuQF.png',
     invertText: false,
+}
+
+export const Compact = Template.bind({})
+Compact.args = {
+    backgroundColor: '#d3e3ff',
+    title: 'Banner can exist without an action button',
+    subtitle: 'Text can also takes up to 2 rows, containing 40 symbols each, so use it wisely',
+    imgUrl: 'https://i.imgur.com/ambPuQF.png',
+    invertText: false,
+    actionText: 'Click me link',
+    size: 'small',
 }

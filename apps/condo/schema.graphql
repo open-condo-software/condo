@@ -30,6 +30,7 @@ type UserHistoryRecord {
   meta: JSON
   locale: String
   customAccess: JSON
+  showGlobalHints: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -180,6 +181,8 @@ input UserHistoryRecordWhereInput {
   customAccess_not: JSON
   customAccess_in: [JSON]
   customAccess_not_in: [JSON]
+  showGlobalHints: Boolean
+  showGlobalHints_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -283,6 +286,8 @@ enum SortUserHistoryRecordsBy {
   isPhoneVerified_DESC
   locale_ASC
   locale_DESC
+  showGlobalHints_ASC
+  showGlobalHints_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -316,6 +321,7 @@ input UserHistoryRecordUpdateInput {
   meta: JSON
   locale: String
   customAccess: JSON
+  showGlobalHints: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -350,6 +356,7 @@ input UserHistoryRecordCreateInput {
   meta: JSON
   locale: String
   customAccess: JSON
+  showGlobalHints: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -497,6 +504,9 @@ type User {
   """ Override for business access rights for list or field of provided schema 
   """
   customAccess: CustomAccess
+
+  """ Show global hints in CRM or not """
+  showGlobalHints: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -606,6 +616,8 @@ input UserWhereInput {
   customAccess_not: CustomAccessInput
   customAccess_in: [CustomAccessInput]
   customAccess_not_in: [CustomAccessInput]
+  showGlobalHints: Boolean
+  showGlobalHints_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -687,6 +699,8 @@ enum SortUsersBy {
   isPhoneVerified_DESC
   locale_ASC
   locale_DESC
+  showGlobalHints_ASC
+  showGlobalHints_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -719,6 +733,7 @@ input UserUpdateInput {
   meta: JSON
   locale: UserLocaleType
   customAccess: CustomAccessInput
+  showGlobalHints: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -749,6 +764,7 @@ input UserCreateInput {
   meta: JSON
   locale: UserLocaleType
   customAccess: CustomAccessInput
+  showGlobalHints: Boolean
   v: Int
   createdAt: String
   updatedAt: String
