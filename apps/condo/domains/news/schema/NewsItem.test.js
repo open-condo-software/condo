@@ -612,7 +612,6 @@ describe('NewsItems', () => {
                 unitType: unitType1,
                 unitName: unitName1,
             })
-            await updateTestNewsItem(adminClient, newsItem1.id, { isPublished: true })
 
             const payload = getRandomTokenData({
                 devicePlatform: DEVICE_PLATFORM_ANDROID,
@@ -621,6 +620,9 @@ describe('NewsItems', () => {
             })
 
             await syncRemoteClientByTestClient(residentClient1, payload)
+
+            // Publish news item to make it sendable
+            await updateTestNewsItem(adminClient, newsItem1.id, { isPublished: true })
 
             const messageWhere = { user: { id: residentClient1.user.id }, type: NEWS_ITEM_COMMON_MESSAGE_TYPE }
 
