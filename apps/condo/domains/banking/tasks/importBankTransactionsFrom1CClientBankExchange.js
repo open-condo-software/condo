@@ -52,7 +52,7 @@ async function throwErrorAndSetErrorStatusToTask (context, task, errorMessage) {
  * @param taskId
  * @returns {Promise<{integrationContext, transactions: *[], account: *}>}
  */
-const importBankTransactionsWorker = async (taskId) => {
+const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
     if (!taskId) throw new Error('taskId is undefined')
     const { keystone: context } = await getSchemaCtx('BankSyncTask')
     let task = await BankSyncTask.getOne(context, { id: taskId })
@@ -278,7 +278,5 @@ const importBankTransactionsWorker = async (taskId) => {
 }
 
 module.exports = {
-    importBankTransactionsTask: createTask('bankSyncTask', async (taskId) => {
-        await importBankTransactionsWorker(taskId)
-    }),
+    importBankTransactionsFrom1CClientBankExchange: createTask('importBankTransactionsFrom1CClientBankExchange', importBankTransactionsFrom1CClientBankExchange),
 }
