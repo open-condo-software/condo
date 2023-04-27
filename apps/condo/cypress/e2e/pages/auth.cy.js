@@ -36,6 +36,7 @@ describe('Auth scenarios', () => {
             })
         })
     })
+
     describe('Anonymous', () => {
         it('can register after confirming phone', () => {
 
