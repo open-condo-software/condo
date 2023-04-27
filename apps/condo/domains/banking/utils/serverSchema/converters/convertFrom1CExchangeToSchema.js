@@ -119,7 +119,14 @@ function initNode (line) {
         return new StreamNode({
             begin: '1CClientBankExchange',
             endBodyKey: 'РасчСчет',
-            requiredKeys: keys,
+            requiredKeys: [
+                'ВерсияФормата',
+                'Кодировка',
+                'Отправитель',
+                'ДатаНачала',
+                'ДатаКонца',
+                'РасчСчет',
+            ],
             bodyKeys: keys,
         })
     }
