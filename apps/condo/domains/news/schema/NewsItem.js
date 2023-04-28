@@ -5,6 +5,7 @@
 const BadWordsNext = require('bad-words-next')
 const badWordsRu = require('bad-words-next/data/ru.json')
 const badWordsRuLat = require('bad-words-next/data/ru_lat.json')
+const badWordsEn = require('bad-words-next/data/en.json')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
@@ -27,6 +28,7 @@ const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks')
 const badWords = new BadWordsNext()
 badWords.add(badWordsRu)
 badWords.add(badWordsRuLat)
+badWords.add(badWordsEn)
 
 const ERRORS = {
     EMPTY_VALID_BEFORE_DATE: {

@@ -565,12 +565,36 @@ describe('NewsItems', () => {
                     messageForUser: 'api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER',
                 },
             )
+
+            await expectToThrowGQLError(
+                async () => await createTestNewsItem(adminClient, dummyO10n, {
+                    title: 'as$hole!',
+                }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'PROFANITY_DETECTED_MOT_ERF_KER',
+                    message: 'Profanity detected',
+                    messageForUser: 'api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER',
+                },
+            )
         })
 
         test('must throw an error if profanity detected within body', async () => {
             await expectToThrowGQLError(
                 async () => await createTestNewsItem(adminClient, dummyO10n, {
-                    body: 'Добрый день! Заплатите ваш еб@ный долг за квартиру!', // Извиняюсь, бл*!
+                    body: 'Добрый день! Заплатите ваш еб@ный долг за квартиру!',
+                }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'PROFANITY_DETECTED_MOT_ERF_KER',
+                    message: 'Profanity detected',
+                    messageForUser: 'api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER',
+                },
+            )
+
+            await expectToThrowGQLError(
+                async () => await createTestNewsItem(adminClient, dummyO10n, {
+                    body: 'fuck it',
                 }),
                 {
                     code: 'BAD_USER_INPUT',
