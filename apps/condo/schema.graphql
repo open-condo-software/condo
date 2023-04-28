@@ -58247,6 +58247,8 @@ enum SendMessageType {
   RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE
   RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE
   RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE
+  NEWS_ITEM_COMMON_MESSAGE_TYPE
+  NEWS_ITEM_EMERGENCY_MESSAGE_TYPE
 }
 
 input SendMessageInput {
@@ -67166,6 +67168,44 @@ type Mutation {
   				"required": true
   			},
   			"userId": {
+  				"required": true
+  			}
+  		}
+  	},
+  	"NEWS_ITEM_COMMON_MESSAGE_TYPE": {
+  		"dv": {
+  			"required": true
+  		},
+  		"title": {
+  			"required": true
+  		},
+  		"body": {
+  			"required": true
+  		},
+  		"data": {
+  			"newsItemId": {
+  				"required": true
+  			},
+  			"organizationId": {
+  				"required": true
+  			}
+  		}
+  	},
+  	"NEWS_ITEM_EMERGENCY_MESSAGE_TYPE": {
+  		"dv": {
+  			"required": true
+  		},
+  		"title": {
+  			"required": true
+  		},
+  		"body": {
+  			"required": true
+  		},
+  		"data": {
+  			"newsItemId": {
+  				"required": true
+  			},
+  			"organizationId": {
   				"required": true
   			}
   		}

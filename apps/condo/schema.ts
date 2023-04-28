@@ -31623,6 +31623,44 @@ export type Mutation = {
    * 				"required": true
    * 			}
    * 		}
+   * 	},
+   * 	"NEWS_ITEM_COMMON_MESSAGE_TYPE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"title": {
+   * 			"required": true
+   * 		},
+   * 		"body": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"newsItemId": {
+   * 				"required": true
+   * 			},
+   * 			"organizationId": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"NEWS_ITEM_EMERGENCY_MESSAGE_TYPE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"title": {
+   * 			"required": true
+   * 		},
+   * 		"body": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"newsItemId": {
+   * 				"required": true
+   * 			},
+   * 			"organizationId": {
+   * 				"required": true
+   * 			}
+   * 		}
    * 	}
    * }`
    *
@@ -56243,7 +56281,9 @@ export enum SendMessageType {
   B2CAppMessagePush = 'B2C_APP_MESSAGE_PUSH',
   RecurrentPaymentProceedingSuccessResultMessage = 'RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE',
   RecurrentPaymentProceedingFailureResultMessage = 'RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE',
-  RecurrentPaymentTomorrowPaymentMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE'
+  RecurrentPaymentTomorrowPaymentMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE',
+  NewsItemCommonMessageType = 'NEWS_ITEM_COMMON_MESSAGE_TYPE',
+  NewsItemEmergencyMessageType = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE'
 }
 
 export type SendNewReceiptMessagesToResidentScopesInput = {
