@@ -3,7 +3,6 @@
  */
 
 const BadWordsNext = require('bad-words-next')
-const badWordsEn = require('bad-words-next/data/en.json')
 const badWordsRu = require('bad-words-next/data/ru.json')
 const badWordsRuLat = require('bad-words-next/data/ru_lat.json')
 const get = require('lodash/get')
