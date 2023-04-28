@@ -106,4 +106,5 @@
  * @property {string} unrestricted_value "г Москва, ул Хабаровская"
  * @property {NormalizedBuildingData} data
  * @property {ProviderData} provider
+ * @property {SuggestionHelpersType} [helpers]
  */

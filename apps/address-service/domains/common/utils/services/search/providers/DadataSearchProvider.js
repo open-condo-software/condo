@@ -26,8 +26,8 @@ class DadataSearchProvider extends AbstractSearchProvider {
     /**
      * @returns {Promise<DadataObject[]>}
      */
-    async get ({ query, context = null }) {
-        return await this.suggestionProvider.get({ query, context, count: 1 })
+    async get ({ query, context = '', helpers = {} }) {
+        return await this.suggestionProvider.get({ query, context, count: 1, helpers })
     }
 
     /**

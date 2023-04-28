@@ -59,12 +59,13 @@ class AbstractSearchProvider {
     /**
      * Sends search string to external search service
      * @param {string} query
-     * @param {?string} context {@see searchContexts}
+     * @param {?string} [context] {@see searchContexts}
+     * @param {SuggestionHelpersType} [helpers]
      * @returns {Promise<Array>} the array of denormalized suggestions
      * @abstract
      * @public
      */
-    async get ({ query, context = null }) {
+    async get ({ query, context = null, helpers = {} }) {
         throw new Error('Method still not implemented.')
     }
 
