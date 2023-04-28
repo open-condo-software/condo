@@ -1,6 +1,5 @@
 const express = require('express')
-const get = require('lodash/get')
-const set = require('lodash/set')
+const { isArray, get, set, isEmpty } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
@@ -216,7 +215,7 @@ class SearchKeystoneApp {
                 /** @type {String[]} */
                 const items = get(req, ['body', 'items'])
 
-                if (!items) {
+                if (!items && isArray(items) && !isEmpty(items)) {
                     res.sendStatus(400)
                     return
                 }
