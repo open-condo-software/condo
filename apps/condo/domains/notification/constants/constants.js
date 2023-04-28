@@ -62,21 +62,6 @@ const B2C_APP_MESSAGE_PUSH_TYPE = 'B2C_APP_MESSAGE_PUSH'
 const NEWS_ITEM_COMMON_MESSAGE_TYPE = 'NEWS_ITEM_COMMON_MESSAGE_TYPE'
 const NEWS_ITEM_EMERGENCY_MESSAGE_TYPE = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE'
 
-/**
- * If some messages types has limited variety of transports, please set it here.
- * The rest of types must have templates for all transports or at least default template.
- */
-const MESSAGE_TYPES_TRANSPORTS = {
-    [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
-    [MESSAGE_FORWARDED_TO_SUPPORT_TYPE]: [EMAIL_TRANSPORT],
-    [SHARE_TICKET_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
-    [BANK_ACCOUNT_CREATION_REQUEST_TYPE]: [EMAIL_TRANSPORT],
-    [VOIP_INCOMING_CALL_MESSAGE_TYPE]: [PUSH_TRANSPORT],
-    [B2C_APP_MESSAGE_PUSH_TYPE]: [PUSH_TRANSPORT],
-    [NEWS_ITEM_COMMON_MESSAGE_TYPE]: [PUSH_TRANSPORT],
-    [NEWS_ITEM_EMERGENCY_MESSAGE_TYPE]: [PUSH_TRANSPORT],
-}
-
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
 const newsItemMessageMeta = {
@@ -556,6 +541,29 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
+    [NEWS_ITEM_COMMON_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [NEWS_ITEM_EMERGENCY_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+    [RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+    [RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -699,7 +707,6 @@ module.exports = {
     APP_RESIDENT_KEY,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     DEFAULT_TEMPLATE_FILE_NAME,
-    MESSAGE_TYPES_TRANSPORTS,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
     METER_VERIFICATION_DATE_REMINDER_TYPE,
     METER_SUBMIT_READINGS_REMINDER_TYPE,
