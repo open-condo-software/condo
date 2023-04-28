@@ -552,6 +552,34 @@ describe('NewsItems', () => {
                 },
             )
         })
+
+        test('must throw an error if profanity detected within title', async () => {
+            await expectToThrowGQLError(
+                async () => await createTestNewsItem(adminClient, dummyO10n, {
+                    title: 'хуй пизда жыгурда', // Извиняюсь, бл*!
+                }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'PROFANITY_DEECTED_MOT_ERF_KER',
+                    message: 'Profanity detected',
+                    messageForUser: 'api.newsItem.PROFANITY_DEECTED_MOT_ERF_KER',
+                },
+            )
+        })
+
+        test('must throw an error if profanity detected within body', async () => {
+            await expectToThrowGQLError(
+                async () => await createTestNewsItem(adminClient, dummyO10n, {
+                    body: 'Добрый день! Заплатите ваш еб@ный долг за квартиру!', // Извиняюсь, бл*!
+                }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'PROFANITY_DEECTED_MOT_ERF_KER',
+                    message: 'Profanity detected',
+                    messageForUser: 'api.newsItem.PROFANITY_DEECTED_MOT_ERF_KER',
+                },
+            )
+        })
     })
 
     describe('Delayed news items', () => {
