@@ -3,6 +3,8 @@
 @import (reference) "@open-condo/ui/src/components/style/mixins/table";
 
 .condo-markdown {
+  color: @condo-global-color-gray-7;
+
   & > * {
     margin-bottom: @condo-global-spacing-20;
   }
@@ -85,6 +87,10 @@
   table {
     width: 100%;
     .condo-table();
+
+    td {
+      color: @condo-global-color-black;
+    }
   }
 
   table:not(:last-child) {
@@ -93,6 +99,10 @@
 
   .condo-alert:not(:last-child) {
     margin-bottom: @condo-global-spacing-20;
+  }
+
+  .condo-alert-description > .condo-typography {
+    font-size: @condo-global-font-size-text-m;
   }
 
   pre,
