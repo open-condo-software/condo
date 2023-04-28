@@ -26,28 +26,29 @@ const CACHE_TTL = {
 //TODO(Kekmus) Better to use existing redisGuard if possible
 const redisGuard = new RedisGuard()
 
+const SERVICE_NAME = 'sendAppPushMessage'
 const ERRORS = {
     USER_NOT_FOUND: {
-        mutation: 'sendAppPushMessage',
+        mutation: SERVICE_NAME,
         code: BAD_USER_INPUT,
         type: USER_NOT_FOUND_ERROR,
         message: 'Unable to find user by provided id.',
     },
     APP_NOT_FOUND: {
-        mutation: 'sendAppPushMessage',
+        mutation: SERVICE_NAME,
         code: BAD_USER_INPUT,
         type: APP_NOT_FOUND_ERROR,
         message: 'Unable to find app by provided id.',
     },
     DV_VERSION_MISMATCH: {
-        mutation: 'sendAppPushMessage',
+        mutation: SERVICE_NAME,
         variable: ['data', 'dv'],
         code: BAD_USER_INPUT,
         type: DV_VERSION_MISMATCH,
         message: 'Wrong value for data version number',
     },
     WRONG_SENDER_FORMAT: {
-        mutation: 'sendAppPushMessage',
+        mutation: SERVICE_NAME,
         variable: ['data', 'sender'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
@@ -55,7 +56,7 @@ const ERRORS = {
         correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
     },
     APP_IN_BLACK_LIST: {
-        mutation: 'sendAppPushMessage',
+        mutation: SERVICE_NAME,
         code: FORBIDDEN,
         type: APP_BLACK_LIST_ERROR,
         message: 'Notification not send because app of message added in MessageAppBlackList',
@@ -88,39 +89,36 @@ const SendAppPushMessageService = new GQLCustomSchema('SendAppPushMessageService
             schema: 'sendAppPushMessage(data: SendAppPushMessageInput!): SendAppPushMessageOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: argsData } = args
-                const { dv, sender, app, user, type, data, uniqKey, B2CAppContext } = argsData
+                const { dv, sender, app, user, type, data, uniqKey } = argsData
+                const { B2CAppContext } = data
 
                 checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 const userExisted = await User.getOne(context, { id: user.id, deletedAt: null })
-                if (!userExisted) {
-                    throw new GQLError(ERRORS.USER_NOT_FOUND, context)
-                }
+
+                if (!userExisted)  throw new GQLError(ERRORS.USER_NOT_FOUND, context)
 
                 const appExisted = await B2CApp.getOne(context, { id: app.id, deletedAt: null })
-                if (!appExisted) {
-                    throw new GQLError(ERRORS.APP_NOT_FOUND, context)
-                }
-                const B2CAppName = appExisted.name
 
-                const appInBlacklsit = await MessageAppBlackList.getOne(context, { app: { id: app.id }, type: type, deletedAt: null })
-                if (appInBlacklsit) {
-                    throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
-                }
+                if (!appExisted)  throw new GQLError(ERRORS.APP_NOT_FOUND, context)
+
+                const B2CAppName = appExisted.name
+                const where = { app: { id: app.id }, type, deletedAt: null }
+                const appInBlacklsit = await MessageAppBlackList.getOne(context, where)
+
+                if (appInBlacklsit) throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
 
                 const searchKey = `${type}_${app.id}_${user.id}`
-                await redisGuard.checkLock(searchKey, 'sendpush', context)
-
                 const ttl = CACHE_TTL[type] || CACHE_TTL['DEFAULT']
-                await redisGuard.lock(searchKey, 'sendpush', ttl)
+
+                await redisGuard.checkLock(searchKey, SERVICE_NAME, context)
+                await redisGuard.lock(searchKey, SERVICE_NAME, ttl)
 
                 const messageAttrs = {
                     uniqKey,
                     sender,
                     type,
-                    to: {
-                        user: user,
-                    },
+                    to: { user: { id: user.id } },
                     meta: {
                         dv,
                         title: data.title,
@@ -128,7 +126,7 @@ const SendAppPushMessageService = new GQLCustomSchema('SendAppPushMessageService
                         data: {
                             B2CAppContext,
                             B2CAppName,
-                            B2CAppId: app,
+                            B2CAppId: app.id,
                         },
                     },
                 }
