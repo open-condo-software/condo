@@ -1,12 +1,12 @@
 const fetch = require('isomorphic-fetch')
-const { get } = require('lodash')
+const { get, isEmpty } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
-const { BANK_INTEGRATION_IDS, _1C_CLIENT_BANK_EXCHANGE } = require('@condo/domains/banking/constants')
+const { BANK_INTEGRATION_IDS, _1C_CLIENT_BANK_EXCHANGE, BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
 const {
     BankIntegration,
     BankAccount,
@@ -104,6 +104,26 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         organization: { id: organization.id },
         deletedAt: null,
     })
+    if (property) {
+        const adminContext = await context.createContext({ skipAccessControl: true })
+        const accountByProperty = await BankAccount.getAll(adminContext, {
+            organization: { id: organization.id },
+            property: { id: property.id },
+            deletedAt: null,
+        })
+        if (!isEmpty(accountByProperty)) {
+            const errorMsg = `Already have an account with the same Property { id: ${property.id} }.`
+            await BankSyncTask.update(context, task.id, {
+                status: BANK_SYNC_TASK_STATUS.ERROR,
+                meta: {
+                    errorMessage: errorMsg,
+                },
+                ...DV_SENDER,
+            })
+            logger.error({ msg: errorMsg })
+            throw new Error(errorMsg)
+        }
+    }
     let integrationContext
     if (!bankAccount) {
         integrationContext = await BankIntegrationAccountContext.create(context, {

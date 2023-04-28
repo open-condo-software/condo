@@ -525,6 +525,33 @@ describe('BankSyncTask', () => {
             })
         })
 
+        it('throw an error if BankAccount already connected to requested property in file import', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [integrationContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
+            const [integrationContext2] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
+            const [account] = await createTestBankAccount(adminClient, organization, {
+                integrationContext: { connect: { id: integrationContext.id } },
+                property: { connect: { id: property.id } },
+            })
+            const [account2] = await createTestBankAccount(adminClient, organization, {
+                integrationContext: { connect: { id: integrationContext2.id } },
+            })
+            const [createdTask] = await createTestBankSyncTask(adminClient, organization, {
+                account: { connect: { id: account2.id } },
+                integrationContext: { connect: { id: integrationContext.id } },
+                property: { connect: { id: property.id } },
+                file: new UploadingFile(pathToCorrectFile),
+            })
+            await waitFor(async () => {
+                const task = await BankSyncTask.getOne(adminClient, {
+                    id: createdTask.id,
+                })
+                expect(task.status).toEqual(BANK_SYNC_TASK_STATUS.ERROR)
+                expect(task.meta.errorMessage).toContain('Already have an account with the same Property { id:')
+            })
+        })
+
         test('JSON schema of "meta" field', async () => {
             const [organization] = await createTestOrganization(adminClient)
             const [integrationContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
