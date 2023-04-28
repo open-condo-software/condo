@@ -195,7 +195,10 @@ const NewsItem = new GQLListSchema('NewsItem', {
             }
 
             if (titleBadWords.length > 0 || bodyBadWords.length > 0) {
-                throw new GQLError(ERRORS.PROFANITY_DETECTED_MOT_ERF_KER, context)
+                throw new GQLError({
+                    ...ERRORS.PROFANITY_DETECTED_MOT_ERF_KER,
+                    badWords: [...titleBadWords, ...bodyBadWords].join(','),
+                }, context)
             }
         },
 
