@@ -4,8 +4,8 @@ const isEmpty = require('lodash/isEmpty')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 
-const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { BankSyncTask, BankAccount } = require('@condo/domains/banking/utils/serverSchema')
+const { BANK_INTEGRATION_IDS, SBBOL } = require('@condo/domains/banking/constants')
+const { BankSyncTask, BankAccount, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
@@ -116,6 +116,21 @@ const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
     if (await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL)) {
         await syncBankAccounts(user.id, organization)
 
+        const foundOrganizationContext = await BankIntegrationOrganizationContext.getAll(adminContext, {
+            organization: { id: organization.id },
+            integration: { id: BANK_INTEGRATION_IDS.SBBOL },
+            deletedAt: null,
+        })
+
+        if (isEmpty(foundOrganizationContext)) {
+            await BankIntegrationOrganizationContext.create(adminContext, {
+                organization: { connect: { id: organization.id } },
+                integration: { connect: { id: BANK_INTEGRATION_IDS.SBBOL } },
+                ...dvSenderFields,
+            })
+
+        }
+
         const bankAccounts = await BankAccount.getAll(adminContext, {
             organization: {
                 id: organization.id,
@@ -132,7 +147,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
             const bankSyncTask = await BankSyncTask.getAll(adminContext, {
                 account: { id: bankAccount.id },
                 options: {
-                    type: 'SBBOL',
+                    type: SBBOL,
                 },
             }, { first: 1 })
             /*
@@ -147,7 +162,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
                     user: { connect: { id: user.id } },
                     totalCount: 0,
                     options: {
-                        type: 'SBBOL',
+                        type: SBBOL,
                         dateFrom: dayjs().subtract(1, 'day').format('YYYY-MM-DD'), // a full statement can be obtained only for the past day
                         dateTo: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
                     },
