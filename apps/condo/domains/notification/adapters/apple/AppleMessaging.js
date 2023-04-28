@@ -26,7 +26,7 @@ class AppleMessaging {
      */
     constructor (config) {
         this.#token = new AppleJSONWebToken(config)
-        this.#session = new AppleSession()
+        this.#session = new AppleSession(config.url)
         this.getResponseHandler = this.getResponseHandler.bind(this)
         this.sendPush = this.sendPush.bind(this)
     }
