@@ -306,11 +306,14 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
     const uniqKey = `rp_${id}_${tryCount + 1}_${success}`
     const type = success ? RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE
         : RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE
-    const meta = success ? {} : { errorCode }
+    const additionalData = success ? {} : { errorCode }
 
     try {
         const {
-            serviceConsumer: { resident: { user: { id: userId } } },
+            serviceConsumer: {
+                id: serviceConsumerId,
+                resident: { id: residentId, user: { id: userId } },
+            },
         } = await RecurrentPaymentContext.getOne(context, { id: recurrentContextId })
 
         await sendMessage(context, {
@@ -320,8 +323,14 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
             uniqKey,
             meta: {
                 dv: 1,
-                recurrentPaymentContext: { id: recurrentContextId },
-                ...meta,
+                data: {
+                    recurrentPaymentContextId: recurrentContextId,
+                    recurrentPaymentId: id,
+                    serviceConsumerId,
+                    residentId,
+                    userId,
+                    ...additionalData,
+                },
             },
         })
     } catch (error) {
@@ -335,7 +344,10 @@ async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentC
 
     try {
         const {
-            serviceConsumer: { resident: { user: { id: userId } } },
+            serviceConsumer: {
+                id: serviceConsumerId,
+                resident: { id: residentId, user: { id: userId } },
+            },
         } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id })
 
         // get trigger identifier
@@ -353,7 +365,12 @@ async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentC
             uniqKey,
             meta: {
                 dv: 1,
-                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+                data: {
+                    recurrentPaymentContextId: recurrentPaymentContext.id,
+                    serviceConsumerId,
+                    residentId,
+                    userId,
+                },
             },
         })
     } catch (error) {

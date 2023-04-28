@@ -25,6 +25,12 @@ const {
 const {
     createTestRecurrentPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
+} = require('@condo/domains/notification/constants/constants')
+const {
+    Message,
+} = require('@condo/domains/notification/utils/serverSchema')
 
 const {
     chargeByRecurrentPaymentAndPaymentAdapter,
@@ -32,7 +38,7 @@ const {
 
 const { keystone } = index
 
-describe('recurrent-payment-processing', () => {
+describe('charge-recurrent-payments', () => {
     let adminContext
     setFakeClientMode(index)
 
@@ -102,7 +108,29 @@ describe('recurrent-payment-processing', () => {
             expect(result.status).toEqual(RECURRENT_PAYMENT_DONE_STATUS)
             expect(result.tryCount).toEqual(recurrentPayment.tryCount + 1)
 
-            // todo assert notifications are sent
+            const notification = await Message.getOne(adminContext, {
+                type: RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
+                uniqKey: `rp_${recurrentPayment.id}_1_true`,
+            })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                recurrentPaymentId: recurrentPayment.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+            })
         })
 
         it('shouldn\'t pay - card not valid', async () => {
