@@ -19,7 +19,7 @@ const {
     VALIDITY_DATE_LESS_THAN_SEND_DATE,
     EDIT_DENIED_ALREADY_SENT,
     EDIT_DENIED_PUBLISHED,
-    PROFANITY_DEECTED_MOT_ERF_KER,
+    PROFANITY_DETECTED_MOT_ERF_KER,
 } = require('@condo/domains/news/constants/errors')
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks')
@@ -58,11 +58,11 @@ const ERRORS = {
         messageForUser: 'api.newsItem.EDIT_DENIED_PUBLISHED',
         mutation: 'updateNewsItem',
     },
-    PROFANITY_DEECTED_MOT_ERF_KER: {
+    PROFANITY_DETECTED_MOT_ERF_KER: {
         code: BAD_USER_INPUT,
-        type: PROFANITY_DEECTED_MOT_ERF_KER,
+        type: PROFANITY_DETECTED_MOT_ERF_KER,
         message: 'Profanity detected',
-        messageForUser: 'api.newsItem.PROFANITY_DEECTED_MOT_ERF_KER',
+        messageForUser: 'api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER',
     },
 }
 
@@ -193,7 +193,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
             }
 
             if (titleBadWords.length > 0 || bodyBadWords.length > 0) {
-                throw new GQLError(ERRORS.PROFANITY_DEECTED_MOT_ERF_KER, context)
+                throw new GQLError(ERRORS.PROFANITY_DETECTED_MOT_ERF_KER, context)
             }
         },
 
