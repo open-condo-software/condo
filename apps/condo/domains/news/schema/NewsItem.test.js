@@ -632,9 +632,6 @@ describe('NewsItems', () => {
                 expect(message1).toBeDefined()
                 expect(message1.id).toMatch(UUID_RE)
 
-                // await waitFor(async () => {
-                //     const message1 = await Message.getOne(adminClient, messageWhere)
-
                 expect(message1).toEqual(expect.objectContaining({
                     status: MESSAGE_SENT_STATUS,
                     processingMeta: expect.objectContaining({
@@ -656,9 +653,8 @@ describe('NewsItems', () => {
                         }),
                     }),
                 }))
-                // })
             }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
-        })
+        }, 20000)
     })
 })
 
