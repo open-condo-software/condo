@@ -28,7 +28,6 @@ const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks')
 const badWords = new BadWordsNext()
 badWords.add(badWordsRu)
 badWords.add(badWordsRuLat)
-badWords.add(badWordsEn)
 
 const ERRORS = {
     EMPTY_VALID_BEFORE_DATE: {
