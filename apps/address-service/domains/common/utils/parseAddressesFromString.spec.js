@@ -24,9 +24,9 @@ describe('Parsing unit names with unit types and house address from address stri
     for (const rawData of ADDRESS_USE_CASES) {
         const [ rawInput, house, unitType, unit ] = rawData
         test(`"${rawInput}" to be: "${house} = ${unitType} = ${unit}" `, () => {
-            const [{ result: { address, unitName: parsedUnit, unitType: parsedUnitType } }] = parseAddressesFromString([ rawInput ])
+            const [{ result: { address, unitName: parsedUnitName, unitType: parsedUnitType } }] = parseAddressesFromString([ rawInput ])
             expect(address).toEqual(house)
-            expect(parsedUnit).toEqual(unit)
+            expect(parsedUnitName).toEqual(unit)
             expect(unitType).toEqual(parsedUnitType)
         })
     }
