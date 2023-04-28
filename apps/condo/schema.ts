@@ -31562,8 +31562,20 @@ export type Mutation = {
    * 		"dv": {
    * 			"required": true
    * 		},
-   * 		"recurrentPaymentContext": {
-   * 			"id": {
+   * 		"data": {
+   * 			"recurrentPaymentContextId": {
+   * 				"required": true
+   * 			},
+   * 			"recurrentPaymentId": {
+   * 				"required": true
+   * 			},
+   * 			"serviceConsumerId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
    * 				"required": true
    * 			}
    * 		}
@@ -31572,21 +31584,42 @@ export type Mutation = {
    * 		"dv": {
    * 			"required": true
    * 		},
-   * 		"recurrentPaymentContext": {
-   * 			"id": {
+   * 		"data": {
+   * 			"recurrentPaymentContextId": {
+   * 				"required": true
+   * 			},
+   * 			"recurrentPaymentId": {
+   * 				"required": true
+   * 			},
+   * 			"serviceConsumerId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"errorCode": {
    * 				"required": true
    * 			}
-   * 		},
-   * 		"errorCode": {
-   * 			"required": true
    * 		}
    * 	},
    * 	"RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE": {
    * 		"dv": {
    * 			"required": true
    * 		},
-   * 		"recurrentPaymentContext": {
-   * 			"id": {
+   * 		"data": {
+   * 			"recurrentPaymentContextId": {
+   * 				"required": true
+   * 			},
+   * 			"serviceConsumerId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
    * 				"required": true
    * 			}
    * 		}
