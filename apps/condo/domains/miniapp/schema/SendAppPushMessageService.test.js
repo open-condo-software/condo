@@ -3,7 +3,8 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const conf = require('@open-condo/config')
+const { makeLoggedInAdminClient, makeLoggedInClient, makeClient, UUID_RE, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
@@ -15,7 +16,14 @@ const {
 } = require('@condo/domains/miniapp/utils/testSchema')
 const {
     B2C_APP_MESSAGE_PUSH_TYPE,
+    VOIP_INCOMING_CALL_MESSAGE_TYPE,
+    APPLE_CONFIG_TEST_PUSHTOKEN_ENV,
+    APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV,
+    DEVICE_PLATFORM_IOS, APP_RESIDENT_ID_IOS,
+    PUSH_TRANSPORT_APPLE,
 } = require('@condo/domains/notification/constants/constants')
+const { syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
 const {
     makeClientWithRegisteredOrganization,
 } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -26,6 +34,7 @@ const {
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
 
+const APPLE_TEST_VOIP_PUSHTOKEN = conf[APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV] || null
 
 describe('SendAppPushMessageService', () => {
     let admin
@@ -246,4 +255,42 @@ describe('SendAppPushMessageService', () => {
             })
         })
     })
+
+    describe.skip('real notification send for debugging', () => {
+        it('send VOIP_INCOMING_CALL_MESSAGE_TYPE to real VoIP push token if exists', async () => {
+            const user = await makeLoggedInClient()
+            const propertyId = 'e360edab-db67-408c-9aef-ddb70c31d3ec'
+            // This is app id from condo, make sure to substitute it to one of already existing b2c apps locally for this test to work
+            const EXISTING_B2C_APP_ID = 'b252edfd-1097-40ee-a159-05f6d6a1ee95'
+
+            /**
+             * NOTE: requires real VoIP push token to be sen in your .env to APPLE_TEST_VOIP_PUSHTOKEN
+             * Also need APPLE_CONFIG_JSON
+             * */
+
+            const payload = getRandomTokenData({
+                devicePlatform: DEVICE_PLATFORM_IOS,
+                appId: APP_RESIDENT_ID_IOS,
+                pushToken: getRandomFakeSuccessToken(),
+                pushTransportVoIP: PUSH_TRANSPORT_APPLE,
+                pushTokenVoIP: APPLE_TEST_VOIP_PUSHTOKEN,
+            })
+
+            await syncRemoteClientByTestClient(user, payload)
+
+            const [message] = await sendAppPushMessageByTestClient(admin, {
+                type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
+                app: { id: EXISTING_B2C_APP_ID },
+                user: { id: user.user.id },
+                data: {
+                    body: 'VoIP test body',
+                    title: 'VoIP test title',
+                    B2CAppContext: JSON.stringify({ propertyId }),
+                },
+            })
+
+            expect(message.id).toMatch(UUID_RE)
+        })
+    })
+
 })

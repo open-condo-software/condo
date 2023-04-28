@@ -44,11 +44,13 @@ class AppleMessaging {
                 const json = chunks.join('')
                 let data
 
-                try {
-                    data = JSON.parse(json)
-                } catch (error) {
-                    logger.error('response JSON parse error', error, headers)
-                    data = { error }
+                if (json) {
+                    try {
+                        data = JSON.parse(json)
+                    } catch (error) {
+                        logger.error({ msg: 'response JSON parse error', error, headers, json })
+                        data = { error }
+                    }
                 }
 
                 if (status === APS_RESPONSE_STATUS_SUCCESS) {
@@ -59,11 +61,20 @@ class AppleMessaging {
 
                     if (errorText) {
                         error = new Error(errorText)
-                        error.reason = data.reason
+                        error.reason = get(data, 'reason')
                         error['apns-id'] = apnsId
                     } else {
                         error = new Error(`Remote server responded with error code ${status}`)
                     }
+
+                    const payload = { apnsId, data, json, args, status, headers, flags }
+                    const errorContents = {
+                        msg: `Remote server responded with error code ${status}`,
+                        err: error,
+                        payload: JSON.stringify( payload, null, 2),
+                    }
+
+                    logger.error(errorContents)
                     reject(error)
                 }
             }
@@ -114,6 +125,8 @@ class AppleMessaging {
                 if (options.type === APS_PUSH_TYPE_VOIP) headers['apns-topic'] = `${options.appId}.voip`
             }
 
+            logger.info({ msg: 'sendPush before request', headers, options, payload })
+
             const stream = this.#session.request(headers)
 
             stream.on('response', this.getResponseHandler(stream, resolve, reject))
@@ -130,9 +143,7 @@ class AppleMessaging {
             const { token, data: pushData = {}, notification = {}, aps = {}, type, appId } = notifications[idx]
             const options = { appId }
             const payload = {
-                aps: {
-                    ...aps,
-                },
+                aps: { ...aps },
                 ...pushData,
             }
 
