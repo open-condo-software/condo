@@ -117,8 +117,15 @@ const NewsItem = new GQLListSchema('NewsItem', {
     },
     hooks: {
         resolveInput: async (args) => {
-            const { resolvedData, operation } = args
-            if (operation === 'create' && !get(resolvedData, 'type')) {
+            const { resolvedData, operation, existingItem } = args
+            const resultItemData = { ...existingItem, ...resolvedData }
+
+            if (
+                (
+                    operation === 'create'
+                    || (operation === 'update' && !get(resultItemData, 'isPublished'))
+                )
+                && !get(resolvedData, 'type')) {
                 resolvedData['type'] = NEWS_TYPE_COMMON
             }
 
