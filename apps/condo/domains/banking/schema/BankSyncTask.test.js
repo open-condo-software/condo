@@ -525,7 +525,7 @@ describe('BankSyncTask', () => {
             })
         })
 
-        it('expect error when creating BankAccount in 1c import', async () => {
+        it('throw an error if BankAccount already connected to requested property in file import', async () => {
             const [organization] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, organization)
             const [integrationContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)

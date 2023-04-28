@@ -1,6 +1,5 @@
 const fetch = require('isomorphic-fetch')
-const { get } = require('lodash')
-const isEmpty = require('lodash/isEmpty')
+const { get, isEmpty } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -113,14 +112,16 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
             deletedAt: null,
         })
         if (!isEmpty(accountByProperty)) {
+            const errorMsg = `Already have an account with the same Property { id: ${property.id} }.`
             await BankSyncTask.update(context, task.id, {
                 status: BANK_SYNC_TASK_STATUS.ERROR,
                 meta: {
-                    errorMessage: `Already have an account with the same Property { id: ${property.id} }.`,
+                    errorMessage: errorMsg,
                 },
                 ...DV_SENDER,
             })
-            return
+            logger.error({ msg: errorMsg })
+            throw new Error(errorMsg)
         }
     }
     let integrationContext
