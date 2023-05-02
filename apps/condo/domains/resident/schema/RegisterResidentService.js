@@ -19,6 +19,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
     types: [
         {
             access: true,
+            // TODO(DOMA-6063): we need to remove `addressMeta` attribute here! We can work only with the `address` argument and request all data from addressService by addressKey or raw address string
             type: 'input RegisterResidentInput { dv: Int!, sender: SenderFieldInput!, address: String!, addressMeta: AddressMetaFieldInput!, unitName: String!, unitType: BuildingUnitSubType }',
         },
     ],
