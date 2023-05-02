@@ -22,7 +22,7 @@ const isInputToManagePublishedAt = ajv.compile({
             type: 'object',
         },
         publishedAt: {
-            type: 'string',
+            type: ['string', 'null'],
         },
     },
     additionalProperties: false,
