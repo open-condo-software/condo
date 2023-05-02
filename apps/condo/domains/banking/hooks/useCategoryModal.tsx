@@ -149,7 +149,7 @@ export const useCategoryModal: IUseCategoryModal = ({
                 title={modalTitle}
                 open
                 onCancel={closeModal}
-                width='big'
+                width='fit-content'
                 footer={<Button
                     type='primary'
                     disabled={isNull(selectedCostItem) || loading}
