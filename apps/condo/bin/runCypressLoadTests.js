@@ -1,24 +1,20 @@
-const { spawn, exec } = require('child_process')
-const path = require('path')
-const util = require('util')
+const { spawn } = require('child_process')
 
-const faker = require('faker')
-const { Client } = require('pg')
-
-
-//const spawn = util.promisify(require('child_process').spawn)
-//const exec = util.promisify(require('child_process').exec)
-
-const RUN_TESTS_COMMAND = 'yarn'// -b chrome -C ./cypress/cypress.config.ts --spec "./cypress/e2e/pages/auth.cy.js"'
-
+const RUN_TESTS_COMMAND = 'yarn'
 const RUN_TESTS_ARGS = ['workspace', '@app/condo', 'cypress', 'run', '-b', 'chrome', 'C', './cypress/cypress.config.ts']
 
-// const RUN_TESTS_COMMAND = 'ls'
-// const RUN_TESTS_ARGS = ['-la']
 
-console.log( process.env.PATH )
+const processCypressStdoutMessage = (message, instance) => {
+    const msg = message.toString()
+        .replaceAll('─', '')
 
-const runCypressInParallel = async (instances) => {
+    if (msg.includes('Running:')) {
+        console.log(`STDOUT Cypress instance: ${instance}\r\n${msg}`)
+    }
+}
+
+
+const runCypressInParallel = (instances) => {
     const cypressInstances = []
 
     for (let i = 0; i < instances; i++) {
@@ -26,36 +22,34 @@ const runCypressInParallel = async (instances) => {
         const cypressInstance = spawn(RUN_TESTS_COMMAND, RUN_TESTS_ARGS)
 
         cypressInstance.stdout.on('data', (data) => {
-            console.log(`STDOUT Instance: ${i}: ${data.toString()}`)
+            processCypressStdoutMessage(data, i)
         })
 
         cypressInstance.stderr.on('data', (data) => {
-            console.log(`STDERR Instance: ${i}: ${data}`)
+            console.log(`STDERR Cypress instance: ${i}: \r\n${data}`)
         })
 
         cypressInstance.on('close', (code) => {
-            console.log(`child process close all stdio with code ${code}`)
+            console.log(`Cypress instance ${i} close all stdio with code ${code}`)
         })
 
         cypressInstance.on('error', (err) => {
-            console.log(`child process emitted an error: ${err}`)
+            console.log(`Cypress instance ${i} emitted an error: ${err}`)
         })
 
         cypressInstances.push(cypressInstance)
     }
 
-    await Promise.all(cypressInstances)
-
-    console.log('All done!')
+    return Promise.all(cypressInstances)
 }
 
 
 const runCypressLoadTests = async () => {
-    const [,,instances, condoUrl] = process.argv
+    const [,,instances] = process.argv
 
-    await runCypressInParallel(parseInt(instances), condoUrl)
-
-    await setTimeout(() => {console.log('Slept for 5 seconds')}, 5000)
+    await runCypressInParallel(parseInt(instances))
 }
 
-runCypressLoadTests()
+runCypressLoadTests().then(async r => {
+    await r
+})
