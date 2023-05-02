@@ -721,7 +721,9 @@ export const TicketsPageContent = ({
     baseTicketsQuery,
     sortableProperties,
     showImport = false,
-    baseQueryLoading = false,
+    loading = false,
+    ticketsWithoutFiltersCount,
+    error,
 }): JSX.Element => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
@@ -730,7 +732,6 @@ export const TicketsPageContent = ({
     const TicketsMessage = intl.formatMessage({ id: 'global.section.tickets' })
     const TicketReadingObjectsNameManyGenitiveMessage = intl.formatMessage({ id: 'pages.condo.ticket.import.TicketReading.objectsName.many.genitive' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -752,16 +753,9 @@ export const TicketsPageContent = ({
             favoriteTicketsIds
     }
 
-    const {
-        count: ticketsWithoutFiltersCount,
-        loading: ticketsWithoutFiltersCountLoading,
-        error,
-    } = Ticket.useCount({ where: baseTicketsQuery })
-
     const { useFlag } = useFeatureFlags()
     const isTicketImportFeatureEnabled = useFlag(TICKET_IMPORT)
     const [columns, ticketNormalizer, ticketValidator, ticketCreator] = useImporterFunctions()
-    const loading = baseQueryLoading || ticketsWithoutFiltersCountLoading
 
     const exampleTemplateLink = useMemo(() => `/ticket-import-example-${intl.locale}.xlsx`, [intl.locale])
 
@@ -786,12 +780,10 @@ export const TicketsPageContent = ({
                 <Button
                     type='secondary'
                     icon={<FileUp size='medium'/>}
-                >
-                    {ImportButtonMessage}
-                </Button>
+                />
             </ImportWrapper>
         )
-    }, [TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, isTicketImportFeatureEnabled, showImport, ticketCreator, ticketNormalizer, ticketValidator])
+    }, [TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, exampleTemplateLink, ticketCreator, ticketNormalizer, ticketValidator])
 
     if (loading || error) {
         const errorToPrint = error ? ServerErrorMsg : null
@@ -830,7 +822,7 @@ export const TicketsPageContent = ({
                 useTableColumns={useTableColumns}
                 sortBy={sortBy}
                 searchTicketsQuery={searchTicketsQuery}
-                baseQueryLoading={baseQueryLoading || ticketsWithoutFiltersCountLoading}
+                baseQueryLoading={loading}
                 TicketImportButton={TicketImportButton}
             />
         </>
@@ -964,6 +956,7 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
 }
 
 const HEADER_STYLES: CSSProperties = { padding: 0 }
+const MAIN_ROW_STYLE: CSSProperties = { height: '100%' }
 
 const TicketsPage: ITicketIndexPage = () => {
     const intl = useIntl()
@@ -978,6 +971,12 @@ const TicketsPage: ITicketIndexPage = () => {
 
     const { breakpoints } = useLayoutContext()
 
+    const {
+        count: ticketsWithoutFiltersCount,
+        loading: ticketsWithoutFiltersCountLoading,
+        error,
+    } = Ticket.useCount({ where: ticketFilterQuery })
+
     return (
         <>
             <Head>
@@ -988,7 +987,7 @@ const TicketsPage: ITicketIndexPage = () => {
                     <FavoriteTicketsContextProvider
                         extraTicketsQuery={{ ...ticketFilterQuery, organization: { id: userOrganizationId } }}
                     >
-                        <Row gutter={breakpoints.DESKTOP_LARGE && MEDIUM_VERTICAL_ROW_GUTTER}>
+                        <Row gutter={breakpoints.DESKTOP_LARGE && MEDIUM_VERTICAL_ROW_GUTTER} style={MAIN_ROW_STYLE}>
                             <Col span={24}>
                                 <Row justify='space-between' gutter={MEDIUM_VERTICAL_ROW_GUTTER}>
                                     <Col>
@@ -1001,11 +1000,15 @@ const TicketsPage: ITicketIndexPage = () => {
                                             }
                                         />
                                     </Col>
-                                    <Col>
-                                        <TicketTypeFilterSwitch
-                                            ticketFilterQuery={ticketFilterQuery}
-                                        />
-                                    </Col>
+                                    {
+                                        !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount > 0 && (
+                                            <Col>
+                                                <TicketTypeFilterSwitch
+                                                    ticketFilterQuery={ticketFilterQuery}
+                                                />
+                                            </Col>
+                                        )
+                                    }
                                 </Row>
                             </Col>
                             <Col span={24}>
@@ -1015,9 +1018,11 @@ const TicketsPage: ITicketIndexPage = () => {
                                             filterMetas={filterMetas}
                                             useTableColumns={useTableColumns}
                                             baseTicketsQuery={ticketFilterQuery}
-                                            baseQueryLoading={ticketFilterQueryLoading}
+                                            loading={ticketFilterQueryLoading || ticketsWithoutFiltersCountLoading}
                                             sortableProperties={SORTABLE_PROPERTIES}
                                             showImport
+                                            ticketsWithoutFiltersCount={ticketsWithoutFiltersCount}
+                                            error={error}
                                         />
                                     </MultipleFilterContextProvider>
                                 </TablePageContent>
