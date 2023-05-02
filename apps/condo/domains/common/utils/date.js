@@ -18,7 +18,7 @@ const getMonthStart = (dateRaw, shouldFormat = false) => {
 /**
  * Returns dates for first day of previous, current and next months formatted to DATE_FORMAT
  * Usable for periods of billing receipts, etc.
- * @returns {{thisMonthStart, nextMonthStart}}
+ * @returns {{prevMonthStart, thisMonthStart, nextMonthStart}}
  */
 const getStartDates = (dateRaw) => {
     const date = getMonthStart(dateRaw)

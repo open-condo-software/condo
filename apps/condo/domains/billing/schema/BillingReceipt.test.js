@@ -659,7 +659,7 @@ describe('BillingReceipt', () => {
                     await createTestBillingReceipt(admin, context, property, account, {
                         period: '2022-02-15',
                     })
-                }, 'period field validation error. Period day should always be equal to 01')
+                }, 'period field validation error. Period should always be the 1st day of the month')
             })
         })
         describe('services', () => {

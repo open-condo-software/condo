@@ -3,7 +3,6 @@
  */
 const dayjs = require('dayjs')
 const { isEmpty, get, uniq, compact } = require('lodash')
-const { validate: uuidValidate } = require('uuid')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
@@ -11,11 +10,14 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/billing/access/SendNewReceiptMessagesToResidentScopesService')
 const { BillingCategory, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
-const { getStartDates, DATE_FORMAT } = require('@condo/domains/common/utils/date')
+const { DATE_FORMAT } = require('@condo/domains/common/utils/date')
+const { getStartDates } = require('@condo/domains/common/utils/date')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { sendMessageToResidentScopes } = require('@condo/domains/resident/utils/serverSchema')
+
+const { isValidDateValue } = require('../utils/validation.utils')
 
 const UNIQ_KEY_TEMPLATE = ['{categoryId}', '{period}', '{residentId}'].join(':')
 const MUTATION_NAME = 'sendNewReceiptMessagesToResidentScopes'
@@ -63,43 +65,52 @@ const ERRORS = {
     },
 }
 
-
 /**
  * Validate data for SendNewReceiptMessagesToResidentScopesService.
  * Throws typed errors on invalid values.
  * Prepares data for sendNewReceiptMessagesToResidentScopesTask
  * @param context
  * @param data
- * @returns {Promise<{categoryData: (*)}>}
+ * @returns {Promise<{categoryData: (*), period: 'YYYY-MM-01'}>}
  */
-const validateData = async (context, data) => {
-    const { context: billingIntegrationContext, scopes, category, period } = data
-    const periodDt = dayjs(period)
+const validateAndNormalizeData = async (context, data) => {
+    const { context: billingIntegrationContext, scopes, category, period: periodRaw } = data
+
+    /** Validate period */
+    if (!isValidDateValue(periodRaw)) throw new GQLError(ERRORS.INVALID_PERIOD_PROVIDED, context)
+
+    const periodDt = dayjs(periodRaw)
     const { prevMonthStart, currMonthStart  } = getStartDates()
 
-    if (!periodDt.isValid() || periodDt.isAfter(currMonthStart) || periodDt.isBefore(prevMonthStart))
-        throw new GQLError(ERRORS.INVALID_PERIOD_PROVIDED, context)
+    if (!periodRaw || !periodDt.isValid()) throw new GQLError(ERRORS.INVALID_PERIOD_PROVIDED, context)
 
+    const period = dayjs(periodDt).startOf('month')
+
+    if (period.isAfter(currMonthStart) || period.isBefore(prevMonthStart)) throw new GQLError(ERRORS.INVALID_PERIOD_PROVIDED, context)
+
+    /** Validate scopes */
     if (isEmpty(scopes)) throw new GQLError(ERRORS.SCOPES_IS_EMPTY, context)
 
-    // validate category id
+    /** validate category id */
     const categoryData = await BillingCategory.getOne(context, { id: category.id, deletedAt: null })
 
     if (isEmpty(categoryData)) throw new GQLError(ERRORS.INVALID_BILLING_CATEGORY_PROVIDED, context)
 
-    // validate organization id
+    /** validate billing context id */
     const contextData = await BillingIntegrationOrganizationContext.getOne(context, { id: billingIntegrationContext.id, deletedAt: null, status: CONTEXT_FINISHED_STATUS })
+    const organizationId = get(contextData, 'organization.id')
 
-    if (isEmpty(contextData)) throw new GQLError(ERRORS.INVALID_BILLING_CONTEXT_PROVIDED, context)
+    /** Validate organization id */
+    if (isEmpty(organizationId)) throw new GQLError(ERRORS.INVALID_BILLING_CONTEXT_PROVIDED, context)
 
-    // check if all properties in scopes are connected to proper organization
+    /** check if all properties in scopes are connected to proper organization */
     const propertyIds = scopes.map(scope => scope.property.id)
     const uniqPropertyIds = uniq(compact(propertyIds))
-    const propertiesCount = await Property.count(context, { id_in: uniqPropertyIds, deletedAt: null })
+    const propertiesCount = await Property.count(context, { id_in: uniqPropertyIds, organization: { id: organizationId }, deletedAt: null })
 
     if (propertiesCount !== uniqPropertyIds.length) throw new GQLError(ERRORS.INVALID_PROPERTY_PROVIDED, context)
 
-    return { categoryData }
+    return { categoryData, period: period.format(DATE_FORMAT) }
 }
 
 const SendNewReceiptMessagesToResidentScopesService = new GQLCustomSchema('SendNewReceiptMessagesToResidentScopesService', {
@@ -143,9 +154,9 @@ const SendNewReceiptMessagesToResidentScopesService = new GQLCustomSchema('SendN
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { sender, lang, scopes, period, category, meta } = data
+                const { sender, lang, scopes, category, meta } = data
 
-                const { categoryData } = await validateData(context, data)
+                const { categoryData, period } = await validateAndNormalizeData(context, data)
                 const categoryName = `${categoryData.nameNonLocalized}.declined`
 
                 const payload = {

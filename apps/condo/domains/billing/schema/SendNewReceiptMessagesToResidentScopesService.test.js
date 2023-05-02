@@ -28,7 +28,7 @@ const {
 const { syncRemoteClientWithPushTokenByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { Resident, registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
@@ -83,7 +83,6 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                     period: dates.thisMonthStart,
                     scopes: [{ property: { id: property.id } }],
                     meta: {
-                        categoryName: faker.random.alphaNumeric(8), // TODO: remove, this will be auto substituted in service
                         data: {
                             urlTemplate: `payments/addaccount/?residentId={residentId}&categoryId=${CATEGORY_HOUSING_ID}&organizationTIN=${organization.tin}`,
                         },
@@ -145,7 +144,6 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                     period: dates.thisMonthStart,
                     scopes: [{ property: { id: property.id } }],
                     meta: {
-                        categoryName: faker.random.alphaNumeric(8), // TODO: remove, this will be auto substituted in service
                         data: {
                             urlTemplate: `payments/addaccount/?residentId={residentId}&categoryId=${CATEGORY_HOUSING_ID}&organizationTIN=${organization.tin}`,
                         },
@@ -164,6 +162,27 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                     { ...ERRORS.INVALID_BILLING_CONTEXT_PROVIDED },
                     'result'
                 )
+            })
+
+            test('throws on invalid period format (without day)', async () => {
+                const casePayload = {
+                    ...payload,
+                    period: dates.thisMonthStart.substring(0, 7),
+                }
+
+                await expectToThrowGQLError(
+                    async () => { await sendNewReceiptMessagesToResidentScopesByTestClient(adminClient, casePayload) },
+                    { ...ERRORS.INVALID_PERIOD_PROVIDED },
+                    'result'
+                )
+            })
+
+            test('doesn\'t throw on invalid period format (non-01 day)', async () => {
+                const period = dates.thisMonthStart.substring(0, 7) + '-' + Math.floor(Math.random() * 20 + 10)
+                const casePayload = { ...payload, period }
+                const [data] = await sendNewReceiptMessagesToResidentScopesByTestClient(integrationServiceClient, casePayload)
+
+                expect(data.status).toEqual(SUCCESS_STATUS)
             })
 
             test('throws on invalid period format', async () => {
@@ -397,6 +416,48 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                 expect(data.status).toEqual(SUCCESS_STATUS)
 
                 const messageWhere = { user: { id_in: [resident.user.id] }, type: BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE }
+
+                await waitFor(async () => {
+                    const messages = await Message.getAll(adminClient, messageWhere)
+
+                    expect(isEmpty(messages)).toBeFalsy()
+                    expect(messages).toHaveLength(1)
+                    expect(messages[0].status).toEqual(MESSAGE_SENT_STATUS)
+                })
+            })
+
+
+            test('doesn\'t sent notifications to deleted residents', async () => {
+                // Create some residents and sync their users with remoteClients to be able to emulate sending push notifications
+                const residentPayload = { address: property.address, addressMeta: property.addressMeta }
+                const remoteClientPayload = { devicePlatform: DEVICE_PLATFORM_ANDROID, appId: APP_MASTER_ID_ANDROID }
+                const residentUser = await makeClientWithResidentUser()
+                const residentUser2 = await makeClientWithResidentUser()
+                const [resident] = await registerResidentByTestClient(residentUser, residentPayload)
+                const [resident2] = await registerResidentByTestClient(residentUser2, residentPayload)
+
+                await Resident.softDelete(adminClient, resident2.id)
+
+                await syncRemoteClientWithPushTokenByTestClient(residentUser, remoteClientPayload)
+
+                const payload = {
+                    context: { id: integrationContext.id },
+                    category: { id: CATEGORY_HOUSING_ID },
+                    period: dates.thisMonthStart,
+                    scopes: [{ property: { id: property.id } }],
+                    meta: {
+                        data: {
+                            urlTemplate: `payments/addaccount/?residentId={residentId}&categoryId=${CATEGORY_HOUSING_ID}&organizationTIN=${organization.tin}`,
+                        },
+                    },
+                }
+                const [data] = await sendNewReceiptMessagesToResidentScopesByTestClient(integrationServiceClient, payload)
+
+                await sendNewReceiptMessagesToResidentScopesByTestClient(adminClient, payload)
+
+                expect(data.status).toEqual(SUCCESS_STATUS)
+
+                const messageWhere = { user: { id_in: [resident.user.id, resident2.user.id] }, type: BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE }
 
                 await waitFor(async () => {
                     const messages = await Message.getAll(adminClient, messageWhere)
