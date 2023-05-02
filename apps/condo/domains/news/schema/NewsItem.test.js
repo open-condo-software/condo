@@ -11,12 +11,14 @@ const {
     UUID_RE,
     DATETIME_RE,
     expectToThrowGQLError,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const { NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const {
     NewsItem,
@@ -24,6 +26,17 @@ const {
     updateTestNewsItem,
     createTestNewsItemScope,
 } = require('@condo/domains/news/utils/testSchema')
+const { NEWS_ITEM_COMMON_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const {
+    DEVICE_PLATFORM_ANDROID,
+    APP_RESIDENT_ID_ANDROID,
+    MESSAGE_SENT_STATUS,
+} = require('@condo/domains/notification/constants/constants')
+const { syncRemoteClientByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
+const {
+    getRandomTokenData,
+    getRandomFakeSuccessToken,
+} = require('@condo/domains/notification/utils/testSchema/helpers')
 const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
@@ -511,6 +524,34 @@ describe('NewsItems', () => {
                 },
             )
         })
+
+        test('must throw an error on trying to edit the news item which already been sent', async () => {
+            const [sentNewsItem] = await createTestNewsItem(adminClient, dummyO10n, { sentAt: dayjs().toISOString() })
+            await expectToThrowGQLError(
+                async () => await updateTestNewsItem(adminClient, sentNewsItem.id, { title: faker.lorem.words(3) }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'EDIT_DENIED_ALREADY_SENT',
+                    message: 'The sent news item is restricted from editing',
+                    mutation: 'updateNewsItem',
+                    messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
+                },
+            )
+        })
+
+        test('must throw an error on trying to edit the published news item', async () => {
+            const [sentNewsItem] = await createTestNewsItem(adminClient, dummyO10n, { isPublished: true })
+            await expectToThrowGQLError(
+                async () => await updateTestNewsItem(adminClient, sentNewsItem.id, { title: faker.lorem.words(3) }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'EDIT_DENIED_PUBLISHED',
+                    message: 'The published news item is restricted from editing',
+                    mutation: 'updateNewsItem',
+                    messageForUser: 'api.newsItem.EDIT_DENIED_PUBLISHED',
+                },
+            )
+        })
     })
 
     describe('Delayed news items', () => {
@@ -534,16 +575,86 @@ describe('NewsItems', () => {
             })
 
             const newsItems1 = await NewsItem.getAll(residentClient1, {})
-
             expect(newsItems1).toHaveLength(0)
 
             // Imagine that publication scheduled at 1 hour ago
             await updateTestNewsItem(adminClient, newsItem1.id, { sendAt: dayjs().subtract(1, 'hour').toISOString() })
 
             const newsItems2 = await NewsItem.getAll(residentClient1, {})
+            expect(newsItems2).toHaveLength(0)
 
-            expect(newsItems2).toHaveLength(1)
+            // Make news item published
+            await updateTestNewsItem(adminClient, newsItem1.id, { isPublished: true })
+
+            const newsItems3 = await NewsItem.getAll(residentClient1, {})
+            expect(newsItems3).toHaveLength(1)
         })
+    })
+
+    describe('notifications', () => {
+        test('user receives push notification on news item created', async () => {
+            const residentClient1 = await makeClientWithResidentUser()
+            const [o10n] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, o10n)
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+
+            const [resident] = await createTestResident(adminClient, residentClient1.user, property, {
+                unitType: unitType1,
+                unitName: unitName1,
+            })
+
+            // News item for particular unit
+            const [newsItem1, newsItem1Attrs] = await createTestNewsItem(adminClient, o10n)
+            await createTestNewsItemScope(adminClient, newsItem1, {
+                property: { connect: { id: property.id } },
+                unitType: unitType1,
+                unitName: unitName1,
+            })
+
+            const payload = getRandomTokenData({
+                devicePlatform: DEVICE_PLATFORM_ANDROID,
+                appId: APP_RESIDENT_ID_ANDROID,
+                pushToken: getRandomFakeSuccessToken(),
+            })
+
+            await syncRemoteClientByTestClient(residentClient1, payload)
+
+            // Publish news item to make it sendable
+            await updateTestNewsItem(adminClient, newsItem1.id, { isPublished: true })
+
+            const messageWhere = { user: { id: residentClient1.user.id }, type: NEWS_ITEM_COMMON_MESSAGE_TYPE }
+
+            await waitFor(async () => {
+                const message1 = await Message.getOne(adminClient, messageWhere)
+
+                expect(message1).toBeDefined()
+                expect(message1.id).toMatch(UUID_RE)
+
+                expect(message1).toEqual(expect.objectContaining({
+                    status: MESSAGE_SENT_STATUS,
+                    processingMeta: expect.objectContaining({
+                        // old way check
+                        transport: 'push',
+
+                        // ADR-7 way check
+                        transportsMeta: [expect.objectContaining({
+                            transport: 'push',
+                        })],
+                    }),
+                    meta: expect.objectContaining({
+                        title: newsItem1Attrs['title'],
+                        data: expect.objectContaining({
+                            newsItemId: newsItem1.id,
+                            residentId: resident.id,
+                            userId: residentClient1.user.id,
+                            organizationId: o10n.id,
+                        }),
+                    }),
+                }))
+            }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+        }, 20000)
     })
 })
 

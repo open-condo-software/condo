@@ -54657,6 +54657,8 @@ type NewsItemHistoryRecord {
   type: String
   validBefore: String
   sendAt: String
+  sentAt: String
+  isPublished: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -54749,6 +54751,16 @@ input NewsItemHistoryRecordWhereInput {
   sendAt_gte: String
   sendAt_in: [String]
   sendAt_not_in: [String]
+  sentAt: String
+  sentAt_not: String
+  sentAt_lt: String
+  sentAt_lte: String
+  sentAt_gt: String
+  sentAt_gte: String
+  sentAt_in: [String]
+  sentAt_not_in: [String]
+  isPublished: Boolean
+  isPublished_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -54842,6 +54854,10 @@ enum SortNewsItemHistoryRecordsBy {
   validBefore_DESC
   sendAt_ASC
   sendAt_DESC
+  sentAt_ASC
+  sentAt_DESC
+  isPublished_ASC
+  isPublished_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -54867,6 +54883,8 @@ input NewsItemHistoryRecordUpdateInput {
   type: String
   validBefore: String
   sendAt: String
+  sentAt: String
+  isPublished: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -54893,6 +54911,8 @@ input NewsItemHistoryRecordCreateInput {
   type: String
   validBefore: String
   sendAt: String
+  sentAt: String
+  isPublished: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -54950,10 +54970,16 @@ type NewsItem {
   """ Date before which the news item makes sense """
   validBefore: String
 
-  """ Date to publish the news item and to send notifications """
+  """ UTC (!) Date to publish the news item and to send notifications """
   sendAt: String
   scopes(where: NewsItemScopeWhereInput, search: String, sortBy: [SortNewsItemScopesBy!], orderBy: String, first: Int, skip: Int): [NewsItemScope!]!
   _scopesMeta(where: NewsItemScopeWhereInput, search: String, sortBy: [SortNewsItemScopesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ The date when newsItem was sent to residents """
+  sentAt: String
+
+  """ Shows if the news item is ready to be shown and send to residents """
+  isPublished: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -55047,6 +55073,16 @@ input NewsItemWhereInput {
 
   """ condition must be false for all nodes """
   scopes_none: NewsItemScopeWhereInput
+  sentAt: String
+  sentAt_not: String
+  sentAt_lt: String
+  sentAt_lte: String
+  sentAt_gt: String
+  sentAt_gte: String
+  sentAt_in: [String]
+  sentAt_not_in: [String]
+  isPublished: Boolean
+  isPublished_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -55124,6 +55160,10 @@ enum SortNewsItemsBy {
   sendAt_DESC
   scopes_ASC
   scopes_DESC
+  sentAt_ASC
+  sentAt_DESC
+  isPublished_ASC
+  isPublished_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -55150,6 +55190,8 @@ input NewsItemUpdateInput {
   validBefore: String
   sendAt: String
   scopes: NewsItemScopeRelateToManyInput
+  sentAt: String
+  isPublished: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -55174,6 +55216,8 @@ input NewsItemCreateInput {
   validBefore: String
   sendAt: String
   scopes: NewsItemScopeRelateToManyInput
+  sentAt: String
+  isPublished: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -58203,6 +58247,8 @@ enum SendMessageType {
   RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE
   RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE
   RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE
+  NEWS_ITEM_COMMON_MESSAGE_TYPE
+  NEWS_ITEM_EMERGENCY_MESSAGE_TYPE
 }
 
 input SendMessageInput {
@@ -67122,6 +67168,44 @@ type Mutation {
   				"required": true
   			},
   			"userId": {
+  				"required": true
+  			}
+  		}
+  	},
+  	"NEWS_ITEM_COMMON_MESSAGE_TYPE": {
+  		"dv": {
+  			"required": true
+  		},
+  		"title": {
+  			"required": true
+  		},
+  		"body": {
+  			"required": true
+  		},
+  		"data": {
+  			"newsItemId": {
+  				"required": true
+  			},
+  			"organizationId": {
+  				"required": true
+  			}
+  		}
+  	},
+  	"NEWS_ITEM_EMERGENCY_MESSAGE_TYPE": {
+  		"dv": {
+  			"required": true
+  		},
+  		"title": {
+  			"required": true
+  		},
+  		"body": {
+  			"required": true
+  		},
+  		"data": {
+  			"newsItemId": {
+  				"required": true
+  			},
+  			"organizationId": {
   				"required": true
   			}
   		}

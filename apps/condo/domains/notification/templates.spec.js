@@ -17,7 +17,6 @@ const { LOCALES, EN_LOCALE, RU_LOCALE } = require('@condo/domains/common/constan
 const {
     MESSAGE_TYPES,
     MESSAGE_TRANSPORTS,
-    // MESSAGE_TYPES_TRANSPORTS,
     MESSAGE_DELIVERY_OPTIONS,
     EMAIL_TRANSPORT,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
@@ -70,7 +69,7 @@ function getPossibleTransports (messageType) {
  */
 function isTemplateNeeded (messageType, transport) {
     const transports = getPossibleTransports(messageType)
-    return !isEmpty(transports[transport])
+    return transports.includes(transport)
 }
 
 const ORGANIZATION_NAME_WITH_QUOTES = 'ООО "УК "РЕЗИДЕНЦИЯ У МОРЯ"'

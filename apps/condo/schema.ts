@@ -31623,6 +31623,44 @@ export type Mutation = {
    * 				"required": true
    * 			}
    * 		}
+   * 	},
+   * 	"NEWS_ITEM_COMMON_MESSAGE_TYPE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"title": {
+   * 			"required": true
+   * 		},
+   * 		"body": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"newsItemId": {
+   * 				"required": true
+   * 			},
+   * 			"organizationId": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"NEWS_ITEM_EMERGENCY_MESSAGE_TYPE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"title": {
+   * 			"required": true
+   * 		},
+   * 		"body": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"newsItemId": {
+   * 				"required": true
+   * 			},
+   * 			"organizationId": {
+   * 				"required": true
+   * 			}
+   * 		}
    * 	}
    * }`
    *
@@ -38390,10 +38428,14 @@ export type NewsItem = {
   type?: Maybe<NewsItemTypeType>;
   /**  Date before which the news item makes sense  */
   validBefore?: Maybe<Scalars['String']>;
-  /**  Date to publish the news item and to send notifications  */
+  /**  UTC (!) Date to publish the news item and to send notifications  */
   sendAt?: Maybe<Scalars['String']>;
   scopes: Array<NewsItemScope>;
   _scopesMeta?: Maybe<_QueryMeta>;
+  /**  The date when newsItem was sent to residents  */
+  sentAt?: Maybe<Scalars['String']>;
+  /**  Shows if the news item is ready to be shown and send to residents  */
+  isPublished?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -38440,6 +38482,8 @@ export type NewsItemCreateInput = {
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
   scopes?: Maybe<NewsItemScopeRelateToManyInput>;
+  sentAt?: Maybe<Scalars['String']>;
+  isPublished?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -38468,6 +38512,8 @@ export type NewsItemHistoryRecord = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
+  sentAt?: Maybe<Scalars['String']>;
+  isPublished?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -38490,6 +38536,8 @@ export type NewsItemHistoryRecordCreateInput = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
+  sentAt?: Maybe<Scalars['String']>;
+  isPublished?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -38517,6 +38565,8 @@ export type NewsItemHistoryRecordUpdateInput = {
   type?: Maybe<Scalars['String']>;
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
+  sentAt?: Maybe<Scalars['String']>;
+  isPublished?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -38608,6 +38658,16 @@ export type NewsItemHistoryRecordWhereInput = {
   sendAt_gte?: Maybe<Scalars['String']>;
   sendAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sendAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sentAt?: Maybe<Scalars['String']>;
+  sentAt_not?: Maybe<Scalars['String']>;
+  sentAt_lt?: Maybe<Scalars['String']>;
+  sentAt_lte?: Maybe<Scalars['String']>;
+  sentAt_gt?: Maybe<Scalars['String']>;
+  sentAt_gte?: Maybe<Scalars['String']>;
+  sentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isPublished?: Maybe<Scalars['Boolean']>;
+  isPublished_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -39493,6 +39553,8 @@ export type NewsItemUpdateInput = {
   validBefore?: Maybe<Scalars['String']>;
   sendAt?: Maybe<Scalars['String']>;
   scopes?: Maybe<NewsItemScopeRelateToManyInput>;
+  sentAt?: Maybe<Scalars['String']>;
+  isPublished?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -39878,6 +39940,16 @@ export type NewsItemWhereInput = {
   scopes_some?: Maybe<NewsItemScopeWhereInput>;
   /**  condition must be false for all nodes  */
   scopes_none?: Maybe<NewsItemScopeWhereInput>;
+  sentAt?: Maybe<Scalars['String']>;
+  sentAt_not?: Maybe<Scalars['String']>;
+  sentAt_lt?: Maybe<Scalars['String']>;
+  sentAt_lte?: Maybe<Scalars['String']>;
+  sentAt_gt?: Maybe<Scalars['String']>;
+  sentAt_gte?: Maybe<Scalars['String']>;
+  sentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isPublished?: Maybe<Scalars['Boolean']>;
+  isPublished_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -56209,7 +56281,9 @@ export enum SendMessageType {
   B2CAppMessagePush = 'B2C_APP_MESSAGE_PUSH',
   RecurrentPaymentProceedingSuccessResultMessage = 'RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE',
   RecurrentPaymentProceedingFailureResultMessage = 'RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE',
-  RecurrentPaymentTomorrowPaymentMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE'
+  RecurrentPaymentTomorrowPaymentMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE',
+  NewsItemCommonMessageType = 'NEWS_ITEM_COMMON_MESSAGE_TYPE',
+  NewsItemEmergencyMessageType = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE'
 }
 
 export type SendNewReceiptMessagesToResidentScopesInput = {
@@ -60585,6 +60659,10 @@ export enum SortNewsItemHistoryRecordsBy {
   ValidBeforeDesc = 'validBefore_DESC',
   SendAtAsc = 'sendAt_ASC',
   SendAtDesc = 'sendAt_DESC',
+  SentAtAsc = 'sentAt_ASC',
+  SentAtDesc = 'sentAt_DESC',
+  IsPublishedAsc = 'isPublished_ASC',
+  IsPublishedDesc = 'isPublished_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -60758,6 +60836,10 @@ export enum SortNewsItemsBy {
   SendAtDesc = 'sendAt_DESC',
   ScopesAsc = 'scopes_ASC',
   ScopesDesc = 'scopes_DESC',
+  SentAtAsc = 'sentAt_ASC',
+  SentAtDesc = 'sentAt_DESC',
+  IsPublishedAsc = 'isPublished_ASC',
+  IsPublishedDesc = 'isPublished_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
