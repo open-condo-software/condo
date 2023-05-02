@@ -41,9 +41,9 @@ export const useBankSyncTaskExternalModal: IUseBankSyncTaskExternalModal = (prop
         sender: getClientSideSenderInfo(),
         user: { connect: { id: get(user, 'id') } },
         property: { connect: { id: props.propertyId } },
-        account: { connect: { id: props.bankAccount.id } },
-        organization: { connect: { id: props.bankAccount.organization.id } },
-        integrationContext: { connect: { id: props.bankAccount.integrationContext.id } },
+        account: { connect: { id: get(props, 'bankAccount.id') } },
+        organization: { connect: { id: get(props, 'bankAccount.organization.id') } },
+        integrationContext: { connect: { id: get(props, 'bankAccount.integrationContext.id') } },
         options: {
             type: SBBOL,
             dateFrom: isNull(dateRange) ? null : dateRange[0].format(BANK_SYNC_TASK_DATE_FORMAT),
