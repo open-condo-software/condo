@@ -184,7 +184,6 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             const sameRecipient = await BillingRecipient.getOne(context, {
                 context: { id: contextId },
                 tin: get(recipient, 'tin'),
-                iec: get(recipient, 'iec'),
                 bic: get(recipient, 'bic'),
                 bankAccount: get(recipient, 'bankAccount'),
                 deletedAt: null, // TODO(zuch): DOMA-2395 Move deletedAt filter to getOne
