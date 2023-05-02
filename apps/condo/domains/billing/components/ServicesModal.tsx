@@ -1,7 +1,6 @@
-/** @jsx jsx */
 import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons'
 import { BillingReceipt } from '@app/condo/schema'
-import { css, Global, jsx } from '@emotion/react'
+import { css, Global } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Typography, Space, Table, Row, Col } from 'antd'
 import get from 'lodash/get'
@@ -63,17 +62,6 @@ const WideModalStyles = css`
         & > .ant-modal-content > .ant-modal-header > .ant-modal-title {
           line-height: 20px;
         }
-    }
-`
-
-const TableStyles = css`
-    .ant-table-summary {
-      background-color: transparent;
-    
-      .ant-table-cell {
-        border: none !important;
-        border-top: 1px solid #D0D3E5 !important;
-      }
     }
 `
 
@@ -168,7 +156,6 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                             columns={columns}
                             dataSource={dataSource}
                             pagination={false}
-                            css={TableStyles}
                             expandable={{
                                 indentSize: 0,
                                 // eslint-disable-next-line react/display-name
