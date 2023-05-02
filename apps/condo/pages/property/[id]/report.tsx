@@ -114,6 +114,10 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
         organizationId,
         bankAccount,
     })
+    const {
+        handleOpen: handleOpenTransactionsModal,
+        ModalComponent: ImportTransactionsModal,
+    } = useBankSyncTaskExternalModal({ bankAccount, propertyId: get(bankAccount, 'property.id') })
     const { count: bankSyncTasksCount, loading: bankSyncTasksLoading, stopPolling } = BankSyncTask.useObjects({
         where: {
             status: BankSyncTaskStatusType.Processing,
@@ -139,6 +143,61 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
         await push(`${asPath}?${SBBOL_SYNC_CALLBACK_QUERY}`)
     }, [asPath, push])
 
+    const externalImportButton = useMemo(() => {
+        const fileImportIntegration = get(bankAccount, ['integrationContext', 'integration', 'id']) === BANK_INTEGRATION_IDS['1CClientBankExchange']
+        const isBankAccountHasProperty = !!get(bankAccount, 'property.id', false)
+
+        if (isProcessing || (!isNull(bankAccount) && fileImportIntegration)) return null
+
+        if (isBankAccountHasProperty) {
+            return (
+                <>
+                    <Button
+                        key='submit'
+                        id='sbbol-transactions-import-modal'
+                        type='primary'
+                        onClick={handleOpenTransactionsModal}
+                    >
+                        {ImportSBBOLTitle}
+                    </Button>
+                    {ImportTransactionsModal}
+                </>
+            )
+        }
+
+        return (
+            <>
+                {isNull(bankAccount) ? (
+                    <DeprecatedButton
+                        key='submit'
+                        type='sberAction'
+                        secondary
+                        icon={<SberIconWithoutLabel/>}
+                        href={`/api/sbbol/auth?redirectUrl=${asPath}?${SBBOL_SYNC_CALLBACK_QUERY}`}
+                        block
+                        disabled={fileImportLoading}
+                    >
+                        {LoginBySBBOLTitle}
+                    </DeprecatedButton>
+                ) : (
+                    <DeprecatedButton
+                        key='submit'
+                        type='sberAction'
+                        secondary
+                        icon={<SberIconWithoutLabel/>}
+                        onClick={handleOpenSbbolModal}
+                        block
+                        disabled={fileImportLoading}
+                    >
+                        {ImportSBBOLTitle}
+                    </DeprecatedButton>
+                )
+                }
+            </>
+        )
+    }, [bankAccount, isProcessing, asPath, fileImportLoading, LoginBySBBOLTitle, handleOpenSbbolModal,
+        ImportSBBOLTitle, handleOpenTransactionsModal, ImportTransactionsModal])
+
     if (isNull(bankSyncTasksCount) && bankSyncTasksLoading) return <Loader fill size='large' />
 
     const hasSuccessCallback = query.hasOwnProperty(SBBOL_SYNC_CALLBACK_QUERY)
@@ -154,34 +213,7 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
             </Typography.Paragraph>
             {!isProcessing && (
                 <>
-                    {isNull(bankAccount) ? (
-                        <DeprecatedButton
-                            key='submit'
-                            type='sberAction'
-                            secondary
-                            icon={<SberIconWithoutLabel/>}
-                            href={`/api/sbbol/auth?redirectUrl=${asPath}?${SBBOL_SYNC_CALLBACK_QUERY}`}
-                            block
-                            {...(!isNull(bankAccount) && { hidden: fileImportIntegration })}
-                            disabled={fileImportLoading}
-                        >
-                            {LoginBySBBOLTitle}
-                        </DeprecatedButton>
-                    ) : (
-                        <DeprecatedButton
-                            key='submit'
-                            type='sberAction'
-                            secondary
-                            icon={<SberIconWithoutLabel/>}
-                            onClick={handleOpenSbbolModal}
-                            block
-                            {...(!isNull(bankAccount) && { hidden: fileImportIntegration })}
-                            disabled={fileImportLoading}
-                        >
-                            {ImportSBBOLTitle}
-                        </DeprecatedButton>
-                    )
-                    }
+                    {externalImportButton}
                     <FileImportButton type='secondary' {...(!isNull(bankAccount) && { hidden: !fileImportIntegration })}>
                         {ImportFileTitle}
                     </FileImportButton>

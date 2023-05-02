@@ -1,6 +1,7 @@
 import { BankAccountReport as BankAccountReportType } from '@app/condo/schema'
 import find from 'lodash/find'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState, useEffect } from 'react'
@@ -73,7 +74,7 @@ const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bankAccount
         }
     }, [intl, updateBankAccountReport, selectedBankAccount, OperationCompletedTitle, ReportVisibleDescription, ReportHiddenDescription, isReportVisible])
 
-    if (!bankAccountReports) {
+    if (isEmpty(bankAccountReports)) {
         return null
     }
 
