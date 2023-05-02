@@ -4,7 +4,8 @@ import isUndefined from 'lodash/isUndefined'
 import { useRouter } from 'next/router'
 import React, { CSSProperties } from 'react'
 
-import { Button } from './Button'
+import { Button } from '@open-condo/ui'
+
 import { EmptyIcon } from './EmptyIcon'
 
 export interface IEmptyListProps {
@@ -32,7 +33,7 @@ const DEFAULT_CONTAINER_STYLE: CSSProperties = {
     height: '100%',
     width: '100%',
 }
-const ROW_GUTTER: Gutter | [Gutter, Gutter] = [10, 0]
+const ROW_GUTTER: Gutter | [Gutter, Gutter] = [10, 10]
 const ROW_STYLE = { marginTop: '24px' }
 
 export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({
@@ -92,7 +93,7 @@ export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
                         }
                         <Col>
                             <Button
-                                type='sberDefaultGradient'
+                                type='primary'
                                 onClick={() => router.push(createRoute)}
                             >
                                 {createLabel}
