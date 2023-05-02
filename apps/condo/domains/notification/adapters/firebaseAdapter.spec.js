@@ -10,7 +10,6 @@ const {
     PUSH_TYPE_SILENT_DATA,
     PUSH_TYPE_DEFAULT,
     FAKE_SUCCESS_MESSAGE_PREFIX,
-    CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
 const {
@@ -51,18 +50,14 @@ describe('Firebase adapter utils', () => {
 
         const tokens = [FIREBASE_TEST_PUSHTOKEN]
         const [isOk, result] = await adapter.sendNotification({
-            type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
             tokens,
             notification: {
                 title: 'Doma.ai',
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                // app: 'condo',
-                // type: 'notification',
-                recurrentPaymentContextId: faker.datatype.uuid(),
-                recurrentPaymentContext: { id: 'faker.datatype.uuid()' },
-                errorCode: 'test2',
+                app: 'condo',
+                type: 'notification',
             },
         })
 

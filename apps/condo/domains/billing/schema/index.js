@@ -14,8 +14,6 @@ const { BillingProperty } = require('./BillingProperty')
 const { BillingReceipt } = require('./BillingReceipt')
 const { BillingRecipient } = require('./BillingRecipient')
 const { RegisterBillingReceiptsService } = require('./RegisterBillingReceiptsService')
-const { SendNewReceiptMessagesToResidentScopesService } = require('./SendNewReceiptMessagesToResidentScopesService')
-
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -30,6 +28,5 @@ module.exports = {
     BillingRecipient,
     BillingCategory,
     RegisterBillingReceiptsService,
-    SendNewReceiptMessagesToResidentScopesService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

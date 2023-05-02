@@ -50,15 +50,6 @@ const REGISTER_BILLING_RECEIPTS_MUTATION = gql`
     }
 `
 
-const SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION = gql`
-    mutation sendNewReceiptMessagesToResidentScopes ($data: SendNewReceiptMessagesToResidentScopesInput!) {
-        result: sendNewReceiptMessagesToResidentScopes(data: $data) { 
-            status 
-        }
-    }
-`
-
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -75,6 +66,5 @@ module.exports = {
     BillingCategory,
     REGISTER_BILLING_RECEIPTS_MUTATION,
 
-    SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }

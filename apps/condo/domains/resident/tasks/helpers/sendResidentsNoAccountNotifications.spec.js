@@ -4,18 +4,13 @@
 
 const index = require('@app/condo/index')
 
-const { setFakeClientMode, makeLoggedInAdminClient, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { Resident } = require('@condo/domains/resident/utils/testSchema')
 
-const {
-    makeMessageKey,
-    sendResidentsNoAccountNotificationsForPeriod,
-    SKIPPED_INTEGRATION_NAMES,
-    INVALID_CONTEXT_PROVIDED_ERROR,
-} = require('./sendResidentsNoAccountNotifications')
+const { makeMessageKey, sendResidentsNoAccountNotificationsForPeriod } = require('./sendResidentsNoAccountNotifications')
 const { makeBillingReceiptWithResident } = require('./spec.helpers')
 
 
@@ -89,21 +84,6 @@ describe('sendResidentsNoAccountNotifications', () => {
         const message = await Message.getOne(admin, messageWhere)
 
         expect(message).toBeUndefined()
-    })
-
-    // TODO(DOMA-5825): reenable this when EPS-receipts trigger is done
-    it.skip('fails to send notifications for all SKIPPED_INTEGRATION_NAMES', async () => {
-        for (const name of SKIPPED_INTEGRATION_NAMES) {
-            const { receipt } = await makeBillingReceiptWithResident({}, false, undefined, { name })
-
-            await catchErrorFrom(async () => {
-                await sendResidentsNoAccountNotificationsForPeriod(receipt.period, receipt.context.id, receipt.period)
-            }, (error) => {
-                expect(error).toMatchObject({
-                    message: INVALID_CONTEXT_PROVIDED_ERROR,
-                })
-            })
-        }
     })
 
 })

@@ -7,7 +7,7 @@
  * const { GQLError, GQLErrorCode } = require('@open-condo/keystone/errors')
  *
  * // Declare all errors, that can be thrown by a custom action, implemented below
- * const ERRORS = {
+ * const errors = {
  *     // A key for an error is in free form for local usage inside a module. It will not be rendered somewhere
  *     // Take Look at `CondoGraphQLSchemaError` JsDoc type declaration for detailed explanation of each field
  *     WRONG_PHONE_FORMAT: { mutation: 'myCustomSchema', variable: ['data', 'phone'], code: GQLErrorCode.BAD_USER_INPUT,  message: 'Wrong format of provided phone number', correctExample: '+79991234567' },
@@ -29,20 +29,20 @@
  *             doc: {
  *                 summary: 'Does this and that, shortly',
  *                 description: 'More detailed explanation goes here',
- *                 // Pass declared ERRORS object here to get formatted documentation in GraphiQL
- *                 errors: ERRORS,
+ *                 // Pass declared errors object here to get formatted documentation in GraphiQL
+ *                 errors,
  *             },
  *             resolver: async (parent, args, context) => {
  *                 // validate passed arguments
  *                 if (!normalizePhone(args.phone)) {
  *                     // Use our customized error class and pass appropriate error into it
- *                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT)
+ *                     throw new GQLError(errors.WRONG_PHONE_FORMAT)
  *                 }
  *
  *                 // find some record
  *                 const user = await User.getOne(context, { id: args.userId })
  *                 if (!user) {
- *                     throw new GQLError(ERRORS.UNABLE_TO_FIND_USER)
+ *                     throw new GQLError(errors.UNABLE_TO_FIND_USER)
  *                 }
  *
  *                 // execute some another actions, that is not guaranteed to be succeed
@@ -50,7 +50,7 @@
  *                     executeSomeAnotherAction
  *                 } catch(e) {
  *                     throw new GQLError({
- *                         ...ERRORS.UNABLE_EXECUTE_SOME_PROCEDURE,
+ *                         ...errors.UNABLE_EXECUTE_SOME_PROCEDURE,
  *                         internalError: e
  *                     })
  *                 }

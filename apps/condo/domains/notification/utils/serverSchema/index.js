@@ -44,9 +44,7 @@ async function sendMessage (context, data) {
     if (!data.dv) data.dv = 1
 
     const reqId = get(context, ['req', 'id'])
-
     logger.info({ msg: 'sendMessage', type: data.type, reqId })
-
     return await execGqlWithoutAccess(context, {
         query: SEND_MESSAGE,
         variables: { data },
