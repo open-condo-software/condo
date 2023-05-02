@@ -44,7 +44,7 @@ const sendMessageToResidentScopes = async (json) => {
     if (isArray(scopes)) {
         const residentPropertyIds = uniq(compact(scopes.map(({ property }) => get(property, 'id'))))
 
-        residentsWhere.property = { 'id_in': residentPropertyIds }
+        residentsWhere.property = { 'id_in': residentPropertyIds, deletedAt: null }
     }
 
     // no properties or billingProperties found, can not continue
