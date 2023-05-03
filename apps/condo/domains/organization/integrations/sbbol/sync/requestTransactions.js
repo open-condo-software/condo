@@ -126,7 +126,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             // If SBBOL returned a transaction with an unsupported currency, do not process
             if (ISO_CODES.includes(transaction.amount.currencyName)) {
                 const formatedOperationDate = dayjs(transaction.operationDate).format('YYYY-MM-DD')
-                const whereTransactionConditions = {
+                const transactionProperty = {
                     number: transaction.number,
                     date:  formatedOperationDate,
                     amount: transaction.amount.amount,
@@ -137,11 +137,13 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     importRemoteSystem: SBBOL_IMPORT_NAME,
                 }
 
-                const foundTransaction = await BankTransaction.getOne(context, {
+                const [foundTransaction] = await BankTransaction.getAll(context, {
                     organization: { id: organizationId },
                     account: { id: bankAccount.id },
-                    ...whereTransactionConditions,
-                })
+                    importId: transactionProperty.importId,
+                    number: transactionProperty.number,
+                    date: transactionProperty.date,
+                }, { first: 1 })
 
                 let bankContractorAccount
                 // in mvp we will keep the contractor account for debit payments as well. Dividing them into individuals and legal entities
@@ -173,7 +175,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     try {
                         costItem = await predictTransactionClassification(context, {
                             purpose: transaction.paymentPurpose,
-                            isOutcome: whereTransactionConditions.isOutcome,
+                            isOutcome: transactionProperty.isOutcome,
                         })
                     } catch (err) {
                         logger.error({ msg: 'Can\'t get costItem from classification service', err })
@@ -185,7 +187,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                         contractorAccount: bankContractorAccount ? { connect: { id: bankContractorAccount.id } } : undefined,
                         costItem: costItem ? { connect: { id: costItem.id } } : undefined,
                         meta: { sbbol: transaction },
-                        ...whereTransactionConditions,
+                        ...transactionProperty,
                         ...dvSenderFields,
                     })
                     logger.info({ msg: `BankTransaction instance created with id: ${createdTransaction.id}` })
