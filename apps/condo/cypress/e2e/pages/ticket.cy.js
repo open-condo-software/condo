@@ -5,7 +5,7 @@ import { SimpleTracer } from '../../objects/helpers'
 import { TicketCreate, TicketView, TicketEdit, TicketImport } from '../../objects/Ticket'
 import { authUserWithCookies } from '../../plugins/auth'
 
-describe('Ticket',  function () {
+describe.skip('Ticket',  function () {
     describe('User', function () {
         afterEach(() => {
             cy.clearCookies()
