@@ -61,7 +61,7 @@ const useBankContractorAccountTable: IUseBankContractorAccountTable = ({ categor
         first: BANKING_TABLE_PAGE_SIZE,
         skip: (pageIndex - 1) * BANKING_TABLE_PAGE_SIZE,
         sortBy: [SortBankContractorAccountsBy.CreatedAtDesc],
-    }, { fetchPolicy: 'cache-first' })
+    })
     const {
         count: emptyCostItemsCount,
         loading: emptyCostItemsLoading,
@@ -74,6 +74,7 @@ const useBankContractorAccountTable: IUseBankContractorAccountTable = ({ categor
     }, { fetchPolicy: 'cache-first' })
     const [updateSelected, { loading: updateLoading }] = useMutation(BankContractorAccountGQL.UPDATE_OBJS_MUTATION, {
         onCompleted: () => {
+            setSelectedRows([])
             refetch()
             refetchEmptyCostItems()
         },
