@@ -10,7 +10,7 @@ import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Tabs, Card, Typography, Select, Option, Space } from '@open-condo/ui'
+import { Tabs, Card, Typography, Select, SelectProps, Space } from '@open-condo/ui'
 import type { TypographyTitleProps } from '@open-condo/ui'
 import type { CardProps } from '@open-condo/ui'
 
@@ -244,15 +244,12 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const tabsItems = useMemo(() => categoryGroups
         .map(reportData => ({ label: intl.formatMessage({ id: `banking.category.${reportData.name}.name` }), key: reportData.id }))
     , [categoryGroups, intl])
-    const reportOptionItems = useMemo(() => bankAccountReports
-        .map((bankAccountReport) => (
-            <Option
-                key={bankAccountReport.id}
-                value={bankAccountReport.period}
-            >
-                {dayjs(bankAccountReport.period).format('MMMM YYYY')}
-            </Option>
-        )), [bankAccountReports])
+    const reportOptionItems: SelectProps['options'] = useMemo(() => bankAccountReports
+        .map((bankAccountReport) => ({
+            label: dayjs(bankAccountReport.period).format('MMMM YYYY'),
+            key: bankAccountReport.id,
+            value: bankAccountReport.period,
+        })), [bankAccountReports])
     const chartLegendItems = useMemo(() => {
         return chartData.map((item, index) => {
             const itemName = intl.formatMessage({ id: `banking.costItem.${item.name}.name` })
@@ -310,9 +307,12 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     return (
         <Row gutter={BANK_ACCOUNT_REPORT_ROW_GUTTER}>
             <Col span={24}>
-                <Select placeholder={ChooseReportTitle} value={selectedPeriod} onChange={onReportPeriodSelectChange}>
-                    {reportOptionItems}
-                </Select>
+                <Select
+                    placeholder={ChooseReportTitle}
+                    value={selectedPeriod}
+                    onChange={onReportPeriodSelectChange}
+                    options={reportOptionItems}
+                />
             </Col>
             <Col span={24}>
                 <Row gutter={BANK_ACCOUNT_REPORT_ROW_GUTTER}>
