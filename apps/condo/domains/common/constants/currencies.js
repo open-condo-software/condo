@@ -182,7 +182,7 @@ const ISO_CODES = [
 
 const ISO_CODES_FOR_SBBOL = {
     '810': 'RUB',
-    '240': 'USD',
+    '840': 'USD',
     '978': 'EUR',
 }
 /**
