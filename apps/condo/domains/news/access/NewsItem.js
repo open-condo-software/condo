@@ -8,6 +8,7 @@ const { get, isEmpty } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getById } = require('@open-condo/keystone/schema')
 
+const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const { queryFindNewsItemsScopesByResidents } = require('@condo/domains/news/utils/accessSchema')
 const {
     queryOrganizationEmployeeFor,
@@ -27,10 +28,14 @@ async function canReadNewsItems ({ authentication: { item: user } }) {
         if (isEmpty(residents)) return false
 
         return {
+            isPublished: true,
             scopes_some: queryFindNewsItemsScopesByResidents(residents),
             OR: [
-                { AND: [{ sendAt_not: null }, { sendAt_lte: dayjs().toISOString(), isPublished: true }] },
-                { sendAt: null },
+                // We should show delayed news items on time
+                { AND: [{ sendAt_not: null }, { sendAt_lte: dayjs().toISOString() }] },
+
+                // We should show not delayed news items that have expired publication delay
+                { AND: [{ sendAt: null }, { updatedAt_lte: dayjs().subtract(SENDING_DELAY_SEC, 'second').toISOString() }] },
             ],
         }
     }
