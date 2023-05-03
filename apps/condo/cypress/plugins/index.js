@@ -3,8 +3,6 @@
  */
 const isEmpty = require('lodash/isEmpty')
 
-const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
@@ -29,24 +27,22 @@ module.exports = async (on, config) => {
         throw new Error('Please provide cypress with support credentials for correct user creation')
     }
 
-    // const supportClient = await makeLoggedInClient({ email: supportEmail, password: supportPassword })
+    const supportClient = await makeLoggedInClient({ email: supportEmail, password: supportPassword })
 
-    const admin = await makeLoggedInAdminClient()
+    const admin = null
 
     on('task', {
-        // async 'keystone:createUser' () {
-        //     return await createTestUser(supportClient)=
-        // },
         async 'keystone:createUser' () {
-            return await createTestUser(admin)
+            return await createTestUser(supportClient)
         },
         async 'keystone:createForgotPasswordAction' (user) {
-            return await createTestForgotPasswordAction(admin, user)
+            return await createTestForgotPasswordAction(supportClient, user)
         },
         async 'keystone:getConfirmPhoneAction' (phone) {
-            return await ConfirmPhoneAction.getAll(admin, { phone })
+            return await ConfirmPhoneAction.getAll(supportClient, { phone })
         },
-        async 'keystone:createUserWithProperty' (forceCreate = false) {
+
+        async 'keystone:createUserWithProperty' (forceCreate = true) {
             if (forceCreate || isEmpty(userObject)) {
                 const result = await makeClientWithProperty()
                 const client = await makeLoggedInClient(result.userAttrs)
@@ -69,7 +65,20 @@ module.exports = async (on, config) => {
             }
 
             return userObject
+        },
 
+        async 'keystone:createTickets' (ticketAttrs) {
+            const client = await makeLoggedInClient(ticketAttrs.userAttrs)
+            const support = await makeClientWithSupportUser()
+            const [ticketClassifier] = await createTestTicketClassifier(support)
+
+            const classifier = { connect: { id: ticketClassifier.id } }
+            const ticketExtraFields = { classifier }
+
+            const [ticket] = await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isWarranty: true, ...ticketExtraFields })
+            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isEmergency: true, ...ticketExtraFields })
+            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isPaid: true, ...ticketExtraFields })
+            return ticket
         },
         async 'keystone:createSupportWithProperty' () {
             if (isEmpty(supportObject)) {
@@ -114,19 +123,6 @@ module.exports = async (on, config) => {
 
             return supportObject
 
-        },
-        async 'keystone:createTickets' (ticketAttrs) {
-            const client = await makeLoggedInClient(ticketAttrs.userAttrs)
-            const support = await makeClientWithSupportUser()
-            const [ticketClassifier] = await createTestTicketClassifier(support)
-
-            const classifier = { connect: { id: ticketClassifier.id } }
-            const ticketExtraFields = { classifier }
-
-            const [ticket] = await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isWarranty: true, ...ticketExtraFields })
-            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isEmergency: true, ...ticketExtraFields })
-            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isPaid: true, ...ticketExtraFields })
-            return ticket
         },
     })
 
