@@ -3,7 +3,7 @@ import groupBy from 'lodash/groupBy'
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import type { RadioGroupProps } from '@open-condo/ui'
+import type { ItemGroupProps } from '@open-condo/ui'
 
 import { BankCostItem } from '@condo/domains/banking/utils/clientSchema'
 
@@ -15,7 +15,7 @@ import type {
 
 interface IBankCostItemContext {
     bankCostItems: Array<BankCostItemType>
-    bankCostItemGroups: RadioGroupProps['groups']
+    bankCostItemGroups: ItemGroupProps[]
     incomeCostItems: Array<BankCostItemType>
     loading: boolean
     selectedItem: BankTransactionType | BankContractorAccountType | null
@@ -38,7 +38,7 @@ export const BankCostItemProvider: React.FC = ({ children }) => {
     const intl = useIntl()
     const { objs: bankCostItems, loading } = BankCostItem.useObjects({}, { fetchPolicy: 'cache-first' })
 
-    const bankCostItemGroups = useRef<RadioGroupProps['groups']>([])
+    const bankCostItemGroups = useRef<ItemGroupProps[]>([])
     const incomeCostItems = useRef<Array<BankCostItemType>>([])
     const [selectedItem, setSelectedItem] = useState<BankTransactionType | BankContractorAccountType | null>(null)
 

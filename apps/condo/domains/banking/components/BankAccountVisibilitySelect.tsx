@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useState, useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Select, Option, Typography } from '@open-condo/ui'
+import { Select, Typography } from '@open-condo/ui'
 
 import { BankAccountReport } from '@condo/domains/banking/utils/clientSchema'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
@@ -84,18 +84,21 @@ const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bankAccount
             onChange={handleChange}
             disabled={isUpdating}
             type={isReportVisible ? 'success' : 'danger'}
-        >
-            <Option value={BankAccountVisibility.visible} hidden={isReportVisible}>
-                <Typography.Text type='success'>
-                    {ReportVisibleTitle}
-                </Typography.Text>
-            </Option>
-            <Option value={BankAccountVisibility.hidden} hidden={!isReportVisible}>
-                <Typography.Text type='danger'>
-                    {ReportHiddenTitle}
-                </Typography.Text>
-            </Option>
-        </Select>
+            options={[
+                {
+                    value: BankAccountVisibility.visible,
+                    label: ReportVisibleTitle,
+                    textType: 'success',
+                    hidden: !!isReportVisible,
+                },
+                {
+                    value: BankAccountVisibility.hidden,
+                    label: ReportHiddenTitle,
+                    textType: 'danger',
+                    hidden: !isReportVisible,
+                },
+            ]}
+        />
     )
 }
 

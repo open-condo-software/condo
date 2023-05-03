@@ -186,8 +186,14 @@ export const useCategoryModal: IUseCategoryModal = ({
                             ) : (
                                 <RadioGroup
                                     onChange={onGroupChange}
-                                    groups={bankCostItemGroups}
-                                />
+                                >
+                                    {bankCostItemGroups.map((group, index) => (
+                                        <RadioGroup.ItemGroup
+                                            key={`${group.name}-${index}`}
+                                            {...group}
+                                        />
+                                    ))}
+                                </RadioGroup>
                             )}
                         </Space>
                     </Col>
