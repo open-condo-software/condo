@@ -11,7 +11,8 @@ import { PlusCircle, XCircle } from '@open-condo/icons'
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Modal, Select, Option, Alert, Button, Typography, Space } from '@open-condo/ui'
+import { Modal, Select, Alert, Button, Typography, Space } from '@open-condo/ui'
+import type { SelectProps } from '@open-condo/ui'
 
 import { BankAccount as BankAccountGQL } from '@condo/domains/banking/gql'
 import { BankAccount } from '@condo/domains/banking/utils/clientSchema'
@@ -154,19 +155,19 @@ export const SbbolImportModal: ISbbolImportModal = ({ propertyId, onComplete }) 
             </Button>
         )
     }, [hasBankAccounts, isValid, updateActionLoading, SaveTitle, handleSubmit])
-    const bankAccountSelectOptions = useMemo(() => {
-        return bankAccounts.map(bankAccount => (
-            <Option key={bankAccount.id} value={bankAccount.id}>
-                {bankAccount.number}
-            </Option>
-        ))
+    const bankAccountSelectOptions: SelectProps['options'] = useMemo(() => {
+        return bankAccounts.map(bankAccount => ({
+            key: bankAccount.id,
+            value: bankAccount.id,
+            label: get(bankAccount, 'number', ''),
+        }))
     }, [bankAccounts])
-    const propertySelectOptions = useMemo(() => {
-        return properties.map(property => (
-            <Option key={property.id} value={property.id}>
-                {property.address}
-            </Option>
-        ))
+    const propertySelectOptions: SelectProps['options'] = useMemo(() => {
+        return properties.map(property => ({
+            key: property.id,
+            value: property.id,
+            label: get(property, 'address', ''),
+        }))
     }, [properties])
 
     const isLoading = bankAccountsLoading || propertiesLoading
@@ -215,9 +216,8 @@ export const SbbolImportModal: ISbbolImportModal = ({ propertyId, onComplete }) 
                                                                 <Select
                                                                     placeholder={PropertyPlaceholder}
                                                                     disabled={bankAccounts.length === 1 || index === 0}
-                                                                >
-                                                                    {propertySelectOptions}
-                                                                </Select>
+                                                                    options={propertySelectOptions}
+                                                                />
                                                             </Form.Item>
                                                         </Col>
                                                         <Col span={10}>
@@ -231,9 +231,8 @@ export const SbbolImportModal: ISbbolImportModal = ({ propertyId, onComplete }) 
                                                                 <Select
                                                                     placeholder={BankAccountPlaceholder}
                                                                     disabled={bankAccounts.length === 1}
-                                                                >
-                                                                    {bankAccountSelectOptions}
-                                                                </Select>
+                                                                    options={bankAccountSelectOptions}
+                                                                />
                                                             </Form.Item>
                                                         </Col>
                                                     </>
