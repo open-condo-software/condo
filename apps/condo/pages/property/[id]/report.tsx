@@ -368,6 +368,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
                                     placeholder={SearchPlaceholderTitle}
                                     value={search}
                                     onChange={handleSearchChange}
+                                    allowClear
                                 />
                             </Col>
                             {tab !== 'contractor' && (
