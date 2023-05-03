@@ -345,6 +345,14 @@ export default function GlobalStyle () {
                 border-bottom-right-radius: 12px;
               }
               
+              .ant-table-summary {
+                background-color: transparent;
+                .ant-table-cell {
+                    border: none !important;
+                    border-top: 1px solid #D0D3E5 !important;
+                  }
+              }
+              
               h1.ant-typography {
                 font-weight: 700;
                 line-height: 46px;
