@@ -1664,6 +1664,34 @@ describe('Ticket', () => {
     })
 
     describe('Validations', () => {
+        describe('guards', () => {
+            test('user: should not be able to create 2 tickets with identical text', async () => {
+                const client = await makeClientWithProperty()
+
+                const description = 'I have some problems with hot water!'
+
+                const [obj] = await createTestTicket(client, client.organization, client.property, { status: null, description })
+
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestTicket(client, client.organization, client.property, { status: null, description })
+                }, 'ABOVE THE LIMIT!')
+            })
+
+            test('user: should not be able to create N tickets in single day', async () => {
+                const client = await makeClientWithProperty()
+
+                const TICKETS_LIMIT = 10
+
+                for (let i = 0; i < TICKETS_LIMIT; ++i) {
+                    await createTestTicket(client, client.organization, client.property, { status: null })
+                }
+
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestTicket(client, client.organization, client.property, { status: null })
+                }, 'ABOVE THE LIMIT!')
+            })
+        })
+
         describe('new ticket without status', () => {
             test('user: can create Ticket without status and status set to OPEN on server-side', async () => {
                 const client = await makeClientWithProperty()
