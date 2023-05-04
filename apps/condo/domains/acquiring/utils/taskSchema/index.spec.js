@@ -5,6 +5,7 @@ const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const conf = require('@open-condo/config')
 const {
     setFakeClientMode,
     catchErrorFrom,
@@ -51,7 +52,6 @@ const {
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
-    RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const {
@@ -72,6 +72,7 @@ const {
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,
     sendTomorrowPaymentNotificationSafely,
+    getNotificationMetaByErrorCode,
 } = require('./index')
 
 const offset = 0
@@ -1364,6 +1365,7 @@ describe('task schema queries', () => {
                 serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
                 residentId: serviceConsumerBatch.resident.id,
                 userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/`,
             })
         })
 
@@ -1428,6 +1430,7 @@ describe('task schema queries', () => {
 
         it('should set retry status and increase try count for empty errorCode', async () => {
             const errorCode = RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE
+            const notificationMeta = getNotificationMetaByErrorCode(errorCode, recurrentPaymentContext.id)
             const errorMessage = 'An error message'
 
             // create test recurrent payment
@@ -1455,7 +1458,7 @@ describe('task schema queries', () => {
             })
 
             const notification = await Message.getOne(adminContext, {
-                type: RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
+                type: notificationMeta.type,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
             })
             expect(notification).toBeDefined()
@@ -1478,6 +1481,7 @@ describe('task schema queries', () => {
                 residentId: serviceConsumerBatch.resident.id,
                 userId: serviceConsumerBatch.resident.user.id,
                 errorCode,
+                url: notificationMeta.url,
             })
         })
 
@@ -1487,6 +1491,7 @@ describe('task schema queries', () => {
             [RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE],
         ]
         test.each(retryCases)('should set retry status and increase try count for %s errorCode', async (errorCode) => {
+            const notificationMeta = getNotificationMetaByErrorCode(errorCode, recurrentPaymentContext.id)
             const errorMessage = 'An error message'
 
             // create test recurrent payment
@@ -1514,7 +1519,7 @@ describe('task schema queries', () => {
             })
 
             const notification = await Message.getOne(adminContext, {
-                type: RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
+                type: notificationMeta.type,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
             })
             expect(notification).toBeDefined()
@@ -1537,6 +1542,7 @@ describe('task schema queries', () => {
                 residentId: serviceConsumerBatch.resident.id,
                 userId: serviceConsumerBatch.resident.user.id,
                 errorCode,
+                url: notificationMeta.url,
             })
         })
 
@@ -1548,6 +1554,7 @@ describe('task schema queries', () => {
             [RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE],
         ]
         test.each(noRetryCases)('should set error status and increase try count for %s errorCode', async (errorCode) => {
+            const notificationMeta = getNotificationMetaByErrorCode(errorCode, recurrentPaymentContext.id)
             const errorMessage = 'An error message'
 
             // create test recurrent payment
@@ -1575,7 +1582,7 @@ describe('task schema queries', () => {
             })
 
             const notification = await Message.getOne(adminContext, {
-                type: RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
+                type: notificationMeta.type,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
             })
             expect(notification).toBeDefined()
@@ -1598,6 +1605,7 @@ describe('task schema queries', () => {
                 residentId: serviceConsumerBatch.resident.id,
                 userId: serviceConsumerBatch.resident.user.id,
                 errorCode,
+                url: notificationMeta.url,
             })
         })
 
@@ -1709,6 +1717,7 @@ describe('task schema queries', () => {
                 serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
                 residentId: serviceConsumerBatch.resident.id,
                 userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/`,
             })
         })
 
@@ -1749,6 +1758,7 @@ describe('task schema queries', () => {
                 serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
                 residentId: serviceConsumerBatch.resident.id,
                 userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/`,
             })
         })
 
@@ -1781,6 +1791,7 @@ describe('task schema queries', () => {
                 serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
                 residentId: serviceConsumerBatch.resident.id,
                 userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/`,
             })
         })
 

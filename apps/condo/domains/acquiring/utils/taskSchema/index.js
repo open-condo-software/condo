@@ -2,6 +2,7 @@ const Big = require('big.js')
 const dayjs = require('dayjs')
 const { get, isNil, isUndefined } = require('lodash')
 
+const conf = require('@open-condo/config')
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
 
@@ -15,6 +16,7 @@ const {
     RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS,
     RECURRENT_PAYMENT_ERROR_STATUS,
     RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
     RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE,
     RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE,
     RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE,
@@ -34,7 +36,14 @@ const {
 } = require('@condo/domains/billing/utils/serverSchema')
 const {
     RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
-    RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -44,6 +53,46 @@ const {
 
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'recurrent-payment-queries' } }
 const logger = getLogger('recurrent-payment-processing-queries')
+
+function getNotificationMetaByErrorCode (errorCode, recurrentPaymentContextId) {
+    const errorCodeNotificationTypes = {
+        [RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE]: {
+            type: RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE_TYPE,
+            url: `${conf.SERVER_URL}/support/create/`,
+        },
+        [RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE]: {
+            type: RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE_TYPE,
+            url: `${conf.SERVER_URL}/support/create/`,
+        },
+        [RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE]: {
+            type: RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE_TYPE,
+            url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContextId}/`,
+        },
+        [RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE]: {
+            type: RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE_TYPE,
+            url: `${conf.SERVER_URL}/support/create/`,
+        },
+        [RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE]: {
+            type: RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE_TYPE,
+            url: `${conf.SERVER_URL}/support/create/`,
+        },
+        [RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE]: {
+            type: RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE_TYPE,
+            url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContextId}/`,
+        },
+        [RECURRENT_PAYMENT_PROCESS_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE]: {
+            type: RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE_TYPE,
+            url: `${conf.SERVER_URL}/support/create/`,
+        },
+        [RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE]: {
+            type: RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE_TYPE,
+            url: `${conf.SERVER_URL}/payments/`,
+        },
+    }
+
+    return errorCodeNotificationTypes[errorCode]
+        || errorCodeNotificationTypes[RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE]
+}
 
 async function getAllReadyToPayRecurrentPaymentContexts (context, date, pageSize, offset, extraArgs = {}) {
     if (isNil(date)) throw new Error('invalid date argument')
@@ -304,8 +353,10 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
         recurrentPaymentContext: { id: recurrentContextId },
     } = recurrentPayment
     const uniqKey = `rp_${id}_${tryCount + 1}_${success}`
+    const failedMessageMeta = getNotificationMetaByErrorCode(errorCode, recurrentContextId)
     const type = success ? RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE
-        : RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE
+        : failedMessageMeta.type
+    const url = success ? `${conf.SERVER_URL}/payments/` : failedMessageMeta.url
     const additionalData = success ? {} : { errorCode }
 
     try {
@@ -329,6 +380,7 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
                     serviceConsumerId,
                     residentId,
                     userId,
+                    url,
                     ...additionalData,
                 },
             },
@@ -370,6 +422,7 @@ async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentC
                     serviceConsumerId,
                     residentId,
                     userId,
+                    url: `${conf.SERVER_URL}/payments/`,
                 },
             },
         })
@@ -443,4 +496,5 @@ module.exports = {
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,
     sendTomorrowPaymentNotificationSafely,
+    getNotificationMetaByErrorCode,
 }
