@@ -556,7 +556,7 @@
   "pages.condo.property.id.propertyReportBalance.buttonTitle": "Open report",
   "pages.condo.property.id.propertyReport.totalSumTitle": "All {sumItem}",
   "pages.condo.property.id.propertyReport.chooseReportTitle": "Choose report",
-  "pages.condo.property.id.propertyReport.reportCardTitle.withdrawal": "Expenses by category",
+  "pages.condo.property.id.propertyReport.reportCardTitle.withdrawal": "Withdrawals by category",
   "pages.condo.property.id.propertyReport.reportCardTitle.income": "Incomes by category",
   "pages.condo.property.id.becomeSberClientTitle": "Become Sber client",
   "pages.condo.property.id.setupReportTitle": "Setup report",
