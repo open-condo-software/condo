@@ -956,7 +956,7 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
 }
 
 const HEADER_STYLES: CSSProperties = { padding: 0 }
-const MAIN_ROW_STYLE: CSSProperties = { height: '100%' }
+const EMPTY_TICKETS_ROW_STYLE: CSSProperties = { height: '100%' }
 
 const TicketsPage: ITicketIndexPage = () => {
     const intl = useIntl()
@@ -987,7 +987,10 @@ const TicketsPage: ITicketIndexPage = () => {
                     <FavoriteTicketsContextProvider
                         extraTicketsQuery={{ ...ticketFilterQuery, organization: { id: userOrganizationId } }}
                     >
-                        <Row gutter={breakpoints.DESKTOP_LARGE && MEDIUM_VERTICAL_ROW_GUTTER} style={MAIN_ROW_STYLE}>
+                        <Row
+                            gutter={breakpoints.DESKTOP_LARGE && MEDIUM_VERTICAL_ROW_GUTTER}
+                            style={ticketsWithoutFiltersCount === 0 && EMPTY_TICKETS_ROW_STYLE}
+                        >
                             <Col span={24}>
                                 <Row justify='space-between' gutter={MEDIUM_VERTICAL_ROW_GUTTER}>
                                     <Col>
