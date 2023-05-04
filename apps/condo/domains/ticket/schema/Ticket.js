@@ -116,15 +116,15 @@ const checkDailyTicketLimit = async ({ phone, organizationId, details, context }
         return
     }
 
-    const byPhoneAndOrgKey = phone + '_' + organizationId
+    const byPhoneAndOrgKey = `dailyTicketLimit:phone:${phone}:org:${organizationId}`
     const byPhoneAndOrgCounter = await redisGuard.incrementDayCounter(byPhoneAndOrgKey)
     if (byPhoneAndOrgCounter > DAILY_TICKET_LIMIT) {
         throw new GQLError(ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 
-    const byPhoneOrgAndDetailsKey = byPhoneAndOrgKey + '_' + crypto.createHash('md5').update(details).digest('hex')
-    const byPhoneOrgAndDetailsCouter = await redisGuard.incrementDayCounter(byPhoneOrgAndDetailsKey)
-    if (byPhoneOrgAndDetailsCouter > DAILY_SAME_TICKET_LIMIT) {
+    const byPhoneOrgAndDetailsKey = `${byPhoneAndOrgKey}:details:${crypto.createHash('md5').update(details).digest('hex')}`
+    const byPhoneOrgAndDetailsCounter = await redisGuard.incrementDayCounter(byPhoneOrgAndDetailsKey)
+    if (byPhoneOrgAndDetailsCounter > DAILY_SAME_TICKET_LIMIT) {
         throw new GQLError(ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 }
