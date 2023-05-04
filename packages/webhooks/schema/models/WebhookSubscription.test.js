@@ -314,7 +314,7 @@ const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
                 })
             })
             describe('"operations" field', () => {
-                describe('Must throw validation error on wrong operations', async () => {
+                describe('Must throw validation error on wrong operations', () => {
                     const cases2 = [
                         ['String', 'some string'],
                         ['Number', 213],
@@ -330,7 +330,7 @@ const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
                         }, 'got invalid value')
                     })
                 })
-                describe('Must pass validation with correct operations', async () => {
+                describe('Must pass validation with correct operations', () => {
                     const cases = [
                         ['Null value (default)', null],
                         ['Create', WEBHOOK_OPERATIONS.CREATE],

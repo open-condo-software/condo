@@ -97,7 +97,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userUpdater, 
             STABLE_CALLS.splice(0)
         })
         describe('Must correctly send requests and update subscription state', () => {
-            describe('with an "operation" equal to', async () => {
+            describe('with an "operation" equal to', () => {
                 const cases = [
                     [
                         'Default (null)',
