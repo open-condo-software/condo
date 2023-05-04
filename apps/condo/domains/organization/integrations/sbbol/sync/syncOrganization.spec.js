@@ -25,35 +25,6 @@ describe('syncOrganization from SBBOL', () => {
 
     describe('Organization not exists', () => {
 
-        it('should update existed organization with a same tin', async () => {
-            const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
-            const adminContext = await keystone.createContext({ skipAccessControl: true })
-            const adminClient = await makeLoggedInAdminClient()
-            const client = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [organization] = await registerNewOrganization(client)
-            const context = {
-                keystone,
-                context: adminContext,
-            }
-            const [user] = await User.getAll(adminClient, {
-                id: client.user.id,
-            }, { first: 1 })
-            userData.phone = user.phone
-            organizationData.meta.inn = organization.tin
-            const { organization: updOrg, employee } = await syncOrganization({
-                context,
-                user: user,
-                userData,
-                dvSenderFields,
-                organizationInfo: organizationData,
-            })
-            expect(updOrg.id).toEqual(organization.id)
-            expect(employee).toBeDefined()
-            const [ updatedOrganization ] = await OrganizationApi.getAll(adminContext, { id: organization.id })
-            expect(updatedOrganization.importId).toEqual(organizationData.importId)
-            expect(updatedOrganization.importRemoteSystem).toEqual(organizationData.importRemoteSystem)
-        })
-
         it('should create new organization and make user its admin', async () => {
             const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
@@ -134,6 +105,35 @@ describe('syncOrganization from SBBOL', () => {
     })
 
     describe('Organization already exists', () => {
+        it('should update existed organization with a same tin', async () => {
+            const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
+            const adminContext = await keystone.createContext({ skipAccessControl: true })
+            const adminClient = await makeLoggedInAdminClient()
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await registerNewOrganization(client)
+            const context = {
+                keystone,
+                context: adminContext,
+            }
+            const [user] = await User.getAll(adminClient, {
+                id: client.user.id,
+            }, { first: 1 })
+            userData.phone = user.phone
+            organizationData.meta.inn = organization.tin
+            const { organization: updOrg, employee } = await syncOrganization({
+                context,
+                user: user,
+                userData,
+                dvSenderFields,
+                organizationInfo: organizationData,
+            })
+            expect(updOrg.id).toEqual(organization.id)
+            expect(employee).toBeDefined()
+            const [ updatedOrganization ] = await OrganizationApi.getAll(adminContext, { id: organization.id })
+            expect(updatedOrganization.importId).toEqual(organizationData.importId)
+            expect(updatedOrganization.importRemoteSystem).toEqual(organizationData.importRemoteSystem)
+        })
+
         it('should make user an employee with admin role', async () => {
             const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
             const adminContext = await keystone.createContext({ skipAccessControl: true })

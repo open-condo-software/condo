@@ -80,6 +80,7 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
 
     const employees = await OrganizationEmployee.getAll(adminContext, {
         user: { id: user.id },
+        deletedAt: null,
     }, { sortBy: ['updatedAt_DESC'], first: 100 })
 
     const [importedOrganization] = await Organization.getAll(adminContext, {
