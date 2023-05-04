@@ -183,6 +183,7 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
                     integration: {
                         id: integrationId,
                     },
+                    deletedAt: null,
                 })
                 // After first execution of sync operations, a record for BankIntegrationOrganizationContext will be created automatically
                 // For integration with SBBOL it will be created in sync operation right after completed authorization flow
