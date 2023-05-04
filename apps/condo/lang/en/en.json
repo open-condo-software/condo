@@ -1279,7 +1279,7 @@
   "tasks.BankSyncTask.file.progress.title": "Importing transactions from file",
   "tasks.BankSyncTask.externalSystem.progress.title": "Importing transactions from SBBOL",
   "tasks.BankSyncTask.progress.description.preparing": "Preparing to import",
-  "tasks.BankSyncTask.progress.description.processing": "Importing: {imported} из {total}",
+  "tasks.BankSyncTask.progress.description.processing": "Importing: {imported} of {total}",
   "tasks.BankSyncTask.file.progress.description.completed": "Import complete",
   "tasks.BankSyncTask.externalSystem.progress.description.completed": "Bank account data was successfully imported from SBBOL",
   "tasks.BankReportTask.progress.title": "Creating a report",
