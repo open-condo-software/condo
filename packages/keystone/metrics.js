@@ -18,6 +18,7 @@ const { getLogger } = require('./logging')
 const logger = getLogger('metrics')
 
 const STATSD_METRIC_PREFIX = conf['STATSD_METRIC_PREFIX'] || 'condo.'
+const STATSD_HOST = conf['STATSD_HOST'] || conf['DD_AGENT_HOST'] || '127.0.0.1'
 const STATSD_PORT = conf['STATSD_PORT'] || 8125
 
 /**
@@ -44,6 +45,7 @@ if (!nameChecker.test(STATSD_METRIC_PREFIX)) { throw new Error(`You prefix ${STA
 const StatsDClient = new StatsD({
     port: STATSD_PORT,
     prefix: STATSD_METRIC_PREFIX,
+    host: STATSD_HOST,
     errorHandler: (err) => logger.error({ 'msg':'Something went wrong when sending metrics:', 'err': err }),
 })
 
