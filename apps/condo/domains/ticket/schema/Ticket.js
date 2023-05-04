@@ -112,15 +112,19 @@ const ERRORS = {
  * @returns {Promise<void>}
  */
 const checkDailyTicketLimit = async ({ phone, organizationId, details, context }) => {
+    if (phoneWhiteList.includes(phone)) {
+        return
+    }
+
     const byPhoneAndOrgKey = phone + '_' + organizationId
     const byPhoneAndOrgCounter = await redisGuard.incrementDayCounter(byPhoneAndOrgKey)
-    if (byPhoneAndOrgCounter > DAILY_TICKET_LIMIT && !phoneWhiteList.includes(phone)) {
+    if (byPhoneAndOrgCounter > DAILY_TICKET_LIMIT) {
         throw new GQLError(ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 
     const byPhoneOrgAndDetailsKey = byPhoneAndOrgKey + '_' + crypto.createHash('md5').update(details).digest('hex')
     const byPhoneOrgAndDetailsCouter = await redisGuard.incrementDayCounter(byPhoneOrgAndDetailsKey)
-    if (byPhoneOrgAndDetailsCouter > DAILY_SAME_TICKET_LIMIT && !phoneWhiteList.includes(phone)) {
+    if (byPhoneOrgAndDetailsCouter > DAILY_SAME_TICKET_LIMIT) {
         throw new GQLError(ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 }
