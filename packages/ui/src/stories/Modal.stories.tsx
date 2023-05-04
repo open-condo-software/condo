@@ -2,7 +2,7 @@ import { ComponentMeta, ComponentStory } from '@storybook/react'
 import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
-import { Button, Modal as Component, Typography } from '@open-condo/ui/src'
+import { Button, Modal as Component, Typography, Tabs } from '@open-condo/ui/src'
 
 const LOREM_TEXT = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus aliquid amet dolores eligendi' +
     ' est ex, facilis, iure magnam molestias neque, possimus praesentium quidem repellat saepe similique vero vitae' +
@@ -16,6 +16,7 @@ export default {
         open: true,
         children: LOREM_TEXT,
         maskClosable: true,
+        fixedContentWidth: false,
     },
     argTypes: {
         width: {
@@ -93,6 +94,22 @@ ModalWithWideContent.args = {
 }
 ModalWithWideContent.argTypes = {
     children: { control: false },
+}
+
+export const ModalWithFixedContentWidth = Template.bind({})
+ModalWithFixedContentWidth.args = {
+    title: 'Modal with fixed content width',
+    children: <div>
+        <Tabs
+            items={Array.from({ length: 12 }, (_, key) =>
+                ({
+                    key: `${key}`,
+                    label: `Tab №${key}`,
+                    children: <Typography.Paragraph>{`Tab number ${key} is selected now`}</Typography.Paragraph>,
+                })
+            )} />
+    </div>,
+    fixedContentWidth: true,
 }
 
 export const Alert = Template.bind({})
