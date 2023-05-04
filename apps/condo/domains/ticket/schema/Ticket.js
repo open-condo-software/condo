@@ -116,7 +116,7 @@ const checkDailyTicketLimit = async ({ phone, organizationId, details, context }
         return
     }
 
-    const byPhoneAndOrgKey = `dailyTicketLimit:phone:${phone}:org:${organizationId}`
+    const byPhoneAndOrgKey = `dailyTicketLimit:phone:${phone}:organization:${organizationId}`
     const byPhoneAndOrgCounter = await redisGuard.incrementDayCounter(byPhoneAndOrgKey)
     if (byPhoneAndOrgCounter > DAILY_TICKET_LIMIT) {
         throw new GQLError(ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
