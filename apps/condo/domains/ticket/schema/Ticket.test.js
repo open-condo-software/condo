@@ -78,7 +78,7 @@ const {
 } = require('@condo/domains/ticket/constants')
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS, QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qualityControl')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { ERRORS,  DAILY_TICKET_LIMIT, DAILY_SAME_TICKET_LIMIT  } = require('@condo/domains/ticket/schema/Ticket')
+const { ERRORS } = require('@condo/domains/ticket/schema/Ticket')
 const {
     Ticket,
     TicketOrganizationSetting,
