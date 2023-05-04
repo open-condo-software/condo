@@ -28,6 +28,7 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 let adminClient, supportClient, userClient, anonymousClient
+let dummyAdminModel, dummySupportModel, dummyUserModel
 
 describe('NotificationUserSetting', () => {
 
@@ -36,23 +37,34 @@ describe('NotificationUserSetting', () => {
         supportClient = await makeClientWithSupportUser()
         userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymousClient = await makeClient()
+
+        const [adminModel] = await createTestNotificationUserSetting(adminClient)
+        dummyAdminModel = adminModel
+
+        const [supportModel] = await createTestNotificationUserSetting(supportClient)
+        dummySupportModel = supportModel
+
+        const [userModel] = await createTestNotificationUserSetting(userClient)
+        dummyUserModel = userModel
     })
 
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                const [obj, attrs] = await createTestNotificationUserSetting(adminClient)
+                const otherAdminClient = await makeLoggedInAdminClient()
+                const [obj, attrs] = await createTestNotificationUserSetting(otherAdminClient)
 
-                expectValuesOfCommonFields(obj, attrs, adminClient)
+                expectValuesOfCommonFields(obj, attrs, otherAdminClient)
             })
 
             test('support can', async () => {
-                const [obj, attrs] = await createTestNotificationUserSetting(supportClient)
+                const otherSupportClient = await makeClientWithSupportUser()
+                const [obj, attrs] = await createTestNotificationUserSetting(otherSupportClient)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: otherSupportClient.user.id }))
             })
 
             test('user can', async () => {
@@ -75,9 +87,7 @@ describe('NotificationUserSetting', () => {
 
         describe('update', () => {
             test('admin can', async () => {
-                const [objCreated] = await createTestNotificationUserSetting(adminClient)
-
-                const [obj, attrs] = await updateTestNotificationUserSetting(adminClient, objCreated.id)
+                const [obj, attrs] = await updateTestNotificationUserSetting(adminClient, dummyAdminModel.id)
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
@@ -86,9 +96,10 @@ describe('NotificationUserSetting', () => {
             })
 
             test('support can', async () => {
-                const [objCreated] = await createTestNotificationUserSetting(adminClient)
+                const otherAdminClient = await makeLoggedInAdminClient()
+                const [guineaPig] = await createTestNotificationUserSetting(otherAdminClient)
 
-                const [obj, attrs] = await updateTestNotificationUserSetting(supportClient, objCreated.id)
+                const [obj, attrs] = await updateTestNotificationUserSetting(supportClient, guineaPig.id)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -98,9 +109,7 @@ describe('NotificationUserSetting', () => {
             })
 
             test('user can (own)', async () => {
-                const [objCreated] = await createTestNotificationUserSetting(userClient)
-
-                const [obj, attrs] = await updateTestNotificationUserSetting(userClient, objCreated.id)
+                const [obj, attrs] = await updateTestNotificationUserSetting(userClient, dummyUserModel.id)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -110,87 +119,70 @@ describe('NotificationUserSetting', () => {
             })
 
             test('user can\'t (others)', async () => {
-                const [objCreated] = await createTestNotificationUserSetting(userClient)
-
                 const otherUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestNotificationUserSetting(otherUserClient, objCreated.id)
+                    await updateTestNotificationUserSetting(otherUserClient, dummyUserModel.id)
                 })
             })
 
             test('anonymous can\'t', async () => {
-                const [objCreated] = await createTestNotificationUserSetting(adminClient)
-
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestNotificationUserSetting(anonymousClient, objCreated.id)
+                    await updateTestNotificationUserSetting(anonymousClient, dummyAdminModel.id)
                 })
             })
         })
 
         describe('hard delete', () => {
             test('admin can\'t', async () => {
-                const [objCreated] = await createTestNotificationUserSetting(adminClient)
-
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await NotificationUserSetting.delete(adminClient, objCreated.id)
+                    await NotificationUserSetting.delete(adminClient, dummyAdminModel.id)
                 })
             })
 
             test('user can\'t', async () => {
-                const [objCreated] = await createTestNotificationUserSetting(adminClient)
-
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await NotificationUserSetting.delete(userClient, objCreated.id)
+                    await NotificationUserSetting.delete(userClient, dummyAdminModel.id)
                 })
             })
 
             test('anonymous can\'t', async () => {
-                const [objCreated] = await createTestNotificationUserSetting(adminClient)
-
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await NotificationUserSetting.delete(anonymousClient, objCreated.id)
+                    await NotificationUserSetting.delete(anonymousClient, dummyAdminModel.id)
                 })
             })
         })
 
         describe('read', () => {
             test('admin can', async () => {
-                const [obj] = await createTestNotificationUserSetting(adminClient)
-
                 const objs = await NotificationUserSetting.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs.length).toBeGreaterThanOrEqual(1)
                 expect(objs).toEqual(expect.arrayContaining([
                     expect.objectContaining({
-                        id: obj.id,
+                        id: dummyAdminModel.id,
                     }),
                 ]))
             })
 
             test('user can', async () => {
-                const otherUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [obj] = await createTestNotificationUserSetting(otherUserClient)
-
-                const objs = await NotificationUserSetting.getAll(otherUserClient, {}, { sortBy: ['updatedAt_DESC'] })
+                const objs = await NotificationUserSetting.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs).toHaveLength(1)
                 expect(objs[0]).toMatchObject({
-                    id: obj.id,
+                    id: dummyUserModel.id,
                 })
             })
 
             test('user can\'t read other user\'s data', async () => {
                 const otherUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                await createTestNotificationUserSetting(userClient)
                 const objs = await NotificationUserSetting.getAll(otherUserClient, {}, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs).toHaveLength(0)
             })
 
             test('anonymous can\'t', async () => {
-                await createTestNotificationUserSetting(adminClient)
-
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await NotificationUserSetting.getAll(anonymousClient, {}, { sortBy: ['updatedAt_DESC'] })
                 })
@@ -236,8 +228,9 @@ describe('NotificationUserSetting', () => {
         })
 
         test('must throw an error on trying to enable messages', async () => {
+            const otherAdminClient = await makeLoggedInAdminClient()
             await expectToThrowGQLError(
-                async () => await createTestNotificationUserSetting(adminClient, { isEnabled: true }),
+                async () => await createTestNotificationUserSetting(otherAdminClient, { isEnabled: true }),
                 {
                     code: 'BAD_USER_INPUT',
                     type: 'NO_NEED_TO_ENABLE_NOTIFICATIONS',
