@@ -6,7 +6,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { BANK_INTEGRATION_IDS, BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
-const { BankAccount, BankTransaction, BankContractorAccount, BankIntegrationAccountContext, predictTransactionClassification, BankSyncTask } = require('@condo/domains/banking/utils/serverSchema')
+const { BankAccount, BankTransaction, BankContractorAccount, predictTransactionClassification, BankSyncTask } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
@@ -143,6 +143,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     importId: transactionProperty.importId,
                     number: transactionProperty.number,
                     date: transactionProperty.date,
+                    deletedAt: null,
                 }, { first: 1 })
 
                 let bankContractorAccount
@@ -152,6 +153,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                         organization: { id: organizationId },
                         tin: transaction.rurTransfer.payeeInn,
                         number: transaction.rurTransfer.payeeAccount,
+                        deletedAt: null,
                     }, { first: 1 })
 
                     if (!bankContractorAccount) {
