@@ -6,6 +6,7 @@ const { Text, Relationship, Integer, DateTimeUtc, Checkbox, Select } = require('
 const dayjs = require('dayjs')
 const { isEmpty, get, isNull } = require('lodash')
 
+const conf = require('@open-condo/config')
 const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keystone/errors')
 const { Json, AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -60,7 +61,16 @@ const {
     relatedManyToManyResolvers,
 } = require('@condo/domains/ticket/utils/serverSchema/TicketChange')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
+
+const phoneWhiteList = Object.keys(conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {})
+
+const redisGuard = new RedisGuard()
+
+const DAILY_TICKET_LIMIT = conf.DAILY_TICKET_LIMIT || 10
+const DAILY_SAME_TICKET_LIMIT = conf.DAILY_SAME_TICKET_LIMIT || 2
 
 const ERRORS = {
     QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE: {
@@ -75,7 +85,31 @@ const ERRORS = {
         message: '"qualityControlValue" must be specified if there is "qualityControlAdditionalOptions" or "qualityControlComment"',
         messageForUser: 'api.ticket.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED',
     },
+    TICKET_FOR_PHONE_DAY_LIMIT_REACHED: {
+        code: 'BAD_USER_INPUT',
+        type: 'TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
+        message: 'TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
+    },
+    SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED: {
+        code: 'BAD_USER_INPUT',
+        type: 'SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
+        message: 'SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
+    },
 }
+
+
+const checkDailyTicketLimit = async (phone, details) => {
+    const byPhoneCounter = await redisGuard.incrementDayCounter(phone)
+    if (byPhoneCounter > DAILY_TICKET_LIMIT && !phoneWhiteList.includes(phone)) {
+        throw new GQLError(GQL_ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED)
+    }
+
+    const byPhoneAndDescription = await redisGuard.incrementDayCounter(phone + details)
+    if (byPhoneAndDescription > DAILY_SAME_TICKET_LIMIT && !phoneWhiteList.includes(phone)) {
+        throw new GQLError(GQL_ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED)
+    }
+}
+
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
@@ -580,8 +614,15 @@ const Ticket = new GQLListSchema('Ticket', {
             // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
             if (!hasDbFields(['organization', 'source', 'status', 'details'], resolvedData, existingItem, context, addValidationError)) return
 
+            const user = get(context, ['req', 'user'])
+            const userType = get(user, 'type')
+
             const newItem = { ...existingItem, ...resolvedData }
             const resolvedStatus = await getById('TicketStatus', newItem.status)
+
+            if (userType === RESIDENT && operation === 'create') {
+                await checkDailyTicketLimit(user.phone, resolvedData.details)
+            }
 
             if (newItem.deferredUntil) {
                 if (operation === 'create') {
