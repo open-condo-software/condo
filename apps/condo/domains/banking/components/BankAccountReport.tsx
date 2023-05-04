@@ -88,16 +88,17 @@ type InfoCardProps = {
     onClick?: CardProps['onClick']
     currencyCode?: string
     valueType?: TypographyTitleProps['type']
+    hoverable?: CardProps['hoverable']
 }
 interface IInfoCard { (props: InfoCardProps): React.ReactElement }
 const InfoCard: IInfoCard = ({ value, currencyCode = 'RUB',  ...props }) => {
     const intl = useIntl()
     const CurrencyValue = intl.formatNumber(parseFloat(value), { style: 'currency', currency: currencyCode })
 
-    const { isSmall, label, icon, valueType } = props
+    const { isSmall, label, icon, valueType, hoverable = false } = props
 
     return (
-        <Card hoverable onClick={props.onClick}>
+        <Card hoverable={hoverable} onClick={props.onClick}>
             <Space
                 direction={isSmall ? 'vertical' : 'horizontal'}
                 size={isSmall ? 20 : 40}
@@ -120,7 +121,6 @@ interface IBankReportContent {
 }
 
 enum ReportCategories {
-    'Total',
     'Income',
     'Withdrawal',
 }
@@ -131,7 +131,8 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const IncomeTitle = intl.formatMessage({ id: 'global.income' }, { isSingular: false })
     const WithdrawalTitle = intl.formatMessage({ id: 'global.withdrawal' }, { isSingular: false })
     const ChooseReportTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.chooseReportTitle' })
-    const ReportCardTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.reportCardTitle' })
+    const ReportCardWithdrawalTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.reportCardTitle.withdrawal' })
+    const ReportCardIncomeTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.reportCardTitle.income' })
     const NoDataTitle = intl.formatMessage({ id: 'NoData' })
 
     const { breakpoints, isMobile } = useLayoutContext()
@@ -139,14 +140,12 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
 
     const [activeTab, setActiveTab] = useState(get(bankAccountReports, '0.data.categoryGroups.0.id'))
     const [selectedPeriod, setSelectedPeriod] = useState(get(router, 'query.period') || get(bankAccountReports, '0.period'))
-    const [activeCategory, setActiveCategory] = useState<ReportCategories>(ReportCategories.Total)
+    const [activeCategory, setActiveCategory] = useState<ReportCategories>(ReportCategories.Withdrawal)
     const chartInstance = useRef(null)
 
     const bankAccountReport = find(bankAccountReports, { period: selectedPeriod })
     const categoryGroups = get(bankAccountReport, 'data.categoryGroups', []).filter(categoryGroup => {
-        if (activeCategory === ReportCategories.Total) {
-            return true
-        } else if (activeCategory === ReportCategories.Income) {
+        if (activeCategory === ReportCategories.Income) {
             return categoryGroup.costItemGroups.some(item => item.isOutcome === false)
         } else if (activeCategory === ReportCategories.Withdrawal) {
             return categoryGroup.costItemGroups.some(item => item.isOutcome === true)
@@ -154,17 +153,16 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     })
 
     let chartData = get(find(categoryGroups, { id: activeTab }), 'costItemGroups', [])
-    if (activeCategory !== ReportCategories.Total) {
-        chartData = chartData.filter(costItemGroup => {
-            if (activeCategory === ReportCategories.Withdrawal) {
-                return costItemGroup.isOutcome === true
-            }
+    chartData = chartData.filter(costItemGroup => {
+        if (activeCategory === ReportCategories.Withdrawal) {
+            return costItemGroup.isOutcome === true
+        }
 
-            if (activeCategory === ReportCategories.Income) {
-                return costItemGroup.isOutcome === false
-            }
-        })
-    }
+        if (activeCategory === ReportCategories.Income) {
+            return costItemGroup.isOutcome === false
+        }
+    })
+
 
     const echartsOption: EChartsOption = useMemo(() => ({
         ...BASE_CHART_OPTS,
@@ -325,7 +323,6 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                             icon={<TotalBalanceIcon />}
                             isSmall={!breakpoints.TABLET_LARGE}
                             currencyCode={currencyCode}
-                            onClick={() => setActiveCategory(ReportCategories.Total)}
                         />
                     </Col>
                     <Col xl={8} md={12} sm={24} xs={12}>
@@ -337,6 +334,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                             isSmall={!breakpoints.TABLET_LARGE}
                             currencyCode={currencyCode}
                             onClick={() => setActiveCategory(ReportCategories.Withdrawal)}
+                            hoverable
                         />
                     </Col>
                     <Col xl={8} md={12} sm={24} xs={12}>
@@ -348,12 +346,19 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                             isSmall={!breakpoints.TABLET_LARGE}
                             currencyCode={currencyCode}
                             onClick={() => setActiveCategory(ReportCategories.Income)}
+                            hoverable
                         />
                     </Col>
                 </Row>
             </Col>
             <Col span={24}>
-                <Card title={<Typography.Title level={3}>{ReportCardTitle}</Typography.Title>}>
+                <Card
+                    title={
+                        <Typography.Title level={3}>
+                            {activeCategory === ReportCategories.Income ? ReportCardIncomeTitle : ReportCardWithdrawalTitle }
+                        </Typography.Title>
+                    }
+                >
                     <Tabs items={tabsItems} onChange={onChangeTabs} activeKey={activeTab} />
                     <Row
                         gutter={BANK_ACCOUNT_REPORT_ROW_GUTTER}
