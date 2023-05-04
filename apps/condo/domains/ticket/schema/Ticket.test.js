@@ -78,7 +78,7 @@ const {
 } = require('@condo/domains/ticket/constants')
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS, QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qualityControl')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { ERRORS } = require('@condo/domains/ticket/schema/Ticket')
+const { ERRORS,  DAILY_TICKET_LIMIT, DAILY_SAME_TICKET_LIMIT  } = require('@condo/domains/ticket/schema/Ticket')
 const {
     Ticket,
     TicketOrganizationSetting,
@@ -1665,30 +1665,40 @@ describe('Ticket', () => {
 
     describe('Validations', () => {
         describe('guards', () => {
-            test('user: should not be able to create 2 tickets with identical text', async () => {
-                const client = await makeClientWithProperty()
+            test('user: resident should not be able to create tickets with identical text over the limit', async () => {
+                const details = 'I have some problems with hot water!'
 
-                const description = 'I have some problems with hot water!'
+                const userClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, userClient.user, userClient.property, {
+                    unitName,
+                })
 
-                const [obj] = await createTestTicket(client, client.organization, client.property, { status: null, description })
-
-                await expectToThrowValidationFailureError(async () => {
-                    await createTestTicket(client, client.organization, client.property, { status: null, description })
-                }, 'ABOVE THE LIMIT!')
-            })
-
-            test('user: should not be able to create N tickets in single day', async () => {
-                const client = await makeClientWithProperty()
-
-                const TICKETS_LIMIT = 10
-
-                for (let i = 0; i < TICKETS_LIMIT; ++i) {
-                    await createTestTicket(client, client.organization, client.property, { status: null })
+                for (let i = 0; i < DAILY_SAME_TICKET_LIMIT; ++i) {
+                    await createTestTicket(userClient, userClient.organization, userClient.property, { unitName, details })
                 }
 
-                await expectToThrowValidationFailureError(async () => {
-                    await createTestTicket(client, client.organization, client.property, { status: null })
-                }, 'ABOVE THE LIMIT!')
+                await expectToThrowGQLError(async () => {
+                    await createTestTicket(userClient, userClient.organization, userClient.property, { unitName, details })
+                }, ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED)
+            })
+
+            test('user: resident should not be able to create tickets in single day over the limit', async () => {
+                const client = await makeClientWithProperty()
+
+                const userClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, userClient.user, userClient.property, {
+                    unitName,
+                })
+
+                for (let i = 0; i < DAILY_TICKET_LIMIT; ++i) {
+                    await createTestTicket(client, client.organization, client.property, { unitName })
+                }
+
+                await expectToThrowGQLError(async () => {
+                    await createTestTicket(client, client.organization, client.property, { unitName })
+                }, ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED)
             })
         })
 

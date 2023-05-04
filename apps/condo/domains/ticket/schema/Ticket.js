@@ -98,15 +98,15 @@ const ERRORS = {
 }
 
 
-const checkDailyTicketLimit = async (phone, details) => {
+const checkDailyTicketLimit = async (phone, details, context) => {
     const byPhoneCounter = await redisGuard.incrementDayCounter(phone)
     if (byPhoneCounter > DAILY_TICKET_LIMIT && !phoneWhiteList.includes(phone)) {
-        throw new GQLError(GQL_ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED)
+        throw new GQLError(ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 
     const byPhoneAndDescription = await redisGuard.incrementDayCounter(phone + details)
     if (byPhoneAndDescription > DAILY_SAME_TICKET_LIMIT && !phoneWhiteList.includes(phone)) {
-        throw new GQLError(GQL_ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED)
+        throw new GQLError(ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 }
 
@@ -617,12 +617,12 @@ const Ticket = new GQLListSchema('Ticket', {
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
 
+            if (userType === RESIDENT && operation === 'create') {
+                await checkDailyTicketLimit(user.phone, resolvedData.details, context)
+            }
+
             const newItem = { ...existingItem, ...resolvedData }
             const resolvedStatus = await getById('TicketStatus', newItem.status)
-
-            if (userType === RESIDENT && operation === 'create') {
-                await checkDailyTicketLimit(user.phone, resolvedData.details)
-            }
 
             if (newItem.deferredUntil) {
                 if (operation === 'create') {
@@ -692,4 +692,6 @@ const Ticket = new GQLListSchema('Ticket', {
 module.exports = {
     Ticket,
     ERRORS,
+    DAILY_TICKET_LIMIT,
+    DAILY_SAME_TICKET_LIMIT,
 }
