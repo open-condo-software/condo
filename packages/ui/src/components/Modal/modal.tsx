@@ -13,6 +13,7 @@ type CondoModalProps = {
     title?: string
     open: boolean
     width?: CondoModalWidthType
+    fixedContentWidth?: boolean
 }
 
 export type ModalProps = Pick<DefaultModalProps,
@@ -35,12 +36,15 @@ const CONDO_MODAL_WIDTH: Readonly<Record<CondoModalWidthType, number | string>> 
 }
 
 const Modal: React.FC<ModalProps> = (props) => {
-    const { children, className, title, width = 'small', footer, ...rest } = props
+    const { children, className, title, width = 'small', fixedContentWidth = false, footer, ...rest } = props
     const contentChildrenRef = useRef<HTMLDivElement>(null)
     const [isScrolling, setIsScrolling] = useState<boolean>(false)
 
     const classes = classNames(
-        { [`${MODAL_CLASS_PREFIX}-scrolling`]: isScrolling },
+        {
+            [`${MODAL_CLASS_PREFIX}-scrolling`]: isScrolling,
+            [`${MODAL_CLASS_PREFIX}-fixed-width`]: fixedContentWidth,
+        },
         className,
     )
 
