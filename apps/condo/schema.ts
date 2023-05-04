@@ -31577,10 +31577,13 @@ export type Mutation = {
    * 			},
    * 			"userId": {
    * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
    * 			}
    * 		}
    * 	},
-   * 	"RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE": {
+   * 	"RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE": {
    * 		"dv": {
    * 			"required": true
    * 		},
@@ -31602,6 +31605,205 @@ export type Mutation = {
    * 			},
    * 			"errorCode": {
    * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"recurrentPaymentContextId": {
+   * 				"required": true
+   * 			},
+   * 			"recurrentPaymentId": {
+   * 				"required": true
+   * 			},
+   * 			"serviceConsumerId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"errorCode": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"recurrentPaymentContextId": {
+   * 				"required": true
+   * 			},
+   * 			"recurrentPaymentId": {
+   * 				"required": true
+   * 			},
+   * 			"serviceConsumerId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"errorCode": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"recurrentPaymentContextId": {
+   * 				"required": true
+   * 			},
+   * 			"recurrentPaymentId": {
+   * 				"required": true
+   * 			},
+   * 			"serviceConsumerId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"errorCode": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"recurrentPaymentContextId": {
+   * 				"required": true
+   * 			},
+   * 			"recurrentPaymentId": {
+   * 				"required": true
+   * 			},
+   * 			"serviceConsumerId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"errorCode": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"recurrentPaymentContextId": {
+   * 				"required": true
+   * 			},
+   * 			"recurrentPaymentId": {
+   * 				"required": true
+   * 			},
+   * 			"serviceConsumerId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"errorCode": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"recurrentPaymentContextId": {
+   * 				"required": true
+   * 			},
+   * 			"recurrentPaymentId": {
+   * 				"required": true
+   * 			},
+   * 			"serviceConsumerId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"errorCode": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"recurrentPaymentContextId": {
+   * 				"required": true
+   * 			},
+   * 			"recurrentPaymentId": {
+   * 				"required": true
+   * 			},
+   * 			"serviceConsumerId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"errorCode": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"required": true
    * 			}
    * 		}
    * 	},
@@ -31620,6 +31822,9 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
    * 				"required": true
    * 			}
    * 		}
@@ -56280,7 +56485,14 @@ export enum SendMessageType {
   VoipIncomingCallMessage = 'VOIP_INCOMING_CALL_MESSAGE',
   B2CAppMessagePush = 'B2C_APP_MESSAGE_PUSH',
   RecurrentPaymentProceedingSuccessResultMessage = 'RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE',
-  RecurrentPaymentProceedingFailureResultMessage = 'RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE',
+  RecurrentPaymentProceedingUnknownErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE',
+  RecurrentPaymentProceedingAcquiringPaymentProceedErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE',
+  RecurrentPaymentProceedingServiceConsumerNotFoundErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE',
+  RecurrentPaymentProceedingLimitExceededErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE',
+  RecurrentPaymentProceedingContextNotFoundErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE',
+  RecurrentPaymentProceedingContextDisabledErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE',
+  RecurrentPaymentProceedingCardTokenNotValidErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE',
+  RecurrentPaymentProceedingCanNotRegisterMultiPaymentErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE',
   RecurrentPaymentTomorrowPaymentMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE',
   NewsItemCommonMessageType = 'NEWS_ITEM_COMMON_MESSAGE_TYPE',
   NewsItemEmergencyMessageType = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE'

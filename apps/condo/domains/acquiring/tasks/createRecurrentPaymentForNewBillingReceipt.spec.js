@@ -5,6 +5,7 @@ const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const conf = require('@open-condo/config')
 const {
     setFakeClientMode,
     makeLoggedInAdminClient,
@@ -187,6 +188,7 @@ describe('create-recurrent-payment-for-new-billing-receipt', () => {
             serviceConsumerId: batch.serviceConsumer.id,
             residentId: batch.resident.id,
             userId: batch.resident.user.id,
+            url: `${conf.SERVER_URL}/payments/`,
         })
     })
 
@@ -257,6 +259,7 @@ describe('create-recurrent-payment-for-new-billing-receipt', () => {
             serviceConsumerId: batch.serviceConsumer.id,
             residentId: batch.resident.id,
             userId: batch.resident.user.id,
+            url: `${conf.SERVER_URL}/payments/`,
         })
     })
 
@@ -327,6 +330,7 @@ describe('create-recurrent-payment-for-new-billing-receipt', () => {
             serviceConsumerId: batch.serviceConsumer.id,
             residentId: batch.resident.id,
             userId: batch.resident.user.id,
+            url: `${conf.SERVER_URL}/payments/`,
         })
     })
 
@@ -397,6 +401,7 @@ describe('create-recurrent-payment-for-new-billing-receipt', () => {
             serviceConsumerId: batch.serviceConsumer.id,
             residentId: batch.resident.id,
             userId: batch.resident.user.id,
+            url: `${conf.SERVER_URL}/payments/`,
         })
     })
 
