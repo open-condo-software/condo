@@ -78,7 +78,7 @@ class RedisGuard {
     }
 
     // Counter
-    // 1. Set variable to reddis with TTL
+    // 1. Set variable to redis with TTL
     // 2. Check if counter exists
     // 3. Get counter remain time
     async counterTimeRemain (variable) {
