@@ -54,6 +54,11 @@ function createCronTask (name, cron, fn, opts = {}) {
     return task
 }
 
+/**
+ * Cron tasks, previously added by `createCronTask` can be missing in code but can still be presented in Redis on server
+ * It will try to execute them using `executeTask` and error will be thrown.
+ * Call this function to explicitly remove such tasks from Redis on server.
+ */
 function removeCronTask (name, cron, opts = {}) {
     const taskOpts = { repeat: { cron }, ...opts }
     REMOVE_CRON_TASKS.push([name, taskOpts])
