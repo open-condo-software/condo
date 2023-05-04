@@ -12,6 +12,7 @@ const { RemoteClient } = require('./RemoteClient')
 const { SendMessageService } = require('./SendMessageService')
 const { SetMessageStatusService } = require('./SetMessageStatusService')
 const { SyncRemoteClientService } = require('./SyncRemoteClientService')
+const { NotificationUserSetting } = require('./NotificationUserSetting')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -24,5 +25,6 @@ module.exports = {
     MessageUserBlackList,
     MessageOrganizationBlackList,
     MessageBatch,
+    NotificationUserSetting,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
