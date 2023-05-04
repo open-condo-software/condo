@@ -85,6 +85,7 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
     const [importedOrganization] = await Organization.getAll(adminContext, {
         ...importInfo,
         tin: `${organizationInfo.meta.inn}`,
+        deletedAt: null,
     }, { first: 1 })
 
     if (!importedOrganization) {

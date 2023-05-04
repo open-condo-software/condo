@@ -5,7 +5,7 @@
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 
 const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -186,6 +186,47 @@ describe('syncOrganization from SBBOL', () => {
             expect(existedEmployee2).toBeDefined()
             expect(existedEmployee2.isAccepted).toBeTruthy()
             expect(existedEmployee2.role.canManageEmployees).toBeTruthy()
+        })
+    })
+
+    describe('Organization is soft-deleted', () => {
+        it('creates new organization', async () => {
+            const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
+            const adminContext = await keystone.createContext({ skipAccessControl: true })
+            const context = {
+                keystone,
+                context: adminContext,
+            }
+            const userClient = await makeClientWithRegisteredOrganization()
+            const existingOrganization = userClient.organization
+            const existingOrganizationEmployee = await OrganizationEmployeeApi.getOne(adminContext, {
+                user: { id: userClient.user.id },
+                organization: { id: existingOrganization.id },
+            })
+            organizationData.meta.inn = userClient.organization.tin
+            await OrganizationApi.update(adminContext, existingOrganization.id, {
+                importId: organizationData.importId,
+                importRemoteSystem: organizationData.importRemoteSystem,
+                ...dvSenderFields,
+                meta: {
+                    ...organizationData.meta,
+                },
+            })
+            const deletedOrganization = await OrganizationApi.softDelete(adminContext, existingOrganization.id, {
+                ...dvSenderFields,
+            })
+            expect(deletedOrganization.deletedAt).toMatch(DATETIME_RE)
+
+            const userClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const { employee, organization } = await syncOrganization({
+                context,
+                user: userClient2.user,
+                userData,
+                dvSenderFields,
+                organizationInfo: organizationData,
+            })
+            expect(employee.id).not.toEqual(existingOrganizationEmployee.id)
+            expect(organization.id).not.toEqual(existingOrganization.id)
         })
     })
 })
