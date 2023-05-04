@@ -8,13 +8,13 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const access = require('@condo/domains/notification/access/NotificationUserSetting')
+const { MESSAGE_TRANSPORTS, MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
 const {
     WRONG_MESSAGE_TRANSPORT,
     WRONG_MESSAGE_TYPE,
     NO_NEED_TO_ENABLE_NOTIFICATIONS,
-} = require('@condo/domains/news/constants/errors')
-const access = require('@condo/domains/notification/access/NotificationUserSetting')
-const { MESSAGE_TRANSPORTS, MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
+} = require('@condo/domains/notification/constants/errors')
 
 const ERRORS = {
     WRONG_MESSAGE_TYPE: {

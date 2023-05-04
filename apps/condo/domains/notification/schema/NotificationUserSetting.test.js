@@ -5,11 +5,9 @@
 const { faker } = require('@faker-js/faker')
 
 const {
-    makeLoggedInAdminClient,
     makeClient,
     UUID_RE,
-    waitFor,
-    expectValuesOfCommonFields, expectToThrowGQLError,
+    expectValuesOfCommonFields, expectToThrowGQLError, makeLoggedInClient,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
@@ -24,25 +22,31 @@ const {
 } = require('@condo/domains/notification/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
-    makeClientWithSupportUser,
+    makeClientWithSupportUser, registerNewUser, addAdminAccess,
 } = require('@condo/domains/user/utils/testSchema')
 
+async function makeOtherLoggedInAdminClient () {
+    const [user, userAttrs] = await registerNewUser(await makeClient())
+    await addAdminAccess(user)
+    const client = await makeLoggedInClient(userAttrs)
+    client.user = user
+
+    return client
+}
+
 let adminClient, supportClient, userClient, anonymousClient
-let dummyAdminModel, dummySupportModel, dummyUserModel
+let dummyAdminModel, dummyUserModel
 
 describe('NotificationUserSetting', () => {
 
     beforeAll(async () => {
-        adminClient = await makeLoggedInAdminClient()
+        adminClient = await makeOtherLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
         userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymousClient = await makeClient()
 
         const [adminModel] = await createTestNotificationUserSetting(adminClient)
         dummyAdminModel = adminModel
-
-        const [supportModel] = await createTestNotificationUserSetting(supportClient)
-        dummySupportModel = supportModel
 
         const [userModel] = await createTestNotificationUserSetting(userClient)
         dummyUserModel = userModel
@@ -51,7 +55,7 @@ describe('NotificationUserSetting', () => {
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                const otherAdminClient = await makeLoggedInAdminClient()
+                const otherAdminClient = await makeOtherLoggedInAdminClient()
                 const [obj, attrs] = await createTestNotificationUserSetting(otherAdminClient)
 
                 expectValuesOfCommonFields(obj, attrs, otherAdminClient)
@@ -96,7 +100,7 @@ describe('NotificationUserSetting', () => {
             })
 
             test('support can', async () => {
-                const otherAdminClient = await makeLoggedInAdminClient()
+                const otherAdminClient = await makeOtherLoggedInAdminClient()
                 const [guineaPig] = await createTestNotificationUserSetting(otherAdminClient)
 
                 const [obj, attrs] = await updateTestNotificationUserSetting(supportClient, guineaPig.id)
@@ -192,9 +196,8 @@ describe('NotificationUserSetting', () => {
 
     describe('Validation tests', () => {
         test('Should have correct dv field (=== 1)', async () => {
-            const otherAdminClient = await makeLoggedInAdminClient()
             await expectToThrowGQLError(
-                async () => await createTestNotificationUserSetting(otherAdminClient, { dv: 42 }),
+                async () => await createTestNotificationUserSetting(adminClient, { dv: 42 }),
                 {
                     code: 'BAD_USER_INPUT',
                     type: 'DV_VERSION_MISMATCH',
@@ -228,9 +231,8 @@ describe('NotificationUserSetting', () => {
         })
 
         test('must throw an error on trying to enable messages', async () => {
-            const otherAdminClient = await makeLoggedInAdminClient()
             await expectToThrowGQLError(
-                async () => await createTestNotificationUserSetting(otherAdminClient, { isEnabled: true }),
+                async () => await createTestNotificationUserSetting(adminClient, { isEnabled: true }),
                 {
                     code: 'BAD_USER_INPUT',
                     type: 'NO_NEED_TO_ENABLE_NOTIFICATIONS',
