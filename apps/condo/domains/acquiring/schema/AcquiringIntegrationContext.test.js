@@ -287,6 +287,7 @@ describe('AcquiringIntegrationContext', () => {
                 expect(updatedContext.deletedAt).not.toBeNull()
             })
             describe('user', () => {
+
                 test('can if it\'s acquiring integration account', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)
@@ -299,10 +300,9 @@ describe('AcquiringIntegrationContext', () => {
                     const [newContext] = await updateTestAcquiringIntegrationContext(client, context.id, statePayload)
                     expect(newContext).toBeDefined()
                     expect(newContext).toEqual(expect.objectContaining(statePayload))
-
                 })
 
-                test('can if status is not FINISHED integration manager (have `canManageIntegration` = true)', async () => {
+                test(`can if status is NOT ${CONTEXT_FINISHED_STATUS} and integration manager (have canManageIntegration = true)`, async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)
                     const [integration] = await createTestAcquiringIntegration(admin)
@@ -319,7 +319,7 @@ describe('AcquiringIntegrationContext', () => {
                     expect(newContext).toEqual(expect.objectContaining(feePayload))
                 })
 
-                test('can\'t if status is FINISHED and integration manager (have `canManageIntegration` = true)', async () => {
+                test(`can't if status is ${CONTEXT_FINISHED_STATUS} and integration manager (have 'canManageIntegration' = true)`, async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)
                     const [integration] = await createTestAcquiringIntegration(admin)
