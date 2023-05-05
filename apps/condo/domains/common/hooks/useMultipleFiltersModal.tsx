@@ -667,6 +667,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             onCancel={handleCancelModal}
             footer={modalFooter}
             width='big'
+            scrollX={false}
         >
             {
                 !loading ? (
