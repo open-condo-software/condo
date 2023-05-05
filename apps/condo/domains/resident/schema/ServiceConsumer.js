@@ -145,8 +145,8 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
                     }
                 }
             }
-        }
-    }
+        },
+    },
 })
 
 module.exports = {
