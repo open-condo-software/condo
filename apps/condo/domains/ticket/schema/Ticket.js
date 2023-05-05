@@ -89,12 +89,15 @@ const ERRORS = {
     TICKET_FOR_PHONE_DAY_LIMIT_REACHED: {
         code: 'BAD_USER_INPUT',
         type: 'TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
-        message: 'TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
+        message: 'Please try again tomorrow. You can not create more tickets!',
+        messageForUser: 'api.ticket.TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
+        messageInterpolation: { ticketLimit: DAILY_TICKET_LIMIT },
     },
     SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED: {
         code: 'BAD_USER_INPUT',
         type: 'SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
-        message: 'SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
+        message: 'You already sent this ticket! You can not create more tickets!',
+        messageForUser: 'api.ticket.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
     },
 }
 
