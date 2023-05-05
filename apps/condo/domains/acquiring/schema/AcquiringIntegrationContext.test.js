@@ -25,7 +25,7 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
+const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_ERROR_STATUS } = require('@condo/domains/miniapp/constants')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -287,6 +287,7 @@ describe('AcquiringIntegrationContext', () => {
                 expect(updatedContext.deletedAt).not.toBeNull()
             })
             describe('user', () => {
+
                 test('can if it\'s acquiring integration account', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)
@@ -299,13 +300,30 @@ describe('AcquiringIntegrationContext', () => {
                     const [newContext] = await updateTestAcquiringIntegrationContext(client, context.id, statePayload)
                     expect(newContext).toBeDefined()
                     expect(newContext).toEqual(expect.objectContaining(statePayload))
-
                 })
-                test('can\'t if integration manager (have `canManageIntegration` = true)', async () => {
+
+                test(`can if status is  ${CONTEXT_IN_PROGRESS_STATUS} and integration manager (have canManageIntegration = true)`, async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)
                     const [integration] = await createTestAcquiringIntegration(admin)
-                    const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+                    const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration, { status: CONTEXT_IN_PROGRESS_STATUS })
+
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canManageIntegrations: true,
+                    })
+                    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                    await createTestOrganizationEmployee(admin, organization, client.user, role)
+                    const feePayload = { implicitFeeDistributionSchema: [] }
+                    const [newContext] = await updateTestAcquiringIntegrationContext(client, context.id, feePayload)
+                    expect(newContext).toBeDefined()
+                    expect(newContext).toEqual(expect.objectContaining(feePayload))
+                })
+
+                test(`can't if status is ${CONTEXT_FINISHED_STATUS} and integration manager (have 'canManageIntegration' = true)`, async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const [organization] = await registerNewOrganization(admin)
+                    const [integration] = await createTestAcquiringIntegration(admin)
+                    const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration, { status: CONTEXT_FINISHED_STATUS })
 
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                         canManageIntegrations: true,
@@ -313,11 +331,30 @@ describe('AcquiringIntegrationContext', () => {
                     const client = await makeClientWithNewRegisteredAndLoggedInUser()
                     await createTestOrganizationEmployee(admin, organization, client.user, role)
 
-                    const payload = {}
+                    const feePayload = { implicitFeeDistributionSchema: [] }
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await updateTestAcquiringIntegrationContext(client, context.id, payload)
+                        await updateTestAcquiringIntegrationContext(client, context.id, feePayload)
                     })
                 })
+
+                test(`can't if status is ${CONTEXT_ERROR_STATUS} and integration manager (have 'canManageIntegration' = true)`, async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const [organization] = await registerNewOrganization(admin)
+                    const [integration] = await createTestAcquiringIntegration(admin)
+                    const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration, { status: CONTEXT_ERROR_STATUS })
+
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canManageIntegrations: true,
+                    })
+                    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                    await createTestOrganizationEmployee(admin, organization, client.user, role)
+
+                    const feePayload = { implicitFeeDistributionSchema: [] }
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestAcquiringIntegrationContext(client, context.id, feePayload)
+                    })
+                })
+
                 test('can\'t in other cases', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const [organization] = await registerNewOrganization(admin)

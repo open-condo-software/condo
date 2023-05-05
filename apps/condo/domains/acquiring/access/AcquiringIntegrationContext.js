@@ -7,10 +7,10 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
 const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
-
 
 
 /**
@@ -49,7 +49,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
 
     if (user.isAdmin || user.isSupport) return true
 
-    let organizationId, integrationId
+    let organizationId, integrationId, context
 
     if (operation === 'create') {
         // get ids from input on create
@@ -59,7 +59,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
     } else if (operation === 'update') {
         // getting ids from existing object
         if (!itemId) return false
-        const context = await getById('AcquiringIntegrationContext', itemId)
+        context = await getById('AcquiringIntegrationContext', itemId)
         if (!context) return false
         const { organization, integration } = context
         organizationId = organization
@@ -68,7 +68,12 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
 
     const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
     if (canManageIntegrations && operation === 'create') return true
-
+    if (canManageIntegrations && operation === 'update') {
+        // Allow employee to complete context settings
+        if (context.status === CONTEXT_IN_PROGRESS_STATUS) {
+            return true
+        }
+    }
     return await checkAcquiringIntegrationAccessRight(user.id, integrationId)
 }
 
