@@ -10,7 +10,17 @@ const {
     expectToThrowAuthenticationErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
-const { createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin, makeClientWithPropertyAndBilling } = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestRecurrentPaymentContext,
+    RecurrentPaymentContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    createTestBillingAccount,
+    createTestBillingProperty,
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+    makeClientWithPropertyAndBilling,
+    createTestBillingCategory,
+} = require('@condo/domains/billing/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { addResidentAccess, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
@@ -179,6 +189,34 @@ describe('ServiceConsumer', () => {
 
             expect(deleted.id).toEqual(client1.serviceConsumer.id)
             expect(deleted.deletedAt).toBeDefined()
+        })
+
+        it('can be soft-deleted by user with type === resident if this is his own serviceConsumer with recurrent payment context', async () => {
+            const client1 = await makeClientWithServiceConsumer()
+            const adminClient = await makeLoggedInAdminClient()
+
+            // create recurrent payment context
+            const [billingCategory] = (await createTestBillingCategory(adminClient, { name: `Category ${new Date()}` }))
+            const [recurrentContext] = await createTestRecurrentPaymentContext(adminClient, {
+                enabled: false,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: 10,
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: client1.serviceConsumer.id } },
+                billingCategory: { connect: { id: billingCategory.id } },
+            })
+
+            const contextsBeforeDelete = await RecurrentPaymentContext.getAll(adminClient, { id: recurrentContext.id })
+            expect(contextsBeforeDelete).toHaveLength(1)
+
+            const [deleted] = await updateTestServiceConsumer(client1, client1.serviceConsumer.id, { deletedAt: 'true' })
+
+            expect(deleted.id).toEqual(client1.serviceConsumer.id)
+            expect(deleted.deletedAt).toBeDefined()
+
+            const contexts = await RecurrentPaymentContext.getAll(adminClient, { id: recurrentContext.id })
+            expect(contexts).toHaveLength(0)
         })
 
         it('cannot be soft-deleted by user with type === resident if this is not his own serviceConsumer', async () => {
