@@ -1,4 +1,5 @@
 const { get, isNil, isUndefined } = require('lodash')
+
 const { RecurrentPaymentContext } = require('./index')
 
 /**
