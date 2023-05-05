@@ -7,7 +7,7 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const { CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
 const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
@@ -70,7 +70,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
     if (canManageIntegrations && operation === 'create') return true
     if (canManageIntegrations && operation === 'update') {
         // Allow employee to complete context settings
-        if (context.status !== CONTEXT_FINISHED_STATUS) {
+        if (context.status === CONTEXT_IN_PROGRESS_STATUS) {
             return true
         }
     }
