@@ -16,7 +16,7 @@ export default {
         open: true,
         children: LOREM_TEXT,
         maskClosable: true,
-        fixedContentWidth: false,
+        scrollX: true,
     },
     argTypes: {
         width: {
@@ -109,7 +109,7 @@ ModalWithFixedContentWidth.args = {
                 })
             )} />
     </div>,
-    fixedContentWidth: true,
+    scrollX: false,
 }
 
 export const Alert = Template.bind({})
