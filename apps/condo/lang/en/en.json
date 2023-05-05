@@ -551,7 +551,7 @@
   "pages.condo.property.id.propertyReportComingSoonTitle": "«Property report» coming soon",
   "pages.condo.property.id.propertyReportComingSoonSubTitle": "Details coming soon.",
   "pages.condo.property.id.propertyReportAccessDenied": "This feature allowed for «Administrator» role only",
-  "pages.condo.property.id.propertyReportBalance.title": "Баланс дома",
+  "pages.condo.property.id.propertyReportBalance.title": "Property balance",
   "pages.condo.property.id.propertyReportBalance.description": "Updated at {dateUpdated}",
   "pages.condo.property.id.propertyReportBalance.buttonTitle": "Open report",
   "pages.condo.property.id.propertyReport.totalSumTitle": "All {sumItem}",
