@@ -1,19 +1,6 @@
 import path from 'path'
 
 import { Layout, Menu, Row, Col, Anchor } from 'antd'
-import { DOCS_REPO, DOCS_ROOT_PATH, DOCS_REPO_DOCS_ROOT, DOCS_EDIT_BRANCH } from 'domains/common/constants/buildVars'
-import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
-import { MDXMapping } from 'domains/docs/components/mdx'
-import { useMenuItems } from 'domains/docs/hooks/useMenuItems'
-import { extractMdx } from 'domains/docs/utils/mdx'
-import {
-    getNavTree,
-    getAllRoutes,
-    getFlatArticles,
-    getNextArticle,
-    getPrevArticle,
-    extractLocalizedTitleParts, 
-} from 'domains/docs/utils/routing'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -25,11 +12,25 @@ import { useIntl } from 'react-intl'
 import { ChevronLeft, ChevronRight, Edit } from '@open-condo/icons'
 import { Typography, Card, Space } from '@open-condo/ui'
 
+import { DOCS_REPO, DOCS_ROOT_PATH, DOCS_REPO_DOCS_ROOT, DOCS_EDIT_BRANCH } from '@/domains/common/constants/buildVars'
+import { DEFAULT_LOCALE } from '@/domains/common/constants/locales'
+import { MDXMapping } from '@/domains/docs/components/mdx'
+import { useMenuItems } from '@/domains/docs/hooks/useMenuItems'
+import { extractMdx } from '@/domains/docs/utils/mdx'
+import {
+    getNavTree,
+    getAllRoutes,
+    getFlatArticles,
+    getNextArticle,
+    getPrevArticle,
+    extractLocalizedTitleParts, 
+} from '@/domains/docs/utils/routing'
+
 import styles from './path.module.css'
 
+import type { Heading } from '@/domains/docs/utils/mdx'
+import type { NavItem, ArticleInfo } from '@/domains/docs/utils/routing'
 import type { RowProps } from 'antd'
-import type { Heading } from 'domains/docs/utils/mdx'
-import type { NavItem, ArticleInfo } from 'domains/docs/utils/routing'
 import type { GetStaticPaths, GetStaticProps } from 'next'
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
 

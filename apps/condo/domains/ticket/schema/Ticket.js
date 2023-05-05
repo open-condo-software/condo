@@ -4,9 +4,9 @@
 
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox, Select } = require('@keystonejs/fields')
 const dayjs = require('dayjs')
-const get = require('lodash/get')
-const isNull = require('lodash/isNull')
+const { isEmpty, get, isNull } = require('lodash')
 
+const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keystone/errors')
 const { Json, AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition, getById } = require('@open-condo/keystone/schema')
@@ -35,8 +35,12 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const { SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const { manageAssigneeScope } = require('@condo/domains/scope/utils/serverSchema')
 const access = require('@condo/domains/ticket/access/Ticket')
-const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const {
+    OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE,
+} = require('@condo/domains/ticket/constants')
+const { QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qualityControl')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { QUALITY_CONTROL_ADDITIONAL_OPTIONS_FIELD } = require('@condo/domains/ticket/schema/fields/QualityControlAdditionalOptions')
 const { sendTicketNotifications } = require('@condo/domains/ticket/utils/handlers')
 const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const {
@@ -49,6 +53,7 @@ const {
     calculateDeferredUntil,
     setDeadline, updateStatusAfterResidentReview,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
+const { classifyTicket } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const {
     createTicketChange,
     ticketChangeDisplayNameResolversForSingleRelations,
@@ -56,8 +61,21 @@ const {
 } = require('@condo/domains/ticket/utils/serverSchema/TicketChange')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-const { classifyTicket } = require('../utils/serverSchema/resolveHelpers')
 
+const ERRORS = {
+    QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE: {
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: '"qualityControlAdditionalOptions" value should not contradict "qualityControlValue"',
+        messageForUser: 'api.ticket.QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE',
+    },
+    QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED: {
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: '"qualityControlValue" must be specified if there is "qualityControlAdditionalOptions" or "qualityControlComment"',
+        messageForUser: 'api.ticket.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED',
+    },
+}
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
@@ -84,6 +102,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 create: false,
             },
         },
+
         reviewValue: {
             schemaDoc: 'Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review',
             type: Select,
@@ -93,6 +112,45 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Resident\'s comment on ticket review',
             type: Text,
         },
+
+        qualityControlValue: {
+            schemaDoc: 'Review of the ticket by a staff on a 2-point scale (bad or good)',
+            type: Select,
+            options: QUALITY_CONTROL_VALUES.join(','),
+        },
+        qualityControlComment: {
+            schemaDoc: 'Staff\'s comment on ticket review',
+            type: Text,
+            hooks: {
+                resolveInput: async ({ resolvedData, fieldPath }) => {
+                    if (fieldPath in resolvedData) {
+                        return normalizeText(resolvedData[fieldPath]) || null
+                    }
+                },
+            },
+        },
+        qualityControlAdditionalOptions: QUALITY_CONTROL_ADDITIONAL_OPTIONS_FIELD,
+        qualityControlUpdatedAt: {
+            schemaDoc: 'Quality control updated at time',
+            type: DateTimeUtc,
+            access: {
+                read: true,
+                update: false,
+                create: false,
+            },
+        },
+        qualityControlUpdatedBy: {
+            schemaDoc: 'User who last updated quality control value/control/additional options',
+            type: Relationship,
+            ref: 'User',
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            access: {
+                read: true,
+                update: false,
+                create: false,
+            },
+        },
+
         statusUpdatedAt: {
             schemaDoc: 'Status updated at time',
             type: DateTimeUtc,
@@ -406,6 +464,7 @@ const Ticket = new GQLListSchema('Ticket', {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
+            const userId = get(user, 'id')
             const isCreateOperation = operation === 'create'
             const isUpdateOperation = operation === 'update'
 
@@ -508,6 +567,13 @@ const Ticket = new GQLListSchema('Ticket', {
                 resolvedData.categoryClassifier = get(classifier, 'category', null)
             }
 
+            if ('qualityControlValue' in resolvedData || 'qualityControlComment' in resolvedData || 'qualityControlAdditionalOptions' in resolvedData) {
+                resolvedData.qualityControlUpdatedAt = dayjs().toISOString()
+                if (userId) {
+                    resolvedData.qualityControlUpdatedBy = userId
+                }
+            }
+
             return resolvedData
         },
         validateInput: async ({ resolvedData, existingItem, addValidationError, context, operation, originalInput }) => {
@@ -531,6 +597,12 @@ const Ticket = new GQLListSchema('Ticket', {
                         return addValidationError(`${WRONG_VALUE} should not change "deferredUntil" field if status type is not ${DEFERRED_STATUS_TYPE} before or after changes`)
                     }
                 }
+            }
+
+            const qualityControlAdditionalOptions = get(newItem, 'qualityControlAdditionalOptions')
+
+            if ((!isEmpty(qualityControlAdditionalOptions) || !!newItem.qualityControlComment) && !newItem.qualityControlValue) {
+                throw new GQLError(ERRORS.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED, context)
             }
 
             // todo (DOMA-4092) uncomment this code when in mob. app will add this feature
@@ -578,4 +650,5 @@ const Ticket = new GQLListSchema('Ticket', {
 
 module.exports = {
     Ticket,
+    ERRORS,
 }

@@ -2,6 +2,7 @@ const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
+const isBetween = require('dayjs/plugin/isBetween')
 const timezone = require('dayjs/plugin/timezone')
 const utc = require('dayjs/plugin/utc')
 
@@ -21,6 +22,7 @@ const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 dayjs.extend(duration)
 dayjs.extend(utc)
 dayjs.extend(timezone)
+dayjs.extend(isBetween)
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 
@@ -84,6 +86,7 @@ const tasks = () => [
     require('@condo/domains/ticket/tasks'),
     require('@condo/domains/resident/tasks'),
     require('@condo/domains/scope/tasks'),
+    require('@condo/domains/news/tasks'),    
     require('@open-condo/webhooks/tasks'),
 ]
 

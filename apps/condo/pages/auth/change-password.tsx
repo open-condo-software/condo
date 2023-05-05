@@ -1,5 +1,5 @@
 import { Col, Form, Row, RowProps, Typography } from 'antd'
-import Router from 'next/router'
+import Router, { useRouter } from 'next/router'
 import React, { useState, useEffect, useContext } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
@@ -13,7 +13,6 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
@@ -35,8 +34,9 @@ const BUTTON_GUTTER: RowProps['gutter'] = [0, 40]
 const TYPOGRAPHY_GUTTER: RowProps['gutter'] = [0, 20]
 
 const ChangePasswordPage: AuthPage = () => {
+    const router = useRouter()
     const [form] = Form.useForm()
-    const { token } = getQueryParams()
+    const { token } = router.query
     const initialValues = { token, password: '', confirm: '' }
     const [isLoading, setIsLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)

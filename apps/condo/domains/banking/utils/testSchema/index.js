@@ -3,7 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const { bulidValidRequisitesForRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccount')
@@ -21,7 +21,7 @@ const { BankIntegrationOrganizationContext: BankIntegrationOrganizationContextGQ
 const { BankIntegrationAccessRight: BankIntegrationAccessRightGQL } = require('@condo/domains/banking/gql')
 const { PREDICT_TRANSACTION_CLASSIFICATION_QUERY } = require('@condo/domains/banking/gql')
 const { BankAccountReport: BankAccountReportGQL } = require('@condo/domains/banking/gql')
-const { EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM } = require('@condo/domains/banking/constants')
+const { EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM, _1C_CLIENT_BANK_EXCHANGE } = require('@condo/domains/banking/constants')
 const { BankAccountReportTask: BankAccountReportTaskGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -78,7 +78,7 @@ async function createTestBankCostItem (client, category, extraAttrs = {}) {
         dv: 1,
         sender,
         category: { connect: { id: category.id } },
-        isOutcome: faker.random.boolean(),
+        isOutcome: faker.datatype.boolean(),
         name: faker.lorem.word(),
         ...extraAttrs,
     }
@@ -250,10 +250,10 @@ async function createTestBankTransaction (client, account, contractorAccount, in
         contractorAccount: { connect: { id: contractorAccount.id } },
         integrationContext: { connect: { id: integrationContext.id } },
         organization: { connect: { id: organization.id } },
-        number: faker.random.number().toString(),
+        number: faker.datatype.number().toString(),
         date: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
         amount: faker.datatype.float({ precision: 0.01 }).toString(),
-        isOutcome: faker.random.boolean(),
+        isOutcome: faker.datatype.boolean(),
         currencyCode: 'RUB',
         purpose: faker.lorem.word(),
         importId: faker.datatype.uuid(),
@@ -289,6 +289,7 @@ async function createTestBankSyncTask (client, organization, extraAttrs = {}) {
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
+        options: { type: _1C_CLIENT_BANK_EXCHANGE },
         ...extraAttrs,
     }
     if (client.user) {
@@ -427,21 +428,21 @@ async function createTestBankAccountReport (client, account, organization, extra
         version: 1,
         template: EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM,
         period: '2023-03',
-        amount: faker.random.number().toString(),
+        amount: faker.datatype.number().toString(),
         amountAt: dayjs().toISOString(),
         publishedAt: dayjs().toISOString(),
-        totalIncome: faker.random.number().toString(),
-        totalOutcome: faker.random.number().toString(),
+        totalIncome: faker.datatype.number().toString(),
+        totalOutcome: faker.datatype.number().toString(),
         isLatest: true,
         data: {
             categoryGroups: [{
-                id: faker.random.uuid(),
+                id: faker.datatype.uuid(),
                 name: faker.lorem.word(2),
                 costItemGroups: [{
-                    id: faker.random.uuid(),
+                    id: faker.datatype.uuid(),
                     name: faker.lorem.word(2),
-                    sum: faker.random.number(),
-                    isOutcome: faker.random.boolean(),
+                    sum: faker.datatype.number(),
+                    isOutcome: faker.datatype.boolean(),
                 }],
             }],
         },

@@ -1,13 +1,14 @@
 import fs from 'fs'
 import path from 'path'
 
-import { DEFAULT_LOCALE } from 'domains/common/constants/locales'
 import { sync as globSync } from 'glob'
 import matter from 'gray-matter'
 import { serialize } from 'next-mdx-remote/serialize'
 import rehypePrism from 'rehype-prism-plus'
 import { remarkHeadingId } from 'remark-custom-heading-id'
 import remarkGfm from 'remark-gfm'
+
+import { DEFAULT_LOCALE } from '@/domains/common/constants/locales'
 
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
 

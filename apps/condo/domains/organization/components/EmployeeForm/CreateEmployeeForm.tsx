@@ -11,17 +11,14 @@ import React, { useEffect, useMemo } from 'react'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Alert, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Alert } from '@condo/domains/common/components/Alert'
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { shadows } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { normalizeEmail } from '@condo/domains/common/utils/mail'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
@@ -167,7 +164,7 @@ export const CreateEmployeeForm: React.FC = () => {
                         <>
                             <Row>
                                 <Col lg={14} xs={24}>
-                                    <Row gutter={[0, 40]}>
+                                    <Row gutter={[0, 60]}>
                                         <Col span={24}>
                                             <Row gutter={[0, 40]}>
                                                 <Col span={24}>
@@ -246,6 +243,30 @@ export const CreateEmployeeForm: React.FC = () => {
                                                 </Col>
                                             </Row>
                                         </Col>
+                                        <Col span={24}>
+                                            <Form.Item noStyle dependencies={['phone']}>
+                                                {
+                                                    ({ getFieldsValue }) => {
+                                                        const { phone } = getFieldsValue(['phone'])
+                                                        return (
+                                                            <ActionBar
+                                                                actions={[
+                                                                    <Button
+                                                                        key='submit'
+                                                                        onClick={handleSave}
+                                                                        type='primary'
+                                                                        loading={isLoading}
+                                                                        disabled={!phone}
+                                                                    >
+                                                                        {InviteEmployeeLabel}
+                                                                    </Button>,
+                                                                ]}
+                                                            />
+                                                        )
+                                                    }
+                                                }
+                                            </Form.Item>
+                                        </Col>
                                     </Row>
                                 </Col>
                                 {breakpoints.TABLET_LARGE && (
@@ -268,27 +289,6 @@ export const CreateEmployeeForm: React.FC = () => {
                                     </Col>
                                 )}
                             </Row>
-                            <Form.Item noStyle dependencies={['phone']}>
-                                {
-                                    ({ getFieldsValue }) => {
-                                        const { phone } = getFieldsValue(['phone'])
-                                        return (
-                                            <ActionBar>
-                                                <Button
-                                                    key='submit'
-                                                    onClick={handleSave}
-                                                    type='sberDefaultGradient'
-                                                    loading={isLoading}
-                                                    disabled={!phone}
-                                                >
-                                                    {InviteEmployeeLabel}
-                                                </Button>
-
-                                            </ActionBar>
-                                        )
-                                    }
-                                }
-                            </Form.Item>
                         </>
                     )
                 }

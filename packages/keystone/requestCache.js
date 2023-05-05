@@ -30,6 +30,9 @@ const express = require('express')
 const { get, set, floor } = require('lodash')
 
 const { getLogger } = require('./logging')
+const Metrics = require('./metrics')
+
+const REQUEST_CACHE_HITRATE_METRIC_NAME = 'requestCache.hitrate'
 
 const logger = getLogger('request-cache')
 
@@ -45,6 +48,7 @@ class RequestCache {
         this.totalRequests = 0
         this.cacheHits = 0
         if (this.enabled) this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 1000)
+        if (this.enabled) this.metricsInterval = setInterval(() => this._logMetrics(), 1000)
     }
 
     // Add a middleware which resets cache after end of each request to avoid memory leak errors
@@ -90,12 +94,24 @@ class RequestCache {
         logger.info(cacheEvent)
     }
 
+    _getHitrate = () => {
+        if (this.totalRequests !== 0) {
+            return this.cacheHits / this.totalRequests
+        } else {
+            return 0
+        }
+    }
+
+    _logMetrics = () => {
+        Metrics.gauge({ name: REQUEST_CACHE_HITRATE_METRIC_NAME, value: this._getHitrate() })
+    }
+
     _logStats = () => {
         logger.info({
             stats: {
                 hits: this.cacheHits,
                 total: this.totalRequests,
-                hitrate: floor(this.cacheHits / this.totalRequests, 2),
+                hitrate: floor(this._getHitrate(), 2),
             },
         })
     }

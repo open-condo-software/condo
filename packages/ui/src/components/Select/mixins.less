@@ -1,9 +1,9 @@
-.condo-select-type(@type, @background_color) {
+.condo-select-type(@type, @background-color) {
   @class_postfix: ~"@{type}";
 
   .condo-select-@{class_postfix}:not(&-customize-input) &-selector {
+    background: @background-color;
     border-color: transparent;
-    background: @background_color;
   }
 }
 

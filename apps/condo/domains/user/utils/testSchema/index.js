@@ -3,7 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const { v4: uuid } = require('uuid')
 const { countryPhoneData } = require('phone')
 const { max, repeat, get, isEmpty } = require('lodash')
@@ -51,9 +51,9 @@ function createTestEmail () {
 }
 
 function createTestPhone () {
-    const { country_code, mobile_begin_with, phone_number_lengths } = faker.random.arrayElement(countryPhoneData.filter(x => get(x, 'mobile_begin_with.length', 0) > 0))
+    const { country_code, mobile_begin_with, phone_number_lengths } = faker.helpers.arrayElement(countryPhoneData.filter(x => get(x, 'mobile_begin_with.length', 0) > 0))
     const length = max(phone_number_lengths)
-    const code = String(faker.random.arrayElement(mobile_begin_with))
+    const code = String(faker.helpers.arrayElement(mobile_begin_with))
 
     return faker.phone.phoneNumber('+' + country_code + code + repeat('#', length - code.length))
 }

@@ -50,7 +50,7 @@ const getFieldsToAdd = (fieldsHooks) => ({
  * @param {Object} fieldsHooks
  * @param resolveAddressFields
  */
-const addressService = ({ fieldsHooks = {}, resolveAddressFields = ({ addressFields }) => addressFields }) => plugin(({
+const addressService = ({ fieldsHooks = {}, resolveAddressFields = ({ addressFields }) => addressFields } = {}) => plugin(({
     fields = {},
     hooks = {},
     ...rest

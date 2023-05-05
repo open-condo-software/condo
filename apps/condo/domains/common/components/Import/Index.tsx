@@ -73,7 +73,7 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTransla
         [exampleTemplateLink],
     )
 
-    const fieldsString = columns.filter(({ required }) => required).map(column => `"${column.label}"`).join(', ')
+    const fieldsString = columns.filter(({ required }) => required).map(column => `"${column.name}"`).join(', ')
 
     return (
         <Space direction='vertical' size={10} style={{ maxWidth: 300 }}>
@@ -210,7 +210,9 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                             exampleTemplateLink={exampleTemplateLink}
                             domainTranslate={domainTranslate}
                         />}
-                    >{props.children}</Popover>
+                    >
+                        {props.children}
+                    </Popover>
                 </DataImporter>
                 {contextHolder}
             </ModalContext.Provider>

@@ -43,6 +43,7 @@ const METER_VERIFICATION_DATE_EXPIRED_TYPE = 'METER_VERIFICATION_DATE_EXPIRED'
 const RESIDENT_ADD_BILLING_ACCOUNT_TYPE = 'RESIDENT_ADD_BILLING_ACCOUNT'
 const BILLING_RECEIPT_AVAILABLE_TYPE = 'BILLING_RECEIPT_AVAILABLE'
 const BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT'
+const BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE = 'BILLING_RECEIPT_CATEGORY_AVAILABLE'
 const BILLING_RECEIPT_ADDED_TYPE = 'BILLING_RECEIPT_ADDED'
 const BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_DEBT'
 const BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT'
@@ -55,64 +56,43 @@ const CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE = 'CUSTOM_CONTENT_MESSAGE_EMAIL'
 const CUSTOM_CONTENT_MESSAGE_SMS_TYPE = 'CUSTOM_CONTENT_MESSAGE_SMS'
 const VOIP_INCOMING_CALL_MESSAGE_TYPE = 'VOIP_INCOMING_CALL_MESSAGE'
 const RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE'
-const RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE'
+const RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE'
+const RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE'
+const RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE'
+const RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE'
+const RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE'
+const RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE'
+const RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE'
+const RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE_TYPE = 'RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE'
 const RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE'
-
-const MESSAGE_TYPES = [
-    INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
-    DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
-    DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
-    REGISTER_NEW_USER_MESSAGE_TYPE,
-    RESET_PASSWORD_MESSAGE_TYPE,
-    SMS_VERIFY_CODE_MESSAGE_TYPE,
-    SHARE_TICKET_MESSAGE_TYPE,
-    DEVELOPER_IMPORTANT_NOTE_TYPE,
-    CUSTOMER_IMPORTANT_NOTE_TYPE,
-    MESSAGE_FORWARDED_TO_SUPPORT_TYPE,
-    TICKET_ASSIGNEE_CONNECTED_TYPE,
-    TICKET_EXECUTOR_CONNECTED_TYPE,
-    TRACK_TICKET_IN_DOMA_APP_TYPE,
-    TICKET_STATUS_OPENED_TYPE,
-    TICKET_STATUS_IN_PROGRESS_TYPE,
-    TICKET_STATUS_COMPLETED_TYPE,
-    TICKET_STATUS_RETURNED_TYPE,
-    TICKET_STATUS_DECLINED_TYPE,
-    TICKET_COMMENT_ADDED_TYPE,
-    METER_VERIFICATION_DATE_REMINDER_TYPE,
-    METER_SUBMIT_READINGS_REMINDER_TYPE,
-    METER_VERIFICATION_DATE_EXPIRED_TYPE,
-    RESIDENT_ADD_BILLING_ACCOUNT_TYPE,
-    BILLING_RECEIPT_AVAILABLE_TYPE,
-    BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE,
-    BILLING_RECEIPT_ADDED_TYPE,
-    BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
-    BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
-    RESIDENT_UPGRADE_APP_TYPE,
-    STAFF_UPGRADE_APP_TYPE,
-    BANK_ACCOUNT_CREATION_REQUEST_TYPE,
-    CUSTOM_CONTENT_MESSAGE_TYPE,
-    CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
-    CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
-    CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
-    VOIP_INCOMING_CALL_MESSAGE_TYPE,
-    RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
-    RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
-    RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
-]
-
-/**
- * If some messages types has limited variety of transports, please set it here.
- * The rest of types must have templates for all transports or at least default template.
- */
-const MESSAGE_TYPES_TRANSPORTS = {
-    [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
-    [MESSAGE_FORWARDED_TO_SUPPORT_TYPE]: [EMAIL_TRANSPORT],
-    [SHARE_TICKET_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
-    [BANK_ACCOUNT_CREATION_REQUEST_TYPE]: [EMAIL_TRANSPORT],
-    [VOIP_INCOMING_CALL_MESSAGE_TYPE]: [PUSH_TRANSPORT],
-}
+const B2C_APP_MESSAGE_PUSH_TYPE = 'B2C_APP_MESSAGE_PUSH'
+const NEWS_ITEM_COMMON_MESSAGE_TYPE = 'NEWS_ITEM_COMMON_MESSAGE_TYPE'
+const NEWS_ITEM_EMERGENCY_MESSAGE_TYPE = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE'
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
+
+const newsItemMessageMeta = {
+    dv: { required: true },
+    title: { required: true },
+    body: { required: true },
+    data: {
+        newsItemId: { required: true },
+        organizationId: { required: true },
+    },
+}
+
+const recurrentPaymentProceedingFailedCommonMessageMeta = {
+    dv: { required: true },
+    data: {
+        recurrentPaymentContextId: { required: true },
+        recurrentPaymentId: { required: true },
+        serviceConsumerId: { required: true },
+        residentId: { required: true },
+        userId: { required: true },
+        errorCode: { required: true },
+        url: { required: true },
+    },
+}
 
 //TODO: maybe we should gather all data about messages types in the single object
 //TODO(DOMA-2778) add recursive validation for internal objects like [TICKET_EXECUTOR_CONNECTED_TYPE].data
@@ -306,6 +286,18 @@ const MESSAGE_META = {
             period: { required: true },
         },
     },
+    [BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE]: {
+        dv: { required: true },
+        data: {
+            userId: { required: true },
+            url: { required: true },
+            residentId: { required: true },
+            propertyId: { required: true },
+            period: { required: true },
+            categoryId: { required: true },
+        },
+        categoryName: { required: true },
+    },
     [BILLING_RECEIPT_ADDED_TYPE]: {
         dv: { defaultValue: '', required: true },
         data: {
@@ -416,31 +408,55 @@ const MESSAGE_META = {
         body: { required: true },
         data: {
             B2CAppId: { required: true },
-            callId: { required: true },
+            B2CAppContext: { required: false },
+            B2CAppName: { required: true },
+        },
+    },
+    [B2C_APP_MESSAGE_PUSH_TYPE]: {
+        dv: { required: true },
+        title: { required: false },
+        body: { required: true },
+        data: {
+            B2CAppId: { required: true },
+            B2CAppContext: { required: false },
+            B2CAppName: { required: true },
         },
     },
     [RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE]: {
         dv: { required: true },
-        recurrentPaymentContext: {
-            id: { required: true },
+        data: {
+            recurrentPaymentContextId: { required: true },
+            recurrentPaymentId: { required: true },
+            serviceConsumerId: { required: true },
+            residentId: { required: true },
+            userId: { required: true },
+            url: { required: true },
         },
     },
-    [RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE]: {
-        dv: { required: true },
-        recurrentPaymentContext: {
-            id: { required: true },
-        },
-        errorCode: { required: true },
-    },
+    [RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE_TYPE]: { ...recurrentPaymentProceedingFailedCommonMessageMeta },
+    [RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE_TYPE]: { ...recurrentPaymentProceedingFailedCommonMessageMeta },
+    [RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE_TYPE]: { ...recurrentPaymentProceedingFailedCommonMessageMeta },
+    [RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE_TYPE]: { ...recurrentPaymentProceedingFailedCommonMessageMeta },
+    [RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE_TYPE]: { ...recurrentPaymentProceedingFailedCommonMessageMeta },
+    [RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE_TYPE]: { ...recurrentPaymentProceedingFailedCommonMessageMeta },
+    [RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE_TYPE]: { ...recurrentPaymentProceedingFailedCommonMessageMeta },
+    [RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE_TYPE]: { ...recurrentPaymentProceedingFailedCommonMessageMeta },
     [RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE]: {
         dv: { required: true },
-        recurrentPaymentContext: {
-            id: { required: true },
+        data: {
+            recurrentPaymentContextId: { required: true },
+            serviceConsumerId: { required: true },
+            residentId: { required: true },
+            userId: { required: true },
+            url: { required: true },
         },
     },
+    [NEWS_ITEM_COMMON_MESSAGE_TYPE]: { ...newsItemMessageMeta },
+    [NEWS_ITEM_EMERGENCY_MESSAGE_TYPE]: { ...newsItemMessageMeta },
 }
 
-
+/** Used to validate type field for sendMessage mutation payload */
+const MESSAGE_TYPES = Object.keys(MESSAGE_META)
 
 const MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT = 'atLeastOneTransport'
 const MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS = 'allTransports'
@@ -539,6 +555,62 @@ const MESSAGE_DELIVERY_OPTIONS = {
         isAllowedToChangeDefaultTransport: false,
         isVoIP: true,
     },
+    [B2C_APP_MESSAGE_PUSH_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [NEWS_ITEM_COMMON_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [NEWS_ITEM_EMERGENCY_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+    [RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+    [RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+    [RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+    [RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+    [RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+    [RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+    [RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+    [RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+    [RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -682,7 +754,6 @@ module.exports = {
     APP_RESIDENT_KEY,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     DEFAULT_TEMPLATE_FILE_NAME,
-    MESSAGE_TYPES_TRANSPORTS,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
     METER_VERIFICATION_DATE_REMINDER_TYPE,
     METER_SUBMIT_READINGS_REMINDER_TYPE,
@@ -693,6 +764,7 @@ module.exports = {
     BILLING_RECEIPT_ADDED_TYPE,
     BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
+    BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE,
     DEVICE_PLATFORM_TYPES,
     DEVICE_PLATFORM_ANDROID,
     DEVICE_PLATFORM_IOS,
@@ -721,11 +793,22 @@ module.exports = {
     MESSAGE_DELIVERY_SLOW_PRIORITY,
     MESSAGE_DELIVERY_FAST_PRIORITY,
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
+    B2C_APP_MESSAGE_PUSH_TYPE,
     APPLE_CONFIG_ENV,
     APPLE_CONFIG_TEST_PUSHTOKEN_ENV,
     APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV,
     FAKE_ERROR_MESSAGE_PREFIX,
     RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
-    RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
+    NEWS_ITEM_COMMON_MESSAGE_TYPE,
+    NEWS_ITEM_EMERGENCY_MESSAGE_TYPE,
 }
+

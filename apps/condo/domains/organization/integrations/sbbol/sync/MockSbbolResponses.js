@@ -1,4 +1,4 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const pickBy = require('lodash/pickBy')
 const { v4: uuid } = require('uuid')
 
@@ -173,9 +173,9 @@ const EXAMPLE_TOKEN_SET = {
 
 const EXAMPLE_TRANSACTION = {
     'transactionId': 3986693,
-    'uuid': '169d9043-3a1f-330d-a566-c261a64d5891',
+    'uuid': '169d9043-3a1f-330d-a566-c261a64d5891', // should be unique across multiple transaction example records
     'operationDate': '2022-11-08T00:00:00',
-    'number': '42',
+    'number': '42', // should be unique across multiple transaction example records
     'operationCode': '01',
     'amount': {
         'amount': '1.00',
@@ -327,6 +327,7 @@ class MockSbbolResponses {
         return Array(5).fill(EXAMPLE_TRANSACTION).map( transaction => {
             const clonedTransaction = pickBy(transaction)
             clonedTransaction.number = faker.datatype.number(1000000).toString()
+            clonedTransaction.uuid = faker.datatype.uuid()
             return clonedTransaction
         })
     }

@@ -12,7 +12,7 @@ import CategoryProgress from '@condo/domains/banking/components/CategoryProgress
 import { BANKING_TABLE_PAGE_SIZE } from '@condo/domains/banking/constants'
 import { BankTransaction as BankTransactionGQL } from '@condo/domains/banking/gql'
 import { useTableColumns } from '@condo/domains/banking/hooks/useTableColumns'
-import { useTableFilters } from '@condo/domains/banking/hooks/useTableFilters'
+import { useBankTransactionTableFilters } from '@condo/domains/banking/hooks/useTableFilters'
 import { BankTransaction } from '@condo/domains/banking/utils/clientSchema'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -49,10 +49,10 @@ interface IUseBankContractorAccountTable {
     }
 }
 
-const useBankContractorAccountTable: IUseBankContractorAccountTable = (props) => {
+const useBankTransactionsTable: IUseBankContractorAccountTable = (props) => {
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
-    const queryMeta = useTableFilters()
+    const queryMeta = useBankTransactionTableFilters()
     const { filtersToWhere } = useQueryMappers(queryMeta, [])
     const { bankCostItems, loading: bankCostItemsLoading, setSelectedItem } = useBankCostItemContext()
 
@@ -73,7 +73,7 @@ const useBankContractorAccountTable: IUseBankContractorAccountTable = (props) =>
         first: BANKING_TABLE_PAGE_SIZE,
         skip: (pageIndex - 1) * BANKING_TABLE_PAGE_SIZE,
         sortBy: [SortBankTransactionsBy.NumberDesc, SortBankTransactionsBy.CreatedAtDesc],
-    }, { fetchPolicy: 'cache-first' })
+    })
     const {
         count: emptyCostItemsCount,
         loading: emptyCostItemsLoading,
@@ -182,4 +182,4 @@ const useBankContractorAccountTable: IUseBankContractorAccountTable = (props) =>
     return { Component, loading: isLoading, selectedRows, clearSelection, updateSelected }
 }
 
-export default useBankContractorAccountTable
+export default useBankTransactionsTable

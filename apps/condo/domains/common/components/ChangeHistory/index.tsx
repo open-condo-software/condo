@@ -17,6 +17,7 @@ type ChangeHistoryInputType<ChangesType> = {
     title: string
     useChangedFieldMessagesOf: ComponentProps<typeof HistoricalChange>['useChangedFieldMessagesOf']
     Diff: ComponentProps<typeof HistoricalChange>['Diff']
+    labelSpan?: number
 }
 
 type ChangeHistoryReturnType = ReactElement | null
@@ -28,14 +29,14 @@ const TEXT_BUTTON_STYLE: React.CSSProperties = {
     color: colors.green[7],
 }
 const CHANGE_HISTORY_COL_STYLE: React.CSSProperties = { marginTop: '20px' }
-const CHANGE_HISTORY_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
+const CHANGE_HISTORY_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 
 
 export const ChangeHistory = <ChangesType extends BaseChangesType> (props: ChangeHistoryInputType<ChangesType>): ChangeHistoryReturnType => {
     const intl = useIntl()
     const FetchMoreTemplate = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.fetchMore' })
 
-    const { items, total, loading, title, useChangedFieldMessagesOf, Diff } = props
+    const { items, total, loading, title, useChangedFieldMessagesOf, Diff, labelSpan } = props
 
     const [displayCount, setDisplayCount] = useState(CHANGES_PER_CHUNK)
 
@@ -55,7 +56,7 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
         <Col span={24} style={CHANGE_HISTORY_COL_STYLE}>
             <Row gutter={CHANGE_HISTORY_VERTICAL_GUTTER}>
                 <Col span={24}>
-                    <Typography.Title level={4}>{title}</Typography.Title>
+                    <Typography.Title level={3}>{title}</Typography.Title>
                 </Col>
                 <Col span={24}>
                     {items.slice(0, displayCount).map(change => (
@@ -64,6 +65,7 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
                             changesValue={change}
                             useChangedFieldMessagesOf={useChangedFieldMessagesOf}
                             Diff={Diff}
+                            labelSpan={labelSpan}
                         />
                     ))}
                     {displayCount < total && (

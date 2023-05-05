@@ -5,8 +5,8 @@ const { validate: uuidValidate } = require('uuid')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { BankAccount, BankTransaction, BankContractorAccount, BankIntegrationAccountContext, predictTransactionClassification } = require('@condo/domains/banking/utils/serverSchema')
+const { BANK_INTEGRATION_IDS, BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
+const { BankAccount, BankTransaction, BankContractorAccount, predictTransactionClassification, BankSyncTask } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
@@ -18,11 +18,16 @@ const { ERROR_PASSED_DATE_IN_THE_FUTURE } = require('../constants')
 
 const logger = getLogger('sbbol/SbbolSyncTransactions')
 const isResponceProcessing = (response) => (get(response, 'error.cause', '') !== 'STATEMENT_RESPONSE_PROCESSING')
-// ---------------------------------
-const FAILED_STATUS = 'failed'
-const IN_PROGRESS_STATUS = 'inProgress'
-const COMPLETED_STATUS = 'completed'
-// ^^ the code needed in the prototype. In MVP, synchronization status will be stored in BankSyncTask
+const dvSenderFieldsBankSyncTask = {
+    dv: 1,
+    sender: { dv: 1, fingerprint: 'BankSyncTask' },
+}
+async function isTaskCancelled (context, taskId) {
+    const task = await BankSyncTask.getOne(context, {
+        id: taskId,
+    })
+    return task.status === BANK_SYNC_TASK_STATUS.CANCELLED
+}
 /**
  * Connects new BankTransaction records for BankAccount according to transaction data from SBBOL.
  *  @param {String} userId
@@ -39,16 +44,6 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
     const transactions = []
 
     for (const bankAccount of bankAccounts) {
-        // ---------------------------------
-        const bankIntegrationAccountContext = await BankIntegrationAccountContext.getOne(context, { id: bankAccount.integrationContext.id })
-        await BankIntegrationAccountContext.update(context, bankIntegrationAccountContext.id, {
-            meta: {
-                syncTransactionsTaskStatus: IN_PROGRESS_STATUS,
-            },
-            ...dvSenderFields,
-        })
-        // ^^ the code needed in the prototype. In MVP, synchronization status will be stored in BankSyncTask
-
         let page = 1,
             doNextRequest = true,
             timeout = 1000,
@@ -93,14 +88,6 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             const receivedTransactions = get(response, 'data.transactions')
             const receivedSummary = get(summary, 'data.closingBalance')
             if (!receivedTransactions || !receivedSummary) {
-                // ---------------------------------
-                await BankIntegrationAccountContext.update(context, bankIntegrationAccountContext.id, {
-                    meta: {
-                        syncTransactionsTaskStatus: FAILED_STATUS,
-                    },
-                    ...dvSenderFields,
-                })
-                // ^^ the code needed in the prototype. In MVP, synchronization status will be stored in BankSyncTask
                 logger.error(`Unsuccessful response to transaction request by state: ${{
                     bankAccount: bankAccount.number,
                     statementDate,
@@ -139,7 +126,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             // If SBBOL returned a transaction with an unsupported currency, do not process
             if (ISO_CODES.includes(transaction.amount.currencyName)) {
                 const formatedOperationDate = dayjs(transaction.operationDate).format('YYYY-MM-DD')
-                const whereTransactionConditions = {
+                const transactionProperty = {
                     number: transaction.number,
                     date:  formatedOperationDate,
                     amount: transaction.amount.amount,
@@ -150,11 +137,14 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     importRemoteSystem: SBBOL_IMPORT_NAME,
                 }
 
-                const foundTransaction = await BankTransaction.getOne(context, {
+                const [foundTransaction] = await BankTransaction.getAll(context, {
                     organization: { id: organizationId },
                     account: { id: bankAccount.id },
-                    ...whereTransactionConditions,
-                })
+                    importId: transactionProperty.importId,
+                    number: transactionProperty.number,
+                    date: transactionProperty.date,
+                    deletedAt: null,
+                }, { first: 1 })
 
                 let bankContractorAccount
                 // in mvp we will keep the contractor account for debit payments as well. Dividing them into individuals and legal entities
@@ -163,6 +153,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                         organization: { id: organizationId },
                         tin: transaction.rurTransfer.payeeInn,
                         number: transaction.rurTransfer.payeeAccount,
+                        deletedAt: null,
                     }, { first: 1 })
 
                     if (!bankContractorAccount) {
@@ -186,7 +177,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     try {
                         costItem = await predictTransactionClassification(context, {
                             purpose: transaction.paymentPurpose,
-                            isOutcome: whereTransactionConditions.isOutcome,
+                            isOutcome: transactionProperty.isOutcome,
                         })
                     } catch (err) {
                         logger.error({ msg: 'Can\'t get costItem from classification service', err })
@@ -198,93 +189,104 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                         contractorAccount: bankContractorAccount ? { connect: { id: bankContractorAccount.id } } : undefined,
                         costItem: costItem ? { connect: { id: costItem.id } } : undefined,
                         meta: { sbbol: transaction },
-                        ...whereTransactionConditions,
+                        ...transactionProperty,
                         ...dvSenderFields,
                     })
                     logger.info({ msg: `BankTransaction instance created with id: ${createdTransaction.id}` })
                 }
 
             } else {
-                // ---------------------------------
-                await BankIntegrationAccountContext.update(context, bankIntegrationAccountContext.id, {
-                    meta: {
-                        syncTransactionsTaskStatus: FAILED_STATUS,
-                    },
-                    ...dvSenderFields,
-                })
-                // ^^ the code needed in the prototype. In MVP, synchronization status will be stored in BankSyncTask
                 logger.warn({ msg: 'Not supported currency of BankTransaction from SBBOL. It will not be saved.', transaction })
             }
         }
-        // ---------------------------------
-        await BankIntegrationAccountContext.update(context, bankIntegrationAccountContext.id, {
-            meta: {
-                syncTransactionsTaskStatus: COMPLETED_STATUS,
-            },
-            ...dvSenderFields,
-        })
-        // ^^ the code needed in the prototype. In MVP, synchronization status will be stored in BankSyncTask
     }
     return transactions
 }
 
 /**
  * Synchronizes SBBOL transaction data with data in the system
- * @param {String} date
  * @param {String[]} dateInterval
- * @param {String} userId
+ * @param {uuid} userId
  * @param {Organization} organization
+ * @param {uuid} bankSyncTaskId - optional
  * @returns {Promise<Transaction[]>}
  */
-async function requestTransactions ({ date, dateInterval, userId, organization }) {
+async function requestTransactions ({ dateInterval, userId, organization, bankSyncTaskId }) {
     if (!uuidValidate(userId)) return logger.error(`passed userId is not a valid uuid. userId: ${userId}`)
-    if (!date && !dateInterval) return logger.error('date or dateInterval is required')
+    if (!dateInterval) return logger.error('dateInterval is required')
+    if (bankSyncTaskId && !uuidValidate(bankSyncTaskId)) return logger.error(`passed bankSyncTaskId is not a valid uuid. bankSyncTaskId: ${bankSyncTaskId}`)
 
     const { keystone: context } = await getSchemaCtx('Organization')
-    // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
-    const bankAccounts = await BankAccount.getAll(context, {
-        tin: organization.tin,
-        integrationContext: {
-            enabled: true,
-            integration: {
-                id: BANK_INTEGRATION_IDS.SBBOL,
-            },
-        },
-        deletedAt: null,
-    })
     const today = dayjs().format('YYYY-MM-DD')
+    const transactions = []
+    const totalCount = dateInterval.length
+    let processedCount = 0
+    let bankSyncTask
+    let bankAccounts
 
-    if (date) {
-        if (dayjs(date).format('YYYY-MM-DD') === 'Invalid Date') throw new Error(`${INVALID_DATE_RECEIVED_MESSAGE} ${date}`)
+    if (bankSyncTaskId) {
+        bankSyncTask = await BankSyncTask.update(context, bankSyncTaskId, {
+            totalCount,
+            processedCount,
+            ...dvSenderFieldsBankSyncTask,
+        })
+        bankAccounts = await BankAccount.getAll(context, {
+            id: bankSyncTask.account.id,
+        })
+    } else {
+        // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
+        bankAccounts = await BankAccount.getAll(context, {
+            tin: organization.tin,
+            integrationContext: {
+                enabled: true,
+                integration: {
+                    id: BANK_INTEGRATION_IDS.SBBOL,
+                },
+            },
+            deletedAt: null,
+        })
+    }
 
-        // you can't request a report by a date in the future
-        if (today < date) throw new Error(ERROR_PASSED_DATE_IN_THE_FUTURE)
+    for (const statementDate of dateInterval) {
+        if (bankSyncTask && await isTaskCancelled(context, bankSyncTaskId)) {
+            return
+        }
+        if (dayjs(statementDate).format('YYYY-MM-DD') === 'Invalid Date') {
+            if (bankSyncTaskId) {
+                await BankSyncTask.update(context, bankSyncTaskId, {
+                    status: BANK_SYNC_TASK_STATUS.ERROR,
+                    ...dvSenderFieldsBankSyncTask,
+                })
+            }
+            throw new Error(`${INVALID_DATE_RECEIVED_MESSAGE} ${statementDate}`)
+        }
 
-        return await requestTransactionsForDate({
+        if (today < statementDate) {
+            if (bankSyncTaskId) {
+                await BankSyncTask.update(context, bankSyncTaskId, {
+                    status: BANK_SYNC_TASK_STATUS.ERROR,
+                    ...dvSenderFieldsBankSyncTask,
+                })
+            }
+            throw new Error(ERROR_PASSED_DATE_IN_THE_FUTURE)
+        }
+
+        transactions.push(await requestTransactionsForDate({
             userId,
             bankAccounts,
             context,
-            statementDate: date,
+            statementDate,
             organizationId: organization.id,
-        })
-    }
-    if (dateInterval){
-        const transactions = []
-        for (const statementDate of dateInterval) {
-            if (dayjs(statementDate).format('YYYY-MM-DD') === 'Invalid Date') throw new Error(`${INVALID_DATE_RECEIVED_MESSAGE} ${date}`)
-
-            if (today < statementDate) throw new Error(ERROR_PASSED_DATE_IN_THE_FUTURE)
-
-            transactions.push(await requestTransactionsForDate({
-                userId,
-                bankAccounts,
-                context,
-                statementDate,
-                organizationId: organization.id,
-            }))
+        }))
+        processedCount++
+        if (bankSyncTaskId) {
+            await BankSyncTask.update(context, bankSyncTaskId, {
+                processedCount,
+                ...dvSenderFieldsBankSyncTask,
+            })
         }
-        return transactions
     }
+    return transactions
 }
 
 module.exports = {

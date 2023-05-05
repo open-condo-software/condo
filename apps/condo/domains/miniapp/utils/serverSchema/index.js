@@ -8,6 +8,7 @@ const { execGqlWithoutAccess, generateServerUtils } = require('@open-condo/codeg
 
 const {
     ALL_MINI_APPS_QUERY,
+    SEND_APP_PUSH_MESSAGE_MUTATION,
     B2BApp: B2BAppGQL,
     B2BAppContext: B2BAppContextGQL,
     B2BAppAccessRight: B2BAppAccessRightGQL,
@@ -16,6 +17,7 @@ const {
     B2CAppProperty: B2CAppPropertyGQL,
     B2CAppAccessRight: B2CAppAccessRightGQL,
     B2CAppBuild: B2CAppBuildGQL,
+    MessageAppBlackList: MessageAppBlackListGQL,
 } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -32,6 +34,19 @@ async function allOrganizationApps (context, data) {
     })
 }
 
+async function sendAppPushMessage (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: SEND_APP_PUSH_MESSAGE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to sendAppPushMessage',
+        dataPath: 'result',
+    })
+}
+
 const B2BApp = generateServerUtils(B2BAppGQL)
 const B2BAppContext = generateServerUtils(B2BAppContextGQL)
 const B2BAppAccessRight = generateServerUtils(B2BAppAccessRightGQL)
@@ -40,6 +55,7 @@ const B2CAppAccessRight = generateServerUtils(B2CAppAccessRightGQL)
 const B2CAppBuild = generateServerUtils(B2CAppBuildGQL)
 const B2CAppProperty = generateServerUtils(B2CAppPropertyGQL)
 const B2BAppPromoBlock = generateServerUtils(B2BAppPromoBlockGQL)
+const MessageAppBlackList = generateServerUtils(MessageAppBlackListGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -52,5 +68,7 @@ module.exports = {
     B2CAppBuild,
     B2CAppProperty,
     B2BAppPromoBlock,
+    sendAppPushMessage,
+    MessageAppBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

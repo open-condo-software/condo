@@ -155,7 +155,7 @@ const convertBillingReceiptToGQLInput = (item, propertiesIndex, accountsIndex) =
 
     item.recipient = {
         tin: item.tin,
-        iec: item.iec,
+        ...item.iec && { iec: item.iec },
         bankAccount: item.bankAccount,
         bic: item.bic,
     }

@@ -1,4 +1,4 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const { sample } = require('lodash')
 const { AddressMetaDataFields } = require('../../schema/fields/AddressMetaField')
 
@@ -31,7 +31,7 @@ const buildFakeAddressMeta = (withFlat = false, extraAttrs = {}) => {
     emptyData.city_fias_id = faker.datatype.uuid()
     emptyData.city_kladr_id = String(faker.datatype.number())
 
-    emptyData.street = faker.address.streetName()
+    emptyData.street = faker.address.street() 
     emptyData.street_type = 'ул'
     emptyData.street_type_full = 'улица'
     emptyData.street_with_type = `${emptyData.street_type} ${emptyData.street}`

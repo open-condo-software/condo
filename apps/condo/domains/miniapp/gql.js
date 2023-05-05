@@ -18,6 +18,12 @@ const ALL_MINI_APPS_QUERY = gql`
     }
 `
 
+const SEND_APP_PUSH_MESSAGE_MUTATION = gql`
+    mutation sendAppPushMessage ($data: SendAppPushMessageInput!) {
+        result: sendAppPushMessage(data: $data) { id status }
+    }
+`
+
 const B2B_APP_FIELDS = `{ name logo { publicUrl } shortDescription detailedDescription developer partnerUrl appUrl category label gallery price features ${COMMON_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
@@ -42,10 +48,14 @@ const B2CAppProperty = generateGqlQueries('B2CAppProperty', B2C_APP_PROPERTY_FIE
 const B2B_APP_PROMO_BLOCK_FIELDS = `{ title subtitle textVariant backgroundColor backgroundImage { publicUrl } targetUrl external priority ${COMMON_FIELDS} }`
 const B2BAppPromoBlock = generateGqlQueries('B2BAppPromoBlock', B2B_APP_PROMO_BLOCK_FIELDS)
 
+const MESSAGE_APP_BLACK_LIST_FIELDS = `{ app { id } description ${COMMON_FIELDS} }`
+const MessageAppBlackList = generateGqlQueries('MessageAppBlackList', MESSAGE_APP_BLACK_LIST_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     ALL_MINI_APPS_QUERY,
+    SEND_APP_PUSH_MESSAGE_MUTATION,
     B2BApp,
     B2BAppContext,
     B2BAppAccessRight,
@@ -54,5 +64,6 @@ module.exports = {
     B2CAppBuild,
     B2CAppProperty,
     B2BAppPromoBlock,
+    MessageAppBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

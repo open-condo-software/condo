@@ -3,7 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const get = require('lodash/get')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
@@ -71,11 +71,11 @@ function getRandomExplicitFeeDistribution () {
     const result = []
     result.push({
         recipient: 'acquiring',
-        percent: faker.random.arrayElement(['0.4', '0.5', '0.6']),
+        percent: faker.helpers.arrayElement(['0.4', '0.5', '0.6']),
     })
     result.push({
-        recipient: faker.random.arrayElement(['commission', 'service']),
-        percent: faker.random.arrayElement(['0.4', '0.5', '0.6']),
+        recipient: faker.helpers.arrayElement(['commission', 'service']),
+        percent: faker.helpers.arrayElement(['0.4', '0.5', '0.6']),
     })
     return result
 }
@@ -84,7 +84,7 @@ function getRandomImplicitFeeDistribution () {
     const result = []
     result.push({
         recipient: 'organization',
-        percent: faker.random.arrayElement(['0', '1.2', '1.7']),
+        percent: faker.helpers.arrayElement(['0', '1.2', '1.7']),
     })
     return result
 }
@@ -93,7 +93,7 @@ function getRandomImplicitFeeDistribution () {
 async function createTestAcquiringIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST ACQUIRING'
+    const name = faker.company.name().replace(/ /, '-').toUpperCase() + ' TEST ACQUIRING'
     const hostUrl = faker.internet.url()
     const attrs = {
         dv: 1,
@@ -101,7 +101,7 @@ async function createTestAcquiringIntegration (client, extraAttrs = {}) {
         name,
         hostUrl,
         shortDescription: faker.commerce.productDescription(),
-        developer: faker.company.companyName(),
+        developer: faker.company.name(),
         detailedDescription: faker.lorem.paragraphs(5),
         explicitFeeDistributionSchema: getRandomExplicitFeeDistribution(),
         ...extraAttrs

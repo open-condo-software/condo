@@ -2,8 +2,8 @@
  * @jest-environment node
  */
 const index = require('@app/condo/index')
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const faker = require('faker')
 
 const {
     setFakeClientMode,
@@ -26,7 +26,7 @@ const {
 
 const { keystone } = index
 
-describe('recurrent-payment-context-processing', () => {
+describe('create-recurrent-payment-for-ready-to-pay-recurrent-payment-contexts', () => {
     let adminContext, admin, getContextRequest
     setFakeClientMode(index)
 

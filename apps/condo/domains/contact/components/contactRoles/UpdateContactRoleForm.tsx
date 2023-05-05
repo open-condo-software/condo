@@ -2,9 +2,8 @@ import { get } from 'lodash'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 
@@ -41,16 +40,18 @@ export const UpdateContactRoleForm = ({ id }) => {
             mode='update'
         >
             {({ handleSave, isLoading }) => (
-                <ActionBar>
-                    <Button
-                        key='submit'
-                        onClick={handleSave}
-                        type='sberDefaultGradient'
-                        loading={isLoading}
-                    >
-                        {SaveLabel}
-                    </Button>
-                </ActionBar>
+                <ActionBar
+                    actions={[
+                        <Button
+                            key='submit'
+                            onClick={handleSave}
+                            type='primary'
+                            loading={isLoading}
+                        >
+                            {SaveLabel}
+                        </Button>,
+                    ]}
+                />
             )}
         </BaseContactRoleForm>
     )

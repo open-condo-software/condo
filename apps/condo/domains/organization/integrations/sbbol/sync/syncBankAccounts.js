@@ -34,6 +34,7 @@ const _syncBankAccounts = async (accounts, organization) => {
         const foundAccount = await BankAccount.getOne(context, {
             ...bankAccountDetails,
             organization: { id: organization.id },
+            deletedAt: null,
         })
 
         const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })

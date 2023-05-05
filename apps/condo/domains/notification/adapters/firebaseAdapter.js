@@ -1,4 +1,4 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const admin = require('firebase-admin')
 const { isEmpty, isNull, get, isObject } = require('lodash')
 
@@ -215,7 +215,7 @@ class FirebaseAdapter {
                             ({
                                 ...response,
                                 pushToken: notifications[idx].token,
-                                pushType: pushTypes[notifications[idx].token],
+                                pushType: get(pushTypes, notifications[idx].token, null),
                             })
                     )
                 }

@@ -18,13 +18,22 @@ class AddressFromStringParser {
         this.splitRegexp = new RegExp(`(.*?[${HOUSE_IDENTIFIERS}].*?)\\s(${keywordsRegex}[.\\s].*?)`, 'i')
     }
 
+    /**
+     * @param {string[]} keyword
+     * @returns {string}
+     */
     keywordsToRegexp (keyword = []) {
-        return keyword.map(keyword => keyword.replace('/', '\\/'))
+        return keyword
+            .map(keyword => keyword.replace('/', '\\/'))
             .sort((a, b) => b.length - a.length) // sort by length desc
             .join('|') // to use in regexp
     }
 
-    // remove trailing and starting spaces, comas, dots
+    /**
+     * Remove trailing and starting spaces, comas, dots
+     * @param {string} input
+     * @returns {string}
+     */
     trim (input = '') {
         if (!input) {
             return input
@@ -32,16 +41,24 @@ class AddressFromStringParser {
         return input.replace(/^[.,\s]*|[.,\s]*$/g, '')
     }
 
+    /**
+     * @param {string} rawString
+     * @returns {{address: string, unitType: string, unitName: string}}
+     */
     parse (rawString = '') {
         const { housePart: address, unitPart } = this.splitToUnitAndAddress(rawString)
-        const { unit, unitType } = this.parseUnit(unitPart)
+        const { unitName, unitType } = this.parseUnit(unitPart)
         return {
             address,
-            unit,
             unitType,
+            unitName,
         }
     }
 
+    /**
+     * @param {string} unitInput
+     * @returns {{unitType: string, unitName: string}}
+     */
     parseUnit (unitInput = '') {
         let detectedType = null
         for (const unitType in KEYWORDS) {
@@ -52,11 +69,15 @@ class AddressFromStringParser {
             unitInput = this.trim(unitInput.replace(unitTypeRegex, '').replace(/\s+/g, ' '))
         }
         return {
-            unit: unitInput,
+            unitName: unitInput,
             unitType: detectedType || 'flat',
         }
     }
 
+    /**
+     * @param {string} input
+     * @returns {{housePart: string, unitPart: string}}
+     */
     splitByKeyword (input = '') {
         const [housePart, unitPart = ''] = input
             .replace(new RegExp(`[${SPLIT_SYMBOL}]`, 'g'), '')
@@ -68,6 +89,10 @@ class AddressFromStringParser {
         }
     }
 
+    /**
+     * @param {string} input
+     * @returns {{housePart: string, unitPart: string}}
+     */
     splitByComma (input = '') {
         const addressParts = input.split(',').map(part => part.trim())
         const unit = addressParts.pop()
@@ -77,6 +102,10 @@ class AddressFromStringParser {
         }
     }
 
+    /**
+     * @param {string} input
+     * @returns {{housePart: string, unitPart: string}}
+     */
     splitToUnitAndAddress (input) {
         const { housePart, unitPart } = this.splitByKeyword(input)
         if (!unitPart) {

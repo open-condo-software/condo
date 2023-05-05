@@ -88,7 +88,7 @@ export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket
     ), [TicketUnitMessage, renderPostfix, streetPart, ticket])
 
     return (
-        <PageFieldRow title={AddressMessage} highlight ellipsis>
+        <PageFieldRow title={AddressMessage} ellipsis>
             {
                 propertyWasDeleted ? (
                     <DeletedPropertyAddressMessage />

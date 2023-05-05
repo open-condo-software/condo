@@ -28,15 +28,16 @@ const UseDeskWidget: React.FC = () => {
     const userIdentify = getUserIdentify()
 
     useEffect(() => {
-        if (UseDeskWidgetId && isFunction(userIdentify)) {
-            const name = get(link, 'name')
-            const email = get(user, 'email')
-            const phone = get(user, 'phone')
-            userIdentify({
-                name,
-                email,
-                phone: typeof phone === 'string' ? phone.slice(1) : phone,
-                additional_fields:
+        try {
+            if (UseDeskWidgetId && isFunction(userIdentify)) {
+                const name = get(link, 'name')
+                const email = get(user, 'email')
+                const phone = get(user, 'phone')
+                userIdentify({
+                    name,
+                    email,
+                    phone: typeof phone === 'string' ? phone.slice(1) : phone,
+                    additional_fields:
                         [
                             {
                                 id: useDeskFieldsIdsMap.tin, value: get(link, ['organization', 'tin'], null),
@@ -48,7 +49,10 @@ const UseDeskWidget: React.FC = () => {
                                 id: useDeskFieldsIdsMap.role, value: get(link, ['role', 'name'], null),
                             },
                         ],
-            })
+                })
+            }
+        } catch (e) {
+            console.error('Failed to load widget "UseDesk"', e)
         }
     }, [link, userIdentify, user])
 

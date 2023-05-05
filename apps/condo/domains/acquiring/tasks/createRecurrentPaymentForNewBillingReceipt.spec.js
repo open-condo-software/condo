@@ -2,9 +2,10 @@
  * @jest-environment node
  */
 const index = require('@app/condo/index')
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const faker = require('faker')
 
+const conf = require('@open-condo/config')
 const {
     setFakeClientMode,
     makeLoggedInAdminClient,
@@ -32,7 +33,7 @@ const {
 
 const { keystone } = index
 
-describe('recurrent-payments-seeking-for-new-receipt', () => {
+describe('create-recurrent-payment-for-new-billing-receipt', () => {
     let adminContext, admin, getContextRequest
     setFakeClientMode(index)
 
@@ -107,9 +108,18 @@ describe('recurrent-payments-seeking-for-new-receipt', () => {
         expect(notification.user).toHaveProperty('id')
         expect(notification.user.id).toEqual(batch.resident.user.id)
         expect(notification).toHaveProperty('meta')
-        expect(notification.meta).toHaveProperty('recurrentPaymentContext')
-        expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
-        expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+        expect(notification.meta).toHaveProperty('data')
+        expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+        expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+        expect(notification.meta.data).toHaveProperty('residentId')
+        expect(notification.meta.data).toHaveProperty('userId')
+
+        expect(notification.meta.data).toMatchObject({
+            recurrentPaymentContextId: recurrentPaymentContext.id,
+            serviceConsumerId: batch.serviceConsumer.id,
+            residentId: batch.resident.id,
+            userId: batch.resident.user.id,
+        })
     })
 
     it('should create RecurrentPayment - lastDt is start of the month, period - prev month', async () => {
@@ -167,9 +177,19 @@ describe('recurrent-payments-seeking-for-new-receipt', () => {
         expect(notification.user).toHaveProperty('id')
         expect(notification.user.id).toEqual(batch.resident.user.id)
         expect(notification).toHaveProperty('meta')
-        expect(notification.meta).toHaveProperty('recurrentPaymentContext')
-        expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
-        expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+        expect(notification.meta).toHaveProperty('data')
+        expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+        expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+        expect(notification.meta.data).toHaveProperty('residentId')
+        expect(notification.meta.data).toHaveProperty('userId')
+
+        expect(notification.meta.data).toMatchObject({
+            recurrentPaymentContextId: recurrentPaymentContext.id,
+            serviceConsumerId: batch.serviceConsumer.id,
+            residentId: batch.resident.id,
+            userId: batch.resident.user.id,
+            url: `${conf.SERVER_URL}/payments/`,
+        })
     })
 
     it('should create RecurrentPayment - lastDt less than createdAt', async () => {
@@ -228,9 +248,19 @@ describe('recurrent-payments-seeking-for-new-receipt', () => {
         expect(notification.user).toHaveProperty('id')
         expect(notification.user.id).toEqual(batch.resident.user.id)
         expect(notification).toHaveProperty('meta')
-        expect(notification.meta).toHaveProperty('recurrentPaymentContext')
-        expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
-        expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+        expect(notification.meta).toHaveProperty('data')
+        expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+        expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+        expect(notification.meta.data).toHaveProperty('residentId')
+        expect(notification.meta.data).toHaveProperty('userId')
+
+        expect(notification.meta.data).toMatchObject({
+            recurrentPaymentContextId: recurrentPaymentContext.id,
+            serviceConsumerId: batch.serviceConsumer.id,
+            residentId: batch.resident.id,
+            userId: batch.resident.user.id,
+            url: `${conf.SERVER_URL}/payments/`,
+        })
     })
 
     it('should create RecurrentPayment - lastDt date time zoned format', async () => {
@@ -289,9 +319,19 @@ describe('recurrent-payments-seeking-for-new-receipt', () => {
         expect(notification.user).toHaveProperty('id')
         expect(notification.user.id).toEqual(batch.resident.user.id)
         expect(notification).toHaveProperty('meta')
-        expect(notification.meta).toHaveProperty('recurrentPaymentContext')
-        expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
-        expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+        expect(notification.meta).toHaveProperty('data')
+        expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+        expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+        expect(notification.meta.data).toHaveProperty('residentId')
+        expect(notification.meta.data).toHaveProperty('userId')
+
+        expect(notification.meta.data).toMatchObject({
+            recurrentPaymentContextId: recurrentPaymentContext.id,
+            serviceConsumerId: batch.serviceConsumer.id,
+            residentId: batch.resident.id,
+            userId: batch.resident.user.id,
+            url: `${conf.SERVER_URL}/payments/`,
+        })
     })
 
     it('should create RecurrentPayment - lastDt iso format', async () => {
@@ -350,9 +390,19 @@ describe('recurrent-payments-seeking-for-new-receipt', () => {
         expect(notification.user).toHaveProperty('id')
         expect(notification.user.id).toEqual(batch.resident.user.id)
         expect(notification).toHaveProperty('meta')
-        expect(notification.meta).toHaveProperty('recurrentPaymentContext')
-        expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
-        expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+        expect(notification.meta).toHaveProperty('data')
+        expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+        expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+        expect(notification.meta.data).toHaveProperty('residentId')
+        expect(notification.meta.data).toHaveProperty('userId')
+
+        expect(notification.meta.data).toMatchObject({
+            recurrentPaymentContextId: recurrentPaymentContext.id,
+            serviceConsumerId: batch.serviceConsumer.id,
+            residentId: batch.resident.id,
+            userId: batch.resident.user.id,
+            url: `${conf.SERVER_URL}/payments/`,
+        })
     })
 
     it('should not create RecurrentPayment - no receipts for period', async () => {

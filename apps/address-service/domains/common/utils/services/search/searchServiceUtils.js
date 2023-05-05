@@ -1,7 +1,7 @@
-const get = require('lodash/get')
-const set = require('lodash/set')
+const { createHash } = require('crypto')
 
-const { OVERRIDING_ROOT } = require('@address-service/domains/address/constants')
+const { isEmpty, isObject } = require('lodash')
+
 const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 
 /**
@@ -13,7 +13,8 @@ const { AddressSource } = require('@address-service/domains/address/utils/server
  * @param {{ dv: number, sender: { dv: number, fingerprint: string } }} dvSender
  */
 async function createOrUpdateAddressWithSource (context, addressServerUtils, addressSourceServerUtils, addressData, addressSource, dvSender) {
-    const { key } = addressData
+    const { key, meta } = addressData
+    const { helpers = null } = meta
 
     //
     // Address
@@ -32,12 +33,13 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     //
     // Address source
     //
-    const addressSourceItem = await addressSourceServerUtils.getOne(context, { source: addressSource })
+    const compoundedAddressSource = mergeAddressAndHelpers(addressSource, helpers)
+    const addressSourceItem = await addressSourceServerUtils.getOne(context, { source: compoundedAddressSource })
 
     if (addressSourceItem) {
         await addressSourceServerUtils.update(context, addressSourceItem.id, {
             ...dvSender,
-            source: addressSource,
+            source: compoundedAddressSource,
             address: { connect: { id: addressItem.id } },
             deletedAt: null, // Restore deleted address source on demand
         })
@@ -46,7 +48,7 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
             context,
             {
                 ...dvSender,
-                source: addressSource,
+                source: compoundedAddressSource,
                 address: { connect: { id: addressItem.id } },
             },
         )
@@ -56,12 +58,20 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
 }
 
 /**
+ * @typedef {Object} AddressData
+ * @property {string} address
+ * @property {string} addressKey
+ * @property {NormalizedBuilding} addressMeta
+ * @property {string[]} addressSources
+ */
+
+/**
  * Converts the `Address` model to service response
  * @param context Keystone context
  * @param {Address} addressModel
  * @param {Object} overridden Original values of overridden fields
  * @param AddressSourceServerUtils The AddressSource server utils (differs for prod and test env)
- * @returns {Promise<{ address: string, addressKey: string, addressMeta: NormalizedBuilding, addressSources: string[] }>}
+ * @returns {Promise<AddressData>}
  */
 async function createReturnObject ({
     context,
@@ -84,4 +94,48 @@ async function createReturnObject ({
     return ret
 }
 
-module.exports = { createOrUpdateAddressWithSource, createReturnObject }
+function sortObject (obj) {
+    if (typeof obj !== 'object' || obj === null) {
+        return obj
+    }
+
+    if (Array.isArray(obj)) {
+        return obj.map(sortObject)
+    }
+
+    const sortedKeys = Object.keys(obj).sort()
+    const result = {}
+    sortedKeys.forEach((key) => {
+        result[key] = sortObject(obj[key])
+    })
+    return result
+}
+
+function hashJSON (obj) {
+    const sortedObj = sortObject(obj)
+    const jsonStr = JSON.stringify(sortedObj)
+    const hash = createHash('md5')
+    return hash.update(jsonStr).digest('hex')
+}
+
+/**
+ * @param {string} address
+ * @param {?SuggestionHelpersType} [helpers]
+ * @returns {string}
+ */
+function mergeAddressAndHelpers (address, helpers) {
+    if (!isObject(helpers) || isEmpty(helpers)) {
+        return address
+    }
+
+    const helpersHash = hashJSON(helpers)
+
+    return `${address}|helpers:${helpersHash}`
+}
+
+module.exports = {
+    createOrUpdateAddressWithSource,
+    createReturnObject,
+    mergeAddressAndHelpers,
+    hashJSON,
+}

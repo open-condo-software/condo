@@ -34,6 +34,7 @@ const EXCEL_TEMPLATES_HEADERS = {
         'details', 'isEmergency', 'isWarranty', 'isPaid', 'place', 'category', 'description',
         'createdAt', 'updatedAt', 'inworkAt', 'completedAt', 'closedAt', 'status', 'operator', 'executor', 'assignee',
         'organizationComments', 'residentComments', 'deadline', 'deferredUntil', 'reviewValue', 'reviewComment', 'statusReopenedCounter',
+        'qualityControlValue', 'qualityControlComment', 'qualityControlAdditionalOptions', 'qualityControlUpdatedAt', 'qualityControlUpdatedBy',
     ],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_PROPERTY_STATUS}`]: [
         'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',

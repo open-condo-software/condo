@@ -7,20 +7,20 @@ import React, { useCallback } from 'react'
 import { useAuth } from '@open-condo/next/auth'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Logo } from '@condo/domains/common/components/Logo'
+import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
 import { colors } from '@condo/domains/common/constants/style'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 
-import { Logo } from '../../Logo'
-import { ResidentActions } from '../../ResidentActions/ResidentActions'
 
 const DesktopHeader = styled(Layout.Header)`
   z-index: 9;
   background: ${colors.white};
   width: 100%;
-  max-width: 1600px;
+  max-width: 1400px;
   padding: 20px 48px;
   display: flex;
   flex-direction: row;
@@ -67,7 +67,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                         <MenuOutlined onClick={toggleCollapsed}/>
                         <ResidentActions minified/>
                     </Space>
-                    <Logo fillColor={colors.logoPurple} onClick={handleLogoClick} minified/>
+                    <Logo onClick={handleLogoClick} minified/>
                     <UserMenu/>
                 </MobileHeader>
             )

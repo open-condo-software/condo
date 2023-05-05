@@ -51,11 +51,14 @@ const { get, cloneDeep, floor } = require('lodash')
 const LRUCache = require('lru-cache')
 
 const { getLogger } = require('./logging')
+const Metrics = require('./metrics')
 const { queryHasField } = require('./queryHasField')
 const { getRedisClient } = require('./redis')
 
 const UPDATED_AT_FIELD = 'updatedAt'
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
+const ADAPTER_CACHE_HITRATE_METRIC_NAME = 'adapterCache.hitrate'
+const ADAPTER_CACHE_KEYS_METRIC_NAME = 'adapterCache.keys'
 
 const logger = getLogger('adapterCache')
 
@@ -79,17 +82,19 @@ class AdapterCache {
 
             this.logging = !!logging
 
-            // Log statistics each <provided> seconds
+            // Stats
             this.logStatsEachSecs = logStatsEachSecs || 60
             this.totalRequests = 0
             this.cacheHits = 0
             this.totalDropsOnListChange = 0
             this.totalDropsOnLRU = 0
-            if (this.enabled) this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 1000)
 
             // Cache: { listName -> queryKey -> { response, lastUpdate, score } }
             this.cache = new LRUCache({ max: this.maxCacheKeys, dispose: () => this.totalDropsOnLRU++ })
 
+            // Log statistics each <provided> seconds
+            if (this.enabled) this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 1000)
+            if (this.enabled) this.metricsInterval = setInterval(() => this._logMetrics(), 1000)
         } catch (e) {
             this.enabled = false
             logger.warn({ msg: 'ADAPTER_CACHE: Bad config', err: e })
@@ -196,18 +201,31 @@ class AdapterCache {
         }
     }
 
+    _getHitrate = () => {
+        if (this.totalRequests !== 0) {
+            return this.cacheHits / this.totalRequests
+        } else {
+            return 0
+        }
+    }
+
     _logStats = () => {
         logger.info({
             stats: {
                 hits: this.cacheHits,
                 total: this.totalRequests,
-                hitrate: floor(this.cacheHits / this.totalRequests, 2),
+                hitrate: floor(this._getHitrate(), 2),
                 totalKeys: this.cache.size,
                 totalDrops: this.totalDropsOnLRU + this.totalDropsOnListChange,
                 totalDropsOnLRU: this.totalDropsOnLRU,
                 totalDropsOnListChange: this.totalDropsOnListChange,
             },
         })
+    }
+
+    _logMetrics = () => {
+        Metrics.gauge({ name: ADAPTER_CACHE_HITRATE_METRIC_NAME, value: this._getHitrate() })
+        Metrics.gauge({ name: ADAPTER_CACHE_KEYS_METRIC_NAME, value: this.cache.size })
     }
 }
 

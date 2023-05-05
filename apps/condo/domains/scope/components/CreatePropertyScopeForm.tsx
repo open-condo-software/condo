@@ -3,9 +3,8 @@ import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
 
 import { BasePropertyScopeForm } from './BasePropertyScopeForm'
@@ -26,17 +25,19 @@ export const CreatePropertyScopeForm = () => {
             organizationId={organizationId}
         >
             {({ handleSave, isLoading }) => (
-                <ActionBar>
-                    <Button
-                        key='submit'
-                        onClick={handleSave}
-                        type='sberDefaultGradient'
-                        loading={isLoading}
-                        eventName='PropertyScopeClickCreate'
-                    >
-                        {SaveLabel}
-                    </Button>
-                </ActionBar>
+                <ActionBar
+                    actions={[
+                        <Button
+                            key='submit'
+                            onClick={handleSave}
+                            type='primary'
+                            loading={isLoading}
+                            id='PropertyScopeClickCreate'
+                        >
+                            {SaveLabel}
+                        </Button>,
+                    ]}
+                />
             )}
         </BasePropertyScopeForm>
     )

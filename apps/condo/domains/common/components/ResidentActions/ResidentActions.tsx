@@ -44,14 +44,20 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchBy
 
     return (
         <StyledMenu>
-            <MenuItem
-                onClick={handleButtonClick}
-                menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
-                icon={Smartphone}
-                label='SearchByPhoneNumber'
-                eventName='MenuSearchByPhoneClick'
-            />
-            <Divider style={DIVIDER_STYLES}/>
+            {
+                !isAssignedVisibilityType && (
+                    <>
+                        <MenuItem
+                            onClick={handleButtonClick}
+                            menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
+                            icon={Smartphone}
+                            label='SearchByPhoneNumber'
+                            eventName='MenuSearchByPhoneClick'
+                        />
+                        <Divider style={DIVIDER_STYLES}/>
+                    </>
+                )
+            }
             <MenuItem
                 menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                 path='/ticket/create'

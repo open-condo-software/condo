@@ -150,6 +150,7 @@ export const useCategoryModal: IUseCategoryModal = ({
                 open
                 onCancel={closeModal}
                 width='big'
+                scrollX={false}
                 footer={<Button
                     type='primary'
                     disabled={isNull(selectedCostItem) || loading}

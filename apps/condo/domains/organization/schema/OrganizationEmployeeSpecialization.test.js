@@ -47,7 +47,7 @@ describe('OrganizationEmployeeSpecialization', () => {
             })
         })
 
-        describe('employee', async () => {
+        describe('employee',  () => {
             it('employee with canManageEmployees ability: can create OrganizationEmployeeSpecialization with employee and specialization from his organization', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -184,7 +184,7 @@ describe('OrganizationEmployeeSpecialization', () => {
             })
         })
 
-        describe('anonymous', async () => {
+        describe('anonymous', () => {
             it('cannot create OrganizationEmployeeSpecialization', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const anonymous = await makeClient()

@@ -77,7 +77,7 @@ const TicketCard: React.FC<ITicketCardProps> = ({ contactId, address, tickets })
     const query = qs.stringify({ filters: JSON.stringify(pickBy(filters)) }, TICKET_QUERY_STRINGIFY_OPTIONS)
 
     return (
-        <Container isSmall={!breakpoints.TABLET_LARGE}>
+        <Container isSmall={!breakpoints.DESKTOP_SMALL}>
             <AddressPartContainer>
                 <Space size={8} direction='vertical'>
                     <Typography.Text type='secondary'>

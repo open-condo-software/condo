@@ -6,5 +6,7 @@
   "mdx": {
     "title": "Markdown guide",
     "hidden": true
-  }
+  },
+  "ui": "Condo UI",
+  "bridge": "Condo Bridge"
 }

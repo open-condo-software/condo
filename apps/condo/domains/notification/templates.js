@@ -2,11 +2,11 @@ const fs = require('fs')
 const path = require('path')
 
 const dayjs = require('dayjs')
-const { get, unescape } = require('lodash')
+const { get, unescape, isObject, isArray } = require('lodash')
 const Nunjucks = require('nunjucks')
 
 const conf = require('@open-condo/config')
-const { i18n } = require('@open-condo/locales/loader')
+const { i18n, getLocalized } = require('@open-condo/locales/loader')
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 
@@ -79,9 +79,7 @@ function getEmailTemplate (locale, messageType) {
         templatePathText = defaultTemplatePath
     }
 
-    if (templatePathText || templatePathHtml) {
-        return { templatePathText, templatePathHtml }
-    }
+    if (templatePathText || templatePathHtml) return { templatePathText, templatePathHtml }
 
     throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${EMAIL_TRANSPORT}"`)
 }
@@ -106,43 +104,103 @@ function normalizeSMSText (text) {
     return unescape(text).replace(SMS_FORBIDDEN_SYMBOLS_REGEXP, '*')
 }
 
+/**
+ * Substitutes localized value for item if available.
+ * Supports recursive iteration for objects and arrays.
+ * @param item
+ * @param locale
+ * @returns {{}|*}
+ */
+function substituteTranslations (item, locale) {
+    if (isObject(item)) return translateObjectItems(item, locale)
+    if (isArray(item)) return item.map(itemValue => substituteTranslations(itemValue, locale))
+
+    return getLocalized(locale, item)
+}
+
+/**
+ * Substitutes localized values for obj keys if key has localization.
+ * Correctly handles nested objects & arrays.
+ * @param obj
+ * @param locale
+ * @returns {{}}
+ */
+function translateObjectItems (obj, locale) {
+    const keys = Object.keys(obj)
+
+    function handleItem (res, key) {
+        res[key] = substituteTranslations(obj[key], locale)
+
+        return res
+    }
+
+    return keys.reduce(handleItem, {})
+}
+
+/**
+ * Renders message template for Telegram
+ */
+function telegramRenderer () {
+    throw new Error('There was no telegram transport. Please write the renderer for Telegram.')
+}
+
+/**
+ * Renders message template for SMS
+ * @param message
+ * @param env
+ * @returns {{text: *}}
+ */
 function smsRenderer ({ message, env }) {
+    const { lang: locale } = message
+    const messageTranslated = substituteTranslations(message, locale)
+
     return {
-        text: normalizeSMSText(nunjucks.render(getTemplate(message.lang, message.type, SMS_TRANSPORT), { message, env })),
+        text: normalizeSMSText(nunjucks.render(getTemplate(message.lang, message.type, SMS_TRANSPORT), { message: messageTranslated, env })),
     }
 }
 
+/**
+ * Renders message template for E-Mail
+ * @param message
+ * @param env
+ * @returns {{subject: string}}
+ */
 function emailRenderer ({ message, env }) {
-    const { lang: locale, type, meta } = message
+    const { lang: locale, type } = message
     const { templatePathText, templatePathHtml } = getEmailTemplate(locale, type)
+    const messageTranslated = substituteTranslations(message, locale)
     const ret = {
-        subject: i18n(translationStringKeyForEmailSubject(type), { locale, meta }),
+        subject: i18n(translationStringKeyForEmailSubject(type), { locale, meta: messageTranslated.meta }),
     }
 
     if (templatePathText) {
         // For text emails we unescape email message to prevent HTML entities in email body
         // See https://lodash.com/docs/4.17.15#unescape
         // &amp;, &lt;, &gt;, &quot;, and &#39; will be replaced to corresponding characters
-        ret.text = unescape(nunjucks.render(templatePathText, { message, env }))
+        ret.text = unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
     }
 
     if (templatePathHtml) {
-        ret.html = nunjucks.render(templatePathHtml, { message, env })
+        ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
     }
 
     return ret
 }
 
-function telegramRenderer () {
-    throw new Error('There was no telegram transport. Please write the renderer for Telegram.')
-}
-
+/**
+ * Renders message template for push
+ * @param message
+ * @param env
+ * @returns {{notification: {title: string, body}, data: {[p: string]: *}}}
+ */
 function pushRenderer ({ message, env }) {
-    const { id: notificationId, lang: locale, type, meta } = message
+    const { id: notificationId, lang: locale, type } = message
+    const messageTranslated = substituteTranslations(message, locale)
+
     return {
         notification: {
-            title: i18n(translationStringKeyForPushTitle(type), { locale, meta }),
-            body: nunjucks.render(getTemplate(locale, type, PUSH_TRANSPORT), { message, env }),
+            title: i18n(translationStringKeyForPushTitle(type), { locale, meta: messageTranslated.meta }),
+            body: nunjucks.render(getTemplate(locale, type, PUSH_TRANSPORT), { message: messageTranslated, env }),
         },
         data: { ...get(message, ['meta', 'data'], {}), notificationId, type },
     }
@@ -165,23 +223,18 @@ const MESSAGE_TRANSPORTS_RENDERERS = {
     [PUSH_TRANSPORT]: pushRenderer,
 }
 
-const transportsWithRenderers = Object.keys(MESSAGE_TRANSPORTS_RENDERERS)
+const TRANSPORT_RENDERER_KEYS = Object.keys(MESSAGE_TRANSPORTS_RENDERERS)
 
 async function renderTemplate (transport, message) {
-    if (!MESSAGE_TRANSPORTS.includes(transport)) {
-        throw new Error('unexpected transport argument')
-    }
-
-    if (!transportsWithRenderers.includes(transport)) {
-        throw new Error(`No renderer for ${transport} messages`)
-    }
+    if (!MESSAGE_TRANSPORTS.includes(transport)) throw new Error('unexpected transport argument')
+    if (!TRANSPORT_RENDERER_KEYS.includes(transport)) throw new Error(`No renderer for ${transport} messages`)
 
     /**
      * @type {MessageTemplateEnvironment}
      */
     const env = { serverUrl: SERVER_URL }
-
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
+
     return renderMessage({ message, env })
 }
 
@@ -190,6 +243,7 @@ module.exports = {
     getEmailTemplate,
     translationStringKeyForEmailSubject,
     translationStringKeyForPushTitle,
+    substituteTranslations,
     templateEngine: nunjucks,
     TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT,
 }

@@ -14,24 +14,25 @@ const APPLE_API_ENDPOINT = 'https://api.push.apple.com'
 const logger = getLogger('APNs Session')
 
 /**
- * http2 session handler, connects to APPLE_API_ENDPOINT and keeps connection open for SESSION_LIFE_TIME seconds,
+ * http2 session handler, connects to url or APPLE_API_ENDPOINT and keeps connection open for SESSION_LIFE_TIME seconds,
  * so it can be reused multiple times. For each worker separate connection will be created.
- * Pings backend each SESSION_PING_INTERVAL seconds, closes connection after APPLE_API_ENDPOINT seconds and reopens new one.
+ * Pings backend each SESSION_PING_INTERVAL seconds, closes connection after SESSION_LIFE_TIME seconds and reopens new one.
  * Takes care of session breakage, reopens session on demand.
  *
  * Usage: const session = new AppleSession(); session.request(...); session.errorHandler(error);
  */
 class AppleSession {
-    #ENDPOINT = APPLE_API_ENDPOINT
+    #ENDPOINT = null
     #session = null
     #expires = null
     #timerId = null
 
-    constructor () {
+    constructor (url = APPLE_API_ENDPOINT) {
         this.disconnect = this.disconnect.bind(this)
         this.errorHandler = this.errorHandler.bind(this)
         this.pingHandler = this.pingHandler.bind(this)
         this.request = this.request.bind(this)
+        this.#ENDPOINT = url
     }
 
     /**

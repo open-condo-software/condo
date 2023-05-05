@@ -138,7 +138,7 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
         if (!isEmpty(tokens)) {
             const adapter = ADAPTERS[transport]
             const payload = { tokens, pushTypes, appIds, notification, data }
-            const [isOk, result] = await adapter.sendNotification(payload)
+            const [isOk, result] = await adapter.sendNotification(payload, isVoIP)
 
             container = mixResult(container, result)
             _isOk = _isOk || isOk
