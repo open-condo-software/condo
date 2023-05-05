@@ -9,7 +9,13 @@ const { makeClient } = require('@open-condo/keystone/test.utils')
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
+const {
+    RecurrentPaymentContext,
+    createTestRecurrentPaymentContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithRegisteredOrganization, OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { DELETED_USER_NAME } = require('@condo/domains/user/constants')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -147,7 +153,7 @@ describe('ResetUserService', () => {
         expect(resetUser.isEmailVerified).toEqual(false)
     })
 
-    test('user can reset their account with associated UserExternalEdentity', async () => {
+    test('user can reset their account with associated UserExternalIdentity', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
         // create user external identity
@@ -181,7 +187,7 @@ describe('ResetUserService', () => {
         expect(foundIdentity).toHaveLength(0)
     })
 
-    test('user can reset their account with deleted UserExternalEdentity', async () => {
+    test('user can reset their account with deleted UserExternalIdentity', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
         // create user external identity
@@ -230,6 +236,79 @@ describe('ResetUserService', () => {
 
         const canAccessObjs = await OrganizationEmployee.getAll(client)
         expect(canAccessObjs).toHaveLength(0)
+    })
+
+    test('user can reset their account with associated RecurrentPaymentContext', async () => {
+        const client = await makeClientWithServiceConsumer()
+
+        // create recurrent payment context
+        const [billingCategory] = (await createTestBillingCategory(admin, { name: `Category ${new Date()}` }))
+        const [obj] = await createTestRecurrentPaymentContext(admin, {
+            enabled: false,
+            limit: '10000',
+            autoPayReceipts: false,
+            paymentDay: 10,
+            settings: { cardId: faker.datatype.uuid() },
+            serviceConsumer: { connect: { id: client.serviceConsumer.id } },
+            billingCategory: { connect: { id: billingCategory.id } },
+        })
+
+        const payload = {
+            user: { id: client.user.id },
+        }
+
+        await resetUserByTestClient(client, payload)
+
+        // We use admin context here, since support does not have access to email and phone fields
+        const [resetUser] = await UserAdmin.getAll(admin, { id: client.user.id })
+        expect(resetUser.id).toEqual(client.user.id)
+        expect(resetUser.name).toEqual(DELETED_USER_NAME)
+        expect(resetUser.phone).toBeNull()
+        expect(resetUser.email).toBeNull()
+        expect(resetUser.isAdmin).toBeFalsy()
+        expect(resetUser.isSupport).toBeFalsy()
+        expect(resetUser.isPhoneVerified).toEqual(false)
+        expect(resetUser.isEmailVerified).toEqual(false)
+
+        const contexts = await RecurrentPaymentContext.getAll(admin, { id: obj.id })
+        expect(contexts).toHaveLength(0)
+    })
+
+    test('user can reset their account with deleted RecurrentPaymentContext', async () => {
+        const client = await makeClientWithServiceConsumer()
+
+        // create recurrent payment context
+        const [billingCategory] = (await createTestBillingCategory(admin, { name: `Category ${new Date()}` }))
+        const [obj] = await createTestRecurrentPaymentContext(admin, {
+            enabled: false,
+            limit: '10000',
+            autoPayReceipts: false,
+            paymentDay: 10,
+            settings: { cardId: faker.datatype.uuid() },
+            serviceConsumer: { connect: { id: client.serviceConsumer.id } },
+            billingCategory: { connect: { id: billingCategory.id } },
+        })
+        await RecurrentPaymentContext.softDelete(client, obj.id)
+
+        const payload = {
+            user: { id: client.user.id },
+        }
+
+        await resetUserByTestClient(client, payload)
+
+        // We use admin context here, since support does not have access to email and phone fields
+        const [resetUser] = await UserAdmin.getAll(admin, { id: client.user.id })
+        expect(resetUser.id).toEqual(client.user.id)
+        expect(resetUser.name).toEqual(DELETED_USER_NAME)
+        expect(resetUser.phone).toBeNull()
+        expect(resetUser.email).toBeNull()
+        expect(resetUser.isAdmin).toBeFalsy()
+        expect(resetUser.isSupport).toBeFalsy()
+        expect(resetUser.isPhoneVerified).toEqual(false)
+        expect(resetUser.isEmailVerified).toEqual(false)
+
+        const contexts = await RecurrentPaymentContext.getAll(admin, { id: obj.id })
+        expect(contexts).toHaveLength(0)
     })
 
     test('user cant reset another user', async () => {
