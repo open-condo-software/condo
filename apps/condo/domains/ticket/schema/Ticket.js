@@ -66,7 +66,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 
-const phoneWhiteList = Object.keys(conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {})
+const usersWithoutTicketLimits = Object.keys(conf.USERS_WITHOUT_TICKET_LIMITS ? JSON.parse(conf.USERS_WITHOUT_TICKET_LIMITS) : {})
 
 const redisGuard = new RedisGuard()
 
@@ -103,7 +103,7 @@ const ERRORS = {
  * User should not be able to create more than $DAILY_TICKET_LIMIT tickets to 1 organization.
  * User should not be able to create more than $DAILY_SAME_TICKET_LIMIT tickets to 1 organization.
  *
- * Whitelisted phones are excluded from this rule.
+ * $USERS_WITHOUT_TICKET_LIMITS phones are excluded from this rule.
  *
  * @param {string} phone
  * @param {string} organizationId
@@ -111,20 +111,20 @@ const ERRORS = {
  * @param context
  * @returns {Promise<void>}
  */
-const checkDailyTicketLimit = async ({ phone, organizationId, details, context }) => {
-    if (phoneWhiteList.includes(phone)) {
+const checkDailyTicketLimit = async ({ userId, organizationId, details, context }) => {
+    if (usersWithoutTicketLimits.includes(userId)) {
         return
     }
 
-    const byPhoneAndOrgKey = `dailyTicketLimit:phone:${phone}:organization:${organizationId}`
-    const byPhoneAndOrgCounter = await redisGuard.incrementDayCounter(byPhoneAndOrgKey)
-    if (byPhoneAndOrgCounter > DAILY_TICKET_LIMIT) {
+    const byIdAndOrgKey = `dailyTicketLimit:id:${userId}:organization:${organizationId}`
+    const byIdAndOrgCounter = await redisGuard.incrementDayCounter(byIdAndOrgKey)
+    if (byIdAndOrgCounter > DAILY_TICKET_LIMIT) {
         throw new GQLError(ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 
-    const byPhoneOrgAndDetailsKey = `${byPhoneAndOrgKey}:details:${crypto.createHash('md5').update(details).digest('hex')}`
-    const byPhoneOrgAndDetailsCounter = await redisGuard.incrementDayCounter(byPhoneOrgAndDetailsKey)
-    if (byPhoneOrgAndDetailsCounter > DAILY_SAME_TICKET_LIMIT) {
+    const byIdOrgAndDetailsKey = `${byIdAndOrgKey}:details:${crypto.createHash('md5').update(details).digest('hex')}`
+    const byIdOrgAndDetailsCounter = await redisGuard.incrementDayCounter(byIdOrgAndDetailsKey)
+    if (byIdOrgAndDetailsCounter > DAILY_SAME_TICKET_LIMIT) {
         throw new GQLError(ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 }
