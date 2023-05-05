@@ -19,7 +19,7 @@
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
-const { RecurrentPaymentContext } = require('@condo/domains/acquiring/utils/serverSchema')
+const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/utils/serverSchema/helpers')
 const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/user/access/ResetUserService')
@@ -111,41 +111,29 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
 
                 await User.update(context, user.id, newUserData)
 
-                const employees = await OrganizationEmployee.getAll(context, { user: { id: user.id } })
+                const employees = await OrganizationEmployee.getAll(context, { user: { id: user.id }, deletedAt: null })
                 for (const employee of employees) {
-                    if (!employee.deletedAt) {
-                        await OrganizationEmployee.softDelete(context, employee.id, { dv: 1, sender })
-                    }
+                    await OrganizationEmployee.softDelete(context, employee.id, { dv: 1, sender })
                 }
 
                 const accordingUserExternalIdentity = await UserExternalIdentity.getAll(context, {
                     user: {
                         id: user.id,
                     },
+                    deletedAt: null,
                 })
 
                 for (const externalIdentity of accordingUserExternalIdentity) {
-                    if (!externalIdentity.deletedAt) {
-                        await UserExternalIdentity.softDelete(context, externalIdentity.id, { dv: 1, sender })
-                    }
+                    await UserExternalIdentity.softDelete(context, externalIdentity.id, { dv: 1, sender })
                 }
 
                 // remove RecurrentPaymentContext
-                const recurrentContexts = await RecurrentPaymentContext.getAll(context, {
-                    serviceConsumer: {
-                        resident: {
-                            user: {
-                                id: user.id,
-                            },
-                        },
-                    },
+                await removeOrphansRecurrentPaymentContexts({
+                    context,
+                    userId: user.id,
+                    dv,
+                    sender,
                 })
-
-                for (const recurrentContext of recurrentContexts) {
-                    if (!recurrentContext.deletedAt) {
-                        await RecurrentPaymentContext.softDelete(context, recurrentContext.id, { dv: 1, sender })
-                    }
-                }
 
                 return { status: 'ok' }
             },
