@@ -44,7 +44,6 @@ if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
 
 if (!IS_BUILD_PHASE) {
     setInterval(() => {
-        // https://nodejs.org/api/v8.html#v8getheapstatistics
         const v8Stats = v8.getHeapStatistics()
         metrics.gauge({ name: 'v8.totalHeapSize', value: v8Stats.total_heap_size })
         metrics.gauge({ name: 'v8.usedHeapSize', value: v8Stats.used_heap_size })
