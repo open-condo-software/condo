@@ -12,6 +12,7 @@ const { BillingIntegrationOrganizationContext } = require('./BillingIntegrationO
 const { BillingIntegrationProblem } = require('./BillingIntegrationProblem')
 const { BillingProperty } = require('./BillingProperty')
 const { BillingReceipt } = require('./BillingReceipt')
+const { BillingReceiptFile } = require('./BillingReceiptFile')
 const { BillingRecipient } = require('./BillingRecipient')
 const { RegisterBillingReceiptsService } = require('./RegisterBillingReceiptsService')
 const { SendNewReceiptMessagesToResidentScopesService } = require('./SendNewReceiptMessagesToResidentScopesService')
@@ -31,5 +32,6 @@ module.exports = {
     BillingCategory,
     RegisterBillingReceiptsService,
     SendNewReceiptMessagesToResidentScopesService,
+    BillingReceiptFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -22,6 +22,7 @@ const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/do
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
 const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
+const { BillingReceiptFile: BillingReceiptFileGQL } = require('@condo/domains/billing/gql')
 const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -35,6 +36,7 @@ const BillingReceipt = generateServerUtils(BillingReceiptGQL)
 const ResidentBillingReceipt = generateServerUtils(ResidentBillingReceiptGQL)
 const BillingRecipient = generateServerUtils(BillingRecipientGQL)
 const BillingCategory = generateServerUtils(BillingCategoryGQL)
+const BillingReceiptFile = generateServerUtils(BillingReceiptFileGQL)
 
 async function registerBillingReceipts (context, data) {
     if (!context) throw new Error('no context')
@@ -108,5 +110,6 @@ module.exports = {
     registerBillingReceipts,
     getPaymentsSum,
     sendNewReceiptMessagesToResidentScopes,
+    BillingReceiptFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

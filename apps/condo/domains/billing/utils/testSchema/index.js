@@ -24,6 +24,7 @@ const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
+const { BillingReceiptFile: BillingReceiptFileGQL } = require('@condo/domains/billing/gql')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
@@ -42,6 +43,7 @@ const BillingOrganization = generateGQLTestUtils(BillingOrganizationGQL)
 const ResidentBillingReceipt = generateGQLTestUtils(ResidentBillingReceiptGQL)
 const BillingRecipient = generateGQLTestUtils(BillingRecipientGQL)
 const BillingCategory = generateGQLTestUtils(BillingCategoryGQL)
+const BillingReceiptFile = generateGQLTestUtils(BillingReceiptFileGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -476,6 +478,35 @@ async function updateTestBillingCategory (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestBillingReceiptFile (client, receipt, context, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const receiptConnection = (receipt && receipt.id) ? { receipt: { connect: { id: receipt.id } } } : {}
+    const contextConnection = (context && context.id) ? { context: { connect: { id: context.id } } } : {}
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...receiptConnection,
+        ...contextConnection,
+        ...extraAttrs,
+    }
+    const obj = await BillingReceiptFile.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBillingReceiptFile (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingReceiptFile.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 async function createTestBillingRecipient(client, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!context.id) throw new Error('no context')
@@ -796,6 +827,7 @@ module.exports = {
     createRegisterBillingReceiptsPayload,
     generateServicesData,
     sendNewReceiptMessagesToResidentScopesByTestClient,
+    BillingReceiptFile, createTestBillingReceiptFile, updateTestBillingReceiptFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
