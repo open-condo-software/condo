@@ -62,7 +62,7 @@ if (!IS_BUILD_PHASE) {
         metrics.gauge({ name: 'processMemoryUsage.heapUsed', value: memUsage.heapUsed })
         metrics.gauge({ name: 'processMemoryUsage.rss', value: memUsage.rss })
         metrics.gauge({ name: 'processMemoryUsage.external', value: memUsage.external })
-    }, 1000)
+    }, 2000)
 }
 
 /** @deprecated */
