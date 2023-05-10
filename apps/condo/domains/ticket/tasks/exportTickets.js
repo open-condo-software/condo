@@ -141,7 +141,7 @@ const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
         number: ticket.number,
         source: i18n(ticket.source, { locale }) || EMPTY_VALUE,
         organization: ticket.organization,
-        property: isNull(ticket.property) ? ticket.propertyAddress : `${ticket.propertyAddress} - ${i18n('pages.condo.ticket.field.PropertyWasDeleted', { locale })}`,
+        property: isNull(ticket.property) ? ticket.propertyAddress : `${ticket.propertyAddress} - ${i18n('ticket.field.PropertyWasDeleted', { locale })}`,
         unitName: ticket.unitName,
         unitType: ticket.unitType ? i18n(`pages.condo.ticket.field.unitType.${ticket.unitType}`, { locale }) : '',
         entranceName: (ticket.sectionType && ticket.sectionName) ? `${i18n(`field.sectionType.${ticket.sectionType}`, { locale })} ${ticket.sectionName}` : '',

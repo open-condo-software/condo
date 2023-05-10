@@ -81,7 +81,7 @@ const BIG_HORIZONTAL_GUTTER: RowProps['gutter'] = [40, 0]
 
 const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization, employee }) => {
     const intl = useIntl()
-    const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
+    const SourceMessage = intl.formatMessage({ id: 'ticket.field.Source' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' })
@@ -93,7 +93,7 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
     const HoursShortMessage = intl.formatMessage({ id: 'HoursShort' })
     const MinutesShortMessage = intl.formatMessage({ id: 'MinutesShort' })
     const LessThanMinuteMessage = intl.formatMessage({ id: 'LessThanMinute' })
-    const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ResidentCannotReadTicket' })
+    const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'ticket.title.ResidentCannotReadTicket' })
 
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
@@ -188,7 +188,7 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                                                 !isResidentTicket && !canReadByResident && (
                                                     <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
                                                         <FormattedMessage
-                                                            id='pages.condo.ticket.title.CanReadByResident'
+                                                            id='ticket.title.CanReadByResident'
                                                             values={canReadByResidentFormattedValue}
                                                         />
                                                     </Typography.Text>
@@ -422,9 +422,9 @@ const HINTS_COL_PROPS: ColProps = { span: 24 }
 
 export const TicketPageContent = ({ ticket, refetchTicket, loading, organization, employee, TicketContent }) => {
     const intl = useIntl()
-    const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
-    const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
-    const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
+    const BlockedEditingTitleMessage = intl.formatMessage({ id: 'ticket.alert.BlockedEditing.title' })
+    const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'ticket.alert.BlockedEditing.description' })
+    const TicketChangesMessage = intl.formatMessage({ id: 'ticket.title.TicketChanges' })
 
     const auth = useAuth() as { user: { id: string } }
     const user = get(auth, 'user')

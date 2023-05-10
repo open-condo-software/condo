@@ -176,7 +176,7 @@ const PlusIconWrapper = styled.div`
 //#region AddAddress and Client Address cards
 const AddAddressCard = ({ onClick }) => {
     const intl = useIntl()
-    const AddAddressMessage = intl.formatMessage({ id: 'pages.clientCard.addAddress' })
+    const AddAddressMessage = intl.formatMessage({ id: 'clientCard.addAddress' })
 
     return (
         <StyledAddAddressButton onClick={onClick} eventName='ClientCardAddAddressClick'>
@@ -369,10 +369,10 @@ const ClientCardTabContent = ({
     organization,
 }) => {
     const intl = useIntl()
-    const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
-    const ContactTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.contactTickets' })
+    const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'clientCard.showAllPropertyTickets' })
+    const ContactTicketsMessage = intl.formatMessage({ id: 'clientCard.contactTickets' })
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
-    const EditContactMessage = intl.formatMessage({ id: 'pages.clientCard.editContact' })
+    const EditContactMessage = intl.formatMessage({ id: 'clientCard.editContact' })
 
     const router = useRouter()
 
@@ -677,7 +677,7 @@ const ClientCardPageContent = ({
     showOrganizationMessage = false,
 }) => {
     const intl = useIntl()
-    const ClientCardTitle = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
+    const ClientCardTitle = intl.formatMessage({ id: 'clientCard.Title' }, {
         phone: renderPhone(phoneNumber),
     })
     const phoneLink = phoneNumberPrefix ? `tel:${phoneNumberPrefix}${phoneNumber}` : `tel:${phoneNumber}`

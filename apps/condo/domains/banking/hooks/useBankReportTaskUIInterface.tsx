@@ -66,7 +66,7 @@ type UserBankReportTaskButtonProps = {
 
 export const useBankReportTaskButton = (props: UserBankReportTaskButtonProps) => {
     const intl = useIntl()
-    const CreateReportTitle = intl.formatMessage({ id: 'pages.condo.property.report.createReport.title' })
+    const CreateReportTitle = intl.formatMessage({ id: 'property.report.createReport.title' })
 
     const { organizationId, user, bankAccount, type = 'primary' } = props
 

@@ -25,11 +25,11 @@ interface IUseBankSyncTaskExternalModal {
 
 export const useBankSyncTaskExternalModal: IUseBankSyncTaskExternalModal = (props) => {
     const intl = useIntl()
-    const SyncSbbolTransactions = intl.formatMessage({ id: 'pages.banking.report.sbbolSyncTitle' })
-    const SyncSbbolModalTitle = intl.formatMessage({ id: 'pages.banking.report.sbbolSyncModal.title' })
-    const SyncSbbolModalDescription = intl.formatMessage({ id: 'pages.banking.report.sbbolSyncModal.description' })
-    const SyncSbbolModalHintTitle = intl.formatMessage({ id: 'pages.banking.report.sbbolSyncModalHint.title' })
-    const SyncSbbolModalHintDescription = intl.formatMessage({ id: 'pages.banking.report.sbbolSyncModalHint.description' })
+    const SyncSbbolTransactions = intl.formatMessage({ id: 'banking.report.sbbolSyncTitle' })
+    const SyncSbbolModalTitle = intl.formatMessage({ id: 'banking.report.sbbolSyncModal.title' })
+    const SyncSbbolModalDescription = intl.formatMessage({ id: 'banking.report.sbbolSyncModal.description' })
+    const SyncSbbolModalHintTitle = intl.formatMessage({ id: 'banking.report.sbbolSyncModalHint.title' })
+    const SyncSbbolModalHintDescription = intl.formatMessage({ id: 'banking.report.sbbolSyncModalHint.description' })
 
     const [open, setOpen] = useState(false)
     const [dateRange, setDateRange] = useState(null)

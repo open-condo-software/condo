@@ -57,7 +57,7 @@ export const CreateContactForm: React.FC = () => {
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
     const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
-    const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
+    const EmailErrorMessage = intl.formatMessage({ id: 'auth.EmailIsNotValid' })
     const SubmitButtonLabel = intl.formatMessage({ id: 'AddContact' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholderMessage = intl.formatMessage({ id: 'placeholder.Address' })
@@ -67,11 +67,11 @@ export const CreateContactForm: React.FC = () => {
     const RoleLabel = intl.formatMessage({ id: 'ContactRole' })
     const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
     const ContactDuplicateError = intl.formatMessage({ id: 'contact.ContactDuplicateError' })
-    const Verified = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
+    const Verified = intl.formatMessage({ id: 'contact.Verified' })
     const NameLabel = intl.formatMessage({ id: 'field.FullName.short' })
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const ContactDuplicateMessage = intl.formatMessage({ id: 'contact.ContactDuplicateError' })
-    
+
     const { organization, link } = useOrganization()
     const router = useRouter()
 

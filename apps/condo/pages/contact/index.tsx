@@ -47,13 +47,13 @@ export const ContactsPageContent = ({
     loading,
 }) => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.contact.PageTitle' })
+    const PageTitleMessage = intl.formatMessage({ id: 'contact.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const EmptyListLabel = intl.formatMessage({ id: 'contact.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'contact.EmptyList.title' })
     const CreateContact = intl.formatMessage({ id: 'AddContact' })
     const ContactsMessage = intl.formatMessage({ id: 'global.section.contacts' })
-    const ContactTitle = intl.formatMessage({ id: 'pages.condo.contact.ImportTitle' })
+    const ContactTitle = intl.formatMessage({ id: 'contact.ImportTitle' })
     const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const { user } = useAuth() as { user: { id: string } }

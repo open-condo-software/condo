@@ -60,7 +60,7 @@ export function useTableColumns () {
     const ReceiverTitle = intl.formatMessage({ id: 'global.receiver' })
     const PaymentPurposeTitle = intl.formatMessage({ id: 'global.paymentPurpose' })
     const SumTitle = intl.formatMessage({ id: 'global.sum' })
-    const CategoryNotSetTitle = intl.formatMessage({ id: 'pages.banking.table.notSet' })
+    const CategoryNotSetTitle = intl.formatMessage({ id: 'banking.table.notSet' })
 
     const router = useRouter()
 

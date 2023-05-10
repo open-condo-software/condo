@@ -37,13 +37,13 @@ const MIN_TICKET_DEADLINE_DURATION_AS_DAYS = convertDurationToDays(MIN_TICKET_DE
 
 export const TicketDeadlineSettingsForm: React.FC = () => {
     const intl = useIntl()
-    const OptionWithoutDeadlineLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.options.withoutDeadline' })
-    const OptionCurrentDateLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.options.currentDate' })
-    const DefaultDeadlineLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.defaultDeadline.label' })
-    const PaidDeadlineLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.paidDeadline.label' })
-    const EmergencyDeadlineLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.emergencyDeadline.label' })
-    const WarrantyDeadlineLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.warrantyDeadline.label' })
-    const SelectLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.select.label' })
+    const OptionWithoutDeadlineLabel = intl.formatMessage({ id: 'settings.ticketDeadlines.options.withoutDeadline' })
+    const OptionCurrentDateLabel = intl.formatMessage({ id: 'settings.ticketDeadlines.options.currentDate' })
+    const DefaultDeadlineLabel = intl.formatMessage({ id: 'settings.ticketDeadlines.defaultDeadline.label' })
+    const PaidDeadlineLabel = intl.formatMessage({ id: 'settings.ticketDeadlines.paidDeadline.label' })
+    const EmergencyDeadlineLabel = intl.formatMessage({ id: 'settings.ticketDeadlines.emergencyDeadline.label' })
+    const WarrantyDeadlineLabel = intl.formatMessage({ id: 'settings.ticketDeadlines.warrantyDeadline.label' })
+    const SelectLabel = intl.formatMessage({ id: 'settings.ticketDeadlines.select.label' })
     const SaveMessage = intl.formatMessage({ id: 'Save' })
 
     const { getSuccessfulChangeNotification } = useNotificationMessages()

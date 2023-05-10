@@ -46,15 +46,15 @@ const validateFormItems = (items: Array<{ property?: string, bankAccount?: strin
 
 export const SbbolImportModal: ISbbolImportModal = ({ propertyId, onComplete }) => {
     const intl = useIntl()
-    const SetupSyncTitle = intl.formatMessage({ id: 'pages.banking.report.accountSetupTitle' })
-    const BankAccountNotFoundTitle = intl.formatMessage({ id: 'pages.banking.report.accountNotFound' })
-    const AlertMessage = intl.formatMessage({ id: 'pages.banking.report.alertInfo.title' })
-    const AlertDescription = intl.formatMessage({ id: 'pages.banking.report.alertInfo.description' })
-    const BankAccountPlaceholder = intl.formatMessage({ id:'pages.banking.report.chooseBankAccountPlaceholder' })
-    const PropertyPlaceholder = intl.formatMessage({ id:'pages.banking.report.choosePropertyPlaceholder' })
-    const NotUniqueError = intl.formatMessage({ id: 'pages.banking.report.validation.notUnique' })
+    const SetupSyncTitle = intl.formatMessage({ id: 'banking.report.accountSetupTitle' })
+    const BankAccountNotFoundTitle = intl.formatMessage({ id: 'banking.report.accountNotFound' })
+    const AlertMessage = intl.formatMessage({ id: 'banking.report.alertInfo.title' })
+    const AlertDescription = intl.formatMessage({ id: 'banking.report.alertInfo.description' })
+    const BankAccountPlaceholder = intl.formatMessage({ id:'banking.report.chooseBankAccountPlaceholder' })
+    const PropertyPlaceholder = intl.formatMessage({ id:'banking.report.choosePropertyPlaceholder' })
+    const NotUniqueError = intl.formatMessage({ id: 'banking.report.validation.notUnique' })
     const SaveTitle = intl.formatMessage({ id: 'Save' })
-    const AddTitle = intl.formatMessage({ id: 'pages.banking.report.addAnotherBankAccount' })
+    const AddTitle = intl.formatMessage({ id: 'banking.report.addAnotherBankAccount' })
     const CancelTitle = intl.formatMessage({ id: 'Cancel' })
 
     const { replace, asPath } = useRouter()
@@ -190,7 +190,7 @@ export const SbbolImportModal: ISbbolImportModal = ({ propertyId, onComplete }) 
                             <Col span={24} hidden={!hasBankAccounts}>
                                 <Typography.Text>
                                     {intl.formatMessage(
-                                        { id: 'pages.banking.report.importHelpText' }, { isSingular: bankAccounts.length })
+                                        { id: 'banking.report.importHelpText' }, { isSingular: bankAccounts.length })
                                     }
                                 </Typography.Text>
                             </Col>

@@ -28,10 +28,10 @@ const transformVisibilityValue = (value: BankAccountReportType['publishedAt']) =
 
 const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bankAccountReports, refetch }) => {
     const intl = useIntl()
-    const ReportVisibleTitle = intl.formatMessage({ id: 'pages.condo.property.report.visibility.visible' })
-    const ReportHiddenTitle = intl.formatMessage({ id: 'pages.condo.property.report.visibility.hidden' })
-    const ReportVisibleDescription = intl.formatMessage({ id: 'pages.condo.property.report.visibility.visible.description' })
-    const ReportHiddenDescription = intl.formatMessage({ id: 'pages.condo.property.report.visibility.hidden.description' })
+    const ReportVisibleTitle = intl.formatMessage({ id: 'property.report.visibility.visible' })
+    const ReportHiddenTitle = intl.formatMessage({ id: 'property.report.visibility.hidden' })
+    const ReportVisibleDescription = intl.formatMessage({ id: 'property.report.visibility.visible.description' })
+    const ReportHiddenDescription = intl.formatMessage({ id: 'property.report.visibility.hidden.description' })
     const OperationCompletedTitle = intl.formatMessage({ id: 'OperationCompleted' })
 
     const { query } = useRouter()

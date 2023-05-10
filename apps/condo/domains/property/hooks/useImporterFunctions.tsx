@@ -46,7 +46,7 @@ const createPropertyUnitsMap = (units, sections, floors) => {
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
     const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
-    const AddressValidationErrorMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
+    const AddressValidationErrorMessage = intl.formatMessage({ id: 'property.warning.modal.AddressValidationErrorMsg' })
     const PropertyDuplicateMessage = intl.formatMessage({ id: 'errors.import.PropertyDuplicate' })
     const AddressLabel = intl.formatMessage({ id: 'property.import.column.Address' })
     const UnitLabel = intl.formatMessage({ id: 'property.import.column.Units' })

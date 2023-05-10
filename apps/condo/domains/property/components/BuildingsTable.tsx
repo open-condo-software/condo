@@ -48,11 +48,11 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const CreateLabel = intl.formatMessage({ id: 'property.index.CreatePropertyButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const PropertiesMessage = intl.formatMessage({ id: 'global.section.properties' })
-    const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
-    const PropertyTitle = intl.formatMessage({ id: 'pages.condo.property.ImportTitle' })
-    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
-    const CreateProperty = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
+    const DownloadExcelLabel = intl.formatMessage({ id: 'property.id.DownloadExcelLabel' })
+    const PropertyTitle = intl.formatMessage({ id: 'property.ImportTitle' })
+    const EmptyListLabel = intl.formatMessage({ id: 'property.index.EmptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'property.index.EmptyList.text' })
+    const CreateProperty = intl.formatMessage({ id: 'property.index.CreatePropertyButtonLabel' })
     const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const { role, searchPropertiesQuery, tableColumns, sortBy, loading, canDownloadProperties } = props

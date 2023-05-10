@@ -83,8 +83,8 @@ const FAVORITE_TICKET_INDICATOR_CONTAINER_STYLE: CSSProperties = { cursor: 'poin
 
 export const FavoriteTicketIndicator = ({ ticketId }) => {
     const intl = useIntl()
-    const AddToFavoriteMessage = intl.formatMessage({ id: 'pages.condo.ticket.favorite.addToFavorite' })
-    const RemoveFromFavoriteMessage = intl.formatMessage({ id: 'pages.condo.ticket.favorite.removeFromFavorite' })
+    const AddToFavoriteMessage = intl.formatMessage({ id: 'ticket.favorite.addToFavorite' })
+    const RemoveFromFavoriteMessage = intl.formatMessage({ id: 'ticket.favorite.removeFromFavorite' })
 
     const { user } = useAuth()
     const { userFavoriteTickets, refetchFavoriteTickets, loading } = useFavoriteTickets()

@@ -25,10 +25,10 @@ interface ICategoryProgress {
 
 const CategoryProgress: ICategoryProgress = ({ totalRows, entity, emptyRows }) => {
     const intl = useIntl()
-    const TransactionTitle = intl.formatMessage({ id: 'pages.banking.categoryProgress.title.transaction' })
-    const ContractorTitle = intl.formatMessage({ id: 'pages.banking.categoryProgress.title.contractor' })
-    const TransactionTooltipTitle = intl.formatMessage({ id: 'pages.banking.categoryProgress.tooltip.transaction' })
-    const ContractorTooltipTitle = intl.formatMessage({ id: 'pages.banking.categoryProgress.tooltip.contractor' })
+    const TransactionTitle = intl.formatMessage({ id: 'banking.categoryProgress.title.transaction' })
+    const ContractorTitle = intl.formatMessage({ id: 'banking.categoryProgress.title.contractor' })
+    const TransactionTooltipTitle = intl.formatMessage({ id: 'banking.categoryProgress.tooltip.transaction' })
+    const ContractorTooltipTitle = intl.formatMessage({ id: 'banking.categoryProgress.tooltip.contractor' })
 
     let activeEntity = TransactionTitle
     let tooltipTitle = TransactionTooltipTitle
@@ -50,7 +50,7 @@ const CategoryProgress: ICategoryProgress = ({ totalRows, entity, emptyRows }) =
                 <Col>
                     <Space direction='horizontal' size={12} align='center'>
                         <Typography.Text>
-                            {intl.formatMessage({ id: 'pages.banking.categoryProgress.title' }, {
+                            {intl.formatMessage({ id: 'banking.categoryProgress.title' }, {
                                 entity: activeEntity,
                             })}
                         </Typography.Text>
@@ -61,7 +61,7 @@ const CategoryProgress: ICategoryProgress = ({ totalRows, entity, emptyRows }) =
                 </Col>
                 <Col>
                     <Typography.Text type='danger' size='small'>
-                        {intl.formatMessage({ id: 'pages.banking.categoryProgress.description' }, {
+                        {intl.formatMessage({ id: 'banking.categoryProgress.description' }, {
                             percent: 100 - percent,
                         })}
                     </Typography.Text>

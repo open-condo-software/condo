@@ -41,10 +41,10 @@ export const useCategoryModal: IUseCategoryModal = ({
     const WithdrawalTitle = intl.formatMessage({ id: 'global.withdrawal' }, { isSingular: false })
     const ContractorTitle = intl.formatMessage({ id: 'global.contractor' }, { isSingular: true })
     const BankAccountTitle = intl.formatMessage({ id: 'global.bankAccount' })
-    const ChooseCategoryTitle = intl.formatMessage({ id: 'pages.banking.chooseCategory' })
-    const ContractorsSelectedTitle = intl.formatMessage({ id: 'pages.banking.categoryModal.contractorsSelected' })
-    const TransactionsSelectedTitle = intl.formatMessage({ id: 'pages.banking.categoryModal.transactionsSelected' })
-    const TransactionsWarningTitle = intl.formatMessage({ id: 'pages.banking.categoryModal.transactionsWarning.title' })
+    const ChooseCategoryTitle = intl.formatMessage({ id: 'banking.chooseCategory' })
+    const ContractorsSelectedTitle = intl.formatMessage({ id: 'banking.categoryModal.contractorsSelected' })
+    const TransactionsSelectedTitle = intl.formatMessage({ id: 'banking.categoryModal.transactionsSelected' })
+    const TransactionsWarningTitle = intl.formatMessage({ id: 'banking.categoryModal.transactionsWarning.title' })
     const PaymentPurposeTitle = intl.formatMessage({ id: 'global.paymentPurpose' })
     const SumTitle = intl.formatMessage({ id: 'global.sum' })
     const SaveTitle = intl.formatMessage({ id: 'Save' })
@@ -135,7 +135,7 @@ export const useCategoryModal: IUseCategoryModal = ({
             }
 
             alertDescription = intl.formatMessage(
-                { id: 'pages.banking.categoryModal.transactionsWarning.description' },
+                { id: 'banking.categoryModal.transactionsWarning.description' },
                 { count: totalContractorTransactions }
             )
         }

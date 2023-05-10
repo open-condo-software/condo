@@ -33,11 +33,11 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = (props) => {
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const ExecutorTitle = intl.formatMessage({ id: 'field.Executor' })
     const AssigneeTitle = intl.formatMessage({ id: 'field.Responsible' })
-    const AllAddressTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
-    const CategoryClassifierTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.Classifier' })
-    const AllCategoryClassifiersTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllClassifiers' })
-    const AllExecutorsTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllExecutors' })
-    const AllAssigneesTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAssignees' })
+    const AllAddressTitle = intl.formatMessage({ id: 'analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
+    const CategoryClassifierTitle = intl.formatMessage({ id: 'analytics.TicketAnalyticsPage.tableColumns.Classifier' })
+    const AllCategoryClassifiersTitle = intl.formatMessage({ id: 'analytics.TicketAnalyticsPage.tableColumns.AllClassifiers' })
+    const AllExecutorsTitle = intl.formatMessage({ id: 'analytics.TicketAnalyticsPage.tableColumns.AllExecutors' })
+    const AllAssigneesTitle = intl.formatMessage({ id: 'analytics.TicketAnalyticsPage.tableColumns.AllAssignees' })
     const { breakpoints } = useLayoutContext()
 
     if (data === null || filters === null || loading) {

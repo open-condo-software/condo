@@ -50,7 +50,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
     const ContactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
-    const VerifiedMessage = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
+    const VerifiedMessage = intl.formatMessage({ id: 'contact.Verified' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
 
     const contactId = get(contact, 'id', null)

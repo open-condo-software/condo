@@ -15,8 +15,8 @@ type SafeUserMentionBaseProps = {
 
 export const SafeUserMention: React.FC<SafeUserMentionBaseProps> = ({ changeValue }) => {
     const intl = useIntl()
-    const DeletedCreatedAtNoticeTitle = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title' })
-    const DeletedCreatedAtNoticeDescription = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description' })
+    const DeletedCreatedAtNoticeTitle = intl.formatMessage({ id: 'ticket.TicketChanges.notice.DeletedCreatedAt.title' })
+    const DeletedCreatedAtNoticeDescription = intl.formatMessage({ id: 'ticket.TicketChanges.notice.DeletedCreatedAt.description' })
 
     return (
         changeValue.createdBy ? (

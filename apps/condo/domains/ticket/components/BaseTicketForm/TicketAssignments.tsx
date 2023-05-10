@@ -60,8 +60,8 @@ const TicketAssignments = ({
     const ResponsibleLabel = intl.formatMessage({ id: 'field.Responsible' })
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
-    const EmployeesOnPropertyMessage = intl.formatMessage({ id: 'pages.condo.ticket.select.group.employeesOnProperty' })
-    const OtherMessage = intl.formatMessage({ id: 'pages.condo.ticket.select.group.other' })
+    const EmployeesOnPropertyMessage = intl.formatMessage({ id: 'ticket.select.group.employeesOnProperty' })
+    const OtherMessage = intl.formatMessage({ id: 'ticket.select.group.other' })
     const DeletedEmployeeMessage = intl.formatMessage({ id: 'global.select.deletedEmployee' })
 
     const { breakpoints } = useLayoutContext()

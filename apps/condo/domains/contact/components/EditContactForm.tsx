@@ -55,7 +55,7 @@ export const EditContactForm: React.FC = () => {
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const RoleLabel = intl.formatMessage({ id: 'ContactRole' })
-    const Verified = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
+    const Verified = intl.formatMessage({ id: 'contact.Verified' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
     const PromptTitle = intl.formatMessage({ id: 'contact.form.prompt.title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'contact.form.prompt.message' })

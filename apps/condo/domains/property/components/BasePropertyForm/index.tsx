@@ -58,9 +58,9 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const YearOfConstructionTitle = intl.formatMessage({ id: 'property.form.YearOfConstructionTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
-    const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
-    const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
-    const AddressValidationErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
+    const PromptTitle = intl.formatMessage({ id: 'property.warning.modal.Title' })
+    const PromptHelpMessage = intl.formatMessage({ id: 'property.warning.modal.HelpMessage' })
+    const AddressValidationErrorMsg = intl.formatMessage({ id: 'property.warning.modal.AddressValidationErrorMsg' })
 
     const { breakpoints } = useLayoutContext()
     const { addressApi } = useAddressApi()
