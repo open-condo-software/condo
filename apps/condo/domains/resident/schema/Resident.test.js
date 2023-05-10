@@ -16,10 +16,21 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants/integration')
-const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    createTestAcquiringIntegration,
+    createTestAcquiringIntegrationContext,
+    createTestRecurrentPaymentContext,
+    RecurrentPaymentContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
 const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants/constants')
-const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, createTestBillingAccount, createTestBillingProperty, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestBillingIntegrationOrganizationContext,
+    createTestBillingIntegration,
+    createTestBillingAccount,
+    createTestBillingProperty,
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+    createTestBillingCategory,
+} = require('@condo/domains/billing/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { MeterResource } = require('@condo/domains/meter/utils/testSchema')
 const { createTestMeter } = require('@condo/domains/meter/utils/testSchema')
@@ -28,7 +39,7 @@ const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestProperty, makeClientWithResidentAccessAndProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressMeta } = require('@condo/domains/property/utils/testSchema/factories')
-const { Resident, createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { Resident, createTestResident, updateTestResident, makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { createTestTicketFile, updateTestTicketFile, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
@@ -780,6 +791,40 @@ describe('Resident', () => {
             expect(objUpdated.deletedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+        })
+
+        it('can be soft-deleted using update operation by current user with type resident with recurrent payment context', async () => {
+            const client = await makeClientWithServiceConsumer()
+            const adminClient = await makeLoggedInAdminClient()
+
+            // create recurrent payment context
+            const [billingCategory] = (await createTestBillingCategory(adminClient, { name: `Category ${new Date()}` }))
+            const [recurrentContext] = await createTestRecurrentPaymentContext(adminClient, {
+                enabled: false,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: 10,
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: client.serviceConsumer.id } },
+                billingCategory: { connect: { id: billingCategory.id } },
+            })
+
+            const contextsBeforeDelete = await RecurrentPaymentContext.getAll(adminClient, { id: recurrentContext.id })
+            expect(contextsBeforeDelete).toHaveLength(1)
+
+            // NOTE: USING RAW SINCE WE CANNOT QUERY PROPERTY OF DELETED RESIDENT ANYMORE
+            const { data } = await Resident.softDelete(client, client.resident.id, {}, { raw: true })
+            expect(data).toBeDefined()
+            expect(data).toHaveProperty('obj')
+            const { obj: objUpdated } = data
+            expect(objUpdated).toHaveProperty('id', client.resident.id)
+            expect(objUpdated).toHaveProperty('dv', 1)
+            expect(objUpdated.deletedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
+            expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
+
+            const contexts = await RecurrentPaymentContext.getAll(adminClient, { id: recurrentContext.id })
+            expect(contexts).toHaveLength(0)
         })
 
         it('cannot be soft-deleted using update operation by current user with type resident when other fields gets passed as variables', async () => {

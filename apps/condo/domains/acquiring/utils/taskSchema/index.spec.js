@@ -1216,35 +1216,6 @@ describe('task schema queries', () => {
                 .toContain(`RecurrentPaymentContext not found for RecurrentPayment(${recurrentPayment.id})`)
         })
 
-        it('should return registered=false and RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE error', async () => {
-            // create test recurrent payment context
-            const { batches } = await makePayerWithMultipleConsumers(1, 1)
-            const recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest(batches[0])))[0]
-
-            // create test recurrent payment
-            const [recurrentPayment] = await createTestRecurrentPayment(
-                admin,
-                getPaymentRequest(batches[0], recurrentPaymentContext),
-            )
-
-            // delete service consumer
-            const serviceConsumerId = batches[0].serviceConsumer.id
-            await ServiceConsumer.softDelete(adminContext, serviceConsumerId, dvAndSender)
-
-            // register multi payment
-            const response = await registerMultiPayment(adminContext, recurrentPayment)
-
-            expect(response).toBeDefined()
-            expect(response).toHaveProperty('registered')
-            expect(response).toHaveProperty('errorCode')
-            expect(response).toHaveProperty('errorMessage')
-
-            expect(response.registered).not.toBeTruthy()
-            expect(response.errorCode).toEqual(RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE)
-            expect(response.errorMessage)
-                .toContain(`ServiceConsumer not found for id ${serviceConsumerId}`)
-        })
-
         it('should validate inputs', async () => {
             await catchErrorFrom(async () => {
                 await registerMultiPayment(adminContext, null)

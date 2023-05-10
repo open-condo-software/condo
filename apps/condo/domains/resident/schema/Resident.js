@@ -14,6 +14,7 @@ const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants/integration')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
+const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/utils/serverSchema/helpers')
 const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants/constants')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
@@ -235,7 +236,8 @@ const Resident = new GQLListSchema('Resident', {
                 }
             }
         },
-        afterChange: async ({ updatedItem, originalInput }) => {
+        afterChange: async ({ context, operation, updatedItem, originalInput }) => {
+            const deletedAt = get(updatedItem, 'deletedAt', null)
             const userId = get(updatedItem, 'user', null)
             const propertyId = get(updatedItem, 'property', null)
             const unitName = get(updatedItem, 'unitName', null)
@@ -249,6 +251,17 @@ const Resident = new GQLListSchema('Resident', {
 
             if (!isNull(changedPropertyId) || !isNull(changedUnitName) || !isNull(changedUnitType)) {
                 await manageResidentToTicketClientConnections.delay(propertyId, unitType, unitName, userId, dv, sender)
+            }
+
+            // handle soft delete
+            // in order to soft delete recurrent payment contexts
+            if (operation === 'update' && deletedAt) {
+                await removeOrphansRecurrentPaymentContexts({
+                    context,
+                    residentId: updatedItem.id,
+                    dv,
+                    sender,
+                })
             }
         },
     },
