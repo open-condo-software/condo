@@ -421,7 +421,8 @@ ALTER TABLE "BillingIntegration" ADD COLUMN "uploadMessage" text NULL;
 --
 -- Remove field targetDescription from billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "targetDescription" text NOT NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN "targetDescription" text DEFAULT 'for every organization' NOT NULL;
+ALTER TABLE "BillingIntegration" ALTER COLUMN "targetDescription" DROP DEFAULT;
 --
 -- Remove field setupUrl from billingintegration
 --
@@ -429,7 +430,8 @@ ALTER TABLE "BillingIntegration" ADD COLUMN "setupUrl" text NULL;
 --
 -- Remove field receiptsLoadingTime from billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "receiptsLoadingTime" text NOT NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN "receiptsLoadingTime" text DEFAULT 'instantly' NOT NULL;
+ALTER TABLE "BillingIntegration" ALTER COLUMN "receiptsLoadingTime" DROP DEFAULT;
 --
 -- Remove field instructionExtraLink from billingintegration
 --
@@ -441,7 +443,8 @@ ALTER TABLE "BillingIntegration" ADD COLUMN "instruction" text NULL;
 --
 -- Remove field extendsBillingPage from billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "extendsBillingPage" boolean NOT NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN "extendsBillingPage" boolean DEFAULT false NOT NULL;
+ALTER TABLE "BillingIntegration" ALTER COLUMN "extendsBillingPage" DROP DEFAULT;
 --
 -- Remove field connectedMessage from billingintegration
 --
@@ -449,7 +452,8 @@ ALTER TABLE "BillingIntegration" ADD COLUMN "connectedMessage" text NULL;
 --
 -- Remove field bannerTextColor from billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "bannerTextColor" varchar(50) NOT NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN "bannerTextColor" varchar(50) DEFAULT 'BLACK' NOT NULL;
+ALTER TABLE "BillingIntegration" ALTER COLUMN "bannerTextColor" DROP DEFAULT;
 --
 -- Remove field bannerPromoImage from billingintegration
 --
@@ -457,7 +461,8 @@ ALTER TABLE "BillingIntegration" ADD COLUMN "bannerPromoImage" jsonb NULL;
 --
 -- Remove field bannerColor from billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "bannerColor" text NOT NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN "bannerColor" text DEFAULT '#39ce66' NOT NULL;
+ALTER TABLE "BillingIntegration" ALTER COLUMN "bannerColor" DROP DEFAULT;
 --
 -- Rename field setupUrl on acquiringintegrationhistoryrecord to appUrl
 --
