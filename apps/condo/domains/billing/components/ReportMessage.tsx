@@ -1,21 +1,24 @@
-import get from 'lodash/get'
-import React, { useMemo } from 'react'
+import { Typography } from 'antd'
+import { useMemo } from 'react'
+import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Tooltip } from '@open-condo/ui'
 
-import { useBillingAndAcquiringContexts } from './ContextProvider'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 
-export const ReportMessage: React.FC = () => {
+
+type LastReportType = {
+    totalReceipts: number
+    finishTime: string
+}
+
+interface IReportMessageProps {
+    lastReport: LastReportType
+}
+
+export const ReportMessage: React.FC<IReportMessageProps> = ({ lastReport }) => {
     const intl = useIntl()
-    const { billingContext } = useBillingAndAcquiringContexts()
-    const lastReport = get(billingContext, 'lastReport', {})
-
     return useMemo(() => {
-        if (typeof lastReport.totalReceipts !== 'number' || typeof lastReport.finishTime !== 'string') {
-            return null
-        }
-
         const DataWasUploadedSuffixMessage = intl.formatMessage({ id: 'DataWasUploadedOnSuffix' })
         const DataWasUploadedPrefixMessage = intl.formatMessage({ id: 'DataWasUploadedOnPrefix' })
         const NoReportMessage = intl.formatMessage({ id: 'NoReceiptsLoaded' })
@@ -36,11 +39,11 @@ export const ReportMessage: React.FC = () => {
         const uploadMessage = `${DataWasUploadedPrefixMessage} ${ReportDateMessage}${DataWasUploadedSuffixMessage} ${ReportTimeMessage}`
         return (
             <>
-                <Typography.Text type='warning' size='medium'>
+                <Typography.Text type='warning'>
                     {uploadMessage}
                 </Typography.Text>
                 &nbsp;
-                <Typography.Text size='medium'>
+                <Typography.Text>
                     &#40;
                     {
                         thousands

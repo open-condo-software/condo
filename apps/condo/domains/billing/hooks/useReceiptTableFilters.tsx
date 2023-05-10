@@ -1,5 +1,6 @@
 import { BillingCategory as BillingCategoryType } from '@app/condo/schema'
-import { BillingReceiptWhereInput } from '@app/condo/schema'
+import { BillingIntegrationOrganizationContext, BillingReceiptWhereInput } from '@app/condo/schema'
+import get from 'lodash/get'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -16,9 +17,9 @@ const fullNameFilter = getStringContainsFilter(['account', 'fullName'])
 const categoryFilter = getFilter(['category', 'id'], 'array', 'string', 'in')
 const periodFilter = (period: string) => ({ period })
 
-export function useReceiptTableFilters (defaultPeriod: string, search: string): Array<FiltersMeta<BillingReceiptWhereInput>>  {
+export function useReceiptTableFilters (context: BillingIntegrationOrganizationContext, search: string): Array<FiltersMeta<BillingReceiptWhereInput>>  {
     const intl = useIntl()
-    // const contextPeriod = get(context, ['lastReport', 'period'], null)
+    const contextPeriod = get(context, ['lastReport', 'period'], null)
     const SelectMessage = intl.formatMessage({ id: 'Select' })
     const StatusMessage =  intl.formatMessage({ id: 'Status' })
     const categorySearchFilter = categoryToSearchQuery(search, intl.messages)
@@ -26,7 +27,7 @@ export function useReceiptTableFilters (defaultPeriod: string, search: string): 
     const categoryOptions = useMemo(() => convertToOptions<BillingCategoryType>(categories, 'name', 'id'), [categories])
     return useMemo(()=>{
         return [
-            { keyword: 'period', filters: [periodFilter], defaultValue: defaultPeriod },
+            { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
             { keyword: 'search', filters: [addressFilter, unitNameFilter, accountFilter, fullNameFilter, categorySearchFilter], combineType: 'OR' },
             { keyword: 'address', filters: [addressFilter] },
             { keyword: 'unitName', filters: [unitNameFilter] },
@@ -50,6 +51,6 @@ export function useReceiptTableFilters (defaultPeriod: string, search: string): 
                 },
             },
         ]
-    }, [SelectMessage, StatusMessage, categoryOptions, defaultPeriod, categorySearchFilter])
+    }, [SelectMessage, StatusMessage, categoryOptions, contextPeriod, categorySearchFilter])
   
 }

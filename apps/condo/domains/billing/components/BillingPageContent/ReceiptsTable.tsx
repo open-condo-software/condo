@@ -3,12 +3,11 @@ import { Row, Col, Typography, Space } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
 
-import { ServicesModal } from '@condo/domains/billing/components/BillingPageContent/ServicesModal'
+import { ServicesModal } from '@condo/domains/billing/components/ServicesModal'
 import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
 import { useReceiptTableFilters } from '@condo/domains/billing/hooks/useReceiptTableFilters'
 import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
@@ -26,36 +25,30 @@ import {
     parseQuery,
 } from '@condo/domains/common/utils/tables.utils'
 
-import { useBillingAndAcquiringContexts } from './ContextProvider'
+import { IContextProps } from './index'
+
 
 const SORTABLE_PROPERTIES = ['toPay']
 const INPUT_STYLE = { width: '18em' }
 
-export const ReceiptsTable: React.FC = () => {
+export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const LoadingErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
-
-    const { billingContext } = useBillingAndAcquiringContexts()
-    const currencyCode = get(billingContext, ['integration', 'currencyCode'], 'RUB')
-    const reportPeriod = get(billingContext, ['lastReport', 'period'], null)
-    const contextId = get(billingContext, 'id', null)
-    const hasToPayDetails = get(billingContext, ['integration', 'dataFormat', 'hasToPayDetails'], false)
-    const hasServices = get(billingContext, ['integration', 'dataFormat', 'hasServices'], false)
-    const hasServicesDetails = get(billingContext, ['integration', 'dataFormat', 'hasServicesDetails'], false)
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const filtersFromQuery: Record<string, string | unknown> = useMemo(() => getFiltersFromQuery(router.query), [router.query])
+    const currencyCode = get(context, ['integration', 'currencyCode'], 'RUB')
 
     const [search, handleSearchChange] = useSearch()
-    const filterMetas = useReceiptTableFilters(reportPeriod, search)
+    const filterMetas = useReceiptTableFilters(context, search)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
 
     const onPeriodChange = useMemo(() => async (periodString) => {
         setPeriod(periodString)
-        const newParameters = getFiltersQueryData({ ...filtersFromQuery, period: periodString ? dayjs(periodString).format( 'YYYY-MM-01') : null })
+        const newParameters = getFiltersQueryData({ ...filtersFromQuery, period:periodString ? dayjs(periodString).format( 'YYYY-MM-01') : null })
         await updateQuery(router, { newParameters })
     }, [router, filtersFromQuery])
 
@@ -65,19 +58,21 @@ export const ReceiptsTable: React.FC = () => {
         objs: receipts,
         error,
     } = BillingReceipt.useObjects({
-        where: { ...filtersToWhere(filters), context: { id: contextId } },
+        where: { ...filtersToWhere(filters), context: { id: get(context, 'id') } },
         sortBy: sortersToSortBy(sorters) as SortBillingReceiptsBy[],
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
 
-
+    const hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetails'], false)
+    const hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
+    const hasServicesDetails = get(context, ['integration', 'dataFormat', 'hasServicesDetails'], false)
 
     const mainTableColumns = useReceiptTableColumns(filterMetas, hasToPayDetails, currencyCode)
 
     const [modalIsVisible, setModalIsVisible] = useState(false)
     const [detailedReceipt, setDetailedReceipt] = useState<BillingReceiptType>(null)
-    const [period, setPeriod] = useState(dayjs(reportPeriod))
+    const [period, setPeriod] = useState(dayjs(get(context, ['lastReport', 'period'])))
     const showServiceModal = (receipt: BillingReceiptType) => {
         setModalIsVisible(true)
         setDetailedReceipt(receipt || null)
@@ -87,12 +82,11 @@ export const ReceiptsTable: React.FC = () => {
         setModalIsVisible(false)
     }
     
-    useDeepCompareEffect(()=>{
-        const filtersPeriod = get(filters, 'period')
-        if (filtersPeriod) {
-            setPeriod(dayjs(filtersPeriod as string))
+    useEffect(()=>{
+        if (get(filters, 'period')){
+            setPeriod(dayjs(get(filters, 'period') as string))
         }
-    }, [filters])
+    }, [])
 
     const periodMetaSelect = useMemo(() => {
         return (

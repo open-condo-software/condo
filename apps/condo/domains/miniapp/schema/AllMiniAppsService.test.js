@@ -8,13 +8,17 @@ const dayjs = require('dayjs')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObjects } = require('@open-condo/keystone/test.utils')
 
+const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBillingIntegration, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const {
+    BILLING_APP_TYPE,
+    ACQUIRING_APP_TYPE,
     B2B_APP_TYPE,
     APP_NEW_LABEL,
     OTHER_CATEGORY,
-    SMART_HOME_CATEGORY,
     CONTEXT_FINISHED_STATUS,
     CONTEXT_IN_PROGRESS_STATUS,
+    ACCRUALS_AND_PAYMENTS_CATEGORY,
 } = require('@condo/domains/miniapp/constants')
 const { allMiniAppsByTestClient, createTestB2BApp, createTestB2BAppContext, updateTestB2BAppContext, updateTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
 const { createTestOrganization, makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
@@ -59,6 +63,165 @@ describe('AllMiniAppsService', () => {
         })
     })
     describe('Functionality', () => {
+        describe('Billing integration', () => {
+            let integration
+            let admin
+            beforeAll(async () => {
+                admin = await makeLoggedInAdminClient()
+            })
+            beforeEach(async () => {
+                [integration] = await createTestBillingIntegration(admin, { isHidden: false })
+            })
+            test('Shows unconnected without context', async () => {
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
+                    id: integration.id,
+                    type: BILLING_APP_TYPE,
+                    connected: false,
+                    name: integration.name,
+                    shortDescription: integration.shortDescription,
+                    category: ACCRUALS_AND_PAYMENTS_CATEGORY,
+                })]))
+            })
+            test(`Shows connected with context in ${CONTEXT_FINISHED_STATUS} status`, async () => {
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [context] = await createTestBillingIntegrationOrganizationContext(admin, client.organization, integration, {
+                    status: CONTEXT_IN_PROGRESS_STATUS,
+                })
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: integration.id,
+                        type: BILLING_APP_TYPE,
+                        connected: false,
+                    }),
+                ]))
+                await updateTestBillingIntegrationOrganizationContext(admin, context.id, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+                const [newData] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(newData).toBeDefined()
+                expect(newData).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: integration.id,
+                        type: BILLING_APP_TYPE,
+                        connected: true,
+                    }),
+                ]))
+            })
+            test('Shows unconnected with deleted context', async () => {
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [context] = await createTestBillingIntegrationOrganizationContext(admin, client.organization, integration, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+                await updateTestBillingIntegrationOrganizationContext(admin, context.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: integration.id,
+                        type: BILLING_APP_TYPE,
+                        connected: false,
+                    }),
+                ]))
+            })
+            test('Doesn\'t shows if hidden integration', async () => {
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [hiddenIntegration] = await createTestBillingIntegration(admin, { isHidden: true })
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).not.toEqual(expect.arrayContaining([{
+                    id: hiddenIntegration.id,
+                    type: BILLING_APP_TYPE,
+                }]))
+            })
+        })
+        describe('Acquiring integration', () => {
+            let integration
+            let billings
+            let admin
+            beforeAll(async () => {
+                admin = await makeLoggedInAdminClient()
+                const [billing] = await createTestBillingIntegration(admin)
+                billings = [billing]
+            })
+            beforeEach(async () => {
+                [integration] = await createTestAcquiringIntegration(admin)
+            })
+            test('Shows unconnected without context', async () => {
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
+                    id: integration.id,
+                    type: ACQUIRING_APP_TYPE,
+                    connected: false,
+                    name: integration.name,
+                    shortDescription: integration.shortDescription,
+                    category: ACCRUALS_AND_PAYMENTS_CATEGORY,
+                })]))
+            })
+            test(`Shows connected with context in ${CONTEXT_FINISHED_STATUS} status`, async () => {
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [context] = await createTestAcquiringIntegrationContext(admin, client.organization, integration, {
+                    status: CONTEXT_IN_PROGRESS_STATUS,
+                })
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: integration.id,
+                        type: ACQUIRING_APP_TYPE,
+                        connected: false,
+                    }),
+                ]))
+                await updateTestAcquiringIntegrationContext(admin, context.id, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+                const [newData] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(newData).toBeDefined()
+                expect(newData).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: integration.id,
+                        type: ACQUIRING_APP_TYPE,
+                        connected: true,
+                    }),
+                ]))
+            })
+            test('Shows unconnected with deleted context', async () => {
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [context] = await createTestAcquiringIntegrationContext(admin, client.organization, integration, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+                await updateTestAcquiringIntegrationContext(admin, context.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: integration.id,
+                        type: ACQUIRING_APP_TYPE,
+                        connected: false,
+                    }),
+                ]))
+            })
+            test('Doesn\'t shows if hidden integration', async () => {
+                const [hiddenIntegration] = await createTestAcquiringIntegration(admin, { isHidden: true })
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [data] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).not.toEqual(expect.arrayContaining([{
+                    id: hiddenIntegration.id,
+                    type: ACQUIRING_APP_TYPE,
+                }]))
+            })
+        })
         describe('B2B App', () => {
             let app
             let admin
@@ -153,21 +316,21 @@ describe('AllMiniAppsService', () => {
             test('All miniapps must be ordered by displayPriority', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [firstApp] = await createTestB2BApp(admin, { isHidden: false, displayPriority: 6 })
-                const [secondApp] = await createTestB2BApp(admin, { isHidden: false, displayPriority: 3 })
-                const [thirdApp] = await createTestB2BApp(admin, { isHidden: false, displayPriority: 4 })
-                const [forthApp] = await createTestB2BApp(admin, { isHidden: false, displayPriority: 3, label: APP_NEW_LABEL })
+                const [billing] = await createTestBillingIntegration(admin, { isHidden: false, displayPriority: 3 })
+                const [acquiring] = await createTestAcquiringIntegration(admin, { isHidden: false, displayPriority: 4 })
+                const [secondApp] = await createTestB2BApp(admin, { isHidden: false, displayPriority: 3, label: APP_NEW_LABEL })
 
                 const client = await makeEmployeeUserClientWithAbilities()
                 const [data] = await allMiniAppsByTestClient(admin, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: firstApp.id, type: B2B_APP_TYPE, label: null }),
-                    expect.objectContaining({ id: secondApp.id, type: B2B_APP_TYPE, label: null }),
-                    expect.objectContaining({ id: thirdApp.id, type: B2B_APP_TYPE, label: null }),
-                    expect.objectContaining({ id: forthApp.id, type: B2B_APP_TYPE, label: APP_NEW_LABEL }),
+                    expect.objectContaining({ id: secondApp.id, type: B2B_APP_TYPE, label: APP_NEW_LABEL }),
+                    expect.objectContaining({ id: billing.id, type: BILLING_APP_TYPE, label: null }),
+                    expect.objectContaining({ id: acquiring.id, type: ACQUIRING_APP_TYPE, label: null }),
                 ]))
 
-                const expectedOrder = [firstApp.id, thirdApp.id, forthApp.id, secondApp.id]
+                const expectedOrder = [firstApp.id, acquiring.id, secondApp.id, billing.id]
                 const indexedApps = data.filter(el => expectedOrder.includes(el.id))
                 const actualOrder = indexedApps.map(el => el.id)
                 expect(actualOrder).toEqual(expectedOrder)
@@ -176,22 +339,22 @@ describe('AllMiniAppsService', () => {
         describe('Filtering', () => {
             test('Connected, id_not and category should work', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [firstApp] = await createTestB2BApp(admin, { isHidden: false, category: OTHER_CATEGORY })
-                const [secondApp] = await createTestB2BApp(admin, { isHidden: false, category: OTHER_CATEGORY })
-                const [thirdApp] = await createTestB2BApp(admin, { isHidden: false, category: SMART_HOME_CATEGORY })
+                const [app] = await createTestB2BApp(admin, { isHidden: false })
+                const [billing] = await createTestBillingIntegration(admin, { isHidden: false })
+                const [acquiring] = await createTestAcquiringIntegration(admin, { isHidden: false })
 
                 const client = await makeEmployeeUserClientWithAbilities()
                 const [apps] = await allMiniAppsByTestClient(client, client.organization.id)
 
                 expect(apps).toEqual(expect.arrayContaining([
-                    expect.objectContaining({ id: firstApp.id }),
-                    expect.objectContaining({ id: secondApp.id }),
-                    expect.objectContaining({ id: thirdApp.id }),
+                    expect.objectContaining({ id: app.id }),
+                    expect.objectContaining({ id: billing.id }),
+                    expect.objectContaining({ id: acquiring.id }),
                 ]))
 
-                await createTestB2BAppContext(admin, firstApp, client.organization, { status: CONTEXT_FINISHED_STATUS })
-                await createTestB2BAppContext(admin, secondApp, client.organization, { status: CONTEXT_FINISHED_STATUS })
-                await createTestB2BAppContext(admin, thirdApp, client.organization, { status: CONTEXT_FINISHED_STATUS })
+                await createTestB2BAppContext(admin, app, client.organization, { status: CONTEXT_FINISHED_STATUS })
+                await createTestBillingIntegrationOrganizationContext(admin, client.organization, billing, { status: CONTEXT_FINISHED_STATUS })
+                await createTestAcquiringIntegrationContext(admin, client.organization, acquiring, { status: CONTEXT_FINISHED_STATUS })
                 const [connectedApps] = await allMiniAppsByTestClient(client, client.organization.id, {
                     where: { connected: true },
                 })
@@ -199,26 +362,34 @@ describe('AllMiniAppsService', () => {
                     where: { connected: false },
                 })
                 expect(connectedApps).toEqual(expect.arrayContaining([
-                    expect.objectContaining({ id: firstApp.id }),
-                    expect.objectContaining({ id: secondApp.id }),
-                    expect.objectContaining({ id: thirdApp.id }),
+                    expect.objectContaining({ id: app.id }),
+                    expect.objectContaining({ id: billing.id }),
+                    expect.objectContaining({ id: acquiring.id }),
                 ]))
-                expect(notConnectedApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: firstApp.id })]))
-                expect(notConnectedApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: secondApp.id })]))
-                expect(notConnectedApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: thirdApp.id })]))
+                expect(notConnectedApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: app.id })]))
+                expect(notConnectedApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: billing.id })]))
+                expect(notConnectedApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: acquiring.id })]))
 
-                const [idFilteredApps] = await allMiniAppsByTestClient(client, client.organization.id, {
-                    where: { connected: true, id_not: firstApp.id },
+                const [noBillingApps] = await allMiniAppsByTestClient(client, client.organization.id, {
+                    where: { connected: true, id_not: billing.id },
                 })
-                expect(idFilteredApps).not.toEqual(expect.arrayContaining([
-                    expect.objectContaining({ id: firstApp.id }),
-                ]))
+                expect(noBillingApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: billing.id })]))
+
+                const [noAcquiringApps] = await allMiniAppsByTestClient(client, client.organization.id, {
+                    where: { connected: true, id_not: acquiring.id },
+                })
+                expect(noAcquiringApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: acquiring.id })]))
+
+                const [noB2BApps] = await allMiniAppsByTestClient(client, client.organization.id, {
+                    where: { connected: true, id_not: app.id },
+                })
+                expect(noB2BApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: app.id })]))
 
                 const [otherApps] = await allMiniAppsByTestClient(client, client.organization.id, {
-                    where: { category: SMART_HOME_CATEGORY },
+                    where: { category: OTHER_CATEGORY },
                 })
-                expect(otherApps).toEqual(expect.arrayContaining([
-                    expect.objectContaining({ id: thirdApp.id }),
+                expect(otherApps).not.toEqual(expect.arrayContaining([
+                    expect.not.objectContaining({ category: OTHER_CATEGORY }),
                 ]))
             })
         })

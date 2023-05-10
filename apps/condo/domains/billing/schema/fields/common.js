@@ -1,17 +1,8 @@
-const { CalendarDay, File } = require('@keystonejs/fields')
+const { CalendarDay } = require('@keystonejs/fields')
 
 const { Json } = require('@open-condo/keystone/fields')
 
 const { validatePeriod } = require('@condo/domains/billing/utils/validation.utils')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-
-const BILLING_FILE_ADAPTER = new FileAdapter('BillingIntegrations')
-
-const STATIC_FILE_FIELD = {
-    type: File,
-    isRequired: false,
-    adapter: BILLING_FILE_ADAPTER,
-}
 
 const PERIOD_FIELD = {
     schemaDoc: 'Period date: Generated on template <year>-<month>-01',
@@ -29,8 +20,6 @@ const RAW_DATA_FIELD = {
 }
 
 module.exports = {
-    STATIC_FILE_FIELD,
-    BILLING_FILE_ADAPTER,
     PERIOD_FIELD,
     RAW_DATA_FIELD,
 }
