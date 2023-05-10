@@ -74,7 +74,7 @@ const {
     DEFERRED_STATUS_TYPE,
     CANCELED_STATUS_TYPE,
     NEW_OR_REOPENED_STATUS_TYPE,
-    DEFAULT_DEFERRED_DAYS, CLOSED_STATUS_TYPE,
+    CLOSED_STATUS_TYPE,
 } = require('@condo/domains/ticket/constants')
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS, QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qualityControl')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -2243,8 +2243,7 @@ describe('Ticket', () => {
         })
 
         describe('deferredUntil and status', () => {
-            // todo (DOMA-4092) delete skip test
-            test.skip('deferredUntil is null should not be with status "deferred"', async () => {
+            test('deferredUntil is null should not be with status "deferred"', async () => {
                 const client = await makeClientWithProperty()
 
                 await expectToThrowValidationFailureError(async () => {
@@ -2252,27 +2251,6 @@ describe('Ticket', () => {
                         status: { connect: { id: STATUS_IDS.DEFERRED } },
                     })
                 }, `${WRONG_VALUE} deferredUntil is null, but status type is ${DEFERRED_STATUS_TYPE}`)
-            })
-            // todo (DOMA-4092) delete this test
-            test('if deferredUntil is null and status is "deferred", should be deferred for 30 days', async () => {
-                const client = await makeClientWithProperty()
-
-                const [ticket] = await createTestTicket(client, client.organization, client.property, {
-                    status: { connect: { id: STATUS_IDS.DEFERRED } },
-                })
-                const expectedDeferredUntil = dayjs().add(DEFAULT_DEFERRED_DAYS, 'days')
-                const differenceDate = expectedDeferredUntil.diff(dayjs(ticket.deferredUntil), 'days')
-                expect(differenceDate).toEqual(0)
-
-                const [ticket2] = await createTestTicket(client, client.organization, client.property, {
-                    status: { connect: { id: STATUS_IDS.DEFERRED } },
-                    deferredUntil: dayjs().add(2, 'days'),
-                })
-                const [updatedTicket] = await updateTestTicket(client, ticket2.id, {
-                    deferredUntil: null,
-                })
-                const differenceDate2 = expectedDeferredUntil.diff(dayjs(updatedTicket.deferredUntil), 'days')
-                expect(differenceDate2).toEqual(0)
             })
             test(`should not create ticket with "deferredUntil" field if status type is not ${DEFERRED_STATUS_TYPE}`, async () => {
                 const deferredUntil = dayjs().add(2, 'days').toISOString()

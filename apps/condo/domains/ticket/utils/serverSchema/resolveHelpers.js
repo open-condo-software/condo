@@ -2,7 +2,6 @@ const dayjs = require('dayjs')
 const { isUndefined, isEmpty, get } = require('lodash')
 
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
-const conf = require('@open-condo/config')
 const { find } = require('@open-condo/keystone/schema')
 const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
@@ -11,7 +10,7 @@ const { OrganizationEmployee } = require('@condo/domains/organization/utils/serv
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE, REVIEW_VALUES } = require('@condo/domains/ticket/constants')
-const { DEFERRED_STATUS_TYPE, DEFAULT_DEFERRED_DAYS } = require('@condo/domains/ticket/constants')
+const { DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
 const { TicketPropertyHintProperty } = require('@condo/domains/ticket/utils/serverSchema')
@@ -24,12 +23,6 @@ function calculateTicketOrder (resolvedData, statusId) {
         resolvedData.order = TICKET_ORDER_BY_STATUS[STATUS_IDS.OPEN]
     } else {
         resolvedData.order = null
-    }
-}
-
-function calculateDefaultDeferredUntil (newItem, resolvedData, resolvedStatusId) {
-    if (!newItem.deferredUntil && resolvedStatusId === STATUS_IDS.DEFERRED) {
-        resolvedData.deferredUntil = dayjs().add(DEFAULT_DEFERRED_DAYS, 'days').toISOString()
     }
 }
 
@@ -296,7 +289,6 @@ module.exports = {
     softDeleteTicketHintPropertiesByProperty,
     connectContactToTicket,
     calculateDeferredUntil,
-    calculateDefaultDeferredUntil,
     setDeadline,
     updateStatusAfterResidentReview,
     classifyTicket,
