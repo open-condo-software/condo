@@ -1537,6 +1537,8 @@
   "api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT": "Wrong format of specified email",
   "api.ticket.exportTicketsToExcel.NOTHING_TO_EXPORT": "No tickets to export",
   "api.ticket.updateResidentTicket.TICKET_NOT_FOUND": "Cannot find Ticket with id \"{ticketId}\" for current user",
+  "api.ticket.TICKET_FOR_PHONE_DAY_LIMIT_REACHED": "Please try again tomorrow. You are not able to send more then {ticketLimit} tickets per day.",
+  "api.ticket.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED": "You already sent this ticket.",
   "api.property.exportPropertiesToExcel.NOTHING_TO_EXPORT": "No properties are found to export for current organization",
   "api.property.create.sameAddressError": "Property with the same address already exists in selected organization",
   "api.meter.exportMeterReadings.NOTHING_TO_EXPORT": "No meter readings to export for specified organization",

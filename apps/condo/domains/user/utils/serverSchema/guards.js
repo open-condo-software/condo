@@ -78,7 +78,7 @@ class RedisGuard {
     }
 
     // Counter
-    // 1. Set variable to reddis with TTL
+    // 1. Set variable to redis with TTL
     // 2. Check if counter exists
     // 3. Get counter remain time
     async counterTimeRemain (variable) {
@@ -87,9 +87,8 @@ class RedisGuard {
         return Math.max(time, 0)
     }
 
-
     // Lock
-    // 1. Set variable to reddis with TTL
+    // 1. Set variable to redis with TTL
     // 2. Check if lock exists
     // 3. Get lock remain time
     // Example usage after failed attempt to confirm phone - lock phoneNumber for some time

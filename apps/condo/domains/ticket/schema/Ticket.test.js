@@ -78,7 +78,7 @@ const {
 } = require('@condo/domains/ticket/constants')
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS, QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qualityControl')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { ERRORS } = require('@condo/domains/ticket/schema/Ticket')
+const { ERRORS,  DAILY_TICKET_LIMIT, DAILY_SAME_TICKET_LIMIT  } = require('@condo/domains/ticket/schema/Ticket')
 const {
     Ticket,
     TicketOrganizationSetting,
@@ -1664,6 +1664,71 @@ describe('Ticket', () => {
     })
 
     describe('Validations', () => {
+        describe('guards', () => {
+            test('user: resident should not be able to create tickets with identical text over the limit', async () => {
+                const details = 'I have some problems with hot water!'
+
+                // User, should be banned from creating tickets to organization if he exceeds the limits.
+                const userClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, userClient.user, userClient.property, {
+                    unitName,
+                })
+                for (let i = 0; i < DAILY_SAME_TICKET_LIMIT; ++i) {
+                    await createTestTicket(userClient, userClient.organization, userClient.property, { unitName, details })
+                }
+
+                await expectToThrowGQLError(async () => {
+                    await createTestTicket(userClient, userClient.organization, userClient.property, { unitName, details })
+                }, ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED)
+
+                // User, banned from creating tickets to organization 1, can still create tickets to organization 2
+                const client2 = await makeClientWithProperty()
+                const unitName2 = faker.random.alphaNumeric(5)
+                await createTestResident(admin, userClient.user, client2.property, {
+                    unitName: unitName2,
+                })
+
+                const [secondOrgTicket] = await createTestTicket(userClient, client2.organization, client2.property, { unitName: unitName2, details })
+
+                expect(secondOrgTicket).toBeDefined()
+                expect(secondOrgTicket.id).toBeDefined()
+                expect(secondOrgTicket.details).toEqual(details)
+                expect(secondOrgTicket.organization.id).toEqual(client2.organization.id)
+                expect(secondOrgTicket.property.id).toEqual(client2.property.id)
+            })
+
+            test('user: resident should not be able to create tickets in single day over the limit', async () => {
+                // User, should be banned from creating tickets to organization if he exceeds the limits.
+                const userClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, userClient.user, userClient.property, {
+                    unitName,
+                })
+                for (let i = 0; i < DAILY_TICKET_LIMIT; ++i) {
+                    await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+                }
+
+                await expectToThrowGQLError(async () => {
+                    await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+                }, ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED)
+
+                // User, banned from creating tickets to organization 1, can still create tickets to organization 2
+                const client2 = await makeClientWithProperty()
+                const unitName2 = faker.random.alphaNumeric(5)
+                await createTestResident(admin, userClient.user, client2.property, {
+                    unitName: unitName2,
+                })
+
+                const [secondOrgTicket] = await createTestTicket(userClient, client2.organization, client2.property, { unitName: unitName2 })
+
+                expect(secondOrgTicket).toBeDefined()
+                expect(secondOrgTicket.id).toBeDefined()
+                expect(secondOrgTicket.organization.id).toEqual(client2.organization.id)
+                expect(secondOrgTicket.property.id).toEqual(client2.property.id)
+            })
+        })
+
         describe('new ticket without status', () => {
             test('user: can create Ticket without status and status set to OPEN on server-side', async () => {
                 const client = await makeClientWithProperty()
