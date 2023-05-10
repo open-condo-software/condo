@@ -7048,21 +7048,27 @@ type BillingIntegrationHistoryRecord {
   name: String
   logo: JSON
   shortDescription: String
-  developer: String
-  partnerUrl: String
+  targetDescription: String
+  bannerTextColor: String
+  bannerColor: String
+  bannerPromoImage: JSON
+  receiptsLoadingTime: String
   detailedDescription: JSON
+  setupUrl: String
+  instruction: JSON
+  instructionExtraLink: String
   appUrl: String
+  extendsBillingPage: Boolean
   billingPageTitle: String
   group: String
+  connectedMessage: String
+  uploadUrl: String
+  uploadMessage: String
   contextDefaultStatus: String
   dataFormat: JSON
   currencyCode: String
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
-  displayPriority: Int
-  label: String
-  gallery: JSON
-  price: String
   id: ID!
   v: Int
   createdAt: String
@@ -7121,46 +7127,126 @@ input BillingIntegrationHistoryRecordWhereInput {
   shortDescription_not_ends_with_i: String
   shortDescription_in: [String]
   shortDescription_not_in: [String]
-  developer: String
-  developer_not: String
-  developer_contains: String
-  developer_not_contains: String
-  developer_starts_with: String
-  developer_not_starts_with: String
-  developer_ends_with: String
-  developer_not_ends_with: String
-  developer_i: String
-  developer_not_i: String
-  developer_contains_i: String
-  developer_not_contains_i: String
-  developer_starts_with_i: String
-  developer_not_starts_with_i: String
-  developer_ends_with_i: String
-  developer_not_ends_with_i: String
-  developer_in: [String]
-  developer_not_in: [String]
-  partnerUrl: String
-  partnerUrl_not: String
-  partnerUrl_contains: String
-  partnerUrl_not_contains: String
-  partnerUrl_starts_with: String
-  partnerUrl_not_starts_with: String
-  partnerUrl_ends_with: String
-  partnerUrl_not_ends_with: String
-  partnerUrl_i: String
-  partnerUrl_not_i: String
-  partnerUrl_contains_i: String
-  partnerUrl_not_contains_i: String
-  partnerUrl_starts_with_i: String
-  partnerUrl_not_starts_with_i: String
-  partnerUrl_ends_with_i: String
-  partnerUrl_not_ends_with_i: String
-  partnerUrl_in: [String]
-  partnerUrl_not_in: [String]
+  targetDescription: String
+  targetDescription_not: String
+  targetDescription_contains: String
+  targetDescription_not_contains: String
+  targetDescription_starts_with: String
+  targetDescription_not_starts_with: String
+  targetDescription_ends_with: String
+  targetDescription_not_ends_with: String
+  targetDescription_i: String
+  targetDescription_not_i: String
+  targetDescription_contains_i: String
+  targetDescription_not_contains_i: String
+  targetDescription_starts_with_i: String
+  targetDescription_not_starts_with_i: String
+  targetDescription_ends_with_i: String
+  targetDescription_not_ends_with_i: String
+  targetDescription_in: [String]
+  targetDescription_not_in: [String]
+  bannerTextColor: String
+  bannerTextColor_not: String
+  bannerTextColor_contains: String
+  bannerTextColor_not_contains: String
+  bannerTextColor_starts_with: String
+  bannerTextColor_not_starts_with: String
+  bannerTextColor_ends_with: String
+  bannerTextColor_not_ends_with: String
+  bannerTextColor_i: String
+  bannerTextColor_not_i: String
+  bannerTextColor_contains_i: String
+  bannerTextColor_not_contains_i: String
+  bannerTextColor_starts_with_i: String
+  bannerTextColor_not_starts_with_i: String
+  bannerTextColor_ends_with_i: String
+  bannerTextColor_not_ends_with_i: String
+  bannerTextColor_in: [String]
+  bannerTextColor_not_in: [String]
+  bannerColor: String
+  bannerColor_not: String
+  bannerColor_contains: String
+  bannerColor_not_contains: String
+  bannerColor_starts_with: String
+  bannerColor_not_starts_with: String
+  bannerColor_ends_with: String
+  bannerColor_not_ends_with: String
+  bannerColor_i: String
+  bannerColor_not_i: String
+  bannerColor_contains_i: String
+  bannerColor_not_contains_i: String
+  bannerColor_starts_with_i: String
+  bannerColor_not_starts_with_i: String
+  bannerColor_ends_with_i: String
+  bannerColor_not_ends_with_i: String
+  bannerColor_in: [String]
+  bannerColor_not_in: [String]
+  bannerPromoImage: JSON
+  bannerPromoImage_not: JSON
+  bannerPromoImage_in: [JSON]
+  bannerPromoImage_not_in: [JSON]
+  receiptsLoadingTime: String
+  receiptsLoadingTime_not: String
+  receiptsLoadingTime_contains: String
+  receiptsLoadingTime_not_contains: String
+  receiptsLoadingTime_starts_with: String
+  receiptsLoadingTime_not_starts_with: String
+  receiptsLoadingTime_ends_with: String
+  receiptsLoadingTime_not_ends_with: String
+  receiptsLoadingTime_i: String
+  receiptsLoadingTime_not_i: String
+  receiptsLoadingTime_contains_i: String
+  receiptsLoadingTime_not_contains_i: String
+  receiptsLoadingTime_starts_with_i: String
+  receiptsLoadingTime_not_starts_with_i: String
+  receiptsLoadingTime_ends_with_i: String
+  receiptsLoadingTime_not_ends_with_i: String
+  receiptsLoadingTime_in: [String]
+  receiptsLoadingTime_not_in: [String]
   detailedDescription: JSON
   detailedDescription_not: JSON
   detailedDescription_in: [JSON]
   detailedDescription_not_in: [JSON]
+  setupUrl: String
+  setupUrl_not: String
+  setupUrl_contains: String
+  setupUrl_not_contains: String
+  setupUrl_starts_with: String
+  setupUrl_not_starts_with: String
+  setupUrl_ends_with: String
+  setupUrl_not_ends_with: String
+  setupUrl_i: String
+  setupUrl_not_i: String
+  setupUrl_contains_i: String
+  setupUrl_not_contains_i: String
+  setupUrl_starts_with_i: String
+  setupUrl_not_starts_with_i: String
+  setupUrl_ends_with_i: String
+  setupUrl_not_ends_with_i: String
+  setupUrl_in: [String]
+  setupUrl_not_in: [String]
+  instruction: JSON
+  instruction_not: JSON
+  instruction_in: [JSON]
+  instruction_not_in: [JSON]
+  instructionExtraLink: String
+  instructionExtraLink_not: String
+  instructionExtraLink_contains: String
+  instructionExtraLink_not_contains: String
+  instructionExtraLink_starts_with: String
+  instructionExtraLink_not_starts_with: String
+  instructionExtraLink_ends_with: String
+  instructionExtraLink_not_ends_with: String
+  instructionExtraLink_i: String
+  instructionExtraLink_not_i: String
+  instructionExtraLink_contains_i: String
+  instructionExtraLink_not_contains_i: String
+  instructionExtraLink_starts_with_i: String
+  instructionExtraLink_not_starts_with_i: String
+  instructionExtraLink_ends_with_i: String
+  instructionExtraLink_not_ends_with_i: String
+  instructionExtraLink_in: [String]
+  instructionExtraLink_not_in: [String]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -7179,6 +7265,8 @@ input BillingIntegrationHistoryRecordWhereInput {
   appUrl_not_ends_with_i: String
   appUrl_in: [String]
   appUrl_not_in: [String]
+  extendsBillingPage: Boolean
+  extendsBillingPage_not: Boolean
   billingPageTitle: String
   billingPageTitle_not: String
   billingPageTitle_contains: String
@@ -7215,6 +7303,60 @@ input BillingIntegrationHistoryRecordWhereInput {
   group_not_ends_with_i: String
   group_in: [String]
   group_not_in: [String]
+  connectedMessage: String
+  connectedMessage_not: String
+  connectedMessage_contains: String
+  connectedMessage_not_contains: String
+  connectedMessage_starts_with: String
+  connectedMessage_not_starts_with: String
+  connectedMessage_ends_with: String
+  connectedMessage_not_ends_with: String
+  connectedMessage_i: String
+  connectedMessage_not_i: String
+  connectedMessage_contains_i: String
+  connectedMessage_not_contains_i: String
+  connectedMessage_starts_with_i: String
+  connectedMessage_not_starts_with_i: String
+  connectedMessage_ends_with_i: String
+  connectedMessage_not_ends_with_i: String
+  connectedMessage_in: [String]
+  connectedMessage_not_in: [String]
+  uploadUrl: String
+  uploadUrl_not: String
+  uploadUrl_contains: String
+  uploadUrl_not_contains: String
+  uploadUrl_starts_with: String
+  uploadUrl_not_starts_with: String
+  uploadUrl_ends_with: String
+  uploadUrl_not_ends_with: String
+  uploadUrl_i: String
+  uploadUrl_not_i: String
+  uploadUrl_contains_i: String
+  uploadUrl_not_contains_i: String
+  uploadUrl_starts_with_i: String
+  uploadUrl_not_starts_with_i: String
+  uploadUrl_ends_with_i: String
+  uploadUrl_not_ends_with_i: String
+  uploadUrl_in: [String]
+  uploadUrl_not_in: [String]
+  uploadMessage: String
+  uploadMessage_not: String
+  uploadMessage_contains: String
+  uploadMessage_not_contains: String
+  uploadMessage_starts_with: String
+  uploadMessage_not_starts_with: String
+  uploadMessage_ends_with: String
+  uploadMessage_not_ends_with: String
+  uploadMessage_i: String
+  uploadMessage_not_i: String
+  uploadMessage_contains_i: String
+  uploadMessage_not_contains_i: String
+  uploadMessage_starts_with_i: String
+  uploadMessage_not_starts_with_i: String
+  uploadMessage_ends_with_i: String
+  uploadMessage_not_ends_with_i: String
+  uploadMessage_in: [String]
+  uploadMessage_not_in: [String]
   contextDefaultStatus: String
   contextDefaultStatus_not: String
   contextDefaultStatus_contains: String
@@ -7259,54 +7401,6 @@ input BillingIntegrationHistoryRecordWhereInput {
   isTrustedBankAccountSource_not: Boolean
   isHidden: Boolean
   isHidden_not: Boolean
-  displayPriority: Int
-  displayPriority_not: Int
-  displayPriority_lt: Int
-  displayPriority_lte: Int
-  displayPriority_gt: Int
-  displayPriority_gte: Int
-  displayPriority_in: [Int]
-  displayPriority_not_in: [Int]
-  label: String
-  label_not: String
-  label_contains: String
-  label_not_contains: String
-  label_starts_with: String
-  label_not_starts_with: String
-  label_ends_with: String
-  label_not_ends_with: String
-  label_i: String
-  label_not_i: String
-  label_contains_i: String
-  label_not_contains_i: String
-  label_starts_with_i: String
-  label_not_starts_with_i: String
-  label_ends_with_i: String
-  label_not_ends_with_i: String
-  label_in: [String]
-  label_not_in: [String]
-  gallery: JSON
-  gallery_not: JSON
-  gallery_in: [JSON]
-  gallery_not_in: [JSON]
-  price: String
-  price_not: String
-  price_contains: String
-  price_not_contains: String
-  price_starts_with: String
-  price_not_starts_with: String
-  price_ends_with: String
-  price_not_ends_with: String
-  price_i: String
-  price_not_i: String
-  price_contains_i: String
-  price_not_contains_i: String
-  price_starts_with_i: String
-  price_not_starts_with_i: String
-  price_ends_with_i: String
-  price_not_ends_with_i: String
-  price_in: [String]
-  price_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -7394,16 +7488,32 @@ enum SortBillingIntegrationHistoryRecordsBy {
   name_DESC
   shortDescription_ASC
   shortDescription_DESC
-  developer_ASC
-  developer_DESC
-  partnerUrl_ASC
-  partnerUrl_DESC
+  targetDescription_ASC
+  targetDescription_DESC
+  bannerTextColor_ASC
+  bannerTextColor_DESC
+  bannerColor_ASC
+  bannerColor_DESC
+  receiptsLoadingTime_ASC
+  receiptsLoadingTime_DESC
+  setupUrl_ASC
+  setupUrl_DESC
+  instructionExtraLink_ASC
+  instructionExtraLink_DESC
   appUrl_ASC
   appUrl_DESC
+  extendsBillingPage_ASC
+  extendsBillingPage_DESC
   billingPageTitle_ASC
   billingPageTitle_DESC
   group_ASC
   group_DESC
+  connectedMessage_ASC
+  connectedMessage_DESC
+  uploadUrl_ASC
+  uploadUrl_DESC
+  uploadMessage_ASC
+  uploadMessage_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   currencyCode_ASC
@@ -7412,12 +7522,6 @@ enum SortBillingIntegrationHistoryRecordsBy {
   isTrustedBankAccountSource_DESC
   isHidden_ASC
   isHidden_DESC
-  displayPriority_ASC
-  displayPriority_DESC
-  label_ASC
-  label_DESC
-  price_ASC
-  price_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -7440,21 +7544,27 @@ input BillingIntegrationHistoryRecordUpdateInput {
   name: String
   logo: JSON
   shortDescription: String
-  developer: String
-  partnerUrl: String
+  targetDescription: String
+  bannerTextColor: String
+  bannerColor: String
+  bannerPromoImage: JSON
+  receiptsLoadingTime: String
   detailedDescription: JSON
+  setupUrl: String
+  instruction: JSON
+  instructionExtraLink: String
   appUrl: String
+  extendsBillingPage: Boolean
   billingPageTitle: String
   group: String
+  connectedMessage: String
+  uploadUrl: String
+  uploadMessage: String
   contextDefaultStatus: String
   dataFormat: JSON
   currencyCode: String
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
-  displayPriority: Int
-  label: String
-  gallery: JSON
-  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -7478,21 +7588,27 @@ input BillingIntegrationHistoryRecordCreateInput {
   name: String
   logo: JSON
   shortDescription: String
-  developer: String
-  partnerUrl: String
+  targetDescription: String
+  bannerTextColor: String
+  bannerColor: String
+  bannerPromoImage: JSON
+  receiptsLoadingTime: String
   detailedDescription: JSON
+  setupUrl: String
+  instruction: JSON
+  instructionExtraLink: String
   appUrl: String
+  extendsBillingPage: Boolean
   billingPageTitle: String
   group: String
+  connectedMessage: String
+  uploadUrl: String
+  uploadMessage: String
   contextDefaultStatus: String
   dataFormat: JSON
   currencyCode: String
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
-  displayPriority: Int
-  label: String
-  gallery: JSON
-  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -7509,6 +7625,11 @@ input BillingIntegrationHistoryRecordCreateInput {
 
 input BillingIntegrationHistoryRecordsCreateInput {
   data: BillingIntegrationHistoryRecordCreateInput
+}
+
+enum BillingIntegrationBannerTextColorType {
+  BLACK
+  WHITE
 }
 
 type BillingIntegrationDataFormatField {
@@ -7545,35 +7666,72 @@ type BillingIntegration {
   """ The name of the `integration component` that the developer remembers """
   name: String
 
-  """ Logo of app's company or app itself """
+  """ Logo of integration's company or integration itself """
   logo: File
 
   """ Short description / catch phrase providing information about integration functionality. Will be shown on App's card 
   """
   shortDescription: String
 
-  """ Developer company name """
-  developer: String
-
-  """ Link to the website of the developer company, where the user can find out detailed information about the partner 
+  """ Short text describing integration target group. Like The type of organization for which this integration is best suited. 
   """
-  partnerUrl: String
+  targetDescription: String
+
+  """ Controls text appearance in the integration banner """
+  bannerTextColor: BillingIntegrationBannerTextColorType
+
+  """ Background color of banner in the integration modal. Can be hex code or linear gradient. 
+  """
+  bannerColor: String
+
+  """ Image shown in the integration banner """
+  bannerPromoImage: File
+
+  """ A short sentence describing how long it usually takes for integration to upload receipts. Appears under correlated title in the integration modal 
+  """
+  receiptsLoadingTime: String
 
   """ Text describing app functionality, connection process and pricing in full detail. Written in markdown without html tags. Will be shown on app's page 
   """
   detailedDescription: String
 
-  """ Url to app page, which is the app starting point and will be opened in iframe 
+  """ Url to app page, which will be opened during app connection to setup the integration. One of setupUrl and instruction fields must be filled 
+  """
+  setupUrl: String
+
+  """ Short instruction for connecting the service written in markdown. Used in cases where integration has no frontend 
+  """
+  instruction: String
+
+  """ Used in cases when integration need to link external instruction or article. 
+  """
+  instructionExtraLink: String
+
+  """ Url to the application page that extends the "Accruals and Payments" section and opens in an iframe inside an additional tab named from the "billingPageTitle" or "name" field and controlled by "extendsBillingPage" flag 
   """
   appUrl: String
 
-  """ This title is shown on /billing page, usually contains word "Billing" 
+  """ If this flag is set to true, then in the "Accruals and Payments" section will appear an additional tab with the "billingPageTitle" or "name" field and iframe from "appUrl" inside 
   """
+  extendsBillingPage: Boolean
+
+  """ Used in billing section to override name of app tab """
   billingPageTitle: String
 
   """ Billing group which this billing is part of. Used to restrict certain billings from certain acquirings" 
   """
   group: String
+
+  """ The message shown to the user after the integration is connected before the first receipts are downloaded. Appeared while lastReport field of context is null 
+  """
+  connectedMessage: String
+
+  """ If specified, billing app will have a call-to-action button, which opens iframe with specified url to start receipts-uploading process. Text of a button can be overridden via "uploadMessage" 
+  """
+  uploadUrl: String
+
+  """ Overrides default "Upload receipts" message on call-to-action button """
+  uploadMessage: String
 
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
@@ -7595,22 +7753,6 @@ type BillingIntegration {
   """ Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM 
   """
   isHidden: Boolean
-
-  """ The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1. 
-  """
-  displayPriority: Int
-
-  """ App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW] 
-  """
-  label: String
-
-  """ Array containing links to promotional images, which will be shown to user on app's page 
-  """
-  gallery: [String!]
-
-  """ String representing a base price of app. Usually it's something like "Free", "Individual", "$50 / year" 
-  """
-  price: String
   id: ID!
   v: Int
   createdAt: String
@@ -7677,42 +7819,68 @@ input BillingIntegrationWhereInput {
   shortDescription_not_ends_with_i: String
   shortDescription_in: [String]
   shortDescription_not_in: [String]
-  developer: String
-  developer_not: String
-  developer_contains: String
-  developer_not_contains: String
-  developer_starts_with: String
-  developer_not_starts_with: String
-  developer_ends_with: String
-  developer_not_ends_with: String
-  developer_i: String
-  developer_not_i: String
-  developer_contains_i: String
-  developer_not_contains_i: String
-  developer_starts_with_i: String
-  developer_not_starts_with_i: String
-  developer_ends_with_i: String
-  developer_not_ends_with_i: String
-  developer_in: [String]
-  developer_not_in: [String]
-  partnerUrl: String
-  partnerUrl_not: String
-  partnerUrl_contains: String
-  partnerUrl_not_contains: String
-  partnerUrl_starts_with: String
-  partnerUrl_not_starts_with: String
-  partnerUrl_ends_with: String
-  partnerUrl_not_ends_with: String
-  partnerUrl_i: String
-  partnerUrl_not_i: String
-  partnerUrl_contains_i: String
-  partnerUrl_not_contains_i: String
-  partnerUrl_starts_with_i: String
-  partnerUrl_not_starts_with_i: String
-  partnerUrl_ends_with_i: String
-  partnerUrl_not_ends_with_i: String
-  partnerUrl_in: [String]
-  partnerUrl_not_in: [String]
+  targetDescription: String
+  targetDescription_not: String
+  targetDescription_contains: String
+  targetDescription_not_contains: String
+  targetDescription_starts_with: String
+  targetDescription_not_starts_with: String
+  targetDescription_ends_with: String
+  targetDescription_not_ends_with: String
+  targetDescription_i: String
+  targetDescription_not_i: String
+  targetDescription_contains_i: String
+  targetDescription_not_contains_i: String
+  targetDescription_starts_with_i: String
+  targetDescription_not_starts_with_i: String
+  targetDescription_ends_with_i: String
+  targetDescription_not_ends_with_i: String
+  targetDescription_in: [String]
+  targetDescription_not_in: [String]
+  bannerTextColor: BillingIntegrationBannerTextColorType
+  bannerTextColor_not: BillingIntegrationBannerTextColorType
+  bannerTextColor_in: [BillingIntegrationBannerTextColorType]
+  bannerTextColor_not_in: [BillingIntegrationBannerTextColorType]
+  bannerColor: String
+  bannerColor_not: String
+  bannerColor_contains: String
+  bannerColor_not_contains: String
+  bannerColor_starts_with: String
+  bannerColor_not_starts_with: String
+  bannerColor_ends_with: String
+  bannerColor_not_ends_with: String
+  bannerColor_i: String
+  bannerColor_not_i: String
+  bannerColor_contains_i: String
+  bannerColor_not_contains_i: String
+  bannerColor_starts_with_i: String
+  bannerColor_not_starts_with_i: String
+  bannerColor_ends_with_i: String
+  bannerColor_not_ends_with_i: String
+  bannerColor_in: [String]
+  bannerColor_not_in: [String]
+  bannerPromoImage: String
+  bannerPromoImage_not: String
+  bannerPromoImage_in: [String]
+  bannerPromoImage_not_in: [String]
+  receiptsLoadingTime: String
+  receiptsLoadingTime_not: String
+  receiptsLoadingTime_contains: String
+  receiptsLoadingTime_not_contains: String
+  receiptsLoadingTime_starts_with: String
+  receiptsLoadingTime_not_starts_with: String
+  receiptsLoadingTime_ends_with: String
+  receiptsLoadingTime_not_ends_with: String
+  receiptsLoadingTime_i: String
+  receiptsLoadingTime_not_i: String
+  receiptsLoadingTime_contains_i: String
+  receiptsLoadingTime_not_contains_i: String
+  receiptsLoadingTime_starts_with_i: String
+  receiptsLoadingTime_not_starts_with_i: String
+  receiptsLoadingTime_ends_with_i: String
+  receiptsLoadingTime_not_ends_with_i: String
+  receiptsLoadingTime_in: [String]
+  receiptsLoadingTime_not_in: [String]
   detailedDescription: String
   detailedDescription_not: String
   detailedDescription_contains: String
@@ -7731,6 +7899,60 @@ input BillingIntegrationWhereInput {
   detailedDescription_not_ends_with_i: String
   detailedDescription_in: [String]
   detailedDescription_not_in: [String]
+  setupUrl: String
+  setupUrl_not: String
+  setupUrl_contains: String
+  setupUrl_not_contains: String
+  setupUrl_starts_with: String
+  setupUrl_not_starts_with: String
+  setupUrl_ends_with: String
+  setupUrl_not_ends_with: String
+  setupUrl_i: String
+  setupUrl_not_i: String
+  setupUrl_contains_i: String
+  setupUrl_not_contains_i: String
+  setupUrl_starts_with_i: String
+  setupUrl_not_starts_with_i: String
+  setupUrl_ends_with_i: String
+  setupUrl_not_ends_with_i: String
+  setupUrl_in: [String]
+  setupUrl_not_in: [String]
+  instruction: String
+  instruction_not: String
+  instruction_contains: String
+  instruction_not_contains: String
+  instruction_starts_with: String
+  instruction_not_starts_with: String
+  instruction_ends_with: String
+  instruction_not_ends_with: String
+  instruction_i: String
+  instruction_not_i: String
+  instruction_contains_i: String
+  instruction_not_contains_i: String
+  instruction_starts_with_i: String
+  instruction_not_starts_with_i: String
+  instruction_ends_with_i: String
+  instruction_not_ends_with_i: String
+  instruction_in: [String]
+  instruction_not_in: [String]
+  instructionExtraLink: String
+  instructionExtraLink_not: String
+  instructionExtraLink_contains: String
+  instructionExtraLink_not_contains: String
+  instructionExtraLink_starts_with: String
+  instructionExtraLink_not_starts_with: String
+  instructionExtraLink_ends_with: String
+  instructionExtraLink_not_ends_with: String
+  instructionExtraLink_i: String
+  instructionExtraLink_not_i: String
+  instructionExtraLink_contains_i: String
+  instructionExtraLink_not_contains_i: String
+  instructionExtraLink_starts_with_i: String
+  instructionExtraLink_not_starts_with_i: String
+  instructionExtraLink_ends_with_i: String
+  instructionExtraLink_not_ends_with_i: String
+  instructionExtraLink_in: [String]
+  instructionExtraLink_not_in: [String]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -7749,6 +7971,8 @@ input BillingIntegrationWhereInput {
   appUrl_not_ends_with_i: String
   appUrl_in: [String]
   appUrl_not_in: [String]
+  extendsBillingPage: Boolean
+  extendsBillingPage_not: Boolean
   billingPageTitle: String
   billingPageTitle_not: String
   billingPageTitle_contains: String
@@ -7785,6 +8009,60 @@ input BillingIntegrationWhereInput {
   group_not_ends_with_i: String
   group_in: [String]
   group_not_in: [String]
+  connectedMessage: String
+  connectedMessage_not: String
+  connectedMessage_contains: String
+  connectedMessage_not_contains: String
+  connectedMessage_starts_with: String
+  connectedMessage_not_starts_with: String
+  connectedMessage_ends_with: String
+  connectedMessage_not_ends_with: String
+  connectedMessage_i: String
+  connectedMessage_not_i: String
+  connectedMessage_contains_i: String
+  connectedMessage_not_contains_i: String
+  connectedMessage_starts_with_i: String
+  connectedMessage_not_starts_with_i: String
+  connectedMessage_ends_with_i: String
+  connectedMessage_not_ends_with_i: String
+  connectedMessage_in: [String]
+  connectedMessage_not_in: [String]
+  uploadUrl: String
+  uploadUrl_not: String
+  uploadUrl_contains: String
+  uploadUrl_not_contains: String
+  uploadUrl_starts_with: String
+  uploadUrl_not_starts_with: String
+  uploadUrl_ends_with: String
+  uploadUrl_not_ends_with: String
+  uploadUrl_i: String
+  uploadUrl_not_i: String
+  uploadUrl_contains_i: String
+  uploadUrl_not_contains_i: String
+  uploadUrl_starts_with_i: String
+  uploadUrl_not_starts_with_i: String
+  uploadUrl_ends_with_i: String
+  uploadUrl_not_ends_with_i: String
+  uploadUrl_in: [String]
+  uploadUrl_not_in: [String]
+  uploadMessage: String
+  uploadMessage_not: String
+  uploadMessage_contains: String
+  uploadMessage_not_contains: String
+  uploadMessage_starts_with: String
+  uploadMessage_not_starts_with: String
+  uploadMessage_ends_with: String
+  uploadMessage_not_ends_with: String
+  uploadMessage_i: String
+  uploadMessage_not_i: String
+  uploadMessage_contains_i: String
+  uploadMessage_not_contains_i: String
+  uploadMessage_starts_with_i: String
+  uploadMessage_not_starts_with_i: String
+  uploadMessage_ends_with_i: String
+  uploadMessage_not_ends_with_i: String
+  uploadMessage_in: [String]
+  uploadMessage_not_in: [String]
   contextDefaultStatus: String
   contextDefaultStatus_not: String
   contextDefaultStatus_in: [String]
@@ -7810,40 +8088,6 @@ input BillingIntegrationWhereInput {
   isTrustedBankAccountSource_not: Boolean
   isHidden: Boolean
   isHidden_not: Boolean
-  displayPriority: Int
-  displayPriority_not: Int
-  displayPriority_lt: Int
-  displayPriority_lte: Int
-  displayPriority_gt: Int
-  displayPriority_gte: Int
-  displayPriority_in: [Int]
-  displayPriority_not_in: [Int]
-  label: String
-  label_not: String
-  label_in: [String]
-  label_not_in: [String]
-  gallery: [String!]
-  gallery_not: [String!]
-  gallery_in: [[String!]]
-  gallery_not_in: [[String!]]
-  price: String
-  price_not: String
-  price_contains: String
-  price_not_contains: String
-  price_starts_with: String
-  price_not_starts_with: String
-  price_ends_with: String
-  price_not_ends_with: String
-  price_i: String
-  price_not_i: String
-  price_contains_i: String
-  price_not_contains_i: String
-  price_starts_with_i: String
-  price_not_starts_with_i: String
-  price_ends_with_i: String
-  price_not_ends_with_i: String
-  price_in: [String]
-  price_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -7911,18 +8155,36 @@ enum SortBillingIntegrationsBy {
   name_DESC
   shortDescription_ASC
   shortDescription_DESC
-  developer_ASC
-  developer_DESC
-  partnerUrl_ASC
-  partnerUrl_DESC
+  targetDescription_ASC
+  targetDescription_DESC
+  bannerTextColor_ASC
+  bannerTextColor_DESC
+  bannerColor_ASC
+  bannerColor_DESC
+  receiptsLoadingTime_ASC
+  receiptsLoadingTime_DESC
   detailedDescription_ASC
   detailedDescription_DESC
+  setupUrl_ASC
+  setupUrl_DESC
+  instruction_ASC
+  instruction_DESC
+  instructionExtraLink_ASC
+  instructionExtraLink_DESC
   appUrl_ASC
   appUrl_DESC
+  extendsBillingPage_ASC
+  extendsBillingPage_DESC
   billingPageTitle_ASC
   billingPageTitle_DESC
   group_ASC
   group_DESC
+  connectedMessage_ASC
+  connectedMessage_DESC
+  uploadUrl_ASC
+  uploadUrl_DESC
+  uploadMessage_ASC
+  uploadMessage_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   currencyCode_ASC
@@ -7933,12 +8195,6 @@ enum SortBillingIntegrationsBy {
   isTrustedBankAccountSource_DESC
   isHidden_ASC
   isHidden_DESC
-  displayPriority_ASC
-  displayPriority_DESC
-  label_ASC
-  label_DESC
-  price_ASC
-  price_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -7961,22 +8217,28 @@ input BillingIntegrationUpdateInput {
   name: String
   logo: Upload
   shortDescription: String
-  developer: String
-  partnerUrl: String
+  targetDescription: String
+  bannerTextColor: BillingIntegrationBannerTextColorType
+  bannerColor: String
+  bannerPromoImage: Upload
+  receiptsLoadingTime: String
   detailedDescription: String
+  setupUrl: String
+  instruction: String
+  instructionExtraLink: String
   appUrl: String
+  extendsBillingPage: Boolean
   billingPageTitle: String
   group: String
+  connectedMessage: String
+  uploadUrl: String
+  uploadMessage: String
   contextDefaultStatus: String
   dataFormat: BillingIntegrationDataFormatFieldInput
   currencyCode: String
   accessRights: BillingIntegrationAccessRightRelateToManyInput
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
-  displayPriority: Int
-  label: String
-  gallery: [String!]
-  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -7997,22 +8259,28 @@ input BillingIntegrationCreateInput {
   name: String
   logo: Upload
   shortDescription: String
-  developer: String
-  partnerUrl: String
+  targetDescription: String
+  bannerTextColor: BillingIntegrationBannerTextColorType
+  bannerColor: String
+  bannerPromoImage: Upload
+  receiptsLoadingTime: String
   detailedDescription: String
+  setupUrl: String
+  instruction: String
+  instructionExtraLink: String
   appUrl: String
+  extendsBillingPage: Boolean
   billingPageTitle: String
   group: String
+  connectedMessage: String
+  uploadUrl: String
+  uploadMessage: String
   contextDefaultStatus: String
   dataFormat: BillingIntegrationDataFormatFieldInput
   currencyCode: String
   accessRights: BillingIntegrationAccessRightRelateToManyInput
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
-  displayPriority: Int
-  label: String
-  gallery: [String!]
-  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -42961,21 +43229,12 @@ type AcquiringIntegrationHistoryRecord {
   """
   _label_: String
   name: String
-  logo: JSON
-  shortDescription: String
-  developer: String
-  partnerUrl: String
-  detailedDescription: JSON
-  appUrl: String
+  setupUrl: String
   isHidden: Boolean
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: JSON
-  displayPriority: Int
-  label: String
-  gallery: JSON
-  price: String
   contextDefaultStatus: String
   id: ID!
   v: Int
@@ -43013,86 +43272,24 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
-  logo: JSON
-  logo_not: JSON
-  logo_in: [JSON]
-  logo_not_in: [JSON]
-  shortDescription: String
-  shortDescription_not: String
-  shortDescription_contains: String
-  shortDescription_not_contains: String
-  shortDescription_starts_with: String
-  shortDescription_not_starts_with: String
-  shortDescription_ends_with: String
-  shortDescription_not_ends_with: String
-  shortDescription_i: String
-  shortDescription_not_i: String
-  shortDescription_contains_i: String
-  shortDescription_not_contains_i: String
-  shortDescription_starts_with_i: String
-  shortDescription_not_starts_with_i: String
-  shortDescription_ends_with_i: String
-  shortDescription_not_ends_with_i: String
-  shortDescription_in: [String]
-  shortDescription_not_in: [String]
-  developer: String
-  developer_not: String
-  developer_contains: String
-  developer_not_contains: String
-  developer_starts_with: String
-  developer_not_starts_with: String
-  developer_ends_with: String
-  developer_not_ends_with: String
-  developer_i: String
-  developer_not_i: String
-  developer_contains_i: String
-  developer_not_contains_i: String
-  developer_starts_with_i: String
-  developer_not_starts_with_i: String
-  developer_ends_with_i: String
-  developer_not_ends_with_i: String
-  developer_in: [String]
-  developer_not_in: [String]
-  partnerUrl: String
-  partnerUrl_not: String
-  partnerUrl_contains: String
-  partnerUrl_not_contains: String
-  partnerUrl_starts_with: String
-  partnerUrl_not_starts_with: String
-  partnerUrl_ends_with: String
-  partnerUrl_not_ends_with: String
-  partnerUrl_i: String
-  partnerUrl_not_i: String
-  partnerUrl_contains_i: String
-  partnerUrl_not_contains_i: String
-  partnerUrl_starts_with_i: String
-  partnerUrl_not_starts_with_i: String
-  partnerUrl_ends_with_i: String
-  partnerUrl_not_ends_with_i: String
-  partnerUrl_in: [String]
-  partnerUrl_not_in: [String]
-  detailedDescription: JSON
-  detailedDescription_not: JSON
-  detailedDescription_in: [JSON]
-  detailedDescription_not_in: [JSON]
-  appUrl: String
-  appUrl_not: String
-  appUrl_contains: String
-  appUrl_not_contains: String
-  appUrl_starts_with: String
-  appUrl_not_starts_with: String
-  appUrl_ends_with: String
-  appUrl_not_ends_with: String
-  appUrl_i: String
-  appUrl_not_i: String
-  appUrl_contains_i: String
-  appUrl_not_contains_i: String
-  appUrl_starts_with_i: String
-  appUrl_not_starts_with_i: String
-  appUrl_ends_with_i: String
-  appUrl_not_ends_with_i: String
-  appUrl_in: [String]
-  appUrl_not_in: [String]
+  setupUrl: String
+  setupUrl_not: String
+  setupUrl_contains: String
+  setupUrl_not_contains: String
+  setupUrl_starts_with: String
+  setupUrl_not_starts_with: String
+  setupUrl_ends_with: String
+  setupUrl_not_ends_with: String
+  setupUrl_i: String
+  setupUrl_not_i: String
+  setupUrl_contains_i: String
+  setupUrl_not_contains_i: String
+  setupUrl_starts_with_i: String
+  setupUrl_not_starts_with_i: String
+  setupUrl_ends_with_i: String
+  setupUrl_not_ends_with_i: String
+  setupUrl_in: [String]
+  setupUrl_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
   canGroupReceipts: Boolean
@@ -43137,54 +43334,6 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   explicitFeeDistributionSchema_not: JSON
   explicitFeeDistributionSchema_in: [JSON]
   explicitFeeDistributionSchema_not_in: [JSON]
-  displayPriority: Int
-  displayPriority_not: Int
-  displayPriority_lt: Int
-  displayPriority_lte: Int
-  displayPriority_gt: Int
-  displayPriority_gte: Int
-  displayPriority_in: [Int]
-  displayPriority_not_in: [Int]
-  label: String
-  label_not: String
-  label_contains: String
-  label_not_contains: String
-  label_starts_with: String
-  label_not_starts_with: String
-  label_ends_with: String
-  label_not_ends_with: String
-  label_i: String
-  label_not_i: String
-  label_contains_i: String
-  label_not_contains_i: String
-  label_starts_with_i: String
-  label_not_starts_with_i: String
-  label_ends_with_i: String
-  label_not_ends_with_i: String
-  label_in: [String]
-  label_not_in: [String]
-  gallery: JSON
-  gallery_not: JSON
-  gallery_in: [JSON]
-  gallery_not_in: [JSON]
-  price: String
-  price_not: String
-  price_contains: String
-  price_not_contains: String
-  price_starts_with: String
-  price_not_starts_with: String
-  price_ends_with: String
-  price_not_ends_with: String
-  price_i: String
-  price_not_i: String
-  price_contains_i: String
-  price_not_contains_i: String
-  price_starts_with_i: String
-  price_not_starts_with_i: String
-  price_ends_with_i: String
-  price_not_ends_with_i: String
-  price_in: [String]
-  price_not_in: [String]
   contextDefaultStatus: String
   contextDefaultStatus_not: String
   contextDefaultStatus_contains: String
@@ -43288,14 +43437,8 @@ input AcquiringIntegrationHistoryRecordWhereUniqueInput {
 enum SortAcquiringIntegrationHistoryRecordsBy {
   name_ASC
   name_DESC
-  shortDescription_ASC
-  shortDescription_DESC
-  developer_ASC
-  developer_DESC
-  partnerUrl_ASC
-  partnerUrl_DESC
-  appUrl_ASC
-  appUrl_DESC
+  setupUrl_ASC
+  setupUrl_DESC
   isHidden_ASC
   isHidden_DESC
   canGroupReceipts_ASC
@@ -43304,12 +43447,6 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   hostUrl_DESC
   supportedBillingIntegrationsGroup_ASC
   supportedBillingIntegrationsGroup_DESC
-  displayPriority_ASC
-  displayPriority_DESC
-  label_ASC
-  label_DESC
-  price_ASC
-  price_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   id_ASC
@@ -43332,21 +43469,12 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
 
 input AcquiringIntegrationHistoryRecordUpdateInput {
   name: String
-  logo: JSON
-  shortDescription: String
-  developer: String
-  partnerUrl: String
-  detailedDescription: JSON
-  appUrl: String
+  setupUrl: String
   isHidden: Boolean
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: JSON
-  displayPriority: Int
-  label: String
-  gallery: JSON
-  price: String
   contextDefaultStatus: String
   v: Int
   createdAt: String
@@ -43369,21 +43497,12 @@ input AcquiringIntegrationHistoryRecordsUpdateInput {
 
 input AcquiringIntegrationHistoryRecordCreateInput {
   name: String
-  logo: JSON
-  shortDescription: String
-  developer: String
-  partnerUrl: String
-  detailedDescription: JSON
-  appUrl: String
+  setupUrl: String
   isHidden: Boolean
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: JSON
-  displayPriority: Int
-  label: String
-  gallery: JSON
-  price: String
   contextDefaultStatus: String
   v: Int
   createdAt: String
@@ -43441,27 +43560,8 @@ type AcquiringIntegration {
   """ Name of `acquiring component`, which is set up by developer """
   name: String
 
-  """ Logo of app's company or app itself """
-  logo: File
-
-  """ Short description / catch phrase providing information about integration functionality. Will be shown on App's card 
-  """
-  shortDescription: String
-
-  """ Developer company name """
-  developer: String
-
-  """ Link to the website of the developer company, where the user can find out detailed information about the partner 
-  """
-  partnerUrl: String
-
-  """ Text describing app functionality, connection process and pricing in full detail. Written in markdown without html tags. Will be shown on app's page 
-  """
-  detailedDescription: String
-
-  """ Url to app page, which is the app starting point and will be opened in iframe 
-  """
-  appUrl: String
+  """ Url to setup page of acquiring integration """
+  setupUrl: String
 
   """ Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM 
   """
@@ -43483,22 +43583,6 @@ type AcquiringIntegration {
   """ Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient 
   """
   explicitFeeDistributionSchema: [FeeDistributionField!]
-
-  """ The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1. 
-  """
-  displayPriority: Int
-
-  """ App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW] 
-  """
-  label: String
-
-  """ Array containing links to promotional images, which will be shown to user on app's page 
-  """
-  gallery: [String!]
-
-  """ String representing a base price of app. Usually it's something like "Free", "Individual", "$50 / year" 
-  """
-  price: String
 
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
@@ -43547,100 +43631,24 @@ input AcquiringIntegrationWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
-  logo: String
-  logo_not: String
-  logo_in: [String]
-  logo_not_in: [String]
-  shortDescription: String
-  shortDescription_not: String
-  shortDescription_contains: String
-  shortDescription_not_contains: String
-  shortDescription_starts_with: String
-  shortDescription_not_starts_with: String
-  shortDescription_ends_with: String
-  shortDescription_not_ends_with: String
-  shortDescription_i: String
-  shortDescription_not_i: String
-  shortDescription_contains_i: String
-  shortDescription_not_contains_i: String
-  shortDescription_starts_with_i: String
-  shortDescription_not_starts_with_i: String
-  shortDescription_ends_with_i: String
-  shortDescription_not_ends_with_i: String
-  shortDescription_in: [String]
-  shortDescription_not_in: [String]
-  developer: String
-  developer_not: String
-  developer_contains: String
-  developer_not_contains: String
-  developer_starts_with: String
-  developer_not_starts_with: String
-  developer_ends_with: String
-  developer_not_ends_with: String
-  developer_i: String
-  developer_not_i: String
-  developer_contains_i: String
-  developer_not_contains_i: String
-  developer_starts_with_i: String
-  developer_not_starts_with_i: String
-  developer_ends_with_i: String
-  developer_not_ends_with_i: String
-  developer_in: [String]
-  developer_not_in: [String]
-  partnerUrl: String
-  partnerUrl_not: String
-  partnerUrl_contains: String
-  partnerUrl_not_contains: String
-  partnerUrl_starts_with: String
-  partnerUrl_not_starts_with: String
-  partnerUrl_ends_with: String
-  partnerUrl_not_ends_with: String
-  partnerUrl_i: String
-  partnerUrl_not_i: String
-  partnerUrl_contains_i: String
-  partnerUrl_not_contains_i: String
-  partnerUrl_starts_with_i: String
-  partnerUrl_not_starts_with_i: String
-  partnerUrl_ends_with_i: String
-  partnerUrl_not_ends_with_i: String
-  partnerUrl_in: [String]
-  partnerUrl_not_in: [String]
-  detailedDescription: String
-  detailedDescription_not: String
-  detailedDescription_contains: String
-  detailedDescription_not_contains: String
-  detailedDescription_starts_with: String
-  detailedDescription_not_starts_with: String
-  detailedDescription_ends_with: String
-  detailedDescription_not_ends_with: String
-  detailedDescription_i: String
-  detailedDescription_not_i: String
-  detailedDescription_contains_i: String
-  detailedDescription_not_contains_i: String
-  detailedDescription_starts_with_i: String
-  detailedDescription_not_starts_with_i: String
-  detailedDescription_ends_with_i: String
-  detailedDescription_not_ends_with_i: String
-  detailedDescription_in: [String]
-  detailedDescription_not_in: [String]
-  appUrl: String
-  appUrl_not: String
-  appUrl_contains: String
-  appUrl_not_contains: String
-  appUrl_starts_with: String
-  appUrl_not_starts_with: String
-  appUrl_ends_with: String
-  appUrl_not_ends_with: String
-  appUrl_i: String
-  appUrl_not_i: String
-  appUrl_contains_i: String
-  appUrl_not_contains_i: String
-  appUrl_starts_with_i: String
-  appUrl_not_starts_with_i: String
-  appUrl_ends_with_i: String
-  appUrl_not_ends_with_i: String
-  appUrl_in: [String]
-  appUrl_not_in: [String]
+  setupUrl: String
+  setupUrl_not: String
+  setupUrl_contains: String
+  setupUrl_not_contains: String
+  setupUrl_starts_with: String
+  setupUrl_not_starts_with: String
+  setupUrl_ends_with: String
+  setupUrl_not_ends_with: String
+  setupUrl_i: String
+  setupUrl_not_i: String
+  setupUrl_contains_i: String
+  setupUrl_not_contains_i: String
+  setupUrl_starts_with_i: String
+  setupUrl_not_starts_with_i: String
+  setupUrl_ends_with_i: String
+  setupUrl_not_ends_with_i: String
+  setupUrl_in: [String]
+  setupUrl_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
 
@@ -43694,40 +43702,6 @@ input AcquiringIntegrationWhereInput {
   explicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
   explicitFeeDistributionSchema_not_in: [[FeeDistributionFieldInput!]]
-  displayPriority: Int
-  displayPriority_not: Int
-  displayPriority_lt: Int
-  displayPriority_lte: Int
-  displayPriority_gt: Int
-  displayPriority_gte: Int
-  displayPriority_in: [Int]
-  displayPriority_not_in: [Int]
-  label: String
-  label_not: String
-  label_in: [String]
-  label_not_in: [String]
-  gallery: [String!]
-  gallery_not: [String!]
-  gallery_in: [[String!]]
-  gallery_not_in: [[String!]]
-  price: String
-  price_not: String
-  price_contains: String
-  price_not_contains: String
-  price_starts_with: String
-  price_not_starts_with: String
-  price_ends_with: String
-  price_not_ends_with: String
-  price_i: String
-  price_not_i: String
-  price_contains_i: String
-  price_not_contains_i: String
-  price_starts_with_i: String
-  price_not_starts_with_i: String
-  price_ends_with_i: String
-  price_not_ends_with_i: String
-  price_in: [String]
-  price_not_in: [String]
   contextDefaultStatus: String
   contextDefaultStatus_not: String
   contextDefaultStatus_in: [String]
@@ -43797,16 +43771,8 @@ input AcquiringIntegrationWhereUniqueInput {
 enum SortAcquiringIntegrationsBy {
   name_ASC
   name_DESC
-  shortDescription_ASC
-  shortDescription_DESC
-  developer_ASC
-  developer_DESC
-  partnerUrl_ASC
-  partnerUrl_DESC
-  detailedDescription_ASC
-  detailedDescription_DESC
-  appUrl_ASC
-  appUrl_DESC
+  setupUrl_ASC
+  setupUrl_DESC
   isHidden_ASC
   isHidden_DESC
   accessRights_ASC
@@ -43817,12 +43783,6 @@ enum SortAcquiringIntegrationsBy {
   hostUrl_DESC
   supportedBillingIntegrationsGroup_ASC
   supportedBillingIntegrationsGroup_DESC
-  displayPriority_ASC
-  displayPriority_DESC
-  label_ASC
-  label_DESC
-  price_ASC
-  price_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   id_ASC
@@ -43845,22 +43805,13 @@ enum SortAcquiringIntegrationsBy {
 
 input AcquiringIntegrationUpdateInput {
   name: String
-  logo: Upload
-  shortDescription: String
-  developer: String
-  partnerUrl: String
-  detailedDescription: String
-  appUrl: String
+  setupUrl: String
   isHidden: Boolean
   accessRights: AcquiringIntegrationAccessRightRelateToManyInput
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
-  displayPriority: Int
-  label: String
-  gallery: [String!]
-  price: String
   contextDefaultStatus: String
   v: Int
   createdAt: String
@@ -43880,22 +43831,13 @@ input AcquiringIntegrationsUpdateInput {
 
 input AcquiringIntegrationCreateInput {
   name: String
-  logo: Upload
-  shortDescription: String
-  developer: String
-  partnerUrl: String
-  detailedDescription: String
-  appUrl: String
+  setupUrl: String
   isHidden: Boolean
   accessRights: AcquiringIntegrationAccessRightRelateToManyInput
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
-  displayPriority: Int
-  label: String
-  gallery: [String!]
-  price: String
   contextDefaultStatus: String
   v: Int
   createdAt: String
@@ -58520,13 +58462,10 @@ type PaymentsSumOutput {
 }
 
 enum AppType {
-  BILLING
-  ACQUIRING
   B2B
 }
 
 enum AppCategory {
-  ACCRUALS_AND_PAYMENTS
   DISPATCHING
   GIS
   SMART_HOME

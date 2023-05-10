@@ -10,7 +10,6 @@ import { Typography } from '@open-condo/ui'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
-import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
 
 
 type BillingAppPageProps = {
@@ -35,18 +34,12 @@ export const BillingAppPage: React.FC<BillingAppPageProps> = ({ id }) => {
     const appName = get(context, ['integration', 'name'], null)
 
     // NOTE 1: Page visiting is valid if context exist and app has appUrl
-    // NOTE 2: In case of invalid id it will redirect to about page, where appId is checked
+    // NOTE 2: If condition is not met, user will be redirected to self-billing flow
     useEffect(() => {
         if (!loading && !error && (!context || !appUrl)) {
-            router.push(`/miniapps/${id}/about?type=${BILLING_APP_TYPE}`)
+            router.push('/billing')
         }
     }, [id, loading, error, context, appUrl, router])
-
-    // TODO(DOMA-5005): Return this restriction back till token scopes will be implemented
-    // if (isSupport || isAdmin) {
-    //     return <LoadingOrErrorPage title={FallbackPageTitle} error={NoPermissionMessage}/>
-    // }
-
 
     return (
         <>
