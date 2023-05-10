@@ -141,8 +141,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     organization: { id: organizationId },
                     account: { id: bankAccount.id },
                     importId: transactionProperty.importId,
-                    number: transactionProperty.number,
-                    date: transactionProperty.date,
+                    importRemoteSystem: SBBOL_IMPORT_NAME,
                     deletedAt: null,
                 }, { first: 1 })
 

@@ -671,7 +671,7 @@ describe('BankSyncTask', () => {
             expect(parseFloat(obj.amount)).toBeCloseTo(parseFloat(transactionDataToCompare.amount), 2)
             expect(obj.date).toEqual(dayjs(transactionDataToCompare.date).format('YYYY-MM-DD'))
             expect(obj).toMatchObject(pick(transactionDataToCompare, ['number', 'isOutcome', 'purpose', 'currencyCode']))
-            expect(obj.importId).toEqual(transactionDataToCompare.number)
+            expect(obj.importId).toEqual([dayjs(transactionDataToCompare.date).format('YYYY-MM-DD'), transactionDataToCompare.number].join('_'))
             expect(obj.importRemoteSystem).toEqual('1CClientBankExchange')
             expect(obj.organization.id).toEqual(organization.id)
             expect(obj.account.id).toEqual(bankAccount.id)
@@ -892,8 +892,9 @@ describe('BankSyncTask', () => {
                 expect(createdTransactions).toHaveLength(0)
 
                 const updatedTask2 = await BankSyncTask.getOne(adminClient, { id: task2.id })
+                expect(updatedTask2.meta).toBeTruthy()
                 expect(updatedTask2.meta).toMatchObject({
-                    duplicatedTransactions: ['61298', '6032', '656731', '239'],
+                    duplicatedTransactions: ['2022-04-15_61298', '2022-04-15_6032', '2022-04-18_656731', '2022-04-18_239'],
                 })
             })
         })
