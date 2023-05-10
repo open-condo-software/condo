@@ -111,129 +111,129 @@ ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "uploadUrl" CASCADE;
 --
 -- Add field detailedDescription to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" ADD COLUMN "detailedDescription" text DEFAULT 'Detailed description' NOT NULL;
+ALTER TABLE "AcquiringIntegration" ADD COLUMN IF NOT EXISTS "detailedDescription" text DEFAULT 'Detailed description' NOT NULL;
 ALTER TABLE "AcquiringIntegration" ALTER COLUMN "detailedDescription" DROP DEFAULT;
 --
 -- Add field developer to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" ADD COLUMN "developer" text DEFAULT 'Developer' NOT NULL;
+ALTER TABLE "AcquiringIntegration" ADD COLUMN IF NOT EXISTS "developer" text DEFAULT 'Developer' NOT NULL;
 ALTER TABLE "AcquiringIntegration" ALTER COLUMN "developer" DROP DEFAULT;
 --
 -- Add field displayPriority to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" ADD COLUMN "displayPriority" integer DEFAULT 1 NOT NULL;
+ALTER TABLE "AcquiringIntegration" ADD COLUMN IF NOT EXISTS "displayPriority" integer DEFAULT 1 NOT NULL;
 ALTER TABLE "AcquiringIntegration" ALTER COLUMN "displayPriority" DROP DEFAULT;
 --
 -- Add field gallery to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" ADD COLUMN "gallery" jsonb NULL;
+ALTER TABLE "AcquiringIntegration" ADD COLUMN IF NOT EXISTS "gallery" jsonb NULL;
 --
 -- Add field label to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" ADD COLUMN "label" text NULL;
+ALTER TABLE "AcquiringIntegration" ADD COLUMN IF NOT EXISTS "label" text NULL;
 --
 -- Add field logo to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" ADD COLUMN "logo" jsonb NULL;
+ALTER TABLE "AcquiringIntegration" ADD COLUMN IF NOT EXISTS "logo" jsonb NULL;
 --
 -- Add field partnerUrl to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" ADD COLUMN "partnerUrl" text NULL;
+ALTER TABLE "AcquiringIntegration" ADD COLUMN IF NOT EXISTS "partnerUrl" text NULL;
 --
 -- Add field price to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" ADD COLUMN "price" text NULL;
+ALTER TABLE "AcquiringIntegration" ADD COLUMN IF NOT EXISTS "price" text NULL;
 --
 -- Add field shortDescription to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" ADD COLUMN "shortDescription" text DEFAULT 'Description' NOT NULL;
+ALTER TABLE "AcquiringIntegration" ADD COLUMN IF NOT EXISTS "shortDescription" text DEFAULT 'Description' NOT NULL;
 ALTER TABLE "AcquiringIntegration" ALTER COLUMN "shortDescription" DROP DEFAULT;
 --
 -- Add field detailedDescription to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN "detailedDescription" jsonb NULL;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "detailedDescription" jsonb NULL;
 --
 -- Add field developer to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN "developer" text NULL;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "developer" text NULL;
 --
 -- Add field displayPriority to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN "displayPriority" integer NULL;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "displayPriority" integer NULL;
 --
 -- Add field gallery to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN "gallery" jsonb NULL;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "gallery" jsonb NULL;
 --
 -- Add field label to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN "label" text NULL;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "label" text NULL;
 --
 -- Add field logo to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN "logo" jsonb NULL;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "logo" jsonb NULL;
 --
 -- Add field partnerUrl to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN "partnerUrl" text NULL;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "partnerUrl" text NULL;
 --
 -- Add field price to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN "price" text NULL;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "price" text NULL;
 --
 -- Add field shortDescription to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN "shortDescription" text NULL;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "shortDescription" text NULL;
 --
 -- Add field developer to billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "developer" text DEFAULT 'Developer' NOT NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN IF NOT EXISTS "developer" text DEFAULT 'Developer' NOT NULL;
 ALTER TABLE "BillingIntegration" ALTER COLUMN "developer" DROP DEFAULT;
 --
 -- Add field displayPriority to billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "displayPriority" integer DEFAULT 1 NOT NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN IF NOT EXISTS "displayPriority" integer DEFAULT 1 NOT NULL;
 ALTER TABLE "BillingIntegration" ALTER COLUMN "displayPriority" DROP DEFAULT;
 --
 -- Add field gallery to billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "gallery" jsonb NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN IF NOT EXISTS "gallery" jsonb NULL;
 --
 -- Add field label to billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "label" text NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN IF NOT EXISTS "label" text NULL;
 --
 -- Add field partnerUrl to billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "partnerUrl" text NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN IF NOT EXISTS "partnerUrl" text NULL;
 --
 -- Add field price to billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "price" text NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN IF NOT EXISTS "price" text NULL;
 --
 -- Add field developer to billingintegrationhistoryrecord
 --
-ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN "developer" text NULL;
+ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "developer" text NULL;
 --
 -- Add field displayPriority to billingintegrationhistoryrecord
 --
-ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN "displayPriority" integer NULL;
+ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "displayPriority" integer NULL;
 --
 -- Add field gallery to billingintegrationhistoryrecord
 --
-ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN "gallery" jsonb NULL;
+ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "gallery" jsonb NULL;
 --
 -- Add field label to billingintegrationhistoryrecord
 --
-ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN "label" text NULL;
+ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "label" text NULL;
 --
 -- Add field partnerUrl to billingintegrationhistoryrecord
 --
-ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN "partnerUrl" text NULL;
+ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "partnerUrl" text NULL;
 --
 -- Add field price to billingintegrationhistoryrecord
 --
-ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN "price" text NULL;
+ALTER TABLE "BillingIntegrationHistoryRecord" ADD COLUMN IF NOT EXISTS "price" text NULL;
 COMMIT;
 
     `)
@@ -245,123 +245,123 @@ exports.down = async (knex) => {
 --
 -- Add field price to billingintegrationhistoryrecord
 --
-ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "price" CASCADE;
+-- ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "price" CASCADE;
 --
 -- Add field partnerUrl to billingintegrationhistoryrecord
 --
-ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "partnerUrl" CASCADE;
+-- ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "partnerUrl" CASCADE;
 --
 -- Add field label to billingintegrationhistoryrecord
 --
-ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "label" CASCADE;
+-- ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "label" CASCADE;
 --
 -- Add field gallery to billingintegrationhistoryrecord
 --
-ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "gallery" CASCADE;
+-- ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "gallery" CASCADE;
 --
 -- Add field displayPriority to billingintegrationhistoryrecord
 --
-ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "displayPriority" CASCADE;
+-- ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "displayPriority" CASCADE;
 --
 -- Add field developer to billingintegrationhistoryrecord
 --
-ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "developer" CASCADE;
+-- ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "developer" CASCADE;
 --
 -- Add field price to billingintegration
 --
-ALTER TABLE "BillingIntegration" DROP COLUMN "price" CASCADE;
+-- ALTER TABLE "BillingIntegration" DROP COLUMN "price" CASCADE;
 --
 -- Add field partnerUrl to billingintegration
 --
-ALTER TABLE "BillingIntegration" DROP COLUMN "partnerUrl" CASCADE;
+-- ALTER TABLE "BillingIntegration" DROP COLUMN "partnerUrl" CASCADE;
 --
 -- Add field label to billingintegration
 --
-ALTER TABLE "BillingIntegration" DROP COLUMN "label" CASCADE;
+-- ALTER TABLE "BillingIntegration" DROP COLUMN "label" CASCADE;
 --
 -- Add field gallery to billingintegration
 --
-ALTER TABLE "BillingIntegration" DROP COLUMN "gallery" CASCADE;
+-- ALTER TABLE "BillingIntegration" DROP COLUMN "gallery" CASCADE;
 --
 -- Add field displayPriority to billingintegration
 --
-ALTER TABLE "BillingIntegration" DROP COLUMN "displayPriority" CASCADE;
+-- ALTER TABLE "BillingIntegration" DROP COLUMN "displayPriority" CASCADE;
 --
 -- Add field developer to billingintegration
 --
-ALTER TABLE "BillingIntegration" DROP COLUMN "developer" CASCADE;
+-- ALTER TABLE "BillingIntegration" DROP COLUMN "developer" CASCADE;
 --
 -- Add field shortDescription to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "shortDescription" CASCADE;
+-- ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "shortDescription" CASCADE;
 --
 -- Add field price to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "price" CASCADE;
+-- ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "price" CASCADE;
 --
 -- Add field partnerUrl to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "partnerUrl" CASCADE;
+-- ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "partnerUrl" CASCADE;
 --
 -- Add field logo to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "logo" CASCADE;
+-- ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "logo" CASCADE;
 --
 -- Add field label to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "label" CASCADE;
+-- ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "label" CASCADE;
 --
 -- Add field gallery to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "gallery" CASCADE;
+-- ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "gallery" CASCADE;
 --
 -- Add field displayPriority to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "displayPriority" CASCADE;
+-- ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "displayPriority" CASCADE;
 --
 -- Add field developer to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "developer" CASCADE;
+-- ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "developer" CASCADE;
 --
 -- Add field detailedDescription to acquiringintegrationhistoryrecord
 --
-ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "detailedDescription" CASCADE;
+-- ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "detailedDescription" CASCADE;
 --
 -- Add field shortDescription to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" DROP COLUMN "shortDescription" CASCADE;
+-- ALTER TABLE "AcquiringIntegration" DROP COLUMN "shortDescription" CASCADE;
 --
 -- Add field price to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" DROP COLUMN "price" CASCADE;
+-- ALTER TABLE "AcquiringIntegration" DROP COLUMN "price" CASCADE;
 --
 -- Add field partnerUrl to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" DROP COLUMN "partnerUrl" CASCADE;
+-- ALTER TABLE "AcquiringIntegration" DROP COLUMN "partnerUrl" CASCADE;
 --
 -- Add field logo to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" DROP COLUMN "logo" CASCADE;
+-- ALTER TABLE "AcquiringIntegration" DROP COLUMN "logo" CASCADE;
 --
 -- Add field label to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" DROP COLUMN "label" CASCADE;
+-- ALTER TABLE "AcquiringIntegration" DROP COLUMN "label" CASCADE;
 --
 -- Add field gallery to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" DROP COLUMN "gallery" CASCADE;
+-- ALTER TABLE "AcquiringIntegration" DROP COLUMN "gallery" CASCADE;
 --
 -- Add field displayPriority to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" DROP COLUMN "displayPriority" CASCADE;
+-- ALTER TABLE "AcquiringIntegration" DROP COLUMN "displayPriority" CASCADE;
 --
 -- Add field developer to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" DROP COLUMN "developer" CASCADE;
+-- ALTER TABLE "AcquiringIntegration" DROP COLUMN "developer" CASCADE;
 --
 -- Add field detailedDescription to acquiringintegration
 --
-ALTER TABLE "AcquiringIntegration" DROP COLUMN "detailedDescription" CASCADE;
+-- ALTER TABLE "AcquiringIntegration" DROP COLUMN "detailedDescription" CASCADE;
 --
 -- Remove field uploadUrl from billingintegrationhistoryrecord
 --
@@ -421,7 +421,8 @@ ALTER TABLE "BillingIntegration" ADD COLUMN "uploadMessage" text NULL;
 --
 -- Remove field targetDescription from billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "targetDescription" text NOT NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN "targetDescription" text DEFAULT 'for every organization' NOT NULL;
+ALTER TABLE "BillingIntegration" ALTER COLUMN "targetDescription" DROP DEFAULT;
 --
 -- Remove field setupUrl from billingintegration
 --
@@ -429,7 +430,8 @@ ALTER TABLE "BillingIntegration" ADD COLUMN "setupUrl" text NULL;
 --
 -- Remove field receiptsLoadingTime from billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "receiptsLoadingTime" text NOT NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN "receiptsLoadingTime" text DEFAULT 'instantly' NOT NULL;
+ALTER TABLE "BillingIntegration" ALTER COLUMN "receiptsLoadingTime" DROP DEFAULT;
 --
 -- Remove field instructionExtraLink from billingintegration
 --
@@ -441,7 +443,8 @@ ALTER TABLE "BillingIntegration" ADD COLUMN "instruction" text NULL;
 --
 -- Remove field extendsBillingPage from billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "extendsBillingPage" boolean NOT NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN "extendsBillingPage" boolean DEFAULT false NOT NULL;
+ALTER TABLE "BillingIntegration" ALTER COLUMN "extendsBillingPage" DROP DEFAULT;
 --
 -- Remove field connectedMessage from billingintegration
 --
@@ -449,7 +452,8 @@ ALTER TABLE "BillingIntegration" ADD COLUMN "connectedMessage" text NULL;
 --
 -- Remove field bannerTextColor from billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "bannerTextColor" varchar(50) NOT NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN "bannerTextColor" varchar(50) DEFAULT 'BLACK' NOT NULL;
+ALTER TABLE "BillingIntegration" ALTER COLUMN "bannerTextColor" DROP DEFAULT;
 --
 -- Remove field bannerPromoImage from billingintegration
 --
@@ -457,7 +461,8 @@ ALTER TABLE "BillingIntegration" ADD COLUMN "bannerPromoImage" jsonb NULL;
 --
 -- Remove field bannerColor from billingintegration
 --
-ALTER TABLE "BillingIntegration" ADD COLUMN "bannerColor" text NOT NULL;
+ALTER TABLE "BillingIntegration" ADD COLUMN "bannerColor" text DEFAULT '#39ce66' NOT NULL;
+ALTER TABLE "BillingIntegration" ALTER COLUMN "bannerColor" DROP DEFAULT;
 --
 -- Rename field setupUrl on acquiringintegrationhistoryrecord to appUrl
 --
