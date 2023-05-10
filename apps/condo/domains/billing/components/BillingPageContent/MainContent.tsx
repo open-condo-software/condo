@@ -1,77 +1,35 @@
+import { Col, Row } from 'antd'
 import get from 'lodash/get'
-import React, { useMemo } from 'react'
+import React, { useEffect } from 'react'
 
-import { useIntl } from '@open-condo/next/intl'
-import { Tabs } from '@open-condo/ui'
-import type { TabItem } from '@open-condo/ui'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 
-import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
-import { useQueryTab } from '@condo/domains/billing/hooks/useQueryTab'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { ReceiptsTable } from './ReceiptsTable'
 
-import { AccrualsTab } from './AccrualsTab'
-import { useBillingAndAcquiringContexts } from './ContextProvider'
-import { PaymentsTab } from './PaymentsTab'
+import { ReportMessage } from '../ReportMessage'
 
-type MainContentProps = {
-    uploadComponent?: React.ReactElement
-}
-
-export const MainContent: React.FC<MainContentProps> = ({
-    uploadComponent,
-}) => {
-    const intl = useIntl()
-    const AccrualsTabTitle = intl.formatMessage({ id: 'Accruals' })
-    const PaymentsTabTitle = intl.formatMessage({ id: 'Payments' })
-
-    const { billingContext } = useBillingAndAcquiringContexts()
-    const appUrl = get(billingContext, ['integration', 'appUrl'])
-    const extendsBillingPage = get(billingContext, ['integration', 'extendsBillingPage'], false)
-    const billingName = get(billingContext, ['integration', 'name'], '')
-    const billingPageTitle = get(billingContext, ['integration', 'billingPageTitle'])
+import { IContextProps } from './index'
 
 
-    const shouldIncludeAppTab = Boolean(appUrl && extendsBillingPage)
-    const [currentTab, onTabChange] = useQueryTab(shouldIncludeAppTab)
 
-    const extensionPageTitle = billingPageTitle || billingName
+export const MainContent: React.FC<IContextProps> = ({ context }) => {
+    const { logEvent } = useTracking()
 
-    const items = useMemo(() => {
-        const result: Array<TabItem> = [{
-            label: AccrualsTabTitle,
-            key: ACCRUALS_TAB_KEY,
-            children: <AccrualsTab uploadComponent={uploadComponent}/>,
-        },
-        {
-            label: PaymentsTabTitle,
-            key: PAYMENTS_TAB_KEY,
-            children: <PaymentsTab/>,
-        }]
+    const lastReport = get(context, 'lastReport')
 
-        if (shouldIncludeAppTab) {
-            result.push({
-                label: extensionPageTitle,
-                key: EXTENSION_TAB_KEY,
-                children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize/>,
-            })
-        }
-
-        return result
-    }, [
-        AccrualsTabTitle,
-        PaymentsTabTitle,
-        extensionPageTitle,
-        shouldIncludeAppTab,
-        appUrl,
-        uploadComponent,
-    ])
+    useEffect(() => {
+        logEvent({ eventName: 'BillingPageSuccessStatus', denyDuplicates: true })
+    }, [])
 
     return (
-        <Tabs
-            activeKey={currentTab}
-            onChange={onTabChange}
-            items={items}
-            destroyInactiveTabPane
-        />
+        <Row gutter={[0, 40]}>
+            <Col span={24}>
+                <ReportMessage lastReport={lastReport}/>
+            </Col>
+            <Col span={24}>
+                <ReceiptsTable context={context}/>
+            </Col>
+        </Row>
     )
 }
+

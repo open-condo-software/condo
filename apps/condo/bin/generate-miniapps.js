@@ -1,23 +1,12 @@
 const path = require('path')
 
 const { faker } = require('@faker-js/faker')
-const random = require('lodash/random')
 
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 const { AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')
 const { B2BApp } = require('@condo/domains/miniapp/utils/serverSchema')
-
-const bannerVariants = [
-    { bannerColor: '#9b9dfa', bannerTextColor: 'WHITE' },
-    { bannerColor: 'linear-gradient(90deg, #4cd174 0%, #6db8f2 100%)', bannerTextColor: 'BLACK' },
-    { bannerColor: '#d3e3ff', bannerTextColor: 'BLACK' },
-]
-
-function randomChoice (choices) {
-    return choices[random(choices.length - 1)]
-}
 
 class AppsGenerator {
     context = null
@@ -44,15 +33,10 @@ class AppsGenerator {
                     developer: faker.company.name(),
                     name: `${faker.company.companyName(0)} billing`,
                     shortDescription: faker.commerce.productDescription(),
-                    detailedDescription: faker.lorem.paragraphs(2),
-                    targetDescription: faker.company.catchPhrase(),
+                    detailedDescription: faker.lorem.paragraphs(5),
                     contextDefaultStatus: this.appUrl ? 'Finished' : 'InProgress',
-                    receiptsLoadingTime: `${faker.datatype.number({ min: 10, max: 100 })} days`,
                     currencyCode: 'RUB',
-                    ...randomChoice(bannerVariants),
-                    ...this.appUrl
-                        ? { appUrl: this.appUrl, setupUrl: `${this.appUrl.replace(/\/+$/, '')}/setup` }
-                        : { instruction: faker.lorem.paragraphs(2) },
+                    appUrl: this.appUrl,
                 })
             } else if (this.category === 'ACQUIRING') {
                 const billings = await BillingIntegration.getAll(this.context, {}, { first: 1 })
@@ -63,9 +47,12 @@ class AppsGenerator {
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'generator' },
                     name: `${faker.company.companyName(0)} acquiring`,
+                    developer: faker.company.name(),
+                    shortDescription: faker.commerce.productDescription(),
+                    detailedDescription: faker.lorem.paragraphs(5),
                     hostUrl: faker.internet.url(),
                     explicitFeeDistributionSchema: [],
-                    setupUrl: this.appUrl ? `${this.appUrl.replace(/\/+$/, '')}/setup` : null,
+                    appUrl: this.appUrl,
                 })
             } else {
                 await B2BApp.create(this.context, {

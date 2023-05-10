@@ -47,17 +47,6 @@ const BillingCategory = generateGQLTestUtils(BillingCategoryGQL)
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const bannerVariants = [
-    { bannerColor: "#9b9dfa", bannerTextColor: "WHITE" },
-    { bannerColor: "linear-gradient(90deg, #4cd174 0%, #6db8f2 100%)", bannerTextColor: "BLACK" },
-    { bannerColor: "#d3e3ff", bannerTextColor: "BLACK" }
-]
-
-function randomChoice(choices) {
-    const index = Math.floor(Math.random() * choices.length)
-    return choices[index]
-}
-
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -71,11 +60,8 @@ async function createTestBillingIntegration (client, extraAttrs = {}) {
         currencyCode,
         isHidden: true,
         shortDescription: faker.commerce.productDescription(),
-        detailedDescription: faker.lorem.paragraphs(2),
-        instruction: faker.lorem.paragraphs(5),
-        targetDescription: faker.company.catchPhrase(),
-        receiptsLoadingTime: `${faker.datatype.number({min: 10, max: 100})} days`,
-        ...randomChoice(bannerVariants),
+        developer: faker.company.name(),
+        detailedDescription: faker.lorem.paragraphs(5),
         ...extraAttrs,
     }
     const obj = await BillingIntegration.create(client, attrs)

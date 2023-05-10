@@ -36,8 +36,18 @@ export type AcquiringIntegration = {
   _label_?: Maybe<Scalars['String']>;
   /**  Name of `acquiring component`, which is set up by developer  */
   name?: Maybe<Scalars['String']>;
-  /**  Url to setup page of acquiring integration  */
-  setupUrl?: Maybe<Scalars['String']>;
+  /**  Logo of app's company or app itself  */
+  logo?: Maybe<File>;
+  /**  Short description / catch phrase providing information about integration functionality. Will be shown on App's card  */
+  shortDescription?: Maybe<Scalars['String']>;
+  /**  Developer company name  */
+  developer?: Maybe<Scalars['String']>;
+  /**  Link to the website of the developer company, where the user can find out detailed information about the partner  */
+  partnerUrl?: Maybe<Scalars['String']>;
+  /**  Text describing app functionality, connection process and pricing in full detail. Written in markdown without html tags. Will be shown on app's page  */
+  detailedDescription?: Maybe<Scalars['String']>;
+  /**  Url to app page, which is the app starting point and will be opened in iframe  */
+  appUrl?: Maybe<Scalars['String']>;
   /**  Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM  */
   isHidden?: Maybe<Scalars['Boolean']>;
   accessRights: Array<AcquiringIntegrationAccessRight>;
@@ -50,6 +60,14 @@ export type AcquiringIntegration = {
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   /**  Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient  */
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
+  /**  The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1.  */
+  displayPriority?: Maybe<Scalars['Int']>;
+  /**  App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW]  */
+  label?: Maybe<Scalars['String']>;
+  /**  Array containing links to promotional images, which will be shown to user on app's page  */
+  gallery?: Maybe<Array<Scalars['String']>>;
+  /**  String representing a base price of app. Usually it's something like "Free", "Individual", "$50 / year"  */
+  price?: Maybe<Scalars['String']>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
   contextDefaultStatus?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -895,13 +913,22 @@ export type AcquiringIntegrationContextsUpdateInput = {
 
 export type AcquiringIntegrationCreateInput = {
   name?: Maybe<Scalars['String']>;
-  setupUrl?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['Upload']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  detailedDescription?: Maybe<Scalars['String']>;
+  appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
+  gallery?: Maybe<Array<Scalars['String']>>;
+  price?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -926,12 +953,21 @@ export type AcquiringIntegrationHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  setupUrl?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['JSON']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  detailedDescription?: Maybe<Scalars['JSON']>;
+  appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
+  gallery?: Maybe<Scalars['JSON']>;
+  price?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -950,12 +986,21 @@ export type AcquiringIntegrationHistoryRecord = {
 
 export type AcquiringIntegrationHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
-  setupUrl?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['JSON']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  detailedDescription?: Maybe<Scalars['JSON']>;
+  appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
+  gallery?: Maybe<Scalars['JSON']>;
+  price?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -979,12 +1024,21 @@ export enum AcquiringIntegrationHistoryRecordHistoryActionType {
 
 export type AcquiringIntegrationHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
-  setupUrl?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['JSON']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  detailedDescription?: Maybe<Scalars['JSON']>;
+  appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
+  gallery?: Maybe<Scalars['JSON']>;
+  price?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1021,24 +1075,86 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  setupUrl?: Maybe<Scalars['String']>;
-  setupUrl_not?: Maybe<Scalars['String']>;
-  setupUrl_contains?: Maybe<Scalars['String']>;
-  setupUrl_not_contains?: Maybe<Scalars['String']>;
-  setupUrl_starts_with?: Maybe<Scalars['String']>;
-  setupUrl_not_starts_with?: Maybe<Scalars['String']>;
-  setupUrl_ends_with?: Maybe<Scalars['String']>;
-  setupUrl_not_ends_with?: Maybe<Scalars['String']>;
-  setupUrl_i?: Maybe<Scalars['String']>;
-  setupUrl_not_i?: Maybe<Scalars['String']>;
-  setupUrl_contains_i?: Maybe<Scalars['String']>;
-  setupUrl_not_contains_i?: Maybe<Scalars['String']>;
-  setupUrl_starts_with_i?: Maybe<Scalars['String']>;
-  setupUrl_not_starts_with_i?: Maybe<Scalars['String']>;
-  setupUrl_ends_with_i?: Maybe<Scalars['String']>;
-  setupUrl_not_ends_with_i?: Maybe<Scalars['String']>;
-  setupUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  setupUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  logo?: Maybe<Scalars['JSON']>;
+  logo_not?: Maybe<Scalars['JSON']>;
+  logo_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  logo_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  shortDescription?: Maybe<Scalars['String']>;
+  shortDescription_not?: Maybe<Scalars['String']>;
+  shortDescription_contains?: Maybe<Scalars['String']>;
+  shortDescription_not_contains?: Maybe<Scalars['String']>;
+  shortDescription_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_i?: Maybe<Scalars['String']>;
+  shortDescription_not_i?: Maybe<Scalars['String']>;
+  shortDescription_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_not_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer?: Maybe<Scalars['String']>;
+  developer_not?: Maybe<Scalars['String']>;
+  developer_contains?: Maybe<Scalars['String']>;
+  developer_not_contains?: Maybe<Scalars['String']>;
+  developer_starts_with?: Maybe<Scalars['String']>;
+  developer_not_starts_with?: Maybe<Scalars['String']>;
+  developer_ends_with?: Maybe<Scalars['String']>;
+  developer_not_ends_with?: Maybe<Scalars['String']>;
+  developer_i?: Maybe<Scalars['String']>;
+  developer_not_i?: Maybe<Scalars['String']>;
+  developer_contains_i?: Maybe<Scalars['String']>;
+  developer_not_contains_i?: Maybe<Scalars['String']>;
+  developer_starts_with_i?: Maybe<Scalars['String']>;
+  developer_not_starts_with_i?: Maybe<Scalars['String']>;
+  developer_ends_with_i?: Maybe<Scalars['String']>;
+  developer_not_ends_with_i?: Maybe<Scalars['String']>;
+  developer_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  partnerUrl_not?: Maybe<Scalars['String']>;
+  partnerUrl_contains?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_i?: Maybe<Scalars['String']>;
+  partnerUrl_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailedDescription?: Maybe<Scalars['JSON']>;
+  detailedDescription_not?: Maybe<Scalars['JSON']>;
+  detailedDescription_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  detailedDescription_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  appUrl?: Maybe<Scalars['String']>;
+  appUrl_not?: Maybe<Scalars['String']>;
+  appUrl_contains?: Maybe<Scalars['String']>;
+  appUrl_not_contains?: Maybe<Scalars['String']>;
+  appUrl_starts_with?: Maybe<Scalars['String']>;
+  appUrl_not_starts_with?: Maybe<Scalars['String']>;
+  appUrl_ends_with?: Maybe<Scalars['String']>;
+  appUrl_not_ends_with?: Maybe<Scalars['String']>;
+  appUrl_i?: Maybe<Scalars['String']>;
+  appUrl_not_i?: Maybe<Scalars['String']>;
+  appUrl_contains_i?: Maybe<Scalars['String']>;
+  appUrl_not_contains_i?: Maybe<Scalars['String']>;
+  appUrl_starts_with_i?: Maybe<Scalars['String']>;
+  appUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  appUrl_ends_with_i?: Maybe<Scalars['String']>;
+  appUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  appUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
@@ -1083,6 +1199,54 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   explicitFeeDistributionSchema_not?: Maybe<Scalars['JSON']>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   explicitFeeDistributionSchema_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  displayPriority_not?: Maybe<Scalars['Int']>;
+  displayPriority_lt?: Maybe<Scalars['Int']>;
+  displayPriority_lte?: Maybe<Scalars['Int']>;
+  displayPriority_gt?: Maybe<Scalars['Int']>;
+  displayPriority_gte?: Maybe<Scalars['Int']>;
+  displayPriority_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  displayPriority_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  label?: Maybe<Scalars['String']>;
+  label_not?: Maybe<Scalars['String']>;
+  label_contains?: Maybe<Scalars['String']>;
+  label_not_contains?: Maybe<Scalars['String']>;
+  label_starts_with?: Maybe<Scalars['String']>;
+  label_not_starts_with?: Maybe<Scalars['String']>;
+  label_ends_with?: Maybe<Scalars['String']>;
+  label_not_ends_with?: Maybe<Scalars['String']>;
+  label_i?: Maybe<Scalars['String']>;
+  label_not_i?: Maybe<Scalars['String']>;
+  label_contains_i?: Maybe<Scalars['String']>;
+  label_not_contains_i?: Maybe<Scalars['String']>;
+  label_starts_with_i?: Maybe<Scalars['String']>;
+  label_not_starts_with_i?: Maybe<Scalars['String']>;
+  label_ends_with_i?: Maybe<Scalars['String']>;
+  label_not_ends_with_i?: Maybe<Scalars['String']>;
+  label_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  label_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  gallery?: Maybe<Scalars['JSON']>;
+  gallery_not?: Maybe<Scalars['JSON']>;
+  gallery_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  gallery_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  price?: Maybe<Scalars['String']>;
+  price_not?: Maybe<Scalars['String']>;
+  price_contains?: Maybe<Scalars['String']>;
+  price_not_contains?: Maybe<Scalars['String']>;
+  price_starts_with?: Maybe<Scalars['String']>;
+  price_not_starts_with?: Maybe<Scalars['String']>;
+  price_ends_with?: Maybe<Scalars['String']>;
+  price_not_ends_with?: Maybe<Scalars['String']>;
+  price_i?: Maybe<Scalars['String']>;
+  price_not_i?: Maybe<Scalars['String']>;
+  price_contains_i?: Maybe<Scalars['String']>;
+  price_not_contains_i?: Maybe<Scalars['String']>;
+  price_starts_with_i?: Maybe<Scalars['String']>;
+  price_not_starts_with_i?: Maybe<Scalars['String']>;
+  price_ends_with_i?: Maybe<Scalars['String']>;
+  price_not_ends_with_i?: Maybe<Scalars['String']>;
+  price_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  price_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_contains?: Maybe<Scalars['String']>;
@@ -1201,13 +1365,22 @@ export type AcquiringIntegrationRelateToOneInput = {
 
 export type AcquiringIntegrationUpdateInput = {
   name?: Maybe<Scalars['String']>;
-  setupUrl?: Maybe<Scalars['String']>;
+  logo?: Maybe<Scalars['Upload']>;
+  shortDescription?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  detailedDescription?: Maybe<Scalars['String']>;
+  appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   accessRights?: Maybe<AcquiringIntegrationAccessRightRelateToManyInput>;
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
+  gallery?: Maybe<Array<Scalars['String']>>;
+  price?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -1241,24 +1414,100 @@ export type AcquiringIntegrationWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  setupUrl?: Maybe<Scalars['String']>;
-  setupUrl_not?: Maybe<Scalars['String']>;
-  setupUrl_contains?: Maybe<Scalars['String']>;
-  setupUrl_not_contains?: Maybe<Scalars['String']>;
-  setupUrl_starts_with?: Maybe<Scalars['String']>;
-  setupUrl_not_starts_with?: Maybe<Scalars['String']>;
-  setupUrl_ends_with?: Maybe<Scalars['String']>;
-  setupUrl_not_ends_with?: Maybe<Scalars['String']>;
-  setupUrl_i?: Maybe<Scalars['String']>;
-  setupUrl_not_i?: Maybe<Scalars['String']>;
-  setupUrl_contains_i?: Maybe<Scalars['String']>;
-  setupUrl_not_contains_i?: Maybe<Scalars['String']>;
-  setupUrl_starts_with_i?: Maybe<Scalars['String']>;
-  setupUrl_not_starts_with_i?: Maybe<Scalars['String']>;
-  setupUrl_ends_with_i?: Maybe<Scalars['String']>;
-  setupUrl_not_ends_with_i?: Maybe<Scalars['String']>;
-  setupUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  setupUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  logo?: Maybe<Scalars['String']>;
+  logo_not?: Maybe<Scalars['String']>;
+  logo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  logo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription?: Maybe<Scalars['String']>;
+  shortDescription_not?: Maybe<Scalars['String']>;
+  shortDescription_contains?: Maybe<Scalars['String']>;
+  shortDescription_not_contains?: Maybe<Scalars['String']>;
+  shortDescription_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with?: Maybe<Scalars['String']>;
+  shortDescription_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with?: Maybe<Scalars['String']>;
+  shortDescription_i?: Maybe<Scalars['String']>;
+  shortDescription_not_i?: Maybe<Scalars['String']>;
+  shortDescription_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_not_contains_i?: Maybe<Scalars['String']>;
+  shortDescription_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_starts_with_i?: Maybe<Scalars['String']>;
+  shortDescription_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
+  shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer?: Maybe<Scalars['String']>;
+  developer_not?: Maybe<Scalars['String']>;
+  developer_contains?: Maybe<Scalars['String']>;
+  developer_not_contains?: Maybe<Scalars['String']>;
+  developer_starts_with?: Maybe<Scalars['String']>;
+  developer_not_starts_with?: Maybe<Scalars['String']>;
+  developer_ends_with?: Maybe<Scalars['String']>;
+  developer_not_ends_with?: Maybe<Scalars['String']>;
+  developer_i?: Maybe<Scalars['String']>;
+  developer_not_i?: Maybe<Scalars['String']>;
+  developer_contains_i?: Maybe<Scalars['String']>;
+  developer_not_contains_i?: Maybe<Scalars['String']>;
+  developer_starts_with_i?: Maybe<Scalars['String']>;
+  developer_not_starts_with_i?: Maybe<Scalars['String']>;
+  developer_ends_with_i?: Maybe<Scalars['String']>;
+  developer_not_ends_with_i?: Maybe<Scalars['String']>;
+  developer_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  partnerUrl_not?: Maybe<Scalars['String']>;
+  partnerUrl_contains?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_i?: Maybe<Scalars['String']>;
+  partnerUrl_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailedDescription?: Maybe<Scalars['String']>;
+  detailedDescription_not?: Maybe<Scalars['String']>;
+  detailedDescription_contains?: Maybe<Scalars['String']>;
+  detailedDescription_not_contains?: Maybe<Scalars['String']>;
+  detailedDescription_starts_with?: Maybe<Scalars['String']>;
+  detailedDescription_not_starts_with?: Maybe<Scalars['String']>;
+  detailedDescription_ends_with?: Maybe<Scalars['String']>;
+  detailedDescription_not_ends_with?: Maybe<Scalars['String']>;
+  detailedDescription_i?: Maybe<Scalars['String']>;
+  detailedDescription_not_i?: Maybe<Scalars['String']>;
+  detailedDescription_contains_i?: Maybe<Scalars['String']>;
+  detailedDescription_not_contains_i?: Maybe<Scalars['String']>;
+  detailedDescription_starts_with_i?: Maybe<Scalars['String']>;
+  detailedDescription_not_starts_with_i?: Maybe<Scalars['String']>;
+  detailedDescription_ends_with_i?: Maybe<Scalars['String']>;
+  detailedDescription_not_ends_with_i?: Maybe<Scalars['String']>;
+  detailedDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  detailedDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  appUrl?: Maybe<Scalars['String']>;
+  appUrl_not?: Maybe<Scalars['String']>;
+  appUrl_contains?: Maybe<Scalars['String']>;
+  appUrl_not_contains?: Maybe<Scalars['String']>;
+  appUrl_starts_with?: Maybe<Scalars['String']>;
+  appUrl_not_starts_with?: Maybe<Scalars['String']>;
+  appUrl_ends_with?: Maybe<Scalars['String']>;
+  appUrl_not_ends_with?: Maybe<Scalars['String']>;
+  appUrl_i?: Maybe<Scalars['String']>;
+  appUrl_not_i?: Maybe<Scalars['String']>;
+  appUrl_contains_i?: Maybe<Scalars['String']>;
+  appUrl_not_contains_i?: Maybe<Scalars['String']>;
+  appUrl_starts_with_i?: Maybe<Scalars['String']>;
+  appUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  appUrl_ends_with_i?: Maybe<Scalars['String']>;
+  appUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  appUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
   /**  condition must be true for all nodes  */
@@ -1309,6 +1558,40 @@ export type AcquiringIntegrationWhereInput = {
   explicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
   explicitFeeDistributionSchema_not_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  displayPriority_not?: Maybe<Scalars['Int']>;
+  displayPriority_lt?: Maybe<Scalars['Int']>;
+  displayPriority_lte?: Maybe<Scalars['Int']>;
+  displayPriority_gt?: Maybe<Scalars['Int']>;
+  displayPriority_gte?: Maybe<Scalars['Int']>;
+  displayPriority_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  displayPriority_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  label?: Maybe<Scalars['String']>;
+  label_not?: Maybe<Scalars['String']>;
+  label_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  label_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  gallery?: Maybe<Array<Scalars['String']>>;
+  gallery_not?: Maybe<Array<Scalars['String']>>;
+  gallery_in?: Maybe<Array<Maybe<Array<Scalars['String']>>>>;
+  gallery_not_in?: Maybe<Array<Maybe<Array<Scalars['String']>>>>;
+  price?: Maybe<Scalars['String']>;
+  price_not?: Maybe<Scalars['String']>;
+  price_contains?: Maybe<Scalars['String']>;
+  price_not_contains?: Maybe<Scalars['String']>;
+  price_starts_with?: Maybe<Scalars['String']>;
+  price_not_starts_with?: Maybe<Scalars['String']>;
+  price_ends_with?: Maybe<Scalars['String']>;
+  price_not_ends_with?: Maybe<Scalars['String']>;
+  price_i?: Maybe<Scalars['String']>;
+  price_not_i?: Maybe<Scalars['String']>;
+  price_contains_i?: Maybe<Scalars['String']>;
+  price_not_contains_i?: Maybe<Scalars['String']>;
+  price_starts_with_i?: Maybe<Scalars['String']>;
+  price_not_starts_with_i?: Maybe<Scalars['String']>;
+  price_ends_with_i?: Maybe<Scalars['String']>;
+  price_not_ends_with_i?: Maybe<Scalars['String']>;
+  price_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  price_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -1602,6 +1885,7 @@ export type AllMiniAppsWhereInput = {
 };
 
 export enum AppCategory {
+  AccrualsAndPayments = 'ACCRUALS_AND_PAYMENTS',
   Dispatching = 'DISPATCHING',
   Gis = 'GIS',
   SmartHome = 'SMART_HOME',
@@ -1621,6 +1905,8 @@ export type AppColorSchemaFieldInput = {
 };
 
 export enum AppType {
+  Billing = 'BILLING',
+  Acquiring = 'ACQUIRING',
   B2B = 'B2B'
 }
 
@@ -11895,42 +12181,22 @@ export type BillingIntegration = {
   _label_?: Maybe<Scalars['String']>;
   /**  The name of the `integration component` that the developer remembers  */
   name?: Maybe<Scalars['String']>;
-  /**  Logo of integration's company or integration itself  */
+  /**  Logo of app's company or app itself  */
   logo?: Maybe<File>;
   /**  Short description / catch phrase providing information about integration functionality. Will be shown on App's card  */
   shortDescription?: Maybe<Scalars['String']>;
-  /**  Short text describing integration target group. Like The type of organization for which this integration is best suited.  */
-  targetDescription?: Maybe<Scalars['String']>;
-  /**  Controls text appearance in the integration banner  */
-  bannerTextColor?: Maybe<BillingIntegrationBannerTextColorType>;
-  /**  Background color of banner in the integration modal. Can be hex code or linear gradient.  */
-  bannerColor?: Maybe<Scalars['String']>;
-  /**  Image shown in the integration banner  */
-  bannerPromoImage?: Maybe<File>;
-  /**  A short sentence describing how long it usually takes for integration to upload receipts. Appears under correlated title in the integration modal  */
-  receiptsLoadingTime?: Maybe<Scalars['String']>;
+  /**  Developer company name  */
+  developer?: Maybe<Scalars['String']>;
+  /**  Link to the website of the developer company, where the user can find out detailed information about the partner  */
+  partnerUrl?: Maybe<Scalars['String']>;
   /**  Text describing app functionality, connection process and pricing in full detail. Written in markdown without html tags. Will be shown on app's page  */
   detailedDescription?: Maybe<Scalars['String']>;
-  /**  Url to app page, which will be opened during app connection to setup the integration. One of setupUrl and instruction fields must be filled  */
-  setupUrl?: Maybe<Scalars['String']>;
-  /**  Short instruction for connecting the service written in markdown. Used in cases where integration has no frontend  */
-  instruction?: Maybe<Scalars['String']>;
-  /**  Used in cases when integration need to link external instruction or article.  */
-  instructionExtraLink?: Maybe<Scalars['String']>;
-  /**  Url to the application page that extends the "Accruals and Payments" section and opens in an iframe inside an additional tab named from the "billingPageTitle" or "name" field and controlled by "extendsBillingPage" flag  */
+  /**  Url to app page, which is the app starting point and will be opened in iframe  */
   appUrl?: Maybe<Scalars['String']>;
-  /**  If this flag is set to true, then in the "Accruals and Payments" section will appear an additional tab with the "billingPageTitle" or "name" field and iframe from "appUrl" inside  */
-  extendsBillingPage?: Maybe<Scalars['Boolean']>;
-  /**  Used in billing section to override name of app tab  */
+  /**  This title is shown on /billing page, usually contains word "Billing"  */
   billingPageTitle?: Maybe<Scalars['String']>;
   /**  Billing group which this billing is part of. Used to restrict certain billings from certain acquirings"  */
   group?: Maybe<Scalars['String']>;
-  /**  The message shown to the user after the integration is connected before the first receipts are downloaded. Appeared while lastReport field of context is null  */
-  connectedMessage?: Maybe<Scalars['String']>;
-  /**  If specified, billing app will have a call-to-action button, which opens iframe with specified url to start receipts-uploading process. Text of a button can be overridden via "uploadMessage"  */
-  uploadUrl?: Maybe<Scalars['String']>;
-  /**  Overrides default "Upload receipts" message on call-to-action button  */
-  uploadMessage?: Maybe<Scalars['String']>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
   contextDefaultStatus?: Maybe<Scalars['String']>;
   /**  Format of the data, that is output of this integration. This field specifies the detail and size of columns. If not specified we can only show first level of detail (address, account, toPay)  */
@@ -11943,6 +12209,14 @@ export type BillingIntegration = {
   isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   /**  Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM  */
   isHidden?: Maybe<Scalars['Boolean']>;
+  /**  The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1.  */
+  displayPriority?: Maybe<Scalars['Int']>;
+  /**  App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW]  */
+  label?: Maybe<Scalars['String']>;
+  /**  Array containing links to promotional images, which will be shown to user on app's page  */
+  gallery?: Maybe<Array<Scalars['String']>>;
+  /**  String representing a base price of app. Usually it's something like "Free", "Individual", "$50 / year"  */
+  price?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12266,37 +12540,26 @@ export type BillingIntegrationAccessRightsUpdateInput = {
   data?: Maybe<BillingIntegrationAccessRightUpdateInput>;
 };
 
-export enum BillingIntegrationBannerTextColorType {
-  Black = 'BLACK',
-  White = 'WHITE'
-}
-
 export type BillingIntegrationCreateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
-  targetDescription?: Maybe<Scalars['String']>;
-  bannerTextColor?: Maybe<BillingIntegrationBannerTextColorType>;
-  bannerColor?: Maybe<Scalars['String']>;
-  bannerPromoImage?: Maybe<Scalars['Upload']>;
-  receiptsLoadingTime?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailedDescription?: Maybe<Scalars['String']>;
-  setupUrl?: Maybe<Scalars['String']>;
-  instruction?: Maybe<Scalars['String']>;
-  instructionExtraLink?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
-  extendsBillingPage?: Maybe<Scalars['Boolean']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   group?: Maybe<Scalars['String']>;
-  connectedMessage?: Maybe<Scalars['String']>;
-  uploadUrl?: Maybe<Scalars['String']>;
-  uploadMessage?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
   currencyCode?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
+  gallery?: Maybe<Array<Scalars['String']>>;
+  price?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12335,27 +12598,21 @@ export type BillingIntegrationHistoryRecord = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
-  targetDescription?: Maybe<Scalars['String']>;
-  bannerTextColor?: Maybe<Scalars['String']>;
-  bannerColor?: Maybe<Scalars['String']>;
-  bannerPromoImage?: Maybe<Scalars['JSON']>;
-  receiptsLoadingTime?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailedDescription?: Maybe<Scalars['JSON']>;
-  setupUrl?: Maybe<Scalars['String']>;
-  instruction?: Maybe<Scalars['JSON']>;
-  instructionExtraLink?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
-  extendsBillingPage?: Maybe<Scalars['Boolean']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   group?: Maybe<Scalars['String']>;
-  connectedMessage?: Maybe<Scalars['String']>;
-  uploadUrl?: Maybe<Scalars['String']>;
-  uploadMessage?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
   isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
+  gallery?: Maybe<Scalars['JSON']>;
+  price?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12375,27 +12632,21 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
-  targetDescription?: Maybe<Scalars['String']>;
-  bannerTextColor?: Maybe<Scalars['String']>;
-  bannerColor?: Maybe<Scalars['String']>;
-  bannerPromoImage?: Maybe<Scalars['JSON']>;
-  receiptsLoadingTime?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailedDescription?: Maybe<Scalars['JSON']>;
-  setupUrl?: Maybe<Scalars['String']>;
-  instruction?: Maybe<Scalars['JSON']>;
-  instructionExtraLink?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
-  extendsBillingPage?: Maybe<Scalars['Boolean']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   group?: Maybe<Scalars['String']>;
-  connectedMessage?: Maybe<Scalars['String']>;
-  uploadUrl?: Maybe<Scalars['String']>;
-  uploadMessage?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
   isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
+  gallery?: Maybe<Scalars['JSON']>;
+  price?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12420,27 +12671,21 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
   shortDescription?: Maybe<Scalars['String']>;
-  targetDescription?: Maybe<Scalars['String']>;
-  bannerTextColor?: Maybe<Scalars['String']>;
-  bannerColor?: Maybe<Scalars['String']>;
-  bannerPromoImage?: Maybe<Scalars['JSON']>;
-  receiptsLoadingTime?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailedDescription?: Maybe<Scalars['JSON']>;
-  setupUrl?: Maybe<Scalars['String']>;
-  instruction?: Maybe<Scalars['JSON']>;
-  instructionExtraLink?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
-  extendsBillingPage?: Maybe<Scalars['Boolean']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   group?: Maybe<Scalars['String']>;
-  connectedMessage?: Maybe<Scalars['String']>;
-  uploadUrl?: Maybe<Scalars['String']>;
-  uploadMessage?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
   isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
+  gallery?: Maybe<Scalars['JSON']>;
+  price?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12498,126 +12743,46 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
   shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  targetDescription?: Maybe<Scalars['String']>;
-  targetDescription_not?: Maybe<Scalars['String']>;
-  targetDescription_contains?: Maybe<Scalars['String']>;
-  targetDescription_not_contains?: Maybe<Scalars['String']>;
-  targetDescription_starts_with?: Maybe<Scalars['String']>;
-  targetDescription_not_starts_with?: Maybe<Scalars['String']>;
-  targetDescription_ends_with?: Maybe<Scalars['String']>;
-  targetDescription_not_ends_with?: Maybe<Scalars['String']>;
-  targetDescription_i?: Maybe<Scalars['String']>;
-  targetDescription_not_i?: Maybe<Scalars['String']>;
-  targetDescription_contains_i?: Maybe<Scalars['String']>;
-  targetDescription_not_contains_i?: Maybe<Scalars['String']>;
-  targetDescription_starts_with_i?: Maybe<Scalars['String']>;
-  targetDescription_not_starts_with_i?: Maybe<Scalars['String']>;
-  targetDescription_ends_with_i?: Maybe<Scalars['String']>;
-  targetDescription_not_ends_with_i?: Maybe<Scalars['String']>;
-  targetDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  targetDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  bannerTextColor?: Maybe<Scalars['String']>;
-  bannerTextColor_not?: Maybe<Scalars['String']>;
-  bannerTextColor_contains?: Maybe<Scalars['String']>;
-  bannerTextColor_not_contains?: Maybe<Scalars['String']>;
-  bannerTextColor_starts_with?: Maybe<Scalars['String']>;
-  bannerTextColor_not_starts_with?: Maybe<Scalars['String']>;
-  bannerTextColor_ends_with?: Maybe<Scalars['String']>;
-  bannerTextColor_not_ends_with?: Maybe<Scalars['String']>;
-  bannerTextColor_i?: Maybe<Scalars['String']>;
-  bannerTextColor_not_i?: Maybe<Scalars['String']>;
-  bannerTextColor_contains_i?: Maybe<Scalars['String']>;
-  bannerTextColor_not_contains_i?: Maybe<Scalars['String']>;
-  bannerTextColor_starts_with_i?: Maybe<Scalars['String']>;
-  bannerTextColor_not_starts_with_i?: Maybe<Scalars['String']>;
-  bannerTextColor_ends_with_i?: Maybe<Scalars['String']>;
-  bannerTextColor_not_ends_with_i?: Maybe<Scalars['String']>;
-  bannerTextColor_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  bannerTextColor_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  bannerColor?: Maybe<Scalars['String']>;
-  bannerColor_not?: Maybe<Scalars['String']>;
-  bannerColor_contains?: Maybe<Scalars['String']>;
-  bannerColor_not_contains?: Maybe<Scalars['String']>;
-  bannerColor_starts_with?: Maybe<Scalars['String']>;
-  bannerColor_not_starts_with?: Maybe<Scalars['String']>;
-  bannerColor_ends_with?: Maybe<Scalars['String']>;
-  bannerColor_not_ends_with?: Maybe<Scalars['String']>;
-  bannerColor_i?: Maybe<Scalars['String']>;
-  bannerColor_not_i?: Maybe<Scalars['String']>;
-  bannerColor_contains_i?: Maybe<Scalars['String']>;
-  bannerColor_not_contains_i?: Maybe<Scalars['String']>;
-  bannerColor_starts_with_i?: Maybe<Scalars['String']>;
-  bannerColor_not_starts_with_i?: Maybe<Scalars['String']>;
-  bannerColor_ends_with_i?: Maybe<Scalars['String']>;
-  bannerColor_not_ends_with_i?: Maybe<Scalars['String']>;
-  bannerColor_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  bannerColor_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  bannerPromoImage?: Maybe<Scalars['JSON']>;
-  bannerPromoImage_not?: Maybe<Scalars['JSON']>;
-  bannerPromoImage_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  bannerPromoImage_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  receiptsLoadingTime?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_contains?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_contains?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_starts_with?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_starts_with?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_ends_with?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_ends_with?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_contains_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_contains_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_starts_with_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_starts_with_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_ends_with_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_ends_with_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  receiptsLoadingTime_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer?: Maybe<Scalars['String']>;
+  developer_not?: Maybe<Scalars['String']>;
+  developer_contains?: Maybe<Scalars['String']>;
+  developer_not_contains?: Maybe<Scalars['String']>;
+  developer_starts_with?: Maybe<Scalars['String']>;
+  developer_not_starts_with?: Maybe<Scalars['String']>;
+  developer_ends_with?: Maybe<Scalars['String']>;
+  developer_not_ends_with?: Maybe<Scalars['String']>;
+  developer_i?: Maybe<Scalars['String']>;
+  developer_not_i?: Maybe<Scalars['String']>;
+  developer_contains_i?: Maybe<Scalars['String']>;
+  developer_not_contains_i?: Maybe<Scalars['String']>;
+  developer_starts_with_i?: Maybe<Scalars['String']>;
+  developer_not_starts_with_i?: Maybe<Scalars['String']>;
+  developer_ends_with_i?: Maybe<Scalars['String']>;
+  developer_not_ends_with_i?: Maybe<Scalars['String']>;
+  developer_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  partnerUrl_not?: Maybe<Scalars['String']>;
+  partnerUrl_contains?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_i?: Maybe<Scalars['String']>;
+  partnerUrl_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   detailedDescription?: Maybe<Scalars['JSON']>;
   detailedDescription_not?: Maybe<Scalars['JSON']>;
   detailedDescription_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   detailedDescription_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  setupUrl?: Maybe<Scalars['String']>;
-  setupUrl_not?: Maybe<Scalars['String']>;
-  setupUrl_contains?: Maybe<Scalars['String']>;
-  setupUrl_not_contains?: Maybe<Scalars['String']>;
-  setupUrl_starts_with?: Maybe<Scalars['String']>;
-  setupUrl_not_starts_with?: Maybe<Scalars['String']>;
-  setupUrl_ends_with?: Maybe<Scalars['String']>;
-  setupUrl_not_ends_with?: Maybe<Scalars['String']>;
-  setupUrl_i?: Maybe<Scalars['String']>;
-  setupUrl_not_i?: Maybe<Scalars['String']>;
-  setupUrl_contains_i?: Maybe<Scalars['String']>;
-  setupUrl_not_contains_i?: Maybe<Scalars['String']>;
-  setupUrl_starts_with_i?: Maybe<Scalars['String']>;
-  setupUrl_not_starts_with_i?: Maybe<Scalars['String']>;
-  setupUrl_ends_with_i?: Maybe<Scalars['String']>;
-  setupUrl_not_ends_with_i?: Maybe<Scalars['String']>;
-  setupUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  setupUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  instruction?: Maybe<Scalars['JSON']>;
-  instruction_not?: Maybe<Scalars['JSON']>;
-  instruction_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  instruction_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  instructionExtraLink?: Maybe<Scalars['String']>;
-  instructionExtraLink_not?: Maybe<Scalars['String']>;
-  instructionExtraLink_contains?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_contains?: Maybe<Scalars['String']>;
-  instructionExtraLink_starts_with?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_starts_with?: Maybe<Scalars['String']>;
-  instructionExtraLink_ends_with?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_ends_with?: Maybe<Scalars['String']>;
-  instructionExtraLink_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_contains_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_contains_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_starts_with_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_starts_with_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_ends_with_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_ends_with_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  instructionExtraLink_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   appUrl?: Maybe<Scalars['String']>;
   appUrl_not?: Maybe<Scalars['String']>;
   appUrl_contains?: Maybe<Scalars['String']>;
@@ -12636,8 +12801,6 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   appUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   appUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  extendsBillingPage?: Maybe<Scalars['Boolean']>;
-  extendsBillingPage_not?: Maybe<Scalars['Boolean']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   billingPageTitle_not?: Maybe<Scalars['String']>;
   billingPageTitle_contains?: Maybe<Scalars['String']>;
@@ -12674,60 +12837,6 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   group_not_ends_with_i?: Maybe<Scalars['String']>;
   group_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   group_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  connectedMessage?: Maybe<Scalars['String']>;
-  connectedMessage_not?: Maybe<Scalars['String']>;
-  connectedMessage_contains?: Maybe<Scalars['String']>;
-  connectedMessage_not_contains?: Maybe<Scalars['String']>;
-  connectedMessage_starts_with?: Maybe<Scalars['String']>;
-  connectedMessage_not_starts_with?: Maybe<Scalars['String']>;
-  connectedMessage_ends_with?: Maybe<Scalars['String']>;
-  connectedMessage_not_ends_with?: Maybe<Scalars['String']>;
-  connectedMessage_i?: Maybe<Scalars['String']>;
-  connectedMessage_not_i?: Maybe<Scalars['String']>;
-  connectedMessage_contains_i?: Maybe<Scalars['String']>;
-  connectedMessage_not_contains_i?: Maybe<Scalars['String']>;
-  connectedMessage_starts_with_i?: Maybe<Scalars['String']>;
-  connectedMessage_not_starts_with_i?: Maybe<Scalars['String']>;
-  connectedMessage_ends_with_i?: Maybe<Scalars['String']>;
-  connectedMessage_not_ends_with_i?: Maybe<Scalars['String']>;
-  connectedMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  connectedMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  uploadUrl?: Maybe<Scalars['String']>;
-  uploadUrl_not?: Maybe<Scalars['String']>;
-  uploadUrl_contains?: Maybe<Scalars['String']>;
-  uploadUrl_not_contains?: Maybe<Scalars['String']>;
-  uploadUrl_starts_with?: Maybe<Scalars['String']>;
-  uploadUrl_not_starts_with?: Maybe<Scalars['String']>;
-  uploadUrl_ends_with?: Maybe<Scalars['String']>;
-  uploadUrl_not_ends_with?: Maybe<Scalars['String']>;
-  uploadUrl_i?: Maybe<Scalars['String']>;
-  uploadUrl_not_i?: Maybe<Scalars['String']>;
-  uploadUrl_contains_i?: Maybe<Scalars['String']>;
-  uploadUrl_not_contains_i?: Maybe<Scalars['String']>;
-  uploadUrl_starts_with_i?: Maybe<Scalars['String']>;
-  uploadUrl_not_starts_with_i?: Maybe<Scalars['String']>;
-  uploadUrl_ends_with_i?: Maybe<Scalars['String']>;
-  uploadUrl_not_ends_with_i?: Maybe<Scalars['String']>;
-  uploadUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  uploadUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  uploadMessage?: Maybe<Scalars['String']>;
-  uploadMessage_not?: Maybe<Scalars['String']>;
-  uploadMessage_contains?: Maybe<Scalars['String']>;
-  uploadMessage_not_contains?: Maybe<Scalars['String']>;
-  uploadMessage_starts_with?: Maybe<Scalars['String']>;
-  uploadMessage_not_starts_with?: Maybe<Scalars['String']>;
-  uploadMessage_ends_with?: Maybe<Scalars['String']>;
-  uploadMessage_not_ends_with?: Maybe<Scalars['String']>;
-  uploadMessage_i?: Maybe<Scalars['String']>;
-  uploadMessage_not_i?: Maybe<Scalars['String']>;
-  uploadMessage_contains_i?: Maybe<Scalars['String']>;
-  uploadMessage_not_contains_i?: Maybe<Scalars['String']>;
-  uploadMessage_starts_with_i?: Maybe<Scalars['String']>;
-  uploadMessage_not_starts_with_i?: Maybe<Scalars['String']>;
-  uploadMessage_ends_with_i?: Maybe<Scalars['String']>;
-  uploadMessage_not_ends_with_i?: Maybe<Scalars['String']>;
-  uploadMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  uploadMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_contains?: Maybe<Scalars['String']>;
@@ -12772,6 +12881,54 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   isTrustedBankAccountSource_not?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  displayPriority_not?: Maybe<Scalars['Int']>;
+  displayPriority_lt?: Maybe<Scalars['Int']>;
+  displayPriority_lte?: Maybe<Scalars['Int']>;
+  displayPriority_gt?: Maybe<Scalars['Int']>;
+  displayPriority_gte?: Maybe<Scalars['Int']>;
+  displayPriority_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  displayPriority_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  label?: Maybe<Scalars['String']>;
+  label_not?: Maybe<Scalars['String']>;
+  label_contains?: Maybe<Scalars['String']>;
+  label_not_contains?: Maybe<Scalars['String']>;
+  label_starts_with?: Maybe<Scalars['String']>;
+  label_not_starts_with?: Maybe<Scalars['String']>;
+  label_ends_with?: Maybe<Scalars['String']>;
+  label_not_ends_with?: Maybe<Scalars['String']>;
+  label_i?: Maybe<Scalars['String']>;
+  label_not_i?: Maybe<Scalars['String']>;
+  label_contains_i?: Maybe<Scalars['String']>;
+  label_not_contains_i?: Maybe<Scalars['String']>;
+  label_starts_with_i?: Maybe<Scalars['String']>;
+  label_not_starts_with_i?: Maybe<Scalars['String']>;
+  label_ends_with_i?: Maybe<Scalars['String']>;
+  label_not_ends_with_i?: Maybe<Scalars['String']>;
+  label_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  label_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  gallery?: Maybe<Scalars['JSON']>;
+  gallery_not?: Maybe<Scalars['JSON']>;
+  gallery_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  gallery_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  price?: Maybe<Scalars['String']>;
+  price_not?: Maybe<Scalars['String']>;
+  price_contains?: Maybe<Scalars['String']>;
+  price_not_contains?: Maybe<Scalars['String']>;
+  price_starts_with?: Maybe<Scalars['String']>;
+  price_not_starts_with?: Maybe<Scalars['String']>;
+  price_ends_with?: Maybe<Scalars['String']>;
+  price_not_ends_with?: Maybe<Scalars['String']>;
+  price_i?: Maybe<Scalars['String']>;
+  price_not_i?: Maybe<Scalars['String']>;
+  price_contains_i?: Maybe<Scalars['String']>;
+  price_not_contains_i?: Maybe<Scalars['String']>;
+  price_starts_with_i?: Maybe<Scalars['String']>;
+  price_not_starts_with_i?: Maybe<Scalars['String']>;
+  price_ends_with_i?: Maybe<Scalars['String']>;
+  price_not_ends_with_i?: Maybe<Scalars['String']>;
+  price_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  price_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -13465,28 +13622,22 @@ export type BillingIntegrationUpdateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
   shortDescription?: Maybe<Scalars['String']>;
-  targetDescription?: Maybe<Scalars['String']>;
-  bannerTextColor?: Maybe<BillingIntegrationBannerTextColorType>;
-  bannerColor?: Maybe<Scalars['String']>;
-  bannerPromoImage?: Maybe<Scalars['Upload']>;
-  receiptsLoadingTime?: Maybe<Scalars['String']>;
+  developer?: Maybe<Scalars['String']>;
+  partnerUrl?: Maybe<Scalars['String']>;
   detailedDescription?: Maybe<Scalars['String']>;
-  setupUrl?: Maybe<Scalars['String']>;
-  instruction?: Maybe<Scalars['String']>;
-  instructionExtraLink?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
-  extendsBillingPage?: Maybe<Scalars['Boolean']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   group?: Maybe<Scalars['String']>;
-  connectedMessage?: Maybe<Scalars['String']>;
-  uploadUrl?: Maybe<Scalars['String']>;
-  uploadMessage?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
   currencyCode?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
+  gallery?: Maybe<Array<Scalars['String']>>;
+  price?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -13541,68 +13692,42 @@ export type BillingIntegrationWhereInput = {
   shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
   shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  targetDescription?: Maybe<Scalars['String']>;
-  targetDescription_not?: Maybe<Scalars['String']>;
-  targetDescription_contains?: Maybe<Scalars['String']>;
-  targetDescription_not_contains?: Maybe<Scalars['String']>;
-  targetDescription_starts_with?: Maybe<Scalars['String']>;
-  targetDescription_not_starts_with?: Maybe<Scalars['String']>;
-  targetDescription_ends_with?: Maybe<Scalars['String']>;
-  targetDescription_not_ends_with?: Maybe<Scalars['String']>;
-  targetDescription_i?: Maybe<Scalars['String']>;
-  targetDescription_not_i?: Maybe<Scalars['String']>;
-  targetDescription_contains_i?: Maybe<Scalars['String']>;
-  targetDescription_not_contains_i?: Maybe<Scalars['String']>;
-  targetDescription_starts_with_i?: Maybe<Scalars['String']>;
-  targetDescription_not_starts_with_i?: Maybe<Scalars['String']>;
-  targetDescription_ends_with_i?: Maybe<Scalars['String']>;
-  targetDescription_not_ends_with_i?: Maybe<Scalars['String']>;
-  targetDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  targetDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  bannerTextColor?: Maybe<BillingIntegrationBannerTextColorType>;
-  bannerTextColor_not?: Maybe<BillingIntegrationBannerTextColorType>;
-  bannerTextColor_in?: Maybe<Array<Maybe<BillingIntegrationBannerTextColorType>>>;
-  bannerTextColor_not_in?: Maybe<Array<Maybe<BillingIntegrationBannerTextColorType>>>;
-  bannerColor?: Maybe<Scalars['String']>;
-  bannerColor_not?: Maybe<Scalars['String']>;
-  bannerColor_contains?: Maybe<Scalars['String']>;
-  bannerColor_not_contains?: Maybe<Scalars['String']>;
-  bannerColor_starts_with?: Maybe<Scalars['String']>;
-  bannerColor_not_starts_with?: Maybe<Scalars['String']>;
-  bannerColor_ends_with?: Maybe<Scalars['String']>;
-  bannerColor_not_ends_with?: Maybe<Scalars['String']>;
-  bannerColor_i?: Maybe<Scalars['String']>;
-  bannerColor_not_i?: Maybe<Scalars['String']>;
-  bannerColor_contains_i?: Maybe<Scalars['String']>;
-  bannerColor_not_contains_i?: Maybe<Scalars['String']>;
-  bannerColor_starts_with_i?: Maybe<Scalars['String']>;
-  bannerColor_not_starts_with_i?: Maybe<Scalars['String']>;
-  bannerColor_ends_with_i?: Maybe<Scalars['String']>;
-  bannerColor_not_ends_with_i?: Maybe<Scalars['String']>;
-  bannerColor_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  bannerColor_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  bannerPromoImage?: Maybe<Scalars['String']>;
-  bannerPromoImage_not?: Maybe<Scalars['String']>;
-  bannerPromoImage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  bannerPromoImage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  receiptsLoadingTime?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_contains?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_contains?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_starts_with?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_starts_with?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_ends_with?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_ends_with?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_contains_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_contains_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_starts_with_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_starts_with_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_ends_with_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_not_ends_with_i?: Maybe<Scalars['String']>;
-  receiptsLoadingTime_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  receiptsLoadingTime_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer?: Maybe<Scalars['String']>;
+  developer_not?: Maybe<Scalars['String']>;
+  developer_contains?: Maybe<Scalars['String']>;
+  developer_not_contains?: Maybe<Scalars['String']>;
+  developer_starts_with?: Maybe<Scalars['String']>;
+  developer_not_starts_with?: Maybe<Scalars['String']>;
+  developer_ends_with?: Maybe<Scalars['String']>;
+  developer_not_ends_with?: Maybe<Scalars['String']>;
+  developer_i?: Maybe<Scalars['String']>;
+  developer_not_i?: Maybe<Scalars['String']>;
+  developer_contains_i?: Maybe<Scalars['String']>;
+  developer_not_contains_i?: Maybe<Scalars['String']>;
+  developer_starts_with_i?: Maybe<Scalars['String']>;
+  developer_not_starts_with_i?: Maybe<Scalars['String']>;
+  developer_ends_with_i?: Maybe<Scalars['String']>;
+  developer_not_ends_with_i?: Maybe<Scalars['String']>;
+  developer_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  developer_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl?: Maybe<Scalars['String']>;
+  partnerUrl_not?: Maybe<Scalars['String']>;
+  partnerUrl_contains?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with?: Maybe<Scalars['String']>;
+  partnerUrl_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_i?: Maybe<Scalars['String']>;
+  partnerUrl_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_contains_i?: Maybe<Scalars['String']>;
+  partnerUrl_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  partnerUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  partnerUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   detailedDescription?: Maybe<Scalars['String']>;
   detailedDescription_not?: Maybe<Scalars['String']>;
   detailedDescription_contains?: Maybe<Scalars['String']>;
@@ -13621,60 +13746,6 @@ export type BillingIntegrationWhereInput = {
   detailedDescription_not_ends_with_i?: Maybe<Scalars['String']>;
   detailedDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   detailedDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  setupUrl?: Maybe<Scalars['String']>;
-  setupUrl_not?: Maybe<Scalars['String']>;
-  setupUrl_contains?: Maybe<Scalars['String']>;
-  setupUrl_not_contains?: Maybe<Scalars['String']>;
-  setupUrl_starts_with?: Maybe<Scalars['String']>;
-  setupUrl_not_starts_with?: Maybe<Scalars['String']>;
-  setupUrl_ends_with?: Maybe<Scalars['String']>;
-  setupUrl_not_ends_with?: Maybe<Scalars['String']>;
-  setupUrl_i?: Maybe<Scalars['String']>;
-  setupUrl_not_i?: Maybe<Scalars['String']>;
-  setupUrl_contains_i?: Maybe<Scalars['String']>;
-  setupUrl_not_contains_i?: Maybe<Scalars['String']>;
-  setupUrl_starts_with_i?: Maybe<Scalars['String']>;
-  setupUrl_not_starts_with_i?: Maybe<Scalars['String']>;
-  setupUrl_ends_with_i?: Maybe<Scalars['String']>;
-  setupUrl_not_ends_with_i?: Maybe<Scalars['String']>;
-  setupUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  setupUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  instruction?: Maybe<Scalars['String']>;
-  instruction_not?: Maybe<Scalars['String']>;
-  instruction_contains?: Maybe<Scalars['String']>;
-  instruction_not_contains?: Maybe<Scalars['String']>;
-  instruction_starts_with?: Maybe<Scalars['String']>;
-  instruction_not_starts_with?: Maybe<Scalars['String']>;
-  instruction_ends_with?: Maybe<Scalars['String']>;
-  instruction_not_ends_with?: Maybe<Scalars['String']>;
-  instruction_i?: Maybe<Scalars['String']>;
-  instruction_not_i?: Maybe<Scalars['String']>;
-  instruction_contains_i?: Maybe<Scalars['String']>;
-  instruction_not_contains_i?: Maybe<Scalars['String']>;
-  instruction_starts_with_i?: Maybe<Scalars['String']>;
-  instruction_not_starts_with_i?: Maybe<Scalars['String']>;
-  instruction_ends_with_i?: Maybe<Scalars['String']>;
-  instruction_not_ends_with_i?: Maybe<Scalars['String']>;
-  instruction_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  instruction_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  instructionExtraLink?: Maybe<Scalars['String']>;
-  instructionExtraLink_not?: Maybe<Scalars['String']>;
-  instructionExtraLink_contains?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_contains?: Maybe<Scalars['String']>;
-  instructionExtraLink_starts_with?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_starts_with?: Maybe<Scalars['String']>;
-  instructionExtraLink_ends_with?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_ends_with?: Maybe<Scalars['String']>;
-  instructionExtraLink_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_contains_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_contains_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_starts_with_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_starts_with_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_ends_with_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_not_ends_with_i?: Maybe<Scalars['String']>;
-  instructionExtraLink_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  instructionExtraLink_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   appUrl?: Maybe<Scalars['String']>;
   appUrl_not?: Maybe<Scalars['String']>;
   appUrl_contains?: Maybe<Scalars['String']>;
@@ -13693,8 +13764,6 @@ export type BillingIntegrationWhereInput = {
   appUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   appUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  extendsBillingPage?: Maybe<Scalars['Boolean']>;
-  extendsBillingPage_not?: Maybe<Scalars['Boolean']>;
   billingPageTitle?: Maybe<Scalars['String']>;
   billingPageTitle_not?: Maybe<Scalars['String']>;
   billingPageTitle_contains?: Maybe<Scalars['String']>;
@@ -13731,60 +13800,6 @@ export type BillingIntegrationWhereInput = {
   group_not_ends_with_i?: Maybe<Scalars['String']>;
   group_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   group_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  connectedMessage?: Maybe<Scalars['String']>;
-  connectedMessage_not?: Maybe<Scalars['String']>;
-  connectedMessage_contains?: Maybe<Scalars['String']>;
-  connectedMessage_not_contains?: Maybe<Scalars['String']>;
-  connectedMessage_starts_with?: Maybe<Scalars['String']>;
-  connectedMessage_not_starts_with?: Maybe<Scalars['String']>;
-  connectedMessage_ends_with?: Maybe<Scalars['String']>;
-  connectedMessage_not_ends_with?: Maybe<Scalars['String']>;
-  connectedMessage_i?: Maybe<Scalars['String']>;
-  connectedMessage_not_i?: Maybe<Scalars['String']>;
-  connectedMessage_contains_i?: Maybe<Scalars['String']>;
-  connectedMessage_not_contains_i?: Maybe<Scalars['String']>;
-  connectedMessage_starts_with_i?: Maybe<Scalars['String']>;
-  connectedMessage_not_starts_with_i?: Maybe<Scalars['String']>;
-  connectedMessage_ends_with_i?: Maybe<Scalars['String']>;
-  connectedMessage_not_ends_with_i?: Maybe<Scalars['String']>;
-  connectedMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  connectedMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  uploadUrl?: Maybe<Scalars['String']>;
-  uploadUrl_not?: Maybe<Scalars['String']>;
-  uploadUrl_contains?: Maybe<Scalars['String']>;
-  uploadUrl_not_contains?: Maybe<Scalars['String']>;
-  uploadUrl_starts_with?: Maybe<Scalars['String']>;
-  uploadUrl_not_starts_with?: Maybe<Scalars['String']>;
-  uploadUrl_ends_with?: Maybe<Scalars['String']>;
-  uploadUrl_not_ends_with?: Maybe<Scalars['String']>;
-  uploadUrl_i?: Maybe<Scalars['String']>;
-  uploadUrl_not_i?: Maybe<Scalars['String']>;
-  uploadUrl_contains_i?: Maybe<Scalars['String']>;
-  uploadUrl_not_contains_i?: Maybe<Scalars['String']>;
-  uploadUrl_starts_with_i?: Maybe<Scalars['String']>;
-  uploadUrl_not_starts_with_i?: Maybe<Scalars['String']>;
-  uploadUrl_ends_with_i?: Maybe<Scalars['String']>;
-  uploadUrl_not_ends_with_i?: Maybe<Scalars['String']>;
-  uploadUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  uploadUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  uploadMessage?: Maybe<Scalars['String']>;
-  uploadMessage_not?: Maybe<Scalars['String']>;
-  uploadMessage_contains?: Maybe<Scalars['String']>;
-  uploadMessage_not_contains?: Maybe<Scalars['String']>;
-  uploadMessage_starts_with?: Maybe<Scalars['String']>;
-  uploadMessage_not_starts_with?: Maybe<Scalars['String']>;
-  uploadMessage_ends_with?: Maybe<Scalars['String']>;
-  uploadMessage_not_ends_with?: Maybe<Scalars['String']>;
-  uploadMessage_i?: Maybe<Scalars['String']>;
-  uploadMessage_not_i?: Maybe<Scalars['String']>;
-  uploadMessage_contains_i?: Maybe<Scalars['String']>;
-  uploadMessage_not_contains_i?: Maybe<Scalars['String']>;
-  uploadMessage_starts_with_i?: Maybe<Scalars['String']>;
-  uploadMessage_not_starts_with_i?: Maybe<Scalars['String']>;
-  uploadMessage_ends_with_i?: Maybe<Scalars['String']>;
-  uploadMessage_not_ends_with_i?: Maybe<Scalars['String']>;
-  uploadMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  uploadMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -13807,6 +13822,40 @@ export type BillingIntegrationWhereInput = {
   isTrustedBankAccountSource_not?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  displayPriority_not?: Maybe<Scalars['Int']>;
+  displayPriority_lt?: Maybe<Scalars['Int']>;
+  displayPriority_lte?: Maybe<Scalars['Int']>;
+  displayPriority_gt?: Maybe<Scalars['Int']>;
+  displayPriority_gte?: Maybe<Scalars['Int']>;
+  displayPriority_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  displayPriority_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  label?: Maybe<Scalars['String']>;
+  label_not?: Maybe<Scalars['String']>;
+  label_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  label_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  gallery?: Maybe<Array<Scalars['String']>>;
+  gallery_not?: Maybe<Array<Scalars['String']>>;
+  gallery_in?: Maybe<Array<Maybe<Array<Scalars['String']>>>>;
+  gallery_not_in?: Maybe<Array<Maybe<Array<Scalars['String']>>>>;
+  price?: Maybe<Scalars['String']>;
+  price_not?: Maybe<Scalars['String']>;
+  price_contains?: Maybe<Scalars['String']>;
+  price_not_contains?: Maybe<Scalars['String']>;
+  price_starts_with?: Maybe<Scalars['String']>;
+  price_not_starts_with?: Maybe<Scalars['String']>;
+  price_ends_with?: Maybe<Scalars['String']>;
+  price_not_ends_with?: Maybe<Scalars['String']>;
+  price_i?: Maybe<Scalars['String']>;
+  price_not_i?: Maybe<Scalars['String']>;
+  price_contains_i?: Maybe<Scalars['String']>;
+  price_not_contains_i?: Maybe<Scalars['String']>;
+  price_starts_with_i?: Maybe<Scalars['String']>;
+  price_not_starts_with_i?: Maybe<Scalars['String']>;
+  price_ends_with_i?: Maybe<Scalars['String']>;
+  price_not_ends_with_i?: Maybe<Scalars['String']>;
+  price_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  price_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -57596,8 +57645,14 @@ export enum SortAcquiringIntegrationContextsBy {
 export enum SortAcquiringIntegrationHistoryRecordsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
-  SetupUrlAsc = 'setupUrl_ASC',
-  SetupUrlDesc = 'setupUrl_DESC',
+  ShortDescriptionAsc = 'shortDescription_ASC',
+  ShortDescriptionDesc = 'shortDescription_DESC',
+  DeveloperAsc = 'developer_ASC',
+  DeveloperDesc = 'developer_DESC',
+  PartnerUrlAsc = 'partnerUrl_ASC',
+  PartnerUrlDesc = 'partnerUrl_DESC',
+  AppUrlAsc = 'appUrl_ASC',
+  AppUrlDesc = 'appUrl_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
   CanGroupReceiptsAsc = 'canGroupReceipts_ASC',
@@ -57606,6 +57661,12 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   HostUrlDesc = 'hostUrl_DESC',
   SupportedBillingIntegrationsGroupAsc = 'supportedBillingIntegrationsGroup_ASC',
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
+  LabelAsc = 'label_ASC',
+  LabelDesc = 'label_DESC',
+  PriceAsc = 'price_ASC',
+  PriceDesc = 'price_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   IdAsc = 'id_ASC',
@@ -57629,8 +57690,16 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
 export enum SortAcquiringIntegrationsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
-  SetupUrlAsc = 'setupUrl_ASC',
-  SetupUrlDesc = 'setupUrl_DESC',
+  ShortDescriptionAsc = 'shortDescription_ASC',
+  ShortDescriptionDesc = 'shortDescription_DESC',
+  DeveloperAsc = 'developer_ASC',
+  DeveloperDesc = 'developer_DESC',
+  PartnerUrlAsc = 'partnerUrl_ASC',
+  PartnerUrlDesc = 'partnerUrl_DESC',
+  DetailedDescriptionAsc = 'detailedDescription_ASC',
+  DetailedDescriptionDesc = 'detailedDescription_DESC',
+  AppUrlAsc = 'appUrl_ASC',
+  AppUrlDesc = 'appUrl_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
   AccessRightsAsc = 'accessRights_ASC',
@@ -57641,6 +57710,12 @@ export enum SortAcquiringIntegrationsBy {
   HostUrlDesc = 'hostUrl_DESC',
   SupportedBillingIntegrationsGroupAsc = 'supportedBillingIntegrationsGroup_ASC',
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
+  LabelAsc = 'label_ASC',
+  LabelDesc = 'label_DESC',
+  PriceAsc = 'price_ASC',
+  PriceDesc = 'price_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   IdAsc = 'id_ASC',
@@ -58984,32 +59059,16 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   NameDesc = 'name_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
   ShortDescriptionDesc = 'shortDescription_DESC',
-  TargetDescriptionAsc = 'targetDescription_ASC',
-  TargetDescriptionDesc = 'targetDescription_DESC',
-  BannerTextColorAsc = 'bannerTextColor_ASC',
-  BannerTextColorDesc = 'bannerTextColor_DESC',
-  BannerColorAsc = 'bannerColor_ASC',
-  BannerColorDesc = 'bannerColor_DESC',
-  ReceiptsLoadingTimeAsc = 'receiptsLoadingTime_ASC',
-  ReceiptsLoadingTimeDesc = 'receiptsLoadingTime_DESC',
-  SetupUrlAsc = 'setupUrl_ASC',
-  SetupUrlDesc = 'setupUrl_DESC',
-  InstructionExtraLinkAsc = 'instructionExtraLink_ASC',
-  InstructionExtraLinkDesc = 'instructionExtraLink_DESC',
+  DeveloperAsc = 'developer_ASC',
+  DeveloperDesc = 'developer_DESC',
+  PartnerUrlAsc = 'partnerUrl_ASC',
+  PartnerUrlDesc = 'partnerUrl_DESC',
   AppUrlAsc = 'appUrl_ASC',
   AppUrlDesc = 'appUrl_DESC',
-  ExtendsBillingPageAsc = 'extendsBillingPage_ASC',
-  ExtendsBillingPageDesc = 'extendsBillingPage_DESC',
   BillingPageTitleAsc = 'billingPageTitle_ASC',
   BillingPageTitleDesc = 'billingPageTitle_DESC',
   GroupAsc = 'group_ASC',
   GroupDesc = 'group_DESC',
-  ConnectedMessageAsc = 'connectedMessage_ASC',
-  ConnectedMessageDesc = 'connectedMessage_DESC',
-  UploadUrlAsc = 'uploadUrl_ASC',
-  UploadUrlDesc = 'uploadUrl_DESC',
-  UploadMessageAsc = 'uploadMessage_ASC',
-  UploadMessageDesc = 'uploadMessage_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CurrencyCodeAsc = 'currencyCode_ASC',
@@ -59018,6 +59077,12 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   IsTrustedBankAccountSourceDesc = 'isTrustedBankAccountSource_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
+  LabelAsc = 'label_ASC',
+  LabelDesc = 'label_DESC',
+  PriceAsc = 'price_ASC',
+  PriceDesc = 'price_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -59114,36 +59179,18 @@ export enum SortBillingIntegrationsBy {
   NameDesc = 'name_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
   ShortDescriptionDesc = 'shortDescription_DESC',
-  TargetDescriptionAsc = 'targetDescription_ASC',
-  TargetDescriptionDesc = 'targetDescription_DESC',
-  BannerTextColorAsc = 'bannerTextColor_ASC',
-  BannerTextColorDesc = 'bannerTextColor_DESC',
-  BannerColorAsc = 'bannerColor_ASC',
-  BannerColorDesc = 'bannerColor_DESC',
-  ReceiptsLoadingTimeAsc = 'receiptsLoadingTime_ASC',
-  ReceiptsLoadingTimeDesc = 'receiptsLoadingTime_DESC',
+  DeveloperAsc = 'developer_ASC',
+  DeveloperDesc = 'developer_DESC',
+  PartnerUrlAsc = 'partnerUrl_ASC',
+  PartnerUrlDesc = 'partnerUrl_DESC',
   DetailedDescriptionAsc = 'detailedDescription_ASC',
   DetailedDescriptionDesc = 'detailedDescription_DESC',
-  SetupUrlAsc = 'setupUrl_ASC',
-  SetupUrlDesc = 'setupUrl_DESC',
-  InstructionAsc = 'instruction_ASC',
-  InstructionDesc = 'instruction_DESC',
-  InstructionExtraLinkAsc = 'instructionExtraLink_ASC',
-  InstructionExtraLinkDesc = 'instructionExtraLink_DESC',
   AppUrlAsc = 'appUrl_ASC',
   AppUrlDesc = 'appUrl_DESC',
-  ExtendsBillingPageAsc = 'extendsBillingPage_ASC',
-  ExtendsBillingPageDesc = 'extendsBillingPage_DESC',
   BillingPageTitleAsc = 'billingPageTitle_ASC',
   BillingPageTitleDesc = 'billingPageTitle_DESC',
   GroupAsc = 'group_ASC',
   GroupDesc = 'group_DESC',
-  ConnectedMessageAsc = 'connectedMessage_ASC',
-  ConnectedMessageDesc = 'connectedMessage_DESC',
-  UploadUrlAsc = 'uploadUrl_ASC',
-  UploadUrlDesc = 'uploadUrl_DESC',
-  UploadMessageAsc = 'uploadMessage_ASC',
-  UploadMessageDesc = 'uploadMessage_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CurrencyCodeAsc = 'currencyCode_ASC',
@@ -59154,6 +59201,12 @@ export enum SortBillingIntegrationsBy {
   IsTrustedBankAccountSourceDesc = 'isTrustedBankAccountSource_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
+  LabelAsc = 'label_ASC',
+  LabelDesc = 'label_DESC',
+  PriceAsc = 'price_ASC',
+  PriceDesc = 'price_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
