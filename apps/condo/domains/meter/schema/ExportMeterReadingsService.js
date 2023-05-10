@@ -90,7 +90,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                 }).filter(Boolean)
 
                 const excelRows = mappedMeterReadings.map(meterReading => {
-                    const unitType = meterReading.unitType ? i18n(`pages.condo.ticket.field.unitType.${meterReading.unitType}`, { locale }) : ''
+                    const unitType = meterReading.unitType ? i18n(`ticket.field.unitType.${meterReading.unitType}`, { locale }) : ''
 
                     return {
                         date: formatDate(meterReading.date),

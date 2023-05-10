@@ -60,7 +60,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const contactUnitName = get(contact, 'unitName')
     const contactUnitType = get(contact, 'unitType', BuildingUnitSubType.Flat)
     const unitSuffix = contactUnitName
-        ? `${intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${contactUnitType}` }).toLowerCase()} ${contactUnitName}`
+        ? `${intl.formatMessage({ id: `ticket.field.unitType.${contactUnitType}` }).toLowerCase()} ${contactUnitName}`
         : ''
     const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
     const contactRole = get(contact, 'role')
