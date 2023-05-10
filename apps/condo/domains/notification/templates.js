@@ -112,9 +112,9 @@ function normalizeSMSText (text) {
  * @returns {{}|*}
  */
 function substituteTranslations (item, locale) {
-    if (isObject(item)) return translateObjectItems(item, locale)
     if (isArray(item)) return item.map(itemValue => substituteTranslations(itemValue, locale))
-
+    if (isObject(item)) return translateObjectItems(item, locale)
+    
     return getLocalized(locale, item)
 }
 
