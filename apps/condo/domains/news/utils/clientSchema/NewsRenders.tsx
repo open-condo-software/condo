@@ -5,7 +5,6 @@ import get from 'lodash/get'
 import isNull from 'lodash/isNil'
 import React, { CSSProperties, useCallback } from 'react'
 
-
 import { RefreshCw } from '@open-condo/icons'
 import { Typography } from '@open-condo/ui'
 
@@ -15,16 +14,22 @@ import { LOCALES } from '@condo/domains/common/constants/locale'
 
 const DATE_FORMAT = 'DD.MM.YYYY'
 const TIME_FORMAT = 'DD.MM.YYYY HH:mm'
-
+const MAX_CELL_CONTENT_LENGTH = 150
+const DEFAULT_LOCALE = 'ru'
 
 const getNewsDate = (intl, stringDate: string, format: string): string => {
     if (!stringDate) return '—'
 
-    const locale = get(LOCALES, intl.locale)
-    const date = locale ? dayjs(stringDate).locale(locale) : dayjs(stringDate)
+    const locale = intl.locale ? get(LOCALES, intl.locale) : get(LOCALES, DEFAULT_LOCALE)
+    const date = dayjs(stringDate).locale(locale)
     const text = `${date.format(format)}`
 
     return text
+}
+
+export const getRenderBody = () => (body) =>  {
+    const trimmedText = String(body).length > MAX_CELL_CONTENT_LENGTH ? `${String(body).substring(0, MAX_CELL_CONTENT_LENGTH)}…` : body
+    return getTableCellRenderer({ extraTitle: body })(trimmedText)
 }
 
 export const getRenderNewsDate = (intl, search: FilterValue) => (stringDate, news) => {
@@ -45,24 +50,24 @@ export const getRenderNewsDate = (intl, search: FilterValue) => (stringDate, new
     return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(sendAtDate)
 }
 
-const FAVORITE_TICKET_INDICATOR_CONTAINER_STYLE: CSSProperties = { cursor: 'pointer' }
+const RESEND_MESSAGE_CONTAINER_STYLE: CSSProperties = { cursor: 'pointer' }
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
 
 export const ResendNewsButton = ({ intl, newsItem }) => {
     const ResendMessage = intl.formatMessage({ id: 'pages.condo.news.resend' })
 
-    //dummy for now
+    //TODO(DOMA-5917) this functionality will be implemented as part of next task
     const handleClick = useCallback((e) => {
         e.stopPropagation()
 
-        alert(`новость с id ${newsItem.id}`)
+        alert(`TODO(DOMA-5917) новость с id ${newsItem.id}`)
     }, [])
     
 
     return (
         <Tooltip title={ResendMessage} placement='bottomLeft'>
-            <div style={FAVORITE_TICKET_INDICATOR_CONTAINER_STYLE} onClick={handleClick}>
+            <div style={RESEND_MESSAGE_CONTAINER_STYLE} onClick={handleClick}>
                 <RefreshCw size='small'/>
             </div>
         </Tooltip>
@@ -74,13 +79,11 @@ export const getTypeRender = (intl, search?: FilterValue) => {
         const CommonTypeMessage = intl.formatMessage({ id: 'news.type.common' })
         const ЕmergencyCommonTypeMessage = intl.formatMessage({ id: 'news.type.emergency' })
 
-        let localeText = text 
-
         const newsType = get(newsItem, 'type', null)
         const validBefore = get(newsItem, 'validBefore', null)
         const timeLeft = dayjs.duration(dayjs(validBefore).diff(dayjs()))
 
-        newsType == 'emergency' ? localeText = ЕmergencyCommonTypeMessage : localeText = CommonTypeMessage
+        const localeText = newsType === 'emergency' ? ЕmergencyCommonTypeMessage : CommonTypeMessage
 
         if (newsType !== 'emergency' || !validBefore || timeLeft.asMilliseconds() < 0) return getTableCellRenderer({ search, ellipsis: true })(localeText)
 

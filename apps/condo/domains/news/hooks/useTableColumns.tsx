@@ -7,16 +7,14 @@ import { useIntl } from '@open-condo/next/intl'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { getRenderNewsDate, ResendNewsButton, getTypeRender } from '@condo/domains/news/utils/clientSchema/NewsRenders'
+import { getRenderBody, getRenderNewsDate, ResendNewsButton, getTypeRender } from '@condo/domains/news/utils/clientSchema/NewsRenders'
 
 const COLUMNS_WIDTH = {
     resend: '4%',
     number: '5.8%',
     type: '12%',
     title: '16.1%',
-    kek: '0%',
     body: '27.6%',
-    lol: '0:',
     newsItemAddresses: '20%',
     createdAt: '14.5%',
 }
@@ -42,6 +40,8 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
             />
         )
     }, [])
+
+    const renderBoody = useMemo(() => getRenderBody(), [])
 
     return useMemo(() => {
         return [
@@ -78,8 +78,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 dataIndex: 'body',
                 key: 'body',
                 width: COLUMNS_WIDTH.body,
-                className: 'body-column',
-                ellipsis: true,
+                render: renderBoody,
             },
             {
                 title: AddressesMessage,
@@ -97,6 +96,5 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
             },
         ]
-        //?4 what i really need here
     }, [intl, search, filterMetas, filters, sorters])
 }

@@ -24,7 +24,6 @@ import {
     Settings,
     OnOff,
     Sber,
-    Newspaper,
 } from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { withApollo } from '@open-condo/next/apollo'
@@ -134,10 +133,6 @@ const MenuItems: React.FC = () => {
             icon: OnOff,
             label: 'global.section.incidents',
             access: () => !isAssignedVisibilityType,
-        }, {
-            path: 'news',
-            icon: Newspaper,
-            label: 'global.section.news',
         }, {
             path: 'property',
             icon: Building,

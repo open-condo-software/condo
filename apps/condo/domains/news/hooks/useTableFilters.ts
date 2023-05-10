@@ -6,7 +6,6 @@ import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-
 import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getFilter, getDayRangeFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 
@@ -18,8 +17,8 @@ const titleFilter = getStringContainsFilter('title')
 export const useTableFilters = (): Array<FiltersMeta<NewsItemWhereInput, NewsItem>> => {
     const intl = useIntl()
     const TypeMessage = intl.formatMessage({ id: 'global.type' })
-    const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
-    const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
+    const StartDateMessage = intl.formatMessage({ id: 'global.filters.dateRange.start' })
+    const EndDateMessage = intl.formatMessage({ id: 'global.filters.dateRange.end' })
     const CommonTypeMessage = intl.formatMessage({ id: 'news.type.common' })
     const ЕmergencyCommonTypeMessage = intl.formatMessage({ id: 'news.type.emergency' })
 

@@ -47,15 +47,13 @@ const NewsTable = ({
     loading,
 }) => {
     return (
-        <>
-            <Table
-                totalRows={total}
-                loading={loading}
-                dataSource={loading ? null : news}
-                columns={columns}
-                data-cy='news__table'
-            />
-        </>
+        <Table
+            totalRows={total}
+            loading={loading}
+            dataSource={loading ? null : news}
+            columns={columns}
+            data-cy='news__table'
+        />
     )
 }
 
@@ -65,6 +63,8 @@ const NewsTableContainer = ({
     searchNewsQuery,
     loading,
 }) => {
+    const intl = useIntl()
+    const CreateNewsLabel = intl.formatMessage({ id: 'news.createNews' })
     const router = useRouter()
     const { filters, offset } = useMemo(() => parseQuery(router.query), [router.query])
     
@@ -89,9 +89,8 @@ const NewsTableContainer = ({
         },
     ])
     useMemo(() => {
-        console.debug('isNewsFetching', isNewsFetching)
         if (!isNewsFetching) {
-            const newWhereNewsItemScopeArr  = news.reduce((arr, newsItem) => {
+            const newWhereNewsItemScopeArr = news.reduce((arr, newsItem) => {
                 const newsItemID = get(newsItem, 'id', null)
                 const newsItemOrganizationID = get(newsItem, ['organization', 'id'], null)
     
@@ -148,8 +147,9 @@ const NewsTableContainer = ({
 
     const columns = useTableColumns(filterMetas)
 
+    //TODO(DOMA-5917) this functionality will be implemented as part of next task
     const handleAddNews = useCallback(() => {
-        alert('dummy')
+        alert('TODO(DOMA-5917)')
     }, [])
 
     return (
@@ -168,8 +168,8 @@ const NewsTableContainer = ({
                         <Button 
                             key='addNews' 
                             type='primary'
-                            children='Добавить новость'
-                            icon={<PlusCircle size='small' />}
+                            children={CreateNewsLabel}
+                            icon={<PlusCircle size='medium' />}
                             onClick={handleAddNews}
                         />,
                     ]}
@@ -195,7 +195,6 @@ const NewsPageContent = ({
     const handleSearchChange = useCallback((e) => {
         changeSearch(e.target.value)
     }, [changeSearch])
-
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -229,27 +228,25 @@ const NewsPageContent = ({
     }
 
     return (
-        <>
-            <Row gutter={PAGE_ROW_GUTTER} justify='space-between'>
-                <Col span={24}>
-                    <TableFiltersContainer>
-                        <Input
-                            placeholder={SearchPlaceholder}
-                            onChange={handleSearchChange}
-                            value={search}
-                            allowClear
-                            suffix={<Search size='medium' color={colors.gray[7]} />}
-                        />
-                    </TableFiltersContainer>
-                </Col>
-                <NewsTableContainer
-                    searchNewsQuery={searchNewsQuery}
-                    sortBy={sortBy}
-                    filterMetas={filterMetas}
-                    loading={loading}
-                />
-            </Row>
-        </>
+        <Row gutter={PAGE_ROW_GUTTER} justify='space-between'>
+            <Col span={24}>
+                <TableFiltersContainer>
+                    <Input
+                        placeholder={SearchPlaceholder}
+                        onChange={handleSearchChange}
+                        value={search}
+                        allowClear
+                        suffix={<Search size='medium' color={colors.gray[7]} />}
+                    />
+                </TableFiltersContainer>
+            </Col>
+            <NewsTableContainer
+                searchNewsQuery={searchNewsQuery}
+                sortBy={sortBy}
+                filterMetas={filterMetas}
+                loading={loading}
+            />
+        </Row>
     )
 }
 
@@ -257,11 +254,10 @@ const NewsPage: INewsIndexPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.news.index.pageTitle' })
 
-    const { link: { role = {} }, organization } = useOrganization()
+    const { organization } = useOrganization()
 
     const baseNewsQuery = {
-        organization: { id: organization.id, deletedAt: null },
-        deletedAt: null,
+        organization: { id: organization.id },
     }
 
     const filterMetas = useTableFilters()
