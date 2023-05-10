@@ -51,7 +51,6 @@ const {
     setSectionAndFloorFieldsByDataFromPropertyMap, setClientNamePhoneEmailFieldsByDataFromUser,
     overrideTicketFieldsForResidentUserType, setClientIfContactPhoneAndTicketAddressMatchesResidentFields, connectContactToTicket,
     calculateCompletedAt,
-    calculateDefaultDeferredUntil,
     calculateStatusUpdatedAt,
     calculateDeferredUntil,
     setDeadline, updateStatusAfterResidentReview,
@@ -566,9 +565,6 @@ const Ticket = new GQLListSchema('Ticket', {
                     calculateStatusUpdatedAt(resolvedData, existedStatusId, resolvedStatusId)
                     calculateDeferredUntil(resolvedData, existedStatus, resolvedStatus)
                 }
-
-                // todo (DOMA-4092) delete this code when in mob. app will add feature deferred ticket with selecting date
-                calculateDefaultDeferredUntil(newItem, resolvedData, resolvedStatusId)
             }
 
             if (userType === RESIDENT && isCreateOperation) {
@@ -673,10 +669,9 @@ const Ticket = new GQLListSchema('Ticket', {
                 throw new GQLError(ERRORS.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED, context)
             }
 
-            // todo (DOMA-4092) uncomment this code when in mob. app will add this feature
-            // if (!newItem.deferredUntil && resolvedStatus.type === DEFERRED_STATUS_TYPE) {
-            //     return addValidationError(`${WRONG_VALUE} deferredUntil is null, but status type is ${DEFERRED_STATUS_TYPE}`)
-            // }
+            if (!newItem.deferredUntil && resolvedStatus.type === DEFERRED_STATUS_TYPE) {
+                return addValidationError(`${WRONG_VALUE} deferredUntil is null, but status type is ${DEFERRED_STATUS_TYPE}`)
+            }
         },
         // `beforeChange` cannot be used, because data can be manipulated during updating process somewhere inside a ticket
         // We need a final result after update
