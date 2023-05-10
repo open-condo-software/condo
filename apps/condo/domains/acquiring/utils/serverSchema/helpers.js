@@ -13,11 +13,9 @@ const { RecurrentPaymentContext } = require('./index')
  * @returns {Promise<void>}
  */
 const removeOrphansRecurrentPaymentContexts = async ({ context, userId, residentId, serviceConsumerId, dv, sender }) => {
-    if (isNil(userId) &&  isNil(residentId) && isNil(serviceConsumerId))
-        throw new Error('Can not removeOrphansRecurrentPaymentContexts for empty parent ids')
+    if (isNil(userId) &&  isNil(residentId) && isNil(serviceConsumerId)) throw new Error('Can not removeOrphansRecurrentPaymentContexts for empty parent ids')
 
-    if (isNil(dv) ||  isNil(sender))
-        throw new Error('Can not removeOrphansRecurrentPaymentContexts with empty dv and sender params')
+    if (isNil(dv) ||  isNil(sender)) throw new Error('Can not removeOrphansRecurrentPaymentContexts with empty dv and sender params')
 
     let parentCondition = null
     if (!isNil(serviceConsumerId)) {
