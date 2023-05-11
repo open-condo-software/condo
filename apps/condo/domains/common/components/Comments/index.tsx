@@ -172,7 +172,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
         )
     }
 
-const SCROLL_TOP_OFFSET_TO_HIDE_TITLE = 30
+const SCROLL_TOP_OFFSET_TO_HIDE_TITLE = 50
 const NewCommentIndicator = styled.span`
   display: inline-block;
   width: 4px;
