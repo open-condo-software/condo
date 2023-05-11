@@ -9,7 +9,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingReceiptFile')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const BILLING_RECEIPT_FILE_FOLDER_NAME = 'billingReceipt'
+const BILLING_RECEIPT_FILE_FOLDER_NAME = 'billing-receipt-pdf'
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
 
