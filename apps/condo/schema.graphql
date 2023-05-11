@@ -32893,6 +32893,7 @@ enum MessageStatusType {
   delivered
   read
   canceled
+  disabledByUser
 }
 
 """ Notification message """
