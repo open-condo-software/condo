@@ -118,16 +118,29 @@ const checkDailyTicketLimit = async ({ userId, organizationId, details, context 
         return
     }
 
-    const byIdAndOrgKey = `dailyTicketLimit:id:${userId}:organization:${organizationId}`
-    const byIdAndOrgCounter = await redisGuard.incrementDayCounter(byIdAndOrgKey)
-    if (byIdAndOrgCounter > DAILY_TICKET_LIMIT) {
-        throw new GQLError(ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
+    if (!userId) {
+        throw new Error('No user id in Ticket.checkDailyTicketLimit')
     }
 
+    if (!organizationId) {
+        throw new Error('No organization id in Ticket.checkDailyTicketLimit')
+    }
+
+    if (!details) {
+        throw new Error('No details in Ticket.checkDailyTicketLimit')
+    }
+
+    const byIdAndOrgKey = `dailyTicketLimit:id:${userId}:organization:${organizationId}`
     const byIdOrgAndDetailsKey = `${byIdAndOrgKey}:details:${crypto.createHash('md5').update(details).digest('hex')}`
+
     const byIdOrgAndDetailsCounter = await redisGuard.incrementDayCounter(byIdOrgAndDetailsKey)
     if (byIdOrgAndDetailsCounter > DAILY_SAME_TICKET_LIMIT) {
         throw new GQLError(ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
+    }
+
+    const byIdAndOrgCounter = await redisGuard.incrementDayCounter(byIdAndOrgKey)
+    if (byIdAndOrgCounter > DAILY_TICKET_LIMIT) {
+        throw new GQLError(ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 }
 
@@ -637,7 +650,7 @@ const Ticket = new GQLListSchema('Ticket', {
 
             if (userType === RESIDENT && operation === 'create') {
                 await checkDailyTicketLimit({
-                    phone: get(user, 'phone'),
+                    userId: get(user, 'id'),
                     organizationId: get(resolvedData, 'organization'),
                     details: get(resolvedData, 'details'),
                     context,

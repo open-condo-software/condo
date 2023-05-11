@@ -1682,6 +1682,15 @@ describe('Ticket', () => {
                     await createTestTicket(userClient, userClient.organization, userClient.property, { unitName, details })
                 }, ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED)
 
+                // TICKET_FOR_PHONE_DAY_LIMIT_REACHED should be the top priority error
+                for (let i = 0; i < DAILY_TICKET_LIMIT - DAILY_SAME_TICKET_LIMIT - 1; ++i) {
+                    await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+                }
+
+                await expectToThrowGQLError(async () => {
+                    await createTestTicket(userClient, userClient.organization, userClient.property, { unitName, details })
+                }, ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED)
+
                 // User, banned from creating tickets to organization 1, can still create tickets to organization 2
                 const client2 = await makeClientWithProperty()
                 const unitName2 = faker.random.alphaNumeric(5)
@@ -1700,32 +1709,51 @@ describe('Ticket', () => {
 
             test('user: resident should not be able to create tickets in single day over the limit', async () => {
                 // User, should be banned from creating tickets to organization if he exceeds the limits.
-                const userClient = await makeClientWithResidentAccessAndProperty()
-                const unitName = faker.random.alphaNumeric(5)
-                await createTestResident(admin, userClient.user, userClient.property, {
-                    unitName,
+                const organization1 = await makeClientWithProperty()
+
+                const residentClient1 = await makeClientWithResidentUser()
+                const unitName1 = faker.random.alphaNumeric(5)
+                await createTestResident(admin, residentClient1.user, organization1.property, {
+                    unitName: unitName1,
                 })
+
                 for (let i = 0; i < DAILY_TICKET_LIMIT; ++i) {
-                    await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+                    await createTestTicket(residentClient1, organization1.organization, organization1.property, { unitName: unitName1 })
                 }
 
                 await expectToThrowGQLError(async () => {
-                    await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+                    await createTestTicket(residentClient1, organization1.organization, organization1.property, { unitName: unitName1 })
                 }, ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED)
 
                 // User, banned from creating tickets to organization 1, can still create tickets to organization 2
-                const client2 = await makeClientWithProperty()
+                const organization2 = await makeClientWithProperty()
+
                 const unitName2 = faker.random.alphaNumeric(5)
-                await createTestResident(admin, userClient.user, client2.property, {
+                await createTestResident(admin, residentClient1.user, organization2.property, {
                     unitName: unitName2,
                 })
 
-                const [secondOrgTicket] = await createTestTicket(userClient, client2.organization, client2.property, { unitName: unitName2 })
+                const [secondOrgTicket] = await createTestTicket(residentClient1, organization2.organization, organization2.property, { unitName: unitName2 })
 
                 expect(secondOrgTicket).toBeDefined()
                 expect(secondOrgTicket.id).toBeDefined()
-                expect(secondOrgTicket.organization.id).toEqual(client2.organization.id)
-                expect(secondOrgTicket.property.id).toEqual(client2.property.id)
+                expect(secondOrgTicket.organization.id).toEqual(organization2.organization.id)
+                expect(secondOrgTicket.property.id).toEqual(organization2.property.id)
+
+                // Another user is able to send tickets to organization 1
+
+                const residentClient2 = await makeClientWithResidentUser()
+                const unitName3 = faker.random.alphaNumeric(5)
+                await createTestResident(admin, residentClient2.user, organization1.property, {
+                    unitName: unitName3,
+                })
+
+                const [firstOrgTicketFromSecondResident] = await createTestTicket(residentClient2, organization1.organization, organization1.property, { unitName: unitName3 })
+
+                expect(firstOrgTicketFromSecondResident).toBeDefined()
+                expect(firstOrgTicketFromSecondResident.id).toBeDefined()
+                expect(firstOrgTicketFromSecondResident.organization.id).toEqual(organization1.organization.id)
+                expect(firstOrgTicketFromSecondResident.property.id).toEqual(organization1.property.id)
             })
         })
 
