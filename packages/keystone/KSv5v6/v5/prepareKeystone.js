@@ -20,7 +20,7 @@ const { expressErrorHandler } = require('../../logging/expressErrorHandler')
 const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
 
 
-
+const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
@@ -44,13 +44,10 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
         onConnect: async () => onConnect && onConnect(keystone),
     })
 
-
     const globalPreprocessors = schemasPreprocessors ? schemasPreprocessors() : []
     globalPreprocessors.push(...[schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor])
     // We need to register all schemas as they will appear in admin ui
     registerSchemas(keystone, schemas(), globalPreprocessors)
-    // We need to register all tasks as they will be possible to execute
-    if (tasks) registerTasks(tasks())
 
     const authStrategy = keystone.createAuthStrategy({
         type: PasswordAuthStrategy,
@@ -59,6 +56,12 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
             protectIdentities: false,
         },
     })
+
+    if (!IS_BUILD) {
+        // Since tasks may require Redis connection, and Redis variable is not present during build time:
+        // We need to register all tasks as they will be possible to execute
+        if (tasks) registerTasks(tasks())
+    }
     
     return {
         keystone,
