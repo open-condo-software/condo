@@ -8,11 +8,11 @@ const { Message } = require('./Message')
 const { MessageBatch } = require('./MessageBatch')
 const { MessageOrganizationBlackList } = require('./MessageOrganizationBlackList')
 const { MessageUserBlackList } = require('./MessageUserBlackList')
+const { NotificationUserSetting } = require('./NotificationUserSetting')
 const { RemoteClient } = require('./RemoteClient')
 const { SendMessageService } = require('./SendMessageService')
 const { SetMessageStatusService } = require('./SetMessageStatusService')
 const { SyncRemoteClientService } = require('./SyncRemoteClientService')
-const { NotificationUserSetting } = require('./NotificationUserSetting')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {

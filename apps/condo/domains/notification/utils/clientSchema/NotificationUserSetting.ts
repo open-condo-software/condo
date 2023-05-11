@@ -8,7 +8,9 @@ import {
     NotificationUserSettingUpdateInput,
     QueryAllNotificationUserSettingsArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { NotificationUserSetting as NotificationUserSettingGQL } from '@condo/domains/notification/gql'
 
 // TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO

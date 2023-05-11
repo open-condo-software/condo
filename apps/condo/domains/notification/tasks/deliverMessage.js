@@ -1,8 +1,5 @@
-const get = require('lodash/get')
-
-const { getMessageOptions } = require('@condo/domains/notification/helpers')
-
 const { isEmpty } = require('lodash')
+const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
@@ -22,9 +19,8 @@ const {
     MESSAGE_SENT_STATUS,
     MESSAGE_DISABLED_BY_USER_STATUS,
     MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT,
-    MESSAGE_DELIVERY_OPTIONS,
-    DEFAULT_MESSAGE_DELIVERY_OPTIONS,
 } = require('@condo/domains/notification/constants/constants')
+const { getMessageOptions } = require('@condo/domains/notification/helpers')
 const { getUserSettingsForMessage } = require('@condo/domains/notification/helpers/userSettingsHelpers')
 const emailAdapter = require('@condo/domains/notification/transports/email')
 const pushAdapter = require('@condo/domains/notification/transports/push')
