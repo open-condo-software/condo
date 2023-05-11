@@ -10,7 +10,7 @@ exports.up = async (knex) => {
             SET statement_timeout = '1500s';  
             
             UPDATE "BankTransaction" b
-            SET "importId" = CONCAT (CAST(b."date" as varchar), CAST('_' as varchar), CAST(b."number" as varchar))
+            SET "importId" = CONCAT (b."date", '_', b."number")
             WHERE b."importRemoteSystem" = '1CClientBankExchange';
             
             --
