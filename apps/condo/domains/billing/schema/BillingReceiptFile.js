@@ -5,9 +5,10 @@
 const { Text, Relationship, File } = require('@keystonejs/fields')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingReceiptFile')
+const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const BILLING_RECEIPT_FILE_FOLDER_NAME = 'billing-receipt-pdf'
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
@@ -56,6 +57,18 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
         update: access.canManageBillingReceiptFiles,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
+            const newItem = { ...existingItem, ...resolvedData }
+            const { context: contextId, receipt: receiptId } = newItem
+            const receipt = await getById('BillingReceipt', receiptId)
+            const { context: receiptContextId } = receipt
+
+            if (contextId !== receiptContextId) {
+                return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:receipt:context] Context is not equal to receipt.context`)
+            }
+        },
     },
 })
 

@@ -5,7 +5,9 @@
  */
 const { faker } = require('@faker-js/faker')
 const get = require('lodash/get')
-const { makeLoggedInAdminClient } = require("@open-condo/keystone/test.utils");
+const path = require("path");
+const conf = require("@open-condo/config");
+const { makeLoggedInAdminClient, UploadingFile} = require("@open-condo/keystone/test.utils");
 const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require("@condo/domains/organization/utils/testSchema");
 const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
@@ -480,12 +482,16 @@ async function updateTestBillingCategory (client, id, extraAttrs = {}) {
 
 async function createTestBillingReceiptFile (client, receipt, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    const receiptConnection = (receipt && receipt.id) ? { receipt: { connect: { id: receipt.id } } } : {}
-    const contextConnection = (context && context.id) ? { context: { connect: { id: context.id } } } : {}
+    if (!receipt) throw new Error('no receipt')
+    if (!context) throw new Error('no context')
+    const receiptConnection = { receipt: { connect: { id: receipt.id } } }
+    const contextConnection = { context: { connect: { id: context.id } } }
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const attrs = {
         dv: 1,
         sender,
+        file:  new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')),
+        controlSum: faker.random.alphaNumeric(20),
         ...receiptConnection,
         ...contextConnection,
         ...extraAttrs,
