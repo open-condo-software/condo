@@ -10,14 +10,17 @@ const { v4 } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
 const { getKeystonePinoOptions, GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
+const { registerTasks } = require('@open-condo/keystone/tasks')
 
 const { parseCorsSettings } = require('../../cors.utils')
 const { expressErrorHandler } = require('../../logging/expressErrorHandler')
 const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
 
-const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
+
+
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
@@ -41,32 +44,22 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
         onConnect: async () => onConnect && onConnect(keystone),
     })
 
-    let authStrategy
 
-    // Because Babel is used only for frontend to transpile and optimise code,
-    // backend files will bring unnecessary workload to building stage.
-    // They can be safely ignored without impact on final executable code
-    if (!IS_BUILD) {
-        // NOTE(pahaz): we put it here because it inits the redis connection and we don't want it at build time
-        const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
-        const { registerTasks } = require('@open-condo/keystone/tasks')
+    const globalPreprocessors = schemasPreprocessors ? schemasPreprocessors() : []
+    globalPreprocessors.push(...[schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor])
+    // We need to register all schemas as they will appear in admin ui
+    registerSchemas(keystone, schemas(), globalPreprocessors)
+    // We need to register all tasks as they will be possible to execute
+    if (tasks) registerTasks(tasks())
 
-        const globalPreprocessors = schemasPreprocessors ? schemasPreprocessors() : []
-        globalPreprocessors.push(...[schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor])
-        // We need to register all schemas as they will appear in admin ui
-        registerSchemas(keystone, schemas(), globalPreprocessors)
-        // We need to register all tasks as they will be possible to execute
-        if (tasks) registerTasks(tasks())
-
-        authStrategy = keystone.createAuthStrategy({
-            type: PasswordAuthStrategy,
-            list: 'User',
-            config: {
-                protectIdentities: false,
-            },
-        })
-    }
-
+    const authStrategy = keystone.createAuthStrategy({
+        type: PasswordAuthStrategy,
+        list: 'User',
+        config: {
+            protectIdentities: false,
+        },
+    })
+    
     return {
         keystone,
         // NOTE(pahaz): please, check the `executeDefaultServer(..)` to understand how it works.
