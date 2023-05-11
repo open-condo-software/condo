@@ -21,31 +21,31 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
             schemaDoc: 'File object with meta information about the receipt',
             type: File,
             adapter: Adapter,
-            isRequired: false,
+            isRequired: true,
         },
 
         context: {
             schemaDoc: 'Link to Context',
             type: Relationship,
             ref: 'BillingIntegrationOrganizationContext',
-            isRequired: false,
-            knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+            isRequired: true,
+            knexOptions: { isNotNullable: true }, // Required relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
         receipt: {
             schemaDoc: 'Link to Billing Receipt',
             type: Relationship,
             ref: 'BillingReceipt',
-            isRequired: false,
-            knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+            isRequired: true,
+            knexOptions: { isNotNullable: true }, // Required relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
         controlSum: {
             schemaDoc: 'Meta information about the file',
             type: Text,
-            isRequired: false,
+            isRequired: true,
         },
 
     },
