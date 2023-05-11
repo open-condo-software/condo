@@ -1,7 +1,7 @@
-import get from 'lodash/get'
+const get = require('lodash/get')
 
-import { getMessageOptions } from '@condo/domains/notification/helpers'
-import { NotificationUserSetting } from '@condo/domains/notification/utils/serverSchema'
+const { getMessageOptions } = require('@condo/domains/notification/helpers')
+const { NotificationUserSetting } = require('@condo/domains/notification/utils/serverSchema')
 
 // Settings priorities
 // The highest number is the most prioritized value

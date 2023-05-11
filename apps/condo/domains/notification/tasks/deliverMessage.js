@@ -1,6 +1,6 @@
-import get from 'lodash/get'
+const get = require('lodash/get')
 
-import { getMessageOptions } from '@condo/domains/notification/helpers'
+const { getMessageOptions } = require('@condo/domains/notification/helpers')
 
 const { isEmpty } = require('lodash')
 
