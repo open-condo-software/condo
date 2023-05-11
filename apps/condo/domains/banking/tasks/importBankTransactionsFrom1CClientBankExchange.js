@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const fetch = require('isomorphic-fetch')
 const { get, isEmpty } = require('lodash')
 
@@ -211,15 +212,15 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         }
 
         const transactionData = bankTransactionsData[i]
+        const importId = [dayjs(transactionData.date).format('YYYY-MM-DD'), transactionData.number].join('_')
         const existingTransaction = await BankTransaction.getOne(context, {
-            number: transactionData.number,
-            date: transactionData.date.format('YYYY-MM-DD'),
+            importId,
             organization: {
                 id: organization.id,
             },
         })
         if (existingTransaction) {
-            duplicatedTransactions.push(transactionData.number)
+            duplicatedTransactions.push(importId)
             continue
         }
 
@@ -239,7 +240,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
             currencyCode: 'RUB',
             amount: transactionData.amount.toString(),
             // NOTE(antonal): 1CClientBankExchange does not have required field with some unique identifier, rely on value from "number" field
-            importId: transactionData.number,
+            importId,
             importRemoteSystem: _1C_CLIENT_BANK_EXCHANGE,
             organization: { connect: { id: organization.id } },
             account: { connect: { id: bankAccount.id } },

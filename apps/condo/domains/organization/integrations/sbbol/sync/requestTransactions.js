@@ -126,7 +126,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             // If SBBOL returned a transaction with an unsupported currency, do not process
             if (ISO_CODES.includes(transaction.amount.currencyName)) {
                 const formatedOperationDate = dayjs(transaction.operationDate).format('YYYY-MM-DD')
-                const transactionProperty = {
+                const transactionAttrs = {
                     number: transaction.number,
                     date:  formatedOperationDate,
                     amount: transaction.amount.amount,
@@ -140,9 +140,8 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 const [foundTransaction] = await BankTransaction.getAll(context, {
                     organization: { id: organizationId },
                     account: { id: bankAccount.id },
-                    importId: transactionProperty.importId,
-                    number: transactionProperty.number,
-                    date: transactionProperty.date,
+                    importId: transactionAttrs.importId,
+                    importRemoteSystem: SBBOL_IMPORT_NAME,
                     deletedAt: null,
                 }, { first: 1 })
 
@@ -177,7 +176,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     try {
                         costItem = await predictTransactionClassification(context, {
                             purpose: transaction.paymentPurpose,
-                            isOutcome: transactionProperty.isOutcome,
+                            isOutcome: transactionAttrs.isOutcome,
                         })
                     } catch (err) {
                         logger.error({ msg: 'Can\'t get costItem from classification service', err })
@@ -189,7 +188,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                         contractorAccount: bankContractorAccount ? { connect: { id: bankContractorAccount.id } } : undefined,
                         costItem: costItem ? { connect: { id: costItem.id } } : undefined,
                         meta: { sbbol: transaction },
-                        ...transactionProperty,
+                        ...transactionAttrs,
                         ...dvSenderFields,
                     })
                     logger.info({ msg: `BankTransaction instance created with id: ${createdTransaction.id}` })

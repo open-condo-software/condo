@@ -591,9 +591,10 @@ describe('BankTransaction', () => {
             const date = dayjs(faker.date.recent()).format('YYYY-MM-DD')
             const number = faker.datatype.number().toString()
 
-            const [obj1] = await createTestBankTransaction(admin, account, contractorAccount, integrationContext, organization, {
+            const [obj1, attrs] = await createTestBankTransaction(admin, account, contractorAccount, integrationContext, organization, {
                 date,
                 number,
+                importId: [date, number].join('_'),
             })
             
             expect(obj1).toBeDefined()
@@ -602,8 +603,10 @@ describe('BankTransaction', () => {
                 await createTestBankTransaction(admin, account, contractorAccount, integrationContext, organization, {
                     date,
                     number,
+                    importId: attrs.importId,
+                    importRemoteSystem: attrs.importRemoteSystem,
                 })
-            }, 'Bank_transaction_unique_number_date_organization')
+            }, 'Bank_transaction_unique_organization_importRemoteSystem_importId')
         })
 
         it('cannot be created with same importId, importRemoteSystem, organization', async () => {
@@ -629,7 +632,7 @@ describe('BankTransaction', () => {
                     importId,
                     importRemoteSystem,
                 })
-            }, 'Bank_transaction_unique_importId_importRemoteSystem_organization')
+            }, 'Bank_transaction_unique_organization_importRemoteSystem_importId')
         })
     })
 })
