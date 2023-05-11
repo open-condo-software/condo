@@ -7,7 +7,9 @@ const { faker } = require('@faker-js/faker')
 const {
     makeClient,
     UUID_RE,
-    expectValuesOfCommonFields, expectToThrowGQLError, makeLoggedInClient,
+    expectValuesOfCommonFields,
+    expectToThrowGQLError,
+    makeLoggedInClient,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
@@ -240,9 +242,5 @@ describe('NotificationUserSetting', () => {
                 },
             )
         })
-    })
-
-    describe('notifications', () => {
-        test.todo('No message sent if disabled by user')
     })
 })

@@ -286,7 +286,6 @@ async function createTestNotificationUserSetting (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
     const user = get(client, 'user')
-    // if (!user || !user.id) throw new Error('no user.id')
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const messageType = MESSAGE_TYPES[random(MESSAGE_TYPES.length - 1)]

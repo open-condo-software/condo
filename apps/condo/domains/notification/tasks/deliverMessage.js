@@ -1,12 +1,14 @@
-const { isEmpty, get } = require('lodash')
+import get from 'lodash/get'
+
+import { getMessageOptions } from '@condo/domains/notification/helpers'
+
+const { isEmpty } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
-
-const { Message, checkMessageTypeInBlackList } = require('@condo/domains/notification/utils/serverSchema')
 
 const {
     SMS_TRANSPORT,
@@ -18,13 +20,19 @@ const {
     MESSAGE_ERROR_STATUS,
     MESSAGE_BLACKLISTED_STATUS,
     MESSAGE_SENT_STATUS,
+    MESSAGE_DISABLED_BY_USER_STATUS,
     MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT,
     MESSAGE_DELIVERY_OPTIONS,
     DEFAULT_MESSAGE_DELIVERY_OPTIONS,
-} = require('../constants/constants')
-const emailAdapter = require('../transports/email')
-const pushAdapter = require('../transports/push')
-const smsAdapter = require('../transports/sms')
+} = require('@condo/domains/notification/constants/constants')
+const { getUserSettingsForMessage } = require('@condo/domains/notification/helpers/userSettingsHelpers')
+const emailAdapter = require('@condo/domains/notification/transports/email')
+const pushAdapter = require('@condo/domains/notification/transports/push')
+const smsAdapter = require('@condo/domains/notification/transports/sms')
+const {
+    Message,
+    checkMessageTypeInBlackList,
+} = require('@condo/domains/notification/utils/serverSchema')
 
 const SEND_TO_CONSOLE = `${conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE}`.toLowerCase() === 'true' || false
 const DISABLE_LOGGING = `${conf.NOTIFICATION__DISABLE_LOGGING}`.toLowerCase() === 'true' || false
@@ -64,21 +72,6 @@ async function _sendMessageByAdapter (transport, adapter, messageContext, isVoIP
 }
 
 /**
- * Extends DEFAULT_MESSAGE_DELIVERY_OPTIONS with MESSAGE_DELIVERY_OPTIONS[type] if available
- * @param type
- * @returns {{isVoIP: *, transports: *, strategy: *}}
- */
-function getMessageOptions (type) {
-    const { strategy, defaultTransports, isVoIP } =
-        {
-            ...DEFAULT_MESSAGE_DELIVERY_OPTIONS,
-            ...get(MESSAGE_DELIVERY_OPTIONS, type, {}),
-        }
-
-    return { strategy, transports: defaultTransports, isVoIP }
-}
-
-/**
  * Tries to deliver message via available transports depending on transport priorities
  * based on provided message data and available channels. If more prioritized channels fail message delivery,
  * tries to deliver message through less prioritized fallback channels. Updates message status & meta in every case.
@@ -111,6 +104,10 @@ async function deliverMessage (messageId) {
         return MESSAGE_BLACKLISTED_STATUS
     }
 
+    const { strategy, transports, isVoIP } = getMessageOptions(message.type)
+
+    const userTransportSettings = await getUserSettingsForMessage(context, message)
+
     const processingMeta = { dv: 1, step: 'init' }
 
     const messageInitData = {
@@ -124,7 +121,6 @@ async function deliverMessage (messageId) {
 
     await Message.update(context, message.id, messageInitData)
 
-    const { strategy, transports, isVoIP } = getMessageOptions(message.type)
     const sendByOneTransport = strategy === MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT
 
     processingMeta.defaultTransports = transports
@@ -141,20 +137,25 @@ async function deliverMessage (messageId) {
         processingMeta.transport = transport
 
         try {
-            const adapter = TRANSPORT_ADAPTERS[transport]
-            // NOTE: Renderer will throw here, if it doesn't have template/support for required transport type.
-            const messageContext = await adapter.prepareMessageToSend(message)
+            const isAllowed = get(userTransportSettings, transport)
+            if (isAllowed === false) {
+                transportMeta.status = MESSAGE_DISABLED_BY_USER_STATUS
+                logger.info({ msg: 'Message disabled by user', messageId, transportMeta, processingMeta })
+            } else {
+                const adapter = TRANSPORT_ADAPTERS[transport]
+                // NOTE: Renderer will throw here, if it doesn't have template/support for required transport type.
+                const messageContext = await adapter.prepareMessageToSend(message)
 
-            processingMeta.messageContext = messageContext
-            transportMeta.messageContext = messageContext
-            processingMeta.transports.push(transport)
+                processingMeta.messageContext = messageContext
+                transportMeta.messageContext = messageContext
+                processingMeta.transports.push(transport)
 
-            const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
-            transportMeta.deliveryMetadata = deliveryMetadata
-            transportMeta.status = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
-            processingMeta.step = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
-            successCnt += isOk ? 1 : 0
-
+                const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
+                transportMeta.deliveryMetadata = deliveryMetadata
+                transportMeta.status = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
+                processingMeta.step = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
+                successCnt += isOk ? 1 : 0
+            }
         } catch (error) {
             transportMeta.status = MESSAGE_ERROR_STATUS
             transportMeta.exception = safeFormatError(error, false)

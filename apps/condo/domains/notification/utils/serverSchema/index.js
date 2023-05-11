@@ -25,8 +25,8 @@ const {
     MessageUserBlackList: MessageUserBlackListGQL,
     MessageOrganizationBlackList: MessageOrganizationBlackListGQL,
     MessageBatch: MessageBatchGQL,
+    NotificationUserSetting: NotificationUserSettingGQL,
 } = require('@condo/domains/notification/gql')
-const { NotificationUserSetting: NotificationUserSettingGQL } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const logger = getLogger('notification/serverSchema')
