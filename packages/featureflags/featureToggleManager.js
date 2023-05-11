@@ -36,27 +36,26 @@ class FeatureToggleManager {
     }
 
     async fetchFeatures () {
-        if (this._url) {
-            try {
+        try {
+            if (this._url) {
                 const cachedFeatureFlags = await this.redis.get(this._redisKey)
                 if (cachedFeatureFlags) return JSON.parse(cachedFeatureFlags)
 
-                const fetchedFeatureFlags = await fetch(this._url)
-                    .then((res) => res.json())
-                    .then((parsed) => {
-                        return Promise.resolve(parsed.features)
-                    })
+                const result = await fetch(this._url)
+                const parsedResult = await result.json()
+                const features = parsedResult.features
 
-                await this.redis.set(this._redisKey, JSON.stringify(fetchedFeatureFlags), 'EX', this._redisExpires)
-                return fetchedFeatureFlags
-            } catch (err) {
-                logger.error({ msg: 'fetchFeatures error', err })
+                await this.redis.set(this._redisKey, JSON.stringify(features), 'EX', this._redisExpires)
+
+                return features
+            } else if (this._static) {
+                return JSON.parse(JSON.stringify(this._static))
             }
-        } else if (this._static) {
-            return JSON.parse(JSON.stringify(this._static))
-        }
 
-        throw new Error('FeatureToggleManager config error!')
+            throw new Error('FeatureToggleManager config error!')
+        } catch (err) {
+            logger.error({ msg: 'fetchFeatures error', err })
+        }
     }
 
     async _getFeaturesFromKeystoneContext (keystoneContext) {
