@@ -440,8 +440,6 @@ describe('BillingReceipt', () => {
                                 expect.objectContaining({ id: anotherPropertyReceipt.id }),
                             ]))
                         })
-                    })
-                    describe('Cannot see receipt', () => {
                         test('If billingAccount unitName is wrong', async () => {
                             const { billingAccount, residentClient, receipt: residentReceipt } = residentWithReceipt
                             await updateTestBillingAccount(admin, billingAccount.id, {
@@ -451,8 +449,13 @@ describe('BillingReceipt', () => {
                                 id: residentReceipt.id,
                             }, { raw: true })
 
-                            expect(receipts).toHaveLength(0)
+                            expect(receipts).toHaveLength(1)
+                            expect(receipts).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: residentWithReceipt.receipt.id }),
+                            ]))
                         })
+                    })
+                    describe('Cannot see receipt', () => {
                         test('If serviceConsumer accountNumber is wrong', async () => {
                             const { residentClient, serviceConsumer, receipt: residentReceipt } = residentWithReceipt
                             await updateTestServiceConsumer(admin, serviceConsumer.id, {

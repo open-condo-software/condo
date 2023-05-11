@@ -25,15 +25,11 @@ async function canReadBillingReceipts ({ authentication: { item: user } }) {
             return false
         }
 
-        // Make map { <resident.id>: <resident> } to optimize resident by id search
-        const residentsByUser = Object.fromEntries(residents.map(resident => ([resident.id, resident])))
-
-        const result = {
+        return {
             OR: serviceConsumers.map(
-                s => ({ AND: [{ account: { number: s.accountNumber, unitName: residentsByUser[s.resident].unitName, unitType: residentsByUser[s.resident].unitType, deletedAt: null }, deletedAt: null, context: { id: s.billingIntegrationContext } }] } )
+                s => ({ AND: [{ account: { number: s.accountNumber, deletedAt: null }, deletedAt: null, context: { id: s.billingIntegrationContext, deletedAt: null } }] } )
             ),
         }
-        return result
     } else {
         return {
             OR: [
