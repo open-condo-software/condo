@@ -29,6 +29,8 @@ describe('tasks', () => {
         const delayed = await task.delay(33, 3)
         expect(delayed).toHaveProperty('getState')
         expect(delayed).toHaveProperty('awaitResult')
+        expect(delayed).toHaveProperty('id')
+        expect(typeof delayed.id).toEqual('string')
     })
 
     test('awaitResult', async () => {
