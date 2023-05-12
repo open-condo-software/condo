@@ -64,7 +64,10 @@ function queryFindNewsItemsScopesByResidents (residents) {
 function queryFindResidentsByNewsItemAndScopes (organizationId, newsItemScopes) {
     return {
         AND: [
-            { organization: { id: organizationId } },
+            {
+                organization: { id: organizationId },
+                deletedAt: null,
+            },
             {
                 OR: newsItemScopes.map((scope) => {
                     const unitType = get(scope, 'unitType')
