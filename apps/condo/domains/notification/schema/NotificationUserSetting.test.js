@@ -9,7 +9,7 @@ const {
     UUID_RE,
     expectValuesOfCommonFields,
     expectToThrowGQLError,
-    makeLoggedInClient,
+    makeLoggedInClient, expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
@@ -211,24 +211,18 @@ describe('NotificationUserSetting', () => {
         })
 
         test('must throw an error on incorrect message type', async () => {
-            await expectToThrowGQLError(
-                async () => await createTestNotificationUserSetting(adminClient, { messageType: faker.random.word() }),
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'WRONG_MESSAGE_TYPE',
-                    message: 'Wrong message type',
-                },
+            const messageType = faker.random.word()
+            await expectToThrowGraphQLRequestError(
+                async () => await createTestNotificationUserSetting(adminClient, { messageType }),
+                `Value "${messageType}" does not exist in "NotificationUserSettingMessageTypeType" enum`,
             )
         })
 
         test('must throw an error on incorrect message transport', async () => {
-            await expectToThrowGQLError(
-                async () => await createTestNotificationUserSetting(adminClient, { messageTransport: faker.random.word() }),
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'WRONG_MESSAGE_TRANSPORT',
-                    message: 'Wrong message transport',
-                },
+            const messageTransport = faker.random.word()
+            await expectToThrowGraphQLRequestError(
+                async () => await createTestNotificationUserSetting(adminClient, { messageTransport }),
+                `Value "${messageTransport}" does not exist in "NotificationUserSettingMessageTransportType" enum`,
             )
         })
 

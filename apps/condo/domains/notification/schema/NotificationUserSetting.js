@@ -11,22 +11,10 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/notification/access/NotificationUserSetting')
 const { MESSAGE_TRANSPORTS, MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
 const {
-    WRONG_MESSAGE_TRANSPORT,
-    WRONG_MESSAGE_TYPE,
     NO_NEED_TO_ENABLE_NOTIFICATIONS,
 } = require('@condo/domains/notification/constants/errors')
 
 const ERRORS = {
-    WRONG_MESSAGE_TYPE: {
-        code: BAD_USER_INPUT,
-        type: WRONG_MESSAGE_TYPE,
-        message: 'Wrong message type',
-    },
-    WRONG_MESSAGE_TRANSPORT: {
-        code: BAD_USER_INPUT,
-        type: WRONG_MESSAGE_TRANSPORT,
-        message: 'Wrong message transport',
-    },
     NO_NEED_TO_ENABLE_NOTIFICATIONS: {
         code: BAD_USER_INPUT,
         type: NO_NEED_TO_ENABLE_NOTIFICATIONS,
@@ -109,14 +97,6 @@ const NotificationUserSetting = new GQLListSchema('NotificationUserSetting', {
             const messageTransport = get(resolvedData, 'messageTransport')
             const messageType = get(resolvedData, 'messageType')
             const isEnabled = get(resolvedData, 'isEnabled')
-
-            if (!!messageType && !MESSAGE_TYPES.includes(messageType)) {
-                throw new GQLError(ERRORS.WRONG_MESSAGE_TYPE, context)
-            }
-
-            if (!!messageTransport && !MESSAGE_TRANSPORTS.includes(messageTransport)) {
-                throw new GQLError(ERRORS.WRONG_MESSAGE_TRANSPORT, context)
-            }
 
             // This is a temporary check.
             // It is actual as long we only control if the message enabled
