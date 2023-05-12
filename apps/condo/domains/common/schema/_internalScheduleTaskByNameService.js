@@ -23,7 +23,7 @@ const _internalScheduleTaskByNameService = new GQLCustomSchema('_internalSchedul
         {
             access: access.can_internalScheduleTaskByName,
             schema: '_internalScheduleTaskByName(data: _internalScheduleTaskByNameInput!): _internalScheduleTaskByNameOutput',
-            schemaDoc: 'An internal module to schedule tasks. Should not be used by anyone except of system administrators / support',
+            schemaDoc: 'An internal module to schedule tasks. Should not be used by anyone except of system administrators',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { taskName, taskArgs } = args.data
 
