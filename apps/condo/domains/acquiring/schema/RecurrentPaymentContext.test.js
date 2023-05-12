@@ -420,7 +420,7 @@ describe('RecurrentPaymentContext', () => {
             const admin = await makeLoggedInAdminClient()
             const { serviceConsumer: { id: newServiceConsumerId } } = await makeClientWithServiceConsumer()
             const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, await getContextRequest())
-            const [recurrentPayment] = await createTestRecurrentPayment(admin, {
+            await createTestRecurrentPayment(admin, {
                 status: RECURRENT_PAYMENT_INIT_STATUS,
                 payAfter: dayjs().toISOString(),
                 tryCount: 0,
@@ -439,6 +439,56 @@ describe('RecurrentPaymentContext', () => {
             })
 
             expect(recurrentPayments).toHaveLength(0)
+        })
+        test('PaymentDay change that was eq today should remove outdated recurrent payments', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const createRecurrentPaymentContextRequest = await getContextRequest()
+            createRecurrentPaymentContextRequest.paymentDay = dayjs().date()
+            const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, createRecurrentPaymentContextRequest)
+            await createTestRecurrentPayment(admin, {
+                status: RECURRENT_PAYMENT_INIT_STATUS,
+                payAfter: dayjs().toISOString(),
+                tryCount: 0,
+                state: {},
+                billingReceipts: [ { id: faker.datatype.uuid() }],
+                recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
+            })
+
+            // update service consumer
+            await updateTestRecurrentPaymentContext(admin, recurrentPaymentContext.id, {
+                paymentDay: dayjs().add(1, 'day').date(),
+            })
+
+            const recurrentPayments = await RecurrentPayment.getAll(admin, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+
+            expect(recurrentPayments).toHaveLength(0)
+        })
+        test('PaymentDay change that was\'t eq today should not remove recurrent payments', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const createRecurrentPaymentContextRequest = await getContextRequest()
+            createRecurrentPaymentContextRequest.paymentDay = dayjs().add(1, 'day').date()
+            const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, createRecurrentPaymentContextRequest)
+            await createTestRecurrentPayment(admin, {
+                status: RECURRENT_PAYMENT_INIT_STATUS,
+                payAfter: dayjs().toISOString(),
+                tryCount: 0,
+                state: {},
+                billingReceipts: [ { id: faker.datatype.uuid() }],
+                recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
+            })
+
+            // update service consumer
+            await updateTestRecurrentPaymentContext(admin, recurrentPaymentContext.id, {
+                paymentDay: dayjs().add(2, 'day').date(),
+            })
+
+            const recurrentPayments = await RecurrentPayment.getAll(admin, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+
+            expect(recurrentPayments).toHaveLength(1)
         })
     })
 })
