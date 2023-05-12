@@ -102,6 +102,7 @@ const keystone = new Keystone({
 // We need to register all schemas as they will appear in admin ui
 registerSchemas(keystone, [
     require('@condo/domains/user/schema'),
+    require('@condo/domains/common/schema'),
     require('@condo/domains/organization/schema'),
     require('@condo/domains/property/schema'),
     require('@condo/domains/billing/schema'),
@@ -132,6 +133,7 @@ if (!IS_BUILD_PHASE) {
         require('@condo/domains/ticket/tasks'),
         require('@condo/domains/resident/tasks'),
         require('@condo/domains/scope/tasks'),
+        require('@condo/domains/common/tasks'),
         require('@open-condo/webhooks/tasks'),
     ])
 }
