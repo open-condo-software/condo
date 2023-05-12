@@ -76,7 +76,7 @@ const NotificationUserSetting = new GQLListSchema('NotificationUserSetting', {
         ],
         indexes: [
             {
-                type: 'BloomIndex',
+                type: 'BTreeIndex',
                 fields: ['user', 'messageType'],
                 name: 'user_messageType_idx',
             },
