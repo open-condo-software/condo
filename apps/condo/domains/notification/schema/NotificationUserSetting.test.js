@@ -9,7 +9,9 @@ const {
     UUID_RE,
     expectValuesOfCommonFields,
     expectToThrowGQLError,
-    makeLoggedInClient, expectToThrowGraphQLRequestError,
+    makeLoggedInClient,
+    expectToThrowGraphQLRequestError,
+    expectToThrowInternalError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
@@ -234,6 +236,16 @@ describe('NotificationUserSetting', () => {
                     type: 'NO_NEED_TO_ENABLE_NOTIFICATIONS',
                     message: 'No need to enable notifications. All notifications enabled by default. You may just delete this setting instead.',
                 },
+            )
+        })
+
+        test('must throw an error on trying to create setting without type and transport', async () => {
+            await expectToThrowInternalError(
+                async () => await createTestNotificationUserSetting(adminClient, {
+                    messageType: null,
+                    messageTransport: null,
+                }),
+                'violates check constraint "has_messageType_or_messageTransport"',
             )
         })
     })

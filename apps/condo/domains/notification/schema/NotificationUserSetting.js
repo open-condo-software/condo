@@ -74,6 +74,13 @@ const NotificationUserSetting = new GQLListSchema('NotificationUserSetting', {
                 name: 'has_messageType_or_messageTransport',
             },
         ],
+        indexes: [
+            {
+                type: 'BloomIndex',
+                fields: ['user', 'messageType'],
+                name: 'user_messageType_idx',
+            },
+        ],
     },
     hooks: {
         resolveInput: async (args) => {
