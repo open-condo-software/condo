@@ -6,13 +6,6 @@
 
 const gql = require('graphql-tag')
 
-const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
-
-
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
-
-// TODO(codegen): write return type result!
-
 const _INTERNAL_SCHEDULE_TASK_BY_NAME_MUTATION = gql`
     mutation _internalScheduleTaskByName ($data: _internalScheduleTaskByNameInput!) {
         result: _internalScheduleTaskByName(data: $data) { id }
