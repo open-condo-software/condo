@@ -109,19 +109,18 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
         },
 
         afterChange: async ({ context, operation, existingItem, originalInput }) => {
-            const recurrentPaymentContextId = get(existingItem, 'id', null)
-            const sender = get(originalInput, 'sender', null)
-            const dv = get(originalInput, 'dv', null)
-
-            // data vars
-            const newServiceConsumerId = get(originalInput, 'serviceConsumer.connect.id', null)
-            const serviceConsumerId = get(existingItem, 'serviceConsumer', null)
-            const newPaymentDay = get(originalInput, 'paymentDay', null)
-            const paymentDay = get(existingItem, 'paymentDay', null)
-            const nowDay = dayjs().date()
-
-
             if (operation === 'update') {
+                const recurrentPaymentContextId = get(existingItem, 'id', null)
+                const sender = get(originalInput, 'sender', null)
+                const dv = get(originalInput, 'dv', null)
+
+                // data vars
+                const newServiceConsumerId = get(originalInput, 'serviceConsumer.connect.id', null)
+                const serviceConsumerId = get(existingItem, 'serviceConsumer', null)
+                const newPaymentDay = get(originalInput, 'paymentDay', null)
+                const paymentDay = get(existingItem, 'paymentDay', null)
+                const nowDay = dayjs().date()
+
                 if (!isNil(newServiceConsumerId) && newServiceConsumerId !== serviceConsumerId) {
                     // service consumer was changed
                     // that means all RecurrentPayments with status CREATED/ERROR_NEED_RETRY
