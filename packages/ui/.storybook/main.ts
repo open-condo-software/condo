@@ -1,5 +1,5 @@
 import get from 'lodash/get'
-import lessLoader from '../less-loader.config.json'
+const lessLoader = require('../less-loader.config.js')
 
 import type { StorybookConfig } from '@storybook/react/types'
 import type { RuleSetRule } from 'webpack'

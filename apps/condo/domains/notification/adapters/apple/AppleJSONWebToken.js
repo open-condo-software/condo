@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const { get, isEmpty, isString } = require('lodash')
+const { get, isEmpty, isString, isFunction } = require('lodash')
 
 const { getCurrTimeStamp } = require('@condo/domains/common/utils/date')
 
@@ -19,6 +19,7 @@ class AppleJSONWebToken {
     #privateKey = null
     #token = null
     #expires = null
+    #getCurrTimeStamp = getCurrTimeStamp
 
     /**
      * Initializes AppleJSONWebToken instance
@@ -57,12 +58,22 @@ class AppleJSONWebToken {
     }
 
     /**
+     *
+     * @param getCurrTimeStamp
+     */
+    setCurrTimeStampGetter (getCurrTimeStamp) {
+        if (!isFunction(getCurrTimeStamp)) throw new Error('getCurrTimeStamp is not a function')
+
+        this.#getCurrTimeStamp = getCurrTimeStamp
+    }
+
+    /**
      * Created and signs JWT
      * @param currTime
      * @returns {null}
      */
     #createSignedToken (currTime) {
-        const createdAt = currTime || getCurrTimeStamp()
+        const createdAt = currTime || this.#getCurrTimeStamp()
         const payload = { iss: this.#iss, iat: createdAt }
         const signingOptions = {
             algorithm: ENCRYPTION_ALGORITHM,
@@ -80,9 +91,10 @@ class AppleJSONWebToken {
      * Checks & refreshes/creates JWT
      */
     #checkAndRefreshToken () {
-        const currTime = getCurrTimeStamp()
+        const currTime = this.#getCurrTimeStamp()
+        const isExpired = !this.#expires || this.#expires <= currTime
 
-        if (isEmpty(this.#expires) || this.#expires <= currTime) this.#createSignedToken(currTime)
+        if (isExpired) this.#createSignedToken(currTime)
     }
 
     /**
@@ -96,4 +108,7 @@ class AppleJSONWebToken {
     }
 }
 
-module.exports = AppleJSONWebToken
+module.exports = {
+    AppleJSONWebToken,
+    JWT_EXPIRES_IN_SEC,
+}

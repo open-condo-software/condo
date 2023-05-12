@@ -131,6 +131,7 @@ const Organization = new GQLListSchema('Organization', {
             {
                 type: 'models.UniqueConstraint',
                 fields: ['importId', 'importRemoteSystem'],
+                condition: 'Q(deletedAt__isnull=True)',
                 name: 'unique_organization_importid_and_importremotesystem',
             },
         ],

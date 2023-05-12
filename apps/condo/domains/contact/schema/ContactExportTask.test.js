@@ -246,7 +246,7 @@ describe('ContactExportTask', () => {
         })
     })
 
-    describe('validations', async () => {
+    describe('validations', () => {
         it('should throw validation error if you trying to change status of already completed task', async () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)

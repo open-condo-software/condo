@@ -5,7 +5,6 @@ import get from 'lodash/get'
 import React, { CSSProperties, UIEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Tabs } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -31,9 +30,7 @@ const Container = styled.aside<IContainerProps>`
   border-radius: 8px;
 
   ${({ isSmall }) => {
-        if (isSmall) {
-            return 'margin: 0 -20px -60px;'
-        } else {
+        if (!isSmall) {
             return 'height: calc(100vh - 100px);'
         }
     }}
@@ -175,7 +172,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
         )
     }
 
-const SCROLL_TOP_OFFSET_TO_HIDE_TITLE = 30
+const SCROLL_TOP_OFFSET_TO_HIDE_TITLE = 50
 const NewCommentIndicator = styled.span`
   display: inline-block;
   width: 4px;
@@ -191,11 +188,11 @@ const CommentsTabPaneLabel = ({ label, commentsCount, newCommentsIndicator }) =>
     <>
         <Typography.Text>
             {label}
-            <sup>
-                {commentsCount}
-                {newCommentsIndicator && <NewCommentIndicator title=''/>}
-            </sup>
         </Typography.Text>
+        <sup>
+            {commentsCount}
+            {newCommentsIndicator && <NewCommentIndicator title=''/>}
+        </sup>
     </>
 )
 

@@ -26,13 +26,6 @@ const errors = {
         message: 'Bank cost item not found',
         messageForUser: 'api.user.predictTransactionClassification.COST_ITEM_NOT_FOUND',
     },
-    COST_ITEM_NOT_IDENTIFY: {
-        query: 'predictTransactionClassification',
-        code: INTERNAL_ERROR,
-        type: NOT_FOUND,
-        message: 'Bank cost item not identify',
-        messageForUser: 'api.user.predictTransactionClassification.COST_ITEM_NOT_IDENTIFY',
-    },
     COST_ITEM_IS_OUTCOME_NOT_EQUAL: {
         query: 'predictTransactionClassification',
         code: INTERNAL_ERROR,
@@ -103,7 +96,7 @@ const PredictTransactionClassificationService = new GQLCustomSchema('PredictTran
                 const result = await response.json()
                 const { prediction: [id] } = result
                 if (!id) {
-                    throw new GQLError(errors.COST_ITEM_NOT_IDENTIFY, context)
+                    return
                 }
                 const costItem = await getById('BankCostItem', id)
                 if (!costItem) {

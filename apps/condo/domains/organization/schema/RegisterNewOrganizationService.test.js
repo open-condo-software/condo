@@ -1,4 +1,4 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
@@ -32,7 +32,7 @@ describe('RegisterNewOrganizationService', () => {
             const [, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
 
-            const name = faker.company.companyName()
+            const name = faker.company.name()
             const [org] = await registerNewOrganization(client, { name })
 
             expect(org.id).toMatch(/^[0-9a-zA-Z-_]+$/)
@@ -46,7 +46,7 @@ describe('RegisterNewOrganizationService', () => {
             const [user, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
 
-            const name = faker.company.companyName()
+            const name = faker.company.name()
             const [org] = await registerNewOrganization(client, { name })
 
             const employees = await OrganizationEmployee.getAll(admin, { organization: { id: org.id } })
@@ -152,7 +152,7 @@ describe('RegisterNewOrganizationService', () => {
     describe('called by Anonymous', () => {
         it('throws Authentication error', async () => {
             const anonymousClient = await makeClient()
-            const name = faker.company.companyName()
+            const name = faker.company.name()
 
             await expectToThrowAuthenticationErrorToObj(async () => {
                 await registerNewOrganization(anonymousClient, { name })

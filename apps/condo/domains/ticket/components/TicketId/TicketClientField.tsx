@@ -35,7 +35,7 @@ export const TicketClientField: React.FC<TicketClientFieldProps> = ({ ticket }) 
     }), [ticket])
 
     return (
-        <PageFieldRow title={ClientMessage} highlight ellipsis={{ rows: 2 }}>
+        <PageFieldRow title={ClientMessage} ellipsis={{ rows: 2 }}>
             {
                 contactId
                     ? <Link href={`/contact/${contactId}`}>

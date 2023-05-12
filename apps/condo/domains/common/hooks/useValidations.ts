@@ -2,7 +2,7 @@ import { Rule } from 'rc-field-form/lib/interface'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'
+import { SPECIAL_CHAR_REGEXP, MULTIPLE_EMAILS_REGEX } from '@condo/domains/common/constants/regexps'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { isValidTin } from '@condo/domains/organization/utils/tin.utils'
 
@@ -19,6 +19,7 @@ type ValidatorTypes = {
     greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule
     numberValidator: Rule
     tinValidator: (country: string) => Rule
+    multipleEmailsValidator: (emails: string) => Rule
 }
 
 const changeMessage = (rule: Rule, message: string) => {
@@ -41,6 +42,7 @@ export const useValidations: UseValidations = (settings = {}) => {
     const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
     const TinValueIsInvalidMessage = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
+    const EmailsAreInvalidMessage = intl.formatMessage({ id: 'global.input.error.wrongEmails' })
 
     const { allowLandLine } = settings
 
@@ -151,6 +153,18 @@ export const useValidations: UseValidations = (settings = {}) => {
             }
         }
 
+    const multipleEmailsValidator: (emails: string) => Rule =
+        (emails) => {
+            return {
+                validator: () => {
+                    if (!MULTIPLE_EMAILS_REGEX.test(emails) && emails !== '') return Promise.reject(EmailsAreInvalidMessage)
+
+                    return Promise.resolve()
+                },
+            }
+        }
+
+
     return {
         changeMessage,
         requiredValidator,
@@ -164,5 +178,6 @@ export const useValidations: UseValidations = (settings = {}) => {
         maxLengthValidator,
         numberValidator,
         tinValidator,
+        multipleEmailsValidator,
     }
 }

@@ -2,10 +2,10 @@
  * @jest-environment node
  */
 const index = require('@app/condo/index')
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const faker = require('faker')
-const { v4: uuid } = require('uuid')
 
+const conf = require('@open-condo/config')
 const {
     setFakeClientMode,
     catchErrorFrom,
@@ -52,7 +52,6 @@ const {
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
-    RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const {
@@ -73,6 +72,7 @@ const {
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,
     sendTomorrowPaymentNotificationSafely,
+    getNotificationMetaByErrorCode,
 } = require('./index')
 
 const offset = 0
@@ -307,7 +307,7 @@ describe('task schema queries', () => {
 
         it('should throw error for wrong id', async () => {
             await catchErrorFrom(async () => {
-                await getServiceConsumer(adminContext, uuid())
+                await getServiceConsumer(adminContext, faker.datatype.uuid())
             }, (error) => {
                 expect(error.message).toContain('ServiceConsumer not found for id')
             })
@@ -1216,35 +1216,6 @@ describe('task schema queries', () => {
                 .toContain(`RecurrentPaymentContext not found for RecurrentPayment(${recurrentPayment.id})`)
         })
 
-        it('should return registered=false and RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE error', async () => {
-            // create test recurrent payment context
-            const { batches } = await makePayerWithMultipleConsumers(1, 1)
-            const recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest(batches[0])))[0]
-
-            // create test recurrent payment
-            const [recurrentPayment] = await createTestRecurrentPayment(
-                admin,
-                getPaymentRequest(batches[0], recurrentPaymentContext),
-            )
-
-            // delete service consumer
-            const serviceConsumerId = batches[0].serviceConsumer.id
-            await ServiceConsumer.softDelete(adminContext, serviceConsumerId, dvAndSender)
-
-            // register multi payment
-            const response = await registerMultiPayment(adminContext, recurrentPayment)
-
-            expect(response).toBeDefined()
-            expect(response).toHaveProperty('registered')
-            expect(response).toHaveProperty('errorCode')
-            expect(response).toHaveProperty('errorMessage')
-
-            expect(response.registered).not.toBeTruthy()
-            expect(response.errorCode).toEqual(RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE)
-            expect(response.errorMessage)
-                .toContain(`ServiceConsumer not found for id ${serviceConsumerId}`)
-        })
-
         it('should validate inputs', async () => {
             await catchErrorFrom(async () => {
                 await registerMultiPayment(adminContext, null)
@@ -1260,7 +1231,7 @@ describe('task schema queries', () => {
 
             await catchErrorFrom(async () => {
                 await registerMultiPayment(adminContext, {
-                    id: uuid(),
+                    id: faker.datatype.uuid(),
                 })
             }, (error) => {
                 expect(error.message).toContain('invalid recurrentPayment argument')
@@ -1268,7 +1239,7 @@ describe('task schema queries', () => {
 
             await catchErrorFrom(async () => {
                 await registerMultiPayment(adminContext, {
-                    id: uuid(),
+                    id: faker.datatype.uuid(),
                     billingReceipts: [],
                 })
             }, (error) => {
@@ -1277,7 +1248,7 @@ describe('task schema queries', () => {
 
             await catchErrorFrom(async () => {
                 await registerMultiPayment(adminContext, {
-                    id: uuid(),
+                    id: faker.datatype.uuid(),
                     billingReceipts: [],
                     recurrentPaymentContext: {},
                 })
@@ -1352,9 +1323,21 @@ describe('task schema queries', () => {
             expect(notification.user).toHaveProperty('id')
             expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
             expect(notification).toHaveProperty('meta')
-            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
-            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
-            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                recurrentPaymentId: recurrentPayment.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/`,
+            })
         })
 
         it('should validate inputs', async () => {
@@ -1372,7 +1355,7 @@ describe('task schema queries', () => {
 
             await catchErrorFrom(async () => {
                 await setRecurrentPaymentAsSuccess(adminContext, {
-                    id: uuid(),
+                    id: faker.datatype.uuid(),
                 })
             }, (error) => {
                 expect(error.message).toContain('invalid recurrentPayment argument')
@@ -1418,6 +1401,7 @@ describe('task schema queries', () => {
 
         it('should set retry status and increase try count for empty errorCode', async () => {
             const errorCode = RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE
+            const notificationMeta = getNotificationMetaByErrorCode(errorCode, recurrentPaymentContext.id)
             const errorMessage = 'An error message'
 
             // create test recurrent payment
@@ -1445,7 +1429,7 @@ describe('task schema queries', () => {
             })
 
             const notification = await Message.getOne(adminContext, {
-                type: RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
+                type: notificationMeta.type,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
             })
             expect(notification).toBeDefined()
@@ -1453,11 +1437,23 @@ describe('task schema queries', () => {
             expect(notification.user).toHaveProperty('id')
             expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
             expect(notification).toHaveProperty('meta')
-            expect(notification.meta).toHaveProperty('errorCode')
-            expect(notification.meta.errorCode).toEqual(errorCode)
-            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
-            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
-            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+            expect(notification.meta.data).toHaveProperty('errorCode')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                recurrentPaymentId: recurrentPayment.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                errorCode,
+                url: notificationMeta.url,
+            })
         })
 
         const retryCases = [
@@ -1466,6 +1462,7 @@ describe('task schema queries', () => {
             [RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE],
         ]
         test.each(retryCases)('should set retry status and increase try count for %s errorCode', async (errorCode) => {
+            const notificationMeta = getNotificationMetaByErrorCode(errorCode, recurrentPaymentContext.id)
             const errorMessage = 'An error message'
 
             // create test recurrent payment
@@ -1493,7 +1490,7 @@ describe('task schema queries', () => {
             })
 
             const notification = await Message.getOne(adminContext, {
-                type: RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
+                type: notificationMeta.type,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
             })
             expect(notification).toBeDefined()
@@ -1501,11 +1498,23 @@ describe('task schema queries', () => {
             expect(notification.user).toHaveProperty('id')
             expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
             expect(notification).toHaveProperty('meta')
-            expect(notification.meta).toHaveProperty('errorCode')
-            expect(notification.meta.errorCode).toEqual(errorCode)
-            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
-            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
-            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+            expect(notification.meta.data).toHaveProperty('errorCode')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                recurrentPaymentId: recurrentPayment.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                errorCode,
+                url: notificationMeta.url,
+            })
         })
 
         const noRetryCases = [
@@ -1516,6 +1525,7 @@ describe('task schema queries', () => {
             [RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE],
         ]
         test.each(noRetryCases)('should set error status and increase try count for %s errorCode', async (errorCode) => {
+            const notificationMeta = getNotificationMetaByErrorCode(errorCode, recurrentPaymentContext.id)
             const errorMessage = 'An error message'
 
             // create test recurrent payment
@@ -1543,7 +1553,7 @@ describe('task schema queries', () => {
             })
 
             const notification = await Message.getOne(adminContext, {
-                type: RECURRENT_PAYMENT_PROCEEDING_FAILURE_RESULT_MESSAGE_TYPE,
+                type: notificationMeta.type,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
             })
             expect(notification).toBeDefined()
@@ -1551,11 +1561,23 @@ describe('task schema queries', () => {
             expect(notification.user).toHaveProperty('id')
             expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
             expect(notification).toHaveProperty('meta')
-            expect(notification.meta).toHaveProperty('errorCode')
-            expect(notification.meta.errorCode).toEqual(errorCode)
-            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
-            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
-            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+            expect(notification.meta.data).toHaveProperty('errorCode')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                recurrentPaymentId: recurrentPayment.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                errorCode,
+                url: notificationMeta.url,
+            })
         })
 
         it('should validate inputs', async () => {
@@ -1575,7 +1597,7 @@ describe('task schema queries', () => {
             })
 
             await catchErrorFrom(async () => {
-                await setRecurrentPaymentAsFailed(adminContext, { id: uuid() }, errorMessage, errorCode)
+                await setRecurrentPaymentAsFailed(adminContext, { id: faker.datatype.uuid() }, errorMessage, errorCode)
             }, (error) => {
                 expect(error.message).toContain('invalid recurrentPayment argument')
             })
@@ -1583,7 +1605,7 @@ describe('task schema queries', () => {
             await catchErrorFrom(async () => {
                 await setRecurrentPaymentAsFailed(
                     adminContext,
-                    { id: uuid(), tryCount: 0 },
+                    { id: faker.datatype.uuid(), tryCount: 0 },
                     null,
                     errorCode,
                 )
@@ -1594,7 +1616,7 @@ describe('task schema queries', () => {
             await catchErrorFrom(async () => {
                 await setRecurrentPaymentAsFailed(
                     adminContext,
-                    { id: uuid(), tryCount: 0 },
+                    { id: faker.datatype.uuid(), tryCount: 0 },
                     errorMessage,
                     null,
                 )
@@ -1655,9 +1677,19 @@ describe('task schema queries', () => {
             expect(notification.user).toHaveProperty('id')
             expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
             expect(notification).toHaveProperty('meta')
-            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
-            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
-            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/`,
+            })
         })
 
         it('should send one notification for retry context processing', async () => {
@@ -1686,9 +1718,19 @@ describe('task schema queries', () => {
             expect(notification.user).toHaveProperty('id')
             expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
             expect(notification).toHaveProperty('meta')
-            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
-            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
-            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/`,
+            })
         })
 
         it('should send one notification for retry payment processing', async () => {
@@ -1709,9 +1751,19 @@ describe('task schema queries', () => {
             expect(notification.user).toHaveProperty('id')
             expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
             expect(notification).toHaveProperty('meta')
-            expect(notification.meta).toHaveProperty('recurrentPaymentContext')
-            expect(notification.meta.recurrentPaymentContext).toHaveProperty('id')
-            expect(notification.meta.recurrentPaymentContext.id).toEqual(recurrentPaymentContext.id)
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/`,
+            })
         })
 
         it('should validate inputs', async () => {

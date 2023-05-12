@@ -138,6 +138,7 @@ const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
 /**
  * @param {function} callable
  * @param {Object} params
+ * @param logRequestResponse
  * @returns {Promise<Object>}
  */
 async function doGqlRequest (callable, { mutation, query, variables }, logRequestResponse) {
@@ -373,6 +374,14 @@ const makeLoggedInAdminClient = async () => {
     return await makeLoggedInClient({ email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET })
 }
 
+/**
+ * Used for async action waiting in tests. Pass in callback and options.
+ * Will retry executing callback again and again each $interval ms for $timeout ms.
+ * You can also set $delay before trying callback if you sure that async action won't take less.
+ * @param callback
+ * @param options { timeout: 15000, interval: 150, delay: 0 }
+ * @returns {Promise<unknown>}
+ */
 async function waitFor (callback, options = null) {
     const timeout = get(options, 'timeout', 15000)
     const interval = get(options, 'interval', 150)
@@ -472,6 +481,7 @@ const catchErrorFrom = async (testFunc, inspect) => {
  */
 const expectToThrowAccessDeniedError = async (testFunc, path) => {
     if (!path) throw new Error('path is not specified')
+
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
@@ -659,6 +669,47 @@ const expectToThrowGraphQLRequestError = async (testFunc, message) => {
     })
 }
 
+const expectValuesOfCommonFields = (obj, attrs, client) => {
+    expect(obj.id).toMatch(UUID_RE)
+    expect(obj.dv).toEqual(1)
+    expect(obj.sender).toEqual(attrs.sender)
+    expect(obj.v).toEqual(1)
+    expect(obj.newId).toEqual(null)
+    expect(obj.deletedAt).toEqual(null)
+    expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+    expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+    expect(obj.createdAt).toMatch(DATETIME_RE)
+    expect(obj.updatedAt).toMatch(DATETIME_RE)
+}
+
+/**
+ * Returns actual name of database entity, that may be different from specified at Keystone level
+ * @param name
+ * @returns {*}
+ */
+const actualDatabaseEntityName = (name) => {
+    // The system uses no more than NAMEDATALEN-1 bytes of an identifier; longer names can be written in commands, but they will be truncated.
+    // By default, NAMEDATALEN is 64 so the maximum identifier length is 63 bytes.
+    // https://www.postgresql.org/docs/13/sql-syntax-lexical.html
+    const NAMEDATALEN = 63
+    return name.slice(0, NAMEDATALEN)
+}
+
+
+/**
+ * Handles maximum characters count of Postgres for naming of database entities while checking violation of a specified unique constraint
+ * @param testFunc
+ * @param constraintName - full name of constraint as presented in Keystone schema
+ * @returns {Promise<void>}
+ */
+const expectToThrowUniqueConstraintViolationError = async (testFunc, constraintName) => {
+    await catchErrorFrom(async () => {
+        await testFunc()
+    }, ({ errors }) => {
+        expect(errors[0].message).toContain(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)
+    })
+}
+
 module.exports = {
     waitFor,
     isPostgres, isMongo,
@@ -693,4 +744,6 @@ module.exports = {
     expectToThrowInternalError,
     expectToThrowGQLError,
     expectToThrowGraphQLRequestError,
+    expectValuesOfCommonFields,
+    expectToThrowUniqueConstraintViolationError,
 }

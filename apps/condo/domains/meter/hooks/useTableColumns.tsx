@@ -9,7 +9,7 @@ import {
     getDateRender,
     renderMeterReading,
     getTextRender,
-    getAddressRender,
+    getAddressRender, getTableCellRenderer,
 } from '@condo/domains/common/components/Table/Renders'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
@@ -51,6 +51,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const renderAddress = useCallback((_, meterReading) =>
         getAddressRender(get(meterReading, ['meter', 'property']), DeletedMessage, search),
     [DeletedMessage, search])
+
+    const renderSource = useCallback((source) => getTableCellRenderer({ search })(source.name), [search])
 
     return useMemo(() => {
         return [
@@ -147,31 +149,14 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 title: SourceMessage,
                 sortOrder: get(sorterMap, 'source'),
                 filteredValue: getFilteredValue(filters, 'source'),
-                dataIndex: ['source', 'name'],
+                dataIndex: 'source',
                 key: 'source',
                 sorter: true,
                 width: '12%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'source'),
-                render: getTextRender(search),
+                render: renderSource,
                 filterIcon: getFilterIcon,
             },
         ]
-    }, [
-        intl,
-        AccountNumberMessage,
-        AddressMessage,
-        ClientNameMessage,
-        MeterNumberMessage,
-        MeterReadingMessage,
-        MeterReadingDateMessage,
-        PlaceMessage,
-        SourceMessage,
-        ServiceMessage,
-        UnitMessage,
-        filterMetas,
-        filters,
-        search,
-        sorterMap,
-        renderAddress,
-    ])
+    }, [MeterReadingDateMessage, sorterMap, filters, intl, search, filterMetas, AddressMessage, renderAddress, UnitMessage, ServiceMessage, AccountNumberMessage, MeterNumberMessage, PlaceMessage, MeterReadingMessage, ClientNameMessage, SourceMessage, renderSource])
 }

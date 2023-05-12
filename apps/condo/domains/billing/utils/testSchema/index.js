@@ -3,7 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const get = require('lodash/get')
 const { makeLoggedInAdminClient } = require("@open-condo/keystone/test.utils");
 const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
@@ -28,7 +28,7 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
+const { REGISTER_BILLING_RECEIPTS_MUTATION, SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -45,11 +45,12 @@ const BillingCategory = generateGQLTestUtils(BillingCategoryGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST BILLING INTEGRATION'
+    const name = faker.company.name().replace(/ /, '-').toUpperCase() + ' TEST BILLING INTEGRATION'
     const currencyCode = 'RUB'
 
     const attrs = {
@@ -59,7 +60,7 @@ async function createTestBillingIntegration (client, extraAttrs = {}) {
         currencyCode,
         isHidden: true,
         shortDescription: faker.commerce.productDescription(),
-        developer: faker.company.companyName(),
+        developer: faker.company.name(),
         detailedDescription: faker.lorem.paragraphs(5),
         ...extraAttrs,
     }
@@ -661,12 +662,12 @@ async function makeClientWithPropertyAndBilling({ billingIntegrationContextArgs,
 function createTestRecipient (extra = {}) {
     const range = (length) => ({ min: Math.pow(10,length - 1), max: Math.pow(10,length)-1 })
     const validRecipient = {
-        name: faker.company.companyName(),
+        name: faker.company.name(),
         tin: faker.datatype.number(range(10)).toString(),
         iec: faker.datatype.number(range(9)).toString(),
         bic: faker.finance.bic().toString(),
         bankAccount: faker.finance.account(12).toString(),
-        bankName: faker.company.companyName(),
+        bankName: faker.company.name(),
         territoryCode: faker.datatype.number().toString(),
         offsettingAccount: faker.finance.account(12).toString(),
     }
@@ -731,6 +732,25 @@ async function makeResidentClientWithOwnReceipt(existingResidentClient) {
     }
 }
 
+/**
+ *
+ * @param client
+ * @param extraAttrs
+ * @returns {Promise<(*|{dv: number, sender: {dv: number, fingerprint: *}})[]>}
+ */
+async function sendNewReceiptMessagesToResidentScopesByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = { dv: 1, sender, ...extraAttrs }
+    const { data, errors } = await client.mutate(SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION, { data: attrs })
+
+    if (!extraAttrs.raw)  throwIfError(data, errors)
+
+    return [data.result, attrs]
+}
+
+
 /** used to generate random services
  * @param {number} count the number of services to create
  * @param {string} toPay specific toPay amount. If not passed a random amount is used**/
@@ -775,7 +795,8 @@ module.exports = {
     makeServiceUserForIntegration,
     registerBillingReceiptsByTestClient,
     createRegisterBillingReceiptsPayload,
-    generateServicesData
+    generateServicesData,
+    sendNewReceiptMessagesToResidentScopesByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

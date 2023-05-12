@@ -23,6 +23,7 @@ function _makeid (length) {
     return result
 }
 
+/** @deprecated use prepareKeystone */
 function getCookieSecret (cookieSecret) {
     if (!cookieSecret) {
         if (IS_BUILD) return undefined
@@ -41,6 +42,7 @@ function getCookieSecret (cookieSecret) {
     }
 }
 
+/** @deprecated use prepareKeystone */
 function getAdapter (databaseUrl) {
     if (!databaseUrl) throw new TypeError('getAdapter() call without databaseUrl')
     if (typeof databaseUrl !== 'string') throw new TypeError('getAdapter() databaseUrl is not a string')
@@ -60,11 +62,9 @@ function getAdapter (databaseUrl) {
     }
 }
 
+/** @deprecated use prepareKeystone */
 function prepareDefaultKeystoneConfig (conf) {
-    const redisClient = new IORedis(conf.REDIS_URL)
-    const sessionStore = new RedisStore({ client: redisClient })
-
-    return {
+    const config = {
         cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
         cookie: {
             sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production' ? 'None' : 'Lax',
@@ -74,16 +74,24 @@ function prepareDefaultKeystoneConfig (conf) {
             maxAge: conf.COOKIE_MAX_AGE || 1000 * (Math.pow(2, 31) - 1),
         },
         name: conf.PROJECT_NAME,
-        adapter: getAdapter(conf.DATABASE_URL),
         defaultAccess: { list: false, field: true, custom: false },
         queryLimits: { maxTotalResults: 1000 },
-        sessionStore,
         appVersion: {
             version: '1.0.0',
             addVersionToHttpHeaders: false,
             access: true,
         },
     }
+
+    if (!IS_BUILD && conf.REDIS_URL) {
+        const redisClient = new IORedis(conf.REDIS_URL)
+        const sessionStore = new RedisStore({ client: redisClient })
+        config.sessionStore = sessionStore
+    }
+
+    config.adapter = getAdapter(conf.DATABASE_URL || 'undefined')
+
+    return config
 }
 
 module.exports = {

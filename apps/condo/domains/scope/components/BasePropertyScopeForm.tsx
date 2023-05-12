@@ -14,6 +14,7 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { SETTINGS_TAB_PROPERTY_SCOPE } from '@condo/domains/common/constants/settingsTabs'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -87,6 +88,8 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
     })
 
     const router = useRouter()
+
+    const { breakpoints } = useLayoutContext()
 
     const { maxLengthValidator, trimValidator } = useValidations()
     const nameValidations = useMemo(() => [trimValidator, maxLengthValidator(MAX_NAME_LENGTH, NameValidationErrorMessage)], [NameValidationErrorMessage, maxLengthValidator, trimValidator])
@@ -201,52 +204,58 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                     {...LAYOUT}
                 >
                     {({ handleSave, isLoading, form }) => (
-                        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+                        <Row gutter={[0, 60]}>
                             <Col span={24}>
-                                <Form.Item
-                                    name='name'
-                                    label={PropertyScopeNameMessage}
-                                    labelAlign='left'
-                                    required
-                                    rules={nameValidations}
-                                    {...PROPERTY_SCOPE_NAME_FIELD_PROPS}
-                                >
-                                    <Input disabled={!organizationId} />
-                                </Form.Item>
-                            </Col>
-                            <Col span={24}>
-                                <GraphQlSearchInputWithCheckAll
-                                    checkAllFieldName='hasAllProperties'
-                                    checkAllInitialValue={initialValues.hasAllProperties}
-                                    selectFormItemProps={propertiesFormItemProps}
-                                    selectProps={propertiesSelectProps}
-                                    checkBoxOffset={6}
-                                    CheckAllMessage={CheckAllPropertiesMessage}
-                                    form={form}
-                                    checkBoxEventName='PropertyScopeFormClickCheckAllProperties'
-                                />
-                            </Col>
-                            <Col span={24}>
-                                <GraphQlSearchInputWithCheckAll
-                                    checkAllFieldName='hasAllEmployees'
-                                    checkAllInitialValue={initialValues.hasAllEmployees}
-                                    selectFormItemProps={employeesFormItemProps}
-                                    selectProps={employeesSelectProps}
-                                    checkBoxOffset={6}
-                                    CheckAllMessage={CheckAllEmployeesMessage}
-                                    form={form}
-                                    onCheckBoxChange={handleCheckAllEmployeesCheckboxChange}
-                                    checkBoxEventName='PropertyScopeFormClickCheckAllEmployees'
-                                />
-                            </Col>
-                            {
-                                showHintAlert && (
-                                    <Col offset={6} span={12}>
-                                        <FormHintAlert />
+                                <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            name='name'
+                                            label={PropertyScopeNameMessage}
+                                            labelAlign='left'
+                                            required
+                                            rules={nameValidations}
+                                            {...PROPERTY_SCOPE_NAME_FIELD_PROPS}
+                                        >
+                                            <Input disabled={!organizationId} />
+                                        </Form.Item>
                                     </Col>
-                                )
-                            }
-                            {children({ handleSave, isLoading, form })}
+                                    <Col span={24}>
+                                        <GraphQlSearchInputWithCheckAll
+                                            checkAllFieldName='hasAllProperties'
+                                            checkAllInitialValue={initialValues.hasAllProperties}
+                                            selectFormItemProps={propertiesFormItemProps}
+                                            selectProps={propertiesSelectProps}
+                                            checkBoxOffset={breakpoints.TABLET_LARGE && 6}
+                                            CheckAllMessage={CheckAllPropertiesMessage}
+                                            form={form}
+                                            checkBoxEventName='PropertyScopeFormClickCheckAllProperties'
+                                        />
+                                    </Col>
+                                    <Col span={24}>
+                                        <GraphQlSearchInputWithCheckAll
+                                            checkAllFieldName='hasAllEmployees'
+                                            checkAllInitialValue={initialValues.hasAllEmployees}
+                                            selectFormItemProps={employeesFormItemProps}
+                                            selectProps={employeesSelectProps}
+                                            checkBoxOffset={breakpoints.TABLET_LARGE && 6}
+                                            CheckAllMessage={CheckAllEmployeesMessage}
+                                            form={form}
+                                            onCheckBoxChange={handleCheckAllEmployeesCheckboxChange}
+                                            checkBoxEventName='PropertyScopeFormClickCheckAllEmployees'
+                                        />
+                                    </Col>
+                                    {
+                                        showHintAlert && (
+                                            <Col offset={breakpoints.TABLET_LARGE && 6} span={breakpoints.TABLET_LARGE ? 12 : 24}>
+                                                <FormHintAlert />
+                                            </Col>
+                                        )
+                                    }
+                                </Row>
+                            </Col>
+                            <Col span={24}>
+                                {children({ handleSave, isLoading, form })}
+                            </Col>
                         </Row>
                     )}
                 </FormWithAction>

@@ -58,7 +58,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         objs: receipts,
         error,
     } = BillingReceipt.useObjects({
-        where: { ...filtersToWhere(filters), context: { id: context.id } },
+        where: { ...filtersToWhere(filters), context: { id: get(context, 'id') } },
         sortBy: sortersToSortBy(sorters) as SortBillingReceiptsBy[],
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
@@ -90,7 +90,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
 
     const periodMetaSelect = useMemo(() => {
         return (
-            <Space direction='vertical' size={12} style={{ marginLeft:'18px' }}>
+            <Space direction='vertical' size={12}>
                 <DatePicker
                     style={INPUT_STYLE}
                     value={period}
@@ -125,15 +125,19 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     return (
         <>
             <Row gutter={[0, 40]}>
-                <Col span={7}>
-                    <Input
-                        placeholder={SearchPlaceholder}
-                        onChange={(e) => {handleSearchChange(e.target.value)}}
-                        value={search}
-                        allowClear
-                    />
+                <Col span={24}>
+                    <Row gutter={[20, 20]}>
+                        <Col xs={24} md={7}>
+                            <Input
+                                placeholder={SearchPlaceholder}
+                                onChange={(e) => {handleSearchChange(e.target.value)}}
+                                value={search}
+                                allowClear
+                            />
+                        </Col>
+                        <Col xs={24} md={8}>{periodMetaSelect}</Col>
+                    </Row>
                 </Col>
-                <Col>{periodMetaSelect}</Col>
                 <Col span={24}>
                     <Table
                         loading={loading}

@@ -43,7 +43,7 @@ export const MobileHeader = styled.div`
   flex-direction: column;
   width: 100%;
   z-index: 1;
-  padding: 20px 20px 0 20px;
+  padding: 20px 20px 60px 20px;
 `
 
 export const ActionContainer = styled.div`

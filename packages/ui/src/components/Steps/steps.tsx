@@ -6,7 +6,7 @@ import { Carousel, CarouselRef } from '@open-condo/ui/src'
 import { Step } from './step'
 
 import { sendAnalyticsChangeEvent } from '../_utils/analytics'
-import { useContainerSize } from '../_utils/hooks'
+import { useBreakpoints, useContainerSize } from '../_utils/hooks'
 
 import type { StepItem, StepProps } from './step'
 
@@ -14,7 +14,6 @@ export type StepsProps = {
     current?: number
     items: Array<StepItem>
     onChange?: (currentStep: number) => void
-    itemSize?: 'large' | 'small'
     id?: string,
     className?: string
     noReturnMessage?: string
@@ -30,11 +29,12 @@ export const Steps: React.FC<StepsProps> = ({
     items,
     current = 0,
     onChange,
-    itemSize = 'large',
     id,
     className: propsClassName,
     noReturnMessage,
 }) => {
+    const { TABLET_LARGE } = useBreakpoints()
+    const itemSize = TABLET_LARGE ? 'large' : 'small'
     // NOTE: Internal state controls view
     const [currentStep, setCurrentStep] = useState(current)
     const [{ width }, setContainerRef] = useContainerSize<HTMLDivElement>()

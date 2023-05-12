@@ -1,4 +1,5 @@
 const { closeCompletedTicketsCron: closeCompletedTickets } = require('./closeCompletedTickets')
+const { exportIncidents } = require('./exportIncidents')
 const { exportTickets } = require('./exportTickets')
 const { manageTicketPropertyAddressChange } = require('./manageTicketPropertyAddressChange')
 const { reopenDeferredTicketsCron: reopenDeferredTickets } = require('./reopenDeferredTickets')
@@ -8,4 +9,5 @@ module.exports = {
     closeCompletedTickets,
     reopenDeferredTickets,
     exportTickets,
+    exportIncidents,
 }

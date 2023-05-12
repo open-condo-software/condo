@@ -129,6 +129,16 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
             }
         },
     },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['organization', 'importRemoteSystem', 'importId'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'Bank_transaction_unique_organization_importRemoteSystem_importId',
+            },
+        ],
+    },
 })
 
 module.exports = {

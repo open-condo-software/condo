@@ -3,8 +3,8 @@
  */
 
 const index = require('@app/condo/index')
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const faker = require('faker')
 const { get } = require('lodash')
 
 const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
@@ -58,7 +58,7 @@ describe('reopenDeferredTickets', () => {
 
     const cases = ['blocked', 'deleted']
 
-    describe.each(cases)('%p employees', async (type) => {
+    describe.each(cases)('%p employees', (type) => {
         let employeePayload = {}
         beforeAll(() => {
             switch (type) {

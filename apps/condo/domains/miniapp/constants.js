@@ -74,6 +74,9 @@ const B2C_APP_COLOR_SCHEMA_TYPE_NAME = 'AppColorSchemaField'
 const B2C_APP_COLOR_SCHEMA_INPUT_NAME = 'AppColorSchemaFieldInput'
 const GLOBAL_APP_NO_APP_URL_ERROR = '[app:noAppUrl] If the app is global, it must have appUrl field'
 const NON_GLOBAL_APP_WITH_FEATURES_ERROR = '[app:non-global:features] Non global apps cannot specify features'
+const USER_NOT_FOUND_ERROR = 'USER_NOT_FOUND'
+const APP_NOT_FOUND_ERROR = 'APP_NOT_FOUND'
+const APP_BLACK_LIST_ERROR = 'APP_BLACK_LIST_ERROR'
 
 const PROMO_BLOCK_DARK_TEXT_VARIANT = 'BLACK'
 const PROMO_BLOCK_LIGHT_TEXT_VARIANT = 'WHITE'
@@ -126,4 +129,7 @@ module.exports = {
     APP_POPULAR_LABEL,
     APP_NEW_LABEL,
     B2B_APPS_LABELS,
+    USER_NOT_FOUND_ERROR,
+    APP_NOT_FOUND_ERROR,
+    APP_BLACK_LIST_ERROR,
 }

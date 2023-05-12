@@ -6,7 +6,7 @@ const { Select, Virtual } = require('@keystonejs/fields')
 const Ajv = require('ajv')
 const get = require('lodash/get')
 
-const LocalizedText  = require('@open-condo/keystone/fields/LocalizedText')
+const { LocalizedText } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 

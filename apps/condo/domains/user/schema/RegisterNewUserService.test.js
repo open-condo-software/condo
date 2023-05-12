@@ -1,4 +1,4 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')

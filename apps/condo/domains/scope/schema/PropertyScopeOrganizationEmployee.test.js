@@ -13,7 +13,7 @@ const {
 
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { PropertyScopeOrganizationEmployee, createTestPropertyScopeOrganizationEmployee, updateTestPropertyScopeOrganizationEmployee, createTestPropertyScope, PropertyScope } = require('@condo/domains/scope/utils/testSchema')
+const { PropertyScopeOrganizationEmployee, createTestPropertyScopeOrganizationEmployee, updateTestPropertyScopeOrganizationEmployee, createTestPropertyScope } = require('@condo/domains/scope/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('PropertyScopeOrganizationEmployee', () => {
@@ -48,7 +48,7 @@ describe('PropertyScopeOrganizationEmployee', () => {
             })
         })
 
-        describe('employee', async () => {
+        describe('employee', () => {
             it('employee with canManagePropertyScopes ability: can create PropertyScopeOrganizationEmployee with employee and propertyScope from his organization', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -182,7 +182,7 @@ describe('PropertyScopeOrganizationEmployee', () => {
             })
         })
 
-        describe('anonymous', async () => {
+        describe('anonymous', () => {
             it('cannot create PropertyScopeOrganizationEmployee', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const anonymous = await makeClient()

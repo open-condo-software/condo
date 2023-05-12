@@ -6,12 +6,13 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
+import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
@@ -26,8 +27,6 @@ import { useTableColumns } from '@condo/domains/organization/hooks/useTableColum
 import { useTableFilters } from '@condo/domains/organization/hooks/useTableFilters'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
-
-
 
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
@@ -81,18 +80,15 @@ export const EmployeesPageContent = ({
                             : <Row gutter={[0, 40]} align='middle'>
                                 <Col span={24}>
                                     <TableFiltersContainer>
-                                        <Row justify='space-between' gutter={[0, 40]}>
-                                            <Col xs={24} lg={6}>
-                                                <Input
-                                                    placeholder={SearchPlaceholder}
-                                                    onChange={(e) => {
-                                                        handleSearchChange(e.target.value)
-                                                    }}
-                                                    value={search}
-                                                    allowClear={true}
-                                                />
-                                            </Col>
-                                        </Row>
+                                        <Input
+                                            placeholder={SearchPlaceholder}
+                                            onChange={(e) => {
+                                                handleSearchChange(e.target.value)
+                                            }}
+                                            value={search}
+                                            allowClear
+                                            suffix={<Search size='medium' color={colors.gray[7]} />}
+                                        />
                                     </TableFiltersContainer>
                                 </Col>
                                 <Col span={24}>
@@ -107,15 +103,18 @@ export const EmployeesPageContent = ({
                                 {
                                     canManageEmployee && (
                                         <Col span={24}>
-                                            <ActionBar>
-                                                <Button
-                                                    type='sberDefaultGradient'
-                                                    icon={<PlusCircleOutlined/>}
-                                                    onClick={handleAddEmployee}
-                                                >
-                                                    {CreateEmployee}
-                                                </Button>
-                                            </ActionBar>
+                                            <ActionBar
+                                                actions={[
+                                                    <Button
+                                                        key='create'
+                                                        type='primary'
+                                                        icon={<PlusCircle size='medium'/>}
+                                                        onClick={handleAddEmployee}
+                                                    >
+                                                        {CreateEmployee}
+                                                    </Button>,
+                                                ]}
+                                            />
                                         </Col>
                                     )
                                 }

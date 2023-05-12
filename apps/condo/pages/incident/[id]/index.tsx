@@ -13,9 +13,8 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Tag, Typography } from '@open-condo/ui'
+import { ActionBar, Button, Tag, Typography } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -54,6 +53,8 @@ type IncidentIdPageContentProps = {
 type IncidentFieldProps = {
     incident: IIncident
 }
+
+const LABEL_SPAN_COMMON = 5
 
 const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => {
     const intl = useIntl()
@@ -107,7 +108,7 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
 
     return (
         <Row>
-            <PageFieldRow title={AddressLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={AddressLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 {renderPropertyScopeProperties}
             </PageFieldRow>
         </Row>
@@ -155,7 +156,7 @@ const IncidentWorkDateField: React.FC<IncidentFieldProps> = ({ incident }) => {
 
     return (
         <Row>
-            <PageFieldRow title={WorkDateLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={WorkDateLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 <Typography.Text>
                     {DateFromMessage}&nbsp;
                     <Typography.Text strong>
@@ -231,7 +232,7 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
 
     return (
         <Row>
-            <PageFieldRow title={ClassifierLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={ClassifierLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 {renderClassifiers}
             </PageFieldRow>
         </Row>
@@ -252,7 +253,7 @@ const IncidentWorkTypeField: React.FC<IncidentFieldProps> = ({ incident }) => {
 
     return (
         <Row>
-            <PageFieldRow title={WorkTypeLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={WorkTypeLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 <Typography.Text>
                     {incident.workType && workTypeLabels[incident.workType] || HaveNotMessage}
                 </Typography.Text>
@@ -267,7 +268,7 @@ const IncidentDetailsField: React.FC<IncidentFieldProps> = ({ incident }) => {
 
     return (
         <Row>
-            <PageFieldRow title={DetailsLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={DetailsLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 <Typography.Text>{incident.details}</Typography.Text>
             </PageFieldRow>
         </Row>
@@ -281,7 +282,7 @@ const IncidentTextForResidentField: React.FC<IncidentFieldProps> = ({ incident }
 
     return (
         <Row>
-            <PageFieldRow title={TextForResidentLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={TextForResidentLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 <Typography.Text type={!get(incident, 'textForResident') ? 'secondary' : null}>
                     {get(incident, 'textForResident') || HaveNotMessage}
                 </Typography.Text>
@@ -297,7 +298,7 @@ const IncidentOrganizationField: React.FC<IncidentFieldProps> = ({ incident }) =
 
     return (
         <Row>
-            <PageFieldRow title={OrganizationLabel} ellipsis labelSpan={5}>
+            <PageFieldRow title={OrganizationLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
                 <Typography.Text type={!get(incident, 'organization.name') ? 'secondary' : null}>
                     {get(incident, 'organization.name') || HaveNotMessage}
                 </Typography.Text>
@@ -426,31 +427,41 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                         <Col span={24} lg={24} xl={22}>
                             <IncidentContent incident={incident} withOrganization={withOrganization} />
                         </Col>
-                        <ActionBar>
-                            <Button
-                                disabled={incidentLoading}
-                                type='primary'
-                                children={isActual ? ChangeToNotActualLabel : ChangeToActualLabel}
-                                onClick={handleOpen}
-                                id={isActual ? 'changeStatusToNotActual' : 'changeStatusToActual'}
-                            />
-                            <Button
-                                disabled={incidentLoading}
-                                type='secondary'
-                                children={EditLabel}
-                                onClick={handleEditIncident}
-                                id='editIncident'
-                            />
-                        </ActionBar>
-                        <Col span={24} lg={24} xl={22}>
-                            <ChangeHistory
-                                <IIncidentChange>
-                                items={incidentChanges}
-                                loading={incidentChangesLoading}
-                                total={incidentChangesCount}
-                                title={ChangeHistoryTitle}
-                                useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
-                                Diff={ChangeHistoryDiff}
+                        {
+                            incidentChanges && (
+                                <Col span={24} lg={24} xl={22}>
+                                    <ChangeHistory
+                                        <IIncidentChange>
+                                        items={incidentChanges}
+                                        loading={incidentChangesLoading}
+                                        total={incidentChangesCount}
+                                        title={ChangeHistoryTitle}
+                                        useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
+                                        Diff={ChangeHistoryDiff}
+                                    />
+                                </Col>
+                            )
+                        }
+                        <Col span={24}>
+                            <ActionBar
+                                actions={[
+                                    <Button
+                                        key='changeStatus'
+                                        disabled={incidentLoading}
+                                        type='primary'
+                                        children={isActual ? ChangeToNotActualLabel : ChangeToActualLabel}
+                                        onClick={handleOpen}
+                                        id={isActual ? 'changeStatusToNotActual' : 'changeStatusToActual'}
+                                    />,
+                                    <Button
+                                        key='editIncident'
+                                        disabled={incidentLoading}
+                                        type='secondary'
+                                        children={EditLabel}
+                                        onClick={handleEditIncident}
+                                        id='editIncident'
+                                    />,
+                                ]}
                             />
                         </Col>
                     </Row>

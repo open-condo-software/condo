@@ -43,13 +43,13 @@ export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, 
 
     const { breakpoints } = useLayoutContext()
 
-    const SettingsTabsComponent = !breakpoints.TABLET_LARGE ? TopRowTabs : SideBlockTabs
+    const SettingsTabsComponent = !breakpoints.DESKTOP_SMALL ? TopRowTabs : SideBlockTabs
 
     return settingsTabs.length === 1 ? (
         settingsTabs[0].content
     ) : (
         <SettingsTabsComponent
-            tabPosition={!breakpoints.TABLET_LARGE ? 'top' : 'right'}
+            tabPosition={!breakpoints.DESKTOP_SMALL ? 'top' : 'right'}
             type='card'
             defaultActiveKey={defaultTab}
             activeKey={defaultTab}

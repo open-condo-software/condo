@@ -93,6 +93,12 @@ const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION = gql`
 const ORGANIZATION_EMPLOYEE_SPECIALIZATION_FIELDS = `{ employee { id } specialization { id name } ${COMMON_FIELDS} }`
 const OrganizationEmployeeSpecialization = generateGqlQueries('OrganizationEmployeeSpecialization', ORGANIZATION_EMPLOYEE_SPECIALIZATION_FIELDS)
 
+const RESET_ORGANIZATION_MUTATION = gql`
+    mutation resetOrganization ($data: ResetOrganizationInput!) {
+        result: resetOrganization(data: $data) { status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -110,6 +116,7 @@ module.exports = {
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION,
     OrganizationEmployeeSpecialization,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    RESET_ORGANIZATION_MUTATION,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }
 

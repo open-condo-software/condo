@@ -12,9 +12,11 @@ const { getById, find } = require('@open-condo/keystone/schema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { CANCELED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { AVAILABLE_TICKET_FIELDS_FOR_UPDATE_BY_RESIDENT, INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_RESIDENT } = require('@condo/domains/ticket/constants/common')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadTickets ({ authentication: { item: user }, context }) {
+
+async function canReadTickets ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -48,6 +50,9 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
     if (user.isAdmin) return true
 
     if (user.type === RESIDENT) {
+        const changedInaccessibleFields = Object.keys(originalInput).some(field => INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_RESIDENT.includes(field))
+        if (changedInaccessibleFields) return false
+
         if (operation === 'create') {
             const unitName = get(originalInput, 'unitName', null)
             const propertyId = get(originalInput, ['property', 'connect', 'id'])
@@ -65,7 +70,7 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
         } else if (operation === 'update') {
             if (!itemId) return false
 
-            const inaccessibleUpdatedFields = omit(originalInput, ['dv', 'status', 'sender', 'reviewValue', 'reviewComment'])
+            const inaccessibleUpdatedFields = omit(originalInput, AVAILABLE_TICKET_FIELDS_FOR_UPDATE_BY_RESIDENT)
             if (!isEmpty(inaccessibleUpdatedFields)) return false
 
             const ticket = await getById('Ticket', itemId)

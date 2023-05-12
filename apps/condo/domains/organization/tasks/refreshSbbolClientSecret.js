@@ -1,4 +1,4 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const { createCronTask } = require('@open-condo/keystone/tasks')
 

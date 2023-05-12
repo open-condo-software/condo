@@ -1,10 +1,10 @@
 
 const path = require('path')
 
+const { faker } = require('@faker-js/faker')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
-const faker = require('faker')
 const { Client } = require('pg')
 
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')

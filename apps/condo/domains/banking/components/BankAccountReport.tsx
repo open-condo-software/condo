@@ -10,8 +10,8 @@ import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Tabs, Card, Typography, Select, Option, Space } from '@open-condo/ui'
-import type { TypographyTextProps } from '@open-condo/ui'
+import { Tabs, Card, Typography, Select, SelectProps, Space } from '@open-condo/ui'
+import type { TypographyTitleProps } from '@open-condo/ui'
 import type { CardProps } from '@open-condo/ui'
 
 import { useBankReportTaskButton } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
@@ -87,17 +87,18 @@ type InfoCardProps = {
     isSmall: boolean
     onClick?: CardProps['onClick']
     currencyCode?: string
-    valueType?: TypographyTextProps['type']
+    valueType?: TypographyTitleProps['type']
+    hoverable?: CardProps['hoverable']
 }
 interface IInfoCard { (props: InfoCardProps): React.ReactElement }
 const InfoCard: IInfoCard = ({ value, currencyCode = 'RUB',  ...props }) => {
     const intl = useIntl()
     const CurrencyValue = intl.formatNumber(parseFloat(value), { style: 'currency', currency: currencyCode })
 
-    const { isSmall, label, icon, valueType } = props
+    const { isSmall, label, icon, valueType, hoverable = false } = props
 
     return (
-        <Card hoverable onClick={props.onClick}>
+        <Card hoverable={hoverable} onClick={props.onClick}>
             <Space
                 direction={isSmall ? 'vertical' : 'horizontal'}
                 size={isSmall ? 20 : 40}
@@ -120,7 +121,6 @@ interface IBankReportContent {
 }
 
 enum ReportCategories {
-    'Total',
     'Income',
     'Withdrawal',
 }
@@ -131,22 +131,21 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const IncomeTitle = intl.formatMessage({ id: 'global.income' }, { isSingular: false })
     const WithdrawalTitle = intl.formatMessage({ id: 'global.withdrawal' }, { isSingular: false })
     const ChooseReportTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.chooseReportTitle' })
-    const ReportCardTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.reportCardTitle' })
+    const ReportCardWithdrawalTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.reportCardTitle.withdrawal' })
+    const ReportCardIncomeTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.reportCardTitle.income' })
     const NoDataTitle = intl.formatMessage({ id: 'NoData' })
 
     const { breakpoints, isMobile } = useLayoutContext()
     const router = useRouter()
 
     const [activeTab, setActiveTab] = useState(get(bankAccountReports, '0.data.categoryGroups.0.id'))
-    const [selectedPeriod, setSelectedPeriod] = useState(0)
-    const [activeCategory, setActiveCategory] = useState<ReportCategories>(ReportCategories.Total)
+    const [selectedPeriod, setSelectedPeriod] = useState(get(router, 'query.period') || get(bankAccountReports, '0.period'))
+    const [activeCategory, setActiveCategory] = useState<ReportCategories>(ReportCategories.Withdrawal)
     const chartInstance = useRef(null)
 
-    const bankAccountReport = get(bankAccountReports, selectedPeriod)
+    const bankAccountReport = find(bankAccountReports, { period: selectedPeriod })
     const categoryGroups = get(bankAccountReport, 'data.categoryGroups', []).filter(categoryGroup => {
-        if (activeCategory === ReportCategories.Total) {
-            return true
-        } else if (activeCategory === ReportCategories.Income) {
+        if (activeCategory === ReportCategories.Income) {
             return categoryGroup.costItemGroups.some(item => item.isOutcome === false)
         } else if (activeCategory === ReportCategories.Withdrawal) {
             return categoryGroup.costItemGroups.some(item => item.isOutcome === true)
@@ -154,17 +153,16 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     })
 
     let chartData = get(find(categoryGroups, { id: activeTab }), 'costItemGroups', [])
-    if (activeCategory !== ReportCategories.Total) {
-        chartData = chartData.filter(costItemGroup => {
-            if (activeCategory === ReportCategories.Withdrawal) {
-                return costItemGroup.isOutcome === true
-            }
+    chartData = chartData.filter(costItemGroup => {
+        if (activeCategory === ReportCategories.Withdrawal) {
+            return costItemGroup.isOutcome === true
+        }
 
-            if (activeCategory === ReportCategories.Income) {
-                return costItemGroup.isOutcome === false
-            }
-        })
-    }
+        if (activeCategory === ReportCategories.Income) {
+            return costItemGroup.isOutcome === false
+        }
+    })
+
 
     const echartsOption: EChartsOption = useMemo(() => ({
         ...BASE_CHART_OPTS,
@@ -210,13 +208,13 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const onChangeTabs = useCallback((key) => {
         setActiveTab(key)
     }, [])
-    const onReportPeriodSelectChange = useCallback(async (periodIndex) => {
-        setSelectedPeriod(periodIndex)
+    const onReportPeriodSelectChange = useCallback(async (period) => {
+        setSelectedPeriod(period)
 
         if (!isEmpty(bankAccountReports)) {
             await router.push({
                 pathname: router.pathname,
-                query: { ...router.query, period: bankAccountReports[periodIndex].period },
+                query: { ...router.query, period },
             })
         }
     }, [router, bankAccountReports])
@@ -246,15 +244,12 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const tabsItems = useMemo(() => categoryGroups
         .map(reportData => ({ label: intl.formatMessage({ id: `banking.category.${reportData.name}.name` }), key: reportData.id }))
     , [categoryGroups, intl])
-    const reportOptionItems = useMemo(() => bankAccountReports
-        .map((bankAccountReport, reportIndex) => (
-            <Option
-                key={bankAccountReport.id}
-                value={reportIndex}
-            >
-                {dayjs(bankAccountReport.period).format('MMMM YYYY')}
-            </Option>
-        )), [bankAccountReports])
+    const reportOptionItems: SelectProps['options'] = useMemo(() => bankAccountReports
+        .map((bankAccountReport) => ({
+            label: dayjs(bankAccountReport.period).format('MMMM YYYY'),
+            key: bankAccountReport.id,
+            value: bankAccountReport.period,
+        })), [bankAccountReports])
     const chartLegendItems = useMemo(() => {
         return chartData.map((item, index) => {
             const itemName = intl.formatMessage({ id: `banking.costItem.${item.name}.name` })
@@ -288,18 +283,18 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
         if (!router.query.period && !isEmpty(bankAccountReports)) {
             router.push({
                 pathname: router.pathname,
-                query: { ...router.query, period:bankAccountReports[selectedPeriod].period },
+                query: { ...router.query, period: selectedPeriod },
             })
         }
     }, [router])
 
     useEffect(() => {
-        const defaultSelectedTab = get(bankAccountReports, [selectedPeriod, 'data', 'categoryGroups', '0', 'id'])
+        const defaultSelectedTab = get(bankAccountReport, ['data', 'categoryGroups', '0', 'id'])
 
         if (defaultSelectedTab) {
             setActiveTab(defaultSelectedTab)
         }
-    }, [bankAccountReports, selectedPeriod])
+    }, [bankAccountReport])
 
     useEffect(() => {
         if (isEmpty(chartData) && !isEmpty(categoryGroups)) {
@@ -312,9 +307,12 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     return (
         <Row gutter={BANK_ACCOUNT_REPORT_ROW_GUTTER}>
             <Col span={24}>
-                <Select placeholder={ChooseReportTitle} value={selectedPeriod} onChange={onReportPeriodSelectChange}>
-                    {reportOptionItems}
-                </Select>
+                <Select
+                    placeholder={ChooseReportTitle}
+                    value={selectedPeriod}
+                    onChange={onReportPeriodSelectChange}
+                    options={reportOptionItems}
+                />
             </Col>
             <Col span={24}>
                 <Row gutter={BANK_ACCOUNT_REPORT_ROW_GUTTER}>
@@ -325,7 +323,6 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                             icon={<TotalBalanceIcon />}
                             isSmall={!breakpoints.TABLET_LARGE}
                             currencyCode={currencyCode}
-                            onClick={() => setActiveCategory(ReportCategories.Total)}
                         />
                     </Col>
                     <Col xl={8} md={12} sm={24} xs={12}>
@@ -337,6 +334,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                             isSmall={!breakpoints.TABLET_LARGE}
                             currencyCode={currencyCode}
                             onClick={() => setActiveCategory(ReportCategories.Withdrawal)}
+                            hoverable
                         />
                     </Col>
                     <Col xl={8} md={12} sm={24} xs={12}>
@@ -348,12 +346,19 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                             isSmall={!breakpoints.TABLET_LARGE}
                             currencyCode={currencyCode}
                             onClick={() => setActiveCategory(ReportCategories.Income)}
+                            hoverable
                         />
                     </Col>
                 </Row>
             </Col>
             <Col span={24}>
-                <Card title={<Typography.Title level={3}>{ReportCardTitle}</Typography.Title>}>
+                <Card
+                    title={
+                        <Typography.Title level={3}>
+                            {activeCategory === ReportCategories.Income ? ReportCardIncomeTitle : ReportCardWithdrawalTitle }
+                        </Typography.Title>
+                    }
+                >
                     <Tabs items={tabsItems} onChange={onChangeTabs} activeKey={activeTab} />
                     <Row
                         gutter={BANK_ACCOUNT_REPORT_ROW_GUTTER}
@@ -419,7 +424,7 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, bankAccountReports
                             <Space size={16} direction='vertical'>
                                 <Typography.Title level={5}>{NoDataTitle}</Typography.Title>
                                 {canManageBankAccountReportTasks && (
-                                    <BankReportTaskButton />
+                                    <BankReportTaskButton key='reportTask' />
                                 )}
                             </Space>
                         </BasicEmptyListView>
@@ -435,6 +440,8 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, bankAccountReports
     )
 }
 
+const MemoizedBankAccountReport = React.memo(BankAccountReport)
+
 export {
-    BankAccountReport,
+    MemoizedBankAccountReport as BankAccountReport,
 }

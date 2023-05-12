@@ -43,6 +43,9 @@ const MAX_TICKET_DEADLINE_DURATION = 'P45D' // 45 days
 const DEFAULT_TICKET_DEADLINE_DURATION = 'P8D' // 8 days
 const TICKET_DEFAULT_DEADLINE_DURATION_FIELDS = ['defaultDeadlineDuration', 'paidDeadlineDuration', 'emergencyDeadlineDuration', 'warrantyDeadlineDuration']
 
+const INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_RESIDENT = ['qualityControlValue', 'qualityControlComment', 'qualityControlAdditionalOptions']
+const AVAILABLE_TICKET_FIELDS_FOR_UPDATE_BY_RESIDENT = ['dv', 'status', 'sender', 'reviewValue', 'reviewComment']
+
 module.exports = {
     MAX_TICKET_REPORT_COUNT,
     PDF_REPORT_WIDTH,
@@ -58,4 +61,6 @@ module.exports = {
     MAX_TICKET_DEADLINE_DURATION,
     DEFAULT_TICKET_DEADLINE_DURATION,
     TICKET_DEFAULT_DEADLINE_DURATION_FIELDS,
+    INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_RESIDENT,
+    AVAILABLE_TICKET_FIELDS_FOR_UPDATE_BY_RESIDENT,
 }

@@ -3,14 +3,14 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const {
     Organization: OrganizationGQL,
     OrganizationEmployee: OrganizationEmployeeGQL,
@@ -30,6 +30,7 @@ const {
 } = require('./Organization')
 const { ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
+const { RESET_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -51,7 +52,7 @@ async function createTestOrganization (client, extraAttrs = {}) {
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const country = DEFAULT_ENGLISH_COUNTRY
-    const name = faker.company.companyName()
+    const name = faker.company.name()
     const description = faker.company.catchPhrase()
     const tin = generateTin(country)
     const meta = {
@@ -59,7 +60,7 @@ async function createTestOrganization (client, extraAttrs = {}) {
         kpp: faker.random.alphaNumeric(9),
         city: faker.address.city(),
         zipCode: faker.address.zipCode(),
-        street: faker.address.streetName(),
+        street: faker.address.street(),
         number: faker.address.secondaryAddress(),
         country: country,
     }
@@ -88,7 +89,7 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
         kpp: faker.random.alphaNumeric(9),
         city: faker.address.city(),
         zipCode: faker.address.zipCode(),
-        street: faker.address.streetName(),
+        street: faker.address.street(),
         number: faker.address.secondaryAddress(),
     }
 
@@ -97,7 +98,7 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
         sender,
         meta,
         tin,
-        name: faker.company.companyName(),
+        name: faker.company.name(),
         description: faker.company.catchPhrase(),
         country: DEFAULT_ENGLISH_COUNTRY,
         ...extraAttrs,
@@ -161,13 +162,13 @@ async function createTestOrganizationEmployeeRole (client, organization, extraAt
 /**
  * Simplifies creating series of instances
  */
-async function makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee () {
+async function makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee (roleAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const [organization] = await createTestOrganization(admin)
-    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
+    const [role] = await createTestOrganizationEmployeeRole(admin, organization, roleAttrs)
     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
     const [employee] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
-    return { employee, role, organization, admin }
+    return { employee, role, organization, admin, userClient }
 }
 
 async function updateTestOrganizationEmployeeRole (client, id, extraAttrs = {}) {
@@ -332,6 +333,20 @@ async function updateTestOrganizationEmployeeSpecialization (client, id, extraAt
     return [obj, attrs]
 }
 
+
+async function resetOrganizationByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(RESET_ORGANIZATION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -356,5 +371,6 @@ module.exports = {
     makeClientWithRegisteredOrganization,
     generateTin,
     OrganizationEmployeeSpecialization, createTestOrganizationEmployeeSpecialization, updateTestOrganizationEmployeeSpecialization,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    resetOrganizationByTestClient,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

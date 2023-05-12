@@ -5,7 +5,7 @@ import {
     STATUS_CHANGED_EVENT_TYPE,
 } from './handlers'
 
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 
 const { STATUS_IDS } = require('../constants/statusTransitions')

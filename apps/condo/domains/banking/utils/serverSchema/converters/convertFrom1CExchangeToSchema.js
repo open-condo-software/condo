@@ -119,7 +119,14 @@ function initNode (line) {
         return new StreamNode({
             begin: '1CClientBankExchange',
             endBodyKey: 'РасчСчет',
-            requiredKeys: keys,
+            requiredKeys: [
+                'ВерсияФормата',
+                'Кодировка',
+                'Отправитель',
+                'ДатаНачала',
+                'ДатаКонца',
+                'РасчСчет',
+            ],
             bodyKeys: keys,
         })
     }
@@ -174,6 +181,7 @@ function initNode (line) {
                 'ПолучательСчет',
                 'ДатаПоступило',
                 'ПолучательИНН',
+                'Получатель',
                 'Получатель1',
                 'ПолучательРасчСчет',
                 'ПолучательБанк1',
@@ -196,11 +204,6 @@ function initNode (line) {
                 'Дата',
                 'Сумма',
                 'НазначениеПлатежа',
-                'Получатель1',
-                'ПолучательИНН',
-                'ПолучательРасчСчет',
-                'ПолучательБанк1',
-                'ПолучательБИК',
             ],
             converter: (values) => {
                 const isOutcome = parseDate(values['ДатаСписано']) !== null
@@ -218,12 +221,19 @@ function initNode (line) {
                     },
                 }
                 if (isOutcome) {
-                    transactionData.contractorAccount = {
-                        name: values['Получатель1'],
-                        tin: values['ПолучательИНН'],
-                        number: values['ПолучательРасчСчет'],
-                        bankName: values['ПолучательБанк1'],
-                        routingNumber: values['ПолучательБИК'],
+                    const name = values['Получатель1'] || values['Получатель']
+                    const number = values['ПолучательРасчСчет']
+                    const bankName = values['ПолучательБанк1']
+                    const routingNumber = values['ПолучательБИК']
+                    const tin = values['ПолучательИНН']
+                    if (name && number && bankName && routingNumber && tin) {
+                        transactionData.contractorAccount = {
+                            name,
+                            tin,
+                            number,
+                            bankName,
+                            routingNumber,
+                        }
                     }
                 }
                 return transactionData

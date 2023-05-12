@@ -1,4 +1,4 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const { RU_NUMBER_WEIGHTS, getRuTinControlSum } = require('@condo/domains/banking/utils/validate/countrySpecificValidators/ru.validator')
 
@@ -17,7 +17,7 @@ function bulidValidRequisitesForRuBankAccount (extra = {}) {
         country: 'ru',
         routingNumber,
         number,
-        bankName: faker.company.companyName(),
+        bankName: faker.company.name(),
         currencyCode: 'RUB',
         territoryCode: faker.datatype.number().toString(),
     }

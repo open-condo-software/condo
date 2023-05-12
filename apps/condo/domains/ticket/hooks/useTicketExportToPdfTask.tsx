@@ -17,9 +17,9 @@ import { ResolvedIntlConfig } from 'react-intl'
 
 import { Print } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Modal, Button } from '@open-condo/ui'
+import { Button, Modal, Checkbox } from '@open-condo/ui'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
 import { CommentPreview } from '@condo/domains/common/components/Comments/Comment'
 import { ChevronIcon as ChevronIconBase } from '@condo/domains/common/components/icons/ChevronIcon'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
@@ -299,19 +299,16 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
 
     const TicketBlanksExportToPdfButton = useCallback<ExportToPdfButtonType>(({ disabled }) => {
         return (
-            <Tooltip title={disabled ? SaveToPDFTooltipMessage : null}>
-                <div style={{ cursor: disabled ? 'not-allowed' : 'auto' }}>
-                    <Button
-                        type='secondary'
-                        icon={<Print size='medium'/>}
-                        loading={loading}
-                        disabled={disabled}
-                        onClick={handleOpenModal}
-                        id={openModalButtonEventName}
-                        children={SaveInPdfLabel}
-                    />
-                </div>
-            </Tooltip>
+            <ButtonWithDisabledTooltip
+                title={SaveToPDFTooltipMessage}
+                type='secondary'
+                icon={<Print size='medium'/>}
+                loading={loading}
+                disabled={disabled}
+                onClick={handleOpenModal}
+                id={openModalButtonEventName}
+                children={SaveInPdfLabel}
+            />
         )
     }, [SaveToPDFTooltipMessage, loading, handleOpenModal, SaveInPdfLabel, openModalButtonEventName])
 

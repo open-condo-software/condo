@@ -4,6 +4,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "preserveSymlinks": true,
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts"],
   "exclude": ["node_modules"]

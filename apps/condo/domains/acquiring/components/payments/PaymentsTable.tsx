@@ -7,10 +7,12 @@ import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 
+import { Search } from '@open-condo/icons'
 import { useQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
@@ -192,10 +194,10 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
             <Row gutter={ROW_GUTTER} align='middle' justify='center'>
                 <Col span={24}>
                     <TableFiltersContainer>
-                        <Row justify='end' gutter={TAP_BAR_ROW_GUTTER}>
+                        <Row justify={breakpoints.DESKTOP_SMALL ? 'end' : 'start'} gutter={TAP_BAR_ROW_GUTTER}>
                             <Col flex='auto'>
                                 <Row gutter={TAP_BAR_ROW_GUTTER}>
-                                    <Col xs={24} sm={12} lg={8}>
+                                    <Col xs={24} lg={8}>
                                         <Input
                                             placeholder={SearchPlaceholder}
                                             value={search}
@@ -203,9 +205,10 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
                                                 handleSearchChange(e.target.value)
                                             }}
                                             allowClear
+                                            suffix={<Search size='medium' color={colors.gray[7]} />}
                                         />
                                     </Col>
-                                    <Col xs={24} sm={DATE_PICKER_COL_LAYOUT} lg={DATE_PICKER_COL_LAYOUT}>
+                                    <Col xs={24} lg={DATE_PICKER_COL_LAYOUT}>
                                         <DateRangePicker
                                             value={dateRange || dateFallback}
                                             onChange={handleDateChange}
@@ -214,8 +217,7 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
                                     </Col>
                                 </Row>
                             </Col>
-
-                            <Col offset={1}>
+                            <Col offset={breakpoints.DESKTOP_SMALL && 1}>
                                 <Row justify='end' align='middle'>
                                     {
                                         appliedFiltersCount > 0 && (
@@ -227,7 +229,7 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
                                     <Col>
                                         <Button
                                             secondary
-                                            type='sberPrimary'
+                                            type='sberBlack'
                                             onClick={() => setIsMultipleFiltersModalVisible(true)}
                                         >
                                             <FilterFilled/>
@@ -282,13 +284,15 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
                         columns={tableColumns}
                     />
                 </Col>
-                <ExportToExcelActionBar
-                    hidden={!breakpoints.TABLET_LARGE}
-                    searchObjectsQuery={searchPaymentsQuery}
-                    sortBy={sortBy}
-                    exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
-                    disabled={count < 1}
-                />
+                <Col span={24}>
+                    <ExportToExcelActionBar
+                        hidden={!breakpoints.TABLET_LARGE}
+                        searchObjectsQuery={searchPaymentsQuery}
+                        sortBy={sortBy}
+                        exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
+                        disabled={count < 1}
+                    />
+                </Col>
             </Row>
 
             <Modal

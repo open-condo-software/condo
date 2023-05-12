@@ -56,7 +56,7 @@ class GoogleSearchProvider extends AbstractSearchProvider {
      * https://developers.google.com/maps/documentation/places/web-service/search-text
      * @returns {Promise<GooglePlace[]>}
      */
-    async get ({ query, context = null }) {
+    async get ({ query, context = null, helpers = {} }) {
         const params = new URLSearchParams({
             query,
             key: this.apiKey,

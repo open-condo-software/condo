@@ -14,12 +14,13 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { PlusCircle } from '@open-condo/icons'
+import { PlusCircle, Search } from '@open-condo/icons'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Checkbox, Button } from '@open-condo/ui'
+import { Typography, Checkbox, Button, ActionBar } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -27,7 +28,6 @@ import EmptyListView from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { useExportToExcel } from '@condo/domains/common/hooks/useExportToExcel'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
@@ -35,8 +35,8 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
-import { EXPORT_INCIDENTS_TO_EXCEL_QUERY } from '@condo/domains/ticket/gql'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
+import { useIncidentExportToExcelTask } from '@condo/domains/ticket/hooks/useIncidentExportToExcelTask'
 import { useIncidentTableColumns, UseTableColumnsType } from '@condo/domains/ticket/hooks/useIncidentTableColumns'
 import { useIncidentTableFilters } from '@condo/domains/ticket/hooks/useIncidentTableFilters'
 import { Incident, IncidentProperty } from '@condo/domains/ticket/utils/clientSchema'
@@ -113,12 +113,13 @@ const FilterContainer: React.FC<FilterContainerProps> = () => {
                                     value={search}
                                     allowClear
                                     id='searchIncidents'
+                                    suffix={<Search size='medium' color={colors.gray[7]} />}
                                 />
                             </Col>
                         </Row>
                     </Col>
                     <Col xs={24} md={16}>
-                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS}>
+                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS} align='middle'>
                             <Col>
                                 <Checkbox
                                     onChange={handleAttributeCheckboxChange(IS_ACTUAL_ATTRIBUTE_NAME)}
@@ -268,15 +269,15 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
 
     const { useTableColumns, filterMetas, baseQuery } = props
 
+    const { user } = useAuth() as { user: { id: string } }
     const router = useRouter()
 
     const { incidentsLoading, incidents, count, sortBy, where } = useIncidentsSearch({ baseQuery, filterMetas })
 
-    const { ExportButton } = useExportToExcel({
-        searchObjectsQuery: where,
+    const { ExportButton } = useIncidentExportToExcelTask({
+        where,
         sortBy,
-        exportToExcelQuery: EXPORT_INCIDENTS_TO_EXCEL_QUERY,
-        useTimeZone: true,
+        user,
     })
 
     const { loading: columnsLoading, columns } = useTableColumns({ filterMetas, incidents })
@@ -313,16 +314,21 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
             {IncidentsTable}
             {
                 !loading && (
-                    <ActionBar>
-                        <Button
-                            type='primary'
-                            children={AddNewIncidentLabel}
-                            onClick={handleAddNewIncident}
-                            id='createIncident'
-                            icon={<PlusCircle size='small' />}
+                    <Col span={24}>
+                        <ActionBar
+                            actions={[
+                                <Button
+                                    key='create'
+                                    type='primary'
+                                    children={AddNewIncidentLabel}
+                                    onClick={handleAddNewIncident}
+                                    id='createIncident'
+                                    icon={<PlusCircle size='medium' />}
+                                />,
+                                Boolean(count) && <ExportButton key='export' id='exportToExcelIncidents' />,
+                            ]}
                         />
-                        {Boolean(count) && <ExportButton id='exportToExcelIncidents' />}
-                    </ActionBar>
+                    </Col>
                 )
             }
         </>

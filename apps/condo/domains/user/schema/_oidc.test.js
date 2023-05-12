@@ -1,5 +1,5 @@
+const { faker } = require('@faker-js/faker')
 const { default: axios } = require('axios')
-const faker = require('faker')
 const jwtDecode = require('jwt-decode')
 const fetch = require('node-fetch')
 const { Issuer, generators } = require('openid-client')

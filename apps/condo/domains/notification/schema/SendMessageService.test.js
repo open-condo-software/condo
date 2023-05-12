@@ -1,4 +1,4 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
@@ -110,8 +110,6 @@ describe('SendMessageService', () => {
 
                     const transportMeta = message.processingMeta.transportsMeta[0]
 
-                    console.log(JSON.stringify(message, null, 2))
-
                     expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
                     expect(message.processingMeta.isVoIP).toBeTruthy()
@@ -155,8 +153,6 @@ describe('SendMessageService', () => {
                     })
 
                     const transportMeta = message.processingMeta.transportsMeta[0]
-
-                    console.log(JSON.stringify(message, null, 2))
 
                     expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)

@@ -15,13 +15,14 @@ const getArticle = (str?: string) => {
 }
 
 const AVAILABLE_TYPES: Array<TypographyTextProps['type']> = [
-    undefined,
+    'primary',
     'secondary',
     'inverted',
     'danger',
     'warning',
     'info',
     'success',
+    'inherit',
 ]
 
 const AVAILABLE_MODES = [

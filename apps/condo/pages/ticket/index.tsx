@@ -24,11 +24,10 @@ import { FileUp, Filter, Search, Close } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Button } from '@open-condo/ui'
+import { ActionBar, Typography, Button } from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
 import { colors } from '@open-condo/ui/dist/colors'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button as CommonButton } from '@condo/domains/common/components/Button'
@@ -95,6 +94,7 @@ const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 const MEDIUM_VERTICAL_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.label }
 const DEBOUNCE_TIMEOUT = 400
+const FILTERS_BUTTON_STYLES: CSSProperties = { position: 'relative', display: 'flex', alignItems: 'center', gap: '10px' }
 
 const StyledTable = styled(Table)`
   .ant-checkbox-input {
@@ -149,6 +149,7 @@ const TicketTable = ({
     loading,
     ticketsWithFiltersCount,
     searchTicketsQuery,
+    TicketImportButton,
 }) => {
     const intl = useIntl()
     const CancelSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CancelSelectedTicket' })
@@ -190,7 +191,7 @@ const TicketTable = ({
         return String(selectedTicketKeys[0])
     }, [selectedTicketKeys])
 
-    const { TicketsExportToXlsxButton: TicketsExportToXlsxButton } = useTicketExportToExcelTask({
+    const { TicketsExportToXlsxButton } = useTicketExportToExcelTask({
         where: searchTicketsQuery,
         sortBy,
         format: EXCEL,
@@ -283,7 +284,7 @@ const TicketTable = ({
     }, [filters, sortBy])
 
     return (
-        <>
+        <Row gutter={[0, 40]}>
             <Col span={24}>
                 <StyledTable
                     totalRows={total}
@@ -297,27 +298,36 @@ const TicketTable = ({
                     sticky
                 />
             </Col>
-            <ActionBar hidden={loading || ticketsWithFiltersCount === 0}>
-                {selectedTicketKeys.length > 0 && (
-                    <Typography.Text strong>
-                        {CountSelectedTicketLabel}: {selectedTicketKeys.length}
-                    </Typography.Text>
-                )}
-                {selectedTicketKeys.length > 0 && (
-                    <TicketBlanksExportToPdfButton disabled={selectedTicketKeys.length > MAX_TICKET_BLANKS_EXPORT} />
-                )}
-                {selectedTicketKeys.length < 1 && <TicketsExportToXlsxButton />}
-                {selectedTicketKeys.length > 0 && (
-                    <Button
-                        type='secondary'
-                        children={CancelSelectedTicketLabel}
-                        onClick={handleResetSelectedTickets}
-                        icon={<Close size='medium'/>}
-                    />
-                )}
-            </ActionBar>
+            {
+                !loading && ticketsWithFiltersCount > 0 && (
+                    <Col span={24}>
+                        <ActionBar
+                            message={selectedTicketKeys.length > 0 && `${CountSelectedTicketLabel}: ${selectedTicketKeys.length}`}
+                            actions={[
+                                selectedTicketKeys.length > 0 && (
+                                    <TicketBlanksExportToPdfButton
+                                        key='exportToPdf'
+                                        disabled={selectedTicketKeys.length > MAX_TICKET_BLANKS_EXPORT}
+                                    />
+                                ),
+                                selectedTicketKeys.length < 1 && TicketImportButton && TicketImportButton,
+                                selectedTicketKeys.length < 1 && <TicketsExportToXlsxButton key='exportToXlsx' />,
+                                selectedTicketKeys.length > 0 && (
+                                    <Button
+                                        key='cancelSelectedTicket'
+                                        type='secondary'
+                                        children={CancelSelectedTicketLabel}
+                                        onClick={handleResetSelectedTickets}
+                                        icon={<Close size='medium' />}
+                                    />
+                                ),
+                            ]}
+                        />
+                    </Col>
+                )
+            }
             {TicketBlanksExportToPdfModal}
-        </>
+        </Row>
     )
 }
 
@@ -327,6 +337,7 @@ const TicketsTableContainer = ({
     searchTicketsQuery,
     useTableColumns,
     baseQueryLoading,
+    TicketImportButton,
 }) => {
     const { count: ticketsWithFiltersCount } = Ticket.useCount({ where: searchTicketsQuery })
 
@@ -366,6 +377,7 @@ const TicketsTableContainer = ({
             ticketsWithFiltersCount={ticketsWithFiltersCount}
             searchTicketsQuery={searchTicketsQuery}
             sortBy={sortBy}
+            TicketImportButton={TicketImportButton}
         />
     )
 }
@@ -490,9 +502,6 @@ const AppliedFiltersCounter = styled.div`
   top: -10px;
   box-sizing: content-box;
 `
-
-const FILTERS_BUTTON_STYLES: CSSProperties = { position: 'relative', display: 'flex', alignItems: 'center', gap: '10px' }
-
 const FiltersButton = ({ appliedFiltersCount, setIsMultipleFiltersModalVisible }) => {
     const intl = useIntl()
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
@@ -528,7 +537,7 @@ const FILTERS_BUTTON_ROW_GUTTER: [Gutter, Gutter] = [16, 10]
 const FILTERS_BUTTON_ROW_STYLES: CSSProperties = { flexWrap: 'nowrap' }
 const RESET_FILTERS_BUTTON_STYLES: CSSProperties = { padding: 0 }
 
-const FiltersContainer = ({ filterMetas, TicketImportButton }) => {
+const FiltersContainer = ({ filterMetas }) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
@@ -576,14 +585,15 @@ const FiltersContainer = ({ filterMetas, TicketImportButton }) => {
     let checkboxColSpan = 24
     let filterButtonColSpan = 24
 
-    const isXlContainerSize = TicketImportButton ? contentWidth >= 1045 : contentWidth >= 980
+    const isXlContainerSize = contentWidth >= 980
+    const isXxlContainerSize = contentWidth >= 1288
 
     if (isXlContainerSize) {
         checkboxColSpan = 16
         filterButtonColSpan = 8
     }
 
-    if (contentWidth >= 1380) {
+    if (isXxlContainerSize) {
         inputColSpan = 5
         checkboxColSpan = 12
         filterButtonColSpan = 7
@@ -599,7 +609,7 @@ const FiltersContainer = ({ filterMetas, TicketImportButton }) => {
                             onChange={handleSearchChange}
                             value={search}
                             allowClear
-                            suffix={<Search color={colors.gray[7]} />}
+                            suffix={<Search size='medium' color={colors.gray[7]} />}
                         />
                     </Col>
                     <Col span={checkboxColSpan}>
@@ -678,13 +688,6 @@ const FiltersContainer = ({ filterMetas, TicketImportButton }) => {
                                             setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible}
                                         />
                                     </Col>
-                                    {
-                                        TicketImportButton && (
-                                            <Col>
-                                                {TicketImportButton}
-                                            </Col>
-                                        )
-                                    }
                                 </Row>
                             ) : (
                                 <Row justify='start' align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER}>
@@ -701,9 +704,6 @@ const FiltersContainer = ({ filterMetas, TicketImportButton }) => {
                                             </Col>
                                         ) : null
                                     }
-                                    <Col>
-                                        {TicketImportButton}
-                                    </Col>
                                 </Row>
                             )
                         }
@@ -721,7 +721,9 @@ export const TicketsPageContent = ({
     baseTicketsQuery,
     sortableProperties,
     showImport = false,
-    baseQueryLoading = false,
+    loading = false,
+    ticketsWithoutFiltersCount,
+    error,
 }): JSX.Element => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
@@ -751,16 +753,11 @@ export const TicketsPageContent = ({
             favoriteTicketsIds
     }
 
-    const {
-        count: ticketsWithoutFiltersCount,
-        loading: ticketsWithoutFiltersCountLoading,
-        error,
-    } = Ticket.useCount({ where: baseTicketsQuery })
-
     const { useFlag } = useFeatureFlags()
     const isTicketImportFeatureEnabled = useFlag(TICKET_IMPORT)
     const [columns, ticketNormalizer, ticketValidator, ticketCreator] = useImporterFunctions()
-    const loading = baseQueryLoading || ticketsWithoutFiltersCountLoading
+
+    const exampleTemplateLink = useMemo(() => `/ticket-import-example-${intl.locale}.xlsx`, [intl.locale])
 
     const TicketImportButton = useMemo(() => {
         return showImport && isTicketImportFeatureEnabled && (
@@ -773,7 +770,7 @@ export const TicketsPageContent = ({
                 rowValidator={ticketValidator}
                 rowNormalizer={ticketNormalizer}
                 objectCreator={ticketCreator}
-                exampleTemplateLink='/ticket-import-example.xlsx'
+                exampleTemplateLink={exampleTemplateLink}
                 maxTableLength={
                     hasFeature('bigger_limit_for_import')
                         ? EXTENDED_RECORDS_LIMIT_FOR_IMPORT
@@ -786,7 +783,7 @@ export const TicketsPageContent = ({
                 />
             </ImportWrapper>
         )
-    }, [TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, isTicketImportFeatureEnabled, showImport, ticketCreator, ticketNormalizer, ticketValidator])
+    }, [TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, exampleTemplateLink, ticketCreator, ticketNormalizer, ticketValidator])
 
     if (loading || error) {
         const errorToPrint = error ? ServerErrorMsg : null
@@ -811,7 +808,6 @@ export const TicketsPageContent = ({
                 <Col span={24}>
                     <FiltersContainer
                         filterMetas={filterMetas}
-                        TicketImportButton={TicketImportButton}
                     />
                 </Col>
                 <Col span={24}>
@@ -826,7 +822,8 @@ export const TicketsPageContent = ({
                 useTableColumns={useTableColumns}
                 sortBy={sortBy}
                 searchTicketsQuery={searchTicketsQuery}
-                baseQueryLoading={baseQueryLoading || ticketsWithoutFiltersCountLoading}
+                baseQueryLoading={loading}
+                TicketImportButton={TicketImportButton}
             />
         </>
     )
@@ -839,7 +836,7 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
     const FavoriteTicketsMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.favorite' })
 
     const { user } = useAuth()
-    const { userFavoriteTicketsCount, loading: favoriteTicketsLoading } = useFavoriteTickets()
+    const { userFavoriteTicketsCount } = useFavoriteTickets()
     const router = useRouter()
     const { filters } = useMemo(() => parseQuery(router.query), [router.query])
 
@@ -920,23 +917,38 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
                 {
                     key: 'all',
                     //@ts-ignore
-                    label: <Typography.Text strong size='medium'>{AllTicketsMessage}
-                        {isNumber(allTicketsCount) && <sup>{allTicketsCount}</sup>}
-                    </Typography.Text>,
+                    label: (
+                        <>
+                            <Typography.Text strong size='medium'>
+                                {AllTicketsMessage}
+                            </Typography.Text>
+                            {isNumber(allTicketsCount) && <sup>{allTicketsCount}</sup>}
+                        </>
+                    ),
                 },
                 {
                     key: 'own',
                     //@ts-ignore
-                    label: <Typography.Text strong size='medium'>{OwnTicketsMessage}
-                        {isNumber(ownTicketsCount) && <sup>{ownTicketsCount}</sup>}
-                    </Typography.Text>,
+                    label: (
+                        <>
+                            <Typography.Text strong size='medium'>
+                                {OwnTicketsMessage}
+                            </Typography.Text>
+                            {isNumber(ownTicketsCount) && <sup>{ownTicketsCount}</sup>}
+                        </>
+                    ),
                 },
                 {
                     key: 'favorite',
                     //@ts-ignore
-                    label: <Typography.Text strong size='medium'>{FavoriteTicketsMessage}
-                        {isNumber(userFavoriteTicketsCount) && <sup>{userFavoriteTicketsCount}</sup>}
-                    </Typography.Text>,
+                    label: (
+                        <>
+                            <Typography.Text strong size='medium'>
+                                {FavoriteTicketsMessage}
+                            </Typography.Text>
+                            {isNumber(userFavoriteTicketsCount) && <sup>{userFavoriteTicketsCount}</sup>}
+                        </>
+                    ),
                 },
             ]}
         />
@@ -944,6 +956,7 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
 }
 
 const HEADER_STYLES: CSSProperties = { padding: 0 }
+const EMPTY_TICKETS_ROW_STYLE: CSSProperties = { height: '100%' }
 
 const TicketsPage: ITicketIndexPage = () => {
     const intl = useIntl()
@@ -958,6 +971,12 @@ const TicketsPage: ITicketIndexPage = () => {
 
     const { breakpoints } = useLayoutContext()
 
+    const {
+        count: ticketsWithoutFiltersCount,
+        loading: ticketsWithoutFiltersCountLoading,
+        error,
+    } = Ticket.useCount({ where: ticketFilterQuery })
+
     return (
         <>
             <Head>
@@ -968,7 +987,10 @@ const TicketsPage: ITicketIndexPage = () => {
                     <FavoriteTicketsContextProvider
                         extraTicketsQuery={{ ...ticketFilterQuery, organization: { id: userOrganizationId } }}
                     >
-                        <Row gutter={breakpoints.DESKTOP_LARGE && MEDIUM_VERTICAL_ROW_GUTTER}>
+                        <Row
+                            gutter={breakpoints.DESKTOP_LARGE && MEDIUM_VERTICAL_ROW_GUTTER}
+                            style={ticketsWithoutFiltersCount === 0 && EMPTY_TICKETS_ROW_STYLE}
+                        >
                             <Col span={24}>
                                 <Row justify='space-between' gutter={MEDIUM_VERTICAL_ROW_GUTTER}>
                                     <Col>
@@ -981,11 +1003,15 @@ const TicketsPage: ITicketIndexPage = () => {
                                             }
                                         />
                                     </Col>
-                                    <Col>
-                                        <TicketTypeFilterSwitch
-                                            ticketFilterQuery={ticketFilterQuery}
-                                        />
-                                    </Col>
+                                    {
+                                        !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount > 0 && (
+                                            <Col>
+                                                <TicketTypeFilterSwitch
+                                                    ticketFilterQuery={ticketFilterQuery}
+                                                />
+                                            </Col>
+                                        )
+                                    }
                                 </Row>
                             </Col>
                             <Col span={24}>
@@ -995,9 +1021,11 @@ const TicketsPage: ITicketIndexPage = () => {
                                             filterMetas={filterMetas}
                                             useTableColumns={useTableColumns}
                                             baseTicketsQuery={ticketFilterQuery}
-                                            baseQueryLoading={ticketFilterQueryLoading}
+                                            loading={ticketFilterQueryLoading || ticketsWithoutFiltersCountLoading}
                                             sortableProperties={SORTABLE_PROPERTIES}
                                             showImport
+                                            ticketsWithoutFiltersCount={ticketsWithoutFiltersCount}
+                                            error={error}
                                         />
                                     </MultipleFilterContextProvider>
                                 </TablePageContent>

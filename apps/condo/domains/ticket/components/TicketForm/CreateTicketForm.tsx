@@ -1,4 +1,4 @@
-import { Col, Form, Row, Typography } from 'antd'
+import { Form, Typography } from 'antd'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 import get from 'lodash/get'
@@ -9,14 +9,13 @@ import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
 import { colors } from '@condo/domains/common/constants/style'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
 import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
-import { ErrorsContainer } from '@condo/domains/ticket/components/BaseTicketForm/ErrorsContainer'
+import { TicketSubmitButton } from '@condo/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
@@ -52,32 +51,25 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
                         || ticketSettingLoading
 
                     return (
-                        <ActionBar>
-                            <Col>
-                                <Row gutter={[0, 24]}>
-                                    <Button
-                                        key='submit'
-                                        onClick={handleSave}
-                                        type='sberDefaultGradient'
-                                        loading={isLoading}
-                                        disabled={disabledCondition}
-                                        data-cy='ticket__submit-button'
-                                        style={{ marginRight: '12px' }}
-                                    >
-                                        {CreateTicketMessage}
-                                    </Button>
-                                    <ErrorsContainer
-                                        isVisible={disabledCondition}
-                                        property={property}
-                                        details={details}
-                                        placeClassifier={placeClassifier}
-                                        categoryClassifier={categoryClassifier}
-                                        deadline={deadline}
-                                        propertyMismatchError={propertyMismatchError}
-                                        isRequiredDeadline={isRequiredDeadline}
-                                    />
-                                </Row>
-                            </Col>
+                        <ActionBar
+                            actions={[
+                                <TicketSubmitButton
+                                    key='submit'
+                                    data-cy='ticket__submit-button'
+                                    ApplyChangesMessage={CreateTicketMessage}
+                                    handleSave={handleSave}
+                                    isLoading={isLoading}
+                                    disabledCondition={disabledCondition}
+                                    property={property}
+                                    details={details}
+                                    placeClassifier={placeClassifier}
+                                    categoryClassifier={categoryClassifier}
+                                    deadline={deadline}
+                                    propertyMismatchError={propertyMismatchError}
+                                    isRequiredDeadline={isRequiredDeadline}
+                                />,
+                            ]}
+                        >
                         </ActionBar>
                     )
                 }

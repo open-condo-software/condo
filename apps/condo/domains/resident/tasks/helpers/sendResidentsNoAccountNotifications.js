@@ -17,6 +17,9 @@ const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/ser
 
 const CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629' // billing.category.housing.name
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_RESIDENTS_NO_ACCOUNT_NOTIFICATION_CREATED_AT'
+// TODO(DOMA-5825): add some special flag inside the billing integration context like notifyNoNewBillingReceipt and set it to false for ЕПС
+// const SKIPPED_INTEGRATION_NAMES = ['ЕПС']
+const INVALID_CONTEXT_PROVIDED_ERROR = 'Provided context is not in finished status, invalid or skipped.'
 
 const logger = getLogger('sendResidentsNoAccountNotifications')
 
@@ -180,14 +183,19 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
     const today = dayjs().format(DATE_FORMAT_Z)
 
     const requestPeriod = period || thisMonthStart
-    const contextWhere = { status: CONTEXT_FINISHED_STATUS, deletedAt: null }
+    const contextWhere = {
+        status: CONTEXT_FINISHED_STATUS,
+        deletedAt: null,
+        // TODO(DOMA-5825): reenable this when EPS-receipts trigger is done
+        // integration: {
+        //     name_not_in: SKIPPED_INTEGRATION_NAMES,
+        // },
+    }
     const billingContexts = billingContextId
         ? [ await BillingIntegrationOrganizationContext.getOne(context, { id: billingContextId, ...contextWhere }) ]
         : await loadListByChunks({ context, list: BillingIntegrationOrganizationContext, where: contextWhere })
 
-    if (isEmpty(billingContexts) || isEmpty(billingContexts[0])) {
-        throw new Error('Provided context is not in finished status or invalid.')
-    }
+    if (isEmpty(billingContexts) || isEmpty(billingContexts[0])) throw new Error(INVALID_CONTEXT_PROVIDED_ERROR)
 
     logger.info({ msg: 'Billing context proceed', billingContextsCount: billingContexts.length, requestPeriod, billingContextId })
 
@@ -248,4 +256,5 @@ module.exports = {
     sendResidentsNoAccountNotifications,
     sendResidentsNoAccountNotificationsForPeriod,
     makeMessageKey,
+    INVALID_CONTEXT_PROVIDED_ERROR,
 }

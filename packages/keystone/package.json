@@ -3,7 +3,13 @@
   "version": "1.0.0",
   "main": "./index.js",
   "exports": {
-    "./": "./"
+    "./fields": "./fields/index.js",
+    "./logging": "./logging/index.js",
+    "./plugins": "./plugins/index.js",
+    "./plugins/utils": "./plugins/utils/index.js",
+    "./plugins/utils/address-service-client": "./plugins/utils/address-service-client/index.js",
+    "./preprocessors": "./preprocessors/index.js",
+    "./*": "./*.js"
   },
   "dependencies": {
     "@apollo/client": "3.3.20",
@@ -45,11 +51,11 @@
     "ensure-error": "^3.0.1",
     "express": "^4.17.1",
     "express-session": "^1.17.2",
-    "faker": "^5.5.3",
     "falsey": "^1.0.0",
     "form-data": "^4.0.0",
     "graphql": "^15.6.1",
     "graphql-tag": "^2.12.6",
+    "hot-shots": "^10.0.0",
     "ioredis": "^4.28.5",
     "lodash": "^4.17.21",
     "lru-cache": "^7.18.3",
@@ -65,5 +71,8 @@
     "uuid": "^8.3.0",
     "validator": "^13.7.0"
   },
-  "repository": "https://github.com/open-condo-software/condo/tree/master/packages/keystone"
+  "repository": "https://github.com/open-condo-software/condo/tree/master/packages/keystone",
+  "devDependencies": {
+    "babel-jest": "^29.4.0"
+  }
 }

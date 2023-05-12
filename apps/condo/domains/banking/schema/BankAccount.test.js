@@ -4,7 +4,14 @@
 
 const { pick } = require('lodash')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowValidationFailureError, UUID_RE } = require('@open-condo/keystone/test.utils')
+const {
+    makeClient,
+    makeLoggedInAdminClient,
+    UUID_RE,
+    expectToThrowValidationFailureError,
+    expectToThrowUniqueConstraintViolationError,
+    expectValuesOfCommonFields,
+} = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, catchErrorFrom,
@@ -19,8 +26,11 @@ const {
     createTestBankIntegrationAccountContext,
     createTestBankIntegrationOrganizationContext,
 } = require('@condo/domains/banking/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const {
+    createTestOrganization,
+    createTestOrganizationEmployee,
+    createTestOrganizationEmployeeRole,
+} = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -52,43 +62,46 @@ describe('BankAccount', () => {
             test('admin can', async () => {
                 const [organization] = await createTestOrganization(adminClient)
                 const [bankIntegrationAccountContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
-                const [objCreated] = await createTestBankAccount(adminClient, organization, {
+                const [obj, attrs] = await createTestBankAccount(adminClient, organization, {
                     integrationContext: { connect: { id: bankIntegrationAccountContext.id } },
                 })
 
-                expect(objCreated.organization.id).toEqual(organization.id)
-                expect(objCreated.tin).toBeDefined()
-                expect(objCreated.country).toEqual('ru')
-                expect(objCreated.routingNumber).toBeDefined()
-                expect(objCreated.number).toBeDefined()
-                expect(objCreated.currencyCode).toEqual('RUB')
-                expect(objCreated.integrationContext).toMatchObject(pick(bankIntegrationAccountContext, ['id', 'enabled']))
+                expectValuesOfCommonFields(obj, attrs, adminClient)
+                expect(obj.organization.id).toEqual(organization.id)
+                expect(obj.tin).toBeDefined()
+                expect(obj.country).toEqual('ru')
+                expect(obj.routingNumber).toBeDefined()
+                expect(obj.number).toBeDefined()
+                expect(obj.currencyCode).toEqual('RUB')
+                expect(obj.integrationContext).toMatchObject(pick(bankIntegrationAccountContext, ['id', 'enabled']))
             })
 
             test('support can', async () => {
                 const [organization] = await createTestOrganization(supportClient)
-                const [bankAccount] = await createTestBankAccount(supportClient, organization)
+                const [obj, attrs] = await createTestBankAccount(supportClient, organization)
 
-                expect(bankAccount.organization.id).toEqual(organization.id)
-                expect(bankAccount.tin).toBeDefined()
-                expect(bankAccount.country).toEqual('ru')
-                expect(bankAccount.routingNumber).toBeDefined()
-                expect(bankAccount.number).toBeDefined()
-                expect(bankAccount.currencyCode).toEqual('RUB')
+                expectValuesOfCommonFields(obj, attrs, supportClient)
+                expect(obj.organization.id).toEqual(organization.id)
+                expect(obj.tin).toBeDefined()
+                expect(obj.country).toEqual('ru')
+                expect(obj.routingNumber).toBeDefined()
+                expect(obj.number).toBeDefined()
+                expect(obj.currencyCode).toEqual('RUB')
             })
 
             test('service can if organization have context', async () => {
                 const [organization] = await createTestOrganization(adminClient)
                 await createTestBankIntegrationOrganizationContext(adminClient, SBBOLBankIntegration, organization)
 
-                const [bankAccount] = await createTestBankAccount(serviceClient, organization)
+                const [obj, attrs] = await createTestBankAccount(serviceClient, organization)
 
-                expect(bankAccount.organization.id).toEqual(organization.id)
-                expect(bankAccount.tin).toBeDefined()
-                expect(bankAccount.country).toEqual('ru')
-                expect(bankAccount.routingNumber).toBeDefined()
-                expect(bankAccount.number).toBeDefined()
-                expect(bankAccount.currencyCode).toEqual('RUB')
+                expectValuesOfCommonFields(obj, attrs, serviceClient)
+                expect(obj.organization.id).toEqual(organization.id)
+                expect(obj.tin).toBeDefined()
+                expect(obj.country).toEqual('ru')
+                expect(obj.routingNumber).toBeDefined()
+                expect(obj.number).toBeDefined()
+                expect(obj.currencyCode).toEqual('RUB')
             })
 
             test('service can\'t if organization does not have context', async () => {
@@ -120,14 +133,15 @@ describe('BankAccount', () => {
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
                 const [bankIntegrationContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
 
-                const [objCreated, attrs] = await createTestBankAccount(userClient, organization, {
+                const [obj, attrs] = await createTestBankAccount(userClient, organization, {
                     integrationContext: { connect: { id: bankIntegrationContext.id } },
                 })
 
-                expect(objCreated.id).toMatch(UUID_RE)
-                expect(objCreated.dv).toEqual(1)
-                expect(objCreated.sender).toEqual(attrs.sender)
-                expect(objCreated.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
+                expectValuesOfCommonFields(obj, attrs, userClient)
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
             })
 
             test('anonymous can\'t', async () => {
@@ -521,18 +535,13 @@ describe('BankAccount', () => {
 
             const [bankAccount] = await createTestBankAccount(adminClient, organization)
 
-            await catchErrorFrom(
-                async () => {
-                    await createTestBankAccount(adminClient, organization, {
-                        tin: bankAccount.tin,
-                        routingNumber: bankAccount.routingNumber,
-                        number: bankAccount.number,
-                    })
-                }, (e) => {
-                    const msg = e.errors[0].message
-                    expect(msg).toContain('duplicate key value violates unique constraint')
-                }
-            )
+            await expectToThrowUniqueConstraintViolationError(async () => {
+                await createTestBankAccount(adminClient, organization, {
+                    tin: bankAccount.tin,
+                    routingNumber: bankAccount.routingNumber,
+                    number: bankAccount.number,
+                })
+            }, 'Bank_account_unique_organization_tin_routingNumber_number')
         })
 
         test('can delete and then create another BankAccount with same requisites', async () => {

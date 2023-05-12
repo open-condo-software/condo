@@ -2,8 +2,9 @@
  * @jest-environment node
  */
 const index = require('@app/condo/index')
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
+const conf = require('@open-condo/config')
 const {
     setFakeClientMode,
     makeLoggedInAdminClient,
@@ -25,6 +26,14 @@ const {
 const {
     createTestRecurrentPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE_TYPE,
+} = require('@condo/domains/notification/constants/constants')
+const {
+    Message,
+} = require('@condo/domains/notification/utils/serverSchema')
 
 const {
     chargeByRecurrentPaymentAndPaymentAdapter,
@@ -32,7 +41,7 @@ const {
 
 const { keystone } = index
 
-describe('recurrent-payment-processing', () => {
+describe('charge-recurrent-payments', () => {
     let adminContext
     setFakeClientMode(index)
 
@@ -102,7 +111,30 @@ describe('recurrent-payment-processing', () => {
             expect(result.status).toEqual(RECURRENT_PAYMENT_DONE_STATUS)
             expect(result.tryCount).toEqual(recurrentPayment.tryCount + 1)
 
-            // todo assert notifications are sent
+            const notification = await Message.getOne(adminContext, {
+                type: RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
+                uniqKey: `rp_${recurrentPayment.id}_1_true`,
+            })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                recurrentPaymentId: recurrentPayment.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/`,
+            })
         })
 
         it('shouldn\'t pay - card not valid', async () => {
@@ -134,6 +166,33 @@ describe('recurrent-payment-processing', () => {
             expect(result.state).toMatchObject({
                 errorCode: RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
                 errorMessage: `Provided card token id is not valid ${cardId}`,
+            })
+
+            const notification = await Message.getOne(adminContext, {
+                type: RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE_TYPE,
+                uniqKey: `rp_${recurrentPayment.id}_1_false`,
+            })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+            expect(notification.meta.data).toHaveProperty('errorCode')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                recurrentPaymentId: recurrentPayment.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                errorCode: RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+                url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}/`,
             })
         })
 
@@ -172,6 +231,33 @@ describe('recurrent-payment-processing', () => {
             expect(result.state).toMatchObject({
                 errorCode,
                 errorMessage,
+            })
+
+            const notification = await Message.getOne(adminContext, {
+                type: RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE_TYPE,
+                uniqKey: `rp_${recurrentPayment.id}_1_false`,
+            })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+            expect(notification.meta.data).toHaveProperty('errorCode')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                recurrentPaymentId: recurrentPayment.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                errorCode,
+                url: `${conf.SERVER_URL}/payments/`,
             })
         })
     })

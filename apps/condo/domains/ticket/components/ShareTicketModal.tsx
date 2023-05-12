@@ -16,7 +16,7 @@ import { Send } from '@open-condo/icons'
 import { Organization } from '@open-condo/keystone/schema'
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { Modal, Button } from '@open-condo/ui'
+import { Button, Modal, Typography } from '@open-condo/ui'
 
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
@@ -61,24 +61,6 @@ const collapse = css`
   & .ant-collapse-content > .ant-collapse-content-box {
     padding: 0 19px 22px;
   }
-
-  & .ant-select-multiple .ant-select-selection-item {
-    background: ${colors.white};
-    font-size: 12px;
-  }
-
-  & .ant-select-multiple.ant-select-lg .ant-select-selection-item {
-    line-height: 20px;
-    height: 20px;
-    border: none;
-  }
-
-  & .ant-select-item-option-content,
-  & .ant-select-item,
-  & .ant-select-show-search.ant-select:not(.ant-select-customize-input) .ant-select-selector input {
-    font-size: 12px;
-  }
-
 `
 
 const search = css`
@@ -261,6 +243,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
 
     function handleCancel () {
         setShareVisible(false)
+        setOkVisible(false)
     }
 
     function handleShow () {
@@ -300,7 +283,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                 onCancel={handleCancel}
                 title={ShareSentMessage}
             >
-                {ShareSentToEmailMessage}
+                <Typography.Paragraph type='secondary'>{ShareSentToEmailMessage}</Typography.Paragraph>
             </Modal>
             <Modal
                 open={shareVisible}
@@ -357,13 +340,15 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                                 }
                                 {
                                     !isEmpty(chosenEmployees) &&
-                                    <Button
-                                        type='primary'
-                                        onClick={handleClick}
-                                        disabled={loading}
-                                    >
-                                        {SendTicketToEmailMessage}
-                                    </Button>
+                                    <div style={{ marginTop: '20px' }}>
+                                        <Button
+                                            type='primary'
+                                            onClick={handleClick}
+                                            disabled={loading}
+                                        >
+                                            {SendTicketToEmailMessage}
+                                        </Button>
+                                    </div>
                                 }
                             </Collapse.Panel>
                         </Collapse>

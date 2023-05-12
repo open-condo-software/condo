@@ -150,6 +150,7 @@ export const useCategoryModal: IUseCategoryModal = ({
                 open
                 onCancel={closeModal}
                 width='big'
+                scrollX={false}
                 footer={<Button
                     type='primary'
                     disabled={isNull(selectedCostItem) || loading}
@@ -185,8 +186,14 @@ export const useCategoryModal: IUseCategoryModal = ({
                             ) : (
                                 <RadioGroup
                                     onChange={onGroupChange}
-                                    groups={bankCostItemGroups}
-                                />
+                                >
+                                    {bankCostItemGroups.map((group, index) => (
+                                        <RadioGroup.ItemGroup
+                                            key={`${group.name}-${index}`}
+                                            {...group}
+                                        />
+                                    ))}
+                                </RadioGroup>
                             )}
                         </Space>
                     </Col>

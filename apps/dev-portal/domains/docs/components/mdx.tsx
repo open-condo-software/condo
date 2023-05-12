@@ -1,9 +1,11 @@
-import { Link } from 'domains/docs/components/Link'
 import omit from 'lodash/omit'
 import React from 'react'
 
+import { Typography, MarkdownCodeWrapper } from '@open-condo/ui'
 
-import { Typography, Alert, MarkdownCodeWrapper } from '@open-condo/ui'
+import { Alert } from '@/domains/docs/components/Alert'
+import { Link } from '@/domains/docs/components/Link'
+import { Tabs } from '@/domains/docs/components/Tabs'
 
 import type{ MDXComponents } from 'mdx/types'
 
@@ -14,9 +16,10 @@ export const MDXMapping: MDXComponents = {
     h4: (props) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
     h5: (props) => <Typography.Title {...omit(props, 'ref')} level={5}/>,
     h6: (props) => <Typography.Title {...omit(props, 'ref')} level={6}/>,
-    p: (props) => <Typography.Paragraph {...omit(props, 'ref')} type='secondary'/>,
-    li: ({ children, ...restProps }) => <li {...restProps}><Typography.Text type='secondary'>{children}</Typography.Text></li>,
+    p: (props) => <Typography.Paragraph {...omit(props, 'ref')} type='inherit'/>,
+    li: ({ children, ...restProps }) => <li {...restProps}><Typography.Text type='inherit'>{children}</Typography.Text></li>,
     pre: (props) => <MarkdownCodeWrapper {...props}/>,
     a: (props) => <Link {...props}/>,
     Alert,
+    Tabs,
 }

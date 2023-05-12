@@ -1,12 +1,13 @@
 import { BankAccountReport as BankAccountReportType } from '@app/condo/schema'
 import find from 'lodash/find'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
 import { useRouter } from 'next/router'
-import React, { useCallback, useRef, useState, useEffect } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Select, Option, Typography } from '@open-condo/ui'
+import { Select, Typography } from '@open-condo/ui'
 
 import { BankAccountReport } from '@condo/domains/banking/utils/clientSchema'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
@@ -17,10 +18,15 @@ enum BankAccountVisibility {
 }
 
 interface IBankAccountVisibilitySelect {
-    ({ bankAccountReports }: { bankAccountReports: Array<BankAccountReportType> }): React.ReactElement
+    ({ bankAccountReports, refetch }: {
+        bankAccountReports: Array<BankAccountReportType>,
+        refetch: () => void
+    }): React.ReactElement
 }
 
-export const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bankAccountReports }) => {
+const transformVisibilityValue = (value: BankAccountReportType['publishedAt']) => Number(!isNull(value))
+
+const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bankAccountReports, refetch }) => {
     const intl = useIntl()
     const ReportVisibleTitle = intl.formatMessage({ id: 'pages.condo.property.report.visibility.visible' })
     const ReportHiddenTitle = intl.formatMessage({ id: 'pages.condo.property.report.visibility.hidden' })
@@ -35,22 +41,23 @@ export const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bank
     const accountVisibility = get(selectedBankAccount, 'publishedAt', null)
 
     const [isUpdating, setIsUpdating] = useState(false)
-    const reportVisibleRef = useRef<BankAccountVisibility>(Number(!isNull(accountVisibility)))
+    const [isReportVisible, setIsReportVisible] = useState<BankAccountVisibility>(transformVisibilityValue(accountVisibility))
 
     const updateBankAccountReport = BankAccountReport.useUpdate({}, (result) => {
-        reportVisibleRef.current = Number(!isNull(result.publishedAt))
+        setIsReportVisible(transformVisibilityValue(result.publishedAt))
+        refetch()
         setIsUpdating(false)
     })
 
     useEffect(() => {
-        reportVisibleRef.current = Number(!isNull(accountVisibility))
+        setIsReportVisible(transformVisibilityValue(accountVisibility))
     }, [accountVisibility])
 
     const handleChange = useCallback((value) => {
         if (selectedBankAccount) {
             setIsUpdating(true)
 
-            const publishedAt = reportVisibleRef.current === BankAccountVisibility.hidden
+            const publishedAt = isReportVisible === BankAccountVisibility.hidden
                 ? new Date().toISOString()
                 : null
 
@@ -65,25 +72,38 @@ export const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bank
                 }),
             })
         }
-    }, [intl, updateBankAccountReport, selectedBankAccount, OperationCompletedTitle, ReportVisibleDescription, ReportHiddenDescription])
+    }, [intl, updateBankAccountReport, selectedBankAccount, OperationCompletedTitle, ReportVisibleDescription, ReportHiddenDescription, isReportVisible])
+
+    if (isEmpty(bankAccountReports)) {
+        return null
+    }
 
     return (
         <Select
-            value={reportVisibleRef.current}
+            value={isReportVisible}
             onChange={handleChange}
             disabled={isUpdating}
-            type={reportVisibleRef.current ? 'success' : 'danger'}
-        >
-            <Option value={BankAccountVisibility.visible} hidden={reportVisibleRef.current}>
-                <Typography.Text type='success'>
-                    {ReportVisibleTitle}
-                </Typography.Text>
-            </Option>
-            <Option value={BankAccountVisibility.hidden} hidden={!reportVisibleRef.current}>
-                <Typography.Text type='danger'>
-                    {ReportHiddenTitle}
-                </Typography.Text>
-            </Option>
-        </Select>
+            type={isReportVisible ? 'success' : 'danger'}
+            options={[
+                {
+                    value: BankAccountVisibility.visible,
+                    label: ReportVisibleTitle,
+                    textType: 'success',
+                    hidden: !!isReportVisible,
+                },
+                {
+                    value: BankAccountVisibility.hidden,
+                    label: ReportHiddenTitle,
+                    textType: 'danger',
+                    hidden: !isReportVisible,
+                },
+            ]}
+        />
     )
+}
+
+const MemoizedComponent = React.memo(BankAccountVisibilitySelect)
+
+export {
+    MemoizedComponent as BankAccountVisibilitySelect,
 }

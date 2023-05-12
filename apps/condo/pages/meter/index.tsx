@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { DiffOutlined, FilterFilled } from '@ant-design/icons'
+import { FilterFilled } from '@ant-design/icons'
 import { SortMeterReadingsBy } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Col, Row, Typography } from 'antd'
@@ -10,11 +10,12 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
+import { FileDown, Filter } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Button } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
 import {
     PageHeader,
     PageWrapper,
@@ -65,6 +66,7 @@ export const MetersPageContent = ({
     const MeterReadingImportObjectsNameManyGenitive = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many.genitive' })
     const MeterAccountNumberExistInOtherUnitMessage = intl.formatMessage({ id: 'meter.import.error.MeterAccountNumberExistInOtherUnit' })
     const MeterNumberExistInOrganizationMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberExistInOrganization' })
+    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
@@ -113,6 +115,8 @@ export const MetersPageContent = ({
         [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: MeterNumberExistInOrganizationMessage,
     }), [MeterAccountNumberExistInOtherUnitMessage, MeterNumberExistInOrganizationMessage])
 
+    const exampleTemplateLink = useMemo(() => `/meter-import-example-${intl.locale}.xlsx`, [intl.locale])
+
     return (
         <>
             <Head>
@@ -139,13 +143,12 @@ export const MetersPageContent = ({
                                 rowValidator={meterReadingValidator}
                                 objectCreator={meterReadingCreator}
                                 domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                exampleTemplateLink='/meter-import-example.xlsx'
+                                exampleTemplateLink={exampleTemplateLink}
                                 mutationErrorsToMessages={mutationErrorsToMessages}
                             >
                                 <Button
-                                    type='sberPrimary'
-                                    icon={<DiffOutlined />}
-                                    secondary
+                                    type='secondary'
+                                    icon={<FileDown size='medium' />}
                                 />
                             </ImportWrapper>
                         )}
@@ -179,43 +182,17 @@ export const MetersPageContent = ({
                                                     </Col>
                                                 ) : null
                                             }
-                                            {
-                                                canManageMeterReadings && (
-                                                    <Col>
-                                                        <ImportWrapper
-                                                            objectsName={MeterReadingImportObjectsName}
-                                                            accessCheck={canManageMeterReadings}
-                                                            onFinish={refetch}
-                                                            columns={columns}
-                                                            maxTableLength={hasFeature('bigger_limit_for_import') ?
-                                                                EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                                                DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                                                            }
-                                                            rowNormalizer={meterReadingNormalizer}
-                                                            rowValidator={meterReadingValidator}
-                                                            objectCreator={meterReadingCreator}
-                                                            domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                                            exampleTemplateLink='/meter-import-example.xlsx'
-                                                            mutationErrorsToMessages={mutationErrorsToMessages}
-                                                        >
-                                                            <Button
-                                                                type='sberPrimary'
-                                                                icon={<DiffOutlined />}
-                                                                secondary
-                                                            />
-                                                        </ImportWrapper>
-                                                    </Col>
-                                                )
-                                            }
                                             <Col>
                                                 <Button
-                                                    secondary
-                                                    type='sberPrimary'
+                                                    type='secondary'
                                                     onClick={handleMultipleFiltersButtonClick}
+                                                    icon={<Filter size='medium'/>}
                                                 >
-                                                    <FilterFilled/>
-                                                    {FiltersButtonLabel}
-                                                    {appliedFiltersCount > 0 ? ` (${appliedFiltersCount})` : null}
+                                                    {
+                                                        appliedFiltersCount > 0 ?
+                                                            `${FiltersButtonLabel} (${appliedFiltersCount})`
+                                                            : FiltersButtonLabel
+                                                    }
                                                 </Button>
                                             </Col>
                                         </Row>
@@ -232,12 +209,42 @@ export const MetersPageContent = ({
                                 onRow={handleRowAction}
                             />
                         </Col>
-                        <ExportToExcelActionBar
-                            hidden={!breakpoints.TABLET_LARGE}
-                            searchObjectsQuery={searchMeterReadingsQuery}
-                            exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
-                            sortBy={sortBy}
-                        />
+                        <Col span={24}>
+                            <ExportToExcelActionBar
+                                hidden={!breakpoints.TABLET_LARGE}
+                                searchObjectsQuery={searchMeterReadingsQuery}
+                                exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
+                                sortBy={sortBy}
+                                actions={[
+                                    canManageMeterReadings && (
+                                        <ImportWrapper
+                                            key='import'
+                                            objectsName={MeterReadingImportObjectsName}
+                                            accessCheck={canManageMeterReadings}
+                                            onFinish={refetch}
+                                            columns={columns}
+                                            maxTableLength={hasFeature('bigger_limit_for_import') ?
+                                                EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
+                                                DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                                            }
+                                            rowNormalizer={meterReadingNormalizer}
+                                            rowValidator={meterReadingValidator}
+                                            objectCreator={meterReadingCreator}
+                                            domainTranslate={MeterReadingImportObjectsNameManyGenitive}
+                                            exampleTemplateLink={exampleTemplateLink}
+                                            mutationErrorsToMessages={mutationErrorsToMessages}
+                                        >
+                                            <Button
+                                                type='secondary'
+                                                icon={<FileDown size='medium' />}
+                                            >
+                                                {ImportButtonMessage}
+                                            </Button>
+                                        </ImportWrapper>
+                                    ),
+                                ]}
+                            />
+                        </Col>
                     </Row>
                     <UpdateMeterModal />
                     <MultipleFiltersModal />

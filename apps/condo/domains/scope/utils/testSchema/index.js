@@ -3,7 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const { PropertyScope: PropertyScopeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeOrganizationEmployee: PropertyScopeOrganizationEmployeeGQL } = require('@condo/domains/scope/gql')

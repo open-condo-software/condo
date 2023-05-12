@@ -3,7 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const isEmpty = require('lodash/isEmpty')
 const sample = require('lodash/sample')
 const get = require('lodash/get')

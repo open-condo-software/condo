@@ -1,7 +1,6 @@
-import { Montserrat } from '@next/font/google'
 import { Layout, Dropdown } from 'antd'
 import { setCookie } from 'cookies-next'
-import { LOCALES } from 'domains/common/constants/locales'
+import { Montserrat } from 'next/font/google'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -11,6 +10,8 @@ import { useIntl } from 'react-intl'
 import { Globe } from '@open-condo/icons'
 import { Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
+
+import { LOCALES } from '@/domains/common/constants/locales'
 
 import styles from './Header.module.css'
 
