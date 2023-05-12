@@ -1,7 +1,10 @@
 const get = require('lodash/get')
 
-const { getMessageOptions } = require('@condo/domains/notification/helpers')
-const { NotificationUserSetting } = require('@condo/domains/notification/utils/serverSchema')
+const {
+    MESSAGE_DELIVERY_OPTIONS,
+    DEFAULT_MESSAGE_DELIVERY_OPTIONS,
+} = require('@condo/domains/notification/constants/constants')
+const { NotificationUserSetting } = require('@condo/domains/notification/utils/serverSchema/index')
 
 // Settings priorities
 // The highest number is the most prioritized value
@@ -75,4 +78,21 @@ async function getUserSettingsForMessage (context, message) {
     return userTransportSettings
 }
 
-module.exports = { getUserSettingsForMessage }
+/**
+ * Extends DEFAULT_MESSAGE_DELIVERY_OPTIONS with MESSAGE_DELIVERY_OPTIONS[type] if available
+ * @param type
+ * @returns {{isVoIP: boolean, transports: string[], strategy: string}}
+ */
+function getMessageOptions (type) {
+    const { strategy, defaultTransports, isVoIP } = {
+        ...DEFAULT_MESSAGE_DELIVERY_OPTIONS,
+        ...get(MESSAGE_DELIVERY_OPTIONS, type, {}),
+    }
+
+    return { strategy, transports: defaultTransports, isVoIP }
+}
+
+module.exports = {
+    getUserSettingsForMessage,
+    getMessageOptions,
+}

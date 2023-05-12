@@ -35804,6 +35804,65 @@ input NotificationUserSettingHistoryRecordsCreateInput {
   data: NotificationUserSettingHistoryRecordCreateInput
 }
 
+enum NotificationUserSettingMessageTypeType {
+  INVITE_NEW_EMPLOYEE
+  SHARE_TICKET
+  BANK_ACCOUNT_CREATION_REQUEST
+  DIRTY_INVITE_NEW_EMPLOYEE_SMS
+  DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
+  REGISTER_NEW_USER
+  RESET_PASSWORD
+  SMS_VERIFY
+  DEVELOPER_IMPORTANT_NOTE_TYPE
+  CUSTOMER_IMPORTANT_NOTE_TYPE
+  MESSAGE_FORWARDED_TO_SUPPORT
+  TICKET_ASSIGNEE_CONNECTED
+  TICKET_EXECUTOR_CONNECTED
+  TRACK_TICKET_IN_DOMA_APP
+  TICKET_STATUS_OPENED
+  TICKET_STATUS_IN_PROGRESS
+  TICKET_STATUS_COMPLETED
+  TICKET_STATUS_RETURNED
+  TICKET_STATUS_DECLINED
+  TICKET_COMMENT_ADDED
+  METER_VERIFICATION_DATE_REMINDER
+  RESIDENT_ADD_BILLING_ACCOUNT
+  BILLING_RECEIPT_AVAILABLE
+  BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT
+  BILLING_RECEIPT_CATEGORY_AVAILABLE
+  BILLING_RECEIPT_ADDED
+  BILLING_RECEIPT_ADDED_WITH_DEBT
+  BILLING_RECEIPT_ADDED_WITH_NO_DEBT
+  METER_SUBMIT_READINGS_REMINDER
+  METER_VERIFICATION_DATE_EXPIRED
+  RESIDENT_UPGRADE_APP
+  STAFF_UPGRADE_APP
+  CUSTOM_CONTENT_MESSAGE_PUSH
+  CUSTOM_CONTENT_MESSAGE_EMAIL
+  CUSTOM_CONTENT_MESSAGE_SMS
+  VOIP_INCOMING_CALL_MESSAGE
+  B2C_APP_MESSAGE_PUSH
+  RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE
+  RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE
+  NEWS_ITEM_COMMON_MESSAGE_TYPE
+  NEWS_ITEM_EMERGENCY_MESSAGE_TYPE
+}
+
+enum NotificationUserSettingMessageTransportType {
+  sms
+  email
+  telegram
+  push
+}
+
 """ User controlled notifications settings """
 type NotificationUserSetting {
   """
@@ -35818,11 +35877,13 @@ type NotificationUserSetting {
   """ The user the settings will apply for """
   user: User
 
-  """ Affected message type """
-  messageType: String
+  """ Affected message type. Possible values are: INVITE_NEW_EMPLOYEE,SHARE_TICKET,BANK_ACCOUNT_CREATION_REQUEST,DIRTY_INVITE_NEW_EMPLOYEE_SMS,DIRTY_INVITE_NEW_EMPLOYEE_EMAIL,REGISTER_NEW_USER,RESET_PASSWORD,SMS_VERIFY,DEVELOPER_IMPORTANT_NOTE_TYPE,CUSTOMER_IMPORTANT_NOTE_TYPE,MESSAGE_FORWARDED_TO_SUPPORT,TICKET_ASSIGNEE_CONNECTED,TICKET_EXECUTOR_CONNECTED,TRACK_TICKET_IN_DOMA_APP,TICKET_STATUS_OPENED,TICKET_STATUS_IN_PROGRESS,TICKET_STATUS_COMPLETED,TICKET_STATUS_RETURNED,TICKET_STATUS_DECLINED,TICKET_COMMENT_ADDED,METER_VERIFICATION_DATE_REMINDER,RESIDENT_ADD_BILLING_ACCOUNT,BILLING_RECEIPT_AVAILABLE,BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT,BILLING_RECEIPT_CATEGORY_AVAILABLE,BILLING_RECEIPT_ADDED,BILLING_RECEIPT_ADDED_WITH_DEBT,BILLING_RECEIPT_ADDED_WITH_NO_DEBT,METER_SUBMIT_READINGS_REMINDER,METER_VERIFICATION_DATE_EXPIRED,RESIDENT_UPGRADE_APP,STAFF_UPGRADE_APP,CUSTOM_CONTENT_MESSAGE_PUSH,CUSTOM_CONTENT_MESSAGE_EMAIL,CUSTOM_CONTENT_MESSAGE_SMS,VOIP_INCOMING_CALL_MESSAGE,B2C_APP_MESSAGE_PUSH,RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE,NEWS_ITEM_COMMON_MESSAGE_TYPE,NEWS_ITEM_EMERGENCY_MESSAGE_TYPE 
+  """
+  messageType: NotificationUserSettingMessageTypeType
 
-  """ Affected message transport """
-  messageTransport: String
+  """ Affected message transport. Possible values are: sms,email,telegram,push 
+  """
+  messageTransport: NotificationUserSettingMessageTransportType
 
   """ Is notification enabled """
   isEnabled: Boolean
@@ -35854,42 +35915,14 @@ input NotificationUserSettingWhereInput {
   OR: [NotificationUserSettingWhereInput]
   user: UserWhereInput
   user_is_null: Boolean
-  messageType: String
-  messageType_not: String
-  messageType_contains: String
-  messageType_not_contains: String
-  messageType_starts_with: String
-  messageType_not_starts_with: String
-  messageType_ends_with: String
-  messageType_not_ends_with: String
-  messageType_i: String
-  messageType_not_i: String
-  messageType_contains_i: String
-  messageType_not_contains_i: String
-  messageType_starts_with_i: String
-  messageType_not_starts_with_i: String
-  messageType_ends_with_i: String
-  messageType_not_ends_with_i: String
-  messageType_in: [String]
-  messageType_not_in: [String]
-  messageTransport: String
-  messageTransport_not: String
-  messageTransport_contains: String
-  messageTransport_not_contains: String
-  messageTransport_starts_with: String
-  messageTransport_not_starts_with: String
-  messageTransport_ends_with: String
-  messageTransport_not_ends_with: String
-  messageTransport_i: String
-  messageTransport_not_i: String
-  messageTransport_contains_i: String
-  messageTransport_not_contains_i: String
-  messageTransport_starts_with_i: String
-  messageTransport_not_starts_with_i: String
-  messageTransport_ends_with_i: String
-  messageTransport_not_ends_with_i: String
-  messageTransport_in: [String]
-  messageTransport_not_in: [String]
+  messageType: NotificationUserSettingMessageTypeType
+  messageType_not: NotificationUserSettingMessageTypeType
+  messageType_in: [NotificationUserSettingMessageTypeType]
+  messageType_not_in: [NotificationUserSettingMessageTypeType]
+  messageTransport: NotificationUserSettingMessageTransportType
+  messageTransport_not: NotificationUserSettingMessageTransportType
+  messageTransport_in: [NotificationUserSettingMessageTransportType]
+  messageTransport_not_in: [NotificationUserSettingMessageTransportType]
   isEnabled: Boolean
   isEnabled_not: Boolean
   id: ID
@@ -35983,8 +36016,8 @@ enum SortNotificationUserSettingsBy {
 
 input NotificationUserSettingUpdateInput {
   user: UserRelateToOneInput
-  messageType: String
-  messageTransport: String
+  messageType: NotificationUserSettingMessageTypeType
+  messageTransport: NotificationUserSettingMessageTransportType
   isEnabled: Boolean
   v: Int
   createdAt: String
@@ -36004,8 +36037,8 @@ input NotificationUserSettingsUpdateInput {
 
 input NotificationUserSettingCreateInput {
   user: UserRelateToOneInput
-  messageType: String
-  messageTransport: String
+  messageType: NotificationUserSettingMessageTypeType
+  messageTransport: NotificationUserSettingMessageTransportType
   isEnabled: Boolean
   v: Int
   createdAt: String

@@ -13,7 +13,7 @@ const {
 const { createTestNotificationUserSetting, createTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 
-const { getUserSettingsForMessage } = require('./userSettingsHelpers')
+const { getUserSettingsForMessage } = require('./helpers')
 
 const { keystone } = index
 

@@ -20,8 +20,6 @@ const {
     MESSAGE_DISABLED_BY_USER_STATUS,
     MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT,
 } = require('@condo/domains/notification/constants/constants')
-const { getMessageOptions } = require('@condo/domains/notification/helpers')
-const { getUserSettingsForMessage } = require('@condo/domains/notification/helpers/userSettingsHelpers')
 const emailAdapter = require('@condo/domains/notification/transports/email')
 const pushAdapter = require('@condo/domains/notification/transports/push')
 const smsAdapter = require('@condo/domains/notification/transports/sms')
@@ -29,6 +27,10 @@ const {
     Message,
     checkMessageTypeInBlackList,
 } = require('@condo/domains/notification/utils/serverSchema')
+const {
+    getUserSettingsForMessage,
+    getMessageOptions,
+} = require('@condo/domains/notification/utils/serverSchema/helpers')
 
 const SEND_TO_CONSOLE = `${conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE}`.toLowerCase() === 'true' || false
 const DISABLE_LOGGING = `${conf.NOTIFICATION__DISABLE_LOGGING}`.toLowerCase() === 'true' || false
@@ -136,22 +138,23 @@ async function deliverMessage (messageId) {
             const isAllowed = get(userTransportSettings, transport)
             if (isAllowed === false) {
                 transportMeta.status = MESSAGE_DISABLED_BY_USER_STATUS
-                logger.info({ msg: 'Message disabled by user', messageId, transportMeta, processingMeta })
-            } else {
-                const adapter = TRANSPORT_ADAPTERS[transport]
-                // NOTE: Renderer will throw here, if it doesn't have template/support for required transport type.
-                const messageContext = await adapter.prepareMessageToSend(message)
-
-                processingMeta.messageContext = messageContext
-                transportMeta.messageContext = messageContext
-                processingMeta.transports.push(transport)
-
-                const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
-                transportMeta.deliveryMetadata = deliveryMetadata
-                transportMeta.status = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
-                processingMeta.step = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
-                successCnt += isOk ? 1 : 0
+                continue
             }
+
+            const adapter = TRANSPORT_ADAPTERS[transport]
+            // NOTE: Renderer will throw here, if it doesn't have template/support for required transport type.
+            const messageContext = await adapter.prepareMessageToSend(message)
+
+            processingMeta.messageContext = messageContext
+            transportMeta.messageContext = messageContext
+            processingMeta.transports.push(transport)
+
+            const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
+            transportMeta.deliveryMetadata = deliveryMetadata
+            transportMeta.status = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
+            processingMeta.step = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
+            successCnt += isOk ? 1 : 0
+
         } catch (error) {
             transportMeta.status = MESSAGE_ERROR_STATUS
             transportMeta.exception = safeFormatError(error, false)

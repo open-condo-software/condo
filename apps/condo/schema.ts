@@ -40326,10 +40326,10 @@ export type NotificationUserSetting = {
   _label_?: Maybe<Scalars['String']>;
   /**  The user the settings will apply for  */
   user?: Maybe<User>;
-  /**  Affected message type  */
-  messageType?: Maybe<Scalars['String']>;
-  /**  Affected message transport  */
-  messageTransport?: Maybe<Scalars['String']>;
+  /**  Affected message type. Possible values are: INVITE_NEW_EMPLOYEE,SHARE_TICKET,BANK_ACCOUNT_CREATION_REQUEST,DIRTY_INVITE_NEW_EMPLOYEE_SMS,DIRTY_INVITE_NEW_EMPLOYEE_EMAIL,REGISTER_NEW_USER,RESET_PASSWORD,SMS_VERIFY,DEVELOPER_IMPORTANT_NOTE_TYPE,CUSTOMER_IMPORTANT_NOTE_TYPE,MESSAGE_FORWARDED_TO_SUPPORT,TICKET_ASSIGNEE_CONNECTED,TICKET_EXECUTOR_CONNECTED,TRACK_TICKET_IN_DOMA_APP,TICKET_STATUS_OPENED,TICKET_STATUS_IN_PROGRESS,TICKET_STATUS_COMPLETED,TICKET_STATUS_RETURNED,TICKET_STATUS_DECLINED,TICKET_COMMENT_ADDED,METER_VERIFICATION_DATE_REMINDER,RESIDENT_ADD_BILLING_ACCOUNT,BILLING_RECEIPT_AVAILABLE,BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT,BILLING_RECEIPT_CATEGORY_AVAILABLE,BILLING_RECEIPT_ADDED,BILLING_RECEIPT_ADDED_WITH_DEBT,BILLING_RECEIPT_ADDED_WITH_NO_DEBT,METER_SUBMIT_READINGS_REMINDER,METER_VERIFICATION_DATE_EXPIRED,RESIDENT_UPGRADE_APP,STAFF_UPGRADE_APP,CUSTOM_CONTENT_MESSAGE_PUSH,CUSTOM_CONTENT_MESSAGE_EMAIL,CUSTOM_CONTENT_MESSAGE_SMS,VOIP_INCOMING_CALL_MESSAGE,B2C_APP_MESSAGE_PUSH,RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE,NEWS_ITEM_COMMON_MESSAGE_TYPE,NEWS_ITEM_EMERGENCY_MESSAGE_TYPE  */
+  messageType?: Maybe<NotificationUserSettingMessageTypeType>;
+  /**  Affected message transport. Possible values are: sms,email,telegram,push  */
+  messageTransport?: Maybe<NotificationUserSettingMessageTransportType>;
   /**  Is notification enabled  */
   isEnabled?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
@@ -40350,8 +40350,8 @@ export type NotificationUserSetting = {
 
 export type NotificationUserSettingCreateInput = {
   user?: Maybe<UserRelateToOneInput>;
-  messageType?: Maybe<Scalars['String']>;
-  messageTransport?: Maybe<Scalars['String']>;
+  messageType?: Maybe<NotificationUserSettingMessageTypeType>;
+  messageTransport?: Maybe<NotificationUserSettingMessageTransportType>;
   isEnabled?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -40574,10 +40574,69 @@ export type NotificationUserSettingHistoryRecordsUpdateInput = {
   data?: Maybe<NotificationUserSettingHistoryRecordUpdateInput>;
 };
 
+export enum NotificationUserSettingMessageTransportType {
+  Sms = 'sms',
+  Email = 'email',
+  Telegram = 'telegram',
+  Push = 'push'
+}
+
+export enum NotificationUserSettingMessageTypeType {
+  InviteNewEmployee = 'INVITE_NEW_EMPLOYEE',
+  ShareTicket = 'SHARE_TICKET',
+  BankAccountCreationRequest = 'BANK_ACCOUNT_CREATION_REQUEST',
+  DirtyInviteNewEmployeeSms = 'DIRTY_INVITE_NEW_EMPLOYEE_SMS',
+  DirtyInviteNewEmployeeEmail = 'DIRTY_INVITE_NEW_EMPLOYEE_EMAIL',
+  RegisterNewUser = 'REGISTER_NEW_USER',
+  ResetPassword = 'RESET_PASSWORD',
+  SmsVerify = 'SMS_VERIFY',
+  DeveloperImportantNoteType = 'DEVELOPER_IMPORTANT_NOTE_TYPE',
+  CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE',
+  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT',
+  TicketAssigneeConnected = 'TICKET_ASSIGNEE_CONNECTED',
+  TicketExecutorConnected = 'TICKET_EXECUTOR_CONNECTED',
+  TrackTicketInDomaApp = 'TRACK_TICKET_IN_DOMA_APP',
+  TicketStatusOpened = 'TICKET_STATUS_OPENED',
+  TicketStatusInProgress = 'TICKET_STATUS_IN_PROGRESS',
+  TicketStatusCompleted = 'TICKET_STATUS_COMPLETED',
+  TicketStatusReturned = 'TICKET_STATUS_RETURNED',
+  TicketStatusDeclined = 'TICKET_STATUS_DECLINED',
+  TicketCommentAdded = 'TICKET_COMMENT_ADDED',
+  MeterVerificationDateReminder = 'METER_VERIFICATION_DATE_REMINDER',
+  ResidentAddBillingAccount = 'RESIDENT_ADD_BILLING_ACCOUNT',
+  BillingReceiptAvailable = 'BILLING_RECEIPT_AVAILABLE',
+  BillingReceiptAvailableNoAccount = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT',
+  BillingReceiptCategoryAvailable = 'BILLING_RECEIPT_CATEGORY_AVAILABLE',
+  BillingReceiptAdded = 'BILLING_RECEIPT_ADDED',
+  BillingReceiptAddedWithDebt = 'BILLING_RECEIPT_ADDED_WITH_DEBT',
+  BillingReceiptAddedWithNoDebt = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT',
+  MeterSubmitReadingsReminder = 'METER_SUBMIT_READINGS_REMINDER',
+  MeterVerificationDateExpired = 'METER_VERIFICATION_DATE_EXPIRED',
+  ResidentUpgradeApp = 'RESIDENT_UPGRADE_APP',
+  StaffUpgradeApp = 'STAFF_UPGRADE_APP',
+  CustomContentMessagePush = 'CUSTOM_CONTENT_MESSAGE_PUSH',
+  CustomContentMessageEmail = 'CUSTOM_CONTENT_MESSAGE_EMAIL',
+  CustomContentMessageSms = 'CUSTOM_CONTENT_MESSAGE_SMS',
+  VoipIncomingCallMessage = 'VOIP_INCOMING_CALL_MESSAGE',
+  B2CAppMessagePush = 'B2C_APP_MESSAGE_PUSH',
+  RecurrentPaymentProceedingSuccessResultMessage = 'RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE',
+  RecurrentPaymentProceedingUnknownErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE',
+  RecurrentPaymentProceedingAcquiringPaymentProceedErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE',
+  RecurrentPaymentProceedingServiceConsumerNotFoundErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE',
+  RecurrentPaymentProceedingLimitExceededErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE',
+  RecurrentPaymentProceedingContextNotFoundErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE',
+  RecurrentPaymentProceedingContextDisabledErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE',
+  RecurrentPaymentProceedingCardTokenNotValidErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE',
+  RecurrentPaymentProceedingCanNotRegisterMultiPaymentErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE',
+  RecurrentPaymentTomorrowPaymentMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE',
+  NewsItemCommonMessageType = 'NEWS_ITEM_COMMON_MESSAGE_TYPE',
+  NewsItemEmergencyMessageType = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE'
+}
+
 export type NotificationUserSettingUpdateInput = {
   user?: Maybe<UserRelateToOneInput>;
-  messageType?: Maybe<Scalars['String']>;
-  messageTransport?: Maybe<Scalars['String']>;
+  messageType?: Maybe<NotificationUserSettingMessageTypeType>;
+  messageTransport?: Maybe<NotificationUserSettingMessageTransportType>;
   isEnabled?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -40595,42 +40654,14 @@ export type NotificationUserSettingWhereInput = {
   OR?: Maybe<Array<Maybe<NotificationUserSettingWhereInput>>>;
   user?: Maybe<UserWhereInput>;
   user_is_null?: Maybe<Scalars['Boolean']>;
-  messageType?: Maybe<Scalars['String']>;
-  messageType_not?: Maybe<Scalars['String']>;
-  messageType_contains?: Maybe<Scalars['String']>;
-  messageType_not_contains?: Maybe<Scalars['String']>;
-  messageType_starts_with?: Maybe<Scalars['String']>;
-  messageType_not_starts_with?: Maybe<Scalars['String']>;
-  messageType_ends_with?: Maybe<Scalars['String']>;
-  messageType_not_ends_with?: Maybe<Scalars['String']>;
-  messageType_i?: Maybe<Scalars['String']>;
-  messageType_not_i?: Maybe<Scalars['String']>;
-  messageType_contains_i?: Maybe<Scalars['String']>;
-  messageType_not_contains_i?: Maybe<Scalars['String']>;
-  messageType_starts_with_i?: Maybe<Scalars['String']>;
-  messageType_not_starts_with_i?: Maybe<Scalars['String']>;
-  messageType_ends_with_i?: Maybe<Scalars['String']>;
-  messageType_not_ends_with_i?: Maybe<Scalars['String']>;
-  messageType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  messageType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  messageTransport?: Maybe<Scalars['String']>;
-  messageTransport_not?: Maybe<Scalars['String']>;
-  messageTransport_contains?: Maybe<Scalars['String']>;
-  messageTransport_not_contains?: Maybe<Scalars['String']>;
-  messageTransport_starts_with?: Maybe<Scalars['String']>;
-  messageTransport_not_starts_with?: Maybe<Scalars['String']>;
-  messageTransport_ends_with?: Maybe<Scalars['String']>;
-  messageTransport_not_ends_with?: Maybe<Scalars['String']>;
-  messageTransport_i?: Maybe<Scalars['String']>;
-  messageTransport_not_i?: Maybe<Scalars['String']>;
-  messageTransport_contains_i?: Maybe<Scalars['String']>;
-  messageTransport_not_contains_i?: Maybe<Scalars['String']>;
-  messageTransport_starts_with_i?: Maybe<Scalars['String']>;
-  messageTransport_not_starts_with_i?: Maybe<Scalars['String']>;
-  messageTransport_ends_with_i?: Maybe<Scalars['String']>;
-  messageTransport_not_ends_with_i?: Maybe<Scalars['String']>;
-  messageTransport_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  messageTransport_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  messageType?: Maybe<NotificationUserSettingMessageTypeType>;
+  messageType_not?: Maybe<NotificationUserSettingMessageTypeType>;
+  messageType_in?: Maybe<Array<Maybe<NotificationUserSettingMessageTypeType>>>;
+  messageType_not_in?: Maybe<Array<Maybe<NotificationUserSettingMessageTypeType>>>;
+  messageTransport?: Maybe<NotificationUserSettingMessageTransportType>;
+  messageTransport_not?: Maybe<NotificationUserSettingMessageTransportType>;
+  messageTransport_in?: Maybe<Array<Maybe<NotificationUserSettingMessageTransportType>>>;
+  messageTransport_not_in?: Maybe<Array<Maybe<NotificationUserSettingMessageTransportType>>>;
   isEnabled?: Maybe<Scalars['Boolean']>;
   isEnabled_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;

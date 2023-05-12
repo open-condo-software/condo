@@ -48,18 +48,18 @@ const NotificationUserSetting = new GQLListSchema('NotificationUserSetting', {
         },
 
         messageType: {
-            schemaDoc: 'Affected message type',
-            adminDoc: 'See apps/condo/domains/notification/constants/constants.js:MESSAGE_TYPES for possible values',
-            type: 'Text',
+            schemaDoc: `Affected message type. Possible values are: ${MESSAGE_TYPES.join(',')}`,
+            type: 'Select',
+            options: MESSAGE_TYPES,
             isRequired: false,
             knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true },
+            kmigratorOptions: { null: true, max_length: 100 },
         },
 
         messageTransport: {
-            schemaDoc: 'Affected message transport',
-            adminDoc: `Possible values are: ${MESSAGE_TRANSPORTS.join(',')}`,
-            type: 'Text',
+            schemaDoc: `Affected message transport. Possible values are: ${MESSAGE_TRANSPORTS.join(',')}`,
+            type: 'Select',
+            options: MESSAGE_TRANSPORTS,
             isRequired: false,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true },
