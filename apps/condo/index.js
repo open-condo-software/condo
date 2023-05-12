@@ -112,7 +112,8 @@ const tasks = () => [
     require('@condo/domains/ticket/tasks'),
     require('@condo/domains/resident/tasks'),
     require('@condo/domains/scope/tasks'),
-    require('@condo/domains/news/tasks'),    
+    require('@condo/domains/news/tasks'),
+    require('@condo/domains/common/tasks'),
     require('@open-condo/webhooks/tasks'),
 ]
 
