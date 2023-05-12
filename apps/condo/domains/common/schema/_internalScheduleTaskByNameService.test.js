@@ -10,11 +10,6 @@ const { makeLoggedInClient, makeClientWithSupportUser } = require('@condo/domain
 
 
 describe('_internalScheduleTaskByNameService', () => {
-    let adminClient
-    beforeAll(async () => {
-        adminClient = await makeLoggedInAdminClient()
-    })
-
     test('support can execute mutation', async () => {
         const support = await makeClientWithSupportUser()
         const payload = {
