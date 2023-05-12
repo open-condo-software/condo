@@ -3,6 +3,7 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getById, find, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
@@ -11,8 +12,9 @@ const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { defineMessageType } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem.helpers')
 const { queryFindResidentsByNewsItemAndScopes } = require('@condo/domains/news/utils/accessSchema')
-const { NewsItem } = require('@condo/domains/news/utils/serverSchema')
+const { NewsItem, NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 const { generateUniqueMessageKey } = require('./notifyResidentsAboutNewsItem.helpers')
 
@@ -48,17 +50,14 @@ function checkSendingPossibility (newsItem) {
  * @param {NewsItem} newsItem
  * @returns {Promise<void>}
  */
-async function sendNotifications (newsItem) {
+async function sendNotifications (context, newsItem) {
 
     if (!checkSendingPossibility(newsItem)) {
         return
     }
 
-    /** @type {NewsItemScope[]} */
-    const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id } })
-
-    /** @type {Resident[]} */
-    const residents = await find('Resident', { deletedAt: null, ...queryFindResidentsByNewsItemAndScopes(newsItem, scopes) })
+    const scopes = await NewsItemScope.getAll(context, { newsItem: { id: newsItem.id } })
+    const residents = await Resident.getAll(context, queryFindResidentsByNewsItemAndScopes(newsItem.organization.id, scopes))
 
     const { keystone: contextMessage } = await getSchemaCtx('Message')
     for (const resident of residents) {
@@ -135,8 +134,9 @@ async function sendNotifications (newsItem) {
  * @returns {Promise<void>}
  */
 async function notifyResidentsAboutNewsItem (newsItemId) {
-    /** @type {NewsItem} */
-    const newsItem = await getById('NewsItem', newsItemId)
+    const { keystone: context } = await getSchemaCtx('NewsItem')
+
+    const newsItem = await NewsItem.getOne(context, { id: newsItemId })
 
     if (!checkSendingPossibility(newsItem)) {
         return
@@ -144,17 +144,17 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
 
     if (get(newsItem, 'sendAt')) {
         // Send delayed items immediately
-        await sendNotifications(newsItem)
+        await sendNotifications(context, newsItem)
     } else {
         // We wait some number of seconds in the case of not delayed news items to take a chance for the user to turn all back
         setTimeout(async () => {
-            // Load actual data for news item
-            const actualNewsItem = await getById('NewsItem', newsItemId)
+            // The record can be changed during waiting timeout, for example, a user can edit it, therefore it should be requested again right before sending
+            const actualNewsItem = await NewsItem.getOne(context, { id: newsItemId })
             // Checking if the timeout was expired to send the news item
             const now = dayjs().unix()
-            if (now - dayjs(actualNewsItem.updatedAt).unix() < SENDING_DELAY_SEC) {
+            if (now - dayjs(newsItem.updatedAt).unix() < SENDING_DELAY_SEC) {
                 logger.warn({
-                    message: 'The news item was updated less than SENDING_DELAY_SEC seconds ago',
+                    message: 'NewsItem was updated before sending timeout passed. Do nothing',
                     actualNewsItem,
                     SENDING_DELAY_SEC,
                     now,
@@ -162,7 +162,7 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
                 return
             }
 
-            await sendNotifications(actualNewsItem)
+            await sendNotifications(context, actualNewsItem)
         }, SENDING_DELAY_SEC * 1000)
     }
 }

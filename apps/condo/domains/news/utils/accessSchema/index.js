@@ -58,18 +58,18 @@ function queryFindNewsItemsScopesByResidents (residents) {
 }
 
 /**
- * @param {NewsItem} newsItem
+ * @param {String} organizationId
  * @param {NewsItemScope[]} newsItemScopes
  */
-function queryFindResidentsByNewsItemAndScopes (newsItem, newsItemScopes) {
+function queryFindResidentsByNewsItemAndScopes (organizationId, newsItemScopes) {
     return {
         AND: [
-            { organization: { id: newsItem.organization } },
+            { organization: { id: organizationId } },
             {
                 OR: newsItemScopes.map((scope) => {
-                    const propertyId = get(scope, 'property')
                     const unitType = get(scope, 'unitType')
                     const unitName = get(scope, 'unitName')
+                    const propertyId = get(scope, 'property')
 
                     const AND = []
 

@@ -200,7 +200,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
             }
         },
 
-        afterChange: async ({ context, operation, existingItem, updatedItem }) => {
+        afterChange: async ({ updatedItem }) => {
             if (
                 updatedItem.isPublished
                 && !updatedItem.sendAt // There is a cron task to send delayed news items
