@@ -5,26 +5,36 @@
 const { makeClient, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
-const { makeLoggedInClient, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeLoggedInClient, makeClientWithSupportUser, makeLoggedInAdminClient } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('_internalScheduleTaskByNameService', () => {
-    test('support can execute mutation', async () => {
+    test('admin can execute mutation', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const payload = {
+            taskName: 'commonSampleCronTask',
+            taskArgs: [],
+        }
+        const [data] = await _internalScheduleTaskByNameByTestClient(admin, payload)
+        expect(data.id).toBeDefined()
+    })
+
+    test('support can not execute mutation', async () => {
         const support = await makeClientWithSupportUser()
         const payload = {
             taskName: 'commonSampleCronTask',
             taskArgs: [],
         }
-        const [data] = await _internalScheduleTaskByNameByTestClient(support, payload)
-        expect(data.id).toBeDefined()
+        await expectToThrowAccessDeniedErrorToResult(async () => {
+            await _internalScheduleTaskByNameByTestClient(support, payload)
+        })
     })
 
     test('user can not execute mutation', async () => {
         const client = await makeLoggedInClient()
         const payload = {
-            taskName: '',
+            taskName: 'commonSampleCronTask',
             taskArgs: [],
-            taskOpts: {},
         }
         await expectToThrowAccessDeniedErrorToResult(async () => {
             await _internalScheduleTaskByNameByTestClient(client, payload)
@@ -34,9 +44,8 @@ describe('_internalScheduleTaskByNameService', () => {
     test('anonymous can not execute mutation', async () => {
         const client = await makeClient()
         const payload = {
-            taskName: '',
+            taskName: 'commonSampleCronTask',
             taskArgs: [],
-            taskOpts: {},
         }
         await expectToThrowAuthenticationErrorToResult(async () => {
             await _internalScheduleTaskByNameByTestClient(client, payload)

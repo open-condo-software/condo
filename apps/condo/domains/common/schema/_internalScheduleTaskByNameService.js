@@ -11,7 +11,7 @@ const _internalScheduleTaskByNameService = new GQLCustomSchema('_internalSchedul
     types: [
         {
             access: true,
-            type: 'input _internalScheduleTaskByNameInput { dv: Int!, sender: JSON!, taskName: String!, taskArgs: JSON, taskOpts: JSON }',
+            type: 'input _internalScheduleTaskByNameInput { dv: Int!, sender: JSON!, taskName: String!, taskArgs: JSON }',
         },
         {
             access: true,
@@ -25,15 +25,11 @@ const _internalScheduleTaskByNameService = new GQLCustomSchema('_internalSchedul
             schema: '_internalScheduleTaskByName(data: _internalScheduleTaskByNameInput!): _internalScheduleTaskByNameOutput',
             schemaDoc: 'An internal module to schedule tasks. Should not be used by anyone except of system administrators / support',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { taskName, taskArgs, taskOpts } = args.data
+                const { taskName, taskArgs } = args.data
 
-                try {
-                    const task = await scheduleTaskByNameWithArgsAndOpts(taskName, taskArgs, taskOpts)
-                    return {
-                        id: task.id,
-                    }
-                } catch (err) {
-                    throw new Error(`Something went wrong when calling scheduleTaskByNameWithArgsAndOpts. ${err}`)
+                const task = await scheduleTaskByNameWithArgsAndOpts(taskName, taskArgs)
+                return {
+                    id: task.id,
                 }
             },
         },

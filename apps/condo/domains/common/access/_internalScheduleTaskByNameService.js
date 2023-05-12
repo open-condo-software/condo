@@ -6,7 +6,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 async function can_internalScheduleTaskByName ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isSupport || user.isAdmin) return true
+    if (user.isAdmin) return true
 
     return false
 }
