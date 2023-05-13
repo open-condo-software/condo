@@ -7,7 +7,7 @@ import get from 'lodash/get'
 import React, { useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Modal } from '@open-condo/ui'
+import { Button, Modal } from '@open-condo/ui'
 
 import { useServicesTableColumns } from '@condo/domains/billing/hooks/useServicesTableColumns'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
@@ -90,6 +90,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
 }) => {
     const intl = useIntl()
     const AccountMessage = intl.formatMessage({ id: 'field.AccountNumberShort' })
+    const ViewPDFButton = intl.formatMessage({ id: 'pages.billing.ReceiptsTable.PDFTooltip' })
 
     const moneyRender = useMemo(() => {
         return getMoneyRender(intl, currencyCode)
@@ -122,6 +123,18 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const [expanded, setExpanded] = useState(false)
     const handleRowExpand = () => setExpanded(!expanded)
 
+    const ModalFooter = () => {
+        return (
+            <Row justify='end'>
+                <Col span={24}>
+                    <Button href='https://google.com' target='_blank' type='primary'>
+                        {ViewPDFButton}
+                    </Button>
+                </Col>
+            </Row>
+        )
+    }
+
     if (!services || !services.length) return null
 
     // TODO (savelevMatthew): Move modal to common width-expandable component?
@@ -134,7 +147,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                     setExpanded(false)
                     onCancel()
                 }}
-                footer={null}
+                footer={<ModalFooter />}
                 className='services-modal'
                 title={modalTitleMessage}
             >
