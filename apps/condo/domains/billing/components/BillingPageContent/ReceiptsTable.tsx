@@ -3,18 +3,19 @@ import { Row, Col, Typography, Space } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { ServicesModal } from '@condo/domains/billing/components/ServicesModal'
 import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
 import { useReceiptTableFilters } from '@condo/domains/billing/hooks/useReceiptTableFilters'
-import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
+import { BillingReceipt, BillingReceiptFile } from '@condo/domains/billing/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
@@ -29,7 +30,8 @@ import { IContextProps } from './index'
 
 
 const SORTABLE_PROPERTIES = ['toPay']
-const INPUT_STYLE = { width: '18em' }
+const INPUT_STYLE: CSSProperties = { width: '18em', height: '48px' }
+const TABLE_FILTERS_CONTAINER_STYLE: CSSProperties = { display: 'flex', gap: '20px', flexWrap: 'wrap' }
 
 export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const intl = useIntl()
@@ -63,6 +65,12 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
+
+    const {
+        loading: receiptFilesAreLoading,
+        objs: receiptFiles,
+        error: receiptFilesError,
+    } = BillingReceiptFile.useObjects({})
 
     const hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetails'], false)
     const hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
@@ -126,7 +134,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         <>
             <Row gutter={[0, 40]}>
                 <Col span={24}>
-                    <Row gutter={[20, 20]}>
+                    <TableFiltersContainer style={TABLE_FILTERS_CONTAINER_STYLE}>
                         <Col xs={24} md={7}>
                             <Input
                                 placeholder={SearchPlaceholder}
@@ -136,7 +144,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                             />
                         </Col>
                         <Col xs={24} md={8}>{periodMetaSelect}</Col>
-                    </Row>
+                    </TableFiltersContainer>
                 </Col>
                 <Col span={24}>
                     <Table
