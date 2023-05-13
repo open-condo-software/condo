@@ -3,7 +3,6 @@
  */
 
 const { Text, Relationship, File } = require('@keystonejs/fields')
-const { get } = require('lodash')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
@@ -12,7 +11,6 @@ const access = require('@condo/domains/billing/access/BillingReceiptFile')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 
-const { WRONG_TEXT_FORMAT } = require('../../common/constants/errors')
 const BILLING_RECEIPT_FILE_FOLDER_NAME = 'billing-receipt-pdf'
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
@@ -53,22 +51,9 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
         },
 
         importId: {
-            schemaDoc: '`billing receipt file` local object ID. Unique up to billing context. It is unique up to the context. ' +
-                'The constrain is a combination of contextId and importId.',
+            schemaDoc: 'Unique import id for each file',
             type: Text,
-            isRequired: true,
-            kmigratorOptions: { unique: true, null: false },
-            hooks: {
-                validateInput: async ({ resolvedData, addFieldValidationError }) => {
-                    const resolvedImportId = get(resolvedData, ['importId'])
-
-                    if (!resolvedImportId || typeof resolvedImportId !== 'string' || resolvedImportId.length === 0) {
-                        addFieldValidationError(
-                            `${WRONG_TEXT_FORMAT}importId] Cannot mutate billing receipt file with empty or null importId, found ${resolvedImportId}`)
-                    }
-                },
-            },
-            access: { read: access.canReadSensitiveBillingReceiptData },
+            isRequired: false,
         },
 
     },

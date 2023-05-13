@@ -14611,6 +14611,8 @@ export type BillingReceiptFile = {
   receipt?: Maybe<BillingReceipt>;
   /**  Meta information about the file  */
   controlSum?: Maybe<Scalars['String']>;
+  /**  Unique import id for each file  */
+  importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -14632,6 +14634,7 @@ export type BillingReceiptFileCreateInput = {
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   receipt?: Maybe<BillingReceiptRelateToOneInput>;
   controlSum?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -14658,6 +14661,7 @@ export type BillingReceiptFileHistoryRecord = {
   context?: Maybe<Scalars['String']>;
   receipt?: Maybe<Scalars['String']>;
   controlSum?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -14678,6 +14682,7 @@ export type BillingReceiptFileHistoryRecordCreateInput = {
   context?: Maybe<Scalars['String']>;
   receipt?: Maybe<Scalars['String']>;
   controlSum?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -14703,6 +14708,7 @@ export type BillingReceiptFileHistoryRecordUpdateInput = {
   context?: Maybe<Scalars['String']>;
   receipt?: Maybe<Scalars['String']>;
   controlSum?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -14750,6 +14756,24 @@ export type BillingReceiptFileHistoryRecordWhereInput = {
   controlSum_not_ends_with_i?: Maybe<Scalars['String']>;
   controlSum_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   controlSum_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -14846,6 +14870,7 @@ export type BillingReceiptFileUpdateInput = {
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   receipt?: Maybe<BillingReceiptRelateToOneInput>;
   controlSum?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -14886,6 +14911,24 @@ export type BillingReceiptFileWhereInput = {
   controlSum_not_ends_with_i?: Maybe<Scalars['String']>;
   controlSum_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   controlSum_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -60433,6 +60476,8 @@ export enum SortBillingPropertyHistoryRecordsBy {
 export enum SortBillingReceiptFileHistoryRecordsBy {
   ControlSumAsc = 'controlSum_ASC',
   ControlSumDesc = 'controlSum_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -60458,6 +60503,8 @@ export enum SortBillingReceiptFilesBy {
   ReceiptDesc = 'receipt_DESC',
   ControlSumAsc = 'controlSum_ASC',
   ControlSumDesc = 'controlSum_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

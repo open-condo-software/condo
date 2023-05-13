@@ -12394,6 +12394,7 @@ type BillingReceiptFileHistoryRecord {
   context: String
   receipt: String
   controlSum: String
+  importId: String
   id: ID!
   v: Int
   createdAt: String
@@ -12442,6 +12443,24 @@ input BillingReceiptFileHistoryRecordWhereInput {
   controlSum_not_ends_with_i: String
   controlSum_in: [String]
   controlSum_not_in: [String]
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -12527,6 +12546,8 @@ input BillingReceiptFileHistoryRecordWhereUniqueInput {
 enum SortBillingReceiptFileHistoryRecordsBy {
   controlSum_ASC
   controlSum_DESC
+  importId_ASC
+  importId_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -12550,6 +12571,7 @@ input BillingReceiptFileHistoryRecordUpdateInput {
   context: String
   receipt: String
   controlSum: String
+  importId: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -12574,6 +12596,7 @@ input BillingReceiptFileHistoryRecordCreateInput {
   context: String
   receipt: String
   controlSum: String
+  importId: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -12621,6 +12644,9 @@ type BillingReceiptFile {
 
   """ Meta information about the file """
   controlSum: String
+
+  """ Unique import id for each file """
+  importId: String
   id: ID!
   v: Int
   createdAt: String
@@ -12673,6 +12699,24 @@ input BillingReceiptFileWhereInput {
   controlSum_not_ends_with_i: String
   controlSum_in: [String]
   controlSum_not_in: [String]
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -12742,6 +12786,8 @@ enum SortBillingReceiptFilesBy {
   receipt_DESC
   controlSum_ASC
   controlSum_DESC
+  importId_ASC
+  importId_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -12765,6 +12811,7 @@ input BillingReceiptFileUpdateInput {
   context: BillingIntegrationOrganizationContextRelateToOneInput
   receipt: BillingReceiptRelateToOneInput
   controlSum: String
+  importId: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -12786,6 +12833,7 @@ input BillingReceiptFileCreateInput {
   context: BillingIntegrationOrganizationContextRelateToOneInput
   receipt: BillingReceiptRelateToOneInput
   controlSum: String
+  importId: String
   v: Int
   createdAt: String
   updatedAt: String
