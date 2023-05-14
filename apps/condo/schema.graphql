@@ -59180,6 +59180,17 @@ type ExportPropertyScopeToExcelOutput {
   linkToFile: String!
 }
 
+input _internalScheduleTaskByNameInput {
+  dv: Int!
+  sender: JSON!
+  taskName: String!
+  taskArgs: JSON
+}
+
+type _internalScheduleTaskByNameOutput {
+  id: String!
+}
+
 type unauthenticateUserOutput {
   """
   `true` when unauthentication succeeds.
@@ -68160,6 +68171,7 @@ type Mutation {
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   sendAppPushMessage(data: SendAppPushMessageInput!): SendAppPushMessageOutput
+  _internalScheduleTaskByName(data: _internalScheduleTaskByNameInput!): _internalScheduleTaskByNameOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

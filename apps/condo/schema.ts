@@ -32083,6 +32083,7 @@ export type Mutation = {
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   sendAppPushMessage?: Maybe<SendAppPushMessageOutput>;
+  _internalScheduleTaskByName?: Maybe<_InternalScheduleTaskByNameOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -38686,6 +38687,11 @@ export type MutationRegisterMultiPaymentForVirtualReceiptArgs = {
 
 export type MutationSendAppPushMessageArgs = {
   data: SendAppPushMessageInput;
+};
+
+
+export type Mutation_InternalScheduleTaskByNameArgs = {
+  data: _InternalScheduleTaskByNameInput;
 };
 
 
@@ -75875,6 +75881,18 @@ export type _ListSchemaRelatedFields = {
 export type _QueryMeta = {
   __typename?: '_QueryMeta';
   count?: Maybe<Scalars['Int']>;
+};
+
+export type _InternalScheduleTaskByNameInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  taskName: Scalars['String'];
+  taskArgs?: Maybe<Scalars['JSON']>;
+};
+
+export type _InternalScheduleTaskByNameOutput = {
+  __typename?: '_internalScheduleTaskByNameOutput';
+  id: Scalars['String'];
 };
 
 export type _KsListsMetaInput = {
