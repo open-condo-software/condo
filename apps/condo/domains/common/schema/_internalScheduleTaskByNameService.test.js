@@ -13,7 +13,6 @@ describe('_internalScheduleTaskByNameService', () => {
         const admin = await makeLoggedInAdminClient()
         const payload = {
             taskName: 'commonSampleCronTask',
-            taskArgs: [],
         }
         const [data] = await _internalScheduleTaskByNameByTestClient(admin, payload)
         expect(data.id).toBeDefined()
@@ -23,7 +22,6 @@ describe('_internalScheduleTaskByNameService', () => {
         const support = await makeClientWithSupportUser()
         const payload = {
             taskName: 'commonSampleCronTask',
-            taskArgs: [],
         }
         await expectToThrowAccessDeniedErrorToResult(async () => {
             await _internalScheduleTaskByNameByTestClient(support, payload)
@@ -34,7 +32,6 @@ describe('_internalScheduleTaskByNameService', () => {
         const client = await makeLoggedInClient()
         const payload = {
             taskName: 'commonSampleCronTask',
-            taskArgs: [],
         }
         await expectToThrowAccessDeniedErrorToResult(async () => {
             await _internalScheduleTaskByNameByTestClient(client, payload)
@@ -45,7 +42,6 @@ describe('_internalScheduleTaskByNameService', () => {
         const client = await makeClient()
         const payload = {
             taskName: 'commonSampleCronTask',
-            taskArgs: [],
         }
         await expectToThrowAuthenticationErrorToResult(async () => {
             await _internalScheduleTaskByNameByTestClient(client, payload)
