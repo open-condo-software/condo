@@ -13,7 +13,6 @@ const os = require('os')
 
 const StatsD = require('hot-shots')
 
-
 const conf = require('@open-condo/config')
 
 const { getLogger } = require('./logging')
