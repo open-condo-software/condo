@@ -12,7 +12,7 @@ const _internalScheduleTaskByNameService = new GQLCustomSchema('_internalSchedul
     types: [
         {
             access: true,
-            type: 'input _internalScheduleTaskByNameInput { dv: Int!, sender: JSON!, taskName: String!, taskArgs: JSON! }',
+            type: 'input _internalScheduleTaskByNameInput { dv: Int!, sender: JSON!, taskName: String!, taskArgs: JSON }',
         },
         {
             access: true,

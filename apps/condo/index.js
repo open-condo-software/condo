@@ -102,6 +102,7 @@ const schemas = () => [
     require('@condo/domains/analytics/schema'),
     require('@condo/domains/scope/schema'),
     require('@condo/domains/news/schema'),
+    require('@condo/domains/common/schema'),
     getWebhookModels('@app/condo/schema.graphql'),
 ]
 
@@ -113,8 +114,8 @@ const tasks = () => [
     require('@condo/domains/resident/tasks'),
     require('@condo/domains/scope/tasks'),
     require('@condo/domains/news/tasks'),
-    require('@condo/domains/common/tasks'),
     require('@open-condo/webhooks/tasks'),
+    require('@condo/domains/common/tasks'),
 ]
 
 const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })
