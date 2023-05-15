@@ -24,6 +24,7 @@ const {
     NewsItem,
     createTestNewsItem,
     updateTestNewsItem,
+    publishTestNewsItem,
     createTestNewsItemScope,
 } = require('@condo/domains/news/utils/testSchema')
 const { NEWS_ITEM_COMMON_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -84,6 +85,7 @@ describe('NewsItems', () => {
                 expect(obj.title).toEqual(attrs.title)
                 expect(obj.body).toEqual(attrs.body)
                 expect(obj.type).toEqual(attrs.type)
+                expect(obj.isPublished).toEqual(false)
             })
 
             test('support can', async () => {
@@ -341,24 +343,39 @@ describe('NewsItems', () => {
                 const [newsItem3, newsItem3Attrs] = await createTestNewsItem(adminClient, o10n)
                 const [newsItemScope3] = await createTestNewsItemScope(adminClient, newsItem3)
 
+                await publishTestNewsItem(adminClient, newsItem1.id)
                 const newsItems1 = await NewsItem.getAll(residentClient1, {})
+
+                await publishTestNewsItem(adminClient, newsItem2.id)
                 const newsItems2 = await NewsItem.getAll(residentClient2, {})
+
+                await publishTestNewsItem(adminClient, newsItem3.id)
                 const newsItems3 = await NewsItem.getAll(residentClient3, {})
 
-                expect(newsItems1).toHaveLength(3)
-                expect(newsItems1).toEqual(expect.arrayContaining([
-                    expect.objectContaining({ id: newsItem1.id, title: newsItem1Attrs.title }),
-                    expect.objectContaining({ id: newsItem2.id, title: newsItem2Attrs.title }),
-                    expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
-                ]))
-
-                expect(newsItems2).toHaveLength(2)
-                expect(newsItems2).toEqual(expect.arrayContaining([
-                    expect.objectContaining({ id: newsItem2.id, title: newsItem2Attrs.title }),
-                    expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
-                ]))
-
+                expect(newsItems1).toHaveLength(0)
+                expect(newsItems2).toHaveLength(0)
                 expect(newsItems3).toHaveLength(0)
+
+                await waitFor(async () => {
+                    const newsItems1 = await NewsItem.getAll(residentClient1, {})
+                    const newsItems2 = await NewsItem.getAll(residentClient2, {})
+                    const newsItems3 = await NewsItem.getAll(residentClient3, {})
+
+                    expect(newsItems1).toHaveLength(3)
+                    expect(newsItems1).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: newsItem1.id, title: newsItem1Attrs.title }),
+                        expect.objectContaining({ id: newsItem2.id, title: newsItem2Attrs.title }),
+                        expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
+                    ]))
+
+                    expect(newsItems2).toHaveLength(2)
+                    expect(newsItems2).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: newsItem2.id, title: newsItem2Attrs.title }),
+                        expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
+                    ]))
+
+                    expect(newsItems3).toHaveLength(0)
+                }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
             })
 
             test('user with two residents within organization must see all eligible news items', async () => {
@@ -404,14 +421,25 @@ describe('NewsItems', () => {
                     property: { connect: { id: otherProperty.id } },
                 })
 
+                await publishTestNewsItem(adminClient, newsItem1.id)
+                await publishTestNewsItem(adminClient, newsItem2.id)
+                await publishTestNewsItem(adminClient, newsItem3.id)
+                await publishTestNewsItem(adminClient, newsItem4.id)
+
                 const newsItems = await NewsItem.getAll(residentClient1, {})
 
-                expect(newsItems).toHaveLength(3)
-                expect(newsItems).toEqual(expect.arrayContaining([
-                    expect.objectContaining({ id: newsItem1.id, title: newsItem1Attrs.title }),
-                    expect.objectContaining({ id: newsItem2.id, title: newsItem2Attrs.title }),
-                    expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
-                ]))
+                expect(newsItems).toHaveLength(0)
+
+                await waitFor(async () => {
+                    const newsItems = await NewsItem.getAll(residentClient1, {})
+
+                    expect(newsItems).toHaveLength(3)
+                    expect(newsItems).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: newsItem1.id, title: newsItem1Attrs.title }),
+                        expect.objectContaining({ id: newsItem2.id, title: newsItem2Attrs.title }),
+                        expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
+                    ]))
+                }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
             })
 
             test('two residents, two organizations: each must see eligible news items', async () => {
@@ -453,19 +481,31 @@ describe('NewsItems', () => {
                     property: { connect: { id: property2.id } },
                 })
 
+                await publishTestNewsItem(adminClient, newsItem1.id)
+                await publishTestNewsItem(adminClient, newsItem2.id)
+                await publishTestNewsItem(adminClient, newsItem3.id)
+
                 const newsItems1 = await NewsItem.getAll(residentClient1, {})
                 const newsItems2 = await NewsItem.getAll(residentClient2, {})
 
-                expect(newsItems1).toHaveLength(1)
-                expect(newsItems1).toEqual(expect.arrayContaining([
-                    expect.objectContaining({ id: newsItem1.id, title: newsItem1Attrs.title }),
-                ]))
+                expect(newsItems1).toHaveLength(0)
+                expect(newsItems2).toHaveLength(0)
 
-                expect(newsItems2).toHaveLength(2)
-                expect(newsItems2).toEqual(expect.arrayContaining([
-                    expect.objectContaining({ id: newsItem2.id, title: newsItem2Attrs.title }),
-                    expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
-                ]))
+                await waitFor(async () => {
+                    const newsItems1 = await NewsItem.getAll(residentClient1, {})
+                    const newsItems2 = await NewsItem.getAll(residentClient2, {})
+
+                    expect(newsItems1).toHaveLength(1)
+                    expect(newsItems1).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: newsItem1.id, title: newsItem1Attrs.title }),
+                    ]))
+
+                    expect(newsItems2).toHaveLength(2)
+                    expect(newsItems2).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: newsItem2.id, title: newsItem2Attrs.title }),
+                        expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
+                    ]))
+                }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
             })
         })
     })
@@ -651,10 +691,10 @@ describe('NewsItems', () => {
 
             await syncRemoteClientByTestClient(residentClient1, payload)
 
-            // Publish news item to make it sendable
-            await updateTestNewsItem(adminClient, newsItem1.id, { isPublished: true })
-
             const messageWhere = { user: { id: residentClient1.user.id }, type: NEWS_ITEM_COMMON_MESSAGE_TYPE }
+
+            // Publish news item to make it send-able
+            await updateTestNewsItem(adminClient, newsItem1.id, { isPublished: true })
 
             await waitFor(async () => {
                 const message1 = await Message.getOne(adminClient, messageWhere)
@@ -683,8 +723,8 @@ describe('NewsItems', () => {
                         }),
                     }),
                 }))
-            }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
-        }, 20000)
+            }, { delay: (SENDING_DELAY_SEC + 3) * 1000 })
+        })
     })
 })
 

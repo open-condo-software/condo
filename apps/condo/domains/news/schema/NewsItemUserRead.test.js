@@ -13,14 +13,16 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 
+const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const {
     createTestNewsItemScope,
     createTestNewsItem,
     NewsItemUserRead,
     createTestNewsItemUserRead,
-    updateTestNewsItemUserRead,
+    updateTestNewsItemUserRead, publishTestNewsItem,
 } = require('@condo/domains/news/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -31,6 +33,7 @@ const {
     makeClientWithResidentUser,
     makeClientWithStaffUser,
 } = require('@condo/domains/user/utils/testSchema')
+
 
 let adminClient, supportClient, anonymousClient, residentClient, staffClient,
     dummyO10n, dummyNewsItem, dummyProperty
@@ -105,12 +108,17 @@ describe('NewsItemUserRead', () => {
                     unitName: unitName1,
                 })
 
-                const [obj, attrs] = await createTestNewsItemUserRead(resident, newsItem, resident.user)
+                await publishTestNewsItem(adminClient, newsItem.id)
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: resident.user.id }))
+                await waitFor(async () => {
+                    const [obj, attrs] = await createTestNewsItemUserRead(resident, newsItem, resident.user)
+
+                    expect(obj.id).toMatch(UUID_RE)
+                    expect(obj.dv).toEqual(1)
+                    expect(obj.sender).toEqual(attrs.sender)
+                    expect(obj.newsItem.id).toEqual(newsItem.id)
+                    expect(obj.createdBy).toEqual(expect.objectContaining({ id: resident.user.id }))
+                }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestNewsItemUserRead(residentClient, newsItem, residentClient.user)
@@ -246,16 +254,20 @@ describe('NewsItemUserRead', () => {
                     unitName: unitName1,
                 })
 
-                const [obj, attrs] = await createTestNewsItemUserRead(resident, newsItem, resident.user)
-                const objs = await NewsItemUserRead.getAll(resident, {}, { sortBy: ['updatedAt_DESC'] })
+                await publishTestNewsItem(adminClient, newsItem.id)
 
-                expect(objs).toHaveLength(1)
-                expect(objs[0]).toMatchObject({
-                    id: obj.id,
-                })
+                await waitFor(async () => {
+                    const [obj, attrs] = await createTestNewsItemUserRead(resident, newsItem, resident.user)
+                    const objs = await NewsItemUserRead.getAll(resident, {}, { sortBy: ['updatedAt_DESC'] })
 
-                const objs2 = await NewsItemUserRead.getAll(nonEligibleResident, {}, { sortBy: ['updatedAt_DESC'] })
-                expect(objs2).toHaveLength(0)
+                    expect(objs).toHaveLength(1)
+                    expect(objs[0]).toMatchObject({
+                        id: obj.id,
+                    })
+
+                    const objs2 = await NewsItemUserRead.getAll(nonEligibleResident, {}, { sortBy: ['updatedAt_DESC'] })
+                    expect(objs2).toHaveLength(0)
+                }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
             })
 
             test('anonymous can\'t', async () => {

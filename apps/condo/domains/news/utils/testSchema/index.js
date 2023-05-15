@@ -56,6 +56,11 @@ async function updateTestNewsItem (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function publishTestNewsItem (client, id) {
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    return updateTestNewsItem(client, id, { dv: 1, sender, isPublished: true })
+}
+
 async function createTestNewsItemScope (client, newsItem, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!newsItem || !newsItem.id) throw new Error('no newsItem.id')
@@ -156,7 +161,7 @@ async function updateTestNewsItemUserRead (client, id, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    NewsItem, createTestNewsItem, updateTestNewsItem,
+    NewsItem, createTestNewsItem, updateTestNewsItem, publishTestNewsItem,
     NewsItemScope, createTestNewsItemScope, updateTestNewsItemScope,
     NewsItemTemplate, createTestNewsItemTemplate, updateTestNewsItemTemplate,
     NewsItemUserRead, createTestNewsItemUserRead, updateTestNewsItemUserRead,

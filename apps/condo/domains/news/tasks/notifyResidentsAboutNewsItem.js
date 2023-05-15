@@ -55,7 +55,7 @@ async function sendNotifications (newsItem) {
     const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id } })
 
     /** @type {Resident[]} */
-    const residents = await find('Resident', queryFindResidentsByNewsItemAndScopes(newsItem, scopes))
+    const residents = await find('Resident', { deletedAt: null, ...queryFindResidentsByNewsItemAndScopes(newsItem, scopes) })
 
     const { keystone: contextMessage } = await getSchemaCtx('Message')
     for (const resident of residents) {
