@@ -15,7 +15,6 @@ const { BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { BankAccountReportTask, createTestBankAccountReportTask, updateTestBankAccountReportTask, createTestBankAccount, BankAccountReport, createTestBankTransaction, updateTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBankIntegrationAccountContext, createTestBankContractorAccount, BankIntegration, createTestBankCategory, createTestBankCostItem } = require('@condo/domains/banking/utils/testSchema')
-const { sleep } = require('@condo/domains/common/utils/sleep')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
@@ -32,13 +31,10 @@ describe('BankAccountReportTask', () => {
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                // 1) prepare data
                 const [org] = await createTestOrganization(admin)
                 const [account] = await createTestBankAccount(admin, org)
-                // 2) action
                 const [obj, attrs] = await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
 
-                // 3) check
                 expectValuesOfCommonFields(obj, attrs, admin)
                 expect(obj.account.id).toEqual(account.id)
                 expect(obj.status).toEqual(BANK_SYNC_TASK_STATUS.PROCESSING)
@@ -147,7 +143,14 @@ describe('BankAccountReportTask', () => {
                 const [org] = await createTestOrganization(admin)
                 const [account] = await createTestBankAccount(admin, org)
                 const [objCreated] = await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
-                await sleep(300) // In parallel with the update in the test, there is an update in the task launched in afterChange of the BankAccountReportTask entity
+
+                await waitFor(async () => {
+                    const task = await BankAccountReportTask.getOne(admin, {
+                        id: objCreated.id,
+                    })
+                    expect(task.status).toEqual(BANK_SYNC_TASK_STATUS.COMPLETED)
+                }, { interval: 1000 })
+
                 const [obj, attrs] = await updateTestBankAccountReportTask(admin, objCreated.id)
 
                 expect(obj.dv).toEqual(1)
@@ -189,6 +192,12 @@ describe('BankAccountReportTask', () => {
                 await createTestOrganizationEmployee(admin, org, client.user, role)
                 const [objCreated] = await createTestBankAccountReportTask(client, account, org, client.user.id, { progress: 0 })
 
+                await waitFor(async () => {
+                    const task = await BankAccountReportTask.getOne(admin, {
+                        id: objCreated.id,
+                    })
+                    expect(task.status).toEqual(BANK_SYNC_TASK_STATUS.COMPLETED)
+                }, { interval: 1000 })
                 const [obj, attrs] = await updateTestBankAccountReportTask(client, objCreated.id, {
                     status: BANK_SYNC_TASK_STATUS.CANCELLED,
                 })
