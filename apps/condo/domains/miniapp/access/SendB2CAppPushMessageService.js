@@ -2,7 +2,7 @@ const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-async function canSendAppPushMessage ({ args: { data }, authentication: { item: user } }) {
+async function canSendB2CAppPushMessage ({ args: { data }, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -16,5 +16,5 @@ async function canSendAppPushMessage ({ args: { data }, authentication: { item: 
 }
 
 module.exports = {
-    canSendAppPushMessage,
+    canSendB2CAppPushMessage,
 }

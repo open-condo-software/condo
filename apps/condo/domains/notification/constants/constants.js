@@ -410,6 +410,7 @@ const MESSAGE_META = {
             B2CAppId: { required: true },
             B2CAppContext: { required: false },
             B2CAppName: { required: true },
+            residentId: { required: true },
         },
     },
     [B2C_APP_MESSAGE_PUSH_TYPE]: {
@@ -420,6 +421,7 @@ const MESSAGE_META = {
             B2CAppId: { required: true },
             B2CAppContext: { required: false },
             B2CAppName: { required: true },
+            residentId: { required: true },
         },
     },
     [RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE]: {

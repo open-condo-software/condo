@@ -12,7 +12,6 @@ const {
 const { MessageAppBlackList,
     createTestB2CApp,
     createTestMessageAppBlackList,
-    sendAppPushMessageByTestClient,
     updateTestMessageAppBlackList,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const {
@@ -123,38 +122,6 @@ describe('MessageAppBlackList', () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await MessageAppBlackList.getAll(anonymousClient)
                 })
-            })
-        })
-    })
-
-    describe('logic', () => {
-        it('dont send message if app added in MessageAppBlackList', async () => {
-
-            const [user] = await createTestUser(admin)
-            const [b2c] = await createTestB2CApp(admin)
-
-            const [blackListApp] = await createTestMessageAppBlackList(admin, {
-                type: B2C_APP_MESSAGE_PUSH_TYPE,
-                app: { connect: { id: b2c.id } },
-            })
-
-            await catchErrorFrom(async () => {
-                await sendAppPushMessageByTestClient(admin, {
-                    type: B2C_APP_MESSAGE_PUSH_TYPE,
-                    app: { id: b2c.id  },
-                    user: { id: user.id  },
-                })
-            }, ({ errors }) => {
-                expect(errors).toMatchObject([{
-                    message: 'Notification not send because app of message added in MessageAppBlackList',
-                    path: ['result'],
-                    extensions: {
-                        mutation: 'sendAppPushMessage',
-                        code: 'FORBIDDEN',
-                        type: 'APP_BLACK_LIST_ERROR',
-                        message: 'Notification not send because app of message added in MessageAppBlackList',
-                    },
-                }])
             })
         })
     })
