@@ -552,6 +552,36 @@ describe('NewsItems', () => {
                 },
             )
         })
+
+        test('must throw an error if profanity detected within title', async () => {
+            await expectToThrowGQLError(
+                async () => await createTestNewsItem(adminClient, dummyO10n, {
+                    title: 'хуй пизда жыгурда', // Sorry, guys. Nothing personal, just a job.
+                }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'PROFANITY_DETECTED_MOT_ERF_KER',
+                    message: 'Profanity detected',
+                    messageForUser: 'api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER',
+                    badWords: expect.any(String),
+                },
+            )
+        })
+
+        test('must throw an error if profanity detected within body', async () => {
+            await expectToThrowGQLError(
+                async () => await createTestNewsItem(adminClient, dummyO10n, {
+                    body: 'Добрый день! Заплатите ваш еб@ный долг за квартиру!',
+                }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'PROFANITY_DETECTED_MOT_ERF_KER',
+                    message: 'Profanity detected',
+                    messageForUser: 'api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER',
+                    badWords: expect.any(String),
+                },
+            )
+        })
     })
 
     describe('Delayed news items', () => {

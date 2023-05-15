@@ -172,6 +172,7 @@
     "@types/react-infinite-scroller": "^1.2.3",
     "antd-dayjs-webpack-plugin": "^1.0.6",
     "babel-jest": "^29.4.0",
+    "bad-words-next": "^1.6.7",
     "cross-env": "^7.0.3",
     "css-loader": "1.0.1",
     "cypress": "10.11.0",

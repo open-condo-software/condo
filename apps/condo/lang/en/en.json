@@ -1581,6 +1581,7 @@
   "api.newsItem.EDIT_DENIED_ALREADY_SENT": "You cannot edit the news item which already been sent",
   "api.newsItem.EDIT_DENIED_PUBLISHED": "You can not edit published news item",
   "api.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE": "The validity date is less than send date",
+  "api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER": "Profanity detected",
   "api.ticket.QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE": "Additional quality control parameters must match the specified scoring",
   "api.ticket.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED": "When specifying a comment or additional evaluation parameters, you must specify the evaluation itself",
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PERIOD_PROVIDED": "Please provide proper period not before start of previous and not later than start of current month, valid format is YYYY-MM-DD",
