@@ -30012,6 +30012,7 @@ export type Mutation = {
   deleteWebhookSubscription?: Maybe<WebhookSubscription>;
   /**  Delete multiple WebhookSubscription items by ID.  */
   deleteWebhookSubscriptions?: Maybe<Array<Maybe<WebhookSubscription>>>;
+  _internalScheduleTaskByName?: Maybe<_InternalScheduleTaskByNameOutput>;
   /**
    * Registers new user and sends notification
    *
@@ -32083,7 +32084,6 @@ export type Mutation = {
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   sendAppPushMessage?: Maybe<SendAppPushMessageOutput>;
-  _internalScheduleTaskByName?: Maybe<_InternalScheduleTaskByNameOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -38508,6 +38508,11 @@ export type MutationDeleteWebhookSubscriptionsArgs = {
 };
 
 
+export type Mutation_InternalScheduleTaskByNameArgs = {
+  data: _InternalScheduleTaskByNameInput;
+};
+
+
 export type MutationRegisterNewUserArgs = {
   data: RegisterNewUserInput;
 };
@@ -38687,11 +38692,6 @@ export type MutationRegisterMultiPaymentForVirtualReceiptArgs = {
 
 export type MutationSendAppPushMessageArgs = {
   data: SendAppPushMessageInput;
-};
-
-
-export type Mutation_InternalScheduleTaskByNameArgs = {
-  data: _InternalScheduleTaskByNameInput;
 };
 
 
