@@ -9,6 +9,8 @@
  * To learn more about differences between gauge, histogram and count type metrics, please refer to the datadog documentation
  * https://docs.datadoghq.com/metrics/custom_metrics/dogstatsd_metrics_submission/
  */
+const os = require('os')
+
 const StatsD = require('hot-shots')
 
 const conf = require('@open-condo/config')
@@ -19,6 +21,7 @@ const logger = getLogger('metrics')
 
 const STATSD_METRIC_PREFIX = conf['STATSD_METRIC_PREFIX'] || 'condo.'
 const STATSD_PORT = conf['STATSD_PORT'] || 8125
+const HOSTNAME = os.hostname()
 
 /**
  * Name should contain only alphanumeric characters (A-z, 0-9) and dot delimiter
@@ -45,6 +48,7 @@ const StatsDClient = new StatsD({
     port: STATSD_PORT,
     prefix: STATSD_METRIC_PREFIX,
     errorHandler: (err) => logger.error({ 'msg':'Something went wrong when sending metrics:', 'err': err }),
+    globalTags: { hostname: HOSTNAME },
 })
 
 const gauge = ({ name, value }) => {
