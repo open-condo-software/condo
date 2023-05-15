@@ -85,6 +85,7 @@ const onConnect = async (keystone) => {
 }
 
 const schemas = () => [
+    require('@condo/domains/common/schema'),
     require('@condo/domains/user/schema'),
     require('@condo/domains/organization/schema'),
     require('@condo/domains/property/schema'),
@@ -102,11 +103,11 @@ const schemas = () => [
     require('@condo/domains/analytics/schema'),
     require('@condo/domains/scope/schema'),
     require('@condo/domains/news/schema'),
-    require('@condo/domains/common/schema'),
     getWebhookModels('@app/condo/schema.graphql'),
 ]
 
 const tasks = () => [
+    require('@condo/domains/common/tasks'),
     require('@condo/domains/acquiring/tasks'),
     require('@condo/domains/notification/tasks'),
     require('@condo/domains/organization/tasks'),
@@ -115,7 +116,6 @@ const tasks = () => [
     require('@condo/domains/scope/tasks'),
     require('@condo/domains/news/tasks'),
     require('@open-condo/webhooks/tasks'),
-    require('@condo/domains/common/tasks'),
 ]
 
 const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })
