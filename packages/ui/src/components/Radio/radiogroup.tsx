@@ -19,7 +19,7 @@ export type ItemGroupProps = {
     options: Array<ItemGroupOptionType>
 }
 
-export type RadioGroupProps = Pick<DefaultRadioGroupProps, 'value' | 'onChange' | 'disabled' | 'children'>
+export type RadioGroupProps = Pick<DefaultRadioGroupProps, 'value' | 'onChange' | 'disabled' | 'children' | 'optionType'>
 
 type CompoundedComponent = React.FC<RadioGroupProps> & {
     ItemGroup: React.FC<ItemGroupProps>
@@ -57,12 +57,17 @@ const ItemGroup: React.FC<ItemGroupProps> = ({ name, options }) => {
     )
 }
 
-const CondoRadioGroup: React.FC<RadioGroupProps> = (props) => {
+const CondoRadioGroup: React.FC<RadioGroupProps> = ({  optionType, ...props }) => {
+    const groupClassName = classNames({
+        [`${RADIO_GROUP_CLASS_PREFIX}-button`]: optionType === 'button',
+    })
 
     return (
         <DefaultRadio.Group
             {...props}
+            className={groupClassName}
             prefixCls={RADIO_GROUP_CLASS_PREFIX}
+            optionType={optionType}
         />
     )
 }

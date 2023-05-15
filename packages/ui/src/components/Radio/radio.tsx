@@ -12,6 +12,7 @@ const RADIO_CLASS_PREFIX = 'condo-radio'
 type CondoRadioProps = {
     label?: string
     labelProps?: TypographyTextProps
+    icon?: React.ReactNode
 }
 
 export type RadioProps = Pick<DefaultRadioProps, 'autoFocus' | 'defaultChecked' | 'disabled' | 'onChange' | 'checked' | 'value' | 'children' | 'id'>
@@ -22,7 +23,7 @@ export interface IRadio {
 }
 
 const Radio: IRadio = (props) => {
-    const { label, labelProps, disabled, onChange, children, id, ...rest } = props
+    const { label, icon, labelProps, disabled, onChange, children, id, ...rest } = props
 
     const handleChange = useCallback((event: RadioChangeEvent) => {
         const stringContent = label ? label : extractChildrenContent(children)
@@ -34,6 +35,9 @@ const Radio: IRadio = (props) => {
             onChange(event)
         }
     }, [label, children, onChange, id])
+    const wrappedIcon = icon
+        ? <span className={`${RADIO_CLASS_PREFIX}-icon`}>{icon}</span>
+        : null
 
     return (
         <DefaultRadio
@@ -45,7 +49,12 @@ const Radio: IRadio = (props) => {
         >
             {
                 label
-                    ? <Typography.Text size='medium' disabled={disabled} {...labelProps}>{label}</Typography.Text>
+                    ? (
+                        <div className={`${RADIO_CLASS_PREFIX}-label-container`}>
+                            {wrappedIcon}
+                            <Typography.Text size='medium' disabled={disabled} {...labelProps}>{label}</Typography.Text>
+                        </div>
+                    )
                     : children
             }
         </DefaultRadio>
