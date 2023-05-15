@@ -58245,6 +58245,17 @@ input _ListSchemaFieldsInput {
   type: String
 }
 
+input _internalScheduleTaskByNameInput {
+  dv: Int!
+  sender: JSON!
+  taskName: String!
+  taskArgs: JSON
+}
+
+type _internalScheduleTaskByNameOutput {
+  id: String!
+}
+
 input RegisterNewUserInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -66071,6 +66082,7 @@ type Mutation {
 
   """ Delete multiple WebhookSubscription items by ID. """
   deleteWebhookSubscriptions(ids: [ID!]): [WebhookSubscription]
+  _internalScheduleTaskByName(data: _internalScheduleTaskByNameInput!): _internalScheduleTaskByNameOutput
 
   """
   Registers new user and sends notification

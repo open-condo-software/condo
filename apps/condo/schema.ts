@@ -30012,6 +30012,7 @@ export type Mutation = {
   deleteWebhookSubscription?: Maybe<WebhookSubscription>;
   /**  Delete multiple WebhookSubscription items by ID.  */
   deleteWebhookSubscriptions?: Maybe<Array<Maybe<WebhookSubscription>>>;
+  _internalScheduleTaskByName?: Maybe<_InternalScheduleTaskByNameOutput>;
   /**
    * Registers new user and sends notification
    *
@@ -38504,6 +38505,11 @@ export type MutationDeleteWebhookSubscriptionArgs = {
 
 export type MutationDeleteWebhookSubscriptionsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type Mutation_InternalScheduleTaskByNameArgs = {
+  data: _InternalScheduleTaskByNameInput;
 };
 
 
@@ -75875,6 +75881,18 @@ export type _ListSchemaRelatedFields = {
 export type _QueryMeta = {
   __typename?: '_QueryMeta';
   count?: Maybe<Scalars['Int']>;
+};
+
+export type _InternalScheduleTaskByNameInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  taskName: Scalars['String'];
+  taskArgs?: Maybe<Scalars['JSON']>;
+};
+
+export type _InternalScheduleTaskByNameOutput = {
+  __typename?: '_internalScheduleTaskByNameOutput';
+  id: Scalars['String'];
 };
 
 export type _KsListsMetaInput = {

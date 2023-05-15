@@ -85,6 +85,7 @@ const onConnect = async (keystone) => {
 }
 
 const schemas = () => [
+    require('@condo/domains/common/schema'),
     require('@condo/domains/user/schema'),
     require('@condo/domains/organization/schema'),
     require('@condo/domains/property/schema'),
@@ -106,13 +107,14 @@ const schemas = () => [
 ]
 
 const tasks = () => [
+    require('@condo/domains/common/tasks'),
     require('@condo/domains/acquiring/tasks'),
     require('@condo/domains/notification/tasks'),
     require('@condo/domains/organization/tasks'),
     require('@condo/domains/ticket/tasks'),
     require('@condo/domains/resident/tasks'),
     require('@condo/domains/scope/tasks'),
-    require('@condo/domains/news/tasks'),    
+    require('@condo/domains/news/tasks'),
     require('@open-condo/webhooks/tasks'),
 ]
 

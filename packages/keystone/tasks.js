@@ -63,6 +63,7 @@ async function _scheduleRemoteTask (name, preparedArgs, preparedOpts) {
     logger.info({ msg: 'Scheduling task', name, data: { preparedArgs, preparedOpts } })
     const job = await taskQueue.add(name, { args: preparedArgs }, preparedOpts)
     return {
+        id: String(job.id),
         getState: async () => {
             return await job.getState()
         },
@@ -115,6 +116,7 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     setTimeout(executor, 1)
 
     return {
+        id: job.id,
         getState: async () => { return Promise.resolve(status) },
         awaitResult: async () => {
             return new Promise((res, rej) => {
@@ -132,22 +134,36 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     }
 }
 
+/**
+ * Internal function! please don't use it directly! Use `task.delay(..)`
+ * @deprecated for any external usage!
+ */
+async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}) {
+    if (typeof name !== 'string' || !name) throw new Error('task name invalid or empty')
+    if (!isSerializable(args)) throw new Error('task args is not serializable')
+
+    const preparedArgs = createSerializableCopy([...args])
+    const preparedOpts = {
+        ...globalTaskOptions,
+        ...opts,
+    }
+
+    if (FAKE_WORKER_MODE) {
+        return await _scheduleInProcessTask(name, preparedArgs, preparedOpts)
+    }
+
+    return await _scheduleRemoteTask(name, preparedArgs, preparedOpts)
+}
+
 function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
     async function applyAsync (args, taskOptions) {
-        if (!isSerializable(args)) throw new Error('arguments is not serializable')
-
-        const preparedArgs = createSerializableCopy([...args])
         const preparedOpts = {
             ...globalTaskOptions,
             ...defaultTaskOptions,
             ...taskOptions,
         }
 
-        if (FAKE_WORKER_MODE) {
-            return await _scheduleInProcessTask(name, preparedArgs, preparedOpts)
-        }
-
-        return await _scheduleRemoteTask(name, preparedArgs, preparedOpts)
+        return await scheduleTaskByNameWithArgsAndOpts(name, args, preparedOpts)
     }
 
     async function delay () {
@@ -273,4 +289,5 @@ module.exports = {
     removeCronTask,
     registerTasks,
     createWorker,
+    scheduleTaskByNameWithArgsAndOpts,
 }
