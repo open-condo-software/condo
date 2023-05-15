@@ -5,7 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -17,7 +17,7 @@ const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
-const { INCIDENT_STATUS_ACTUAL } = require('@condo/domains/ticket/constants/incident')
+const { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } = require('@condo/domains/ticket/constants/incident')
 const { ERRORS: INCIDENT_ERRORS } = require('@condo/domains/ticket/schema/Incident')
 const { Incident, createTestIncident, updateTestIncident } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -193,7 +193,6 @@ describe('Incident', () => {
                 expect(incident).toHaveProperty('workFinish', attrs.workFinish)
             })
             test('workStart and workFinish can be equal', async () => {
-                console.log(incidentByAdmin.workStart)
                 const [incident] = await updateTestIncident(admin, incidentByAdmin.id, {
                     workFinish: dayjs(incidentByAdmin.workStart).toISOString(),
                 })
@@ -208,7 +207,7 @@ describe('Incident', () => {
                 }, ({ errors }) => {
                     expect(errors).toHaveLength(1)
                     expect(errors[0]).toEqual(expect.objectContaining({
-                        message: INCIDENT_ERRORS.WORK_FINISH_EARLY_THAN_WORK_START.message,
+                        message: INCIDENT_ERRORS.WORK_FINISHED_EARLIER_THEN_WORK_STARTED.message,
                     }))
                 })
             })
@@ -225,9 +224,32 @@ describe('Incident', () => {
                 }, ({ errors }) => {
                     expect(errors).toHaveLength(1)
                     expect(errors[0]).toEqual(expect.objectContaining({
-                        message: INCIDENT_ERRORS.WORK_FINISH_EARLY_THAN_WORK_START.message,
+                        message: INCIDENT_ERRORS.WORK_FINISHED_EARLIER_THEN_WORK_STARTED.message,
                     }))
                 })
+            })
+            test('"workFinish" field should be specified if the incident has status not actual', async () => {
+                const [testIncident] = await createTestIncident(admin, organization, INCIDENT_PAYLOAD)
+
+                expect(testIncident.workFinish).toBeNull()
+                expect(testIncident.status).toEqual(INCIDENT_STATUS_ACTUAL)
+
+                await expectToThrowGQLError(async () => {
+                    await updateTestIncident(admin, testIncident.id, {
+                        status: INCIDENT_STATUS_NOT_ACTUAL,
+                    })
+                }, INCIDENT_ERRORS.WORK_FINISH_MUST_BE_SPECIFIED_IF_NOT_ACTUAL_STATUS)
+
+                expect(testIncident.workFinish).toBeNull()
+                expect(testIncident.status).toEqual(INCIDENT_STATUS_ACTUAL)
+
+                const [updatedIncident, attrs] = await updateTestIncident(admin, testIncident.id, {
+                    status: INCIDENT_STATUS_NOT_ACTUAL,
+                    workFinish: dayjs(faker.date.soon(7, testIncident.workStart)).set('seconds', 0).set('milliseconds', 0).toISOString(),
+                })
+
+                expect(updatedIncident.workFinish).toEqual(attrs.workFinish)
+                expect(updatedIncident.status).toEqual(INCIDENT_STATUS_NOT_ACTUAL)
             })
         })
     })

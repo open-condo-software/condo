@@ -12,6 +12,7 @@ import { Button, Modal, Typography } from '@open-condo/ui'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { handleChangeDate } from '@condo/domains/ticket/components/IncidentForm/BaseIncidentForm'
 import { Incident } from '@condo/domains/ticket/utils/clientSchema'
 
@@ -61,6 +62,8 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
 
     const formRef = useRef<FormInstance>(null)
     const [open, setOpen] = useState<boolean>(false)
+
+    const { requiredValidator } = useValidations()
 
     const update = Incident.useUpdate({})
 
@@ -124,7 +127,10 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
         return ToNotActualBeforeWorkFinishMessage
     }, [ToActualMessage, ToNotActualAfterWorkFinishMessage, ToNotActualBeforeWorkFinishMessage, isActual, isOverdue])
 
-    const finishWorkRules = useMemo(() => getFinishWorkRules(incident, WorkFinishErrorMessage), [incident, WorkFinishErrorMessage])
+    const finishWorkRules = useMemo(() => [
+        isActual ? requiredValidator : null,
+        ...getFinishWorkRules(incident, WorkFinishErrorMessage),
+    ].filter(Boolean), [isActual, requiredValidator, incident, WorkFinishErrorMessage])
 
     const IncidentUpdateStatusModal = useMemo(() => {
         return (
@@ -167,6 +173,7 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                                             showTime={SHOW_TIME_CONFIG}
                                             format='DD.MM.YYYY HH:mm'
                                             style={DATE_PICKER_STYLE}
+                                            allowClear={!isActual}
                                         />
                                     </Form.Item>
                                 </Col>
