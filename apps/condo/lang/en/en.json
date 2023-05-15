@@ -983,6 +983,7 @@
   "pages.condo.news.index.emptyList.title": "Shall we add the first news right now?",
   "pages.condo.news.resend": "Resend",
   "pages.condo.news.validBefore": "until {validBefore}",
+  "news.fields.properties.allSelected":"All houses",
   "news.type.common": "Common",
   "news.type.emergency": "Еmergency",
   "news.createNews": "Add news",

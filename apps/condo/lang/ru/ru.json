@@ -983,6 +983,7 @@
   "pages.condo.news.index.emptyList.title": "Добавим первую новость прямо сейчас?",
   "pages.condo.news.resend": "Повторить отправку",
   "pages.condo.news.validBefore": "до {validBefore}",
+  "news.fields.properties.allSelected":"Все дома",
   "news.type.common": "Плановый",
   "news.type.emergency": "Аварийный",
   "news.createNews": "Добавить новость",

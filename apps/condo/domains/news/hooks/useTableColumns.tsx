@@ -7,7 +7,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { getRenderBody, getRenderNewsDate, ResendNewsButton, getTypeRender } from '@condo/domains/news/utils/clientSchema/NewsRenders'
+import { getRenderBody, getRenderNewsDate, ResendNewsButton, getTypeRender, getRenderProperties } from '@condo/domains/news/utils/clientSchema/NewsRenders'
 
 const COLUMNS_WIDTH = {
     resend: '4%',
@@ -42,6 +42,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
     }, [])
 
     const renderBoody = useMemo(() => getRenderBody(), [])
+    const renderProperties = useMemo(() => getRenderProperties(intl, search), [intl, search])
 
     return useMemo(() => {
         return [
@@ -85,6 +86,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 dataIndex: 'newsItemAddresses',
                 key: 'newsItemAddresses',
                 width: COLUMNS_WIDTH.newsItemAddresses,
+                render: renderProperties,
             },
             {
                 title: DateMessage,

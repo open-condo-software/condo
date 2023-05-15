@@ -11,6 +11,7 @@ import { Typography } from '@open-condo/ui'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { LOCALES } from '@condo/domains/common/constants/locale'
+import { getOneAddressAndPropertiesCountRender } from '@condo/domains/property/utils/clientSchema/Renders'
 
 const DATE_FORMAT = 'DD.MM.YYYY'
 const TIME_FORMAT = 'DD.MM.YYYY HH:mm'
@@ -74,24 +75,32 @@ export const ResendNewsButton = ({ intl, newsItem }) => {
     )
 }
 
-export const getTypeRender = (intl, search?: FilterValue) => {
-    return function render (text, newsItem) {
-        const CommonTypeMessage = intl.formatMessage({ id: 'news.type.common' })
-        const ЕmergencyCommonTypeMessage = intl.formatMessage({ id: 'news.type.emergency' })
+export const getTypeRender = (intl, search?: FilterValue) => (text, newsItem) => {
+    const CommonTypeMessage = intl.formatMessage({ id: 'news.type.common' })
+    const ЕmergencyCommonTypeMessage = intl.formatMessage({ id: 'news.type.emergency' })
 
-        const newsType = get(newsItem, 'type', null)
-        const validBefore = get(newsItem, 'validBefore', null)
-        const timeLeft = dayjs.duration(dayjs(validBefore).diff(dayjs()))
+    const newsType = get(newsItem, 'type', null)
+    const validBefore = get(newsItem, 'validBefore', null)
+    const timeLeft = dayjs.duration(dayjs(validBefore).diff(dayjs()))
 
-        const localeText = newsType === 'emergency' ? ЕmergencyCommonTypeMessage : CommonTypeMessage
+    const localeText = newsType === 'emergency' ? ЕmergencyCommonTypeMessage : CommonTypeMessage
 
-        if (newsType !== 'emergency' || !validBefore || timeLeft.asMilliseconds() < 0) return getTableCellRenderer({ search, ellipsis: true })(localeText)
+    if (newsType !== 'emergency' || !validBefore || timeLeft.asMilliseconds() < 0) return getTableCellRenderer({ search, ellipsis: true })(localeText)
 
-        const postfix = `\n${intl.formatMessage(
-            { id: 'pages.condo.news.validBefore' }, 
-            { validBefore: getNewsDate(intl, validBefore, DATE_FORMAT) }
-        )}`
+    const postfix = `\n${intl.formatMessage(
+        { id: 'pages.condo.news.validBefore' }, 
+        { validBefore: getNewsDate(intl, validBefore, DATE_FORMAT) }
+    )}`
 
-        return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(localeText)
+    return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(localeText)
+}
+
+export const getRenderProperties = (intl, search) => (properties, newsItem) => {
+    const AllPropertiesMessage = intl.formatMessage({ id: 'news.fields.properties.allSelected' })
+
+    if (get(newsItem, 'hasAllProperties')) {
+        return AllPropertiesMessage
     }
+
+    return getOneAddressAndPropertiesCountRender(search)(intl, properties)
 }

@@ -104,8 +104,8 @@ export const getRenderWorkFinish: GetRenderWorkFinishType = (intl) => (stringDat
 }
 
 export const getRenderProperties: GetRenderPropertiesType = (intl, search, incidentProperties) => (_, incident) => {
-    const AllPropertiesMessage = intl.formatMessage({ id: 'incident.fields.properties.allSelected' })
-    console.debug('incident', incident)
+    const AllPropertiesMessage = intl.formatMessage({ id: 'incident.fields.properties.allSelected' })   
+    
     if (get(incident, 'hasAllProperties')) {
         return AllPropertiesMessage
     }

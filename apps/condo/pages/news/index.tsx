@@ -2,6 +2,8 @@
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
+import has from 'lodash/has'
+import isArray from 'lodash/isArray'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState, useMemo } from 'react'
@@ -132,17 +134,35 @@ const NewsTableContainer = ({
         const addresses = {}
 
         newsItemScope.forEach(item => {
-            const propertyAddress = get(item, ['property', 'address'])
-            addresses[item.newsItem.id] = [propertyAddress]
-        })
-    
-        newsWithAddresses = news.map(newsItem => {
-            return { 
-                //TODO(KEKMUS) understand what i have to show if message is sent to all residents
-                newsItemAddresses: addresses[newsItem.id] || 'ALL',
-                ...newsItem,
+            const propertyAddress = get(item, ['property'], null)
+            const newsItemId = get(item, ['newsItem', 'id'])
+            if (propertyAddress && addresses[newsItemId] !== 'hasAllProperties') {
+                if (isArray(addresses[newsItemId])) {
+                    addresses[newsItemId] = [...addresses[newsItemId], propertyAddress]
+                } else {
+                    addresses[newsItemId] = [propertyAddress]
+                }
+            } else {
+                addresses[newsItemId] = 'hasAllProperties'
             }
         })
+
+        newsWithAddresses = news
+            .filter(newsItem => {
+                const newsItemId = get(newsItem, 'id')
+                const hasScope = has(addresses, [newsItemId])
+                
+                return hasScope
+            })
+            .map(newsItem => {
+                const newsItemId = get(newsItem, 'id')
+                const hasAllProperties = addresses[newsItemId] === 'hasAllProperties'
+                return {
+                    newsItemAddresses: addresses[newsItemId] || [],
+                    hasAllProperties: hasAllProperties,
+                    ...newsItem,
+                }
+            })
     }
 
     const columns = useTableColumns(filterMetas)
