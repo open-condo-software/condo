@@ -13,7 +13,7 @@ const { B2CAppAccessRight } = require('./B2CAppAccessRight')
 const { B2CAppBuild } = require('./B2CAppBuild')
 const { B2CAppProperty } = require('./B2CAppProperty')
 const { MessageAppBlackList } = require('./MessageAppBlackList')
-const { SendAppPushMessageService } = require('./SendAppPushMessageService')
+const { SendB2CAppPushMessageService } = require('./SendB2CAppPushMessageService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -26,7 +26,7 @@ module.exports = {
     B2CAppBuild,
     B2CAppProperty,
     B2BAppPromoBlock,
-    SendAppPushMessageService,
+    SendB2CAppPushMessageService,
     MessageAppBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

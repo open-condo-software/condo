@@ -59072,27 +59072,28 @@ type MiniAppOutput {
   label: String
 }
 
-enum SendAppPushMessageType {
+enum SendB2CAppPushMessageType {
   VOIP_INCOMING_CALL_MESSAGE
   B2C_APP_MESSAGE_PUSH
 }
 
-input SendAppPushMessageData {
+input SendB2CAppPushMessageData {
   body: String!
   title: String
   B2CAppContext: String
 }
 
-input SendAppPushMessageInput {
+input SendB2CAppPushMessageInput {
   dv: Int!
   sender: SenderFieldInput!
   app: B2CAppWhereUniqueInput!
   user: UserWhereUniqueInput!
-  type: SendAppPushMessageType!
-  data: SendAppPushMessageData!
+  resident: ResidentWhereUniqueInput!
+  type: SendB2CAppPushMessageType!
+  data: SendB2CAppPushMessageData!
 }
 
-type SendAppPushMessageOutput {
+type SendB2CAppPushMessageOutput {
   id: String!
   status: String!
 }
@@ -67660,6 +67661,9 @@ type Mutation {
   			},
   			"B2CAppName": {
   				"required": true
+  			},
+  			"residentId": {
+  				"required": true
   			}
   		}
   	},
@@ -67681,6 +67685,9 @@ type Mutation {
   				"required": false
   			},
   			"B2CAppName": {
+  				"required": true
+  			},
+  			"residentId": {
   				"required": true
   			}
   		}
@@ -68187,7 +68194,7 @@ type Mutation {
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
-  sendAppPushMessage(data: SendAppPushMessageInput!): SendAppPushMessageOutput
+  sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

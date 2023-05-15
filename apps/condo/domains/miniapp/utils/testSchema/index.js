@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
+const { get } = require('lodash')
 const path = require('path')
 const conf = require('@open-condo/config')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
@@ -15,7 +16,7 @@ const {
 
 const {
     ALL_MINI_APPS_QUERY,
-    SEND_APP_PUSH_MESSAGE_MUTATION,
+    SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
     B2BApp: B2BAppGQL,
     B2BAppContext: B2BAppContextGQL,
     B2BAppAccessRight: B2BAppAccessRightGQL,
@@ -319,41 +320,44 @@ async function createTestB2BAppPromoBlock (client, extraAttrs = {}) {
 async function updateTestB2BAppPromoBlock (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const attrs = {
         dv: 1,
         sender,
         ...extraAttrs,
     }
     const obj = await B2BAppPromoBlock.update(client, id, attrs)
+
     return [obj, attrs]
 }
 
 
-async function sendAppPushMessageByTestClient(client, extraAttrs = {}) {
+async function sendB2CAppPushMessageByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const attrs = {
         dv: 1,
         sender,
-        data: { 
-            body: `testBody ${faker.random.alphaNumeric(8)}`,
-        },
         ...extraAttrs,
+        data: {
+            body: `testBody ${faker.random.alphaNumeric(8)}`,
+            ...get(extraAttrs, 'data', {}),
+        },
     }
+    const { data, errors } = await client.mutate(SEND_B2C_APP_PUSH_MESSAGE_MUTATION, { data: attrs })
 
-    const { data, errors } = await client.mutate(SEND_APP_PUSH_MESSAGE_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: SEND_B2C_APP_PUSH_MESSAGE_MUTATION, variables: { data: attrs }})
+
     return [data.result, attrs]
 }
 async function createTestMessageAppBlackList (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const description = faker.random.alphaNumeric(8)
     const type = B2C_APP_MESSAGE_PUSH_TYPE
-
     const attrs = {
         dv: 1,
         description,
@@ -362,6 +366,7 @@ async function createTestMessageAppBlackList (client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await MessageAppBlackList.create(client, attrs)
+
     return [obj, attrs]
 }
 
@@ -400,7 +405,7 @@ module.exports = {
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild,
     B2CAppProperty, createTestB2CAppProperty, updateTestB2CAppProperty,
     B2BAppPromoBlock, createTestB2BAppPromoBlock, updateTestB2BAppPromoBlock,
-    sendAppPushMessageByTestClient,
+    sendB2CAppPushMessageByTestClient,
     MessageAppBlackList, createTestMessageAppBlackList, updateTestMessageAppBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
     getFakeAddress,

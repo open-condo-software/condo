@@ -31559,6 +31559,9 @@ export type Mutation = {
    * 			},
    * 			"B2CAppName": {
    * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
    * 			}
    * 		}
    * 	},
@@ -31580,6 +31583,9 @@ export type Mutation = {
    * 				"required": false
    * 			},
    * 			"B2CAppName": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
    * 				"required": true
    * 			}
    * 		}
@@ -32083,7 +32089,7 @@ export type Mutation = {
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
-  sendAppPushMessage?: Maybe<SendAppPushMessageOutput>;
+  sendB2CAppPushMessage?: Maybe<SendB2CAppPushMessageOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -38690,8 +38696,8 @@ export type MutationRegisterMultiPaymentForVirtualReceiptArgs = {
 };
 
 
-export type MutationSendAppPushMessageArgs = {
-  data: SendAppPushMessageInput;
+export type MutationSendB2CAppPushMessageArgs = {
+  data: SendB2CAppPushMessageInput;
 };
 
 
@@ -56924,28 +56930,29 @@ export type ResidentsUpdateInput = {
   data?: Maybe<ResidentUpdateInput>;
 };
 
-export type SendAppPushMessageData = {
+export type SendB2CAppPushMessageData = {
   body: Scalars['String'];
   title?: Maybe<Scalars['String']>;
   B2CAppContext?: Maybe<Scalars['String']>;
 };
 
-export type SendAppPushMessageInput = {
+export type SendB2CAppPushMessageInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   app: B2CAppWhereUniqueInput;
   user: UserWhereUniqueInput;
-  type: SendAppPushMessageType;
-  data: SendAppPushMessageData;
+  resident: ResidentWhereUniqueInput;
+  type: SendB2CAppPushMessageType;
+  data: SendB2CAppPushMessageData;
 };
 
-export type SendAppPushMessageOutput = {
-  __typename?: 'SendAppPushMessageOutput';
+export type SendB2CAppPushMessageOutput = {
+  __typename?: 'SendB2CAppPushMessageOutput';
   id: Scalars['String'];
   status: Scalars['String'];
 };
 
-export enum SendAppPushMessageType {
+export enum SendB2CAppPushMessageType {
   VoipIncomingCallMessage = 'VOIP_INCOMING_CALL_MESSAGE',
   B2CAppMessagePush = 'B2C_APP_MESSAGE_PUSH'
 }

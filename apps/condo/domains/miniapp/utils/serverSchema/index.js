@@ -8,7 +8,7 @@ const { execGqlWithoutAccess, generateServerUtils } = require('@open-condo/codeg
 
 const {
     ALL_MINI_APPS_QUERY,
-    SEND_APP_PUSH_MESSAGE_MUTATION,
+    SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
     B2BApp: B2BAppGQL,
     B2BAppContext: B2BAppContextGQL,
     B2BAppAccessRight: B2BAppAccessRightGQL,
@@ -34,15 +34,15 @@ async function allOrganizationApps (context, data) {
     })
 }
 
-async function sendAppPushMessage (context, data) {
+async function sendB2CAppPushMessage (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
 
     return await execGqlWithoutAccess(context, {
-        query: SEND_APP_PUSH_MESSAGE_MUTATION,
+        query: SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to sendAppPushMessage',
+        errorMessage: '[error] Unable to sendB2CAppPushMessage',
         dataPath: 'result',
     })
 }
@@ -68,7 +68,7 @@ module.exports = {
     B2CAppBuild,
     B2CAppProperty,
     B2BAppPromoBlock,
-    sendAppPushMessage,
+    sendB2CAppPushMessage,
     MessageAppBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

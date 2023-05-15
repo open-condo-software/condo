@@ -18,9 +18,9 @@ const ALL_MINI_APPS_QUERY = gql`
     }
 `
 
-const SEND_APP_PUSH_MESSAGE_MUTATION = gql`
-    mutation sendAppPushMessage ($data: SendAppPushMessageInput!) {
-        result: sendAppPushMessage(data: $data) { id status }
+const SEND_B2C_APP_PUSH_MESSAGE_MUTATION = gql`
+    mutation sendB2CAppPushMessage ($data: SendB2CAppPushMessageInput!) {
+        result: sendB2CAppPushMessage(data: $data) { id status }
     }
 `
 
@@ -55,7 +55,7 @@ const MessageAppBlackList = generateGqlQueries('MessageAppBlackList', MESSAGE_AP
 
 module.exports = {
     ALL_MINI_APPS_QUERY,
-    SEND_APP_PUSH_MESSAGE_MUTATION,
+    SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
     B2BApp,
     B2BAppContext,
     B2BAppAccessRight,
