@@ -2,10 +2,12 @@ import { Tabs } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 
+import { RecipientCounter } from '../../domains/news/components/RecipientCounter'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 
 const Component: React.FC = () => {
     const [search, handleSearchChange] = useSearch()
@@ -27,6 +29,9 @@ const DemoPage: React.FC = () => {
         router.replace({ query: { tab: activeKey } }).then(() => setTab(activeKey))
     }, [router])
 
+    const id = '' // <-- Paste id of NewsItem
+    const { objs: newsItemScopes, loading } = NewsItemScope.useObjects({ where: { newsItem: { id } } })
+
     return (
         <PageWrapper>
             <TablePageContent>
@@ -45,6 +50,9 @@ const DemoPage: React.FC = () => {
                     </Tabs.TabPane>
                 </Tabs>
             </TablePageContent>
+            {!loading && (
+                <RecipientCounter newsItemScopes={newsItemScopes}/>
+            )}
         </PageWrapper>
     )
 }
