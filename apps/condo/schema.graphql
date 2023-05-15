@@ -32893,6 +32893,7 @@ enum MessageStatusType {
   delivered
   read
   canceled
+  disabledByUser
 }
 
 """ Notification message """
@@ -35567,6 +35568,491 @@ input MessageBatchCreateInput {
 
 input MessageBatchesCreateInput {
   data: MessageBatchCreateInput
+}
+
+enum NotificationUserSettingHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type NotificationUserSettingHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the NotificationUserSettingHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the NotificationUserSettingHistoryRecord List config, or
+   3. As an alias to a 'name' field on the NotificationUserSettingHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the NotificationUserSettingHistoryRecord List.
+  """
+  _label_: String
+  user: String
+  messageType: String
+  messageTransport: String
+  isEnabled: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: NotificationUserSettingHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input NotificationUserSettingHistoryRecordWhereInput {
+  AND: [NotificationUserSettingHistoryRecordWhereInput]
+  OR: [NotificationUserSettingHistoryRecordWhereInput]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  messageType: String
+  messageType_not: String
+  messageType_contains: String
+  messageType_not_contains: String
+  messageType_starts_with: String
+  messageType_not_starts_with: String
+  messageType_ends_with: String
+  messageType_not_ends_with: String
+  messageType_i: String
+  messageType_not_i: String
+  messageType_contains_i: String
+  messageType_not_contains_i: String
+  messageType_starts_with_i: String
+  messageType_not_starts_with_i: String
+  messageType_ends_with_i: String
+  messageType_not_ends_with_i: String
+  messageType_in: [String]
+  messageType_not_in: [String]
+  messageTransport: String
+  messageTransport_not: String
+  messageTransport_contains: String
+  messageTransport_not_contains: String
+  messageTransport_starts_with: String
+  messageTransport_not_starts_with: String
+  messageTransport_ends_with: String
+  messageTransport_not_ends_with: String
+  messageTransport_i: String
+  messageTransport_not_i: String
+  messageTransport_contains_i: String
+  messageTransport_not_contains_i: String
+  messageTransport_starts_with_i: String
+  messageTransport_not_starts_with_i: String
+  messageTransport_ends_with_i: String
+  messageTransport_not_ends_with_i: String
+  messageTransport_in: [String]
+  messageTransport_not_in: [String]
+  isEnabled: Boolean
+  isEnabled_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: NotificationUserSettingHistoryRecordHistoryActionType
+  history_action_not: NotificationUserSettingHistoryRecordHistoryActionType
+  history_action_in: [NotificationUserSettingHistoryRecordHistoryActionType]
+  history_action_not_in: [NotificationUserSettingHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input NotificationUserSettingHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortNotificationUserSettingHistoryRecordsBy {
+  messageType_ASC
+  messageType_DESC
+  messageTransport_ASC
+  messageTransport_DESC
+  isEnabled_ASC
+  isEnabled_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input NotificationUserSettingHistoryRecordUpdateInput {
+  user: String
+  messageType: String
+  messageTransport: String
+  isEnabled: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: NotificationUserSettingHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input NotificationUserSettingHistoryRecordsUpdateInput {
+  id: ID!
+  data: NotificationUserSettingHistoryRecordUpdateInput
+}
+
+input NotificationUserSettingHistoryRecordCreateInput {
+  user: String
+  messageType: String
+  messageTransport: String
+  isEnabled: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: NotificationUserSettingHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input NotificationUserSettingHistoryRecordsCreateInput {
+  data: NotificationUserSettingHistoryRecordCreateInput
+}
+
+enum NotificationUserSettingMessageTypeType {
+  INVITE_NEW_EMPLOYEE
+  SHARE_TICKET
+  BANK_ACCOUNT_CREATION_REQUEST
+  DIRTY_INVITE_NEW_EMPLOYEE_SMS
+  DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
+  REGISTER_NEW_USER
+  RESET_PASSWORD
+  SMS_VERIFY
+  DEVELOPER_IMPORTANT_NOTE_TYPE
+  CUSTOMER_IMPORTANT_NOTE_TYPE
+  MESSAGE_FORWARDED_TO_SUPPORT
+  TICKET_ASSIGNEE_CONNECTED
+  TICKET_EXECUTOR_CONNECTED
+  TRACK_TICKET_IN_DOMA_APP
+  TICKET_STATUS_OPENED
+  TICKET_STATUS_IN_PROGRESS
+  TICKET_STATUS_COMPLETED
+  TICKET_STATUS_RETURNED
+  TICKET_STATUS_DECLINED
+  TICKET_COMMENT_ADDED
+  METER_VERIFICATION_DATE_REMINDER
+  RESIDENT_ADD_BILLING_ACCOUNT
+  BILLING_RECEIPT_AVAILABLE
+  BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT
+  BILLING_RECEIPT_CATEGORY_AVAILABLE
+  BILLING_RECEIPT_ADDED
+  BILLING_RECEIPT_ADDED_WITH_DEBT
+  BILLING_RECEIPT_ADDED_WITH_NO_DEBT
+  METER_SUBMIT_READINGS_REMINDER
+  METER_VERIFICATION_DATE_EXPIRED
+  RESIDENT_UPGRADE_APP
+  STAFF_UPGRADE_APP
+  CUSTOM_CONTENT_MESSAGE_PUSH
+  CUSTOM_CONTENT_MESSAGE_EMAIL
+  CUSTOM_CONTENT_MESSAGE_SMS
+  VOIP_INCOMING_CALL_MESSAGE
+  B2C_APP_MESSAGE_PUSH
+  RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE
+  RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE
+  RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE
+  NEWS_ITEM_COMMON_MESSAGE_TYPE
+  NEWS_ITEM_EMERGENCY_MESSAGE_TYPE
+}
+
+enum NotificationUserSettingMessageTransportType {
+  sms
+  email
+  telegram
+  push
+}
+
+""" User controlled notifications settings """
+type NotificationUserSetting {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the NotificationUserSetting List config, or
+   2. As an alias to the field set on 'labelField' in the NotificationUserSetting List config, or
+   3. As an alias to a 'name' field on the NotificationUserSetting List (if one exists), or
+   4. As an alias to the 'id' field on the NotificationUserSetting List.
+  """
+  _label_: String
+
+  """ The user the settings will apply for """
+  user: User
+
+  """ Affected message type. Possible values are: INVITE_NEW_EMPLOYEE,SHARE_TICKET,BANK_ACCOUNT_CREATION_REQUEST,DIRTY_INVITE_NEW_EMPLOYEE_SMS,DIRTY_INVITE_NEW_EMPLOYEE_EMAIL,REGISTER_NEW_USER,RESET_PASSWORD,SMS_VERIFY,DEVELOPER_IMPORTANT_NOTE_TYPE,CUSTOMER_IMPORTANT_NOTE_TYPE,MESSAGE_FORWARDED_TO_SUPPORT,TICKET_ASSIGNEE_CONNECTED,TICKET_EXECUTOR_CONNECTED,TRACK_TICKET_IN_DOMA_APP,TICKET_STATUS_OPENED,TICKET_STATUS_IN_PROGRESS,TICKET_STATUS_COMPLETED,TICKET_STATUS_RETURNED,TICKET_STATUS_DECLINED,TICKET_COMMENT_ADDED,METER_VERIFICATION_DATE_REMINDER,RESIDENT_ADD_BILLING_ACCOUNT,BILLING_RECEIPT_AVAILABLE,BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT,BILLING_RECEIPT_CATEGORY_AVAILABLE,BILLING_RECEIPT_ADDED,BILLING_RECEIPT_ADDED_WITH_DEBT,BILLING_RECEIPT_ADDED_WITH_NO_DEBT,METER_SUBMIT_READINGS_REMINDER,METER_VERIFICATION_DATE_EXPIRED,RESIDENT_UPGRADE_APP,STAFF_UPGRADE_APP,CUSTOM_CONTENT_MESSAGE_PUSH,CUSTOM_CONTENT_MESSAGE_EMAIL,CUSTOM_CONTENT_MESSAGE_SMS,VOIP_INCOMING_CALL_MESSAGE,B2C_APP_MESSAGE_PUSH,RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE,NEWS_ITEM_COMMON_MESSAGE_TYPE,NEWS_ITEM_EMERGENCY_MESSAGE_TYPE 
+  """
+  messageType: NotificationUserSettingMessageTypeType
+
+  """ Affected message transport. Possible values are: sms,email,telegram,push 
+  """
+  messageTransport: NotificationUserSettingMessageTransportType
+
+  """ Is notification enabled """
+  isEnabled: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input NotificationUserSettingWhereInput {
+  AND: [NotificationUserSettingWhereInput]
+  OR: [NotificationUserSettingWhereInput]
+  user: UserWhereInput
+  user_is_null: Boolean
+  messageType: NotificationUserSettingMessageTypeType
+  messageType_not: NotificationUserSettingMessageTypeType
+  messageType_in: [NotificationUserSettingMessageTypeType]
+  messageType_not_in: [NotificationUserSettingMessageTypeType]
+  messageTransport: NotificationUserSettingMessageTransportType
+  messageTransport_not: NotificationUserSettingMessageTransportType
+  messageTransport_in: [NotificationUserSettingMessageTransportType]
+  messageTransport_not_in: [NotificationUserSettingMessageTransportType]
+  isEnabled: Boolean
+  isEnabled_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input NotificationUserSettingWhereUniqueInput {
+  id: ID!
+}
+
+enum SortNotificationUserSettingsBy {
+  user_ASC
+  user_DESC
+  messageType_ASC
+  messageType_DESC
+  messageTransport_ASC
+  messageTransport_DESC
+  isEnabled_ASC
+  isEnabled_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input NotificationUserSettingUpdateInput {
+  user: UserRelateToOneInput
+  messageType: NotificationUserSettingMessageTypeType
+  messageTransport: NotificationUserSettingMessageTransportType
+  isEnabled: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input NotificationUserSettingsUpdateInput {
+  id: ID!
+  data: NotificationUserSettingUpdateInput
+}
+
+input NotificationUserSettingCreateInput {
+  user: UserRelateToOneInput
+  messageType: NotificationUserSettingMessageTypeType
+  messageTransport: NotificationUserSettingMessageTransportType
+  isEnabled: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input NotificationUserSettingsCreateInput {
+  data: NotificationUserSettingCreateInput
 }
 
 enum ContactHistoryRecordHistoryActionType {
@@ -60475,6 +60961,36 @@ type Query {
   """ Retrieve the meta-data for the MessageBatch list. """
   _MessageBatchesMeta: _ListMeta
 
+  """ Search for all NotificationUserSettingHistoryRecord items which match the where clause. 
+  """
+  allNotificationUserSettingHistoryRecords(where: NotificationUserSettingHistoryRecordWhereInput, search: String, sortBy: [SortNotificationUserSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [NotificationUserSettingHistoryRecord]
+
+  """ Search for the NotificationUserSettingHistoryRecord item with the matching ID. 
+  """
+  NotificationUserSettingHistoryRecord(where: NotificationUserSettingHistoryRecordWhereUniqueInput!): NotificationUserSettingHistoryRecord
+
+  """ Perform a meta-query on all NotificationUserSettingHistoryRecord items which match the where clause. 
+  """
+  _allNotificationUserSettingHistoryRecordsMeta(where: NotificationUserSettingHistoryRecordWhereInput, search: String, sortBy: [SortNotificationUserSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the NotificationUserSettingHistoryRecord list. 
+  """
+  _NotificationUserSettingHistoryRecordsMeta: _ListMeta
+
+  """ Search for all NotificationUserSetting items which match the where clause. 
+  """
+  allNotificationUserSettings(where: NotificationUserSettingWhereInput, search: String, sortBy: [SortNotificationUserSettingsBy!], orderBy: String, first: Int, skip: Int): [NotificationUserSetting]
+
+  """ Search for the NotificationUserSetting item with the matching ID. """
+  NotificationUserSetting(where: NotificationUserSettingWhereUniqueInput!): NotificationUserSetting
+
+  """ Perform a meta-query on all NotificationUserSetting items which match the where clause. 
+  """
+  _allNotificationUserSettingsMeta(where: NotificationUserSettingWhereInput, search: String, sortBy: [SortNotificationUserSettingsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the NotificationUserSetting list. """
+  _NotificationUserSettingsMeta: _ListMeta
+
   """ Search for all ContactHistoryRecord items which match the where clause. 
   """
   allContactHistoryRecords(where: ContactHistoryRecordWhereInput, search: String, sortBy: [SortContactHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ContactHistoryRecord]
@@ -64032,6 +64548,42 @@ type Mutation {
 
   """ Delete multiple MessageBatch items by ID. """
   deleteMessageBatches(ids: [ID!]): [MessageBatch]
+
+  """ Create a single NotificationUserSettingHistoryRecord item. """
+  createNotificationUserSettingHistoryRecord(data: NotificationUserSettingHistoryRecordCreateInput): NotificationUserSettingHistoryRecord
+
+  """ Create multiple NotificationUserSettingHistoryRecord items. """
+  createNotificationUserSettingHistoryRecords(data: [NotificationUserSettingHistoryRecordsCreateInput]): [NotificationUserSettingHistoryRecord]
+
+  """ Update a single NotificationUserSettingHistoryRecord item by ID. """
+  updateNotificationUserSettingHistoryRecord(id: ID!, data: NotificationUserSettingHistoryRecordUpdateInput): NotificationUserSettingHistoryRecord
+
+  """ Update multiple NotificationUserSettingHistoryRecord items by ID. """
+  updateNotificationUserSettingHistoryRecords(data: [NotificationUserSettingHistoryRecordsUpdateInput]): [NotificationUserSettingHistoryRecord]
+
+  """ Delete a single NotificationUserSettingHistoryRecord item by ID. """
+  deleteNotificationUserSettingHistoryRecord(id: ID!): NotificationUserSettingHistoryRecord
+
+  """ Delete multiple NotificationUserSettingHistoryRecord items by ID. """
+  deleteNotificationUserSettingHistoryRecords(ids: [ID!]): [NotificationUserSettingHistoryRecord]
+
+  """ Create a single NotificationUserSetting item. """
+  createNotificationUserSetting(data: NotificationUserSettingCreateInput): NotificationUserSetting
+
+  """ Create multiple NotificationUserSetting items. """
+  createNotificationUserSettings(data: [NotificationUserSettingsCreateInput]): [NotificationUserSetting]
+
+  """ Update a single NotificationUserSetting item by ID. """
+  updateNotificationUserSetting(id: ID!, data: NotificationUserSettingUpdateInput): NotificationUserSetting
+
+  """ Update multiple NotificationUserSetting items by ID. """
+  updateNotificationUserSettings(data: [NotificationUserSettingsUpdateInput]): [NotificationUserSetting]
+
+  """ Delete a single NotificationUserSetting item by ID. """
+  deleteNotificationUserSetting(id: ID!): NotificationUserSetting
+
+  """ Delete multiple NotificationUserSetting items by ID. """
+  deleteNotificationUserSettings(ids: [ID!]): [NotificationUserSetting]
 
   """ Create a single ContactHistoryRecord item. """
   createContactHistoryRecord(data: ContactHistoryRecordCreateInput): ContactHistoryRecord

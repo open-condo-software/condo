@@ -4,9 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
-const isEmpty = require('lodash/isEmpty')
-const sample = require('lodash/sample')
-const get = require('lodash/get')
+const { random, isEmpty, sample, get } = require('lodash')
 
 const { getRandomString } = require('@open-condo/keystone/test.utils')
 
@@ -14,9 +12,12 @@ const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/gene
 
 const {
     PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
-    MESSAGE_BATCH_TYPE_OPTIONS, PUSH_TRANSPORT_FIREBASE, PUSH_FAKE_TOKEN_SUCCESS,
+    MESSAGE_BATCH_TYPE_OPTIONS, PUSH_TRANSPORT_FIREBASE, PUSH_FAKE_TOKEN_SUCCESS, MESSAGE_TYPES, MESSAGE_TRANSPORTS,
 } = require('@condo/domains/notification/constants/constants')
-const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
+const {
+    getRandomTokenData,
+    getRandomFakeSuccessToken,
+} = require('@condo/domains/notification/utils/testSchema/helpers')
 
 const {
     Message: MessageGQL,
@@ -31,6 +32,7 @@ const {
     MessageBatch: MessageBatchGQL,
 } = require('@condo/domains/notification/gql')
 
+const { NotificationUserSetting: NotificationUserSettingGQL } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateGQLTestUtils(MessageGQL)
@@ -40,6 +42,7 @@ const MessageUserBlackList = generateGQLTestUtils(MessageUserBlackListGQL)
 const MessageOrganizationBlackList = generateGQLTestUtils(MessageOrganizationBlackListGQL)
 const MessageBatch = generateGQLTestUtils(MessageBatchGQL)
 
+const NotificationUserSetting = generateGQLTestUtils(NotificationUserSettingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const lang = 'en'
@@ -53,7 +56,7 @@ async function createTestMessage (client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
     const email = getRandomEmail()
     const meta = { dv: 1, name: faker.random.alphaNumeric(8) }
-    const attrs = { dv: 1, sender, email, type, meta, lang, ...extraAttrs}
+    const attrs = { dv: 1, sender, email, type, meta, lang, ...extraAttrs }
     const obj = await Message.create(client, attrs)
 
     return [obj, attrs]
@@ -74,7 +77,7 @@ async function sendMessageByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
     const email = getRandomEmail()
-    const to = get(client, 'user.id') ? { email, user: { id: client.user.id } }: { email }
+    const to = get(client, 'user.id') ? { email, user: { id: client.user.id } } : { email }
     const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
     const type = INVITE_NEW_EMPLOYEE_MESSAGE_TYPE
     const meta = { dv: 1, inviteCode: faker.random.alphaNumeric(8) }
@@ -138,7 +141,7 @@ async function updateTestRemoteClient (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function syncRemoteClientByTestClient(client, extraAttrs = {}) {
+async function syncRemoteClientByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
     const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
@@ -163,7 +166,7 @@ async function syncRemoteClientWithPushTokenByTestClient (client, extraAttrs = {
     return [device, payload]
 }
 
-async function disconnectUserFromRemoteClientByTestClient(client, extraAttrs = {}) {
+async function disconnectUserFromRemoteClientByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
     const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
@@ -175,7 +178,7 @@ async function disconnectUserFromRemoteClientByTestClient(client, extraAttrs = {
     return [data.result, attrs]
 }
 
-async function setMessageStatusByTestClient(client, extraAttrs = {}) {
+async function setMessageStatusByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
     const sender = { dv: 1, fingerprint: faker.datatype.uuid() }
@@ -279,6 +282,42 @@ async function updateTestMessageBatch (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestNotificationUserSetting (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const user = get(client, 'user')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const messageType = MESSAGE_TYPES[random(MESSAGE_TYPES.length - 1)]
+    const messageTransport = MESSAGE_TRANSPORTS[random(MESSAGE_TRANSPORTS.length - 1)]
+
+    const attrs = {
+        dv: 1,
+        sender,
+        messageType,
+        messageTransport,
+        isEnabled: false,
+        user: user ? { connect: { id: user.id } } : null,
+        ...extraAttrs,
+    }
+    const obj = await NotificationUserSetting.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestNotificationUserSetting (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await NotificationUserSetting.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -291,5 +330,6 @@ module.exports = {
     MessageOrganizationBlackList, createTestMessageOrganizationBlackList,
     updateTestMessageOrganizationBlackList,
     MessageBatch, createTestMessageBatch, updateTestMessageBatch,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    NotificationUserSetting, createTestNotificationUserSetting, updateTestNotificationUserSetting,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

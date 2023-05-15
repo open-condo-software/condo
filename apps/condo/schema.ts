@@ -23547,7 +23547,8 @@ export enum MessageStatusType {
   Sent = 'sent',
   Delivered = 'delivered',
   Read = 'read',
-  Canceled = 'canceled'
+  Canceled = 'canceled',
+  DisabledByUser = 'disabledByUser'
 }
 
 export type MessageUpdateInput = {
@@ -29003,6 +29004,30 @@ export type Mutation = {
   deleteMessageBatch?: Maybe<MessageBatch>;
   /**  Delete multiple MessageBatch items by ID.  */
   deleteMessageBatches?: Maybe<Array<Maybe<MessageBatch>>>;
+  /**  Create a single NotificationUserSettingHistoryRecord item.  */
+  createNotificationUserSettingHistoryRecord?: Maybe<NotificationUserSettingHistoryRecord>;
+  /**  Create multiple NotificationUserSettingHistoryRecord items.  */
+  createNotificationUserSettingHistoryRecords?: Maybe<Array<Maybe<NotificationUserSettingHistoryRecord>>>;
+  /**  Update a single NotificationUserSettingHistoryRecord item by ID.  */
+  updateNotificationUserSettingHistoryRecord?: Maybe<NotificationUserSettingHistoryRecord>;
+  /**  Update multiple NotificationUserSettingHistoryRecord items by ID.  */
+  updateNotificationUserSettingHistoryRecords?: Maybe<Array<Maybe<NotificationUserSettingHistoryRecord>>>;
+  /**  Delete a single NotificationUserSettingHistoryRecord item by ID.  */
+  deleteNotificationUserSettingHistoryRecord?: Maybe<NotificationUserSettingHistoryRecord>;
+  /**  Delete multiple NotificationUserSettingHistoryRecord items by ID.  */
+  deleteNotificationUserSettingHistoryRecords?: Maybe<Array<Maybe<NotificationUserSettingHistoryRecord>>>;
+  /**  Create a single NotificationUserSetting item.  */
+  createNotificationUserSetting?: Maybe<NotificationUserSetting>;
+  /**  Create multiple NotificationUserSetting items.  */
+  createNotificationUserSettings?: Maybe<Array<Maybe<NotificationUserSetting>>>;
+  /**  Update a single NotificationUserSetting item by ID.  */
+  updateNotificationUserSetting?: Maybe<NotificationUserSetting>;
+  /**  Update multiple NotificationUserSetting items by ID.  */
+  updateNotificationUserSettings?: Maybe<Array<Maybe<NotificationUserSetting>>>;
+  /**  Delete a single NotificationUserSetting item by ID.  */
+  deleteNotificationUserSetting?: Maybe<NotificationUserSetting>;
+  /**  Delete multiple NotificationUserSetting items by ID.  */
+  deleteNotificationUserSettings?: Maybe<Array<Maybe<NotificationUserSetting>>>;
   /**  Create a single ContactHistoryRecord item.  */
   createContactHistoryRecord?: Maybe<ContactHistoryRecord>;
   /**  Create multiple ContactHistoryRecord items.  */
@@ -35878,6 +35903,68 @@ export type MutationDeleteMessageBatchesArgs = {
 };
 
 
+export type MutationCreateNotificationUserSettingHistoryRecordArgs = {
+  data?: Maybe<NotificationUserSettingHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateNotificationUserSettingHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<NotificationUserSettingHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateNotificationUserSettingHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<NotificationUserSettingHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateNotificationUserSettingHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<NotificationUserSettingHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteNotificationUserSettingHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteNotificationUserSettingHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateNotificationUserSettingArgs = {
+  data?: Maybe<NotificationUserSettingCreateInput>;
+};
+
+
+export type MutationCreateNotificationUserSettingsArgs = {
+  data?: Maybe<Array<Maybe<NotificationUserSettingsCreateInput>>>;
+};
+
+
+export type MutationUpdateNotificationUserSettingArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<NotificationUserSettingUpdateInput>;
+};
+
+
+export type MutationUpdateNotificationUserSettingsArgs = {
+  data?: Maybe<Array<Maybe<NotificationUserSettingsUpdateInput>>>;
+};
+
+
+export type MutationDeleteNotificationUserSettingArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteNotificationUserSettingsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
 export type MutationCreateContactHistoryRecordArgs = {
   data?: Maybe<ContactHistoryRecordCreateInput>;
 };
@@ -40224,6 +40311,428 @@ export type NewsItemsCreateInput = {
 export type NewsItemsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<NewsItemUpdateInput>;
+};
+
+/**  User controlled notifications settings  */
+export type NotificationUserSetting = {
+  __typename?: 'NotificationUserSetting';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the NotificationUserSetting List config, or
+   *  2. As an alias to the field set on 'labelField' in the NotificationUserSetting List config, or
+   *  3. As an alias to a 'name' field on the NotificationUserSetting List (if one exists), or
+   *  4. As an alias to the 'id' field on the NotificationUserSetting List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  The user the settings will apply for  */
+  user?: Maybe<User>;
+  /**  Affected message type. Possible values are: INVITE_NEW_EMPLOYEE,SHARE_TICKET,BANK_ACCOUNT_CREATION_REQUEST,DIRTY_INVITE_NEW_EMPLOYEE_SMS,DIRTY_INVITE_NEW_EMPLOYEE_EMAIL,REGISTER_NEW_USER,RESET_PASSWORD,SMS_VERIFY,DEVELOPER_IMPORTANT_NOTE_TYPE,CUSTOMER_IMPORTANT_NOTE_TYPE,MESSAGE_FORWARDED_TO_SUPPORT,TICKET_ASSIGNEE_CONNECTED,TICKET_EXECUTOR_CONNECTED,TRACK_TICKET_IN_DOMA_APP,TICKET_STATUS_OPENED,TICKET_STATUS_IN_PROGRESS,TICKET_STATUS_COMPLETED,TICKET_STATUS_RETURNED,TICKET_STATUS_DECLINED,TICKET_COMMENT_ADDED,METER_VERIFICATION_DATE_REMINDER,RESIDENT_ADD_BILLING_ACCOUNT,BILLING_RECEIPT_AVAILABLE,BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT,BILLING_RECEIPT_CATEGORY_AVAILABLE,BILLING_RECEIPT_ADDED,BILLING_RECEIPT_ADDED_WITH_DEBT,BILLING_RECEIPT_ADDED_WITH_NO_DEBT,METER_SUBMIT_READINGS_REMINDER,METER_VERIFICATION_DATE_EXPIRED,RESIDENT_UPGRADE_APP,STAFF_UPGRADE_APP,CUSTOM_CONTENT_MESSAGE_PUSH,CUSTOM_CONTENT_MESSAGE_EMAIL,CUSTOM_CONTENT_MESSAGE_SMS,VOIP_INCOMING_CALL_MESSAGE,B2C_APP_MESSAGE_PUSH,RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE,NEWS_ITEM_COMMON_MESSAGE_TYPE,NEWS_ITEM_EMERGENCY_MESSAGE_TYPE  */
+  messageType?: Maybe<NotificationUserSettingMessageTypeType>;
+  /**  Affected message transport. Possible values are: sms,email,telegram,push  */
+  messageTransport?: Maybe<NotificationUserSettingMessageTransportType>;
+  /**  Is notification enabled  */
+  isEnabled?: Maybe<Scalars['Boolean']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type NotificationUserSettingCreateInput = {
+  user?: Maybe<UserRelateToOneInput>;
+  messageType?: Maybe<NotificationUserSettingMessageTypeType>;
+  messageTransport?: Maybe<NotificationUserSettingMessageTransportType>;
+  isEnabled?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type NotificationUserSettingHistoryRecord = {
+  __typename?: 'NotificationUserSettingHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the NotificationUserSettingHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the NotificationUserSettingHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the NotificationUserSettingHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the NotificationUserSettingHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  messageType?: Maybe<Scalars['String']>;
+  messageTransport?: Maybe<Scalars['String']>;
+  isEnabled?: Maybe<Scalars['Boolean']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<NotificationUserSettingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type NotificationUserSettingHistoryRecordCreateInput = {
+  user?: Maybe<Scalars['String']>;
+  messageType?: Maybe<Scalars['String']>;
+  messageTransport?: Maybe<Scalars['String']>;
+  isEnabled?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<NotificationUserSettingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum NotificationUserSettingHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type NotificationUserSettingHistoryRecordUpdateInput = {
+  user?: Maybe<Scalars['String']>;
+  messageType?: Maybe<Scalars['String']>;
+  messageTransport?: Maybe<Scalars['String']>;
+  isEnabled?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<NotificationUserSettingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type NotificationUserSettingHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<NotificationUserSettingHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<NotificationUserSettingHistoryRecordWhereInput>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  messageType?: Maybe<Scalars['String']>;
+  messageType_not?: Maybe<Scalars['String']>;
+  messageType_contains?: Maybe<Scalars['String']>;
+  messageType_not_contains?: Maybe<Scalars['String']>;
+  messageType_starts_with?: Maybe<Scalars['String']>;
+  messageType_not_starts_with?: Maybe<Scalars['String']>;
+  messageType_ends_with?: Maybe<Scalars['String']>;
+  messageType_not_ends_with?: Maybe<Scalars['String']>;
+  messageType_i?: Maybe<Scalars['String']>;
+  messageType_not_i?: Maybe<Scalars['String']>;
+  messageType_contains_i?: Maybe<Scalars['String']>;
+  messageType_not_contains_i?: Maybe<Scalars['String']>;
+  messageType_starts_with_i?: Maybe<Scalars['String']>;
+  messageType_not_starts_with_i?: Maybe<Scalars['String']>;
+  messageType_ends_with_i?: Maybe<Scalars['String']>;
+  messageType_not_ends_with_i?: Maybe<Scalars['String']>;
+  messageType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  messageType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  messageTransport?: Maybe<Scalars['String']>;
+  messageTransport_not?: Maybe<Scalars['String']>;
+  messageTransport_contains?: Maybe<Scalars['String']>;
+  messageTransport_not_contains?: Maybe<Scalars['String']>;
+  messageTransport_starts_with?: Maybe<Scalars['String']>;
+  messageTransport_not_starts_with?: Maybe<Scalars['String']>;
+  messageTransport_ends_with?: Maybe<Scalars['String']>;
+  messageTransport_not_ends_with?: Maybe<Scalars['String']>;
+  messageTransport_i?: Maybe<Scalars['String']>;
+  messageTransport_not_i?: Maybe<Scalars['String']>;
+  messageTransport_contains_i?: Maybe<Scalars['String']>;
+  messageTransport_not_contains_i?: Maybe<Scalars['String']>;
+  messageTransport_starts_with_i?: Maybe<Scalars['String']>;
+  messageTransport_not_starts_with_i?: Maybe<Scalars['String']>;
+  messageTransport_ends_with_i?: Maybe<Scalars['String']>;
+  messageTransport_not_ends_with_i?: Maybe<Scalars['String']>;
+  messageTransport_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  messageTransport_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isEnabled?: Maybe<Scalars['Boolean']>;
+  isEnabled_not?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<NotificationUserSettingHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<NotificationUserSettingHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<NotificationUserSettingHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<NotificationUserSettingHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type NotificationUserSettingHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type NotificationUserSettingHistoryRecordsCreateInput = {
+  data?: Maybe<NotificationUserSettingHistoryRecordCreateInput>;
+};
+
+export type NotificationUserSettingHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<NotificationUserSettingHistoryRecordUpdateInput>;
+};
+
+export enum NotificationUserSettingMessageTransportType {
+  Sms = 'sms',
+  Email = 'email',
+  Telegram = 'telegram',
+  Push = 'push'
+}
+
+export enum NotificationUserSettingMessageTypeType {
+  InviteNewEmployee = 'INVITE_NEW_EMPLOYEE',
+  ShareTicket = 'SHARE_TICKET',
+  BankAccountCreationRequest = 'BANK_ACCOUNT_CREATION_REQUEST',
+  DirtyInviteNewEmployeeSms = 'DIRTY_INVITE_NEW_EMPLOYEE_SMS',
+  DirtyInviteNewEmployeeEmail = 'DIRTY_INVITE_NEW_EMPLOYEE_EMAIL',
+  RegisterNewUser = 'REGISTER_NEW_USER',
+  ResetPassword = 'RESET_PASSWORD',
+  SmsVerify = 'SMS_VERIFY',
+  DeveloperImportantNoteType = 'DEVELOPER_IMPORTANT_NOTE_TYPE',
+  CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE',
+  MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT',
+  TicketAssigneeConnected = 'TICKET_ASSIGNEE_CONNECTED',
+  TicketExecutorConnected = 'TICKET_EXECUTOR_CONNECTED',
+  TrackTicketInDomaApp = 'TRACK_TICKET_IN_DOMA_APP',
+  TicketStatusOpened = 'TICKET_STATUS_OPENED',
+  TicketStatusInProgress = 'TICKET_STATUS_IN_PROGRESS',
+  TicketStatusCompleted = 'TICKET_STATUS_COMPLETED',
+  TicketStatusReturned = 'TICKET_STATUS_RETURNED',
+  TicketStatusDeclined = 'TICKET_STATUS_DECLINED',
+  TicketCommentAdded = 'TICKET_COMMENT_ADDED',
+  MeterVerificationDateReminder = 'METER_VERIFICATION_DATE_REMINDER',
+  ResidentAddBillingAccount = 'RESIDENT_ADD_BILLING_ACCOUNT',
+  BillingReceiptAvailable = 'BILLING_RECEIPT_AVAILABLE',
+  BillingReceiptAvailableNoAccount = 'BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT',
+  BillingReceiptCategoryAvailable = 'BILLING_RECEIPT_CATEGORY_AVAILABLE',
+  BillingReceiptAdded = 'BILLING_RECEIPT_ADDED',
+  BillingReceiptAddedWithDebt = 'BILLING_RECEIPT_ADDED_WITH_DEBT',
+  BillingReceiptAddedWithNoDebt = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT',
+  MeterSubmitReadingsReminder = 'METER_SUBMIT_READINGS_REMINDER',
+  MeterVerificationDateExpired = 'METER_VERIFICATION_DATE_EXPIRED',
+  ResidentUpgradeApp = 'RESIDENT_UPGRADE_APP',
+  StaffUpgradeApp = 'STAFF_UPGRADE_APP',
+  CustomContentMessagePush = 'CUSTOM_CONTENT_MESSAGE_PUSH',
+  CustomContentMessageEmail = 'CUSTOM_CONTENT_MESSAGE_EMAIL',
+  CustomContentMessageSms = 'CUSTOM_CONTENT_MESSAGE_SMS',
+  VoipIncomingCallMessage = 'VOIP_INCOMING_CALL_MESSAGE',
+  B2CAppMessagePush = 'B2C_APP_MESSAGE_PUSH',
+  RecurrentPaymentProceedingSuccessResultMessage = 'RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE',
+  RecurrentPaymentProceedingUnknownErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE',
+  RecurrentPaymentProceedingAcquiringPaymentProceedErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE',
+  RecurrentPaymentProceedingServiceConsumerNotFoundErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE',
+  RecurrentPaymentProceedingLimitExceededErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE',
+  RecurrentPaymentProceedingContextNotFoundErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE',
+  RecurrentPaymentProceedingContextDisabledErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE',
+  RecurrentPaymentProceedingCardTokenNotValidErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE',
+  RecurrentPaymentProceedingCanNotRegisterMultiPaymentErrorMessage = 'RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE',
+  RecurrentPaymentTomorrowPaymentMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE',
+  NewsItemCommonMessageType = 'NEWS_ITEM_COMMON_MESSAGE_TYPE',
+  NewsItemEmergencyMessageType = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE'
+}
+
+export type NotificationUserSettingUpdateInput = {
+  user?: Maybe<UserRelateToOneInput>;
+  messageType?: Maybe<NotificationUserSettingMessageTypeType>;
+  messageTransport?: Maybe<NotificationUserSettingMessageTransportType>;
+  isEnabled?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type NotificationUserSettingWhereInput = {
+  AND?: Maybe<Array<Maybe<NotificationUserSettingWhereInput>>>;
+  OR?: Maybe<Array<Maybe<NotificationUserSettingWhereInput>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  messageType?: Maybe<NotificationUserSettingMessageTypeType>;
+  messageType_not?: Maybe<NotificationUserSettingMessageTypeType>;
+  messageType_in?: Maybe<Array<Maybe<NotificationUserSettingMessageTypeType>>>;
+  messageType_not_in?: Maybe<Array<Maybe<NotificationUserSettingMessageTypeType>>>;
+  messageTransport?: Maybe<NotificationUserSettingMessageTransportType>;
+  messageTransport_not?: Maybe<NotificationUserSettingMessageTransportType>;
+  messageTransport_in?: Maybe<Array<Maybe<NotificationUserSettingMessageTransportType>>>;
+  messageTransport_not_in?: Maybe<Array<Maybe<NotificationUserSettingMessageTransportType>>>;
+  isEnabled?: Maybe<Scalars['Boolean']>;
+  isEnabled_not?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type NotificationUserSettingWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type NotificationUserSettingsCreateInput = {
+  data?: Maybe<NotificationUserSettingCreateInput>;
+};
+
+export type NotificationUserSettingsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<NotificationUserSettingUpdateInput>;
 };
 
 /**  The OIDC clients list  */
@@ -47960,6 +48469,22 @@ export type Query = {
   _allMessageBatchesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the MessageBatch list.  */
   _MessageBatchesMeta?: Maybe<_ListMeta>;
+  /**  Search for all NotificationUserSettingHistoryRecord items which match the where clause.  */
+  allNotificationUserSettingHistoryRecords?: Maybe<Array<Maybe<NotificationUserSettingHistoryRecord>>>;
+  /**  Search for the NotificationUserSettingHistoryRecord item with the matching ID.  */
+  NotificationUserSettingHistoryRecord?: Maybe<NotificationUserSettingHistoryRecord>;
+  /**  Perform a meta-query on all NotificationUserSettingHistoryRecord items which match the where clause.  */
+  _allNotificationUserSettingHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the NotificationUserSettingHistoryRecord list.  */
+  _NotificationUserSettingHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all NotificationUserSetting items which match the where clause.  */
+  allNotificationUserSettings?: Maybe<Array<Maybe<NotificationUserSetting>>>;
+  /**  Search for the NotificationUserSetting item with the matching ID.  */
+  NotificationUserSetting?: Maybe<NotificationUserSetting>;
+  /**  Perform a meta-query on all NotificationUserSetting items which match the where clause.  */
+  _allNotificationUserSettingsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the NotificationUserSetting list.  */
+  _NotificationUserSettingsMeta?: Maybe<_ListMeta>;
   /**  Search for all ContactHistoryRecord items which match the where clause.  */
   allContactHistoryRecords?: Maybe<Array<Maybe<ContactHistoryRecord>>>;
   /**  Search for the ContactHistoryRecord item with the matching ID.  */
@@ -51837,6 +52362,56 @@ export type Query_AllMessageBatchesMetaArgs = {
   where?: Maybe<MessageBatchWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortMessageBatchesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllNotificationUserSettingHistoryRecordsArgs = {
+  where?: Maybe<NotificationUserSettingHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNotificationUserSettingHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryNotificationUserSettingHistoryRecordArgs = {
+  where: NotificationUserSettingHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllNotificationUserSettingHistoryRecordsMetaArgs = {
+  where?: Maybe<NotificationUserSettingHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNotificationUserSettingHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllNotificationUserSettingsArgs = {
+  where?: Maybe<NotificationUserSettingWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNotificationUserSettingsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryNotificationUserSettingArgs = {
+  where: NotificationUserSettingWhereUniqueInput;
+};
+
+
+export type Query_AllNotificationUserSettingsMetaArgs = {
+  where?: Maybe<NotificationUserSettingWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNotificationUserSettingsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -61044,6 +61619,58 @@ export enum SortNewsItemsBy {
   SentAtDesc = 'sentAt_DESC',
   IsPublishedAsc = 'isPublished_ASC',
   IsPublishedDesc = 'isPublished_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortNotificationUserSettingHistoryRecordsBy {
+  MessageTypeAsc = 'messageType_ASC',
+  MessageTypeDesc = 'messageType_DESC',
+  MessageTransportAsc = 'messageTransport_ASC',
+  MessageTransportDesc = 'messageTransport_DESC',
+  IsEnabledAsc = 'isEnabled_ASC',
+  IsEnabledDesc = 'isEnabled_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortNotificationUserSettingsBy {
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
+  MessageTypeAsc = 'messageType_ASC',
+  MessageTypeDesc = 'messageType_DESC',
+  MessageTransportAsc = 'messageTransport_ASC',
+  MessageTransportDesc = 'messageTransport_DESC',
+  IsEnabledAsc = 'isEnabled_ASC',
+  IsEnabledDesc = 'isEnabled_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
