@@ -1,7 +1,11 @@
 const { spawn } = require('child_process')
 
+const conf = require('@open-condo/config')
+
+const CYPRESS_BROWSER = conf['CYPRESS_BROWSER'] || 'chrome'
+
 const RUN_TESTS_COMMAND = 'yarn'
-const RUN_TESTS_ARGS = ['workspace', '@app/condo', 'cypress', 'run', '-b', 'chrome', 'C', './cypress/cypress.config.ts']
+const RUN_TESTS_ARGS = ['workspace', '@app/condo', 'cypress', 'run', '-b', CYPRESS_BROWSER, 'C', './cypress/cypress.config.ts']
 
 
 const trimMessage = (message) => {
