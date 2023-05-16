@@ -18,6 +18,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-width: 64px;
   text-shadow: none;
   border-radius: @condo-button-border-radius;
   box-shadow: none;
@@ -236,10 +237,10 @@
       background: @condo-global-color-brand-gradient-5 border-box;
       border: @condo-button-border-width solid transparent;
       opacity: 0;
+      transition: opacity @condo-global-transition-duration-default ease-out;
       mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
-      transition: opacity @condo-global-transition-duration-default ease-out;
     }
 
     &::before,

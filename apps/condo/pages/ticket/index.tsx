@@ -732,6 +732,7 @@ export const TicketsPageContent = ({
     const TicketsMessage = intl.formatMessage({ id: 'global.section.tickets' })
     const TicketReadingObjectsNameManyGenitiveMessage = intl.formatMessage({ id: 'pages.condo.ticket.import.TicketReading.objectsName.many.genitive' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -780,10 +781,12 @@ export const TicketsPageContent = ({
                 <Button
                     type='secondary'
                     icon={<FileUp size='medium'/>}
-                />
+                >
+                    {ticketsWithoutFiltersCount ? ImportButtonMessage : null}
+                </Button>
             </ImportWrapper>
         )
-    }, [TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, exampleTemplateLink, ticketCreator, ticketNormalizer, ticketValidator])
+    }, [ImportButtonMessage, TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, exampleTemplateLink, isTicketImportFeatureEnabled, showImport, ticketCreator, ticketNormalizer, ticketValidator, ticketsWithoutFiltersCount])
 
     if (loading || error) {
         const errorToPrint = error ? ServerErrorMsg : null

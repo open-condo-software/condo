@@ -152,6 +152,7 @@
   "filters.DeleteTitle": "Удалить шаблон фильтра?",
   "filters.DeleteMessage": "Восстановить будет невозможно, только создать заново и сохранить",
   "filters.SaveTemplate": "Сохранить шаблон и применить",
+  "filters.DeleteTemplate": "Удалить шаблон",
   "filters.FindWord": "Найти слово",
   "filters.FullSearch": "Поиск",
   "filters.Reset": "Сбросить фильтр",

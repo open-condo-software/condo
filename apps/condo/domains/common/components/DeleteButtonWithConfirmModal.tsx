@@ -1,7 +1,7 @@
-import { DeleteFilled } from '@ant-design/icons'
 import { Typography } from 'antd'
 import React, { useState } from 'react'
 
+import { Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, ButtonProps, Modal } from '@open-condo/ui'
 
@@ -15,6 +15,7 @@ export interface IDeleteActionButtonWithConfirmModal {
     buttonContent?: string
     action: () => Promise<any>
     showCancelButton?: boolean
+    showButtonIcon?: boolean
 }
 
 /**
@@ -29,6 +30,7 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
     buttonContent,
     action,
     showCancelButton,
+    showButtonIcon = false,
 }) => {
     const intl = useIntl()
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
@@ -66,7 +68,7 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
                 loading={isDeleting}
                 danger
                 {...buttonCustomProps}
-                icon={buttonContent ? null : <DeleteFilled />}
+                icon={showButtonIcon || !buttonContent ? <Trash size='medium' /> : null}
             >
                 {buttonContent}
             </Button>
