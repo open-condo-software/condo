@@ -6,14 +6,13 @@ import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import { Smile, Frown, FileEdit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, ButtonProps, Checkbox as CondoCheckbox, CheckboxProps, Modal, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { Button, ButtonProps, Card, Checkbox, CheckboxProps, Modal, Typography } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
-import { EMOJI } from '@condo/domains/ticket/constants/emoji'
+import { EMOJI_IMAGES } from '@condo/domains/ticket/constants/emoji'
 import { QUALITY_CONTROL_BAD_OPTIONS, QUALITY_CONTROL_GOOD_OPTIONS } from '@condo/domains/ticket/constants/qualityControl'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 
@@ -34,86 +33,21 @@ export interface IUseTicketQualityControlModalReturn {
 
 export type UseTicketQualityControlModalType = (props: IUseTicketQualityControlModalProps) => IUseTicketQualityControlModalReturn
 
-type BigCheckboxProps = Omit<CheckboxProps, 'label'> & {
+type AdditionalOptionProps = {
     emoji: string
     label: string
+    form: FormInstance | null
+    name: string
 }
 
 
-const Emoji = styled.span`
+const Emoji = styled.img`
   @media (max-width: 767px) {
-    font-size: 24px;
-    line-height: 24px;
+    width: 24px;
+    height: 24px;
   }
-  font-weight: 400;
-  font-size: 32px;
-  line-height: 32px;
-`
-
-// todo(DOMA-5320): move to ui kit later
-const CustomCheckbox = styled(CondoCheckbox)`
-  @media (max-width: 767px) {
-    height: 64px;
-  }  
-  width: 100%;
-  height: 131px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &::after {
-    display: none;
-  }
-  
-  .condo-checkbox {
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    border-radius: 12px;
-    
-    &::after {
-      display: none;
-    }
-  }
-
-  & > .condo-checkbox-checked > .condo-checkbox-inner::before {
-    background: ${colors.green[1]} !important;    
-  }
-
-  .condo-checkbox-checked > .condo-checkbox-inner {
-    background: linear-gradient(90deg, #4cd174 0%, #6db8f2 100%) border-box;
-  }
-  
-  &:hover {
-    .condo-checkbox-checked > .condo-checkbox-inner {
-      background: linear-gradient(90deg, #4cd174 0%, #6db8f2 100%) border-box;
-    }
-
-    &.condo-checkbox-wrapper > .condo-checkbox:not(.condo-checkbox-checked) > .condo-checkbox-inner {
-      border-color: ${colors.white};
-      box-shadow: 0 4px 14px rgba(178, 185, 217, 0.4);
-    }
-  }
-
-  &.condo-checkbox-wrapper > .condo-checkbox:not(.condo-checkbox-checked) > .condo-checkbox-inner {
-    border-color: ${colors.gray[3]};
-  }
-  
-  .condo-checkbox-inner {
-    height: calc(100% - 2px);
-    width: calc(100% - 2px);
-    border-radius: 12px;
-    transition: all .15s;
-    
-    &::before {
-      border-radius: 11px !important;
-    }
-    
-    &::after {
-      display: none;
-    }
-  }
+  width: 32px;
+  height: 32px;
 `
 
 const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
@@ -122,20 +56,35 @@ const CUSTOM_CHECKBOX_CONTENT_GUTTER: RowProps['gutter'] = [0, 12]
 const CUSTOM_CHECKBOXES_DESKTOP_WRAPPER_GUTTER: RowProps['gutter'] = [24, 0]
 const CUSTOM_CHECKBOXES_MOBILE_WRAPPER_GUTTER: RowProps['gutter'] = [0, 16]
 const COMMENT_WRAPPER_GUTTER: RowProps['gutter'] = [0, 8]
+const ADDITIONAL_OPTION_CONTENT_MOBILE_GUTTER: RowProps['gutter'] = [8, 0]
 
-const Checkbox: React.FC<BigCheckboxProps> = ({ emoji, label, ...restProps }) => {
+const AdditionalOption: React.FC<AdditionalOptionProps> = ({ emoji, label, form, name }) => {
+    const [isChecked, setIsChecked] = useState<boolean>(false)
     const { breakpoints } = useLayoutContext()
 
+    const handleClick = useCallback(() => {
+        if (!form) return
+
+        const prev = Boolean(form.getFieldValue(name))
+        setIsChecked(!prev)
+        form.setFieldValue(name, !prev)
+    }, [form, name])
+
     return (
-        <CustomCheckbox
-            children={
+        <Card
+            hoverable
+            bodyPadding={breakpoints.TABLET_LARGE ? '32px 8px' : 19}
+            active={isChecked}
+            onClick={handleClick}
+        >
+            {
                 breakpoints.TABLET_LARGE
                     ? (
                         <Row gutter={CUSTOM_CHECKBOX_CONTENT_GUTTER} justify='center'>
                             <Col span={24}>
                                 <Row justify='center'>
                                     <Col>
-                                        <Emoji>{emoji}</Emoji>
+                                        <Emoji src={emoji} />
                                     </Col>
                                 </Row>
                             </Col>
@@ -153,12 +102,21 @@ const Checkbox: React.FC<BigCheckboxProps> = ({ emoji, label, ...restProps }) =>
                     : (
                         <Row>
                             <Col span={24}>
-                                <Typography.Text>{emoji} {label}</Typography.Text>
+                                <Row justify='center' align='middle' gutter={ADDITIONAL_OPTION_CONTENT_MOBILE_GUTTER}>
+                                    <Col>
+                                        <Emoji src={emoji} />
+                                    </Col>
+                                    <Col>
+                                        <Typography.Text>
+                                            {label}
+                                        </Typography.Text>
+                                    </Col>
+                                </Row>
                             </Col>
                         </Row>
                     )
             }
-            {...restProps} />
+        </Card>
     )
 }
 
@@ -186,8 +144,7 @@ export const useTicketQualityControlModal: UseTicketQualityControlModalType = ({
     const intl = useIntl()
     const EditMessage = intl.formatMessage({ id: 'ticket.modalQualityControl.edit' })
     const SaveMessage = intl.formatMessage({ id: 'ticket.modalQualityControl.save' })
-    const TitleBadMessage = intl.formatMessage({ id: 'ticket.modalQualityControl.bad.title' })
-    const TitleGoodMessage = intl.formatMessage({ id: 'ticket.modalQualityControl.good.title' })
+    const TitleMessage = intl.formatMessage({ id: 'ticket.modalQualityControl.title' })
     const LeaveCommentMessage = intl.formatMessage({ id: 'ticket.modalQualityControl.leaveComment' })
     const CommentMessage = intl.formatMessage({ id: 'ticket.modalQualityControl.comment' })
     const CommentPlaceholderMessage = intl.formatMessage({ id: 'ticket.modalQualityControl.comment.placeholder' })
@@ -297,24 +254,28 @@ export const useTicketQualityControlModal: UseTicketQualityControlModalType = ({
                             disabled={isLoading}
                         />}
                         onCancel={handleCloseModal}
-                        title={isBad ? TitleBadMessage : TitleGoodMessage}
+                        title={TitleMessage}
                     >
                         <Row gutter={BIG_VERTICAL_GUTTER}>
                             <Col span={24}>
                                 <Row gutter={breakpoints.TABLET_LARGE ? CUSTOM_CHECKBOXES_DESKTOP_WRAPPER_GUTTER : CUSTOM_CHECKBOXES_MOBILE_WRAPPER_GUTTER}>
                                     <Col span={breakpoints.TABLET_LARGE ? 12 : 24}>
-                                        <Form.Item name={isBad ? 'lowQuality' : 'highQuality'} valuePropName='checked'>
-                                            <Checkbox
-                                                emoji={isBad ? EMOJI.BROKEN_HEART : EMOJI.TROPHY}
+                                        <Form.Item name={isBad ? 'lowQuality' : 'highQuality'}>
+                                            <AdditionalOption
+                                                emoji={isBad ? EMOJI_IMAGES.BROKEN_HEART : EMOJI_IMAGES.TROPHY}
                                                 label={isBad ? LowQualityMessage : HighQualityMessage}
+                                                form={form}
+                                                name={isBad ? 'lowQuality' : 'highQuality'}
                                             />
                                         </Form.Item>
                                     </Col>
                                     <Col span={breakpoints.TABLET_LARGE ? 12 : 24}>
-                                        <Form.Item name={isBad ? 'slowly' : 'quickly'} valuePropName='checked'>
-                                            <Checkbox
-                                                emoji={isBad ? EMOJI.SNAIL : EMOJI.ROCKET}
+                                        <Form.Item name={isBad ? 'slowly' : 'quickly'}>
+                                            <AdditionalOption
+                                                emoji={isBad ? EMOJI_IMAGES.SNAIL : EMOJI_IMAGES.ROCKET}
                                                 label={isBad ? SlowlyMessage : QuicklyMessage}
+                                                form={form}
+                                                name={isBad ? 'slowly' : 'quickly'}
                                             />
                                         </Form.Item>
                                     </Col>
@@ -323,7 +284,7 @@ export const useTicketQualityControlModal: UseTicketQualityControlModalType = ({
                             <Col span={24}>
                                 <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                                     <Col span={24}>
-                                        <CondoCheckbox label={LeaveCommentMessage} checked={openComment} onChange={handleToggleContentVisibility} />
+                                        <Checkbox label={LeaveCommentMessage} checked={openComment} onChange={handleToggleContentVisibility} />
                                     </Col>
                                     {
                                         openComment && (
@@ -355,7 +316,7 @@ export const useTicketQualityControlModal: UseTicketQualityControlModalType = ({
                 )
             }}
         </FormWithAction>
-    ), [CommentMessage, CommentPlaceholderMessage, Counter, HighQualityMessage, InputWithCounter, LeaveCommentMessage, LowQualityMessage, QuicklyMessage, SaveMessage, SlowlyMessage, TitleBadMessage, TitleGoodMessage, breakpoints.TABLET_LARGE, handleCloseModal, handleToggleContentVisibility, handleUpdate, isBad, isLoading, open, openComment])
+    ), [CommentMessage, CommentPlaceholderMessage, Counter, HighQualityMessage, InputWithCounter, LeaveCommentMessage, LowQualityMessage, QuicklyMessage, SaveMessage, SlowlyMessage, TitleMessage, breakpoints.TABLET_LARGE, handleCloseModal, handleToggleContentVisibility, handleUpdate, isBad, isLoading, open, openComment])
 
     const QualityControlChangeModal = useMemo(() => (
         <Modal
