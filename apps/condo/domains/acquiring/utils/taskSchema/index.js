@@ -45,6 +45,7 @@ const {
     RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const {
@@ -458,6 +459,43 @@ async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentC
     }
 }
 
+async function sendTomorrowPaymentNoReceiptsNotificationSafely (context, recurrentPaymentContext) {
+    if (isNil(recurrentPaymentContext) || isNil(get(recurrentPaymentContext, 'id'))) throw new Error('invalid recurrentPaymentContext argument')
+
+    try {
+        const {
+            serviceConsumer: {
+                id: serviceConsumerId,
+                resident: { id: residentId, user: { id: userId } },
+            },
+        } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id })
+
+        // get trigger identifier
+        const previousMonthDate = dayjs().startOf('month')
+
+        // create unique key and send message
+        const uniqKey = `rp_tp_${recurrentPaymentContext.id}_${previousMonthDate.format('YYYY-MM-01')}`
+        await sendMessage(context, {
+            ...dvAndSender,
+            to: { user: { id: userId } },
+            type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
+            uniqKey,
+            meta: {
+                dv: 1,
+                data: {
+                    recurrentPaymentContextId: recurrentPaymentContext.id,
+                    serviceConsumerId,
+                    residentId,
+                    userId,
+                    url: `${conf.SERVER_URL}/payments/`,
+                },
+            },
+        })
+    } catch (error) {
+        logger.error({ msg: 'sendMessage error', error })
+    }
+}
+
 async function setRecurrentPaymentAsSuccess (context, recurrentPayment) {
     if (isNil(recurrentPayment) || isNil(get(recurrentPayment, 'id')) || isNil(get(recurrentPayment, 'tryCount')))
         throw new Error('invalid recurrentPayment argument')
@@ -523,5 +561,6 @@ module.exports = {
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,
     sendTomorrowPaymentNotificationSafely,
+    sendTomorrowPaymentNoReceiptsNotificationSafely,
     getNotificationMetaByErrorCode,
 }
