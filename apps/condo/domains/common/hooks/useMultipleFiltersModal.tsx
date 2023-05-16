@@ -1,8 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons'
 import { Ticket } from '@app/condo/schema'
-import { Col, FormInstance, ModalProps, Row, Tabs } from 'antd'
+import { Col, FormInstance, Row, RowProps, Tabs } from 'antd'
 import { FormItemProps } from 'antd/es'
-import { Gutter } from 'antd/es/grid/row'
 import { SizeType } from 'antd/lib/config-provider/SizeContext'
 import Form from 'antd/lib/form'
 import get from 'lodash/get'
@@ -318,9 +317,8 @@ export const MultipleFilterContextProvider: React.FC = ({ children }) => {
     )
 }
 
-const MODAL_PROPS: ModalProps = { width: 978 }
 const CLEAR_ALL_MESSAGE_STYLE: CSSProperties = { fontSize: '12px' }
-const FILTER_WRAPPERS_GUTTER: [Gutter, Gutter] = [24, 12]
+const FILTER_WRAPPERS_GUTTER: RowProps['gutter'] = [24, 12]
 const MODAL_FORM_VALIDATE_TRIGGER: string[] = ['onBlur', 'onSubmit']
 
 type ResetFiltersModalButtonProps = {
@@ -365,9 +363,12 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
 }
 
 const { TabPane } = Tabs
-const MAIN_ROW_GUTTER: [Gutter, Gutter] = [0, 10]
+const MAIN_ROW_GUTTER: RowProps['gutter'] = [0, 10]
 const SCROLL_TO_FIRST_ERROR_CONFIG: Options = { behavior: 'smooth', block: 'center' }
 const NON_FIELD_ERROR_NAME = '_NON_FIELD_ERROR_'
+const MOBILE_RESET_BUTTON_STYLE: CSSProperties = { paddingLeft: 12, paddingRight: 12 }
+const DESKTOP_MODAL_FOOTER_GUTTER: RowProps['gutter'] = [16, 16]
+const BUTTON_GROUP_GUTTER: RowProps['gutter'] = [16, 0]
 
 type MultipleFiltersModalProps = {
     isMultipleFiltersModalVisible: boolean
@@ -409,6 +410,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const DeleteTitle = intl.formatMessage({ id: 'filters.DeleteTitle' })
     const DeleteMessage = intl.formatMessage({ id: 'filters.DeleteMessage' })
     const SaveTemplateMessage = intl.formatMessage({ id: 'filters.SaveTemplate' })
+    const DeleteTemplateMessage = intl.formatMessage({ id: 'filters.DeleteTemplate' })
     const FieldRequiredMessage = intl.formatMessage({ id: 'field.required' })
 
     const router = useRouter()
@@ -582,41 +584,98 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         isFunction(onReset) && onReset()
     }, [onReset, resetFilters, setSelectedFiltersTemplate])
 
-    const modalFooter = useMemo(() => [
-        <ResetFiltersModalButton
-            size='large'
-            key='reset'
-            handleReset={handleResetButtonClick}
-        />,
-        openedFiltersTemplate && (
-            <Col>
-                <DeleteButtonWithConfirmModal
-                    key='delete'
-                    title={DeleteTitle}
-                    message={DeleteMessage}
-                    okButtonLabel={DeleteLabel}
-                    action={handleDeleteFiltersTemplate}
-                />
-            </Col>
-        ),
-        <Button
-            key='saveFilters'
-            onClick={handleSaveFiltersTemplate}
-            id='ModalFilterSaveClick'
-            type='secondary'
-        >
-            {SaveTemplateMessage}
-        </Button>,
-        <Button
-            key='submit'
-            onClick={handleSubmitButtonClick}
-            id='ModalFilterSubmitClick'
-            type='primary'
-            data-cy='common__filters-button-submit'
-        >
-            {ApplyMessage}
-        </Button>,
-    ], [handleResetButtonClick, openedFiltersTemplate, DeleteTitle, DeleteMessage, DeleteLabel, handleDeleteFiltersTemplate, handleSaveFiltersTemplate, SaveTemplateMessage, handleSubmitButtonClick, ApplyMessage])
+    const modalFooter = useMemo(() => {
+        // mobile footer
+        if (!breakpoints.TABLET_LARGE) {
+            return [
+                <ResetFiltersModalButton
+                    size='large'
+                    key='reset'
+                    handleReset={handleResetButtonClick}
+                    style={MOBILE_RESET_BUTTON_STYLE}
+                />,
+                openedFiltersTemplate && (
+                    <DeleteButtonWithConfirmModal
+                        key='delete'
+                        title={DeleteTitle}
+                        message={DeleteMessage}
+                        okButtonLabel={DeleteLabel}
+                        action={handleDeleteFiltersTemplate}
+                        buttonContent={DeleteTemplateMessage}
+                        showButtonIcon
+                    />
+                ),
+                <Button
+                    key='saveFilters'
+                    onClick={handleSaveFiltersTemplate}
+                    id='ModalFilterSaveClick'
+                    type='secondary'
+                >
+                    {SaveTemplateMessage}
+                </Button>,
+                <Button
+                    key='submit'
+                    onClick={handleSubmitButtonClick}
+                    id='ModalFilterSubmitClick'
+                    type='primary'
+                    data-cy='common__filters-button-submit'
+                >
+                    {ApplyMessage}
+                </Button>,
+            ]
+        }
+
+        // desktop footer
+        return (
+            <Row justify='end' gutter={DESKTOP_MODAL_FOOTER_GUTTER}>
+                <Col>
+                    <ResetFiltersModalButton
+                        size='large'
+                        key='reset'
+                        handleReset={handleResetButtonClick}
+                    />
+                </Col>
+                <Col>
+                    <Row gutter={BUTTON_GROUP_GUTTER}>
+                        {
+                            openedFiltersTemplate && (
+                                <Col>
+                                    <DeleteButtonWithConfirmModal
+                                        key='delete'
+                                        title={DeleteTitle}
+                                        message={DeleteMessage}
+                                        okButtonLabel={DeleteLabel}
+                                        action={handleDeleteFiltersTemplate}
+                                    />
+                                </Col>
+                            )
+                        }
+                        <Col>
+                            <Button
+                                key='saveFilters'
+                                onClick={handleSaveFiltersTemplate}
+                                id='ModalFilterSaveClick'
+                                type='secondary'
+                            >
+                                {SaveTemplateMessage}
+                            </Button>
+                        </Col>
+                        <Col>
+                            <Button
+                                key='submit'
+                                onClick={handleSubmitButtonClick}
+                                id='ModalFilterSubmitClick'
+                                type='primary'
+                                data-cy='common__filters-button-submit'
+                            >
+                                {ApplyMessage}
+                            </Button>
+                        </Col>
+                    </Row>
+                </Col>
+            </Row>
+        )
+    }, [ApplyMessage, DeleteLabel, DeleteMessage, DeleteTitle, SaveTemplateMessage, breakpoints.TABLET_LARGE, handleDeleteFiltersTemplate, handleResetButtonClick, handleSaveFiltersTemplate, handleSubmitButtonClick, openedFiltersTemplate])
 
     const handleCancelModal = useCallback(() => setIsMultipleFiltersModalVisible(false), [setIsMultipleFiltersModalVisible])
 

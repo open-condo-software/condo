@@ -152,6 +152,7 @@
   "filters.DeleteTitle": "Delete filter template?",
   "filters.DeleteMessage": "It would be impossible to restore filters settings set. Instead you can create new one and save it.",
   "filters.SaveTemplate": "Save template and apply",
+  "filters.DeleteTemplate": "Delete template",
   "filters.FindWord": "Find word",
   "filters.FullSearch": "Search",
   "filters.Reset": "Reset Filters",
