@@ -4,13 +4,27 @@ const RUN_TESTS_COMMAND = 'yarn'
 const RUN_TESTS_ARGS = ['workspace', '@app/condo', 'cypress', 'run', '-b', 'chrome', 'C', './cypress/cypress.config.ts']
 
 
-const processCypressStdoutMessage = (message, instance) => {
-    const msg = message.toString()
+const trimMessage = (message) => {
+    return message
         .replaceAll('─', '')
+        .replaceAll( /  +/g, ' ' )
+        .replaceAll('\n', '')
+        .replaceAll('\r\n', '')
+}
+
+
+const processCypressStdoutMessage = (message, instance) => {
+    const msg = trimMessage(message.toString())
 
     if (msg.includes('Running:')) {
-        console.log(`STDOUT Cypress instance: ${instance}\r\n${msg}`)
+        console.info(`STDOUT Cypress instance: ${instance} ${msg}`)
     }
+}
+
+const processCypressStderrMessage = (message, instance) => {
+    const msg = trimMessage(message.toString())
+
+    console.warn(`STDERR Cypress instance: ${instance} ${msg}`)
 }
 
 
@@ -26,15 +40,15 @@ const runCypressInParallel = (instances) => {
         })
 
         cypressInstance.stderr.on('data', (data) => {
-            console.log(`STDERR Cypress instance: ${i}: \r\n${data}`)
+            processCypressStderrMessage(data, i)
         })
 
         cypressInstance.on('close', (code) => {
-            console.log(`Cypress instance ${i} close all stdio with code ${code}`)
+            console.info(`Cypress instance ${i} close all stdio with code ${code}`)
         })
 
         cypressInstance.on('error', (err) => {
-            console.log(`Cypress instance ${i} emitted an error: ${err}`)
+            console.error(`Cypress instance ${i} emitted an error: ${err}`)
         })
 
         cypressInstances.push(cypressInstance)
