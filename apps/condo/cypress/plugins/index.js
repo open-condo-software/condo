@@ -31,6 +31,16 @@ module.exports = async (on, config) => {
 
     const admin = null
 
+    on('before:browser:launch', (browser = {}, launchOptions) => {
+        console.log(launchOptions.args)
+
+        if (browser.name === 'chrome') {
+            launchOptions.args.push('--disable-gpu')
+        }
+
+        return launchOptions
+    })
+
     on('task', {
         async 'keystone:createUser' () {
             return await createTestUser(supportClient)
