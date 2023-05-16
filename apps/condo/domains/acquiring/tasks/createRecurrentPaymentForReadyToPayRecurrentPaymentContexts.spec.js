@@ -46,7 +46,49 @@ describe('create-recurrent-payment-for-ready-to-pay-recurrent-payment-contexts',
         })
     })
 
-    it('should create RecurrentPayment', async () => {
+    it('should create RecurrentPayment for current period', async () => {
+        const { batches } = await makePayerWithMultipleConsumers(1, 2)
+        const [batch] = batches
+        const {
+            billingReceipts,
+        } = batch
+        const [{ period }] = billingReceipts
+        const today = dayjs(period)
+
+        const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, {
+            ...getContextRequest(batch),
+            enabled: true,
+        })
+
+        // create recurrent payments
+        await createRecurrentPaymentForRecurrentPaymentContext(adminContext, today, recurrentPaymentContext)
+
+        const recurrentPayments = await RecurrentPayment.getAll(admin, {
+            recurrentPaymentContext: { id: recurrentPaymentContext.id },
+        })
+
+        expect(recurrentPayments).toHaveLength(1)
+
+        const [recurrentPayment] = recurrentPayments
+        expect(recurrentPayment).toHaveProperty('status')
+        expect(recurrentPayment).toHaveProperty('tryCount')
+        expect(recurrentPayment).toHaveProperty('state')
+        expect(recurrentPayment).toHaveProperty('billingReceipts')
+        expect(recurrentPayment).toHaveProperty('recurrentPaymentContext')
+
+        expect(recurrentPayment.status).toEqual(RECURRENT_PAYMENT_INIT_STATUS)
+        expect(recurrentPayment.payAfter).toBeNull()
+        expect(recurrentPayment.tryCount).toEqual(0)
+        expect(recurrentPayment.state).toBeDefined()
+        expect(recurrentPayment.billingReceipts).toHaveLength(2)
+
+        const ids = recurrentPayment.billingReceipts.map(receipt => receipt.id)
+        expect(ids).toContain(billingReceipts[0].id)
+        expect(ids).toContain(billingReceipts[1].id)
+
+    })
+
+    it('should create RecurrentPayment for previous period', async () => {
         const { batches } = await makePayerWithMultipleConsumers(1, 2)
         const [batch] = batches
         const {
@@ -88,14 +130,38 @@ describe('create-recurrent-payment-for-ready-to-pay-recurrent-payment-contexts',
 
     })
 
-    it('should not create RecurrentPayment - no receipts for date', async () => {
+    it('should not create RecurrentPayment - no receipts for future period', async () => {
         const { batches } = await makePayerWithMultipleConsumers(1, 2)
         const [batch] = batches
         const {
             billingReceipts,
         } = batch
         const [{ period }] = billingReceipts
-        const today = dayjs(period)
+        const today = dayjs(period).startOf('month').add(-1, 'month')
+
+        const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, {
+            ...getContextRequest(batch),
+            enabled: true,
+        })
+
+        // create recurrent payments
+        await createRecurrentPaymentForRecurrentPaymentContext(adminContext, today, recurrentPaymentContext)
+
+        const recurrentPayments = await RecurrentPayment.getAll(admin, {
+            recurrentPaymentContext: { id: recurrentPaymentContext.id },
+        })
+
+        expect(recurrentPayments).toHaveLength(0)
+    })
+
+    it('should not create RecurrentPayment - no receipts for past period', async () => {
+        const { batches } = await makePayerWithMultipleConsumers(1, 2)
+        const [batch] = batches
+        const {
+            billingReceipts,
+        } = batch
+        const [{ period }] = billingReceipts
+        const today = dayjs(period).startOf('month').add(3, 'month')
 
         const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, {
             ...getContextRequest(batch),

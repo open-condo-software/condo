@@ -151,6 +151,7 @@ async function getReceiptsForServiceConsumer (context, date, serviceConsumer, bi
 
     const periodDate = dayjs(date)
     const period = periodDate.format('YYYY-MM-01')
+    const previousPeriod = periodDate.startOf('month').subtract(1, 'days').format('YYYY-MM-01')
 
     // select all ids
     const billingCategoryId = get(billingCategory, 'id')
@@ -168,10 +169,10 @@ async function getReceiptsForServiceConsumer (context, date, serviceConsumer, bi
     const billingCategoryCondition = billingCategoryId ? { category: { id: billingCategoryId } } : {}
     const billingAccountCondition = { account: { number: billingAccountNumber } }
     const billingIntegrationContextCondition = { context: { organization: { id: organizationId } } }
-    const periodCondition = { period_in: [period] }
+    const periodCondition = { period_in: [period, previousPeriod] }
 
     // select data
-    return await BillingReceipt.getAll(context, {
+    const receipts = await BillingReceipt.getAll(context, {
         ...billingCategoryCondition,
         ...billingAccountCondition,
         ...billingIntegrationContextCondition,
@@ -179,6 +180,32 @@ async function getReceiptsForServiceConsumer (context, date, serviceConsumer, bi
         ...extraArgs,
         deletedAt: null,
     })
+
+    // let's create a map for receipt concatenated identifiers -> receipt
+    // in order to deduplicate same receipts for different periods
+    const receiptsByAccountAndRecipient = {}
+    for (const receipt of receipts) {
+        const accountNumber = get(receipt, ['account', 'number'])
+        const recipientId = get(receipt, ['receiver', 'id'])
+        const categoryId = get(receipt, ['category', 'id'])
+        const key = accountNumber + '-' + recipientId + '-' + categoryId
+
+        const period = dayjs(get(receipt, ['period']), 'YYYY-MM-DD')
+
+        if (!(key in receiptsByAccountAndRecipient)) {
+            receiptsByAccountAndRecipient[key] = receipt
+            continue
+        }
+
+        // If we have a receipt with later period -- we take it
+        const existingRecipientPeriod = dayjs(get(receiptsByAccountAndRecipient[key], 'period'), 'YYYY-MM-DD')
+        if (existingRecipientPeriod < period) {
+            receiptsByAccountAndRecipient[key] = receipt
+        }
+    }
+
+    // get map values
+    return Object.values(receiptsByAccountAndRecipient)
 }
 
 async function filterPaidBillingReceipts (context, billingReceipts) {

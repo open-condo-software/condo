@@ -22,12 +22,12 @@ const logger = getLogger('recurrent-payment-context-processing')
 async function createRecurrentPaymentForRecurrentPaymentContext (context, date, recurrentPaymentContext) {
     // prepare vars
     const { serviceConsumer, billingCategory } = recurrentPaymentContext
-    const previousMonthDate = date.startOf('month').subtract(1, 'days')
+    const startOfTheMonth = date.startOf('month')
 
     // get billing receipts
     const billingReceipts = await getReceiptsForServiceConsumer(
         context,
-        previousMonthDate,
+        startOfTheMonth,
         serviceConsumer,
         billingCategory,
     )

@@ -27,7 +27,7 @@ const redisClient = getRedisClient()
 async function scanBillingReceiptsForRecurrentPaymentContext (context, recurrentPaymentContext, periods, lastDt) {
     // prepare vars
     const { serviceConsumer, billingCategory } = recurrentPaymentContext
-    const previousMonthDate = dayjs().startOf('month').subtract(1, 'days')
+    const startOfTheMonth = dayjs().startOf('month')
     const tomorrowMidnight = dayjs().add(1, 'days').startOf('day')
     const receiptsWhere = {
         period_in: periods,
@@ -38,7 +38,7 @@ async function scanBillingReceiptsForRecurrentPaymentContext (context, recurrent
     // get billing receipts
     const billingReceipts = await getReceiptsForServiceConsumer(
         context,
-        previousMonthDate,
+        startOfTheMonth,
         serviceConsumer,
         billingCategory,
         receiptsWhere,

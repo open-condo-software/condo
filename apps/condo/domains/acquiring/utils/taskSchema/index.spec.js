@@ -337,7 +337,7 @@ describe('task schema queries', () => {
     describe('getReceiptsForServiceConsumer', () => {
 
         it('should return receipts for category', async () => {
-            const { batches } = await makePayerWithMultipleConsumers(2, 1)
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
             const [batch] = batches
             const {
                 serviceConsumer,
@@ -359,7 +359,7 @@ describe('task schema queries', () => {
         })
 
         it('should return receipts without category', async () => {
-            const { batches } = await makePayerWithMultipleConsumers(2, 1)
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
             const [batch] = batches
             const {
                 serviceConsumer,
@@ -377,8 +377,8 @@ describe('task schema queries', () => {
             expect(receipts[0].id).toEqual(id)
         })
 
-        it('should not return receipts if for wrong period', async () => {
-            const { batches } = await makePayerWithMultipleConsumers(2, 1)
+        it('should return receipts for previous period', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
             const [batch] = batches
             const {
                 serviceConsumer,
@@ -386,7 +386,22 @@ describe('task schema queries', () => {
                     period,
                 }],
             } = batch
-            const today = dayjs(period).add(45, 'day')
+            const today = dayjs(period).startOf('month').add(1, 'month')
+
+            const receipts = await getReceiptsForServiceConsumer(adminContext, today, serviceConsumer)
+            expect(receipts).toHaveLength(1)
+        })
+
+        it('should not return receipts for 2 month old receipts', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const [batch] = batches
+            const {
+                serviceConsumer,
+                billingReceipts: [{
+                    period,
+                }],
+            } = batch
+            const today = dayjs(period).startOf('month').add(2, 'month')
 
             const receipts = await getReceiptsForServiceConsumer(adminContext, today, serviceConsumer)
             expect(receipts).toHaveLength(0)
