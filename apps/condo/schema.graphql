@@ -32894,6 +32894,7 @@ enum MessageStatusType {
   read
   canceled
   disabledByUser
+  notCreatedDueToHook
 }
 
 """ Notification message """
