@@ -30,8 +30,14 @@ import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 
 
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
+const HORIZONTAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
+const fieldPairRowStyle = { width: '100%' }
 
-const FieldPairRow = (props) => {
+interface IFieldPairRowProps {
+    fieldTitle: string,
+    fieldValue: string,
+}
+const FieldPairRow: React.FC<IFieldPairRowProps> = (props) => {
     const {
         fieldTitle,
         fieldValue,
@@ -43,14 +49,14 @@ const FieldPairRow = (props) => {
                     {fieldTitle}
                 </Typography.Text>
             </Col>
-            <Col span={16} style={{ width: '100%' }}>
+            <Col span={16} style={fieldPairRowStyle}>
                 <NotDefinedField value={fieldValue}/>
             </Col>
         </>
     )
 }
 
-const NewsItemCard = (props) => {
+const NewsItemCard: React.FC = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.news.newsItemCard.title' }, { number: 1 })
     const Regular = intl.formatMessage({ id: 'Regular' })
@@ -83,25 +89,16 @@ const NewsItemCard = (props) => {
             id: newsItemId,
         },
     })
-    let newsItemType
-    if (newsItem) {
-        switch (get(newsItem, 'type')) {
-            case NEWS_TYPE_COMMON: {
-                newsItemType = Regular
-                break
-            }
-            case NEWS_TYPE_EMERGENCY: {
-                newsItemType = Emergency
-                break
-            }
-        }
+    const typesNamesMapping = {
+        [NEWS_TYPE_COMMON]: Regular,
+        [NEWS_TYPE_EMERGENCY]: Emergency,
     }
+    const newsItemType = typesNamesMapping[get(newsItem, 'type')] || ''
     const createdBy = get(newsItem, 'createdBy.id')
     const {
         obj: employee,
         loading: employeeLoading,
         error: employeeError,
-
     } = OrganizationEmployee.useObject({
         where: {
             organization: {
@@ -128,7 +125,7 @@ const NewsItemCard = (props) => {
     const isNotFound = !isLoading && (!employee || !newsItem)
     if (hasError || isLoading || isNotFound) {
         const errorToPrint = hasError ? ServerErrorMsg : isNotFound ? NotFoundMsg : null
-        return <LoadingOrErrorPage title='' loading={isLoading} error={errorToPrint}/>
+        return <LoadingOrErrorPage loading={isLoading} error={errorToPrint}/>
     }
 
     return (
@@ -145,7 +142,7 @@ const NewsItemCard = (props) => {
                     </Col>
                     <Col span={24}>
                         <FrontLayerContainer>
-                            <Row gutter={[0, 24]}>
+                            <Row gutter={HORIZONTAL_ROW_GUTTER}>
                                 <FieldPairRow
                                     fieldTitle={SentAtLabel}
                                     fieldValue={newsItem.sentAt ? dayjs(newsItem.sentAt).format('YYYY.MM.DD HH:mm') : '-'}
@@ -170,31 +167,31 @@ const NewsItemCard = (props) => {
                         </FrontLayerContainer>
                     </Col>
                     <Row>
-                        {get(newsItem, 'sentAt') ?
+                        {get(newsItem, 'sentAt') ? (
                             <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
                                 <Button
                                     type='primary'
                                 >
                                     {ResendTitle}
                                 </Button>
-                            </Link> :
-                            ( <ActionBar actions={[
-                                <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
-                                    <Button
-                                        type='primary'
-                                    >
-                                        {EditTitle}
-                                    </Button>
-                                </Link>,
-                                <DeleteButtonWithConfirmModal
-                                    key='delete'
-                                    title={ConfirmDeleteTitle}
-                                    message={ConfirmDeleteMessage}
-                                    okButtonLabel={DeleteTitle}
-                                    action={handleDeleteButtonClick}
-                                    buttonContent={DeleteTitle}
-                                />,
-                            ]}/>)
+                            </Link>
+                        ) : ( <ActionBar actions={[
+                            <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
+                                <Button
+                                    type='primary'
+                                >
+                                    {EditTitle}
+                                </Button>
+                            </Link>,
+                            <DeleteButtonWithConfirmModal
+                                key='delete'
+                                title={ConfirmDeleteTitle}
+                                message={ConfirmDeleteMessage}
+                                okButtonLabel={DeleteTitle}
+                                action={handleDeleteButtonClick}
+                                buttonContent={DeleteTitle}
+                            />,
+                        ]}/>)
                         }
                     </Row>
                 </Row>
