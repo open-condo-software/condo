@@ -62,37 +62,41 @@ function queryFindNewsItemsScopesByResidents (residents) {
  * @param {NewsItemScope[]} newsItemScopes
  */
 function queryFindResidentsByNewsItemAndScopes (organizationId, newsItemScopes) {
-    return {
-        AND: [
-            {
-                organization: { id: organizationId },
-                deletedAt: null,
-            },
-            {
-                OR: newsItemScopes.map((scope) => {
-                    const unitType = get(scope, 'unitType')
-                    const unitName = get(scope, 'unitName')
-                    const propertyId = get(scope, 'property')
-
-                    const AND = []
-
-                    if (propertyId) {
-                        AND.push({ property: { id: propertyId } })
-                    }
-
-                    if (unitType) {
-                        AND.push({ unitType })
-                    }
-
-                    if (unitName) {
-                        AND.push({ unitName })
-                    }
-
-                    return { AND }
-                }),
-            },
-        ],
+    const whereConditions = {
+        AND: [],
     }
+    if (organizationId) {
+        whereConditions.AND.push({
+            organization: { id: organizationId },
+            deletedAt: null,
+        })
+    }
+    if (newsItemScopes.length > 0) {
+        whereConditions.AND.push({
+            OR: newsItemScopes.map((scope) => {
+                const unitType = get(scope, 'unitType')
+                const unitName = get(scope, 'unitName')
+                const propertyId = get(scope, 'property')
+
+                const AND = []
+
+                if (propertyId) {
+                    AND.push({ property: { id: propertyId } })
+                }
+
+                if (unitType) {
+                    AND.push({ unitType })
+                }
+
+                if (unitName) {
+                    AND.push({ unitName })
+                }
+
+                return { AND }
+            }),
+        })
+    }
+    return whereConditions
 }
 
 module.exports = {
