@@ -47,7 +47,7 @@ export function useClientCardTicketTableColumns (tickets) {
     })
 
     const renderLastComment = useCallback((ticket) => {
-        const lastComment = ticketComments.find(comment => comment.ticket.id === ticket.id)
+        const lastComment = ticketComments.find(comment => get(comment, 'ticket.id') === ticket.id)
 
         if (lastComment) {
             return lastComment.content

@@ -110,7 +110,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     }), [statuses, ticket])
 
     const handleChange = useCallback(({ value }) => {
-        const selectedStatus = statuses.find((status) => status.id === value)
+        const selectedStatus = statuses.find((status) => get(status, 'id') === value)
         if (selectedStatus.type === TicketStatusTypeType.Canceled) {
             openCancelModal(value)
         } else if (selectedStatus.type === TicketStatusTypeType.Deferred) {
@@ -122,8 +122,8 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
 
     const { primary: backgroundColor, secondary: color } = ticket.status.colors
     const selectValue = useMemo(
-        () => ({ value: ticket.status.id, label: getTicketLabel(intl, ticket) }),
-        [ticket.status.id, getTicketLabel, intl, ticket]
+        () => ({ value: get(ticket, 'status.id'), label: getTicketLabel(intl, ticket) }),
+        [get(ticket, 'status.id'), getTicketLabel, intl, ticket]
     )
 
     const isLoading = loading || isUpdating

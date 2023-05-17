@@ -206,7 +206,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
             statusDisplayName: (field, value, type) => {
                 const prefix = type ? 'To' : 'From'
                 const statusId = get(ticketChange, `statusId${prefix}`)
-                const ticketStatus = ticketStatuses.find(status => status.id === statusId)
+                const ticketStatus = ticketStatuses.find(status => get(status, 'id') === statusId)
                 const ticketStatusColor = get(ticketStatus, ['colors', 'primary'])
                 const ticketStatusChangeTextStyle = { color: ticketStatusColor }
 

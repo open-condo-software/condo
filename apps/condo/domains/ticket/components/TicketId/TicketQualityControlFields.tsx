@@ -1,6 +1,7 @@
 import { Ticket, TicketQualityControlValueType, QualityControlAdditionalOptionsType } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import isEmpty from 'lodash/isEmpty'
+import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -108,10 +109,10 @@ export const TicketQualityControlCommentField: React.FC<TicketQualityControlComm
 
 export const TicketQualityControlFields: React.FC<TicketQualityControlFieldProps> = ({ ticket }) => {
     const { breakpoints } = useLayoutContext()
+    const ticketStatusId = get(ticket, 'status.id')
+    const shouldShow = get(ticket, 'qualityControlValue') || ticketStatusId === STATUS_IDS.COMPLETED || ticketStatusId === STATUS_IDS.CLOSED
 
-    const isShow = ticket.qualityControlValue || ticket.status.id === STATUS_IDS.COMPLETED || ticket.status.id === STATUS_IDS.CLOSED
-
-    return isShow && (
+    return shouldShow && (
         <Col span={24}>
             <Row gutter={breakpoints.TABLET_LARGE ? QUALITY_CONTROL_BIG_GUTTER : QUALITY_CONTROL_SMALL_GUTTER}>
                 <TicketQualityControlValueField ticket={ticket} />

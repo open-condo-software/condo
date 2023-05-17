@@ -420,7 +420,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         skip: 0,
     })
 
-    const property = useMemo(() => organizationProperties.find(property => property.id === selectedPropertyId), [organizationProperties, selectedPropertyId])
+    const property = useMemo(() => organizationProperties.find(property => get(property, 'id') === selectedPropertyId), [organizationProperties, selectedPropertyId])
 
     const [isPropertyChanged, setIsPropertyChanged] = useState<boolean>(false)
     const initialTicketValues = useMemo(() => isPropertyChanged ? omit(initialValues, ['unitName', 'unitType']) : initialValues,

@@ -155,8 +155,8 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
 
         return initialTicketPropertyHintId ?
             organizationTicketPropertyHintProperties
-                .filter(ticketPropertyHintProperty => ticketPropertyHintProperty.ticketPropertyHint.id === initialTicketPropertyHintId)
-                .map(ticketPropertyHintProperty => ticketPropertyHintProperty.property) : []
+                .filter(ticketPropertyHintProperty => get(ticketPropertyHintProperty, 'ticketPropertyHint.id') === initialTicketPropertyHintId)
+                .map(ticketPropertyHintProperty => get(ticketPropertyHintProperty, 'property')) : []
     }, [initialValues, organizationTicketPropertyHintProperties])
 
     const initialPropertyIds = useMemo(() => {
@@ -190,7 +190,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
 
             for (const propertyId of properties) {
                 await createTicketPropertyHintPropertyAction({
-                    ticketPropertyHint: { connect: { id: ticketPropertyHint.id } },
+                    ticketPropertyHint: { connect: { id: get(ticketPropertyHint, 'id') } },
                     property: { connect: { id: propertyId } },
                 })
             }
@@ -210,8 +210,8 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                 if (!properties.includes(initialPropertyId)) {
                     const ticketPropertyHintProperty = organizationTicketPropertyHintProperties
                         .find(
-                            ticketPropertyHintProperty => ticketPropertyHintProperty.property.id === initialPropertyId &&
-                                ticketPropertyHintProperty.ticketPropertyHint.id === initialTicketPropertyHintId
+                            ticketPropertyHintProperty => get(ticketPropertyHintProperty, 'property.id') === initialPropertyId &&
+                                get(ticketPropertyHintProperty, 'ticketPropertyHint.id') === initialTicketPropertyHintId
                         )
 
                     await softDeleteTicketPropertyHintPropertyAction(ticketPropertyHintProperty)

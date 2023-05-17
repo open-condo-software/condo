@@ -356,7 +356,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         const state = ruleRef.current
         const updateEmptyState = {}
         Object.keys(Setter).forEach(type => {
-            const isExisted = options[type].find(option => option.id === state[type])
+            const isExisted = options[type].find(option => get(option, 'id') === state[type])
             if (!isExisted && state[type]) {
                 updateEmptyState[type] = null
             }
@@ -370,7 +370,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         }
         Object.keys(Setter).forEach(type => {
             Setter[type].all(options[type])
-            const isExisted = options[type].find(option => option.id === state[type])
+            const isExisted = options[type].find(option => get(option, 'id') === state[type])
             Setter[type].one(isExisted ? state[type] : null)
         })
         await updateRuleId()
