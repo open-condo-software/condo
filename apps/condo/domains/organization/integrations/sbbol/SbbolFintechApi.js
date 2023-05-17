@@ -221,11 +221,11 @@ class SbbolFintechApi extends SbbolRequestApi {
     }
 
     get statementTransactionsRequestPath () {
-        return `${this.apiPrefix}/v1/statement/transactions`
+        return `${this.apiPrefix}/v2/statement/transactions`
     }
 
     get getStatementSummaryRequestPath () {
-        return `${this.apiPrefix}/v1/statement/summary`
+        return `${this.apiPrefix}/v2/statement/summary`
     }
 }
 
