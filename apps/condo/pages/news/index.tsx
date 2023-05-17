@@ -83,51 +83,19 @@ const NewsTableContainer = ({
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
 
-    const [whereNewsItemScopeArr, setWhereNewsItemScopeArr] = useState([
-        {
-            newsItem: { 
-                id: null,
-            },
-        },
-    ])
-    useMemo(() => {
-        if (!isNewsFetching) {
-            const newWhereNewsItemScopeArr = news.reduce((arr, newsItem) => {
-                const newsItemID = get(newsItem, 'id', null)
-                const newsItemOrganizationID = get(newsItem, ['organization', 'id'], null)
-    
-                if (newsItemID && newsItemOrganizationID) {
-                    arr.push({
-                        newsItem: { 
-                            id: newsItemID,
-                            organization: { id: newsItemOrganizationID },
-                        },
-                    })
-                }
-                return arr
-            }, [])
-            setWhereNewsItemScopeArr(() => newWhereNewsItemScopeArr)
-        } else {
-            setWhereNewsItemScopeArr(() => {
-                return [
-                    {
-                        newsItem: { 
-                            id: null,
-                        },
-                    },
-                ]
-            })
-        }
-    }, [isNewsFetching])
+    const newsIds = news.map(obj => obj.id)
 
     const {
         loading: isNewsItemScopeFetching,
         objs: newsItemScope,
     } = NewsItemScope.useObjects({
-        where: { OR: whereNewsItemScopeArr },
+        where: {
+            newsItem: { 
+                id_in: newsIds,
+            },
+        },
     })
 
-    //TODO(KEKMUS)rewrite this later
     let newsWithAddresses = {}
 
     if (!isNewsItemScopeFetching) {
@@ -178,7 +146,7 @@ const NewsTableContainer = ({
                 <NewsTable
                     total={total}
                     news={newsWithAddresses}
-                    loading={loading || isNewsFetching || isNewsItemScopeFetching }
+                    loading={loading || isNewsFetching || isNewsItemScopeFetching}
                     columns={columns}
                 />
             </Col>

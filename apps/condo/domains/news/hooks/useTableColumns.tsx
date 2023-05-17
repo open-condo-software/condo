@@ -7,7 +7,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { getRenderBody, getRenderNewsDate, ResendNewsButton, getTypeRender, getRenderProperties } from '@condo/domains/news/utils/clientSchema/NewsRenders'
+import { getRenderBody, getRenderTitle, getRenderNewsDate, ResendNewsButton, getTypeRender, getRenderProperties } from '@condo/domains/news/utils/clientSchema/NewsRenders'
 
 const COLUMNS_WIDTH = {
     resend: '4%',
@@ -39,10 +39,13 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 newsItem={newsItem}
             />
         )
-    }, [])
+    }, [intl])
 
-    const renderBoody = useMemo(() => getRenderBody(), [])
+    const renderType = useMemo(() => getTypeRender(intl, search), [intl, search])
+    const renderTitle = useMemo(() => getRenderTitle(search), [search])
+    const renderBody = useMemo(() => getRenderBody(search), [search])
     const renderProperties = useMemo(() => getRenderProperties(intl, search), [intl, search])
+    const renderNewsDate = useMemo(() => getRenderNewsDate(intl, search), [intl, search])
 
     return useMemo(() => {
         return [
@@ -65,7 +68,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 dataIndex: 'type',
                 key: 'type',
                 width: COLUMNS_WIDTH.type,
-                render: getTypeRender(intl, search),
+                render: renderType,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'type'),
             },
             {
@@ -73,13 +76,14 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 dataIndex: 'title',
                 key: 'title',
                 width: COLUMNS_WIDTH.title,
+                render: renderTitle,
             },
             {
                 title: BodyMessage,
                 dataIndex: 'body',
                 key: 'body',
                 width: COLUMNS_WIDTH.body,
-                render: renderBoody,
+                render: renderBody,
             },
             {
                 title: AddressesMessage,
@@ -94,7 +98,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 key: 'createdAt',
                 width: COLUMNS_WIDTH.createdAt,
                 sorter: true,
-                render: getRenderNewsDate(intl, search),
+                render: renderNewsDate,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
             },
         ]

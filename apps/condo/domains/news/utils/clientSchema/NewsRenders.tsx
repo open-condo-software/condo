@@ -1,17 +1,34 @@
+import {
+    NewsItem as INewsItem,
+} from '@app/condo/schema'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isNull from 'lodash/isNil'
+import { ColumnType } from 'rc-table/lib/interface'
 import React, { CSSProperties, useCallback } from 'react'
+import { IntlShape } from 'react-intl/src/types'
 
 import { RefreshCw } from '@open-condo/icons'
-import { Typography } from '@open-condo/ui'
 
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { getOneAddressAndPropertiesCountRender } from '@condo/domains/property/utils/clientSchema/Renders'
+
+
+type GetRenderType = ColumnType<INewsItem>['render']
+
+type GetRenderTitleType = (search: FilterValue) => GetRenderType
+
+type GetRenderBodyType = (search: FilterValue) => GetRenderType
+
+type GetRenderNewsDateType = (intl: IntlShape, search: FilterValue) => GetRenderType
+
+type GetTypeRenderType = (intl: IntlShape, search: FilterValue) => GetRenderType
+
+type GetRenderPropertiesType = (intl: IntlShape, search: FilterValue) => GetRenderType
 
 const DATE_FORMAT = 'DD.MM.YYYY'
 const TIME_FORMAT = 'DD.MM.YYYY HH:mm'
@@ -28,12 +45,16 @@ const getNewsDate = (intl, stringDate: string, format: string): string => {
     return text
 }
 
-export const getRenderBody = () => (body) =>  {
-    const trimmedText = String(body).length > MAX_CELL_CONTENT_LENGTH ? `${String(body).substring(0, MAX_CELL_CONTENT_LENGTH)}…` : body
-    return getTableCellRenderer({ extraTitle: body })(trimmedText)
+export const getRenderTitle: GetRenderTitleType = (search) => (body) =>  {
+    return getTableCellRenderer({ search, extraTitle: body })(body)
 }
 
-export const getRenderNewsDate = (intl, search: FilterValue) => (stringDate, news) => {
+export const getRenderBody: GetRenderBodyType = (search) => (body) =>  {
+    const trimmedText = String(body).length > MAX_CELL_CONTENT_LENGTH ? `${String(body).substring(0, MAX_CELL_CONTENT_LENGTH)}…` : body
+    return getTableCellRenderer({ search, extraTitle: body })(trimmedText)
+}
+
+export const getRenderNewsDate: GetRenderNewsDateType = (intl, search) => (stringDate, news) => {
     const NotSentNews = intl.formatMessage({ id: 'pages.condo.news.index.field.notSentYet' })
 
     if (!stringDate) return '—'
@@ -75,7 +96,7 @@ export const ResendNewsButton = ({ intl, newsItem }) => {
     )
 }
 
-export const getTypeRender = (intl, search?: FilterValue) => (text, newsItem) => {
+export const getTypeRender: GetTypeRenderType = (intl, search) => (text, newsItem) => {
     const CommonTypeMessage = intl.formatMessage({ id: 'news.type.common' })
     const ЕmergencyCommonTypeMessage = intl.formatMessage({ id: 'news.type.emergency' })
 
@@ -95,7 +116,7 @@ export const getTypeRender = (intl, search?: FilterValue) => (text, newsItem) =>
     return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(localeText)
 }
 
-export const getRenderProperties = (intl, search) => (properties, newsItem) => {
+export const getRenderProperties: GetRenderPropertiesType = (intl, search) => (properties, newsItem) => {
     const AllPropertiesMessage = intl.formatMessage({ id: 'news.fields.properties.allSelected' })
 
     if (get(newsItem, 'hasAllProperties')) {
