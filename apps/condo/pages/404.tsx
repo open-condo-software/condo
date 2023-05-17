@@ -9,6 +9,8 @@ import { Button } from '@condo/domains/common/components/Button'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
+import { ErrorLayout } from './500'
+
 
 export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
   height: 55vh;
@@ -53,8 +55,6 @@ export default function Custom404 (): React.ReactElement {
         </Row>
     )
 }
-
-export const ErrorLayout = (props): React.ReactElement => <PosterLayout {...props} layoutBgImage={Src404}/>
 
 Custom404.container = ErrorLayout
 Custom404.isError = true
