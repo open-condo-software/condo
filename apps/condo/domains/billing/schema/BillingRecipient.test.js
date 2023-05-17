@@ -84,12 +84,36 @@ describe('BillingRecipient', () => {
             expect(obj.meta).toBeDefined()
         })
 
-        test('organization integration manager can\'t create BillingRecipient', async () => {
+        test('organization integration manager can create BillingRecipient', async () => {
             const { managerUserClient, integration, organization } = await makeOrganizationIntegrationManager()
+            const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+            const [obj] = await createTestBillingRecipient(managerUserClient, context)
+
+            expect(obj.importId).toBeDefined()
+            expect(obj.tin).toBeDefined()
+            expect(obj.iec).toBeDefined()
+            expect(obj.bic).toBeDefined()
+            expect(obj.bankAccount).toBeDefined()
+            expect(obj.name).toBeDefined()
+            expect(obj.isApproved).toBeDefined()
+            expect(obj.meta).toBeDefined()
+        })
+
+        test('organization integration manager can\t create BillingRecipient with isApproved flag', async () => {
+            const { managerUserClient, integration, organization } = await makeOrganizationIntegrationManager()
+            const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestBillingRecipient(managerUserClient, context, { isApproved: true })
+            })
+        })
+
+        test('organization integration manager can\'t create BillingRecipient for another organization', async () => {
+            const { managerUserClient, integration, organization } = await makeOrganizationIntegrationManager()
+            const { managerUserClient: anotherManagerUserClient } = await makeOrganizationIntegrationManager()
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestBillingRecipient(managerUserClient, context)
+                await createTestBillingRecipient(anotherManagerUserClient, context)
             })
         })
 

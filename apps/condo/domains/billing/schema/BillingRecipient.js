@@ -78,6 +78,11 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
             type: Checkbox,
             defaultValue: false,
             isRequired: true,
+            access: {
+                read: true,
+                create: access.canManageIsApprovedField,
+                update: access.canManageIsApprovedField,
+            },
         },
 
         meta: {
