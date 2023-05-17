@@ -122,6 +122,16 @@ const NewsTableContainer = ({
         alert('TODO(DOMA-5917)')
     }, [])
 
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: async () => {
+                console.debug('record', record)
+                await router.push(`/news/${record.id}`)
+            },
+        }
+    }, [router])
+
+
     const notFullLoaded = loading || isNewsFetching || isNewsItemScopeFetching
 
     return (
@@ -133,6 +143,7 @@ const NewsTableContainer = ({
                     dataSource={notFullLoaded ? null : newsWithAddresses}
                     columns={columns}
                     data-cy='news__table'
+                    onRow={handleRowAction}
                 />
             </Col>
             <Col span={24}>
