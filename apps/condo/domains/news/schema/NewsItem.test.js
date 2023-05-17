@@ -662,7 +662,7 @@ describe('NewsItems', () => {
     })
 
     describe('notifications', () => {
-        test('user receives push notification on news item created and no receives notification for 2nd news item', async () => {
+        test('the user receives a push notification on a news item created and does not receive notification for 2nd news item', async () => {
             const residentClient1 = await makeClientWithResidentUser()
             const [o10n] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, o10n)
