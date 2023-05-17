@@ -1625,6 +1625,7 @@
   "excelExport.headers.contacts.phone": "Phone",
   "excelExport.headers.contacts.email": "Email",
   "excelExport.headers.contacts.role": "Role",
+  "excelExport.headers.contacts.isVerified": "Verified",
   "excelExport.headers.meters.date": "Reading date",
   "excelExport.headers.meters.address": "Address",
   "excelExport.headers.meters.unitName": "Unit",
