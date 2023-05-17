@@ -14,7 +14,7 @@ class SearchBySource extends AbstractSearchPlugin {
         const godContext = this.keystoneContext.sudo()
 
         const addressSource = await AddressSource.getOne(godContext, {
-            source: mergeAddressAndHelpers(s, this.helpers),
+            source_i: mergeAddressAndHelpers(s, this.helpers),
             deletedAt: null,
         })
         if (!addressSource) {
