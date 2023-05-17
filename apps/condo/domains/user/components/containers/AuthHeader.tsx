@@ -1,4 +1,4 @@
-import { Image, Row, Col } from 'antd'
+import { Row, Col } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
@@ -9,8 +9,8 @@ import { Logo } from '@condo/domains/common/components/Logo'
 
 import { ActionContainer, Header, MobileHeader } from './styles'
 
+
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
-const MINI_POSTER_STYLES = { maxWidth: '15%', marginBottom: '-5px' }
 const HEADER_ACTION_STYLES = { alignSelf:'center', marginTop: '10px' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }
 
@@ -32,20 +32,8 @@ export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
     }, [isAuthenticated, router])
 
     return (
-        !breakpoints.TABLET_LARGE
-            ? (
-                <MobileHeader>
-                    <Row style={LOGO_HEADER_STYLES}>
-                        <Col style={HEADER_LOGO_STYLE}>
-                            <Logo onClick={handleLogoClick}/>
-                        </Col>
-                        <Col style={HEADER_ACTION_STYLES}>
-                            <ActionContainer>{headerAction}</ActionContainer>
-                        </Col>
-                    </Row>
-                </MobileHeader>
-            )
-            : (
+        breakpoints.TABLET_LARGE && (
+            <Col span={24}>
                 <Row>
                     <Header>
                         <Row style={LOGO_HEADER_STYLES}>
@@ -58,6 +46,7 @@ export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
                         </Row>
                     </Header>
                 </Row>
-            )
+            </Col>
+        )
     )
 }

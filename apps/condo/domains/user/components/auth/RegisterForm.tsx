@@ -104,7 +104,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
             validateTrigger={['onBlur', 'onSubmit']}
         >
             <Row gutter={BUTTON_FORM_GUTTER} style={ROW_STYLES}>
-                <ResponsiveCol span={18}>
+                <ResponsiveCol span={24}>
                     <Row>
                         <Col span={24}>
                             <Typography.Title style={FORM_TITLE_STYLES}
@@ -172,7 +172,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                         </Col>
                     </Row>
                 </ResponsiveCol>
-                <ResponsiveCol span={18}>
+                <ResponsiveCol span={24}>
                     <Form.Item>
                         <Button
                             key='submit'

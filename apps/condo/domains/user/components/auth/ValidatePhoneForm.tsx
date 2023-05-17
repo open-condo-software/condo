@@ -1,5 +1,5 @@
 import { Col, Form, Row, Space, Typography, RowProps } from 'antd'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 import { useMutation } from '@open-condo/next/apollo'
 import { FormattedMessage } from '@open-condo/next/intl'
@@ -37,6 +37,7 @@ interface IValidatePhoneFormProps {
 const SMS_CODE_CLEAR_REGEX = /[^0-9]/g
 const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
 const FORM_ITEMS_GUTTER: RowProps['gutter'] = [0, 24]
+const INPUT_STYLE: CSSProperties = { maxWidth: '120px' }
 
 export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElement<IValidatePhoneFormProps> => {
     const intl = useIntl()
@@ -170,7 +171,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
             layout='vertical'
         >
             <Row gutter={BUTTON_FORM_GUTTER} style={ROW_STYLES}>
-                <ResponsiveCol span={18}>
+                <ResponsiveCol span={24}>
                     <Row gutter={FORM_ITEMS_GUTTER}>
                         <Col span={24}>
                             <Typography.Title level={3}>{title}</Typography.Title>
@@ -195,7 +196,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                                 />
                             </Typography.Text>
                         </Col>
-                        <Col>
+                        <Col span={24}>
                             <Typography.Link underline style={{ color: colors.textSecondary }} onClick={onReset}>
                                 {ChangePhoneNumberLabel}
                             </Typography.Link>
@@ -212,12 +213,13 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                                     inputMode='numeric'
                                     pattern='[0-9]*'
                                     onChange={handleVerifyCode}
+                                    style={INPUT_STYLE}
                                 />
                             </Form.Item>
                         </Col>
                     </Row>
                 </ResponsiveCol>
-                <ResponsiveCol span={18}>
+                <ResponsiveCol span={24}>
                     <CountDownTimer action={resendSms} id='RESEND_SMS' timeout={SMS_CODE_TTL} autostart={true}>
                         {({ countdown, runAction }) => {
                             const isCountDownActive = countdown > 0
