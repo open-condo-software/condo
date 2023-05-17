@@ -1,22 +1,18 @@
 import { Meter as MeterType } from '@app/condo/schema'
-import { Typography } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
-
-import { CustomButtonProps } from '@condo/domains/common/components/Button'
 import {
     DeleteButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { AutoSourceAlert } from '@condo/domains/meter/components/BaseMeterModal/AutoSourceAlert'
+import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterModal/BaseMeterModalForm'
+import { Meter } from '@condo/domains/meter/utils/clientSchema'
 
-import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'
-import { Meter } from '../utils/clientSchema'
 
 const INITIAL_VALUES_KEYS = [
     'accountNumber', 'number', 'resource', 'place', 'numberOfTariffs', 'installationDate',
@@ -31,13 +27,11 @@ export const useUpdateMeterModal = (refetch) => {
     const DeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.DeleteMeterAndReadings' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' }).toUpperCase()
 
-    const { organization } = useOrganization()
-    const userOrganizationId = get(organization, 'id')
-
     const [selectedMeter, setSelectedMeter] = useState<MeterType>()
     const meterNumber = get(selectedMeter, 'number')
     const isAutomatic = get(selectedMeter, 'isAutomatic', false)
     const masterAppName = get(selectedMeter, ['b2bApp', 'name'], DeletedMessage)
+    const organizationId = get(selectedMeter, ['organization', 'id'])
 
     const updateMeterAction = Meter.useUpdate({}, () => {
         setSelectedMeter(null)
@@ -99,20 +93,19 @@ export const useUpdateMeterModal = (refetch) => {
                     ? <AutoSourceAlert sourceAppName={masterAppName} />
                     : null
                 }
-                organizationId={userOrganizationId}
+                organizationId={organizationId}
             />
         )
     }, [
-        MeterNumberMessage,
+        modalTitle,
         handleCancelModal,
         handleSubmit,
         initialValues,
-        meterNumber,
         modalFooter,
         selectedMeter,
         isAutomatic,
         masterAppName,
-        userOrganizationId,
+        organizationId,
     ])
 
     return useMemo(() => ({ UpdateMeterModal, setSelectedMeter }), [UpdateMeterModal])
