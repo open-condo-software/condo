@@ -23548,8 +23548,7 @@ export enum MessageStatusType {
   Delivered = 'delivered',
   Read = 'read',
   Canceled = 'canceled',
-  DisabledByUser = 'disabledByUser',
-  NotCreatedDueToHook = 'notCreatedDueToHook'
+  DisabledByUser = 'disabledByUser'
 }
 
 export type MessageUpdateInput = {

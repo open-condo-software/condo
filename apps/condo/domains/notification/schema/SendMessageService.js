@@ -1,7 +1,4 @@
-const get = require('lodash/get')
-
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
@@ -10,12 +7,9 @@ const access = require('@condo/domains/notification/access/SendMessageService')
 const {
     MESSAGE_TYPES, MESSAGE_META,
     MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS,
-    MESSAGE_NOT_CREATED_DUE_TO_HOOK,
 } = require('@condo/domains/notification/constants/constants')
 const { deliverMessage } = require('@condo/domains/notification/tasks')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
-
-const logger = getLogger('SendMessageService')
 
 const ERRORS = {
     EMAIL_FROM_REQUIRED: {
@@ -143,22 +137,6 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                 if (to.phone) messageAttrs.phone = to.phone
                 if (to.user) messageAttrs.user = { connect: to.user }
                 if (to.remoteClient) messageAttrs.remoteClient = { connect: to.remoteClient }
-
-                // Trying to call hook to define should the message be created or not
-                /** @constructor */
-                const hooksClass = get(MESSAGE_META, [type, 'hooksClass'])
-                if (hooksClass) {
-                    /** @type {AbstractMessageTypesHooks} */
-                    const hooks = new hooksClass(messageAttrs)
-                    if (!await hooks.shouldSend()) {
-                        // No message created
-                        logger.info({
-                            message: 'Message not created because the shouldSend-hook returns false',
-                            messageAttrs,
-                        })
-                        return { id: '', status: MESSAGE_NOT_CREATED_DUE_TO_HOOK }
-                    }
-                }
 
                 let messageWithSameUniqKey
 
