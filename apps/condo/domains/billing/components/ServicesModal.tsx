@@ -10,6 +10,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal } from '@open-condo/ui'
 
 import { useServicesTableColumns } from '@condo/domains/billing/hooks/useServicesTableColumns'
+import { BillingReceiptFile } from '@condo/domains/billing/utils/clientSchema'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'
@@ -123,11 +124,20 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const [expanded, setExpanded] = useState(false)
     const handleRowExpand = () => setExpanded(!expanded)
 
+    const {
+        loading,
+        objs,
+    } = BillingReceiptFile.useObjects({
+        where: {
+            receipt: { id: receipt && receipt.id },
+        },
+    })
+
     const ModalFooter = () => {
         return (
             <Row justify='end'>
                 <Col span={24}>
-                    <Button href='https://google.com' target='_blank' type='primary'>
+                    <Button loading={loading} onClick={() => window.open(get(objs[0], 'file.publicUrl'))} type='primary'>
                         {ViewPDFButton}
                     </Button>
                 </Col>

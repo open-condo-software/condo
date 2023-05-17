@@ -148,8 +148,8 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
         }
 
         return detailed
-            ? [columns.address, columns.unitName, columns.fullName, columns.account, columns.category, columns.balance, columns.penalty, columns.charge, columns.paid, columns.toPay, columns.pdf]
-            : [columns.address, columns.unitName, columns.account, columns.toPay, columns.pdf]
+            ? [columns.address, columns.unitName, columns.fullName, columns.account, columns.category, columns.balance, columns.penalty, columns.charge, columns.paid, columns.toPay]
+            : [columns.address, columns.unitName, columns.account, columns.toPay]
     }, [
         AddressTitle,
         FullNameTitle,
