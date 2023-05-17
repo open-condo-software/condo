@@ -100,7 +100,7 @@ class SearchKeystoneApp {
                     searchResult = await plugin.prepare(pluginParams).search(searchString)
                 }
             } catch (e) {
-                return { err: SEARCH_ERROR_COMMON, data: e.message }
+                return { err: SEARCH_ERROR_COMMON, data: get(e, ['errors', 0, 'message'], get(e, 'message')) }
             }
 
             if (!searchResult) {
