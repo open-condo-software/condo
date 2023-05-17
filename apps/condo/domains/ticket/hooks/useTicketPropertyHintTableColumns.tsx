@@ -1,5 +1,6 @@
 import { TicketPropertyHint } from '@app/condo/schema'
 import map from 'lodash/map'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
@@ -40,7 +41,7 @@ export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<Filter
 
     const renderTicketPropertyHintAddresses = useCallback((intl, ticketPropertyHint) => {
         const properties = ticketPropertyHintsProperties
-            .filter(ticketPropertyHintProperty => ticketPropertyHintProperty.ticketPropertyHint.id === ticketPropertyHint.id)
+            .filter(ticketPropertyHintProperty => get(ticketPropertyHintProperty, 'ticketPropertyHint.id') === ticketPropertyHint.id)
             .map(ticketPropertyHintProperty => ticketPropertyHintProperty.property)
 
         return getManyPropertiesAddressRender(search)(intl, properties)

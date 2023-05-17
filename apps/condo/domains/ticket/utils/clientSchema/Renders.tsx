@@ -56,8 +56,9 @@ export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommen
     const NewResidentCommentMessage = intl.formatMessage({ id: 'ticket.newResidentComment' })
 
     return function render (ticket: Ticket) {
-        const currentTicketUserTicketCommentReadTimes = userTicketCommentReadTimes.find(obj => obj.ticket.id === ticket.id)
-        const currentTicketCommentTimes = ticketsCommentTimes.find(obj => obj.ticket.id === ticket.id)
+        const ticketId = get(ticket, 'id')
+        const currentTicketUserTicketCommentReadTimes = ticketId ? userTicketCommentReadTimes.find(obj => get(obj, 'ticket.id') === ticketId) : null
+        const currentTicketCommentTimes = ticketId ? ticketsCommentTimes.find(obj => get(obj, 'ticket.id') === ticketId) : null
 
         const readResidentCommentByUserAt = get(currentTicketUserTicketCommentReadTimes, 'readResidentCommentAt')
         const lastResidentCommentAt = get(currentTicketCommentTimes, 'lastResidentCommentAt')
@@ -96,7 +97,7 @@ export const FavoriteTicketIndicator = ({ ticketId }) => {
         setDebouncedIsFavorite(state)
     }, DEBOUNCE_TIMEOUT_IN_MS))
 
-    const initialIsFavorite = !!userFavoriteTickets.find(favoriteTicket => favoriteTicket.ticket.id === ticketId)
+    const initialIsFavorite = !!userFavoriteTickets.find(favoriteTicket => get(favoriteTicket, 'ticket.id') === ticketId)
     useEffect(() => {
         if (isFavorite === undefined && !loading) {
             setIsFavorite(initialIsFavorite)
@@ -115,7 +116,7 @@ export const FavoriteTicketIndicator = ({ ticketId }) => {
                 logEvent({ eventName: 'TicketAddFavorite' })
                 createUserFavoriteTicketAction({})
             } else {
-                const favoriteTicket = userFavoriteTickets.find(favoriteTicket => favoriteTicket.ticket.id === ticketId)
+                const favoriteTicket = userFavoriteTickets.find(favoriteTicket => get(favoriteTicket, 'ticket.id') === ticketId)
                 deleteUserFavoriteTicketAction(favoriteTicket)
             }
         }
