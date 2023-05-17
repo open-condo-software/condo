@@ -1,6 +1,8 @@
-import { BuildingSection, NewsItemScope, Property as PropertyType } from '@app/condo/schema'
+import { BuildingSection, NewsItemScope, Property as PropertyType, Resident as ResidentType } from '@app/condo/schema'
 import styled from '@emotion/styled'
+import difference from 'lodash/difference'
 import every from 'lodash/every'
+import filter from 'lodash/filter'
 import intersection from 'lodash/intersection'
 import map from 'lodash/map'
 import uniq from 'lodash/uniq'
@@ -37,7 +39,14 @@ const isTargetedToUnitName = ({ property, unitType, unitName }: NewsItemScope) =
     !!property && !unitType && !!unitName
 )
 
-const getUnitsFromSection = (section: BuildingSection) => section.floors.flatMap(floor => floor.units.map(unit => unit.name))
+const getUnitsFromProperty = ({ map }: PropertyType) => (
+    map?.sections?.reduce((acc, section) => ([
+        ...acc,
+        ...getUnitsFromSection(section),
+    ]), []) || []
+)
+
+const getUnitsFromSection = (section: BuildingSection) => section.floors.flatMap(floor => floor.units.map(unit => unit.label))
 
 const detectTargetedSections = (newsItemScopes: NewsItemScope[], property: PropertyType): BuildingSection[] => (
     property.map?.sections?.filter(section => {
@@ -91,11 +100,26 @@ const buildMessageFromNewsItemScopes = (newsItemScopes, intl) => {
     }
 }
 
+/**
+ * Will subtract units, covered by "residents" from units covered by "properties"
+ * @param residents - Residents, that will receive NewsItem, scoped by NewsItemScope records
+ * @param properties - Properties, covered by NewsItemScope records
+ */
+const calculateWillNotReceiveCount = (residents: ResidentType[], properties: PropertyType[]) => {
+    return properties.reduce((acc, property) => {
+        const propertyResidents = filter(residents, r => r.property.id === property.id)
+        const propertyUnits = getUnitsFromProperty(property)
+        const residentUnits = uniq(map(propertyResidents, 'unitName'))
+        return acc + difference(propertyUnits, residentUnits).length
+    }, 0)
+}
+
 interface RecipientCounterProps {
     newsItemScopes: NewsItemScope[]
 }
 
 export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScopes }) => {
+    console.debug('newsItemScopes', newsItemScopes)
     const intl = useIntl()
     const MailingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.mailing' })
     const PropertiesLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.label.properties' })
@@ -111,20 +135,21 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     })
 
     if (loadingProperties || loadingResidents) {
-        return
+        return null
     }
+
+    console.debug('residents', residents)
 
     const message = buildMessageFromNewsItemScopes(newsItemScopes, intl)
 
     // NOTE(antonal): Not all corner cases are handled, because they are rarely will occur:
     // - When some records of NewsItemScope are connected to Property and some are not
     // - When some records of NewsItemScope have unitName, that does not exist in connected Property
-    const propertiesWillReceive = newsItemScopes.length === 1
-        ? isTargetedToOrganization(newsItemScopes[0])
-            ? properties.length
-            : 1
-        : newsItemScopes.filter(isTargetedToEntireProperty).length
+    const propertiesWillReceiveCount = newsItemScopes.length === 0 || newsItemScopes.length === 1 && isTargetedToOrganization(newsItemScopes[0])
+        ? properties.length
+        : uniq(map(newsItemScopes, ['property', 'id'])).length
 
+    const willNotReceiveUnitsCount = calculateWillNotReceiveCount(residents, properties)
 
     return (
         <div style={{ maxWidth: '500px' }}>
@@ -132,9 +157,9 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                 <Space direction='vertical' size={24} width='100%'>
                     <Typography.Text>{MailingMessage} <Typography.Text strong>{message}</Typography.Text></Typography.Text>
                     <JustifiedSpace direction='horizontal' align='start' size={24} width='100%'>
-                        <Counter label={PropertiesLabelMessage} value={propertiesWillReceive}/>
+                        <Counter label={PropertiesLabelMessage} value={propertiesWillReceiveCount}/>
                         <Counter label={WillReceiveLabelMessage} value={residents.length}/>
-                        <Counter label={WillNotReceiveLabelMessage} value='18'/>
+                        <Counter label={WillNotReceiveLabelMessage} value={willNotReceiveUnitsCount}/>
                     </JustifiedSpace>
                 </Space>
             </Card>
