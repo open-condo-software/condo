@@ -17,6 +17,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { generateUniqueMessageKey } = require('./notifyResidentsAboutNewsItem.helpers')
 
 const logger = getLogger('notifyResidentsAboutNewsItem')
+const cacheClient = getRedisClient('notifyResidentsAboutNewsItem', 'throttleCommonNewsItemsNotifications')
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'notifyResidentsAboutNewsItem' } }
 
@@ -52,8 +53,6 @@ async function sendNotifications (newsItem) {
     if (!checkSendingPossibility(newsItem)) {
         return
     }
-
-    const cacheClient = getRedisClient('notifyResidentsAboutNewsItem', 'throttleCommonNewsItemsNotifications')
 
     /** @type {NewsItemScope[]} */
     const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id } })
