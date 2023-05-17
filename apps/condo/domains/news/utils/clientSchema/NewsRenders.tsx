@@ -45,11 +45,11 @@ const getNewsDate = (intl, stringDate: string, format: string): string => {
     return text
 }
 
-export const getRenderTitle: GetRenderTitleType = (search) => (body) =>  {
+export const getRenderTitle: GetRenderTitleType = (search) => (body) => {
     return getTableCellRenderer({ search, extraTitle: body })(body)
 }
 
-export const getRenderBody: GetRenderBodyType = (search) => (body) =>  {
+export const getRenderBody: GetRenderBodyType = (search) => (body) => {
     const trimmedText = String(body).length > MAX_CELL_CONTENT_LENGTH ? `${String(body).substring(0, MAX_CELL_CONTENT_LENGTH)}…` : body
     return getTableCellRenderer({ search, extraTitle: body })(trimmedText)
 }

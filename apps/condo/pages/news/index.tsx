@@ -173,7 +173,7 @@ const NewsPageContent = ({
     const { filters, sorters } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
     //TODO(KEKMUS)now sorting by date sorts only by the createdAt field regardless of whether there is sendAt, need to understand what kind of behavior we expect
-    const sortBy =  sortersToSortBy(sorters, NEWS_DEFAULT_SORT_BY) 
+    const sortBy = sortersToSortBy(sorters, NEWS_DEFAULT_SORT_BY) 
     const searchNewsQuery = useMemo(() => ({ ...baseNewsQuery, ...filtersToWhere(filters) }),
         [baseNewsQuery, filters, filtersToWhere])
 
