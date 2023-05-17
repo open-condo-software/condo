@@ -1,7 +1,7 @@
 import { Ticket, TicketQualityControlValueType, QualityControlAdditionalOptionsType } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
-import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'

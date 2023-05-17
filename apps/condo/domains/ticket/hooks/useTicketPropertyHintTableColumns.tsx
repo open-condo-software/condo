@@ -1,6 +1,6 @@
 import { TicketPropertyHint } from '@app/condo/schema'
-import map from 'lodash/map'
 import get from 'lodash/get'
+import map from 'lodash/map'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
