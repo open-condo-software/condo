@@ -41,24 +41,6 @@ const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const SORTABLE_PROPERTIES = ['number', 'createdAt']
 const NEWS_DEFAULT_SORT_BY = ['createdAt_DESC']
 
-
-const NewsTable = ({
-    total,
-    news,
-    columns,
-    loading,
-}) => {
-    return (
-        <Table
-            totalRows={total}
-            loading={loading}
-            dataSource={loading ? null : news}
-            columns={columns}
-            data-cy='news__table'
-        />
-    )
-}
-
 const NewsTableContainer = ({
     filterMetas,
     sortBy,
@@ -96,7 +78,7 @@ const NewsTableContainer = ({
         },
     })
 
-    let newsWithAddresses = {}
+    let newsWithAddresses = []
 
     if (!isNewsItemScopeFetching) {
         const addresses = {}
@@ -140,14 +122,17 @@ const NewsTableContainer = ({
         alert('TODO(DOMA-5917)')
     }, [])
 
+    const notFullLoaded = loading || isNewsFetching || isNewsItemScopeFetching
+
     return (
         <Row gutter={[0, 40]}>
             <Col span={24}>
-                <NewsTable
-                    total={total}
-                    news={newsWithAddresses}
-                    loading={loading || isNewsFetching || isNewsItemScopeFetching}
+                <Table
+                    totalRows={total}
+                    loading={notFullLoaded}
+                    dataSource={notFullLoaded ? null : newsWithAddresses}
                     columns={columns}
+                    data-cy='news__table'
                 />
             </Col>
             <Col span={24}>
