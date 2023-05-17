@@ -341,6 +341,7 @@ describe('exportContacts', () => {
                 'Телефон',
                 'Почта',
                 'Роль',
+                'Верифицирован',
             ],
             ...(contacts.map(contact => [
                 contact.name,
@@ -350,6 +351,7 @@ describe('exportContacts', () => {
                 contact.phone || empty,
                 contact.email || empty,
                 contact.role ? indexedRoles[contact.role] : empty,
+                i18n(contact.isVerified ? 'Yes' : 'No', { locale }),
             ])),
         ])
     })

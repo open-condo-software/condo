@@ -39,6 +39,7 @@ const contactToRow = ({ task, contact, translatedRolesMap }) => {
         phone: contact.phone || EMPTY_VALUE,
         email: contact.email || EMPTY_VALUE,
         role: roleId ? translatedRolesMap[roleId] : EMPTY_VALUE,
+        isVerified: i18n(contact.isVerified ? 'Yes' : 'No', { locale }),
     }
 }
 
