@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { FileText } from '@open-condo/icons'
-import { Tabs, Typography } from '@open-condo/ui/src'
+import { Tabs, Typography, Button } from '@open-condo/ui/src'
 import type { TabsProps, TabItem } from '@open-condo/ui/src'
 
 import type { ComponentStory, ComponentMeta } from '@storybook/react'
@@ -9,6 +9,22 @@ import type { ComponentStory, ComponentMeta } from '@storybook/react'
 export default {
     title: 'Components/Tabs',
     component: Tabs,
+    argTypes: {
+        leftExtraContent: {
+            table: {
+                type: { 
+                    summary: 'React.ReactNode',
+                },
+            },
+        },
+        rightExtraContent: {
+            table: {
+                type: { 
+                    summary: 'React.ReactNode',
+                },
+            },
+        },
+    },
 } as ComponentMeta<React.FC<TabsProps>>
 
 const simpleItems: Array<TabItem> = [
@@ -40,9 +56,29 @@ const simpleItems: Array<TabItem> = [
     },
 ]
 
+const withExtraContentItems: Array<TabItem> = [
+    {
+        key: 'tab1',
+        label: 'Tab 1',
+        children: <Typography.Paragraph>Tab 1 text</Typography.Paragraph>,
+    },
+    {
+        key: 'tab2',
+        label: 'Tab 2',
+        children: <Typography.Paragraph>Tab 2 text</Typography.Paragraph>,
+    },
+]
+
 const Template: ComponentStory<React.FC<TabsProps>> = (args) => <Tabs {...args}/>
 
 export const Simple = Template.bind({})
 Simple.args = {
     items: simpleItems,
 }
+
+export const WithExtraContent = Template.bind({})
+WithExtraContent.args = {
+    items: withExtraContentItems,
+    leftExtraContent : <Button type='primary' key='1'>Left Button</Button>,
+    rightExtraContent : <Button type='primary' key='2'>Right Button</Button>,
+}   

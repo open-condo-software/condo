@@ -16,6 +16,11 @@ export type TabItem = {
     children?: React.ReactNode
 }
 
+type CondoTabsProps = {
+    leftExtraContent?: React.ReactNode
+    rightExtraContent?: React.ReactNode
+}
+
 export type TabsProps = Pick<DefaultTabsProps,
 'className' |
 'id' |
@@ -24,10 +29,10 @@ export type TabsProps = Pick<DefaultTabsProps,
 'destroyInactiveTabPane' |
 'onChange'> & {
     items?: Array<TabItem>
-}
+} & CondoTabsProps
 
 export const Tabs: React.FC<TabsProps> = (props) => {
-    const { onChange, id, items = [], ...restProps } = props
+    const { onChange, id, items = [], leftExtraContent = null, rightExtraContent = null,  ...restProps } = props
 
     const handleChange = useCallback((activeKey: string) => {
         sendAnalyticsChangeEvent('Tabs', { activeKey, id })
@@ -47,5 +52,10 @@ export const Tabs: React.FC<TabsProps> = (props) => {
         ),
     }))
 
-    return <DefaultTabs {...restProps} id={id} onChange={handleChange} items={itemsWithIcons} prefixCls={TABS_CLASS_PREFIX}/>
+    const tabBarExtraContent = {
+        left: leftExtraContent,
+        right: rightExtraContent,
+    }
+
+    return <DefaultTabs {...restProps} id={id} onChange={handleChange} items={itemsWithIcons} tabBarExtraContent={tabBarExtraContent} prefixCls={TABS_CLASS_PREFIX}/>
 }
