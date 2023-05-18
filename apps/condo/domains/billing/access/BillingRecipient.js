@@ -9,7 +9,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find, getById } = require('@open-condo/keystone/schema')
 
 const { canReadBillingEntity, checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
-const { STAFF } = require('@condo/domains/user/constants/common')
+const { STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 
 async function canReadBillingRecipients ({ authentication }) {
     return await canReadBillingEntity(authentication)
@@ -55,7 +55,7 @@ async function canManageBillingRecipients ({ authentication: { item: user }, ope
 
 
 async function canManageIsApprovedField ({ authentication: { item: user } }) {
-    return !!(user.isAdmin || user.isSupport)
+    return !!(user.isAdmin || user.isSupport || user.type === SERVICE)
 }
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
