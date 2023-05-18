@@ -1553,7 +1553,6 @@ describe('task schema queries', () => {
 
         const noRetryCases = [
             [RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE],
-            [RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE],
             [RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE],
             [RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE],
             [RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE],
@@ -1613,6 +1612,43 @@ describe('task schema queries', () => {
                 url: notificationMeta.url,
             })
         })
+
+        it('should set error status and increase try count for CONTEXT_NOT_FOUND errorCode', async () => {
+            const errorCode = RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE
+            const notificationMeta = getNotificationMetaByErrorCode(errorCode, recurrentPaymentContext.id)
+            const errorMessage = 'An error message'
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest(serviceConsumerBatch, recurrentPaymentContext),
+            )
+
+            // set status
+            await setRecurrentPaymentAsFailed(adminContext, recurrentPayment, errorMessage, errorCode)
+
+            // retrieve updated recurrent payment
+            const result = await RecurrentPayment.getOne(admin, { id: recurrentPayment.id })
+
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('status')
+            expect(result).toHaveProperty('tryCount')
+            expect(result).toHaveProperty('state')
+
+            expect(result.status).toEqual(RECURRENT_PAYMENT_ERROR_STATUS)
+            expect(result.tryCount).toEqual(recurrentPayment.tryCount + 1)
+            expect(result.state).toMatchObject({
+                errorCode,
+                errorMessage,
+            })
+
+            const notifications = await Message.getAll(adminContext, {
+                type: notificationMeta.type,
+                uniqKey: `rp_${recurrentPayment.id}_1_false`,
+            })
+            expect(notifications).toHaveLength(0)
+        })
+
 
         it('should validate inputs', async () => {
             const errorCode = RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE

@@ -73,6 +73,7 @@ function getNotificationMetaByErrorCode (errorCode, recurrentPaymentContextId) {
         [RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE]: {
             type: RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE_TYPE,
             url: `${conf.SERVER_URL}/support/create/`,
+            doNotSendNotification: true,
         },
         [RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE]: {
             type: RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE_TYPE,
@@ -388,6 +389,12 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
         : failedMessageMeta.type
     const url = success ? `${conf.SERVER_URL}/payments/` : failedMessageMeta.url
     const additionalData = success ? {} : { errorCode }
+
+    // in case if error happens
+    // and error meta signals to us - do not send notification to end user
+    if (!success && get(failedMessageMeta, 'doNotSendNotification')) {
+        return
+    }
 
     try {
         const {
