@@ -5,6 +5,7 @@ import getConfig from 'next/config'
 import { createContext, useCallback, useContext, useEffect } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
 
 const growthbook = new GrowthBook()
 const FEATURES_RE_FETCH_INTERVAL = 10 * 1000
@@ -24,6 +25,7 @@ const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsConte
 const FeatureFlagsProviderWrapper = ({ children }) => {
     const growthbook = useGrowthBook()
     const { user } = useAuth()
+    const { organization } = useOrganization()
 
     const isSupport = get(user, 'isSupport', false)
     const isAdmin = get(user, 'isAdmin', false)
@@ -66,8 +68,8 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
     }, [growthbook, serverUrl])
 
     useEffect(() => {
-        updateContext({ isSupport: isSupport || isAdmin })
-    }, [updateContext, isAdmin, isSupport])
+        updateContext({ isSupport: isSupport || isAdmin, organization: get(organization, 'id') })
+    }, [updateContext, isAdmin, isSupport, organization])
 
     return (
         <FeatureFlagsContext.Provider value={{
