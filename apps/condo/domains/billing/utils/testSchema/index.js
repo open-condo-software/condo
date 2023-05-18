@@ -489,7 +489,6 @@ async function createTestBillingRecipient(client, context, extraAttrs = {}) {
         importId: faker.datatype.uuid(),
         ...recipient,
         purpose: `Payment for service from ${recipient.name}`,
-        isApproved: false,
         ...extraAttrs,
     }
     const obj = await BillingRecipient.create(client, attrs)
