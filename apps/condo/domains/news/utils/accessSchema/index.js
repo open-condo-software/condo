@@ -76,7 +76,7 @@ function queryFindResidentsByNewsItemAndScopes (organizationId, newsItemScopes) 
             OR: newsItemScopes.map((scope) => {
                 const unitType = get(scope, 'unitType')
                 const unitName = get(scope, 'unitName')
-                const propertyId = get(scope, 'property')
+                const propertyId = get(scope, ['property', 'id'])
 
                 const AND = []
 

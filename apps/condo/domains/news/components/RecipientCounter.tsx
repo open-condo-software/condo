@@ -1,11 +1,13 @@
 import { BuildingSection, NewsItemScope, Property as PropertyType, Resident as ResidentType } from '@app/condo/schema'
 import styled from '@emotion/styled'
+import compact from 'lodash/compact'
 import difference from 'lodash/difference'
 import every from 'lodash/every'
 import filter from 'lodash/filter'
 import intersection from 'lodash/intersection'
 import map from 'lodash/map'
 import uniq from 'lodash/uniq'
+import uniqBy from 'lodash/uniqBy'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -61,41 +63,37 @@ const areTargetedToOneProperty = (newsItemScopes) => uniq(map(newsItemScopes, ['
 const buildMessageFromNewsItemScopes = (newsItemScopes, intl) => {
     if (newsItemScopes.length === 0) {
         return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInAllProperties' })
-    } else {
-        if (newsItemScopes.length === 1 && isTargetedToEntireProperty(newsItemScopes[0])) {
-            return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperty' })
-        }
-
-        if (every(newsItemScopes, isTargetedToEntireProperty)) {
-            const displayCount = 3
-            const addressList = newsItemScopes.map(({ property }) => property.name).join(', ')
-            const andMoreCount = newsItemScopes.length <= displayCount ? null : newsItemScopes.length - displayCount
-            const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperties.andMore' }, { count: andMoreCount })
-            return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperties' }, {
-                addressList,
-                andMore,
+    } else if (newsItemScopes.length === 1 && isTargetedToEntireProperty(newsItemScopes[0])) {
+        return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperty' }, {
+            address: newsItemScopes[0].property.address,
+        })
+    } else if (every(newsItemScopes, isTargetedToEntireProperty)) {
+        const displayCount = 3
+        const addressList = newsItemScopes.map(({ property }) => property.name).join(', ')
+        const andMoreCount = newsItemScopes.length <= displayCount ? null : newsItemScopes.length - displayCount
+        const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperties.andMore' }, { count: andMoreCount })
+        return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperties' }, {
+            addressList,
+            andMore,
+        })
+    } else if (areTargetedToOneProperty(newsItemScopes) && every(newsItemScopes, isTargetedToUnitName)) {
+        const property: PropertyType = newsItemScopes[0].property
+        const targetedSections = detectTargetedSections(newsItemScopes, property)
+        if (targetedSections.length === 1) {
+            return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertySection' }, {
+                section: targetedSections[0].name,
+                address: newsItemScopes[0].property.address,
             })
-        }
-
-        if (areTargetedToOneProperty(newsItemScopes) && every(newsItemScopes, isTargetedToUnitName)) {
-            const property: PropertyType = newsItemScopes[0].property
-            const targetedSections = detectTargetedSections(newsItemScopes, property)
-            if (targetedSections.length === 1) {
-                return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertySection' }, {
-                    section: targetedSections[0].name,
-                    address: newsItemScopes[0].property.address,
-                })
-            } else if (targetedSections.length > 1) {
-                return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertySections' }, {
-                    sections: map(targetedSections, 'name').join(', '),
-                    address: newsItemScopes[0].property.address,
-                })
-            } else {
-                return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertyUnits' }, {
-                    unitNames: map(newsItemScopes, 'unitName').join(', '),
-                    address: newsItemScopes[0].property.address,
-                })
-            }
+        } else if (targetedSections.length > 1) {
+            return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertySections' }, {
+                sections: map(targetedSections, 'name').join(', '),
+                address: newsItemScopes[0].property.address,
+            })
+        } else {
+            return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertyUnits' }, {
+                unitNames: map(newsItemScopes, 'unitName').join(', '),
+                address: newsItemScopes[0].property.address,
+            })
         }
     }
 }
@@ -107,7 +105,7 @@ const buildMessageFromNewsItemScopes = (newsItemScopes, intl) => {
  */
 const calculateWillNotReceiveCount = (residents: ResidentType[], properties: PropertyType[]) => {
     return properties.reduce((acc, property) => {
-        const propertyResidents = filter(residents, r => r.property.id === property.id)
+        const propertyResidents = filter(residents, { property: { id: property.id } })
         const propertyUnits = getUnitsFromProperty(property)
         const residentUnits = uniq(map(propertyResidents, 'unitName'))
         return acc + difference(propertyUnits, residentUnits).length
@@ -119,7 +117,6 @@ interface RecipientCounterProps {
 }
 
 export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScopes }) => {
-    console.debug('newsItemScopes', newsItemScopes)
     const intl = useIntl()
     const MailingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.mailing' })
     const PropertiesLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.label.properties' })
@@ -128,7 +125,15 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
 
     const { organization } = useOrganization()
 
-    const { objs: properties, loading: loadingProperties } = Property.useObjects({ where: { organization: { id: organization.id } } })
+    const propertyIdsFromNewsItemScopes = compact(uniq(map(newsItemScopes, 'property.id')))
+
+    const { objs: properties, loading: loadingProperties } = Property.useObjects({
+        where: {
+            organization: { id: organization.id },
+            ...(propertyIdsFromNewsItemScopes.length > 1 ? { id_in: propertyIdsFromNewsItemScopes } : {}),
+            deletedAt: null,
+        },
+    })
 
     const { objs: residents, loading: loadingResidents } = Resident.useObjects({
         where: queryFindResidentsByNewsItemAndScopes(organization.id, newsItemScopes),
@@ -138,18 +143,20 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
         return null
     }
 
-    console.debug('residents', residents)
-
     const message = buildMessageFromNewsItemScopes(newsItemScopes, intl)
 
-    // NOTE(antonal): Not all corner cases are handled, because they are rarely will occur:
+    // NOTE(antonal): Not all corner cases are handled, because they rarely will occur:
     // - When some records of NewsItemScope are connected to Property and some are not
     // - When some records of NewsItemScope have unitName, that does not exist in connected Property
-    const propertiesWillReceiveCount = newsItemScopes.length === 0 || newsItemScopes.length === 1 && isTargetedToOrganization(newsItemScopes[0])
-        ? properties.length
-        : uniq(map(newsItemScopes, ['property', 'id'])).length
+    // - When some Resident's unitName is out of units range of a property, that can happen if Property.map was changed after Resident was registered
 
-    const willNotReceiveUnitsCount = calculateWillNotReceiveCount(residents, properties)
+    const propertiesWillReceive = newsItemScopes.length === 0 || newsItemScopes.length === 1 && isTargetedToOrganization(newsItemScopes[0])
+        ? properties
+        : properties.filter(p => propertyIdsFromNewsItemScopes.includes(p.id)) // Take Property objects with full set of fields, obtained using Property client utils
+
+    const unitsWillReceive = uniqBy(residents, ({ property, unitName }) => [property.id, unitName].join('-'))
+
+    const willNotReceiveUnitsCount = calculateWillNotReceiveCount(residents, propertiesWillReceive)
 
     return (
         <div style={{ maxWidth: '500px' }}>
@@ -157,8 +164,8 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                 <Space direction='vertical' size={24} width='100%'>
                     <Typography.Text>{MailingMessage} <Typography.Text strong>{message}</Typography.Text></Typography.Text>
                     <JustifiedSpace direction='horizontal' align='start' size={24} width='100%'>
-                        <Counter label={PropertiesLabelMessage} value={propertiesWillReceiveCount}/>
-                        <Counter label={WillReceiveLabelMessage} value={residents.length}/>
+                        <Counter label={PropertiesLabelMessage} value={propertiesWillReceive.length}/>
+                        <Counter label={WillReceiveLabelMessage} value={unitsWillReceive.length}/>
                         <Counter label={WillNotReceiveLabelMessage} value={willNotReceiveUnitsCount}/>
                     </JustifiedSpace>
                 </Space>
