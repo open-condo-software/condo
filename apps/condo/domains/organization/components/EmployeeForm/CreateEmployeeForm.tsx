@@ -1,9 +1,8 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/react'
+import { jsx } from '@emotion/react'
 import { Col, Form, Row } from 'antd'
 import find from 'lodash/find'
 import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useEffect, useMemo } from 'react'
@@ -20,15 +19,17 @@ import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { normalizeEmail } from '@condo/domains/common/utils/mail'
-import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
+import { useEmployeeValidations } from '@condo/domains/organization/hooks/useEmployeeValidations'
 import {
-    OrganizationEmployee,
     OrganizationEmployeeRole,
     useInviteNewOrganizationEmployee,
 } from '@condo/domains/organization/utils/clientSchema'
-import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import {
+    ClassifiersQueryRemote,
+    TicketClassifierTypes,
+} from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -54,8 +55,6 @@ export const CreateEmployeeForm: React.FC = () => {
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const ExampleEmailMsg = intl.formatMessage({ id: 'example.Email' })
-    const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
-    const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const CheckAllMessage = intl.formatMessage({ id: 'CheckAll' })
 
@@ -64,33 +63,14 @@ export const CreateEmployeeForm: React.FC = () => {
     const router = useRouter()
     const { breakpoints } = useLayoutContext()
 
-    const { objs: employee } = OrganizationEmployee.useObjects(
-        { where: { organization: { id: organization.id } } },
-        { fetchPolicy: 'network-only' },
-    )
+    const organizationId = get(organization, 'id', null)
 
     const { objs: employeeRoles, loading, error } = OrganizationEmployeeRole.useObjects(
-        { where: { organization: { id: get(organization, 'id') } } }
+        { where: { organization: { id: organizationId } } }
     )
 
     const { changeMessage, requiredValidator, emailValidator, phoneValidator, trimValidator, specCharValidator } = useValidations()
-    const alreadyRegisteredPhoneValidator = {
-        validator: (_, value) => {
-            if (employee.find(emp => emp.phone === value)) return Promise.reject(UserAlreadyInListMsg)
-            const v = normalizePhone(value)
-            if (!v) return Promise.reject(PhoneIsNotValidMsg)
-            return Promise.resolve()
-        },
-    }
-    const alreadyRegisteredEmailValidator = {
-        validator: (_, value) => {
-            if (isEmpty(value)) {
-                return  Promise.resolve()
-            }
-            if (employee.find(emp => emp.email === normalizeEmail(value))) return Promise.reject(UserAlreadyInListMsg)
-            return Promise.resolve()
-        },
-    }
+    const { alreadyRegisteredEmailValidator, alreadyRegisteredPhoneValidator } = useEmployeeValidations(organizationId)
 
     const validations: { [key: string]: Rule[] } = {
         phone: [requiredValidator, phoneValidator, alreadyRegisteredPhoneValidator],

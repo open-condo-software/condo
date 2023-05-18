@@ -9,6 +9,7 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import { Alert } from '@condo/domains/common/components/Alert'
@@ -18,8 +19,10 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
+import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
+import { useEmployeeValidations } from '@condo/domains/organization/hooks/useEmployeeValidations'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import {
@@ -28,7 +31,6 @@ import {
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
-import Prompt from '../../../common/components/Prompt'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -39,7 +41,7 @@ const INPUT_LAYOUT_PROPS = {
     },
 }
 
-export const UpdateEmployeeForm = () => {
+export const UpdateEmployeeForm: React.FC = () => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
@@ -54,9 +56,12 @@ export const UpdateEmployeeForm = () => {
     const PromptTitle = intl.formatMessage({ id: 'form.prompt.title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'form.prompt.message' })
 
+    const { organization } = useOrganization()
     const { query, push } = useRouter()
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     const { breakpoints } = useLayoutContext()
+
+    const organizationId = get(organization, 'id')
 
     const employeeId = String(get(query, 'id', ''))
     const { obj: employee, loading: employeeLoading, error: employeeError } = OrganizationEmployee.useObject({ where: { id: employeeId } })
@@ -73,8 +78,9 @@ export const UpdateEmployeeForm = () => {
         [organizationEmployeeSpecializations])
 
     const { emailValidator } = useValidations()
+    const { alreadyRegisteredEmailValidator } = useEmployeeValidations(organizationId, employeeId)
     const validations: { [key: string]: Rule[] } = {
-        email: [emailValidator],
+        email: [emailValidator, alreadyRegisteredEmailValidator],
     }
 
     const { user } = useAuth()
