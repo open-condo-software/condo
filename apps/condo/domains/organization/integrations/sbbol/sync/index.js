@@ -113,7 +113,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
     await syncServiceSubscriptions(userInfo.inn)
     await syncFeatures({ context, organization, features })
 
-    if (await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL)) {
+    if (await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL, { organization: organization.id })) {
         await syncBankAccounts(user.id, organization)
 
         const foundOrganizationContext = await BankIntegrationOrganizationContext.getAll(adminContext, {
