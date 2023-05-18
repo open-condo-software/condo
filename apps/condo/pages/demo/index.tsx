@@ -1,4 +1,4 @@
-import { Tabs } from 'antd'
+import { Tabs, Select } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 
@@ -7,7 +7,7 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { NewsItemScope } from '@condo/domains/news/utils/clientSchema'
+import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 
 const Component: React.FC = () => {
     const [search, handleSearchChange] = useSearch()
@@ -24,13 +24,14 @@ const Component: React.FC = () => {
 const DemoPage: React.FC = () => {
     const router = useRouter()
     const [tab, setTab] = useState('acc')
+    const [newsItemId, setNewsItemId] = useState()
     
     const handleChange = useCallback((activeKey: string) => {
         router.replace({ query: { tab: activeKey } }).then(() => setTab(activeKey))
     }, [router])
 
-    const id = '' // <-- Paste id of NewsItem
-    const { objs: newsItemScopes, loading } = NewsItemScope.useObjects({ where: { newsItem: { id } } })
+    const { objs: newsItems, loading: loadingNewsItems } = NewsItem.useObjects({})
+    const { objs: newsItemScopes, loading: loadingNewsItemScopes } = NewsItemScope.useObjects({ where: { newsItem: { id: newsItemId } } })
 
     return (
         <PageWrapper>
@@ -50,7 +51,19 @@ const DemoPage: React.FC = () => {
                     </Tabs.TabPane>
                 </Tabs>
             </TablePageContent>
-            {!loading && (
+            {!loadingNewsItems && (
+                <Select onSelect={setNewsItemId}>
+                    {newsItems.map(newsItem => (
+                        <Select.Option
+                            key={newsItem.id}
+                            value={newsItem.id}
+                        >
+                            {newsItem.title}
+                        </Select.Option>
+                    ))}
+                </Select>
+            )}
+            {!loadingNewsItemScopes && (
                 <RecipientCounter newsItemScopes={newsItemScopes}/>
             )}
         </PageWrapper>
