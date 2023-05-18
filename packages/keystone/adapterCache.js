@@ -293,20 +293,13 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
 
         // Skip patching list if:
 
-        // 1. No updatedAt field!
-        const fields = listAdapter.fieldAdaptersByPath
-        if (!fields[UPDATED_AT_FIELD] || !fields[UPDATED_AT_FIELD]) {
-            disabledLists.push({ listName, reason: `No ${UPDATED_AT_FIELD} field` })
-            continue
-        }
-
-        // 2. It is explicitly specified in config that list should not be cached
+        // 1. It is explicitly specified in config that list should not be cached
         if (excludedLists.includes(listName)) {
             disabledLists.push({ listName, reason: 'Cache is excluded by config' })
             continue
         }
 
-        // 3. It is a dependent of many:true field or has many:true relation.
+        // 2. It is a dependent of many:true field or has many:true relation.
         if (listsWithMany.has(listName)) {
             disabledLists.push({ listName, reason: 'List is a dependant of many: true relation or has many:true relation' })
             continue
