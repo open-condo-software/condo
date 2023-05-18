@@ -191,11 +191,14 @@ const IndexPage = () => (
                             </Col>
                         </Row>
                     </Col>
-                    <Col span={12}>
+                    <Col span={6}>
                         <BarChart title='Заявки' />
                     </Col>
-                    <Col span={12}>
+                    <Col span={6}>
                         <BarChart title='Заявки по категориям' />
+                    </Col>
+                    <Col span={6}>
+                        <BarChart title='Заявки по домам' />
                     </Col>
                     <Col span={12}>
                         <TableView title='Заявки в работе' />
@@ -203,11 +206,14 @@ const IndexPage = () => (
                     <Col span={12}>
                         <TableView title='Просроченные заявки' />
                     </Col>
-                    <Col span={12}>
+                    <Col span={6}>
                         <HorizontalBar title='Заявки по ответственным' />
                     </Col>
-                    <Col span={12}>
+                    <Col span={6}>
                         <HorizontalBar title='Заявки по домам' />
+                    </Col>
+                    <Col span={6}>
+                        <HorizontalBar title='Заявки по статусам' />
                     </Col>
                 </Row>
             </PageContent>
