@@ -1,7 +1,6 @@
-import { createContext, useContext, useEffect } from 'react'
+import { createContext, useContext } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { RE_FETCH_TICKETS_IN_CONTROL_ROOM } from '@condo/domains/common/constants/featureflags'
 
@@ -20,12 +19,7 @@ const AutoRefetchTicketsContext = createContext<IAutoRefetchTicketsContext>({
 const useAutoRefetchTickets = (): IAutoRefetchTicketsContext => useContext(AutoRefetchTicketsContext)
 
 const AutoRefetchTicketsContextProvider = ({ children = {} }) => {
-    const { useFlag, updateContext } = useFeatureFlags()
-    const { organization } = useOrganization()
-
-    useEffect(() => {
-        updateContext({ organization: organization.id })
-    }, [organization, updateContext])
+    const { useFlag } = useFeatureFlags()
 
     const isRefetchTicketsFeatureEnabled = useFlag(RE_FETCH_TICKETS_IN_CONTROL_ROOM)
 
