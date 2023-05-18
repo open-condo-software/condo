@@ -1,3 +1,4 @@
+import { QuestionCircleOutlined } from '@ant-design/icons'
 import { BuildingSection, NewsItemScope, Property as PropertyType, Resident as ResidentType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import compact from 'lodash/compact'
@@ -8,19 +9,36 @@ import intersection from 'lodash/intersection'
 import map from 'lodash/map'
 import uniq from 'lodash/uniq'
 import uniqBy from 'lodash/uniqBy'
+import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Card, Space, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { queryFindResidentsByNewsItemAndScopes } from '@condo/domains/news/utils/accessSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Resident } from '@condo/domains/resident/utils/clientSchema'
 
+interface CounterProps {
+    label: string
+    value: number
+    hint?: string
+}
 
-const Counter = ({ label, value }) => (
-    <Space direction='vertical' size={8}>
-        <Typography.Title type='success'>{value}</Typography.Title>
+const Counter: React.FC<CounterProps> = ({ label, value, hint }) => (
+    <Space direction='vertical' align='center' size={8}>
+        <Space size={8} direction='horizontal' align='start'>
+            <Typography.Title level={3} type='success'>{value}</Typography.Title>
+            {hint && (
+                <Tooltip
+                    title={hint}
+                    placement='bottom'
+                    children={<QuestionCircleOutlined style={{ color: colors.gray['5'] }}/>}
+                />
+            )}
+        </Space>
         <Typography.Text type='secondary'>{label}</Typography.Text>
     </Space>
 )
@@ -120,8 +138,10 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     const intl = useIntl()
     const MailingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.mailing' })
     const PropertiesLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.label.properties' })
-    const WillReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.label.willReceive' })
-    const WillNotReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.label.willNotReceive' })
+    const WillReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.label' })
+    const WillNotReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.label' })
+    const WillNotReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.hint' })
+    const formatWillReceiveHintMessage = (count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hint' }, { count })
 
     const { organization } = useOrganization()
 
@@ -165,8 +185,8 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                     <Typography.Text>{MailingMessage} <Typography.Text strong>{message}</Typography.Text></Typography.Text>
                     <JustifiedSpace direction='horizontal' align='start' size={24} width='100%'>
                         <Counter label={PropertiesLabelMessage} value={propertiesWillReceive.length}/>
-                        <Counter label={WillReceiveLabelMessage} value={unitsWillReceive.length}/>
-                        <Counter label={WillNotReceiveLabelMessage} value={willNotReceiveUnitsCount}/>
+                        <Counter label={WillReceiveLabelMessage} value={unitsWillReceive.length} hint={formatWillReceiveHintMessage(unitsWillReceive.length)}/>
+                        <Counter label={WillNotReceiveLabelMessage} value={willNotReceiveUnitsCount} hint={WillNotReceiveHintMessage}/>
                     </JustifiedSpace>
                 </Space>
             </Card>
