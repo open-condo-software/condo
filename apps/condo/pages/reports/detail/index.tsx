@@ -8,7 +8,7 @@ import { Select, Space, Typography, Card } from '@open-condo/ui'
 
 import { PageWrapper, PageContent, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
-import { Table } from '@condo/domains/common/components/Table'
+import { Table } from '@condo/domains/common/components/Table/Index'
 
 const InfoCard = ({ text, value }) => {
     return (
