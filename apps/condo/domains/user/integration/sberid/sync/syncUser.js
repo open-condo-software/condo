@@ -38,12 +38,9 @@ const registerUser = async (context, userInfo, userType) => {
         }
     }
 
-    // use email to prefil name
-    const name = normalizedEmail ? normalizedEmail.split('@')[0] : ''
-
     // prepare userData
     const userData = {
-        name,
+        name: '',
         password,
         email: normalizedEmail,
         phone: normalizedPhone,
