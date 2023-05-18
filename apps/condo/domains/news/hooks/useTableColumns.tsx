@@ -1,12 +1,12 @@
-import { PropertyWhereInput } from '@app/condo/schema'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { UseNewsTableFiltersReturnType } from '@condo/domains/news/hooks/useTableFilters'
 import { getRenderBody, getRenderTitle, getRenderNewsDate, ResendNewsButton, getTypeRender, getRenderProperties } from '@condo/domains/news/utils/clientSchema/NewsRenders'
 
 const COLUMNS_WIDTH = {
@@ -19,7 +19,7 @@ const COLUMNS_WIDTH = {
     createdAt: '14.5%',
 }
 
-export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) => {
+export const useTableColumns = (filterMetas: UseNewsTableFiltersReturnType) => {
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const TypeMessage = intl.formatMessage({ id: 'global.type' })
@@ -29,7 +29,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
     const DateMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.date' })
 
     const router = useRouter()
-    const { filters, sorters } = parseQuery(router.query)
+    const { filters } = parseQuery(router.query)
     const search = getFilteredValue(filters, 'search')
     
     const renderResendNews = useCallback((_, newsItem) => {
@@ -102,5 +102,5 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
             },
         ]
-    }, [intl, search, filterMetas, filters, sorters])
+    }, [renderResendNews, NumberMessage, TypeMessage, renderType, filterMetas, TitleMessage, renderTitle, BodyMessage, renderBody, AddressesMessage, renderProperties, DateMessage, renderNewsDate])
 }

@@ -1,6 +1,7 @@
+
 import {
-    NewsItem,
-    NewsItemWhereInput,
+    NewsItem as INewsItem,
+    NewsItemWhereInput as INewsItemWhereInput,
 } from '@app/condo/schema'
 import React, { useMemo } from 'react'
 
@@ -8,13 +9,16 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getFilter, getDayRangeFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
+import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 
 const typeFilter = getFilter(['type'], 'array', 'string', 'in')
 const filterDateRange = getDayRangeFilter('createdAt')
 const bodyFilter = getStringContainsFilter('body')
 const titleFilter = getStringContainsFilter('title')
 
-export const useTableFilters = (): Array<FiltersMeta<NewsItemWhereInput, NewsItem>> => {
+export type UseNewsTableFiltersReturnType = Array<FiltersMeta<INewsItemWhereInput, INewsItem>>
+
+export const useTableFilters = (): UseNewsTableFiltersReturnType => {
     const intl = useIntl()
     const TypeMessage = intl.formatMessage({ id: 'global.type' })
     const StartDateMessage = intl.formatMessage({ id: 'global.filters.dateRange.start' })
@@ -23,8 +27,8 @@ export const useTableFilters = (): Array<FiltersMeta<NewsItemWhereInput, NewsIte
     const ЕmergencyCommonTypeMessage = intl.formatMessage({ id: 'news.type.emergency' })
 
     const newsItemTypeOptions = useMemo(() => [
-        { label: CommonTypeMessage, value: 'common' },
-        { label: ЕmergencyCommonTypeMessage, value: 'emergency' },
+        { label: CommonTypeMessage, value: NEWS_TYPE_COMMON },
+        { label: ЕmergencyCommonTypeMessage, value: NEWS_TYPE_EMERGENCY },
     ], [CommonTypeMessage, ЕmergencyCommonTypeMessage])
 
     return useMemo(() => {

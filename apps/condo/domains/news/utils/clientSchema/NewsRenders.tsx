@@ -6,6 +6,7 @@ import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isNull from 'lodash/isNil'
+import getConfig from 'next/config'
 import { ColumnType } from 'rc-table/lib/interface'
 import React, { CSSProperties, useCallback } from 'react'
 import { IntlShape } from 'react-intl/src/types'
@@ -15,6 +16,7 @@ import { RefreshCw } from '@open-condo/icons'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { LOCALES } from '@condo/domains/common/constants/locale'
+import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { getOneAddressAndPropertiesCountRender } from '@condo/domains/property/utils/clientSchema/Renders'
 
 
@@ -33,14 +35,15 @@ type GetRenderPropertiesType = (intl: IntlShape, search: FilterValue) => GetRend
 const DATE_FORMAT = 'DD.MM.YYYY'
 const TIME_FORMAT = 'DD.MM.YYYY HH:mm'
 const MAX_CELL_CONTENT_LENGTH = 150
-const DEFAULT_LOCALE = 'ru'
+const { publicRuntimeConfig: { defaultLocale } } = getConfig()
+const DEFAULT_LOCALE = defaultLocale || 'ru'
 
 const getNewsDate = (intl, stringDate: string, format: string): string => {
     if (!stringDate) return '—'
 
     const locale = intl.locale ? get(LOCALES, intl.locale) : get(LOCALES, DEFAULT_LOCALE)
     const date = dayjs(stringDate).locale(locale)
-    const text = `${date.format(format)}`
+    const text = date.format(format)
 
     return text
 }
@@ -82,8 +85,6 @@ export const ResendNewsButton = ({ intl, newsItem }) => {
     //TODO(DOMA-5917) this functionality will be implemented as part of next task
     const handleClick = useCallback((e) => {
         e.stopPropagation()
-
-        alert(`TODO(DOMA-5917) новость с id ${newsItem.id}`)
     }, [])
     
 
@@ -104,9 +105,9 @@ export const getTypeRender: GetTypeRenderType = (intl, search) => (text, newsIte
     const validBefore = get(newsItem, 'validBefore', null)
     const timeLeft = dayjs.duration(dayjs(validBefore).diff(dayjs()))
 
-    const localeText = newsType === 'emergency' ? ЕmergencyCommonTypeMessage : CommonTypeMessage
+    const localeText = newsType === NEWS_TYPE_EMERGENCY ? ЕmergencyCommonTypeMessage : CommonTypeMessage
 
-    if (newsType !== 'emergency' || !validBefore || timeLeft.asMilliseconds() < 0) return getTableCellRenderer({ search, ellipsis: true })(localeText)
+    if (newsType !== NEWS_TYPE_EMERGENCY || !validBefore || timeLeft.asMilliseconds() < 0) return getTableCellRenderer({ search, ellipsis: true })(localeText)
 
     const postfix = `\n${intl.formatMessage(
         { id: 'pages.condo.news.validBefore' }, 

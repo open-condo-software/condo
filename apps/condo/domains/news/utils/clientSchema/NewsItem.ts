@@ -20,6 +20,7 @@ const {
     useUpdate,
     useSoftDelete,
     useCount,
+    useAllObjects,
 } = generateReactHooks<NewsItem, NewsItemCreateInput, NewsItemUpdateInput, QueryAllNewsItemsArgs>(NewsItemGQL)
 
 export {
@@ -29,4 +30,5 @@ export {
     useUpdate,
     useSoftDelete,
     useCount,
+    useAllObjects,
 }

@@ -50,7 +50,7 @@ const NewsTableContainer = ({
     const intl = useIntl()
     const CreateNewsLabel = intl.formatMessage({ id: 'news.createNews' })
     const router = useRouter()
-    const { filters, offset } = useMemo(() => parseQuery(router.query), [router.query])
+    const { offset } = useMemo(() => parseQuery(router.query), [router.query])
     
     const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE), [offset])
 
@@ -58,19 +58,21 @@ const NewsTableContainer = ({
         loading: isNewsFetching,
         count: total,
         objs: news,
-    } = NewsItem.useObjects({
+    } = NewsItem.useAllObjects({
         sortBy,
         where: searchNewsQuery,
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
 
-    const newsIds = news.map(obj => obj.id)
+    const newsIds = useMemo(() => {
+        return news.map(obj => obj.id)
+    }, [news])
 
     const {
         loading: isNewsItemScopeFetching,
         objs: newsItemScope,
-    } = NewsItemScope.useObjects({
+    } = NewsItemScope.useAllObjects({
         where: {
             newsItem: { 
                 id_in: newsIds,
@@ -78,9 +80,9 @@ const NewsTableContainer = ({
         },
     })
 
-    let newsWithAddresses = []
+    const newsWithAddresses = useMemo(() => {
+        if (isNewsItemScopeFetching) return []
 
-    if (!isNewsItemScopeFetching) {
         const addresses = {}
 
         newsItemScope.forEach(item => {
@@ -97,7 +99,7 @@ const NewsTableContainer = ({
             }
         })
 
-        newsWithAddresses = news
+        const newsWithAddresses = news
             .filter(newsItem => {
                 const newsItemId = get(newsItem, 'id')
                 const hasScope = has(addresses, [newsItemId])
@@ -113,19 +115,20 @@ const NewsTableContainer = ({
                     ...newsItem,
                 }
             })
-    }
+
+        return newsWithAddresses
+    }, [isNewsItemScopeFetching, newsItemScope, news])
 
     const columns = useTableColumns(filterMetas)
 
     //TODO(DOMA-5917) this functionality will be implemented as part of next task
-    const handleAddNews = useCallback(() => {
-        alert('TODO(DOMA-5917)')
+    const handleAddNews = useCallback((e) => {
+        e.stopPropagation()
     }, [])
 
     const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
-                console.debug('record', record)
                 await router.push(`/news/${record.id}`)
             },
         }
@@ -135,7 +138,7 @@ const NewsTableContainer = ({
     const notFullLoaded = loading || isNewsFetching || isNewsItemScopeFetching
 
     return (
-        <Row gutter={[0, 40]}>
+        <Row gutter={PAGE_ROW_GUTTER}>
             <Col span={24}>
                 <Table
                     totalRows={total}
@@ -175,7 +178,7 @@ const NewsPageContent = ({
     const CreateNews = intl.formatMessage({ id: 'news.createNews' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
-    const [search, changeSearch ] = useSearch<IFilters>()
+    const [search, changeSearch] = useSearch<IFilters>()
     const handleSearchChange = useCallback((e) => {
         changeSearch(e.target.value)
     }, [changeSearch])
