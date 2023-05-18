@@ -16,6 +16,7 @@ import { Resident as ResidentGQL } from '@condo/domains/resident/gql'
 const {
     useObject,
     useObjects,
+    useAllObjects,
     useCreate,
     useUpdate,
     useSoftDelete,
@@ -24,6 +25,7 @@ const {
 export {
     useObject,
     useObjects,
+    useAllObjects,
     useCreate,
     useUpdate,
     useSoftDelete,

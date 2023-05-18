@@ -147,7 +147,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
 
     const propertyIdsFromNewsItemScopes = compact(uniq(map(newsItemScopes, 'property.id')))
 
-    const { objs: properties, loading: loadingProperties } = Property.useObjects({
+    const { objs: properties, loading: loadingProperties } = Property.useAllObjects({
         where: {
             organization: { id: organization.id },
             ...(propertyIdsFromNewsItemScopes.length > 1 ? { id_in: propertyIdsFromNewsItemScopes } : {}),
@@ -155,7 +155,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
         },
     })
 
-    const { objs: residents, loading: loadingResidents } = Resident.useObjects({
+    const { objs: residents, loading: loadingResidents } = Resident.useAllObjects({
         where: queryFindResidentsByNewsItemAndScopes(organization.id, newsItemScopes),
     })
 
