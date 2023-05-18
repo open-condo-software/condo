@@ -262,11 +262,8 @@ export const getTextRender = (search?: FilterValue | string) => {
 export const renderMeterReading = (values: string[], resourceId: string, measure: string) => {
     // ELECTRICITY multi-tariff meter
     if (resourceId === ELECTRICITY_METER_RESOURCE_ID) {
-        const formatMeter = (value, index) => <>{`T${index + 1} - ${Number(value)} ${measure}`}<br /></>
-        const nonEmptyValues = values.filter(Boolean)
-        if (nonEmptyValues.length) return nonEmptyValues.map(formatMeter)
-
-        return null
+        const formatMeter = (value, index) => !value ? null : <>{`T${index + 1} - ${Number(value)} ${measure}`}<br /></>
+        return values.map(formatMeter)
     }
 
     // other resource 1-tariff meter
