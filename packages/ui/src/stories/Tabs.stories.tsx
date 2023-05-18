@@ -10,14 +10,7 @@ export default {
     title: 'Components/Tabs',
     component: Tabs,
     argTypes: {
-        leftExtraContent: {
-            table: {
-                type: { 
-                    summary: 'React.ReactNode',
-                },
-            },
-        },
-        rightExtraContent: {
+        extraContent: {
             table: {
                 type: { 
                     summary: 'React.ReactNode',
@@ -67,6 +60,16 @@ const withExtraContentItems: Array<TabItem> = [
         label: 'Tab 2',
         children: <Typography.Paragraph>Tab 2 text</Typography.Paragraph>,
     },
+    {
+        key: 'tab3',
+        label: 'Tab 3',
+        children: <Typography.Paragraph>Tab 3 text</Typography.Paragraph>,
+    },
+    {
+        key: 'tab4',
+        label: 'Tab 4',
+        children: <Typography.Paragraph>Tab 4 text</Typography.Paragraph>,
+    },
 ]
 
 const Template: ComponentStory<React.FC<TabsProps>> = (args) => <Tabs {...args}/>
@@ -79,6 +82,5 @@ Simple.args = {
 export const WithExtraContent = Template.bind({})
 WithExtraContent.args = {
     items: withExtraContentItems,
-    leftExtraContent : <Button type='primary' key='1'>Left Button</Button>,
-    rightExtraContent : <Button type='primary' key='2'>Right Button</Button>,
-}   
+    extraContent : <Button type='primary' key='1'>Right Button</Button>,
+}

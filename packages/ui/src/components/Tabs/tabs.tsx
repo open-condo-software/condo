@@ -17,8 +17,7 @@ export type TabItem = {
 }
 
 type CondoTabsProps = {
-    leftExtraContent?: React.ReactNode
-    rightExtraContent?: React.ReactNode
+    extraContent?: React.ReactNode
 }
 
 export type TabsProps = Pick<DefaultTabsProps,
@@ -32,7 +31,7 @@ export type TabsProps = Pick<DefaultTabsProps,
 } & CondoTabsProps
 
 export const Tabs: React.FC<TabsProps> = (props) => {
-    const { onChange, id, items = [], leftExtraContent = null, rightExtraContent = null,  ...restProps } = props
+    const { onChange, id, items = [], extraContent = null,  ...restProps } = props
 
     const handleChange = useCallback((activeKey: string) => {
         sendAnalyticsChangeEvent('Tabs', { activeKey, id })
@@ -52,10 +51,5 @@ export const Tabs: React.FC<TabsProps> = (props) => {
         ),
     }))
 
-    const tabBarExtraContent = {
-        left: leftExtraContent,
-        right: rightExtraContent,
-    }
-
-    return <DefaultTabs {...restProps} id={id} onChange={handleChange} items={itemsWithIcons} tabBarExtraContent={tabBarExtraContent} prefixCls={TABS_CLASS_PREFIX}/>
+    return <DefaultTabs {...restProps} id={id} onChange={handleChange} items={itemsWithIcons} tabBarExtraContent={extraContent} prefixCls={TABS_CLASS_PREFIX}/>
 }
