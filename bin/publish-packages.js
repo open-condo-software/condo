@@ -37,7 +37,7 @@ publish(RELEASE_LIST, [
                 ...getReleaseSection(['fix', 'hotfix'], '🐛 Bug Fixes'),
                 { type: 'perf', section: '🚀 Performance Improvements' },
                 ...getReleaseSection(['docs', 'style', 'refactor', 'test', 'build', 'ci', 'chore', 'revert'], '🦖 Other Changes'),
-                { dependency: true, section: '🌐Dependencies' },
+                { dependency: true, section: '🌐 Dependencies' },
             ],
             breakingNoteKeywords: BREAKING_KEYWORDS,
         },
