@@ -151,7 +151,8 @@ async function getReceiptsForServiceConsumer (context, date, serviceConsumer, bi
 
     const periodDate = dayjs(date)
     const period = periodDate.format('YYYY-MM-01')
-    const previousPeriod = periodDate.startOf('month').subtract(1, 'days').format('YYYY-MM-01')
+    const monthBeforePeriod = periodDate.startOf('month').subtract(1, 'month').format('YYYY-MM-01')
+    const twoMonthBeforePeriod = periodDate.startOf('month').subtract(2, 'month').format('YYYY-MM-01')
 
     // select all ids
     const billingCategoryId = get(billingCategory, 'id')
@@ -169,7 +170,7 @@ async function getReceiptsForServiceConsumer (context, date, serviceConsumer, bi
     const billingCategoryCondition = billingCategoryId ? { category: { id: billingCategoryId } } : {}
     const billingAccountCondition = { account: { number: billingAccountNumber } }
     const billingIntegrationContextCondition = { context: { organization: { id: organizationId } } }
-    const periodCondition = { period_in: [period, previousPeriod] }
+    const periodCondition = { period_in: [period, monthBeforePeriod, twoMonthBeforePeriod] }
 
     // select data
     const receipts = await BillingReceipt.getAll(context, {
