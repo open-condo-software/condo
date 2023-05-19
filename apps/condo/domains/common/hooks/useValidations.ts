@@ -36,7 +36,8 @@ type UseValidations = (settings?: ValidationSettings) => ValidatorTypes
 export const useValidations: UseValidations = (settings = {}) => {
     const intl = useIntl()
     const ThisFieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
-    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
+    const MobilePhoneIsNotValidMessage = intl.formatMessage({ id: 'global.input.error.wrongMobilePhone' })
+    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'global.input.error.wrongPhone' })
     const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const FieldIsTooShortMessage = intl.formatMessage({ id: 'ValueIsTooShort' })
     const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
@@ -55,7 +56,7 @@ export const useValidations: UseValidations = (settings = {}) => {
         validator: (_, value) => {
             if (!value) return Promise.resolve()
             const v = normalizePhone(value, allowLandLine)
-            if (!v) return Promise.reject(PhoneIsNotValidMessage)
+            if (!v) return Promise.reject(allowLandLine ? PhoneIsNotValidMessage : MobilePhoneIsNotValidMessage)
             return Promise.resolve()
         },
     }

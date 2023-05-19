@@ -17,7 +17,7 @@ type IUseEmployeeValidations = (organizationId: string, currentEmployeeId?: stri
 
 export const useEmployeeValidations: IUseEmployeeValidations = (organizationId, currentEmployeeId) => {
     const intl = useIntl()
-    const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
+    const PhoneIsNotValidMsg = intl.formatMessage({ id: 'global.input.error.wrongMobilePhone' })
     const EmailIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
 
