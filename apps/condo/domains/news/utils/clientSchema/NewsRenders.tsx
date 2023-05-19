@@ -34,14 +34,13 @@ type GetRenderPropertiesType = (intl: IntlShape, search: FilterValue) => GetRend
 
 const DATE_FORMAT = 'DD.MM.YYYY'
 const TIME_FORMAT = 'DD.MM.YYYY HH:mm'
-const MAX_CELL_CONTENT_LENGTH = 150
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 const DEFAULT_LOCALE = defaultLocale || 'ru'
 
 const getNewsDate = (intl, stringDate: string, format: string): string => {
     if (!stringDate) return '—'
 
-    const locale = intl.locale ? get(LOCALES, intl.locale) : get(LOCALES, DEFAULT_LOCALE)
+    const locale = get(LOCALES, intl.locale, DEFAULT_LOCALE)
     const date = dayjs(stringDate).locale(locale)
     const text = date.format(format)
 
@@ -53,8 +52,7 @@ export const getRenderTitle: GetRenderTitleType = (search) => (body) => {
 }
 
 export const getRenderBody: GetRenderBodyType = (search) => (body) => {
-    const trimmedText = String(body).length > MAX_CELL_CONTENT_LENGTH ? `${String(body).substring(0, MAX_CELL_CONTENT_LENGTH)}…` : body
-    return getTableCellRenderer({ search, extraTitle: body })(trimmedText)
+    return getTableCellRenderer({ search, extraTitle: body, ellipsis: true })(body)
 }
 
 export const getRenderNewsDate: GetRenderNewsDateType = (intl, search) => (stringDate, news) => {

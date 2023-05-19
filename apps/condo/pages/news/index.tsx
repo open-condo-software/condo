@@ -135,15 +135,15 @@ const NewsTableContainer = ({
     }, [router])
 
 
-    const notFullLoaded = loading || isNewsFetching || isNewsItemScopeFetching
+    const isAllLoaded = !(loading || isNewsFetching || isNewsItemScopeFetching)
 
     return (
         <Row gutter={PAGE_ROW_GUTTER}>
             <Col span={24}>
                 <Table
                     totalRows={total}
-                    loading={notFullLoaded}
-                    dataSource={notFullLoaded ? null : newsWithAddresses}
+                    loading={!isAllLoaded}
+                    dataSource={isAllLoaded ? newsWithAddresses : null}
                     columns={columns}
                     data-cy='news__table'
                     onRow={handleRowAction}
@@ -186,7 +186,7 @@ const NewsPageContent = ({
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
-    //TODO(KEKMUS)now sorting by date sorts only by the createdAt field regardless of whether there is sendAt, need to understand what kind of behavior we expect
+    //TODO(DOMA-5917)now sorting by date sorts only by the createdAt field regardless of whether there is sendAt, need to understand what kind of behavior we expect
     const sortBy = sortersToSortBy(sorters, NEWS_DEFAULT_SORT_BY) 
     const searchNewsQuery = useMemo(() => ({ ...baseNewsQuery, ...filtersToWhere(filters) }),
         [baseNewsQuery, filters, filtersToWhere])
