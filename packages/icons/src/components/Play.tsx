@@ -3,7 +3,7 @@ import React from 'react'
 
 import { IconWrapper, IconProps } from '../wrappers'
 
-export const CalendarDays: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => {
+export const Play: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => {
     return (
         <IconWrapper
             icon={
@@ -18,7 +18,7 @@ export const CalendarDays: React.FC<IconProps> = ({ svgProps: props, ...restProp
                     <path
                         fillRule='evenodd'
                         clipRule='evenodd'
-                        d='M8 1a1 1 0 0 1 1 1v1h6V2a1 1 0 1 1 2 0v1h2a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3h2V2a1 1 0 0 1 1-1ZM7 5H5a1 1 0 0 0-1 1v3h16V6a1 1 0 0 0-1-1h-2v1a1 1 0 1 1-2 0V5H9v1a1 1 0 0 1-2 0V5Zm13 6H4v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9ZM7 14a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1Zm4 0a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2H12a1 1 0 0 1-1-1Zm4 0a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2H16a1 1 0 0 1-1-1Zm-8 4a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1Zm4 0a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2H12a1 1 0 0 1-1-1Zm4 0a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2H16a1 1 0 0 1-1-1Z'
+                        d='M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM1 12C1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11S1 18.075 1 12Zm8.528-4.882a1 1 0 0 1 1.027.05l6 4a1 1 0 0 1 0 1.664l-6 4A1 1 0 0 1 9 16V8a1 1 0 0 1 .528-.882ZM11 9.868v4.264L14.197 12 11 9.869Z'
                         fill='currentColor'
                     />
                 </svg>
