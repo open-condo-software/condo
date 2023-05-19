@@ -21,17 +21,14 @@ async function canReadBillingReceiptFiles ({ authentication }) {
 
     if (user.type === STAFF) {
         return {
-            OR: [
-                {
-                    organization: {
-                        OR: [
-                            queryOrganizationEmployeeFor(user.id),
-                            queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                        ],
-                    },
+            context: {
+                organization: {
+                    OR: [
+                        queryOrganizationEmployeeFor(user.id),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                    ],
                 },
-                { createdBy: { id: user.id } },
-            ],
+            },
         }
     }
 

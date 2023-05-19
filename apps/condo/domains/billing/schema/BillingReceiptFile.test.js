@@ -20,6 +20,11 @@ const {
 } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
+const {
+    createTestOrganizationEmployeeRole,
+    createTestOrganizationEmployee,
+} = require('../../organization/utils/testSchema')
+
 
 
 describe('BillingReceiptFile', () => {
@@ -195,8 +200,11 @@ describe('BillingReceiptFile', () => {
 
         describe('read', () => {
             let file
+            let anotherFile
             beforeAll(async () => {
                 [file] = await createTestBillingReceiptFile(admin, receiptByAdmin, context)
+                const [anotherReceipt] =  await createTestBillingReceipt(admin, anotherContext, anotherProperty, anotherAccount);
+                [anotherFile] = await createTestBillingReceiptFile(admin, anotherReceipt, anotherContext)
             })
             test('admin can', async () => {
                 const objs = await BillingReceiptFile.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
@@ -222,6 +230,18 @@ describe('BillingReceiptFile', () => {
                     receipt: file.receipt,
                     controlSum: file.controlSum,
                 })
+            })
+
+            test('Employee can, but only for permitted organization', async () => {
+                const [role] = await createTestOrganizationEmployeeRole(admin, context.organization)
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestOrganizationEmployee(admin, context.organization, client.user, role)
+                const receiptFiles = await BillingReceiptFile.getAll(client, {
+                    id_in: [file.id, anotherFile.id],
+                })
+
+                expect(receiptFiles).toHaveLength(1)
+                expect(receiptFiles[0]).toHaveProperty('id', file.id)
             })
 
             test('anonymous can\'t', async () => {
