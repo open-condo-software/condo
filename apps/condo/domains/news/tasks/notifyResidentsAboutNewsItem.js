@@ -3,7 +3,6 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
@@ -152,7 +151,7 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
             const actualNewsItem = await NewsItem.getOne(context, { id: newsItemId })
             // Checking if the timeout was expired to send the news item
             const now = dayjs().unix()
-            if (now - dayjs(newsItem.updatedAt).unix() < SENDING_DELAY_SEC) {
+            if (now - dayjs(actualNewsItem.updatedAt).unix() < SENDING_DELAY_SEC) {
                 logger.warn({
                     message: 'NewsItem was updated before sending timeout passed. Do nothing',
                     actualNewsItem,
