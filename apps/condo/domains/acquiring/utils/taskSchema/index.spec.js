@@ -392,7 +392,7 @@ describe('task schema queries', () => {
             expect(receipts).toHaveLength(1)
         })
 
-        it('should not return receipts for 2 month old receipts', async () => {
+        it('should return receipts for 2 month old receipts', async () => {
             const { batches } = await makePayerWithMultipleConsumers(1, 1)
             const [batch] = batches
             const {
@@ -402,6 +402,21 @@ describe('task schema queries', () => {
                 }],
             } = batch
             const today = dayjs(period).startOf('month').add(2, 'month')
+
+            const receipts = await getReceiptsForServiceConsumer(adminContext, today, serviceConsumer)
+            expect(receipts).toHaveLength(1)
+        })
+
+        it('should not return receipts for 3 month old receipts', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            const [batch] = batches
+            const {
+                serviceConsumer,
+                billingReceipts: [{
+                    period,
+                }],
+            } = batch
+            const today = dayjs(period).startOf('month').add(3, 'month')
 
             const receipts = await getReceiptsForServiceConsumer(adminContext, today, serviceConsumer)
             expect(receipts).toHaveLength(0)
