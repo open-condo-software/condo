@@ -341,7 +341,6 @@ describe('NewsItems', () => {
 
                 // News item for all organization
                 const [newsItem3, newsItem3Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope3] = await createTestNewsItemScope(adminClient, newsItem3)
 
                 await publishTestNewsItem(adminClient, newsItem1.id)
                 const newsItems1 = await NewsItem.getAll(residentClient1, {})
@@ -413,8 +412,8 @@ describe('NewsItems', () => {
                     unitName: unitName2,
                 })
 
+                // Without scope == all organization
                 const [newsItem3, newsItem3Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope3] = await createTestNewsItemScope(adminClient, newsItem3)
 
                 const [newsItem4, newsItem4Attrs] = await createTestNewsItem(adminClient, o10n)
                 const [newsItemScope4] = await createTestNewsItemScope(adminClient, newsItem4, {
