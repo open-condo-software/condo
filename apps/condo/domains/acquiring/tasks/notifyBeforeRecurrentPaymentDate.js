@@ -24,7 +24,7 @@ async function notifyRecurrentPaymentContext (context, date, recurrentPaymentCon
     const startOfTheMonth = date.startOf('month')
 
     // get billing receipts
-    let billingReceipts = await getReceiptsForServiceConsumer(
+    const billingReceipts = await getReceiptsForServiceConsumer(
         context,
         startOfTheMonth,
         serviceConsumer,
@@ -32,10 +32,10 @@ async function notifyRecurrentPaymentContext (context, date, recurrentPaymentCon
     )
 
     // filter receipts if they are already paid
-    billingReceipts = await filterPaidBillingReceipts(context, billingReceipts)
+    const unpaidBillingReceipts = await filterPaidBillingReceipts(context, billingReceipts)
 
     // send notification by count of payable receipts
-    if (billingReceipts.length === 0) {
+    if (unpaidBillingReceipts.length === 0) {
         return await sendTomorrowPaymentNoReceiptsNotificationSafely(context, recurrentPaymentContext)
     } else {
         return await sendTomorrowPaymentNotificationSafely(context, recurrentPaymentContext)
