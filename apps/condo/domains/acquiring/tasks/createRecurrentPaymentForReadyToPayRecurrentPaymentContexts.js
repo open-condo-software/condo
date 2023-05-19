@@ -13,6 +13,7 @@ const {
 const {
     getAllReadyToPayRecurrentPaymentContexts,
     getReceiptsForServiceConsumer,
+    sendNoReceiptsToProceedNotificationSafely,
 } = require('@condo/domains/acquiring/utils/taskSchema')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
@@ -32,9 +33,9 @@ async function createRecurrentPaymentForRecurrentPaymentContext (context, date, 
         billingCategory,
     )
 
-    // no receipts == no payment tasks
+    // no receipts == no payment tasks + notification to end user
     if (billingReceipts.length === 0) {
-        return
+        return await sendNoReceiptsToProceedNotificationSafely(context, recurrentPaymentContext)
     }
 
     // create payment proceeding tasks

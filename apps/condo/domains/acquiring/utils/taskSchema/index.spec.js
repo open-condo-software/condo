@@ -52,6 +52,8 @@ const {
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const {
@@ -72,6 +74,8 @@ const {
     setRecurrentPaymentAsSuccess,
     setRecurrentPaymentAsFailed,
     sendTomorrowPaymentNotificationSafely,
+    sendTomorrowPaymentNoReceiptsNotificationSafely,
+    sendNoReceiptsToProceedNotificationSafely,
     getNotificationMetaByErrorCode,
 } = require('./index')
 
@@ -1827,6 +1831,214 @@ describe('task schema queries', () => {
                 )
             }, (error) => {
                 expect(error.message).toContain('invalid recurrentPayment argument')
+            })
+        })
+    })
+
+    describe('sendTomorrowPaymentNoReceiptsNotificationSafely', () => {
+        let admin,
+            getContextRequest,
+            serviceConsumerBatch,
+            recurrentPaymentContext
+
+        beforeEach( async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            serviceConsumerBatch = batches[0]
+            recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest(serviceConsumerBatch)))[0]
+        })
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+
+            getContextRequest = (batch) => ({
+                enabled: true,
+                limit: '100000000',
+                autoPayReceipts: false,
+                paymentDay: 10,
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batch.serviceConsumer.id } },
+                billingCategory: { connect: { id: batch.billingReceipts[0].category.id } },
+            })
+        })
+
+        it('should send notification', async () => {
+            // send notification
+            await sendTomorrowPaymentNoReceiptsNotificationSafely(adminContext, recurrentPaymentContext)
+
+            const [notification] = await Message.getAll(adminContext, {
+                type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
+                user: { id: serviceConsumerBatch.resident.user.id },
+            }, {
+                sortBy: 'createdAt_DESC',
+            })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/`,
+            })
+        })
+
+        it('should send one notification for retry payment processing', async () => {
+            // send notification
+            await sendTomorrowPaymentNoReceiptsNotificationSafely(adminContext, recurrentPaymentContext)
+            await sendTomorrowPaymentNoReceiptsNotificationSafely(adminContext, recurrentPaymentContext)
+
+            const notifications = await Message.getAll(adminContext, {
+                type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
+                user: { id: serviceConsumerBatch.resident.user.id },
+            }, {
+                sortBy: 'createdAt_DESC',
+            })
+            expect(notifications).toHaveLength(1)
+            const [notification] = notifications
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/`,
+            })
+        })
+
+        it('should validate inputs', async () => {
+            await catchErrorFrom(async () => {
+                await sendTomorrowPaymentNoReceiptsNotificationSafely(adminContext, null)
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPaymentContext argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await sendTomorrowPaymentNoReceiptsNotificationSafely(adminContext, {})
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPaymentContext argument')
+            })
+        })
+    })
+
+    describe('sendNoReceiptsToProceedNotificationSafely', () => {
+        let admin,
+            getContextRequest,
+            serviceConsumerBatch,
+            recurrentPaymentContext
+
+        beforeEach( async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            serviceConsumerBatch = batches[0]
+            recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest(serviceConsumerBatch)))[0]
+        })
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+
+            getContextRequest = (batch) => ({
+                enabled: true,
+                limit: '100000000',
+                autoPayReceipts: false,
+                paymentDay: 10,
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batch.serviceConsumer.id } },
+                billingCategory: { connect: { id: batch.billingReceipts[0].category.id } },
+            })
+        })
+
+        it('should send notification', async () => {
+            // send notification
+            await sendNoReceiptsToProceedNotificationSafely(adminContext, recurrentPaymentContext)
+
+            const [notification] = await Message.getAll(adminContext, {
+                type: RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
+                user: { id: serviceConsumerBatch.resident.user.id },
+            }, {
+                sortBy: 'createdAt_DESC',
+            })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}`,
+            })
+        })
+
+        it('should send one notification for retry payment processing', async () => {
+            // send notification
+            await sendNoReceiptsToProceedNotificationSafely(adminContext, recurrentPaymentContext)
+            await sendNoReceiptsToProceedNotificationSafely(adminContext, recurrentPaymentContext)
+
+            const notifications = await Message.getAll(adminContext, {
+                type: RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
+                user: { id: serviceConsumerBatch.resident.user.id },
+            }, {
+                sortBy: 'createdAt_DESC',
+            })
+            expect(notifications).toHaveLength(1)
+            const [notification] = notifications
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}`,
+            })
+        })
+
+        it('should validate inputs', async () => {
+            await catchErrorFrom(async () => {
+                await sendNoReceiptsToProceedNotificationSafely(adminContext, null)
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPaymentContext argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await sendNoReceiptsToProceedNotificationSafely(adminContext, {})
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPaymentContext argument')
             })
         })
     })

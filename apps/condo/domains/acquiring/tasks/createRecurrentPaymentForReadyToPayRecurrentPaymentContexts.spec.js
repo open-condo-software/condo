@@ -5,6 +5,7 @@ const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const conf = require('@open-condo/config')
 const {
     setFakeClientMode,
     makeLoggedInAdminClient,
@@ -18,6 +19,12 @@ const {
     createTestRecurrentPaymentContext,
     RecurrentPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
+} = require('@condo/domains/notification/constants/constants')
+const {
+    Message,
+} = require('@condo/domains/notification/utils/serverSchema')
 
 const {
     createRecurrentPaymentForRecurrentPaymentContext,
@@ -152,6 +159,33 @@ describe('create-recurrent-payment-for-ready-to-pay-recurrent-payment-contexts',
         })
 
         expect(recurrentPayments).toHaveLength(0)
+
+        const notifications = await Message.getAll(adminContext, {
+            type: RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
+            user: { id: batch.resident.user.id },
+        }, {
+            sortBy: 'createdAt_DESC',
+        })
+        expect(notifications).toHaveLength(1)
+        const [notification] = notifications
+        expect(notification).toBeDefined()
+        expect(notification).toHaveProperty('user')
+        expect(notification.user).toHaveProperty('id')
+        expect(notification.user.id).toEqual(batch.resident.user.id)
+        expect(notification).toHaveProperty('meta')
+        expect(notification.meta).toHaveProperty('data')
+        expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+        expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+        expect(notification.meta.data).toHaveProperty('residentId')
+        expect(notification.meta.data).toHaveProperty('userId')
+
+        expect(notification.meta.data).toMatchObject({
+            recurrentPaymentContextId: recurrentPaymentContext.id,
+            serviceConsumerId: batch.serviceConsumer.id,
+            residentId: batch.resident.id,
+            userId: batch.resident.user.id,
+            url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}`,
+        })
     })
 
     it('should not create RecurrentPayment - no receipts for past period', async () => {
@@ -176,5 +210,32 @@ describe('create-recurrent-payment-for-ready-to-pay-recurrent-payment-contexts',
         })
 
         expect(recurrentPayments).toHaveLength(0)
+
+        const notifications = await Message.getAll(adminContext, {
+            type: RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
+            user: { id: batch.resident.user.id },
+        }, {
+            sortBy: 'createdAt_DESC',
+        })
+        expect(notifications).toHaveLength(1)
+        const [notification] = notifications
+        expect(notification).toBeDefined()
+        expect(notification).toHaveProperty('user')
+        expect(notification.user).toHaveProperty('id')
+        expect(notification.user.id).toEqual(batch.resident.user.id)
+        expect(notification).toHaveProperty('meta')
+        expect(notification.meta).toHaveProperty('data')
+        expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+        expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+        expect(notification.meta.data).toHaveProperty('residentId')
+        expect(notification.meta.data).toHaveProperty('userId')
+
+        expect(notification.meta.data).toMatchObject({
+            recurrentPaymentContextId: recurrentPaymentContext.id,
+            serviceConsumerId: batch.serviceConsumer.id,
+            residentId: batch.resident.id,
+            userId: batch.resident.user.id,
+            url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}`,
+        })
     })
 })

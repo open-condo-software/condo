@@ -10,10 +10,37 @@ const {
 const {
     getAllReadyToPayRecurrentPaymentContexts,
     sendTomorrowPaymentNotificationSafely,
+    sendTomorrowPaymentNoReceiptsNotificationSafely,
+    getReceiptsForServiceConsumer,
+    filterPaidBillingReceipts,
 } = require('@condo/domains/acquiring/utils/taskSchema')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
 const logger = getLogger('recurrent-payment-context-notification')
+
+async function notifyRecurrentPaymentContext (context, date, recurrentPaymentContext) {
+    // prepare vars
+    const { serviceConsumer, billingCategory } = recurrentPaymentContext
+    const startOfTheMonth = date.startOf('month')
+
+    // get billing receipts
+    const billingReceipts = await getReceiptsForServiceConsumer(
+        context,
+        startOfTheMonth,
+        serviceConsumer,
+        billingCategory,
+    )
+
+    // filter receipts if they are already paid
+    const unpaidBillingReceipts = await filterPaidBillingReceipts(context, billingReceipts)
+
+    // send notification by count of payable receipts
+    if (unpaidBillingReceipts.length === 0) {
+        return await sendTomorrowPaymentNoReceiptsNotificationSafely(context, recurrentPaymentContext)
+    } else {
+        return await sendTomorrowPaymentNotificationSafely(context, recurrentPaymentContext)
+    }
+}
 
 async function notifyBeforeRecurrentPaymentDate () {
     const taskId = this.id || uuid()
@@ -39,7 +66,7 @@ async function notifyBeforeRecurrentPaymentDate () {
         // process each page in parallel
         await processArrayOf(page).inParallelWith(async (recurrentPaymentContext) => {
             try {
-                await sendTomorrowPaymentNotificationSafely(context, recurrentPaymentContext)
+                await notifyRecurrentPaymentContext(context, tomorrowDate, recurrentPaymentContext)
             } catch (err) {
                 logger.error({ msg: 'Process recurrent payment notification error', err, taskId })
             }
@@ -53,4 +80,5 @@ async function notifyBeforeRecurrentPaymentDate () {
 
 module.exports = {
     notifyBeforeRecurrentPaymentDate,
+    notifyRecurrentPaymentContext,
 }
