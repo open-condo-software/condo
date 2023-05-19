@@ -10,6 +10,9 @@
     "packages/*"
   ],
   "scripts": {
+    "build:packages": "turbo run build --filter='./packages/*'",
+    "build:apps": "turbo run build --filter='./apps/*'",
+    "build": "turbo run build",
     "lint": "yarn run eslint . --ext .js,.jsx,.ts,.tsx",
     "createapp": "node ./bin/createapp",
     "prepare": "husky install"

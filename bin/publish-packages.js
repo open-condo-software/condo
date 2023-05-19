@@ -8,7 +8,7 @@ const publish = require('mono-pub')
 const builder = {
     name: '@open-condo/turbo-builder',
     async prepare (_, ctx) {
-        await execa('turbo', ['run', 'build', '--filter="./packages/*"'], { cwd: ctx.cwd })
+        await execa('yarn', ['build:packages'], { cwd: ctx.cwd })
     },
 }
 

@@ -53,7 +53,7 @@ jobs:
           echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> .env
 
       - name: Test apps build
-        run: turbo build --filter="./apps/*"
+        run: yarn build:apps
 
       - name: Test artifacts existence
         run: |
