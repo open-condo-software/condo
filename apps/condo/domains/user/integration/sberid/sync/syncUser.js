@@ -40,7 +40,6 @@ const registerUser = async (context, userInfo, userType) => {
 
     // prepare userData
     const userData = {
-        name: '',
         password,
         email: normalizedEmail,
         phone: normalizedPhone,
