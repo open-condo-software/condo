@@ -3,9 +3,8 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { getRedisClient } = require('@open-condo/keystone/redis')
-const { getById, find, getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
 const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
@@ -62,7 +61,7 @@ async function sendNotifications (context, newsItem) {
     const { keystone: contextMessage } = await getSchemaCtx('Message')
     for (const resident of residents) {
         // Throttle common news items. 1 message per hour.
-        const throttlingCacheKey = `user:${resident.user}:lastSending`
+        const throttlingCacheKey = `user:${resident.user.id}:lastSending`
         if (newsItem.type === NEWS_TYPE_COMMON) {
             const lastCommonNewsItemSentDate = await cacheClient.get(throttlingCacheKey)
             if (lastCommonNewsItemSentDate) {
@@ -78,7 +77,7 @@ async function sendNotifications (context, newsItem) {
 
         await sendMessage(contextMessage, {
             ...DV_SENDER,
-            to: { user: { id: resident.user } },
+            to: { user: { id: resident.user.id } },
             lang: conf.DEFAULT_LOCALE,
             type: defineMessageType(newsItem),
             meta: {
@@ -87,8 +86,8 @@ async function sendNotifications (context, newsItem) {
                 body: newsItem.body,
                 data: {
                     newsItemId: newsItem.id,
-                    organizationId: newsItem.organization,
-                    userId: resident.user,
+                    organizationId: newsItem.organization.id,
+                    userId: resident.user.id,
                     residentId: resident.id,
                     url: `${conf.SERVER_URL}/newsItem`,
                     validBefore: get(newsItem, 'validBefore', null),
@@ -96,7 +95,7 @@ async function sendNotifications (context, newsItem) {
                     dateCreated: ['sendAt', 'updatedAt', 'createdAt'].reduce((result, field) => (result || get(newsItem, field)), null),
                 },
             },
-            uniqKey: generateUniqueMessageKey(resident.user, newsItem.id),
+            uniqKey: generateUniqueMessageKey(resident.user.id, newsItem.id),
         })
 
         if (newsItem.type === NEWS_TYPE_COMMON) {
@@ -152,7 +151,7 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
             const actualNewsItem = await NewsItem.getOne(context, { id: newsItemId })
             // Checking if the timeout was expired to send the news item
             const now = dayjs().unix()
-            if (now - dayjs(newsItem.updatedAt).unix() < SENDING_DELAY_SEC) {
+            if (now - dayjs(actualNewsItem.updatedAt).unix() < SENDING_DELAY_SEC) {
                 logger.warn({
                     message: 'NewsItem was updated before sending timeout passed. Do nothing',
                     actualNewsItem,
