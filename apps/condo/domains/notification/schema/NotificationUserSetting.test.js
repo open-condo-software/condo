@@ -91,6 +91,15 @@ describe('NotificationUserSetting', () => {
                     await createTestNotificationUserSetting(anonymousClient)
                 })
             })
+
+            test('user can\'t create settings for other user', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const otherClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestNotificationUserSetting(client, { user: { connect: { id: otherClient.user.id } } })
+                })
+            })
         })
 
         describe('update', () => {

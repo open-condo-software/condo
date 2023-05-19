@@ -101,8 +101,6 @@ const NotificationUserSetting = new GQLListSchema('NotificationUserSetting', {
         validateInput: async (args) => {
             const { resolvedData, operation, existingItem, context } = args
 
-            const messageTransport = get(resolvedData, 'messageTransport')
-            const messageType = get(resolvedData, 'messageType')
             const isEnabled = get(resolvedData, 'isEnabled')
 
             // This is a temporary check.

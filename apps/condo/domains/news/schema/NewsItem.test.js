@@ -662,7 +662,7 @@ describe('NewsItems', () => {
     })
 
     describe('notifications', () => {
-        test('user receives push notification on news item created', async () => {
+        test('the user receives a push notification on a news item created and does not receive notification for 2nd news item', async () => {
             const residentClient1 = await makeClientWithResidentUser()
             const [o10n] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, o10n)
@@ -694,10 +694,15 @@ describe('NewsItems', () => {
             const messageWhere = { user: { id: residentClient1.user.id }, type: NEWS_ITEM_COMMON_MESSAGE_TYPE }
 
             // Publish news item to make it send-able
-            await updateTestNewsItem(adminClient, newsItem1.id, { isPublished: true })
+            await publishTestNewsItem(adminClient, newsItem1.id)
 
             await waitFor(async () => {
-                const message1 = await Message.getOne(adminClient, messageWhere)
+                const messages = await Message.getAll(adminClient, messageWhere)
+
+                expect(messages).toBeDefined()
+                expect(messages).toHaveLength(1)
+
+                const message1 = messages[0]
 
                 expect(message1).toBeDefined()
                 expect(message1.id).toMatch(UUID_RE)
@@ -723,6 +728,21 @@ describe('NewsItems', () => {
                         }),
                     }),
                 }))
+            }, { delay: (SENDING_DELAY_SEC + 3) * 1000 })
+
+            // This news item shouldn't generate notification for the same user
+            const [newsItem2, newsItem2Attrs] = await createTestNewsItem(adminClient, o10n)
+            await createTestNewsItemScope(adminClient, newsItem2, {
+                property: { connect: { id: property.id } },
+            })
+
+            // Publish 2nd news item...
+            await publishTestNewsItem(adminClient, newsItem2.id)
+            //... and shouldn't see any message for it (still 1 message in database)
+            await waitFor(async () => {
+                const messages = await Message.getAll(adminClient, messageWhere)
+
+                expect(messages).toHaveLength(1)
             }, { delay: (SENDING_DELAY_SEC + 3) * 1000 })
         })
     })
