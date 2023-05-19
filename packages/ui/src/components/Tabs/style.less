@@ -12,10 +12,6 @@
 @tabs-bar-margin: 0 0 @condo-global-spacing-40 0;
 
 .condo-tabs {
-  &-tab {
-    align-items: end;
-  }
-
   &-tab-btn {
     .condo-typography-h4();
 
@@ -63,5 +59,9 @@
 
   &-nav .condo-tabs-extra-content {
     padding-left: @condo-global-spacing-40;
+  }
+
+  &-nav:has(.condo-tabs-extra-content) .condo-tabs-tab {
+    padding: @condo-global-spacing-12 0;
   }
 }

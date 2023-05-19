@@ -22,9 +22,9 @@ export type TabsProps = Pick<DefaultTabsProps,
 'defaultActiveKey' |
 'activeKey' |
 'destroyInactiveTabPane' |
-'tabBarExtraContent' |
 'onChange'> & {
     items?: Array<TabItem>
+    tabBarExtraContent?: React.ReactElement
 }
 
 export const Tabs: React.FC<TabsProps> = (props) => {

@@ -13,7 +13,7 @@ export default {
         tabBarExtraContent: {
             table: {
                 type: { 
-                    summary: 'React.ReactNode',
+                    summary: 'React.ReactElement',
                 },
             },
         },
