@@ -66,10 +66,11 @@ export const getRenderNewsDate: GetRenderNewsDateType = (intl, search) => (strin
     const postfix = `\n${NotSentNews}`
 
     const sendAt = get(news, 'sendAt', null)
-    if (isNull(sendAt)) return getTableCellRenderer({ search, ellipsis: true })(text)
+    const sentAt = get(news, 'sentAt', null)
 
-    const timeLeft = dayjs.duration(dayjs(sendAt).diff(dayjs()))
-    if (timeLeft.asMilliseconds() < 0) return getTableCellRenderer({ search, ellipsis: true })(text)
+    if (sentAt) return getTableCellRenderer({ search, ellipsis: true })(text)
+
+    if (isNull(sendAt)) return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(text)
 
     const sendAtDate = getNewsDate(intl, sendAt, TIME_FORMAT)
     return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(sendAtDate)
