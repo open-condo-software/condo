@@ -10,7 +10,7 @@ export default {
     title: 'Components/Tabs',
     component: Tabs,
     argTypes: {
-        extraContent: {
+        tabBarExtraContent: {
             table: {
                 type: { 
                     summary: 'React.ReactNode',
@@ -82,5 +82,5 @@ Simple.args = {
 export const WithExtraContent = Template.bind({})
 WithExtraContent.args = {
     items: withExtraContentItems,
-    extraContent : <Button type='primary' key='1'>Right Button</Button>,
+    tabBarExtraContent : <Button type='primary' key='1'>Right Button</Button>,
 }
