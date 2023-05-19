@@ -147,10 +147,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const isNotResidentInitialValue = !initialValue.id && initialValue.phone
     const initialTab = hasNotResidentTab && (isEmptyInitialValue || isNotResidentInitialValue) ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
     const initialNotResidentAutoCompleteFieldsValue = !initialValue.id && initialValue
-    const isManuallyTypedContactEmpty = useMemo(
-        () => !manuallyTypedContact || isEmpty(manuallyTypedContact.id) && isEmpty(manuallyTypedContact.phone) && isEmpty(manuallyTypedContact.name),
-        [manuallyTypedContact]
-    )
 
     const {
         objs: fetchedContacts,
@@ -399,6 +395,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                         initialValue={initialNotResidentAutoCompleteFieldsValue}
                                         onChange={handleChangeEmployee}
                                         employees={fetchedEmployees}
+                                        activeTab={activeTab}
                                     />
                                 </Row>
                             </TabPane>

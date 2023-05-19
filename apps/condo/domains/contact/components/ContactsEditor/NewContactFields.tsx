@@ -10,10 +10,12 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { colors } from '@condo/domains/common/constants/style'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { Contact as TContact } from '@condo/domains/contact/schema'
 
 import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
+
 
 interface INewContactFieldsFieldsProps {
     initialValue?: TContact,
@@ -62,6 +64,8 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     const [value, setValue] = useState({})
     const [contactWithSamePhoneExistError, setContactWithSamePhoneExistError] = useState<boolean>(false)
 
+    const { phoneValidator } = useValidations({ allowLandLine: true })
+
     const handleChangeContact = (field) => (fieldValue) => {
         const newValue = {
             ...value,
@@ -104,8 +108,8 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     }), [ContactWithSamePhoneExistMessage, checked, contacts])
 
     const validations = useMemo(() => ({
-        phone: activeTab === CONTACT_TYPE.RESIDENT ? [contactExistValidator] : [],
-    }), [activeTab, contactExistValidator])
+        phone: activeTab === CONTACT_TYPE.RESIDENT ? [phoneValidator, contactExistValidator] : [],
+    }), [activeTab, contactExistValidator, phoneValidator])
 
     const isNameDisabled = !isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked)
 
