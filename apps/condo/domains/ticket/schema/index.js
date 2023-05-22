@@ -31,6 +31,8 @@ const { TicketSource } = require('./TicketSource')
 const { TicketStatus } = require('./TicketStatus')
 const { UserFavoriteTicket } = require('./UserFavoriteTicket')
 const { UserTicketCommentReadTime } = require('./UserTicketCommentReadTime')
+const { CallRecord } = require('./CallRecord')
+const { CallRecordTicket } = require('./CallRecordTicket')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -61,5 +63,7 @@ module.exports = {
     IncidentClassifierIncident,
     UserFavoriteTicket,
     IncidentExportTask,
+    CallRecord,
+    CallRecordTicket,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

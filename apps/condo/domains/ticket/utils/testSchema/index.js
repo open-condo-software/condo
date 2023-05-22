@@ -42,6 +42,9 @@ const { IncidentClassifier: IncidentClassifierGQL } = require('@condo/domains/ti
 const { IncidentClassifierIncident: IncidentClassifierIncidentGQL } = require('@condo/domains/ticket/gql')
 const { UserFavoriteTicket: UserFavoriteTicketGQL } = require('@condo/domains/ticket/gql')
 const { IncidentExportTask: IncidentExportTaskGQL } = require('@condo/domains/ticket/gql')
+const { CallRecord: CallRecordGQL } = require('@condo/domains/ticket/gql')
+const { CallRecordTicket: CallRecordTicketGQL } = require('@condo/domains/ticket/gql')
+const { createTestPhone } = require('../../../user/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -73,6 +76,8 @@ const IncidentClassifier = generateGQLTestUtils(IncidentClassifierGQL)
 const IncidentClassifierIncident = generateGQLTestUtils(IncidentClassifierIncidentGQL)
 const UserFavoriteTicket = generateGQLTestUtils(UserFavoriteTicketGQL)
 const IncidentExportTask = generateGQLTestUtils(IncidentExportTaskGQL)
+const CallRecord = generateGQLTestUtils(CallRecordGQL)
+const CallRecordTicket = generateGQLTestUtils(CallRecordTicketGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -874,6 +879,78 @@ async function updateTestIncidentExportTask (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestCallRecord (client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const callerPhone = faker.phone.number()
+    const destCallerPhone = faker.phone.number()
+    const talkTime = Number(faker.random.numeric(3))
+    const startDate = new Date()
+    const isIncomingCall = true
+    const callId = faker.random.alphaNumeric(10)
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        callerPhone,
+        destCallerPhone,
+        talkTime,
+        startDate,
+        isIncomingCall,
+        callId,
+        ...extraAttrs,
+    }
+    const obj = await CallRecord.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestCallRecord (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await CallRecord.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestCallRecordTicket (client, ticket, callRecord, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!ticket || !ticket.id) throw new Error('no ticket.id')
+    if (!callRecord || !callRecord.id) throw new Error('no callRecord.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ticket: { connect: { id: ticket.id } },
+        callRecord: { connect: { id: callRecord.id } },
+        ...extraAttrs,
+    }
+    const obj = await CallRecordTicket.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestCallRecordTicket (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await CallRecordTicket.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -925,5 +1002,7 @@ module.exports = {
     IncidentClassifierIncident, createTestIncidentClassifierIncident, updateTestIncidentClassifierIncident,
     UserFavoriteTicket, createTestUserFavoriteTicket, updateTestUserFavoriteTicket,
     IncidentExportTask, createTestIncidentExportTask, updateTestIncidentExportTask,
+    CallRecord, createTestCallRecord, updateTestCallRecord,
+    CallRecordTicket, createTestCallRecordTicket, updateTestCallRecordTicket,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
