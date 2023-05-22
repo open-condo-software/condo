@@ -14592,6 +14592,414 @@ export type BillingReceiptCreateInput = {
   sender?: Maybe<SenderFieldInput>;
 };
 
+/**  File for billing receipt  */
+export type BillingReceiptFile = {
+  __typename?: 'BillingReceiptFile';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the BillingReceiptFile List config, or
+   *  2. As an alias to the field set on 'labelField' in the BillingReceiptFile List config, or
+   *  3. As an alias to a 'name' field on the BillingReceiptFile List (if one exists), or
+   *  4. As an alias to the 'id' field on the BillingReceiptFile List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  File object with meta information about the receipt  */
+  file?: Maybe<File>;
+  /**  Link to Context  */
+  context?: Maybe<BillingIntegrationOrganizationContext>;
+  /**  Link to Billing Receipt  */
+  receipt?: Maybe<BillingReceipt>;
+  /**  Meta information about the file  */
+  controlSum?: Maybe<Scalars['String']>;
+  /**  Unique import id for each file  */
+  importId?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type BillingReceiptFileCreateInput = {
+  file?: Maybe<Scalars['Upload']>;
+  context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
+  receipt?: Maybe<BillingReceiptRelateToOneInput>;
+  controlSum?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type BillingReceiptFileHistoryRecord = {
+  __typename?: 'BillingReceiptFileHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the BillingReceiptFileHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the BillingReceiptFileHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the BillingReceiptFileHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the BillingReceiptFileHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['JSON']>;
+  context?: Maybe<Scalars['String']>;
+  receipt?: Maybe<Scalars['String']>;
+  controlSum?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BillingReceiptFileHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type BillingReceiptFileHistoryRecordCreateInput = {
+  file?: Maybe<Scalars['JSON']>;
+  context?: Maybe<Scalars['String']>;
+  receipt?: Maybe<Scalars['String']>;
+  controlSum?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BillingReceiptFileHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum BillingReceiptFileHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type BillingReceiptFileHistoryRecordUpdateInput = {
+  file?: Maybe<Scalars['JSON']>;
+  context?: Maybe<Scalars['String']>;
+  receipt?: Maybe<Scalars['String']>;
+  controlSum?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<BillingReceiptFileHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type BillingReceiptFileHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<BillingReceiptFileHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<BillingReceiptFileHistoryRecordWhereInput>>>;
+  file?: Maybe<Scalars['JSON']>;
+  file_not?: Maybe<Scalars['JSON']>;
+  file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  context?: Maybe<Scalars['String']>;
+  context_not?: Maybe<Scalars['String']>;
+  context_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  context_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  receipt?: Maybe<Scalars['String']>;
+  receipt_not?: Maybe<Scalars['String']>;
+  receipt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  receipt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  controlSum?: Maybe<Scalars['String']>;
+  controlSum_not?: Maybe<Scalars['String']>;
+  controlSum_contains?: Maybe<Scalars['String']>;
+  controlSum_not_contains?: Maybe<Scalars['String']>;
+  controlSum_starts_with?: Maybe<Scalars['String']>;
+  controlSum_not_starts_with?: Maybe<Scalars['String']>;
+  controlSum_ends_with?: Maybe<Scalars['String']>;
+  controlSum_not_ends_with?: Maybe<Scalars['String']>;
+  controlSum_i?: Maybe<Scalars['String']>;
+  controlSum_not_i?: Maybe<Scalars['String']>;
+  controlSum_contains_i?: Maybe<Scalars['String']>;
+  controlSum_not_contains_i?: Maybe<Scalars['String']>;
+  controlSum_starts_with_i?: Maybe<Scalars['String']>;
+  controlSum_not_starts_with_i?: Maybe<Scalars['String']>;
+  controlSum_ends_with_i?: Maybe<Scalars['String']>;
+  controlSum_not_ends_with_i?: Maybe<Scalars['String']>;
+  controlSum_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  controlSum_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<BillingReceiptFileHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<BillingReceiptFileHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<BillingReceiptFileHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<BillingReceiptFileHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type BillingReceiptFileHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type BillingReceiptFileHistoryRecordsCreateInput = {
+  data?: Maybe<BillingReceiptFileHistoryRecordCreateInput>;
+};
+
+export type BillingReceiptFileHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<BillingReceiptFileHistoryRecordUpdateInput>;
+};
+
+export type BillingReceiptFileUpdateInput = {
+  file?: Maybe<Scalars['Upload']>;
+  context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
+  receipt?: Maybe<BillingReceiptRelateToOneInput>;
+  controlSum?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type BillingReceiptFileWhereInput = {
+  AND?: Maybe<Array<Maybe<BillingReceiptFileWhereInput>>>;
+  OR?: Maybe<Array<Maybe<BillingReceiptFileWhereInput>>>;
+  file?: Maybe<Scalars['String']>;
+  file_not?: Maybe<Scalars['String']>;
+  file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  context?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
+  context_is_null?: Maybe<Scalars['Boolean']>;
+  receipt?: Maybe<BillingReceiptWhereInput>;
+  receipt_is_null?: Maybe<Scalars['Boolean']>;
+  controlSum?: Maybe<Scalars['String']>;
+  controlSum_not?: Maybe<Scalars['String']>;
+  controlSum_contains?: Maybe<Scalars['String']>;
+  controlSum_not_contains?: Maybe<Scalars['String']>;
+  controlSum_starts_with?: Maybe<Scalars['String']>;
+  controlSum_not_starts_with?: Maybe<Scalars['String']>;
+  controlSum_ends_with?: Maybe<Scalars['String']>;
+  controlSum_not_ends_with?: Maybe<Scalars['String']>;
+  controlSum_i?: Maybe<Scalars['String']>;
+  controlSum_not_i?: Maybe<Scalars['String']>;
+  controlSum_contains_i?: Maybe<Scalars['String']>;
+  controlSum_not_contains_i?: Maybe<Scalars['String']>;
+  controlSum_starts_with_i?: Maybe<Scalars['String']>;
+  controlSum_not_starts_with_i?: Maybe<Scalars['String']>;
+  controlSum_ends_with_i?: Maybe<Scalars['String']>;
+  controlSum_not_ends_with_i?: Maybe<Scalars['String']>;
+  controlSum_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  controlSum_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type BillingReceiptFileWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type BillingReceiptFilesCreateInput = {
+  data?: Maybe<BillingReceiptFileCreateInput>;
+};
+
+export type BillingReceiptFilesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<BillingReceiptFileUpdateInput>;
+};
+
 /**  A keystone list  */
 export type BillingReceiptHistoryRecord = {
   __typename?: 'BillingReceiptHistoryRecord';
@@ -28020,6 +28428,30 @@ export type Mutation = {
   deleteBillingCategory?: Maybe<BillingCategory>;
   /**  Delete multiple BillingCategory items by ID.  */
   deleteBillingCategories?: Maybe<Array<Maybe<BillingCategory>>>;
+  /**  Create a single BillingReceiptFileHistoryRecord item.  */
+  createBillingReceiptFileHistoryRecord?: Maybe<BillingReceiptFileHistoryRecord>;
+  /**  Create multiple BillingReceiptFileHistoryRecord items.  */
+  createBillingReceiptFileHistoryRecords?: Maybe<Array<Maybe<BillingReceiptFileHistoryRecord>>>;
+  /**  Update a single BillingReceiptFileHistoryRecord item by ID.  */
+  updateBillingReceiptFileHistoryRecord?: Maybe<BillingReceiptFileHistoryRecord>;
+  /**  Update multiple BillingReceiptFileHistoryRecord items by ID.  */
+  updateBillingReceiptFileHistoryRecords?: Maybe<Array<Maybe<BillingReceiptFileHistoryRecord>>>;
+  /**  Delete a single BillingReceiptFileHistoryRecord item by ID.  */
+  deleteBillingReceiptFileHistoryRecord?: Maybe<BillingReceiptFileHistoryRecord>;
+  /**  Delete multiple BillingReceiptFileHistoryRecord items by ID.  */
+  deleteBillingReceiptFileHistoryRecords?: Maybe<Array<Maybe<BillingReceiptFileHistoryRecord>>>;
+  /**  Create a single BillingReceiptFile item.  */
+  createBillingReceiptFile?: Maybe<BillingReceiptFile>;
+  /**  Create multiple BillingReceiptFile items.  */
+  createBillingReceiptFiles?: Maybe<Array<Maybe<BillingReceiptFile>>>;
+  /**  Update a single BillingReceiptFile item by ID.  */
+  updateBillingReceiptFile?: Maybe<BillingReceiptFile>;
+  /**  Update multiple BillingReceiptFile items by ID.  */
+  updateBillingReceiptFiles?: Maybe<Array<Maybe<BillingReceiptFile>>>;
+  /**  Delete a single BillingReceiptFile item by ID.  */
+  deleteBillingReceiptFile?: Maybe<BillingReceiptFile>;
+  /**  Delete multiple BillingReceiptFile items by ID.  */
+  deleteBillingReceiptFiles?: Maybe<Array<Maybe<BillingReceiptFile>>>;
   /**  Create a single BankAccountHistoryRecord item.  */
   createBankAccountHistoryRecord?: Maybe<BankAccountHistoryRecord>;
   /**  Create multiple BankAccountHistoryRecord items.  */
@@ -33408,6 +33840,68 @@ export type MutationDeleteBillingCategoryArgs = {
 
 
 export type MutationDeleteBillingCategoriesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateBillingReceiptFileHistoryRecordArgs = {
+  data?: Maybe<BillingReceiptFileHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateBillingReceiptFileHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<BillingReceiptFileHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateBillingReceiptFileHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<BillingReceiptFileHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateBillingReceiptFileHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<BillingReceiptFileHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteBillingReceiptFileHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteBillingReceiptFileHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateBillingReceiptFileArgs = {
+  data?: Maybe<BillingReceiptFileCreateInput>;
+};
+
+
+export type MutationCreateBillingReceiptFilesArgs = {
+  data?: Maybe<Array<Maybe<BillingReceiptFilesCreateInput>>>;
+};
+
+
+export type MutationUpdateBillingReceiptFileArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<BillingReceiptFileUpdateInput>;
+};
+
+
+export type MutationUpdateBillingReceiptFilesArgs = {
+  data?: Maybe<Array<Maybe<BillingReceiptFilesUpdateInput>>>;
+};
+
+
+export type MutationDeleteBillingReceiptFileArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteBillingReceiptFilesArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -47871,6 +48365,22 @@ export type Query = {
   _allBillingCategoriesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the BillingCategory list.  */
   _BillingCategoriesMeta?: Maybe<_ListMeta>;
+  /**  Search for all BillingReceiptFileHistoryRecord items which match the where clause.  */
+  allBillingReceiptFileHistoryRecords?: Maybe<Array<Maybe<BillingReceiptFileHistoryRecord>>>;
+  /**  Search for the BillingReceiptFileHistoryRecord item with the matching ID.  */
+  BillingReceiptFileHistoryRecord?: Maybe<BillingReceiptFileHistoryRecord>;
+  /**  Perform a meta-query on all BillingReceiptFileHistoryRecord items which match the where clause.  */
+  _allBillingReceiptFileHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the BillingReceiptFileHistoryRecord list.  */
+  _BillingReceiptFileHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all BillingReceiptFile items which match the where clause.  */
+  allBillingReceiptFiles?: Maybe<Array<Maybe<BillingReceiptFile>>>;
+  /**  Search for the BillingReceiptFile item with the matching ID.  */
+  BillingReceiptFile?: Maybe<BillingReceiptFile>;
+  /**  Perform a meta-query on all BillingReceiptFile items which match the where clause.  */
+  _allBillingReceiptFilesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the BillingReceiptFile list.  */
+  _BillingReceiptFilesMeta?: Maybe<_ListMeta>;
   /**  Search for all BankAccountHistoryRecord items which match the where clause.  */
   allBankAccountHistoryRecords?: Maybe<Array<Maybe<BankAccountHistoryRecord>>>;
   /**  Search for the BankAccountHistoryRecord item with the matching ID.  */
@@ -50370,6 +50880,56 @@ export type Query_AllBillingCategoriesMetaArgs = {
   where?: Maybe<BillingCategoryWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortBillingCategoriesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllBillingReceiptFileHistoryRecordsArgs = {
+  where?: Maybe<BillingReceiptFileHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBillingReceiptFileHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryBillingReceiptFileHistoryRecordArgs = {
+  where: BillingReceiptFileHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllBillingReceiptFileHistoryRecordsMetaArgs = {
+  where?: Maybe<BillingReceiptFileHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBillingReceiptFileHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllBillingReceiptFilesArgs = {
+  where?: Maybe<BillingReceiptFileWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBillingReceiptFilesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryBillingReceiptFileArgs = {
+  where: BillingReceiptFileWhereUniqueInput;
+};
+
+
+export type Query_AllBillingReceiptFilesMetaArgs = {
+  where?: Maybe<BillingReceiptFileWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortBillingReceiptFilesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -59911,6 +60471,56 @@ export enum SortBillingPropertyHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortBillingReceiptFileHistoryRecordsBy {
+  ControlSumAsc = 'controlSum_ASC',
+  ControlSumDesc = 'controlSum_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortBillingReceiptFilesBy {
+  ContextAsc = 'context_ASC',
+  ContextDesc = 'context_DESC',
+  ReceiptAsc = 'receipt_ASC',
+  ReceiptDesc = 'receipt_DESC',
+  ControlSumAsc = 'controlSum_ASC',
+  ControlSumDesc = 'controlSum_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortBillingReceiptHistoryRecordsBy {

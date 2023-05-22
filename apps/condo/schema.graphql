@@ -12374,6 +12374,481 @@ input BillingCategoriesCreateInput {
   data: BillingCategoryCreateInput
 }
 
+enum BillingReceiptFileHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type BillingReceiptFileHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the BillingReceiptFileHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the BillingReceiptFileHistoryRecord List config, or
+   3. As an alias to a 'name' field on the BillingReceiptFileHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the BillingReceiptFileHistoryRecord List.
+  """
+  _label_: String
+  file: JSON
+  context: String
+  receipt: String
+  controlSum: String
+  importId: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BillingReceiptFileHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BillingReceiptFileHistoryRecordWhereInput {
+  AND: [BillingReceiptFileHistoryRecordWhereInput]
+  OR: [BillingReceiptFileHistoryRecordWhereInput]
+  file: JSON
+  file_not: JSON
+  file_in: [JSON]
+  file_not_in: [JSON]
+  context: String
+  context_not: String
+  context_in: [String]
+  context_not_in: [String]
+  receipt: String
+  receipt_not: String
+  receipt_in: [String]
+  receipt_not_in: [String]
+  controlSum: String
+  controlSum_not: String
+  controlSum_contains: String
+  controlSum_not_contains: String
+  controlSum_starts_with: String
+  controlSum_not_starts_with: String
+  controlSum_ends_with: String
+  controlSum_not_ends_with: String
+  controlSum_i: String
+  controlSum_not_i: String
+  controlSum_contains_i: String
+  controlSum_not_contains_i: String
+  controlSum_starts_with_i: String
+  controlSum_not_starts_with_i: String
+  controlSum_ends_with_i: String
+  controlSum_not_ends_with_i: String
+  controlSum_in: [String]
+  controlSum_not_in: [String]
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: BillingReceiptFileHistoryRecordHistoryActionType
+  history_action_not: BillingReceiptFileHistoryRecordHistoryActionType
+  history_action_in: [BillingReceiptFileHistoryRecordHistoryActionType]
+  history_action_not_in: [BillingReceiptFileHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input BillingReceiptFileHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortBillingReceiptFileHistoryRecordsBy {
+  controlSum_ASC
+  controlSum_DESC
+  importId_ASC
+  importId_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input BillingReceiptFileHistoryRecordUpdateInput {
+  file: JSON
+  context: String
+  receipt: String
+  controlSum: String
+  importId: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BillingReceiptFileHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BillingReceiptFileHistoryRecordsUpdateInput {
+  id: ID!
+  data: BillingReceiptFileHistoryRecordUpdateInput
+}
+
+input BillingReceiptFileHistoryRecordCreateInput {
+  file: JSON
+  context: String
+  receipt: String
+  controlSum: String
+  importId: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BillingReceiptFileHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BillingReceiptFileHistoryRecordsCreateInput {
+  data: BillingReceiptFileHistoryRecordCreateInput
+}
+
+input BillingReceiptRelateToOneInput {
+  create: BillingReceiptCreateInput
+  connect: BillingReceiptWhereUniqueInput
+  disconnect: BillingReceiptWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+""" File for billing receipt """
+type BillingReceiptFile {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the BillingReceiptFile List config, or
+   2. As an alias to the field set on 'labelField' in the BillingReceiptFile List config, or
+   3. As an alias to a 'name' field on the BillingReceiptFile List (if one exists), or
+   4. As an alias to the 'id' field on the BillingReceiptFile List.
+  """
+  _label_: String
+
+  """ File object with meta information about the receipt """
+  file: File
+
+  """ Link to Context """
+  context: BillingIntegrationOrganizationContext
+
+  """ Link to Billing Receipt """
+  receipt: BillingReceipt
+
+  """ Meta information about the file """
+  controlSum: String
+
+  """ Unique import id for each file """
+  importId: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input BillingReceiptFileWhereInput {
+  AND: [BillingReceiptFileWhereInput]
+  OR: [BillingReceiptFileWhereInput]
+  file: String
+  file_not: String
+  file_in: [String]
+  file_not_in: [String]
+  context: BillingIntegrationOrganizationContextWhereInput
+  context_is_null: Boolean
+  receipt: BillingReceiptWhereInput
+  receipt_is_null: Boolean
+  controlSum: String
+  controlSum_not: String
+  controlSum_contains: String
+  controlSum_not_contains: String
+  controlSum_starts_with: String
+  controlSum_not_starts_with: String
+  controlSum_ends_with: String
+  controlSum_not_ends_with: String
+  controlSum_i: String
+  controlSum_not_i: String
+  controlSum_contains_i: String
+  controlSum_not_contains_i: String
+  controlSum_starts_with_i: String
+  controlSum_not_starts_with_i: String
+  controlSum_ends_with_i: String
+  controlSum_not_ends_with_i: String
+  controlSum_in: [String]
+  controlSum_not_in: [String]
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input BillingReceiptFileWhereUniqueInput {
+  id: ID!
+}
+
+enum SortBillingReceiptFilesBy {
+  context_ASC
+  context_DESC
+  receipt_ASC
+  receipt_DESC
+  controlSum_ASC
+  controlSum_DESC
+  importId_ASC
+  importId_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input BillingReceiptFileUpdateInput {
+  file: Upload
+  context: BillingIntegrationOrganizationContextRelateToOneInput
+  receipt: BillingReceiptRelateToOneInput
+  controlSum: String
+  importId: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input BillingReceiptFilesUpdateInput {
+  id: ID!
+  data: BillingReceiptFileUpdateInput
+}
+
+input BillingReceiptFileCreateInput {
+  file: Upload
+  context: BillingIntegrationOrganizationContextRelateToOneInput
+  receipt: BillingReceiptRelateToOneInput
+  controlSum: String
+  importId: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input BillingReceiptFilesCreateInput {
+  data: BillingReceiptFileCreateInput
+}
+
 enum BankAccountHistoryRecordHistoryActionType {
   c
   u
@@ -46791,13 +47266,6 @@ input PaymentHistoryRecordsCreateInput {
   data: PaymentHistoryRecordCreateInput
 }
 
-input BillingReceiptRelateToOneInput {
-  create: BillingReceiptCreateInput
-  connect: BillingReceiptWhereUniqueInput
-  disconnect: BillingReceiptWhereUniqueInput
-  disconnectAll: Boolean
-}
-
 input MultiPaymentRelateToOneInput {
   create: MultiPaymentCreateInput
   connect: MultiPaymentWhereUniqueInput
@@ -59821,6 +60289,35 @@ type Query {
   """ Retrieve the meta-data for the BillingCategory list. """
   _BillingCategoriesMeta: _ListMeta
 
+  """ Search for all BillingReceiptFileHistoryRecord items which match the where clause. 
+  """
+  allBillingReceiptFileHistoryRecords(where: BillingReceiptFileHistoryRecordWhereInput, search: String, sortBy: [SortBillingReceiptFileHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [BillingReceiptFileHistoryRecord]
+
+  """ Search for the BillingReceiptFileHistoryRecord item with the matching ID. 
+  """
+  BillingReceiptFileHistoryRecord(where: BillingReceiptFileHistoryRecordWhereUniqueInput!): BillingReceiptFileHistoryRecord
+
+  """ Perform a meta-query on all BillingReceiptFileHistoryRecord items which match the where clause. 
+  """
+  _allBillingReceiptFileHistoryRecordsMeta(where: BillingReceiptFileHistoryRecordWhereInput, search: String, sortBy: [SortBillingReceiptFileHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the BillingReceiptFileHistoryRecord list. """
+  _BillingReceiptFileHistoryRecordsMeta: _ListMeta
+
+  """ Search for all BillingReceiptFile items which match the where clause. 
+  """
+  allBillingReceiptFiles(where: BillingReceiptFileWhereInput, search: String, sortBy: [SortBillingReceiptFilesBy!], orderBy: String, first: Int, skip: Int): [BillingReceiptFile]
+
+  """ Search for the BillingReceiptFile item with the matching ID. """
+  BillingReceiptFile(where: BillingReceiptFileWhereUniqueInput!): BillingReceiptFile
+
+  """ Perform a meta-query on all BillingReceiptFile items which match the where clause. 
+  """
+  _allBillingReceiptFilesMeta(where: BillingReceiptFileWhereInput, search: String, sortBy: [SortBillingReceiptFilesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the BillingReceiptFile list. """
+  _BillingReceiptFilesMeta: _ListMeta
+
   """ Search for all BankAccountHistoryRecord items which match the where clause. 
   """
   allBankAccountHistoryRecords(where: BankAccountHistoryRecordWhereInput, search: String, sortBy: [SortBankAccountHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [BankAccountHistoryRecord]
@@ -63090,6 +63587,42 @@ type Mutation {
 
   """ Delete multiple BillingCategory items by ID. """
   deleteBillingCategories(ids: [ID!]): [BillingCategory]
+
+  """ Create a single BillingReceiptFileHistoryRecord item. """
+  createBillingReceiptFileHistoryRecord(data: BillingReceiptFileHistoryRecordCreateInput): BillingReceiptFileHistoryRecord
+
+  """ Create multiple BillingReceiptFileHistoryRecord items. """
+  createBillingReceiptFileHistoryRecords(data: [BillingReceiptFileHistoryRecordsCreateInput]): [BillingReceiptFileHistoryRecord]
+
+  """ Update a single BillingReceiptFileHistoryRecord item by ID. """
+  updateBillingReceiptFileHistoryRecord(id: ID!, data: BillingReceiptFileHistoryRecordUpdateInput): BillingReceiptFileHistoryRecord
+
+  """ Update multiple BillingReceiptFileHistoryRecord items by ID. """
+  updateBillingReceiptFileHistoryRecords(data: [BillingReceiptFileHistoryRecordsUpdateInput]): [BillingReceiptFileHistoryRecord]
+
+  """ Delete a single BillingReceiptFileHistoryRecord item by ID. """
+  deleteBillingReceiptFileHistoryRecord(id: ID!): BillingReceiptFileHistoryRecord
+
+  """ Delete multiple BillingReceiptFileHistoryRecord items by ID. """
+  deleteBillingReceiptFileHistoryRecords(ids: [ID!]): [BillingReceiptFileHistoryRecord]
+
+  """ Create a single BillingReceiptFile item. """
+  createBillingReceiptFile(data: BillingReceiptFileCreateInput): BillingReceiptFile
+
+  """ Create multiple BillingReceiptFile items. """
+  createBillingReceiptFiles(data: [BillingReceiptFilesCreateInput]): [BillingReceiptFile]
+
+  """ Update a single BillingReceiptFile item by ID. """
+  updateBillingReceiptFile(id: ID!, data: BillingReceiptFileUpdateInput): BillingReceiptFile
+
+  """ Update multiple BillingReceiptFile items by ID. """
+  updateBillingReceiptFiles(data: [BillingReceiptFilesUpdateInput]): [BillingReceiptFile]
+
+  """ Delete a single BillingReceiptFile item by ID. """
+  deleteBillingReceiptFile(id: ID!): BillingReceiptFile
+
+  """ Delete multiple BillingReceiptFile items by ID. """
+  deleteBillingReceiptFiles(ids: [ID!]): [BillingReceiptFile]
 
   """ Create a single BankAccountHistoryRecord item. """
   createBankAccountHistoryRecord(data: BankAccountHistoryRecordCreateInput): BankAccountHistoryRecord

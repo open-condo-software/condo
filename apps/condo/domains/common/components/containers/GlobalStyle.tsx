@@ -302,6 +302,12 @@ export default function GlobalStyle () {
               }
 
               .ant-table-cell {
+                .icon {
+                  color: #707695 !important;
+                  &:hover {
+                    color: #222 !important;
+                  }
+                }
                 &:hover {
                   .ant-table-column-sorter, .ant-table-filter-trigger {
                     visibility: visible;

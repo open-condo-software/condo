@@ -44,6 +44,9 @@ const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIEL
 const RESIDENT_BILLING_RECEIPTS_FIELDS = `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay paid ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable }`
 const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESIDENT_BILLING_RECEIPTS_FIELDS)
 
+const BILLING_RECEIPT_FILE_FIELDS = `{ file { id originalFilename publicUrl mimetype } context { id } receipt { id } controlSum ${COMMON_FIELDS} }`
+const BillingReceiptFile = generateGqlQueries('BillingReceiptFile', BILLING_RECEIPT_FILE_FIELDS)
+
 const REGISTER_BILLING_RECEIPTS_MUTATION = gql`
     mutation registerBillingReceipts ($data: RegisterBillingReceiptsInput!) {
         result: registerBillingReceipts(data: $data) ${BILLING_RECEIPT_FIELDS}
@@ -76,5 +79,6 @@ module.exports = {
     REGISTER_BILLING_RECEIPTS_MUTATION,
 
     SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    BillingReceiptFile,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

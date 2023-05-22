@@ -3,7 +3,7 @@ import { Row, Col, Typography, Space } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -29,7 +29,7 @@ import { IContextProps } from './index'
 
 
 const SORTABLE_PROPERTIES = ['toPay']
-const INPUT_STYLE = { width: '18em' }
+const INPUT_STYLE: CSSProperties = { width: '18em' }
 
 export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const intl = useIntl()
@@ -63,6 +63,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
+
 
     const hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetails'], false)
     const hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)

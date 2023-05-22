@@ -2,11 +2,12 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
+import { Sheet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 
 import { IFilters } from '@condo/domains/billing/utils/helpers'
 import { getFilterIcon, getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
-import { getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
+import { getIconRender, getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -24,6 +25,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
     const ChargeTitle = intl.formatMessage({ id: 'Charged' })
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const PaidTitle = intl.formatMessage({ id: 'PaymentPaid' })
+    const TooltipPDF = intl.formatMessage({ id: 'pages.billing.ReceiptsTable.PDFTooltip' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -135,6 +137,14 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
                 align: 'right',
                 render: getMoneyRender(intl, currencyCode),
             },
+            pdf: {
+                title: 'PDF',
+                key: 'pdf',
+                dataIndex: '',
+                width: detailed ? '8%' : '10%',
+                align: 'center',
+                render: getIconRender(Sheet, '', TooltipPDF),
+            },
         }
 
         return detailed
@@ -154,6 +164,7 @@ export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, de
         filters,
         sorterMap,
         ShortFlatNumber,
+        TooltipPDF,
         detailed,
         currencyCode,
     ])

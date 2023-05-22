@@ -10,6 +10,8 @@ import isNull from 'lodash/isNull'
 import isString from 'lodash/isString'
 import React from 'react'
 
+import { IconProps } from '@open-condo/icons'
+
 import { TTextHighlighterRenderPartFN } from '@condo/domains/common/components/TextHighlighter'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { LOCALES } from '@condo/domains/common/constants/locale'
@@ -144,6 +146,7 @@ type GetTableCellRendererType = (props?: {
     extraPostfixProps?: TextProps,
     extraTitle?: string,
     href?: string,
+    Icon?: React.FC<IconProps>
 }) => (text?: string) => React.ReactElement
 
 /**
@@ -156,6 +159,7 @@ type GetTableCellRendererType = (props?: {
  * @param extraPostfixProps
  * @param extraTitle
  * @param href
+ * @param Icon
  * @return cell contents renderer fn
  */
 export const getTableCellRenderer: GetTableCellRendererType = ({
@@ -166,6 +170,7 @@ export const getTableCellRenderer: GetTableCellRendererType = ({
     extraPostfixProps,
     extraTitle,
     href,
+    Icon,
 } = {}) =>
     (text) => {
         const title = getTitleMessage({ text, extraTitle, postfix })
@@ -179,7 +184,7 @@ export const getTableCellRenderer: GetTableCellRendererType = ({
 
         const ellipsisConfig = isBoolean(ellipsis) ? ELLIPSIS_SETTINGS : ellipsis
 
-        const cellContent = text && (
+        const cellContent = text ? (
             !ellipsis
                 ? highlightedContent
                 : (
@@ -187,7 +192,7 @@ export const getTableCellRenderer: GetTableCellRendererType = ({
                         {highlightedContent}
                     </Typography.Paragraph>
                 )
-        )
+        ) : Icon && <Icon className='icon'/>
 
         // NOTE Tooltip -> span -> content
         // This hack (span) is needed for tooltip to appear
@@ -276,6 +281,14 @@ const dimText = (text: string, index: number) => (
         {text}
     </Typography.Text>
 )
+
+export const getIconRender = (Icon: React.FC<IconProps>, href?: string, tooltipText?: string) => {
+    return function render (): RenderReturnType {
+        return (
+            getTableCellRenderer({ extraTitle: tooltipText, href: href, Icon: Icon })()
+        )
+    }
+}
 
 export const getMoneyRender = (
     intl,

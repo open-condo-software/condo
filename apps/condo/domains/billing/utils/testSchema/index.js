@@ -5,7 +5,9 @@
  */
 const { faker } = require('@faker-js/faker')
 const get = require('lodash/get')
-const { makeLoggedInAdminClient } = require("@open-condo/keystone/test.utils");
+const path = require("path");
+const conf = require("@open-condo/config");
+const { makeLoggedInAdminClient, UploadingFile} = require("@open-condo/keystone/test.utils");
 const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require("@condo/domains/organization/utils/testSchema");
 const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
@@ -24,6 +26,7 @@ const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
+const { BillingReceiptFile: BillingReceiptFileGQL } = require('@condo/domains/billing/gql')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
@@ -42,6 +45,7 @@ const BillingOrganization = generateGQLTestUtils(BillingOrganizationGQL)
 const ResidentBillingReceipt = generateGQLTestUtils(ResidentBillingReceiptGQL)
 const BillingRecipient = generateGQLTestUtils(BillingRecipientGQL)
 const BillingCategory = generateGQLTestUtils(BillingCategoryGQL)
+const BillingReceiptFile = generateGQLTestUtils(BillingReceiptFileGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -476,6 +480,39 @@ async function updateTestBillingCategory (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestBillingReceiptFile (client, receipt, context, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!receipt) throw new Error('no receipt')
+    if (!context) throw new Error('no context')
+    const receiptConnection = { receipt: { connect: { id: receipt.id } } }
+    const contextConnection = { context: { connect: { id: context.id } } }
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        file:  new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')),
+        controlSum: faker.random.alphaNumeric(20),
+        ...receiptConnection,
+        ...contextConnection,
+        ...extraAttrs,
+    }
+    const obj = await BillingReceiptFile.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBillingReceiptFile (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BillingReceiptFile.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 async function createTestBillingRecipient(client, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!context.id) throw new Error('no context')
@@ -796,6 +833,7 @@ module.exports = {
     createRegisterBillingReceiptsPayload,
     generateServicesData,
     sendNewReceiptMessagesToResidentScopesByTestClient,
+    BillingReceiptFile, createTestBillingReceiptFile, updateTestBillingReceiptFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
