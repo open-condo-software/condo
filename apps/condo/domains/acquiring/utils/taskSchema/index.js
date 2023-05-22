@@ -247,6 +247,7 @@ async function getReadyForProcessingPaymentsPage (context, pageSize, offset, ext
         OR: [ { payAfter: null }, { payAfter_lte: dayjs().toISOString() }],
         tryCount_lt: 5,
         status_in: [RECURRENT_PAYMENT_INIT_STATUS, RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS],
+        deletedAt: null,
         ...extraArgs,
     }, {
         sortBy: 'id_ASC',

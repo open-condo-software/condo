@@ -39,12 +39,11 @@ const {
 const {
     makePayerWithMultipleConsumers,
     createTestRecurrentPaymentContext,
+    updateTestRecurrentPaymentContext,
+    createTestRecurrentPayment,
+    updateTestRecurrentPayment,
     registerMultiPaymentByTestClient,
     RecurrentPayment,
-} = require('@condo/domains/acquiring/utils/testSchema')
-const {
-    createTestRecurrentPayment,
-    updateTestRecurrentPaymentContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     BillingReceipt,
@@ -880,6 +879,26 @@ describe('task schema queries', () => {
             expect(recurrentPayments).toHaveLength(1)
             expect(recurrentPayments[0]).toHaveProperty('id')
             expect(recurrentPayments[0].id).toEqual(recurrentPayment.id)
+        })
+
+        it('should filter deleted payment', async () => {
+            const payAfter = null
+
+            // create test recurrent payments
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({ payAfter, tryCount: 0 }),
+            )
+
+            await updateTestRecurrentPayment(admin, recurrentPayment.id, {
+                deletedAt: dayjs().toISOString(),
+            })
+
+            const recurrentPayments = await getReadyForProcessingPaymentsPage(adminContext, pageSize, 0, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+
+            expect(recurrentPayments).toHaveLength(0)
         })
 
         it('should return payment only with RECURRENT_PAYMENT_INIT_STATUS status', async () => {
