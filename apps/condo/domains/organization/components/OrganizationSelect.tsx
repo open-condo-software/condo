@@ -88,8 +88,10 @@ export const OrganizationSelect: React.FC = () => {
     const selectRef = useRef(null)
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
 
-    const { objs: userOrganizations, loading: organizationLinksLoading } = OrganizationEmployee.useObjects(
-        { where: user ? { user: { id: user.id }, isRejected: false, isBlocked: false } : {} }
+    const userId = get(user, 'id', null)
+
+    const { objs: userOrganizations, loading: organizationLinksLoading } = OrganizationEmployee.useAllObjects(
+        { where: { user: { id: userId }, isRejected: false, isBlocked: false } }
     )
 
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({})
