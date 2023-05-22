@@ -1,31 +1,3 @@
-/**
- * @type {Cypress.PluginConfig}
- */
-const isEmpty = require('lodash/isEmpty')
-
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestTicket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
-const {
-    createTestUser,
-    createTestForgotPasswordAction,
-    ConfirmPhoneAction,
-    makeLoggedInClient,
-    makeClientWithSupportUser, updateTestUser,
-} = require('@condo/domains/user/utils/testSchema')
-
-let userObject = {}
-let supportObject = {}
-
-module.exports = async (on, config) => {
-
-    const supportEmail = config.env.supportEmail
-    const supportPassword = config.env.supportPassword
-    if (!supportEmail || !supportPassword) {
-        throw new Error('Please provide cypress with support credentials for correct user creation')
-    }
 
     const supportClient = await makeLoggedInClient({ email: supportEmail, password: supportPassword })
 

@@ -31,9 +31,10 @@ module.exports = async (on, config) => {
     })
 
     on('after:run', async (results) => {
+        console.log('[metrics.js] Saving traces...')
         const path = METRIC_REPORT_FOLDER + TRACES_REPORT_FILENAME
         fs.writeFile(path, JSON.stringify(registredTraces), 'utf8', () => {
-            console.log(`Traces have been saved to ${path}`)
+            console.log(`[metrics.js] Traces have been saved to ${path}`)
         })
     })
 

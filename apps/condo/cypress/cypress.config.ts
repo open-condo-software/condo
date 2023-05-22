@@ -15,10 +15,13 @@ const config = {
         defaultCommandTimeout: 10000,
         screenshotOnRunFailure: true,
         retries: 3,
-        setupNodeEvents (on, config) {
+        setupNodeEvents (cypressOn, config) {
         // eslint-disable-next-line import/order
-            require('./plugins/index.js')(on, config)
+            // https://github.com/cypress-io/cypress/issues/22428
+            const on = require('cypress-on-fix')(cypressOn)
             require('./plugins/metrics.js')(on, config)
+            require('./plugins/keystone.js')(on, config)
+            //require('./plugins/test.js')(on, config)
         },
         env: {
             supportPassword: conf['CYPRESS_SERVER_SUPPORT_PASSWORD'],
@@ -32,9 +35,7 @@ const config = {
 }
 
 if (LOAD_TESTING) {
-
     console.log('Cypress is loaded in LOAD TESTING mode. No videos will be recorded, and no screenshots will be saved')
-
     config.e2e.video = false
     config.e2e.screenshotOnRunFailure = false
     config.e2e.retries = 0

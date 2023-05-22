@@ -93,6 +93,7 @@
     "classnames": "^2.2.6",
     "csv-stringify": "^6.2.0",
     "cuid": "^2.1.8",
+    "cypress-on-fix": "^1.0.2",
     "dayjs": "^1.10.6",
     "dd-trace": "1.5.1",
     "echarts": "^5.1.2",
