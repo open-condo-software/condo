@@ -20,7 +20,7 @@ const ContactExportTask = generateServerUtils(ContactExportTaskGQL)
 const buildContactsLoader = ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     return new GqlWithKnexLoadList({
         listKey: 'Contact',
-        fields: 'id name phone email unitName unitType createdAt updatedAt role',
+        fields: 'id name phone email unitName unitType createdAt updatedAt role isVerified',
         singleRelations: [
             ['Organization', 'organization', 'name'],
             ['Property', 'property', 'address'],
