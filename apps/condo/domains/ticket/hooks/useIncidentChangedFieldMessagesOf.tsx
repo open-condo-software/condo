@@ -33,6 +33,7 @@ type UseIncidentChangedFieldMessagesOfType =
 
 
 const DETAILS_TOOLTIP_STYLE: React.CSSProperties = { maxWidth: '80%' }
+const TIME_FORMAT = 'DD MMMM YYYY HH:mm'
 
 export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesOfType = (incidentChange) => {
     const intl = useIntl()
@@ -96,10 +97,10 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
                 return <Typography.Text>«{formattedValue}»</Typography.Text>
             },
             workStart: (field, value, type) => {
-                return <Typography.Text>{dayjs(value).format('DD MMMM YYYY')}</Typography.Text>
+                return <Typography.Text>{dayjs(value).format(TIME_FORMAT)}</Typography.Text>
             },
             workFinish: (field, value, type) => {
-                return <Typography.Text>{dayjs(value).format('DD MMMM YYYY')}</Typography.Text>
+                return <Typography.Text>{dayjs(value).format(TIME_FORMAT)}</Typography.Text>
             },
             workType: (field, value, type) => {
                 const label = workTypeLabels[value]
