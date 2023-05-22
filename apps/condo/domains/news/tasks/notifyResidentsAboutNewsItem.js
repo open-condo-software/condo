@@ -92,6 +92,9 @@ async function sendNotifications (newsItem) {
                     userId: resident.user,
                     residentId: resident.id,
                     url: `${conf.SERVER_URL}/newsItem`,
+                    validBefore: get(newsItem, 'validBefore', null),
+                    // The first truthy value will be returned, or null if no values are found.
+                    dateCreated: ['sendAt', 'updatedAt', 'createdAt'].reduce((result, field) => (result || get(newsItem, field)), null),
                 },
             },
             uniqKey: generateUniqueMessageKey(resident.user, newsItem.id),

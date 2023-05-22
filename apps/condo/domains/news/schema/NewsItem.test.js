@@ -694,7 +694,7 @@ describe('NewsItems', () => {
             const messageWhere = { user: { id: residentClient1.user.id }, type: NEWS_ITEM_COMMON_MESSAGE_TYPE }
 
             // Publish news item to make it send-able
-            await publishTestNewsItem(adminClient, newsItem1.id)
+            const [updatedItem1] = await publishTestNewsItem(adminClient, newsItem1.id)
 
             await waitFor(async () => {
                 const messages = await Message.getAll(adminClient, messageWhere)
@@ -725,13 +725,15 @@ describe('NewsItems', () => {
                             residentId: resident.id,
                             userId: residentClient1.user.id,
                             organizationId: o10n.id,
+                            validBefore: null,
+                            dateCreated: updatedItem1.updatedAt,
                         }),
                     }),
                 }))
             }, { delay: (SENDING_DELAY_SEC + 3) * 1000 })
 
             // This news item shouldn't generate notification for the same user
-            const [newsItem2, newsItem2Attrs] = await createTestNewsItem(adminClient, o10n)
+            const [newsItem2] = await createTestNewsItem(adminClient, o10n)
             await createTestNewsItemScope(adminClient, newsItem2, {
                 property: { connect: { id: property.id } },
             })
