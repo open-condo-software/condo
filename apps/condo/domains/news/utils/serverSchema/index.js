@@ -10,12 +10,27 @@ const { NewsItem: NewsItemGQL } = require('@condo/domains/news/gql')
 const { NewsItemScope: NewsItemScopeGQL } = require('@condo/domains/news/gql')
 const { NewsItemTemplate: NewsItemTemplateGQL } = require('@condo/domains/news/gql')
 const { NewsItemUserRead: NewsItemUserReadGQL } = require('@condo/domains/news/gql')
+const { EXPORT_NEWS_RECIPIENTS_MUTATION } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateServerUtils(NewsItemGQL)
 const NewsItemScope = generateServerUtils(NewsItemScopeGQL)
 const NewsItemTemplate = generateServerUtils(NewsItemTemplateGQL)
 const NewsItemUserRead = generateServerUtils(NewsItemUserReadGQL)
+async function exportNewsRecipients (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write exportNewsRecipients serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: EXPORT_NEWS_RECIPIENTS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to exportNewsRecipients',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -23,5 +38,6 @@ module.exports = {
     NewsItemScope,
     NewsItemTemplate,
     NewsItemUserRead,
+    exportNewsRecipients,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

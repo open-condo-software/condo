@@ -4,6 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const { gql } = require('@apollo/client')
+
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const { ADDRESS_META_SUBFIELDS_TABLE_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
@@ -22,6 +24,12 @@ const NewsItemTemplate = generateGqlQueries('NewsItemTemplate', NEWS_ITEM_TEMPLA
 const NEWS_ITEM_USER_READ_FIELDS = `{ newsItem { id } user { id } ${COMMON_FIELDS} }`
 const NewsItemUserRead = generateGqlQueries('NewsItemUserRead', NEWS_ITEM_USER_READ_FIELDS)
 
+const EXPORT_NEWS_RECIPIENTS_MUTATION = gql`
+    mutation exportNewsRecipients ($data: ExportNewsRecipientsInput!) {
+        result: exportNewsRecipients(data: $data) { status linkToFile }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -29,5 +37,6 @@ module.exports = {
     NewsItemScope,
     NewsItemTemplate,
     NewsItemUserRead,
+    EXPORT_NEWS_RECIPIENTS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

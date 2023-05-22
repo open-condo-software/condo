@@ -7,6 +7,7 @@ const { NewsItem } = require('./NewsItem')
 const { NewsItemScope } = require('./NewsItemScope')
 const { NewsItemTemplate } = require('./NewsItemTemplate')
 const { NewsItemUserRead } = require('./NewsItemUserRead')
+const { ExportNewsRecipientsService } = require('./ExportNewsRecipientsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -14,5 +15,6 @@ module.exports = {
     NewsItemScope,
     NewsItemTemplate,
     NewsItemUserRead,
+    ExportNewsRecipientsService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
