@@ -658,6 +658,7 @@ __metadata:
     csv-stringify: ^6.2.0
     cuid: ^2.1.8
     cypress: 10.11.0
+    cypress-on-fix: ^1.0.2
     dayjs: ^1.10.6
     dd-trace: 1.5.1
     echarts: ^5.1.2
@@ -14010,22 +14011,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"amocrm_service@workspace:apps/amocrm":
-  version: 0.0.0-use.local
-  resolution: "amocrm_service@workspace:apps/amocrm"
-  dependencies:
-    axios: ^0.21.4
-    cookie-parser: ^1.4.5
-    cookies: ^0.8.0
-    dotenv: ^10.0.0
-    express: ^4.17.1
-    knex: ^0.95.11
-    node-fetch: ^3.0.0
-    pg: ^8.7.1
-    tough-cookie: ^4.0.0
-  languageName: unknown
-  linkType: soft
-
 "amplitude-js@npm:^8.18.1":
   version: 8.19.0
   resolution: "amplitude-js@npm:8.19.0"
@@ -19669,6 +19654,13 @@ __metadata:
   version: 1.0.1
   resolution: "cyclist@npm:1.0.1"
   checksum: 3cc2fdeb358599ca0ea96f5ecf2fc530ccab7ed1f8aa1a894aebfacd2009281bd7380cb9b30db02a18cdd00b3ed1d7ce81a3b11fe56e33a6a0fe4424dc592fbe
+  languageName: node
+  linkType: hard
+
+"cypress-on-fix@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "cypress-on-fix@npm:1.0.2"
+  checksum: b35e0d49e4270237e7cbe95c21d458772d3df6bbb4423346c70f9417e61fdf061ad1d83aca76a854a378d001a68f50c17b8dd312fbe9c50b5d12e61fc317a785
   languageName: node
   linkType: hard
 

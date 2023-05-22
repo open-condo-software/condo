@@ -3,7 +3,6 @@
  * @param {string} url
  * @example trackedVisit('/auth/signin/')
  */
-
 const trackedVisit: (url) => Cypress.Chainable<Performance> = (url) => {
     // transforms /auth/signin/ to auth.signin
     const normalizedUrl = url.replace(/^\/?|\/?$/g, '').replaceAll('/', '.')
