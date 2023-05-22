@@ -5,10 +5,12 @@ import { usePostMessageContext } from '@condo/domains/common/components/PostMess
 
 interface IActiveCallContext {
     isCallActive: boolean
+    connectedTickets: string[]
 }
 
 const ActiveCallContext = createContext<IActiveCallContext>({
     isCallActive: false,
+    connectedTickets: [],
 })
 
 const useActiveCall = (): IActiveCallContext => useContext(ActiveCallContext)
@@ -17,11 +19,13 @@ const ActiveCallContextProvider = ({ children = {} }) => {
     const { addEventHandler } = usePostMessageContext()
 
     const [isCallActive, setIsCallActive] = useState(false)
+    const [connectedTickets, setConnectedTickets] = useState([])
 
     useEffect(() => {
         if (!isUndefined(window)) {
-            addEventHandler('CondoWebSetActiveCall', '*', ({ isCallActive }) => {
+            addEventHandler('CondoWebSetActiveCall', '*', ({ isCallActive, connectedTickets }) => {
                 setIsCallActive(isCallActive)
+                setConnectedTickets(connectedTickets)
 
                 return { sent: true }
             })
@@ -32,6 +36,7 @@ const ActiveCallContextProvider = ({ children = {} }) => {
         <ActiveCallContext.Provider
             value={{
                 isCallActive,
+                connectedTickets,
             }}
         >
             {children}

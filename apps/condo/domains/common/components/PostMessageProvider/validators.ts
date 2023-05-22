@@ -65,8 +65,13 @@ const CondoWebSetActiveCallParamsSchema = {
     type: 'object',
     properties: {
         isCallActive: { type: 'boolean' },
+        connectedTickets: {
+            items: { type: 'string' },
+            type: 'array',
+            minItems: 0,
+        },
     },
-    required: ['isCallActive'],
+    required: ['isCallActive', 'connectedTickets'],
     additionalProperties: false,
 }
 

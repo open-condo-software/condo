@@ -68,6 +68,7 @@
     "@open-condo/webhooks": "workspace:^",
     "@tinymce/tinymce-react": "^4.1.0",
     "@types/lodash": "4.14.186",
+    "@types/wavesurfer.js": "^6.0.6",
     "@welldone-software/why-did-you-render": "^5.0.0-alpha.1",
     "@zeit/next-css": "^1.0.1",
     "@zeit/next-less": "^1.0.1",
@@ -160,6 +161,7 @@
     "uuid": "^8.3.0",
     "validate.js": "^0.13.1",
     "validator": "^13.7.0",
+    "wavesurfer.js": "^6.6.3",
     "xlsx": "^0.17.0",
     "xss": "^1.0.13"
   },

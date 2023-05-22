@@ -15,7 +15,7 @@ export const PhoneIncoming: React.FC<IconProps> = ({ svgProps: props, ...restPro
                     viewBox='0 0 24 24'
                     {...props}
                 >
-                    <g clipPath='url(#a)' fill='#000'>
+                    <g clipPath='url(#a)' fill='currentColor'>
                         <path
                             fillRule='evenodd'
                             clipRule='evenodd'

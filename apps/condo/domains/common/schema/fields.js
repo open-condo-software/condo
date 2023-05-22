@@ -10,6 +10,8 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { UNIT_TYPES, FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { ADDRESS_META_FIELD_GRAPHQL_TYPES, ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
+const { CALL_RECORD_ERRORS } = require('../../ticket/constants/errors')
+
 /** @deprecated use dvSenderPlugin! */
 const DV_FIELD = {
     type: Integer,

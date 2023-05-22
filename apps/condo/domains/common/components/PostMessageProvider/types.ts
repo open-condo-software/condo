@@ -16,7 +16,7 @@ export type RequestParamsMap = {
     [Method in BridgeRequestMethodsName]: BridgeRequestParams<Method>
 } & {
     CondoWebSendAnalyticsEvent: AnalyticsParams,
-    CondoWebSetActiveCall: { isCallActive: boolean }
+    CondoWebSetActiveCall: { isCallActive: boolean, connectedTickets: Array<string> }
 }
 
 export type HandlerResultsMap = {
