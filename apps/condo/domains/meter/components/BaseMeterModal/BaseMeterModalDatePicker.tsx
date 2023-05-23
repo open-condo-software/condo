@@ -20,6 +20,7 @@ interface ICreateMeterModalDatePickerProps {
     onChange?: (value: Dayjs, dateString: string) => void
     initialValue?
     disabled?: boolean
+    validateFirst?: boolean
 }
 
 const METER_MODAL_DATE_PICKER_STYLE: CSSProperties = { width: '100%' }
@@ -34,6 +35,7 @@ export const MeterModalDatePicker: React.FC<ICreateMeterModalDatePickerProps> = 
     onChange,
     initialValue,
     disabled,
+    validateFirst = false,
 }) => {
     const intl = useIntl()
     const EnterDatePlaceHolder = intl.formatMessage({ id: 'EnterDate' })
@@ -50,6 +52,7 @@ export const MeterModalDatePicker: React.FC<ICreateMeterModalDatePickerProps> = 
                 validateTrigger={METER_MODAL_DATE_PICKER_VALIDATE_TRIGGER}
                 dependencies={dependencies}
                 initialValue={initialDateValue}
+                validateFirst={validateFirst}
             >
                 <DatePicker
                     placeholder={EnterDatePlaceHolder}

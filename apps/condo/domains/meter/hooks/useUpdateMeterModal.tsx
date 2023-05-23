@@ -45,10 +45,16 @@ export const useUpdateMeterModal = (refetch) => {
     }, [selectedMeter])
 
     const handleSubmit = useCallback(values => {
+        const number = String(get(values, 'number', '')).trim()
+        const accountNumber = String(get(values, 'accountNumber', '')).trim()
         if (values.resource) {
             values.resource = { connect: { id: values.resource } }
         }
-        updateMeterAction(values, selectedMeter)
+        updateMeterAction({
+            ...values,
+            number,
+            accountNumber,
+        }, selectedMeter)
     }, [selectedMeter, updateMeterAction])
     const handleCancelModal = useCallback(() => setSelectedMeter(null), [setSelectedMeter])
 

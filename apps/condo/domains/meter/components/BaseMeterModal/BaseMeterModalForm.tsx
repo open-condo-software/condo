@@ -1,5 +1,4 @@
 import { MeterResource } from '@app/condo/schema'
-import { Global, css } from '@emotion/react'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
@@ -116,7 +115,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
 
     const initialMeterNumber = get(initialValues, ['number'], null)
 
-    const { requiredValidator } = useValidations()
+    const { requiredValidator, trimValidator } = useValidations()
     const {
         meterWithSameNumberValidator,
         earlierThanInstallationValidator,
@@ -125,12 +124,14 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
         meterWithExistingNumberValidator,
     } = useMeterValidations(installationDate, verificationDate, propertyId, unitName, organizationId, initialMeterNumber)
 
-    const meterNumberValidations = useMemo(() =>
-        initialMeterNumber ? [requiredValidator, meterWithExistingNumberValidator] : [requiredValidator, meterWithSameNumberValidator],
-    [initialMeterNumber, meterWithSameNumberValidator, meterWithExistingNumberValidator, requiredValidator])
+    const meterNumberValidations = useMemo(() => [
+        requiredValidator,
+        trimValidator,
+        initialMeterNumber ? meterWithExistingNumberValidator : meterWithSameNumberValidator,
+    ], [requiredValidator, trimValidator, initialMeterNumber, meterWithExistingNumberValidator, meterWithSameNumberValidator])
 
     const validations = useMemo(() => ({
-        accountNumber: [requiredValidator, meterWithSameAccountNumberInOtherUnitValidation],
+        accountNumber: [requiredValidator, trimValidator, meterWithSameAccountNumberInOtherUnitValidation],
         number: meterNumberValidations,
         resource: [requiredValidator],
         numberOfTariffs: [requiredValidator],
@@ -139,7 +140,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
         nextVerificationDate: [earlierThanFirstVerificationDateValidator],
         controlReadingsDate: [earlierThanInstallationValidator],
     }),
-    [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterNumberValidations, meterWithSameAccountNumberInOtherUnitValidation, requiredValidator])
+    [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterNumberValidations, meterWithSameAccountNumberInOtherUnitValidation, requiredValidator, trimValidator])
 
     const initialResourceValue = get(initialValues, ['resource', 'id'])
     const handleCancelModal = useCallback(() => () => setModalVisible(false), [])
@@ -188,6 +189,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                             initialValues={initialValues}
                                             rules={validations.accountNumber}
                                             disabled={disabled}
+                                            validateFirst={false}
                                         />
                                     </Col>
                                     <Col span={24}>
@@ -196,6 +198,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                             name='resource'
                                             rules={validations.resource}
                                             initialValue={initialResourceValue}
+                                            validateFirst
                                         >
                                             <GraphQlSearchInput
                                                 onChange={resource => handleResourceChange(form, resource)}
@@ -211,6 +214,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                             rules={validations.number}
                                             validateTrigger={METER_MODAL_VALIDATE_TRIGGER}
                                             initialValue={initialValues.number}
+                                            validateFirst
                                         >
                                             <Input disabled={disabled}/>
                                         </BaseMeterModalFormItem>
@@ -232,6 +236,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                                     label={TariffsCountMessage}
                                                     name='numberOfTariffs'
                                                     initialValue={initialValues.numberOfTariffs}
+                                                    validateFirst
                                                 >
                                                     <Select disabled={disabled}>
                                                         {tariffOptions}
@@ -257,6 +262,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                                     dependencies={DATE_FIELD_INSTALLATION_DATE_DEPENDENCY}
                                                     initialValue={initialValues.commissioningDate}
                                                     disabled={disabled}
+                                                    validateFirst
                                                 />
                                                 <MeterModalDatePicker
                                                     label={SealingDateMessage}
@@ -265,6 +271,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                                     dependencies={DATE_FIELD_INSTALLATION_DATE_DEPENDENCY}
                                                     initialValue={initialValues.sealingDate}
                                                     disabled={disabled}
+                                                    validateFirst
                                                 />
                                                 <MeterModalDatePicker
                                                     label={VerificationDateMessage}
@@ -280,6 +287,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                                     dependencies={NEXT_VERIFICATION_DATE_FIELD_DEPENDENCIES}
                                                     initialValue={initialValues.nextVerificationDate}
                                                     disabled={disabled}
+                                                    validateFirst
                                                 />
                                                 <MeterModalDatePicker
                                                     label={ControlReadingsDateMessage}
@@ -288,6 +296,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                                     dependencies={DATE_FIELD_INSTALLATION_DATE_DEPENDENCY}
                                                     initialValue={initialValues.controlReadingsDate}
                                                     disabled={disabled}
+                                                    validateFirst
                                                 />
                                             </>
                                         ) : null
