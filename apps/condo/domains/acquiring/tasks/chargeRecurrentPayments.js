@@ -22,6 +22,7 @@ const {
     registerMultiPayment,
     setRecurrentPaymentAsFailed,
     setRecurrentPaymentAsSuccess,
+    sendNoReceiptsToProceedNotificationSafely,
 } = require('@condo/domains/acquiring/utils/taskSchema')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
@@ -106,7 +107,7 @@ async function chargeRecurrentPayments () {
                     await setRecurrentPaymentAsFailed(context, recurrentPayment, errorMessage, errorCode)
                 } else {
                     // nothing to pay case
-                    await setRecurrentPaymentAsSuccess(context, recurrentPayment)
+                    await sendNoReceiptsToProceedNotificationSafely(context, recurrentPayment)
                 }
             } catch (err) {
                 const message = get(err, 'errors[0].message') || get(err, 'message') || JSON.stringify(err)
