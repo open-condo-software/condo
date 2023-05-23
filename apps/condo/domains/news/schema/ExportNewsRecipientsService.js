@@ -21,7 +21,7 @@ const getUnitsFromProperty = ({ map }) => (
     ]), []) || []
 )
 
-const getUnitsFromSection = (section) => section.floors.flatMap(floor => floor.units.map(unit => ({ unitName: unit.name, unitType: unit.unitType })))
+const getUnitsFromSection = (section) => section.floors.flatMap(floor => floor.units.map(unit => ({ unitName: unit.label, unitType: unit.unitType })))
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
@@ -123,9 +123,11 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
                             if (!newsItemScope.unitName && !newsItemScope.unitType) {
                                 const recipientsData = units.reduce((acc, unit) => {
                                     if (residentsByProperties.find((resident) => unit.unitName === resident.unitName)) {
-                                        return acc.push({ address: property.name, unitName: unit.unitName, isResident: true })
+                                        acc.push({ address: property.name, unitName: unit.unitName, isResident: true })
+                                        return [...acc]
                                     }
-                                    return acc.push({ address: property.name, unitName: unit.unitName, isResident: false })
+                                    acc.push({ address: property.name, unitName: unit.unitName, isResident: false })
+                                    return [...acc]
                                 }, [])
                                 recipientsByProperty.push(...recipientsData)
                             }
@@ -133,15 +135,18 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
                             if (!newsItemScope.unitName && newsItemScope.unitType) {
                                 const unitsFilteredByType = units.reduce((acc, unit) => {
                                     if (unit.unitType === newsItemScope.unitType) {
-                                        return acc.push(unit)
+                                        acc.push(unit)
                                     }
+                                    return [...acc]
                                 }, [])
 
                                 const recipientsData = unitsFilteredByType.reduce((acc, unit) => {
                                     if (residentsByProperties.find(resident => unit.unitName === resident.unitName)) {
-                                        return acc.push({ address: property.name, unitName: unit.unitName, isResident: true })
+                                        acc.push({ address: property.name, unitName: unit.unitName, isResident: true })
+                                        return [...acc]
                                     }
-                                    return acc.push({ address: property.name, unitName: unit.unitName, isResident: false })
+                                    acc.push({ address: property.name, unitName: unit.unitName, isResident: false })
+                                    return [...acc]
                                 }, [])
 
                                 recipientsByUnitType.push(...recipientsData)

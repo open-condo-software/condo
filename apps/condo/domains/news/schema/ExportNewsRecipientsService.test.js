@@ -25,7 +25,10 @@ describe('ExportNewsRecipientsService', () => {
         const property = await Property.update(admin, emptyProperty.id, { dv: 1, sender: attrs.sender, map: buildingMap })
         
         const payload = {
-            newsItemScopes: [],
+            newsItemScopes: [{
+                property: { id: property.id },
+                unitType: 'flat',
+            }],
         }
         const response = await exportNewsRecipientsByTestClient(admin, organization, payload)
         console.log('sdf', response)
