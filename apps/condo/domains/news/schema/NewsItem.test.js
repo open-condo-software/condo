@@ -217,6 +217,26 @@ describe('NewsItems', () => {
                     await updateTestNewsItem(client, objCreated.id)
                 })
             })
+
+            test('user can successfully un-publish news item', async () => {
+                const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
+                await publishTestNewsItem(adminClient, objCreated.id)
+                const [objUnpublished] = await updateTestNewsItem(adminClient, objCreated.id, { isPublished: false })
+
+                expect(objUnpublished.title).toEqual(objCreated.title)
+                expect(objUnpublished.body).toEqual(objCreated.body)
+                expect(objUnpublished.validBefore).toEqual(objCreated.validBefore)
+                expect(objUnpublished.sendAt).toEqual(objCreated.sendAt)
+                expect(objUnpublished.type).toEqual(objCreated.type)
+            })
+
+            test('The common type set on user try to delete the type', async () => {
+                const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
+                expect(objCreated.type).toEqual(NEWS_TYPE_COMMON)
+
+                const [objUpdated] = await updateTestNewsItem(adminClient, objCreated.id, { type: null })
+                expect(objUpdated.type).toEqual(NEWS_TYPE_COMMON)
+            })
         })
 
         describe('hard delete', () => {
@@ -660,17 +680,18 @@ describe('NewsItems', () => {
             const newsItems1 = await NewsItem.getAll(residentClient1, {})
             expect(newsItems1).toHaveLength(0)
 
-            // Imagine that publication scheduled at 1 hour ago
-            await updateTestNewsItem(adminClient, newsItem1.id, { sendAt: dayjs().subtract(1, 'hour').toISOString() })
+            // Imagine that publication scheduled after 3 seconds
+            await updateTestNewsItem(adminClient, newsItem1.id, { sendAt: dayjs().add(3, 'seconds').toISOString() })
 
             const newsItems2 = await NewsItem.getAll(residentClient1, {})
             expect(newsItems2).toHaveLength(0)
 
             // Make news item published
-            await updateTestNewsItem(adminClient, newsItem1.id, { isPublished: true })
-
-            const newsItems3 = await NewsItem.getAll(residentClient1, {})
-            expect(newsItems3).toHaveLength(1)
+            await publishTestNewsItem(adminClient, newsItem1.id)
+            await waitFor(async () => {
+                const newsItems3 = await NewsItem.getAll(residentClient1, {})
+                expect(newsItems3).toHaveLength(1)
+            }, { delay: 4 * 1000 })
         })
     })
 
