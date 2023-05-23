@@ -5,6 +5,7 @@
 const BadWordsNext = require('bad-words-next')
 const badWordsRu = require('bad-words-next/data/ru.json')
 const badWordsRuLat = require('bad-words-next/data/ru_lat.json')
+const dayjs = require('dayjs')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
@@ -20,6 +21,7 @@ const {
     EDIT_DENIED_ALREADY_SENT,
     EDIT_DENIED_PUBLISHED,
     PROFANITY_DETECTED_MOT_ERF_KER,
+    WRONG_SEND_DATE,
 } = require('@condo/domains/news/constants/errors')
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks')
@@ -63,6 +65,12 @@ const ERRORS = {
         type: PROFANITY_DETECTED_MOT_ERF_KER,
         message: 'Profanity detected',
         messageForUser: 'api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER',
+    },
+    WRONG_SEND_DATE: {
+        code: BAD_USER_INPUT,
+        type: WRONG_SEND_DATE,
+        message: 'Wrong send date',
+        messageForUser: 'api.newsItem.WRONG_SEND_DATE',
     },
 }
 
@@ -170,6 +178,10 @@ const NewsItem = new GQLListSchema('NewsItem', {
 
             if (type === NEWS_TYPE_EMERGENCY && !validBefore) {
                 throw new GQLError(ERRORS.EMPTY_VALID_BEFORE_DATE, context)
+            }
+
+            if (!!sendAt && Date.parse(sendAt) < Date.parse(dayjs())) {
+                throw new GQLError(ERRORS.WRONG_SEND_DATE, context)
             }
 
             if (!!sendAt && !!validBefore && Date.parse(validBefore) < Date.parse(sendAt)) {
