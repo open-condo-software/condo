@@ -106,7 +106,7 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
 }
 
 export const UserOrganizationsList = ({ userOrganization, organizationEmployeesQuery }) => {
-    const { objs: userOrganizations, loading } = OrganizationEmployee.useObjects(
+    const { objs: userOrganizations, loading } = OrganizationEmployee.useAllObjects(
         organizationEmployeesQuery,
         { fetchPolicy: 'network-only' }
     )
