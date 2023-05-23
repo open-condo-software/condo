@@ -19,7 +19,9 @@ const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
 } = require('@condo/domains/billing/utils/testSchema')
 const { sleep } = require('@condo/domains/common/utils/sleep')
+const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { AUTOMATIC_METER_NO_MASTER_APP, B2C_APP_NOT_AVAILABLE, B2B_APP_NOT_CONNECTED } = require('@condo/domains/meter/constants/errors')
+const { MeterResource, Meter, createTestMeter, updateTestMeter } = require('@condo/domains/meter/utils/testSchema')
 const {
     createTestB2BApp,
     createTestB2BAppContext,
@@ -39,8 +41,7 @@ const { createTestProperty, Property } = require('@condo/domains/property/utils/
 const { createTestResident, updateTestServiceConsumer, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
-const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('../constants/constants')
-const { MeterResource, Meter, createTestMeter, updateTestMeter } = require('../utils/testSchema')
+const { METER_ERRORS } = require('./Meter')
 
 
 describe('Meter', () => {
@@ -989,6 +990,81 @@ describe('Meter', () => {
                     b2cApp: { connect: { id: anotherApp.id } },
                 })
             }, B2C_APP_NOT_AVAILABLE)
+        })
+        describe('fields', () => {
+            describe('number', () => {
+                test('should trim spaces and throw an invalid value error', async () => {
+                    const client = await makeEmployeeUserClientWithAbilities({
+                        canManageMeters: true,
+                    })
+                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+
+                    await catchErrorFrom(async () => {
+                        await createTestMeter(client, client.organization, client.property, resource, {
+                            number: '     ',
+                        })
+                    }, ({ errors }) => {
+                        expect(errors).toHaveLength(1)
+                        expect(errors[0]).toEqual(expect.objectContaining({
+                            message: METER_ERRORS.NUMBER_HAVE_INVALID_VALUE.message,
+                        }))
+                    })
+                })
+
+                test('should trim spaces and save meter', async () => {
+                    const client = await makeEmployeeUserClientWithAbilities({
+                        canManageMeters: true,
+                    })
+                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter, attrs] = await createTestMeter(client, client.organization, client.property, resource, {
+                        number: `   ${faker.random.alphaNumeric(5)}    `,
+                    })
+
+                    expect(meter.number).toEqual(String(attrs.number).trim())
+
+                    const [updatedMeter, updatedAttrs] = await updateTestMeter(client, meter.id, {
+                        number: `   ${faker.random.alphaNumeric(5)}    `,
+                    })
+
+                    expect(updatedMeter.number).toEqual(String(updatedAttrs.number).trim())
+                })
+            })
+            describe('accountNumber', () => {
+                test('should trim spaces and throw an invalid value error', async () => {
+                    const client = await makeEmployeeUserClientWithAbilities({
+                        canManageMeters: true,
+                    })
+                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+
+                    await catchErrorFrom(async () => {
+                        await createTestMeter(client, client.organization, client.property, resource, {
+                            accountNumber: '     ',
+                        })
+                    }, ({ errors }) => {
+                        expect(errors).toHaveLength(1)
+                        expect(errors[0]).toEqual(expect.objectContaining({
+                            message: METER_ERRORS.ACCOUNT_NUMBER_HAVE_INVALID_VALUE.message,
+                        }))
+                    })
+                })
+                test('should trim spaces and save meter', async () => {
+                    const client = await makeEmployeeUserClientWithAbilities({
+                        canManageMeters: true,
+                    })
+                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter, attrs] = await createTestMeter(client, client.organization, client.property, resource, {
+                        accountNumber: `   ${faker.random.alphaNumeric(5)}    `,
+                    })
+
+                    expect(meter.accountNumber).toEqual(String(attrs.accountNumber).trim())
+
+                    const [updatedMeter, updatedAttrs] = await updateTestMeter(client, meter.id, {
+                        accountNumber: `   ${faker.random.alphaNumeric(5)}    `,
+                    })
+
+                    expect(updatedMeter.accountNumber).toEqual(String(updatedAttrs.accountNumber).trim())
+                })
+            })
         })
     })
 })
