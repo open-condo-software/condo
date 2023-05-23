@@ -1345,6 +1345,7 @@ __metadata:
     "@open-condo/bridge": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
+    "@open-condo/featureflags": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@registry/domains": "link:./domains"
@@ -1405,6 +1406,7 @@ __metadata:
     pluralize: ^8.0.0
     qs: ^6.9.4
     raw-loader: ^4.0.2
+    rc-field-form: ~1.27.0
     rc-queue-anim: ^1.8.5
     rc-table: ~7.25.3
     react: ^16.13.1
