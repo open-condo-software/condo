@@ -137,7 +137,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
         return (
             <Row justify='end'>
                 <Col span={24}>
-                    <Button loading={loading} onClick={() => window.open(get(objs[0], 'file.publicUrl'))} type='primary'>
+                    <Button disabled={!loading && objs.length < 1} onClick={() => window.open(get(objs[0], 'file.publicUrl'))} type='primary'>
                         {ViewPDFButton}
                     </Button>
                 </Col>
