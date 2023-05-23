@@ -26,6 +26,8 @@ const ActiveCallContextProvider = ({ children = {} }) => {
         }
     }, [addEventHandler])
 
+    console.log('isCallActive', isCallActive)
+
     return (
         <ActiveCallContext.Provider
             value={{

@@ -194,8 +194,6 @@ export const PostMessageProvider: React.FC = ({ children }) => {
             return
         }
 
-        console.log('validateMessage(event.data)', event.data, validateMessage(event.data))
-
         // If not valid message interface - skip. It can be system events, like webpack or some other legacy messages
         if (validateMessage(event.data)) {
             const message = event.data

@@ -51,11 +51,13 @@ import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticke
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
+
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 import { useTicketValidations } from './useTicketValidations'
 
+import { useActiveCall } from '../../contexts/ActiveCallContext'
 import { IncidentHints } from '../IncidentHints'
 
 
@@ -383,8 +385,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
     const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
     const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident' })
+    const AttachCallRecordMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.AttachCallRecord' })
 
     const { breakpoints } = useLayoutContext()
+    const { isCallActive } = useActiveCall()
 
     const router = useRouter()
 
@@ -712,6 +716,20 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                                         eventName='TicketCreateCheckboxCanReadByResident'
                                                                                                     >
                                                                                                         {CanReadByResidentMessage}
+                                                                                                    </Checkbox>
+                                                                                                </Form.Item>
+                                                                                            </Col>
+                                                                                        )
+                                                                                    }
+                                                                                    {
+                                                                                        isCallActive && (
+                                                                                            <Col span={24}>
+                                                                                                <Form.Item name='attachCallRecord' valuePropName='checked' initialValue={true}>
+                                                                                                    <Checkbox
+                                                                                                        disabled={disableUserInteraction}
+                                                                                                        eventName='TicketCreateCheckboxAttachCallRecord'
+                                                                                                    >
+                                                                                                        {AttachCallRecordMessage}
                                                                                                     </Checkbox>
                                                                                                 </Form.Item>
                                                                                             </Col>

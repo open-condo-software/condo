@@ -116,7 +116,12 @@ export const CreateTicketForm: React.FC = () => {
             }
         })
 
-    const createAction = useCallback((variables) => {
+    const createAction = useCallback(({ attachCallRecord, ...variables }) => {
+        if (attachCallRecord) {
+            // requestFeature
+            console.log('attach record')
+        }
+
         let deadline = get(variables, 'deadline')
         if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
