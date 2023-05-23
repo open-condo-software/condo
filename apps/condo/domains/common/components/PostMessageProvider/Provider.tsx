@@ -76,7 +76,7 @@ const messageSchema = {
     properties: {
         handler: { type: 'string' },
         params: { type: 'object' },
-        type: { type: 'string', enum: ['condo-bridge', 'condo-ui'] },
+        type: { type: 'string', enum: ['condo-bridge', 'condo-ui', 'telephony'] },
         version: { type: 'string', pattern: '^\\d+.\\d+.\\d+(?:-\\w+){0,1}$' },
     },
     required: ['handler', 'type', 'version', 'params'],
@@ -193,6 +193,8 @@ export const PostMessageProvider: React.FC = ({ children }) => {
             !('self' in event.source)) {
             return
         }
+
+        console.log('validateMessage(event.data)', event.data, validateMessage(event.data))
 
         // If not valid message interface - skip. It can be system events, like webpack or some other legacy messages
         if (validateMessage(event.data)) {

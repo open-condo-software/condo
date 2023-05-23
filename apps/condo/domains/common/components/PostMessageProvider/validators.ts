@@ -61,6 +61,15 @@ const CondoWebAppResizeWindowParamsSchema = {
     additionalProperties: false,
 }
 
+const CondoWebSetActiveCallParamsSchema = {
+    type: 'object',
+    properties: {
+        isActiveCall: { type: 'boolean' },
+    },
+    required: ['isActiveCall'],
+    additionalProperties: false,
+}
+
 const CondoWebAppShowModalWindowParamsSchema = {
     type: 'object',
     properties: {
@@ -137,6 +146,7 @@ const CondoWebAppUpdateProgressBarParamsSchema = {
 export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValidator<Method> }
 
 export const validators: ValidatorsType = {
+    CondoWebSetActiveCall: ajv.compile(CondoWebSetActiveCallParamsSchema),
     CondoWebSendAnalyticsEvent: ajv.compile(CondoWebSendAnalyticsEventParamsSchema),
     CondoWebAppCloseModalWindow: ajv.compile(CondoWebAppCloseModalWindowParamsSchema),
     CondoWebAppGetActiveProgressBars: NoParamsValidator,
