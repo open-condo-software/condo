@@ -2,6 +2,7 @@ import { SortMetersBy } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import isString from 'lodash/isString'
 import map from 'lodash/map'
 import { useEffect, useMemo, useRef } from 'react'
 
@@ -106,6 +107,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const MeterResourceNotFoundMessage = intl.formatMessage({ id: 'meter.import.error.MeterResourceNotFound' })
     const NoValuesErrorMessage = intl.formatMessage({ id: 'meter.import.error.ZeroValuesSpecified' })
     const IncorrectUnitTypeMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitType' })
+    const AccountNumberInvalidValueMessage = intl.formatMessage({ id: 'meter.import.error.AccountNumberInvalidValue' })
+    const MeterNumberInvalidValueMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberInvalidValue' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -155,7 +158,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     }), [ApartmentUnitTypeValue, CommercialUnitTypeValue, FlatUnitTypeValue, ParkingUnitTypeValue, WarehouseUnitTypeValue])
 
     const meterReadingNormalizer: RowNormalizer = async (row) => {
-        const addons = { address: null, unitType: null, propertyId: null, propertyMap: null, meterId: null, meterResourceId: null, readingSubmissionDate: null, invalidReadingSubmissionDate: null, valuesAmount: 0 }
+        const addons = { address: null, unitType: null, propertyId: null, propertyMap: null, meterId: null, meterResourceId: null, readingSubmissionDate: null, invalidReadingSubmissionDate: null, valuesAmount: 0, accountNumber: null, meterNumber: null }
         if (row.length !== columns.length) return Promise.resolve({ row })
         const [
             address,
@@ -173,6 +176,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         ] = map(row, 'value')
 
         addons.valuesAmount = [value1, value2, value3, value4].filter(Boolean).length
+
+        addons.accountNumber = accountNumber ? String(accountNumber).trim() : accountNumber
+        addons.meterNumber = meterNumber ? String(meterNumber).trim() : meterNumber
 
         // Current suggestion API provider returns no suggestions for address with flat number
         const suggestionOptions = await addressApi.getSuggestions(String(address))
@@ -236,6 +242,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!get(processedRow, ['addons', 'propertyId'])) errors.push(PropertyNotFoundMessage)
         if (!get(processedRow, ['addons', 'meterResourceId'])) errors.push(MeterResourceNotFoundMessage)
         if (!get(processedRow, ['addons', 'valuesAmount'])) errors.push(NoValuesErrorMessage)
+
+        const accountNumber = get(processedRow, ['addons', 'accountNumber'])
+        const meterNumber = get(processedRow, ['addons', 'meterNumber'])
+        if (!isString(accountNumber) || accountNumber.length < 1) errors.push(AccountNumberInvalidValueMessage)
+        if (!isString(meterNumber) || accountNumber.length < 1) errors.push(MeterNumberInvalidValueMessage)
 
         const unitType = get(processedRow, ['addons', 'unitType'], '')
         if (!unitType || String(unitType).trim().length === 0) errors.push(IncorrectUnitTypeMessage)
@@ -315,8 +326,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 resource: { connect: { id: addons.meterResourceId } },
                 unitName: String(unitName),
                 unitType: String(addons.unitType),
-                accountNumber: String(accountNumber),
-                number: String(meterNumber),
+                accountNumber: get(addons, 'accountNumber', null),
+                number: get(addons, 'meterNumber', null),
                 numberOfTariffs: parseInt(String(numberOfTariffs)),
                 verificationDate: toISO(verificationDate),
                 nextVerificationDate: toISO(nextVerificationDate),
