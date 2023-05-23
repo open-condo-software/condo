@@ -12,14 +12,17 @@ exports.up = async (knex) => {
 -- Remove field detailedDescription from acquiringintegration
 --
 -- ALTER TABLE "AcquiringIntegration" DROP COLUMN "detailedDescription" CASCADE;
+ALTER TABLE "AcquiringIntegration" ALTER COLUMN "detailedDescription" DROP NOT NULL;
 --
 -- Remove field developer from acquiringintegration
 --
 -- ALTER TABLE "AcquiringIntegration" DROP COLUMN "developer" CASCADE;
+ALTER TABLE "AcquiringIntegration" ALTER COLUMN "developer" DROP NOT NULL;
 --
 -- Remove field displayPriority from acquiringintegration
 --
 -- ALTER TABLE "AcquiringIntegration" DROP COLUMN "displayPriority" CASCADE;
+ALTER TABLE "AcquiringIntegration" ALTER COLUMN "displayPriority" DROP NOT NULL;
 --
 -- Remove field gallery from acquiringintegration
 --
@@ -44,6 +47,7 @@ exports.up = async (knex) => {
 -- Remove field shortDescription from acquiringintegration
 --
 -- ALTER TABLE "AcquiringIntegration" DROP COLUMN "shortDescription" CASCADE;
+ALTER TABLE "AcquiringIntegration" ALTER COLUMN "shortDescription" DROP NOT NULL;
 --
 -- Remove field appUrl from acquiringintegrationhistoryrecord
 --
@@ -52,14 +56,17 @@ exports.up = async (knex) => {
 -- Remove field detailedDescription from acquiringintegrationhistoryrecord
 --
 -- ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "detailedDescription" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" ALTER COLUMN "detailedDescription" DROP NOT NULL;
 --
 -- Remove field developer from acquiringintegrationhistoryrecord
 --
 -- ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "developer" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" ALTER COLUMN "developer" DROP NOT NULL;
 --
 -- Remove field displayPriority from acquiringintegrationhistoryrecord
 --
 -- ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "displayPriority" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" ALTER COLUMN "displayPriority" DROP NOT NULL;
 --
 -- Remove field gallery from acquiringintegrationhistoryrecord
 --
@@ -84,14 +91,17 @@ exports.up = async (knex) => {
 -- Remove field shortDescription from acquiringintegrationhistoryrecord
 --
 -- ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "shortDescription" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" ALTER COLUMN "shortDescription" DROP NOT NULL;
 --
 -- Remove field developer from billingintegration
 --
 -- ALTER TABLE "BillingIntegration" DROP COLUMN "developer" CASCADE;
+ALTER TABLE "BillingIntegration" ALTER COLUMN "developer" DROP NOT NULL;
 --
 -- Remove field displayPriority from billingintegration
 --
 -- ALTER TABLE "BillingIntegration" DROP COLUMN "displayPriority" CASCADE;
+ALTER TABLE "BillingIntegration" ALTER COLUMN "displayPriority" DROP NOT NULL;
 --
 -- Remove field gallery from billingintegration
 --
@@ -112,10 +122,12 @@ exports.up = async (knex) => {
 -- Remove field developer from billingintegrationhistoryrecord
 --
 -- ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "developer" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" ALTER COLUMN "developer" DROP NOT NULL;
 --
 -- Remove field displayPriority from billingintegrationhistoryrecord
 --
 -- ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "displayPriority" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" ALTER COLUMN "displayPriority" DROP NOT NULL;
 --
 -- Remove field gallery from billingintegrationhistoryrecord
 --
