@@ -7,6 +7,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const {
     RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE,
     RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_NO_RECEIPTS_TO_PROCEED_CODE,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     paginationConfiguration,
@@ -22,7 +23,6 @@ const {
     registerMultiPayment,
     setRecurrentPaymentAsFailed,
     setRecurrentPaymentAsSuccess,
-    sendNoReceiptsToProceedNotificationSafely,
 } = require('@condo/domains/acquiring/utils/taskSchema')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
@@ -107,7 +107,12 @@ async function chargeRecurrentPayments () {
                     await setRecurrentPaymentAsFailed(context, recurrentPayment, errorMessage, errorCode)
                 } else {
                     // nothing to pay case
-                    await sendNoReceiptsToProceedNotificationSafely(context, recurrentPayment)
+                    await setRecurrentPaymentAsFailed(
+                        context,
+                        recurrentPayment,
+                        'No receipts to proceed',
+                        RECURRENT_PAYMENT_PROCESS_ERROR_NO_RECEIPTS_TO_PROCEED_CODE,
+                    )
                 }
             } catch (err) {
                 const message = get(err, 'errors[0].message') || get(err, 'message') || JSON.stringify(err)
