@@ -1,9 +1,10 @@
-import { Col, Form, Row, Space, Typography, RowProps } from 'antd'
+import { Col, Form, Row, Space, Typography as DefaultTypography, RowProps } from 'antd'
 import React, { CSSProperties, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 import { useMutation } from '@open-condo/next/apollo'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
@@ -174,32 +175,32 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                 <ResponsiveCol span={24}>
                     <Row gutter={FORM_ITEMS_GUTTER}>
                         <Col span={24}>
-                            <Typography.Title level={3}>{title}</Typography.Title>
+                            <Typography.Title level={2}>{title}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <Typography.Text>
+                            <DefaultTypography.Text>
                                 <FormattedMessage
                                     id='pages.auth.register.info.SmsCodeSent'
                                     values={{
                                         phone: (
                                             <span style={{ whiteSpace: 'nowrap' }}>
                                                 {`${formatPhone(showPhone)} `}
-                                                <Typography.Link
+                                                <DefaultTypography.Link
                                                     underline
                                                     style={{ color: 'black' }}
                                                     onClick={() => setIsPhoneVisible(!isPhoneVisible)}
                                                 >
                                                     ({PhoneToggleLabel})
-                                                </Typography.Link>
+                                                </DefaultTypography.Link>
                                             </span>),
                                     }}
                                 />
-                            </Typography.Text>
+                            </DefaultTypography.Text>
                         </Col>
                         <Col span={24}>
-                            <Typography.Link underline style={{ color: colors.textSecondary }} onClick={onReset}>
+                            <DefaultTypography.Link underline style={{ color: colors.textSecondary }} onClick={onReset}>
                                 {ChangePhoneNumberLabel}
-                            </Typography.Link>
+                            </DefaultTypography.Link>
                         </Col>
                         <Col span={24}>
                             <Form.Item
@@ -227,26 +228,26 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                                 isCountDownActive ?
 
                                     <Space direction='horizontal' size={8}>
-                                        <Typography.Link
+                                        <DefaultTypography.Link
                                             style={{ color: colors.textSecondary }}
                                             disabled={true}
                                         >
                                             {SMSAvailableLabel}
-                                        </Typography.Link>
-                                        <Typography.Text type='secondary'>
+                                        </DefaultTypography.Link>
+                                        <DefaultTypography.Text type='secondary'>
                                             {`${new Date(countdown * 1000).toISOString().substr(14, 5)}`}
-                                        </Typography.Text>
+                                        </DefaultTypography.Text>
                                     </Space>
 
                                     :
 
-                                    <Typography.Link
+                                    <DefaultTypography.Link
                                         underline
                                         style={{ color: colors.textSecondary }}
                                         onClick={runAction}
                                     >
                                         {ResendSmsLabel}
-                                    </Typography.Link>
+                                    </DefaultTypography.Link>
 
                             )
                         }}
