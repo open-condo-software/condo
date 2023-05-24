@@ -7,7 +7,7 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@open-condo/config')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
@@ -15,6 +15,7 @@ const { i18n } = require('@open-condo/locales/loader')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { getHeadersTranslations, EXPORT_TYPE_NEWS_RECIPIENTS } = require('@condo/domains/common/utils/exportToExcel')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const access = require('@condo/domains/news/access/ExportNewsRecipientsService')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
@@ -112,11 +113,17 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
 
                 let residentsByProperties
                 if (!isEmpty(properties)) {
-                    residentsByProperties = await Resident.getAll(context, {
-                        property: {
-                            id_in: properties,
+                    residentsByProperties = await loadListByChunks({
+                        context: context,
+                        list: Resident,
+                        chunkSize: 50,
+                        limit: 100000,
+                        where: {
+                            property: {
+                                id_in: properties,
+                            },
+                            deletedAt: null,
                         },
-                        deletedAt: null,
                     })
                 }
 
@@ -129,11 +136,17 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
                         deletedAt: null,
                     })
 
-                    const propertiesByOrganization = await Property.getAll(context, {
-                        organization: {
-                            id: organizationId,
+                    const propertiesByOrganization = await loadListByChunks({
+                        context: context,
+                        list: Property,
+                        chunkSize: 50,
+                        limit: 100000,
+                        where: {
+                            organization: {
+                                id: organizationId,
+                            },
+                            deletedAt: null,
                         },
-                        deletedAt: null,
                     })
 
                     for (let property of propertiesByOrganization) {
