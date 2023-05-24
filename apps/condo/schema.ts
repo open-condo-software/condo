@@ -1983,7 +1983,7 @@ export type B2BApp = {
   /**  Specifies set of service users, who can access app's contexts related as well as perform actions on behalf of the application  */
   accessRights: Array<B2BAppAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
-  /**  List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration]  */
+  /**  List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration, AttachRecordToTicket]  */
   features?: Maybe<Array<B2BAppGlobalFeature>>;
   /**  The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1.  */
   displayPriority?: Maybe<Scalars['Int']>;
@@ -2741,7 +2741,8 @@ export type B2BAppCreateInput = {
 };
 
 export enum B2BAppGlobalFeature {
-  PropertyMapGeneration = 'PropertyMapGeneration'
+  PropertyMapGeneration = 'PropertyMapGeneration',
+  AttachRecordToTicket = 'AttachRecordToTicket'
 }
 
 /**  A keystone list  */

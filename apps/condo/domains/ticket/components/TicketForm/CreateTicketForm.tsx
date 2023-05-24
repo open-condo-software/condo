@@ -22,6 +22,9 @@ import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
+import { B2BAppGlobalFeature } from '../../../../schema'
+import { useGlobalAppsFeaturesContext } from '../../../miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
+
 dayjs.extend(isToday)
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -89,6 +92,7 @@ export const CreateTicketForm: React.FC = () => {
     const auth = useAuth() as { user: { id: string } }
     const client = useApolloClient()
     const { addTicketToQueryCacheForTicketCardList } = useCacheUtils(client.cache)
+    const { features: { AttachRecordToTicket: generatorAppOrigin }, requestFeature } = useGlobalAppsFeaturesContext()
 
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
@@ -116,21 +120,23 @@ export const CreateTicketForm: React.FC = () => {
             }
         })
 
-    const createAction = useCallback(({ attachCallRecord, ...variables }) => {
-        if (attachCallRecord) {
-            // requestFeature
-            console.log('attach record')
-        }
-
+    const createAction = useCallback(async ({ attachCallRecord, ...variables }) => {
         let deadline = get(variables, 'deadline')
         if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
         }
-        return action({
+        const ticket = await action({
             ...Ticket.formValuesProcessor({ ...variables, deadline }),
             organization: { connect: { id: organization.id } },
         })
-    }, [organization, action])
+
+        if (attachCallRecord) {
+            console.log('attach record to ticket', ticket.id)
+            requestFeature({ feature: B2BAppGlobalFeature.AttachRecordToTicket, ticketId: ticket.id })
+        }
+
+        return ticket
+    }, [action, organization.id, requestFeature])
 
     const initialValues = useMemo(() => ({
         ...initialValuesFromQuery,

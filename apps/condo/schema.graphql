@@ -52427,6 +52427,7 @@ input B2BAppAccessRightRelateToManyInput {
 
 enum B2BAppGlobalFeature {
   PropertyMapGeneration
+  AttachRecordToTicket
 }
 
 """ B2B app """
@@ -52486,7 +52487,7 @@ type B2BApp {
   accessRights(where: B2BAppAccessRightWhereInput, search: String, sortBy: [SortB2BAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): [B2BAppAccessRight!]!
   _accessRightsMeta(where: B2BAppAccessRightWhereInput, search: String, sortBy: [SortB2BAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration] 
+  """ List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration, AttachRecordToTicket] 
   """
   features: [B2BAppGlobalFeature!]
 
