@@ -31,9 +31,11 @@ const PosterMobileFooter = styled.div`
   line-height: 20px;
   background-color: inherit;
   margin-top: auto;
+  padding-top: 40px;
 `
 
-const POSTER_WRAPPER_COL_STYLE: CSSProperties = { padding: '36px 0 36px 36px' }
+const POSTER_WRAPPER_STUMB_STYLE: CSSProperties = { padding: '36px 0 36px 36px', height: '100vh' }
+const POSTER_WRAPPER_COL_STYLE: CSSProperties = { position: 'fixed', left: '36px', top: '36px', bottom: '36px' }
 const PAGE_WRAPPER_STYLE: CSSProperties = { minHeight: '100vh' }
 
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, Header, Footer, layoutBgColor, layoutBgImage }) => {
@@ -46,7 +48,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, Header, F
 
     return (
         <Layout style={LAYOUT_STYLE}>
-            <Row align='stretch' justify='center' style={pageWrapperStyle}>
+            <Row align='stretch' justify={breakpoints.TABLET_LARGE ? 'space-between' : 'center'} style={pageWrapperStyle}>
                 {
                     Header && !breakpoints.TABLET_LARGE && (
                         <Col span={24}>
@@ -56,6 +58,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, Header, F
                         </Col>
                     )
                 }
+                <Col md={12} sm={24} hidden={!breakpoints.TABLET_LARGE} style={POSTER_WRAPPER_STUMB_STYLE} />
                 <Col md={12} sm={24} hidden={!breakpoints.TABLET_LARGE} style={POSTER_WRAPPER_COL_STYLE}>
                     <PosterWrapper>
                         <Poster
@@ -63,11 +66,10 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, Header, F
                             Footer={breakpoints.TABLET_LARGE && Footer}
                             src={BG_POSTER}
                             placeholderSrc={BG_POSTER_PLACEHOLDER}
-                            placeholderColor={colors.black}
                         />
                     </PosterWrapper>
                 </Col>
-                <Col md={12} sm={24}>
+                <Col md={11} sm={24}>
                     <PageContent>
                         <ReCaptchaContainer id='ReCaptchaContainer'/>
                         <ChildrenWrapper isSmall={!breakpoints.TABLET_LARGE}>

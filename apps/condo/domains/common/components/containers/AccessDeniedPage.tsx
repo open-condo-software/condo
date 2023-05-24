@@ -50,7 +50,6 @@ export const AccessDeniedPage: React.FC<IAccessDeniedPageProps> = ({ title }) =>
                                         <Poster
                                             src='/404Poster.png'
                                             placeholderSrc='/404PosterPlaceholder.png'
-                                            placeholderColor='inherit'
                                             delay={0}
                                         />
                                     </AccessDeniedPosterWrapper>
