@@ -23,6 +23,7 @@ const {
     RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE,
     RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
     RECURRENT_PAYMENT_PROCESS_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_NO_RECEIPTS_TO_PROCEED_CODE,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     RecurrentPayment,
@@ -90,6 +91,10 @@ function getNotificationMetaByErrorCode (errorCode, recurrentPaymentContextId) {
         [RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE]: {
             type: RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE_TYPE,
             url: `${conf.SERVER_URL}/payments/`,
+        },
+        [RECURRENT_PAYMENT_PROCESS_ERROR_NO_RECEIPTS_TO_PROCEED_CODE]: {
+            type: RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
+            url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContextId}`,
         },
     }
 
@@ -442,9 +447,7 @@ async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentC
 
         // get trigger identifier
         const recurrentPaymentId = get(recurrentPayment, 'id')
-        const previousMonthDate = dayjs().startOf('month').subtract(1, 'days')
-        const period = previousMonthDate.format('YYYY-MM-01')
-        const triggerIdentifier = recurrentPaymentId || period
+        const triggerIdentifier = recurrentPaymentId || dayjs().format('YYYY-MM-DD')
 
         // create unique key and send message
         const uniqKey = `rp_tp_${recurrentPaymentContext.id}_${triggerIdentifier}`
@@ -480,11 +483,8 @@ async function sendTomorrowPaymentNoReceiptsNotificationSafely (context, recurre
             },
         } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id })
 
-        // get trigger identifier
-        const previousMonthDate = dayjs().startOf('month')
-
         // create unique key and send message
-        const uniqKey = `rp_tp_${recurrentPaymentContext.id}_${previousMonthDate.format('YYYY-MM-01')}`
+        const uniqKey = `rp_tpnr_${recurrentPaymentContext.id}_${dayjs().format('YYYY-MM-DD')}`
         await sendMessage(context, {
             ...dvAndSender,
             to: { user: { id: userId } },
@@ -517,11 +517,8 @@ async function sendNoReceiptsToProceedNotificationSafely (context, recurrentPaym
             },
         } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id })
 
-        // get trigger identifier
-        const date = dayjs().startOf('month')
-
         // create unique key and send message
-        const uniqKey = `rp_nrtp_${recurrentPaymentContext.id}_${date.format('YYYY-MM-01')}`
+        const uniqKey = `rp_nrtp_${recurrentPaymentContext.id}_${dayjs().format('YYYY-MM-DD')}`
         await sendMessage(context, {
             ...dvAndSender,
             to: { user: { id: userId } },
@@ -580,7 +577,8 @@ async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMess
         || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE
         || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE
         || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE
-        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE) {
+        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE
+        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_NO_RECEIPTS_TO_PROCEED_CODE) {
         nextStatus = RECURRENT_PAYMENT_ERROR_STATUS
     }
 
