@@ -113,12 +113,14 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
                 const recurrentPaymentContextId = get(existingItem, 'id', null)
                 const sender = get(originalInput, 'sender', null)
                 const dv = get(originalInput, 'dv', null)
+                const autoPayReceipts = get(existingItem, 'autoPayReceipts', null)
 
                 // data vars
                 const newServiceConsumerId = get(originalInput, 'serviceConsumer.connect.id', null)
                 const serviceConsumerId = get(existingItem, 'serviceConsumer', null)
                 const newPaymentDay = get(originalInput, 'paymentDay', null)
                 const paymentDay = get(existingItem, 'paymentDay', null)
+                const newAutoPayReceipts = get(originalInput, 'autoPayReceipts', null)
                 const nowDay = dayjs().date()
 
                 if (!isNil(newServiceConsumerId) && newServiceConsumerId !== serviceConsumerId) {
@@ -134,6 +136,11 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
                     // and today is the day when we should proceed creation of recurrent payments
                     // in case if any recurrent payments was already created - we have to get rid of them
                     // since end user are not waiting for today payment anymore
+                    await removeOutdatedRecurrentPayments({
+                        context, recurrentPaymentContextId, dv, sender,
+                    })
+                } else if (!isNil(newAutoPayReceipts) && autoPayReceipts !== newAutoPayReceipts) {
+                    // change trigger case
                     await removeOutdatedRecurrentPayments({
                         context, recurrentPaymentContextId, dv, sender,
                     })

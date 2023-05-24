@@ -490,5 +490,58 @@ describe('RecurrentPaymentContext', () => {
 
             expect(recurrentPayments).toHaveLength(1)
         })
+        test('Trigger change from paymentDat to autoPay should remove outdated recurrent payments', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const createRecurrentPaymentContextRequest = await getContextRequest()
+            const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, createRecurrentPaymentContextRequest)
+            await createTestRecurrentPayment(admin, {
+                status: RECURRENT_PAYMENT_INIT_STATUS,
+                payAfter: dayjs().toISOString(),
+                tryCount: 0,
+                state: {},
+                billingReceipts: [ { id: faker.datatype.uuid() }],
+                recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
+            })
+
+            // update service consumer
+            await updateTestRecurrentPaymentContext(admin, recurrentPaymentContext.id, {
+                paymentDay: null,
+                autoPayReceipts: true,
+            })
+
+            const recurrentPayments = await RecurrentPayment.getAll(admin, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+
+            expect(recurrentPayments).toHaveLength(0)
+        })
+
+        test('Trigger change from autoPay to paymentDate should remove outdated recurrent payments', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const createRecurrentPaymentContextRequest = await getContextRequest()
+            createRecurrentPaymentContextRequest.paymentDay = null
+            createRecurrentPaymentContextRequest.autoPayReceipts = true
+            const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, createRecurrentPaymentContextRequest)
+            await createTestRecurrentPayment(admin, {
+                status: RECURRENT_PAYMENT_INIT_STATUS,
+                payAfter: dayjs().toISOString(),
+                tryCount: 0,
+                state: {},
+                billingReceipts: [ { id: faker.datatype.uuid() }],
+                recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
+            })
+
+            // update service consumer
+            await updateTestRecurrentPaymentContext(admin, recurrentPaymentContext.id, {
+                paymentDay: dayjs().add(1, 'day').date(),
+                autoPayReceipts: false,
+            })
+
+            const recurrentPayments = await RecurrentPayment.getAll(admin, {
+                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            })
+
+            expect(recurrentPayments).toHaveLength(0)
+        })
     })
 })
