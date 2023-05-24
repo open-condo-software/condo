@@ -4,10 +4,6 @@ import { authUserWithCookies } from '../../plugins/auth'
 
 describe('Property', function () {
     describe('User', function () {
-        afterEach(() => {
-            cy.clearCookies()
-        })
-
         it('can create property map', () => {
             const trace = new SimpleTracer('user.canCreatePropertyMap', 'property')
             const spanPrepare = trace.startSpan('1.createUserWithProperty')

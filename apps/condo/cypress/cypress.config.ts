@@ -21,7 +21,6 @@ const config = {
             const on = require('cypress-on-fix')(cypressOn)
             require('./plugins/metrics.js')(on, config)
             require('./plugins/keystone.js')(on, config)
-            //require('./plugins/test.js')(on, config)
         },
         env: {
             supportPassword: conf['CYPRESS_SERVER_SUPPORT_PASSWORD'],
