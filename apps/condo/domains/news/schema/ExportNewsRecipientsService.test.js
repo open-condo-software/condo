@@ -11,6 +11,10 @@ const { buildingMapJson } = require('@condo/domains/property/constants/property'
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { Property } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithProperty } = require('../../property/utils/testSchema')
+const { cloneDeep } = require('lodash')
+const { faker } = require('@faker-js/faker')
+const { createTestResident } = require('../../resident/utils/testSchema')
  
 describe('ExportNewsRecipientsService', () => {
     let admin
@@ -23,15 +27,26 @@ describe('ExportNewsRecipientsService', () => {
         const [emptyProperty, attrs] = await createTestProperty(admin, organization)
         const buildingMap = { ...buildingMapJson }
         const property = await Property.update(admin, emptyProperty.id, { dv: 1, sender: attrs.sender, map: buildingMap })
-        
+
+        const addressMetaWithFlat = cloneDeep(property.addressMeta)
+        addressMetaWithFlat.data.flat = '3'
+        addressMetaWithFlat.data.flat_type = 'кв.'
+        addressMetaWithFlat.value = addressMetaWithFlat.value + ', кв. 3'
+
+        const residentAttrs = {
+            address: addressMetaWithFlat.value,
+            unitName: '3',
+            addressMeta: addressMetaWithFlat,
+        }
+
+        await createTestResident(admin, client.user, property, residentAttrs)
         const payload = {
             newsItemScopes: [{
                 property: { id: property.id },
-                unitType: 'flat',
             }],
         }
-        const response = await exportNewsRecipientsByTestClient(admin, organization, payload)
-        console.log('sdf', response)
+        const [response] = await exportNewsRecipientsByTestClient(admin, organization, payload)
+        expect(response.status).toEqual('OK')
     })
  
     test('anonymous: execute', async () => {
