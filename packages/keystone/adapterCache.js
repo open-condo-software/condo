@@ -14,17 +14,19 @@
  *
  * Adapter cache has two variables:
  *
- * State -- saved in redis and contains last date of update (update_time) on every GQL List.
- * State part example: { "User": "1669912192723" }
+ * State -- saved in redis and contains integer, describing number of list updates since initialization of the cache.
+ * State part example: { "User": 25 } // since the init. of the cache list user was updated 25 times!
  *
  * Cache -- saved internally in instance.
- * Cache part example: { "User_where:{id'1'}_first:1_sortBy:['createdAt']": { result: <User>, updateTime: '1669912192723', listName: 'User' } ] } }
+ * Cache part example: { "User_where:{id'1'}_first:1_sortBy:['createdAt']": { result: <User>, listState: 15, listName: 'User' } ] } }
  *
  * For every list patch listAdapter function:
  * If request to this list is Query:
  *  1. check if request is in cache
- *  2. check if cache last update time equals state last update time
- *  3. If both checks are passed:
+ *  2. check cached value is actual*
+ *      * cached item with {listName} and {result} is considered actual if its {listState} called localState is equal to state that is saved in redis.
+ *      * in other words, we check that the {listName} WAS NOT UPDATED since cache was set.
+ *  3. If checks are passed:
  *      1. return value from cache
  *     Else:
  *     1. get value from DB
@@ -55,7 +57,6 @@ const Metrics = require('./metrics')
 const { queryHasField } = require('./queryHasField')
 const { getRedisClient } = require('./redis')
 
-const UPDATED_AT_FIELD = 'updatedAt'
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 const ADAPTER_CACHE_HITRATE_METRIC_NAME = 'adapterCache.hitrate'
 const ADAPTER_CACHE_KEYS_METRIC_NAME = 'adapterCache.keys'
@@ -70,7 +71,7 @@ class AdapterCache {
 
             // Redis is used as State:
             // Note: Redis installation is modified with custom commands. Check getStateRedisClient for details
-            // State: { listName -> lastUpdate }
+            // State: { listName -> state }
             this.redisClient = getStateRedisClient()
 
             // This mechanism allows to skip caching some lists.
@@ -89,7 +90,7 @@ class AdapterCache {
             this.totalDropsOnListChange = 0
             this.totalDropsOnLRU = 0
 
-            // Cache: { listName -> queryKey -> { response, lastUpdate, score } }
+            // Cache: { listName -> queryKey -> { response, listScore } }
             this.cache = new LRUCache({ max: this.maxCacheKeys, dispose: () => this.totalDropsOnLRU++ })
 
             // Log statistics each <provided> seconds
@@ -102,27 +103,25 @@ class AdapterCache {
     }
 
     /**
-     * Sets last updated list time to Redis storage
+     * Increments an update to list in Redis storage
      * @param {string} listName -- List name
-     * @param {Date} time -- Last updated time
      * @returns {Promise<void>}
      */
-    async setState (listName, time) {
-        const serializedTime = time.valueOf()
+    async dropStateByList (listName) {
         const prefixedKey = `${STATE_REDIS_KEY_PREFIX}:${listName}`
-        await this.redisClient.tryToUpdateCacheStateByNewTimestamp(prefixedKey, serializedTime)
+        await this.redisClient.incr(prefixedKey)
     }
 
     /**
-     * Returns last updated time by list from Redis
+     * Returns current list update count from Redis
      * @param {string} listName -- List name
-     * @returns {Promise<Date>}
+     * @returns {Promise<number>}
      */
     async getState (listName) {
-        const serializedTime = await this.redisClient.get(`${STATE_REDIS_KEY_PREFIX}:${listName}`)
-        if (serializedTime) {
-            const parsedTime = parseInt(serializedTime)
-            if (!isNaN(parsedTime)) { return new Date(parsedTime) }
+        const prefixedKey = `${STATE_REDIS_KEY_PREFIX}:${listName}`
+        const stateFromRedis = await this.redisClient.get(prefixedKey)
+        if (stateFromRedis) {
+            if (!isNaN(stateFromRedis)) { return stateFromRedis }
         }
         return null
     }
@@ -294,20 +293,13 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
 
         // Skip patching list if:
 
-        // 1. No updatedAt field!
-        const fields = listAdapter.fieldAdaptersByPath
-        if (!fields[UPDATED_AT_FIELD] || !fields[UPDATED_AT_FIELD]) {
-            disabledLists.push({ listName, reason: `No ${UPDATED_AT_FIELD} field` })
-            continue
-        }
-
-        // 2. It is explicitly specified in config that list should not be cached
+        // 1. It is explicitly specified in config that list should not be cached
         if (excludedLists.includes(listName)) {
             disabledLists.push({ listName, reason: 'Cache is excluded by config' })
             continue
         }
 
-        // 3. It is a dependent of many:true field or has many:true relation.
+        // 2. It is a dependent of many:true field or has many:true relation.
         if (listsWithMany.has(listName)) {
             disabledLists.push({ listName, reason: 'List is a dependant of many: true relation or has many:true relation' })
             continue
@@ -381,7 +373,7 @@ function getMutationFunctionWithCache (listName, functionName, f, listAdapter, c
         const functionResult = await f.apply(listAdapter, args)
 
         // Drop global state and local cache
-        await cacheAPI.setState(listName, functionResult[UPDATED_AT_FIELD])
+        await cacheAPI.dropStateByList(listName)
         cacheAPI.dropCacheByList(listName)
 
         cacheAPI.logEvent({
@@ -419,11 +411,11 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
 
         let response = []
         const cachedItem = key ? cacheAPI.getCache(key) : null
-        const listLastUpdate = await cacheAPI.getState(listName)
+        const listState = await cacheAPI.getState(listName)
 
         if (cachedItem) {
-            const cacheLastUpdate = cachedItem.lastUpdate
-            if (cacheLastUpdate && cacheLastUpdate.getTime() === listLastUpdate.getTime()) {
+            const localListState = cachedItem.listState
+            if (localListState && localListState === listState) {
                 cacheAPI.incrementHit()
 
                 cacheAPI.logEvent({
@@ -447,7 +439,7 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
         const shouldCache = !queryIsComplex(getQuery(args), listName, relations)
         if (shouldCache) {
             cacheAPI.setCache(listName, key, {
-                lastUpdate: listLastUpdate,
+                listState: listState,
                 response: copiedResponse,
             })
         }
@@ -464,32 +456,8 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
     }
 }
 
-/**
- * Sometimes we might get a situation when two instances try to update state with different timestamp values.
- * So, we might have two commands ordered to execute by internal redis queue:
- * 1. SET some_key 1670000000010
- * 2. SET some_key 1670000000009
- * In result (GET some_key) will equal 1670000000009, but the correct value is 1670000000010!
- * So to counter this we write custom redis function that will update value only if it is bigger!
- */
 function getStateRedisClient () {
-    const updateTimeStampFunction = {
-        numberOfKeys: 1,
-        lua: `
-            local time = tonumber(ARGV[1])
-            local old_time = tonumber(redis.call('GET', KEYS[1]))
-            if (old_time == nil) then
-                return redis.call('SET', KEYS[1], ARGV[1])
-            end
-            if (time > old_time) then
-                return redis.call('SET', KEYS[1], ARGV[1])
-            end
-        `,
-    }
-
-    const redis = getRedisClient('cache')
-    redis.defineCommand('tryToUpdateCacheStateByNewTimestamp', updateTimeStampFunction)
-    return redis
+    return getRedisClient('cache')
 }
 
 /**
