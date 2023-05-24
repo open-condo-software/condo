@@ -5,12 +5,12 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canExportNewsRecipients ({ authentication: { item: user }, originalInput }) {
+async function canExportNewsRecipients ({ authentication: { item: user }, args: { data: { organizationId } } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, originalInput.organizationId, 'canManageNewsItems')
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageNewsItems')
 }
 
 /*
