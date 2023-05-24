@@ -1,4 +1,4 @@
-const { createCronTask } = require('@open-condo/keystone/tasks')
+const { createCronTask, removeCronTask } = require('@open-condo/keystone/tasks')
 
 const {
     chargeRecurrentPayments,
@@ -29,9 +29,12 @@ const {
  *
  */
 
+// remove old cron task definitions
+removeCronTask('createRecurrentPaymentForReadyToPayRecurrentPaymentContexts', '0 9 * * *')
+
 module.exports = {
     notifyBeforeRecurrentPaymentDate: createCronTask('notifyBeforeRecurrentPaymentDate', '0 8 * * *', notifyBeforeRecurrentPaymentDate),
     createRecurrentPaymentForNewBillingReceipt: createCronTask('createRecurrentPaymentForNewBillingReceipt', '0 9-13 * * *', createRecurrentPaymentForNewBillingReceipt),
-    createRecurrentPaymentForReadyToPayRecurrentPaymentContexts: createCronTask('createRecurrentPaymentForReadyToPayRecurrentPaymentContexts', '0 9 * * *', createRecurrentPaymentForReadyToPayRecurrentPaymentContexts),
+    createRecurrentPaymentForReadyToPayRecurrentPaymentContexts: createCronTask('createRecurrentPaymentForReadyToPayRecurrentPaymentContexts', '0 11 * * *', createRecurrentPaymentForReadyToPayRecurrentPaymentContexts),
     chargeRecurrentPayments: createCronTask('chargeRecurrentPayments', '0 12 * * *', chargeRecurrentPayments),
 }
