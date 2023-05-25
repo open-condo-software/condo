@@ -43,8 +43,7 @@ const { IncidentClassifierIncident: IncidentClassifierIncidentGQL } = require('@
 const { UserFavoriteTicket: UserFavoriteTicketGQL } = require('@condo/domains/ticket/gql')
 const { IncidentExportTask: IncidentExportTaskGQL } = require('@condo/domains/ticket/gql')
 const { CallRecord: CallRecordGQL } = require('@condo/domains/ticket/gql')
-const { CallRecordTicket: CallRecordTicketGQL } = require('@condo/domains/ticket/gql')
-const { createTestPhone } = require('../../../user/utils/testSchema')
+const { CallRecordFragment: CallRecordFragmentGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -77,7 +76,7 @@ const IncidentClassifierIncident = generateGQLTestUtils(IncidentClassifierIncide
 const UserFavoriteTicket = generateGQLTestUtils(UserFavoriteTicketGQL)
 const IncidentExportTask = generateGQLTestUtils(IncidentExportTaskGQL)
 const CallRecord = generateGQLTestUtils(CallRecordGQL)
-const CallRecordTicket = generateGQLTestUtils(CallRecordTicketGQL)
+const CallRecordFragment = generateGQLTestUtils(CallRecordFragmentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -920,7 +919,7 @@ async function updateTestCallRecord (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestCallRecordTicket (client, ticket, callRecord, extraAttrs = {}) {
+async function createTestCallRecordFragment (client, ticket, callRecord, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!ticket || !ticket.id) throw new Error('no ticket.id')
     if (!callRecord || !callRecord.id) throw new Error('no callRecord.id')
@@ -933,11 +932,11 @@ async function createTestCallRecordTicket (client, ticket, callRecord, extraAttr
         callRecord: { connect: { id: callRecord.id } },
         ...extraAttrs,
     }
-    const obj = await CallRecordTicket.create(client, attrs)
+    const obj = await CallRecordFragment.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestCallRecordTicket (client, id, extraAttrs = {}) {
+async function updateTestCallRecordFragment (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -947,7 +946,7 @@ async function updateTestCallRecordTicket (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await CallRecordTicket.update(client, id, attrs)
+    const obj = await CallRecordFragment.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -1003,6 +1002,6 @@ module.exports = {
     UserFavoriteTicket, createTestUserFavoriteTicket, updateTestUserFavoriteTicket,
     IncidentExportTask, createTestIncidentExportTask, updateTestIncidentExportTask,
     CallRecord, createTestCallRecord, updateTestCallRecord,
-    CallRecordTicket, createTestCallRecordTicket, updateTestCallRecordTicket,
+    CallRecordFragment, createTestCallRecordFragment, updateTestCallRecordFragment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

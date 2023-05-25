@@ -34112,20 +34112,20 @@ input CallRecordsCreateInput {
   data: CallRecordCreateInput
 }
 
-enum CallRecordTicketHistoryRecordHistoryActionType {
+enum CallRecordFragmentHistoryRecordHistoryActionType {
   c
   u
   d
 }
 
 """ A keystone list """
-type CallRecordTicketHistoryRecord {
+type CallRecordFragmentHistoryRecord {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the CallRecordTicketHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the CallRecordTicketHistoryRecord List config, or
-   3. As an alias to a 'name' field on the CallRecordTicketHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the CallRecordTicketHistoryRecord List.
+   1. Execution of 'labelResolver' set on the CallRecordFragmentHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the CallRecordFragmentHistoryRecord List config, or
+   3. As an alias to a 'name' field on the CallRecordFragmentHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the CallRecordFragmentHistoryRecord List.
   """
   _label_: String
   ticket: String
@@ -34142,13 +34142,13 @@ type CallRecordTicketHistoryRecord {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: CallRecordTicketHistoryRecordHistoryActionType
+  history_action: CallRecordFragmentHistoryRecordHistoryActionType
   history_id: String
 }
 
-input CallRecordTicketHistoryRecordWhereInput {
-  AND: [CallRecordTicketHistoryRecordWhereInput]
-  OR: [CallRecordTicketHistoryRecordWhereInput]
+input CallRecordFragmentHistoryRecordWhereInput {
+  AND: [CallRecordFragmentHistoryRecordWhereInput]
+  OR: [CallRecordFragmentHistoryRecordWhereInput]
   ticket: String
   ticket_not: String
   ticket_in: [String]
@@ -34229,21 +34229,21 @@ input CallRecordTicketHistoryRecordWhereInput {
   history_date_gte: String
   history_date_in: [String]
   history_date_not_in: [String]
-  history_action: CallRecordTicketHistoryRecordHistoryActionType
-  history_action_not: CallRecordTicketHistoryRecordHistoryActionType
-  history_action_in: [CallRecordTicketHistoryRecordHistoryActionType]
-  history_action_not_in: [CallRecordTicketHistoryRecordHistoryActionType]
+  history_action: CallRecordFragmentHistoryRecordHistoryActionType
+  history_action_not: CallRecordFragmentHistoryRecordHistoryActionType
+  history_action_in: [CallRecordFragmentHistoryRecordHistoryActionType]
+  history_action_not_in: [CallRecordFragmentHistoryRecordHistoryActionType]
   history_id: String
   history_id_not: String
   history_id_in: [String]
   history_id_not_in: [String]
 }
 
-input CallRecordTicketHistoryRecordWhereUniqueInput {
+input CallRecordFragmentHistoryRecordWhereUniqueInput {
   id: ID!
 }
 
-enum SortCallRecordTicketHistoryRecordsBy {
+enum SortCallRecordFragmentHistoryRecordsBy {
   id_ASC
   id_DESC
   v_ASC
@@ -34262,7 +34262,7 @@ enum SortCallRecordTicketHistoryRecordsBy {
   history_action_DESC
 }
 
-input CallRecordTicketHistoryRecordUpdateInput {
+input CallRecordFragmentHistoryRecordUpdateInput {
   ticket: String
   callRecord: String
   organization: String
@@ -34276,16 +34276,16 @@ input CallRecordTicketHistoryRecordUpdateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: CallRecordTicketHistoryRecordHistoryActionType
+  history_action: CallRecordFragmentHistoryRecordHistoryActionType
   history_id: String
 }
 
-input CallRecordTicketHistoryRecordsUpdateInput {
+input CallRecordFragmentHistoryRecordsUpdateInput {
   id: ID!
-  data: CallRecordTicketHistoryRecordUpdateInput
+  data: CallRecordFragmentHistoryRecordUpdateInput
 }
 
-input CallRecordTicketHistoryRecordCreateInput {
+input CallRecordFragmentHistoryRecordCreateInput {
   ticket: String
   callRecord: String
   organization: String
@@ -34299,12 +34299,12 @@ input CallRecordTicketHistoryRecordCreateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: CallRecordTicketHistoryRecordHistoryActionType
+  history_action: CallRecordFragmentHistoryRecordHistoryActionType
   history_id: String
 }
 
-input CallRecordTicketHistoryRecordsCreateInput {
-  data: CallRecordTicketHistoryRecordCreateInput
+input CallRecordFragmentHistoryRecordsCreateInput {
+  data: CallRecordFragmentHistoryRecordCreateInput
 }
 
 input CallRecordRelateToOneInput {
@@ -34315,13 +34315,13 @@ input CallRecordRelateToOneInput {
 }
 
 """ M2M relationship between ticket and call record """
-type CallRecordTicket {
+type CallRecordFragment {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the CallRecordTicket List config, or
-   2. As an alias to the field set on 'labelField' in the CallRecordTicket List config, or
-   3. As an alias to a 'name' field on the CallRecordTicket List (if one exists), or
-   4. As an alias to the 'id' field on the CallRecordTicket List.
+   1. Execution of 'labelResolver' set on the CallRecordFragment List config, or
+   2. As an alias to the field set on 'labelField' in the CallRecordFragment List config, or
+   3. As an alias to a 'name' field on the CallRecordFragment List (if one exists), or
+   4. As an alias to the 'id' field on the CallRecordFragment List.
   """
   _label_: String
   ticket: Ticket
@@ -34353,9 +34353,9 @@ type CallRecordTicket {
   sender: SenderField
 }
 
-input CallRecordTicketWhereInput {
-  AND: [CallRecordTicketWhereInput]
-  OR: [CallRecordTicketWhereInput]
+input CallRecordFragmentWhereInput {
+  AND: [CallRecordFragmentWhereInput]
+  OR: [CallRecordFragmentWhereInput]
   ticket: TicketWhereInput
   ticket_is_null: Boolean
   callRecord: CallRecordWhereInput
@@ -34420,11 +34420,11 @@ input CallRecordTicketWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input CallRecordTicketWhereUniqueInput {
+input CallRecordFragmentWhereUniqueInput {
   id: ID!
 }
 
-enum SortCallRecordTicketsBy {
+enum SortCallRecordFragmentsBy {
   ticket_ASC
   ticket_DESC
   callRecord_ASC
@@ -34449,7 +34449,7 @@ enum SortCallRecordTicketsBy {
   dv_DESC
 }
 
-input CallRecordTicketUpdateInput {
+input CallRecordFragmentUpdateInput {
   ticket: TicketRelateToOneInput
   callRecord: CallRecordRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -34464,12 +34464,12 @@ input CallRecordTicketUpdateInput {
   sender: SenderFieldInput
 }
 
-input CallRecordTicketsUpdateInput {
+input CallRecordFragmentsUpdateInput {
   id: ID!
-  data: CallRecordTicketUpdateInput
+  data: CallRecordFragmentUpdateInput
 }
 
-input CallRecordTicketCreateInput {
+input CallRecordFragmentCreateInput {
   ticket: TicketRelateToOneInput
   callRecord: CallRecordRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -34484,8 +34484,8 @@ input CallRecordTicketCreateInput {
   sender: SenderFieldInput
 }
 
-input CallRecordTicketsCreateInput {
-  data: CallRecordTicketCreateInput
+input CallRecordFragmentsCreateInput {
+  data: CallRecordFragmentCreateInput
 }
 
 enum MessageHistoryRecordHistoryActionType {
@@ -64330,33 +64330,34 @@ type Query {
   """ Retrieve the meta-data for the CallRecord list. """
   _CallRecordsMeta: _ListMeta
 
-  """ Search for all CallRecordTicketHistoryRecord items which match the where clause. 
+  """ Search for all CallRecordFragmentHistoryRecord items which match the where clause. 
   """
-  allCallRecordTicketHistoryRecords(where: CallRecordTicketHistoryRecordWhereInput, search: String, sortBy: [SortCallRecordTicketHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [CallRecordTicketHistoryRecord]
+  allCallRecordFragmentHistoryRecords(where: CallRecordFragmentHistoryRecordWhereInput, search: String, sortBy: [SortCallRecordFragmentHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [CallRecordFragmentHistoryRecord]
 
-  """ Search for the CallRecordTicketHistoryRecord item with the matching ID. 
+  """ Search for the CallRecordFragmentHistoryRecord item with the matching ID. 
   """
-  CallRecordTicketHistoryRecord(where: CallRecordTicketHistoryRecordWhereUniqueInput!): CallRecordTicketHistoryRecord
+  CallRecordFragmentHistoryRecord(where: CallRecordFragmentHistoryRecordWhereUniqueInput!): CallRecordFragmentHistoryRecord
 
-  """ Perform a meta-query on all CallRecordTicketHistoryRecord items which match the where clause. 
+  """ Perform a meta-query on all CallRecordFragmentHistoryRecord items which match the where clause. 
   """
-  _allCallRecordTicketHistoryRecordsMeta(where: CallRecordTicketHistoryRecordWhereInput, search: String, sortBy: [SortCallRecordTicketHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allCallRecordFragmentHistoryRecordsMeta(where: CallRecordFragmentHistoryRecordWhereInput, search: String, sortBy: [SortCallRecordFragmentHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the CallRecordTicketHistoryRecord list. """
-  _CallRecordTicketHistoryRecordsMeta: _ListMeta
+  """ Retrieve the meta-data for the CallRecordFragmentHistoryRecord list. """
+  _CallRecordFragmentHistoryRecordsMeta: _ListMeta
 
-  """ Search for all CallRecordTicket items which match the where clause. """
-  allCallRecordTickets(where: CallRecordTicketWhereInput, search: String, sortBy: [SortCallRecordTicketsBy!], orderBy: String, first: Int, skip: Int): [CallRecordTicket]
-
-  """ Search for the CallRecordTicket item with the matching ID. """
-  CallRecordTicket(where: CallRecordTicketWhereUniqueInput!): CallRecordTicket
-
-  """ Perform a meta-query on all CallRecordTicket items which match the where clause. 
+  """ Search for all CallRecordFragment items which match the where clause. 
   """
-  _allCallRecordTicketsMeta(where: CallRecordTicketWhereInput, search: String, sortBy: [SortCallRecordTicketsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  allCallRecordFragments(where: CallRecordFragmentWhereInput, search: String, sortBy: [SortCallRecordFragmentsBy!], orderBy: String, first: Int, skip: Int): [CallRecordFragment]
 
-  """ Retrieve the meta-data for the CallRecordTicket list. """
-  _CallRecordTicketsMeta: _ListMeta
+  """ Search for the CallRecordFragment item with the matching ID. """
+  CallRecordFragment(where: CallRecordFragmentWhereUniqueInput!): CallRecordFragment
+
+  """ Perform a meta-query on all CallRecordFragment items which match the where clause. 
+  """
+  _allCallRecordFragmentsMeta(where: CallRecordFragmentWhereInput, search: String, sortBy: [SortCallRecordFragmentsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the CallRecordFragment list. """
+  _CallRecordFragmentsMeta: _ListMeta
 
   """ Search for all MessageHistoryRecord items which match the where clause. 
   """
@@ -68028,41 +68029,41 @@ type Mutation {
   """ Delete multiple CallRecord items by ID. """
   deleteCallRecords(ids: [ID!]): [CallRecord]
 
-  """ Create a single CallRecordTicketHistoryRecord item. """
-  createCallRecordTicketHistoryRecord(data: CallRecordTicketHistoryRecordCreateInput): CallRecordTicketHistoryRecord
+  """ Create a single CallRecordFragmentHistoryRecord item. """
+  createCallRecordFragmentHistoryRecord(data: CallRecordFragmentHistoryRecordCreateInput): CallRecordFragmentHistoryRecord
 
-  """ Create multiple CallRecordTicketHistoryRecord items. """
-  createCallRecordTicketHistoryRecords(data: [CallRecordTicketHistoryRecordsCreateInput]): [CallRecordTicketHistoryRecord]
+  """ Create multiple CallRecordFragmentHistoryRecord items. """
+  createCallRecordFragmentHistoryRecords(data: [CallRecordFragmentHistoryRecordsCreateInput]): [CallRecordFragmentHistoryRecord]
 
-  """ Update a single CallRecordTicketHistoryRecord item by ID. """
-  updateCallRecordTicketHistoryRecord(id: ID!, data: CallRecordTicketHistoryRecordUpdateInput): CallRecordTicketHistoryRecord
+  """ Update a single CallRecordFragmentHistoryRecord item by ID. """
+  updateCallRecordFragmentHistoryRecord(id: ID!, data: CallRecordFragmentHistoryRecordUpdateInput): CallRecordFragmentHistoryRecord
 
-  """ Update multiple CallRecordTicketHistoryRecord items by ID. """
-  updateCallRecordTicketHistoryRecords(data: [CallRecordTicketHistoryRecordsUpdateInput]): [CallRecordTicketHistoryRecord]
+  """ Update multiple CallRecordFragmentHistoryRecord items by ID. """
+  updateCallRecordFragmentHistoryRecords(data: [CallRecordFragmentHistoryRecordsUpdateInput]): [CallRecordFragmentHistoryRecord]
 
-  """ Delete a single CallRecordTicketHistoryRecord item by ID. """
-  deleteCallRecordTicketHistoryRecord(id: ID!): CallRecordTicketHistoryRecord
+  """ Delete a single CallRecordFragmentHistoryRecord item by ID. """
+  deleteCallRecordFragmentHistoryRecord(id: ID!): CallRecordFragmentHistoryRecord
 
-  """ Delete multiple CallRecordTicketHistoryRecord items by ID. """
-  deleteCallRecordTicketHistoryRecords(ids: [ID!]): [CallRecordTicketHistoryRecord]
+  """ Delete multiple CallRecordFragmentHistoryRecord items by ID. """
+  deleteCallRecordFragmentHistoryRecords(ids: [ID!]): [CallRecordFragmentHistoryRecord]
 
-  """ Create a single CallRecordTicket item. """
-  createCallRecordTicket(data: CallRecordTicketCreateInput): CallRecordTicket
+  """ Create a single CallRecordFragment item. """
+  createCallRecordFragment(data: CallRecordFragmentCreateInput): CallRecordFragment
 
-  """ Create multiple CallRecordTicket items. """
-  createCallRecordTickets(data: [CallRecordTicketsCreateInput]): [CallRecordTicket]
+  """ Create multiple CallRecordFragment items. """
+  createCallRecordFragments(data: [CallRecordFragmentsCreateInput]): [CallRecordFragment]
 
-  """ Update a single CallRecordTicket item by ID. """
-  updateCallRecordTicket(id: ID!, data: CallRecordTicketUpdateInput): CallRecordTicket
+  """ Update a single CallRecordFragment item by ID. """
+  updateCallRecordFragment(id: ID!, data: CallRecordFragmentUpdateInput): CallRecordFragment
 
-  """ Update multiple CallRecordTicket items by ID. """
-  updateCallRecordTickets(data: [CallRecordTicketsUpdateInput]): [CallRecordTicket]
+  """ Update multiple CallRecordFragment items by ID. """
+  updateCallRecordFragments(data: [CallRecordFragmentsUpdateInput]): [CallRecordFragment]
 
-  """ Delete a single CallRecordTicket item by ID. """
-  deleteCallRecordTicket(id: ID!): CallRecordTicket
+  """ Delete a single CallRecordFragment item by ID. """
+  deleteCallRecordFragment(id: ID!): CallRecordFragment
 
-  """ Delete multiple CallRecordTicket items by ID. """
-  deleteCallRecordTickets(ids: [ID!]): [CallRecordTicket]
+  """ Delete multiple CallRecordFragment items by ID. """
+  deleteCallRecordFragments(ids: [ID!]): [CallRecordFragment]
 
   """ Create a single MessageHistoryRecord item. """
   createMessageHistoryRecord(data: MessageHistoryRecordCreateInput): MessageHistoryRecord

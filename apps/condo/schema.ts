@@ -16427,6 +16427,324 @@ export type CallRecordCreateInput = {
   sender?: Maybe<SenderFieldInput>;
 };
 
+/**  M2M relationship between ticket and call record  */
+export type CallRecordFragment = {
+  __typename?: 'CallRecordFragment';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the CallRecordFragment List config, or
+   *  2. As an alias to the field set on 'labelField' in the CallRecordFragment List config, or
+   *  3. As an alias to a 'name' field on the CallRecordFragment List (if one exists), or
+   *  4. As an alias to the 'id' field on the CallRecordFragment List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  ticket?: Maybe<Ticket>;
+  callRecord?: Maybe<CallRecord>;
+  /**  Ref to the organization. It is filled in on the server and is read-only  */
+  organization?: Maybe<Organization>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type CallRecordFragmentCreateInput = {
+  ticket?: Maybe<TicketRelateToOneInput>;
+  callRecord?: Maybe<CallRecordRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type CallRecordFragmentHistoryRecord = {
+  __typename?: 'CallRecordFragmentHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the CallRecordFragmentHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the CallRecordFragmentHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the CallRecordFragmentHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the CallRecordFragmentHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  ticket?: Maybe<Scalars['String']>;
+  callRecord?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<CallRecordFragmentHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type CallRecordFragmentHistoryRecordCreateInput = {
+  ticket?: Maybe<Scalars['String']>;
+  callRecord?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<CallRecordFragmentHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum CallRecordFragmentHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type CallRecordFragmentHistoryRecordUpdateInput = {
+  ticket?: Maybe<Scalars['String']>;
+  callRecord?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<CallRecordFragmentHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type CallRecordFragmentHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<CallRecordFragmentHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<CallRecordFragmentHistoryRecordWhereInput>>>;
+  ticket?: Maybe<Scalars['String']>;
+  ticket_not?: Maybe<Scalars['String']>;
+  ticket_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticket_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  callRecord?: Maybe<Scalars['String']>;
+  callRecord_not?: Maybe<Scalars['String']>;
+  callRecord_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  callRecord_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<CallRecordFragmentHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<CallRecordFragmentHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<CallRecordFragmentHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<CallRecordFragmentHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type CallRecordFragmentHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type CallRecordFragmentHistoryRecordsCreateInput = {
+  data?: Maybe<CallRecordFragmentHistoryRecordCreateInput>;
+};
+
+export type CallRecordFragmentHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<CallRecordFragmentHistoryRecordUpdateInput>;
+};
+
+export type CallRecordFragmentUpdateInput = {
+  ticket?: Maybe<TicketRelateToOneInput>;
+  callRecord?: Maybe<CallRecordRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type CallRecordFragmentWhereInput = {
+  AND?: Maybe<Array<Maybe<CallRecordFragmentWhereInput>>>;
+  OR?: Maybe<Array<Maybe<CallRecordFragmentWhereInput>>>;
+  ticket?: Maybe<TicketWhereInput>;
+  ticket_is_null?: Maybe<Scalars['Boolean']>;
+  callRecord?: Maybe<CallRecordWhereInput>;
+  callRecord_is_null?: Maybe<Scalars['Boolean']>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type CallRecordFragmentWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type CallRecordFragmentsCreateInput = {
+  data?: Maybe<CallRecordFragmentCreateInput>;
+};
+
+export type CallRecordFragmentsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<CallRecordFragmentUpdateInput>;
+};
+
 /**  A keystone list  */
 export type CallRecordHistoryRecord = {
   __typename?: 'CallRecordHistoryRecord';
@@ -16692,324 +17010,6 @@ export type CallRecordRelateToOneInput = {
   connect?: Maybe<CallRecordWhereUniqueInput>;
   disconnect?: Maybe<CallRecordWhereUniqueInput>;
   disconnectAll?: Maybe<Scalars['Boolean']>;
-};
-
-/**  M2M relationship between ticket and call record  */
-export type CallRecordTicket = {
-  __typename?: 'CallRecordTicket';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the CallRecordTicket List config, or
-   *  2. As an alias to the field set on 'labelField' in the CallRecordTicket List config, or
-   *  3. As an alias to a 'name' field on the CallRecordTicket List (if one exists), or
-   *  4. As an alias to the 'id' field on the CallRecordTicket List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  ticket?: Maybe<Ticket>;
-  callRecord?: Maybe<CallRecord>;
-  /**  Ref to the organization. It is filled in on the server and is read-only  */
-  organization?: Maybe<Organization>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  createdBy?: Maybe<User>;
-  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  updatedBy?: Maybe<User>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
-};
-
-export type CallRecordTicketCreateInput = {
-  ticket?: Maybe<TicketRelateToOneInput>;
-  callRecord?: Maybe<CallRecordRelateToOneInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-};
-
-/**  A keystone list  */
-export type CallRecordTicketHistoryRecord = {
-  __typename?: 'CallRecordTicketHistoryRecord';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the CallRecordTicketHistoryRecord List config, or
-   *  2. As an alias to the field set on 'labelField' in the CallRecordTicketHistoryRecord List config, or
-   *  3. As an alias to a 'name' field on the CallRecordTicketHistoryRecord List (if one exists), or
-   *  4. As an alias to the 'id' field on the CallRecordTicketHistoryRecord List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  ticket?: Maybe<Scalars['String']>;
-  callRecord?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<CallRecordTicketHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type CallRecordTicketHistoryRecordCreateInput = {
-  ticket?: Maybe<Scalars['String']>;
-  callRecord?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<CallRecordTicketHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export enum CallRecordTicketHistoryRecordHistoryActionType {
-  C = 'c',
-  U = 'u',
-  D = 'd'
-}
-
-export type CallRecordTicketHistoryRecordUpdateInput = {
-  ticket?: Maybe<Scalars['String']>;
-  callRecord?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<CallRecordTicketHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type CallRecordTicketHistoryRecordWhereInput = {
-  AND?: Maybe<Array<Maybe<CallRecordTicketHistoryRecordWhereInput>>>;
-  OR?: Maybe<Array<Maybe<CallRecordTicketHistoryRecordWhereInput>>>;
-  ticket?: Maybe<Scalars['String']>;
-  ticket_not?: Maybe<Scalars['String']>;
-  ticket_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  ticket_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  callRecord?: Maybe<Scalars['String']>;
-  callRecord_not?: Maybe<Scalars['String']>;
-  callRecord_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  callRecord_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization?: Maybe<Scalars['String']>;
-  organization_not?: Maybe<Scalars['String']>;
-  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<Scalars['String']>;
-  createdBy_not?: Maybe<Scalars['String']>;
-  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy?: Maybe<Scalars['String']>;
-  updatedBy_not?: Maybe<Scalars['String']>;
-  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['JSON']>;
-  newId_not?: Maybe<Scalars['JSON']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  history_date?: Maybe<Scalars['String']>;
-  history_date_not?: Maybe<Scalars['String']>;
-  history_date_lt?: Maybe<Scalars['String']>;
-  history_date_lte?: Maybe<Scalars['String']>;
-  history_date_gt?: Maybe<Scalars['String']>;
-  history_date_gte?: Maybe<Scalars['String']>;
-  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_action?: Maybe<CallRecordTicketHistoryRecordHistoryActionType>;
-  history_action_not?: Maybe<CallRecordTicketHistoryRecordHistoryActionType>;
-  history_action_in?: Maybe<Array<Maybe<CallRecordTicketHistoryRecordHistoryActionType>>>;
-  history_action_not_in?: Maybe<Array<Maybe<CallRecordTicketHistoryRecordHistoryActionType>>>;
-  history_id?: Maybe<Scalars['String']>;
-  history_id_not?: Maybe<Scalars['String']>;
-  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
-export type CallRecordTicketHistoryRecordWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type CallRecordTicketHistoryRecordsCreateInput = {
-  data?: Maybe<CallRecordTicketHistoryRecordCreateInput>;
-};
-
-export type CallRecordTicketHistoryRecordsUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<CallRecordTicketHistoryRecordUpdateInput>;
-};
-
-export type CallRecordTicketUpdateInput = {
-  ticket?: Maybe<TicketRelateToOneInput>;
-  callRecord?: Maybe<CallRecordRelateToOneInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-};
-
-export type CallRecordTicketWhereInput = {
-  AND?: Maybe<Array<Maybe<CallRecordTicketWhereInput>>>;
-  OR?: Maybe<Array<Maybe<CallRecordTicketWhereInput>>>;
-  ticket?: Maybe<TicketWhereInput>;
-  ticket_is_null?: Maybe<Scalars['Boolean']>;
-  callRecord?: Maybe<CallRecordWhereInput>;
-  callRecord_is_null?: Maybe<Scalars['Boolean']>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<UserWhereInput>;
-  createdBy_is_null?: Maybe<Scalars['Boolean']>;
-  updatedBy?: Maybe<UserWhereInput>;
-  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['String']>;
-  newId_not?: Maybe<Scalars['String']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-};
-
-export type CallRecordTicketWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type CallRecordTicketsCreateInput = {
-  data?: Maybe<CallRecordTicketCreateInput>;
-};
-
-export type CallRecordTicketsUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<CallRecordTicketUpdateInput>;
 };
 
 export type CallRecordUpdateInput = {
@@ -30501,30 +30501,30 @@ export type Mutation = {
   deleteCallRecord?: Maybe<CallRecord>;
   /**  Delete multiple CallRecord items by ID.  */
   deleteCallRecords?: Maybe<Array<Maybe<CallRecord>>>;
-  /**  Create a single CallRecordTicketHistoryRecord item.  */
-  createCallRecordTicketHistoryRecord?: Maybe<CallRecordTicketHistoryRecord>;
-  /**  Create multiple CallRecordTicketHistoryRecord items.  */
-  createCallRecordTicketHistoryRecords?: Maybe<Array<Maybe<CallRecordTicketHistoryRecord>>>;
-  /**  Update a single CallRecordTicketHistoryRecord item by ID.  */
-  updateCallRecordTicketHistoryRecord?: Maybe<CallRecordTicketHistoryRecord>;
-  /**  Update multiple CallRecordTicketHistoryRecord items by ID.  */
-  updateCallRecordTicketHistoryRecords?: Maybe<Array<Maybe<CallRecordTicketHistoryRecord>>>;
-  /**  Delete a single CallRecordTicketHistoryRecord item by ID.  */
-  deleteCallRecordTicketHistoryRecord?: Maybe<CallRecordTicketHistoryRecord>;
-  /**  Delete multiple CallRecordTicketHistoryRecord items by ID.  */
-  deleteCallRecordTicketHistoryRecords?: Maybe<Array<Maybe<CallRecordTicketHistoryRecord>>>;
-  /**  Create a single CallRecordTicket item.  */
-  createCallRecordTicket?: Maybe<CallRecordTicket>;
-  /**  Create multiple CallRecordTicket items.  */
-  createCallRecordTickets?: Maybe<Array<Maybe<CallRecordTicket>>>;
-  /**  Update a single CallRecordTicket item by ID.  */
-  updateCallRecordTicket?: Maybe<CallRecordTicket>;
-  /**  Update multiple CallRecordTicket items by ID.  */
-  updateCallRecordTickets?: Maybe<Array<Maybe<CallRecordTicket>>>;
-  /**  Delete a single CallRecordTicket item by ID.  */
-  deleteCallRecordTicket?: Maybe<CallRecordTicket>;
-  /**  Delete multiple CallRecordTicket items by ID.  */
-  deleteCallRecordTickets?: Maybe<Array<Maybe<CallRecordTicket>>>;
+  /**  Create a single CallRecordFragmentHistoryRecord item.  */
+  createCallRecordFragmentHistoryRecord?: Maybe<CallRecordFragmentHistoryRecord>;
+  /**  Create multiple CallRecordFragmentHistoryRecord items.  */
+  createCallRecordFragmentHistoryRecords?: Maybe<Array<Maybe<CallRecordFragmentHistoryRecord>>>;
+  /**  Update a single CallRecordFragmentHistoryRecord item by ID.  */
+  updateCallRecordFragmentHistoryRecord?: Maybe<CallRecordFragmentHistoryRecord>;
+  /**  Update multiple CallRecordFragmentHistoryRecord items by ID.  */
+  updateCallRecordFragmentHistoryRecords?: Maybe<Array<Maybe<CallRecordFragmentHistoryRecord>>>;
+  /**  Delete a single CallRecordFragmentHistoryRecord item by ID.  */
+  deleteCallRecordFragmentHistoryRecord?: Maybe<CallRecordFragmentHistoryRecord>;
+  /**  Delete multiple CallRecordFragmentHistoryRecord items by ID.  */
+  deleteCallRecordFragmentHistoryRecords?: Maybe<Array<Maybe<CallRecordFragmentHistoryRecord>>>;
+  /**  Create a single CallRecordFragment item.  */
+  createCallRecordFragment?: Maybe<CallRecordFragment>;
+  /**  Create multiple CallRecordFragment items.  */
+  createCallRecordFragments?: Maybe<Array<Maybe<CallRecordFragment>>>;
+  /**  Update a single CallRecordFragment item by ID.  */
+  updateCallRecordFragment?: Maybe<CallRecordFragment>;
+  /**  Update multiple CallRecordFragment items by ID.  */
+  updateCallRecordFragments?: Maybe<Array<Maybe<CallRecordFragment>>>;
+  /**  Delete a single CallRecordFragment item by ID.  */
+  deleteCallRecordFragment?: Maybe<CallRecordFragment>;
+  /**  Delete multiple CallRecordFragment items by ID.  */
+  deleteCallRecordFragments?: Maybe<Array<Maybe<CallRecordFragment>>>;
   /**  Create a single MessageHistoryRecord item.  */
   createMessageHistoryRecord?: Maybe<MessageHistoryRecord>;
   /**  Create multiple MessageHistoryRecord items.  */
@@ -37553,64 +37553,64 @@ export type MutationDeleteCallRecordsArgs = {
 };
 
 
-export type MutationCreateCallRecordTicketHistoryRecordArgs = {
-  data?: Maybe<CallRecordTicketHistoryRecordCreateInput>;
+export type MutationCreateCallRecordFragmentHistoryRecordArgs = {
+  data?: Maybe<CallRecordFragmentHistoryRecordCreateInput>;
 };
 
 
-export type MutationCreateCallRecordTicketHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<CallRecordTicketHistoryRecordsCreateInput>>>;
+export type MutationCreateCallRecordFragmentHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<CallRecordFragmentHistoryRecordsCreateInput>>>;
 };
 
 
-export type MutationUpdateCallRecordTicketHistoryRecordArgs = {
+export type MutationUpdateCallRecordFragmentHistoryRecordArgs = {
   id: Scalars['ID'];
-  data?: Maybe<CallRecordTicketHistoryRecordUpdateInput>;
+  data?: Maybe<CallRecordFragmentHistoryRecordUpdateInput>;
 };
 
 
-export type MutationUpdateCallRecordTicketHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<CallRecordTicketHistoryRecordsUpdateInput>>>;
+export type MutationUpdateCallRecordFragmentHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<CallRecordFragmentHistoryRecordsUpdateInput>>>;
 };
 
 
-export type MutationDeleteCallRecordTicketHistoryRecordArgs = {
+export type MutationDeleteCallRecordFragmentHistoryRecordArgs = {
   id: Scalars['ID'];
 };
 
 
-export type MutationDeleteCallRecordTicketHistoryRecordsArgs = {
+export type MutationDeleteCallRecordFragmentHistoryRecordsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
 
-export type MutationCreateCallRecordTicketArgs = {
-  data?: Maybe<CallRecordTicketCreateInput>;
+export type MutationCreateCallRecordFragmentArgs = {
+  data?: Maybe<CallRecordFragmentCreateInput>;
 };
 
 
-export type MutationCreateCallRecordTicketsArgs = {
-  data?: Maybe<Array<Maybe<CallRecordTicketsCreateInput>>>;
+export type MutationCreateCallRecordFragmentsArgs = {
+  data?: Maybe<Array<Maybe<CallRecordFragmentsCreateInput>>>;
 };
 
 
-export type MutationUpdateCallRecordTicketArgs = {
+export type MutationUpdateCallRecordFragmentArgs = {
   id: Scalars['ID'];
-  data?: Maybe<CallRecordTicketUpdateInput>;
+  data?: Maybe<CallRecordFragmentUpdateInput>;
 };
 
 
-export type MutationUpdateCallRecordTicketsArgs = {
-  data?: Maybe<Array<Maybe<CallRecordTicketsUpdateInput>>>;
+export type MutationUpdateCallRecordFragmentsArgs = {
+  data?: Maybe<Array<Maybe<CallRecordFragmentsUpdateInput>>>;
 };
 
 
-export type MutationDeleteCallRecordTicketArgs = {
+export type MutationDeleteCallRecordFragmentArgs = {
   id: Scalars['ID'];
 };
 
 
-export type MutationDeleteCallRecordTicketsArgs = {
+export type MutationDeleteCallRecordFragmentsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -51776,22 +51776,22 @@ export type Query = {
   _allCallRecordsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the CallRecord list.  */
   _CallRecordsMeta?: Maybe<_ListMeta>;
-  /**  Search for all CallRecordTicketHistoryRecord items which match the where clause.  */
-  allCallRecordTicketHistoryRecords?: Maybe<Array<Maybe<CallRecordTicketHistoryRecord>>>;
-  /**  Search for the CallRecordTicketHistoryRecord item with the matching ID.  */
-  CallRecordTicketHistoryRecord?: Maybe<CallRecordTicketHistoryRecord>;
-  /**  Perform a meta-query on all CallRecordTicketHistoryRecord items which match the where clause.  */
-  _allCallRecordTicketHistoryRecordsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the CallRecordTicketHistoryRecord list.  */
-  _CallRecordTicketHistoryRecordsMeta?: Maybe<_ListMeta>;
-  /**  Search for all CallRecordTicket items which match the where clause.  */
-  allCallRecordTickets?: Maybe<Array<Maybe<CallRecordTicket>>>;
-  /**  Search for the CallRecordTicket item with the matching ID.  */
-  CallRecordTicket?: Maybe<CallRecordTicket>;
-  /**  Perform a meta-query on all CallRecordTicket items which match the where clause.  */
-  _allCallRecordTicketsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the CallRecordTicket list.  */
-  _CallRecordTicketsMeta?: Maybe<_ListMeta>;
+  /**  Search for all CallRecordFragmentHistoryRecord items which match the where clause.  */
+  allCallRecordFragmentHistoryRecords?: Maybe<Array<Maybe<CallRecordFragmentHistoryRecord>>>;
+  /**  Search for the CallRecordFragmentHistoryRecord item with the matching ID.  */
+  CallRecordFragmentHistoryRecord?: Maybe<CallRecordFragmentHistoryRecord>;
+  /**  Perform a meta-query on all CallRecordFragmentHistoryRecord items which match the where clause.  */
+  _allCallRecordFragmentHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the CallRecordFragmentHistoryRecord list.  */
+  _CallRecordFragmentHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all CallRecordFragment items which match the where clause.  */
+  allCallRecordFragments?: Maybe<Array<Maybe<CallRecordFragment>>>;
+  /**  Search for the CallRecordFragment item with the matching ID.  */
+  CallRecordFragment?: Maybe<CallRecordFragment>;
+  /**  Perform a meta-query on all CallRecordFragment items which match the where clause.  */
+  _allCallRecordFragmentsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the CallRecordFragment list.  */
+  _CallRecordFragmentsMeta?: Maybe<_ListMeta>;
   /**  Search for all MessageHistoryRecord items which match the where clause.  */
   allMessageHistoryRecords?: Maybe<Array<Maybe<MessageHistoryRecord>>>;
   /**  Search for the MessageHistoryRecord item with the matching ID.  */
@@ -55635,50 +55635,50 @@ export type Query_AllCallRecordsMetaArgs = {
 };
 
 
-export type QueryAllCallRecordTicketHistoryRecordsArgs = {
-  where?: Maybe<CallRecordTicketHistoryRecordWhereInput>;
+export type QueryAllCallRecordFragmentHistoryRecordsArgs = {
+  where?: Maybe<CallRecordFragmentHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortCallRecordTicketHistoryRecordsBy>>;
+  sortBy?: Maybe<Array<SortCallRecordFragmentHistoryRecordsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
 };
 
 
-export type QueryCallRecordTicketHistoryRecordArgs = {
-  where: CallRecordTicketHistoryRecordWhereUniqueInput;
+export type QueryCallRecordFragmentHistoryRecordArgs = {
+  where: CallRecordFragmentHistoryRecordWhereUniqueInput;
 };
 
 
-export type Query_AllCallRecordTicketHistoryRecordsMetaArgs = {
-  where?: Maybe<CallRecordTicketHistoryRecordWhereInput>;
+export type Query_AllCallRecordFragmentHistoryRecordsMetaArgs = {
+  where?: Maybe<CallRecordFragmentHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortCallRecordTicketHistoryRecordsBy>>;
+  sortBy?: Maybe<Array<SortCallRecordFragmentHistoryRecordsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
 };
 
 
-export type QueryAllCallRecordTicketsArgs = {
-  where?: Maybe<CallRecordTicketWhereInput>;
+export type QueryAllCallRecordFragmentsArgs = {
+  where?: Maybe<CallRecordFragmentWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortCallRecordTicketsBy>>;
+  sortBy?: Maybe<Array<SortCallRecordFragmentsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
 };
 
 
-export type QueryCallRecordTicketArgs = {
-  where: CallRecordTicketWhereUniqueInput;
+export type QueryCallRecordFragmentArgs = {
+  where: CallRecordFragmentWhereUniqueInput;
 };
 
 
-export type Query_AllCallRecordTicketsMetaArgs = {
-  where?: Maybe<CallRecordTicketWhereInput>;
+export type Query_AllCallRecordFragmentsMetaArgs = {
+  where?: Maybe<CallRecordFragmentWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortCallRecordTicketsBy>>;
+  sortBy?: Maybe<Array<SortCallRecordFragmentsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -63768,6 +63768,50 @@ export enum SortBillingRecipientsBy {
   DvDesc = 'dv_DESC'
 }
 
+export enum SortCallRecordFragmentHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortCallRecordFragmentsBy {
+  TicketAsc = 'ticket_ASC',
+  TicketDesc = 'ticket_DESC',
+  CallRecordAsc = 'callRecord_ASC',
+  CallRecordDesc = 'callRecord_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortCallRecordHistoryRecordsBy {
   CallerPhoneAsc = 'callerPhone_ASC',
   CallerPhoneDesc = 'callerPhone_DESC',
@@ -63797,50 +63841,6 @@ export enum SortCallRecordHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC'
-}
-
-export enum SortCallRecordTicketHistoryRecordsBy {
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  HistoryDateAsc = 'history_date_ASC',
-  HistoryDateDesc = 'history_date_DESC',
-  HistoryActionAsc = 'history_action_ASC',
-  HistoryActionDesc = 'history_action_DESC'
-}
-
-export enum SortCallRecordTicketsBy {
-  TicketAsc = 'ticket_ASC',
-  TicketDesc = 'ticket_DESC',
-  CallRecordAsc = 'callRecord_ASC',
-  CallRecordDesc = 'callRecord_DESC',
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  CreatedByAsc = 'createdBy_ASC',
-  CreatedByDesc = 'createdBy_DESC',
-  UpdatedByAsc = 'updatedBy_ASC',
-  UpdatedByDesc = 'updatedBy_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC'
 }
 
 export enum SortCallRecordsBy {
