@@ -2,7 +2,7 @@ import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Layout, Menu } from 'antd'
 
-import { colors, shadows, zIndex } from '@condo/domains/common/constants/style'
+import { colors, shadows, zIndex, MAX_CONTENT_WIDTH } from '@condo/domains/common/constants/style'
 import { gradients } from '@condo/domains/common/constants/style'
 
 const { red } = require('@ant-design/colors')
@@ -206,7 +206,7 @@ export const StyledPageWrapper = styled(Layout.Content)<IPageWrapper>`
   height: 100%;
   display: flex;
   flex-direction: column;
-  width: min(100%, 1400px);
+  width: min(100%, ${MAX_CONTENT_WIDTH}px);
 `
 
 export const PAGE_HEADER_CSS = css`
@@ -230,13 +230,13 @@ export const SPACED_PAGE_HEADER_CSS = css`
 export const PAGE_CONTENT_CSS = css`
   flex-grow: 1;
   padding-bottom: 60px;
-  max-width: 1400px;
+  max-width: ${MAX_CONTENT_WIDTH}px;
   background: ${colors.white};
 `
 
 export const TABLE_PAGE_CONTENT_CSS = css`
   flex-grow: 1;
   padding-bottom: 60px;
-  max-width: 1400px;
+  max-width: ${MAX_CONTENT_WIDTH}px;
   background: ${colors.white};
 `
