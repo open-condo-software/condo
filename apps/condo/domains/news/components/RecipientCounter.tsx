@@ -3,11 +3,14 @@ import { useMutation } from '@apollo/client'
 import { BuildingSection, NewsItemScope, Property as PropertyType, Resident as ResidentType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row } from 'antd'
+import TransButton from 'antd/es/_util/transButton'
 import compact from 'lodash/compact'
 import difference from 'lodash/difference'
 import every from 'lodash/every'
 import filter from 'lodash/filter'
+import get from 'lodash/get'
 import intersection from 'lodash/intersection'
+import isEmpty from 'lodash/isEmpty'
 import map from 'lodash/map'
 import uniq from 'lodash/uniq'
 import uniqBy from 'lodash/uniqBy'
@@ -53,8 +56,10 @@ const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint,
                 />
             )}
         </Space>
-        <Typography.Text type='secondary'>{label}</Typography.Text>
-        {downloader ?? ''}
+        <Row>
+            <Typography.Text type='secondary'>{label}</Typography.Text>
+            {downloader ?? ''}
+        </Row>
     </Space>
 )
 
@@ -137,6 +142,8 @@ const calculateWillNotReceiveCount = (residents: ResidentType[], properties: Pro
     }, 0)
 }
 
+const downloaderButtonStyle = { marginLeft: '2px', paddingTop: '3px' }
+
 interface RecipientCounterProps {
     newsItemScopes: TNewsItemScopeNoInstance[]
 }
@@ -169,6 +176,15 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
         where: queryFindResidentsByOrganizationAndScopes(organization.id, newsItemScopes),
     })
 
+    const processedNewsItemScope = newsItemScopes.reduce((acc, scope: any) => {
+        const partialScope: TNewsItemScopeNoInstance = {}
+        if (get(scope, 'property')) partialScope.property = scope.property
+        if (get(scope, 'unitType')) partialScope.unitType = scope.unitType
+        if (get(scope, 'unitName')) partialScope.unitName = scope.unitName
+        if (!isEmpty(partialScope)) acc.push(partialScope)
+        return [...acc]
+    }, [])
+
     const [newsRecipientsMutation] = useMutation(EXPORT_NEWS_RECIPIENTS_MUTATION)
     const runExportNewsRecipients = useCallback(() => {
         const sender = getClientSideSenderInfo()
@@ -179,7 +195,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
             mutation: newsRecipientsMutation,
             variables: {
                 data: {
-                    newsItemScopes,
+                    newsItemScopes: processedNewsItemScope,
                     organizationId: organization.id,
                     ...meta,
                 },
@@ -237,12 +253,12 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                                     value={willNotReceiveUnitsCount}
                                     type='danger'
                                     hint={WillNotReceiveHintMessage}
-                                />
-                                <DownloadButton
-                                    type='secondary'
-                                    onClick={() => runExportNewsRecipients()}
-                                    disabled={isXlsLoading}
-                                    icon={<DownloadIcon/>}
+                                    downloader={<TransButton
+                                        onClick={() => runExportNewsRecipients()}
+                                        disabled={isXlsLoading}
+                                        children={<DownloadIcon/>}
+                                        style={downloaderButtonStyle}
+                                    />}
                                 />
                             </Col>
                         </Row>

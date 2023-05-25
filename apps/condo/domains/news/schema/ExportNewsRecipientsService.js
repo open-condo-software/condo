@@ -5,6 +5,7 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
+const isNil = require('lodash/isNil')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
@@ -106,7 +107,7 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
                 let properties
                 if (!isEmpty(newsItemScopes)) {
                     properties = newsItemScopes.map(newsItemScope => {
-                        if (newsItemScope.property) return newsItemScope.property.id
+                        if (!isNil(newsItemScope.property)) return newsItemScope.property.id
                     })
                 }
 

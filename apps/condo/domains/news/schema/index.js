@@ -3,11 +3,11 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { ExportNewsRecipientsService } = require('./ExportNewsRecipientsService')
 const { NewsItem } = require('./NewsItem')
 const { NewsItemScope } = require('./NewsItemScope')
 const { NewsItemTemplate } = require('./NewsItemTemplate')
 const { NewsItemUserRead } = require('./NewsItemUserRead')
-const { ExportNewsRecipientsService } = require('./ExportNewsRecipientsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {

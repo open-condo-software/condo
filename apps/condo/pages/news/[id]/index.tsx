@@ -103,10 +103,7 @@ const NewsItemCard: React.FC = () => {
             newsItem: { id: newsItemId },
         },
     })
-    console.log(newsItemScopes)
-    const processedNewsItemScopes = newsItemScopes.reduce((acc, scope) => {
 
-    }, [])
     const typesNamesMapping = {
         [NEWS_TYPE_COMMON]: Regular,
         [NEWS_TYPE_EMERGENCY]: Emergency,

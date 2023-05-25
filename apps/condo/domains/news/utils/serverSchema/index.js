@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const { NewsItem: NewsItemGQL } = require('@condo/domains/news/gql')
 const { NewsItemScope: NewsItemScopeGQL } = require('@condo/domains/news/gql')
@@ -21,7 +21,6 @@ async function exportNewsRecipients (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write exportNewsRecipients serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: EXPORT_NEWS_RECIPIENTS_MUTATION,
