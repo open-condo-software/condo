@@ -1,4 +1,4 @@
-import { Form, Typography, Row, Col } from 'antd'
+import { Form, Row, Col } from 'antd'
 import Head from 'next/head'
 import  { useRouter } from 'next/router'
 import React, { useContext, useState } from 'react'
@@ -6,8 +6,8 @@ import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { Typography, Button } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
@@ -27,9 +27,6 @@ import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
-}
-const FORM_TITLE_STYLES: React.CSSProperties = {
-    fontWeight: 700,
 }
 const FORM_PHONE_STYLES: React.CSSProperties = {
     borderRadius: 8,
@@ -140,10 +137,10 @@ function ResetPageView () {
                         <ResponsiveCol span={24}>
                             <Row gutter={[0, 20]}>
                                 <Col span={24}>
-                                    <Typography.Title level={3} style={FORM_TITLE_STYLES}>{ResetTitleMsg}</Typography.Title>
+                                    <Typography.Title level={2}>{ResetTitleMsg}</Typography.Title>
                                 </Col>
                                 <Col span={24}>
-                                    <Typography.Paragraph style={{ textAlign: 'left' }}>{InstructionsMsg}</Typography.Paragraph>
+                                    <Typography.Paragraph size='medium'>{InstructionsMsg}</Typography.Paragraph>
                                 </Col>
                             </Row>
                             <Row gutter={[0, 40]}>
@@ -172,11 +169,11 @@ function ResetPageView () {
                                                                 // validation check failed - don't invoke runAction
                                                             })
                                                         }}
-                                                        type={isCountDownActive ? 'sberGrey' : 'sberDefaultGradient'}
+                                                        type='primary'
                                                         disabled={isCountDownActive}
                                                         loading={isLoading}
                                                         htmlType='submit'
-                                                        style={{ width: '100%' }}
+                                                        block
                                                         data-cy='forgot-button'
                                                     >
                                                         {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
