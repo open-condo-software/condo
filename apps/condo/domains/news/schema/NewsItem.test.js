@@ -461,6 +461,80 @@ describe('NewsItems', () => {
                 }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
             })
 
+            test('Each of two user\'s residents must see eligible news items', async () => {
+                const residentClient = await makeClientWithResidentUser()
+                const [o10n] = await createTestOrganization(adminClient)
+
+                const [property1] = await createTestProperty(adminClient, o10n)
+                const [property2] = await createTestProperty(adminClient, o10n)
+
+                const unitType1 = FLAT_UNIT_TYPE
+                const unitName1 = faker.lorem.word()
+                const unitType2 = FLAT_UNIT_TYPE
+                const unitName2 = faker.lorem.word()
+
+                await createTestResident(adminClient, residentClient.user, property1, {
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+                await createTestResident(adminClient, residentClient.user, property2, {
+                    unitType: unitType2,
+                    unitName: unitName2,
+                })
+
+                const [newsItem1] = await createTestNewsItem(adminClient, o10n)
+                await createTestNewsItemScope(adminClient, newsItem1, {
+                    property: { connect: { id: property1.id } },
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+                const [newsItem2] = await createTestNewsItem(adminClient, o10n)
+                await createTestNewsItemScope(adminClient, newsItem2, {
+                    property: { connect: { id: property2.id } },
+                })
+
+                await publishTestNewsItem(adminClient, newsItem1.id)
+                await publishTestNewsItem(adminClient, newsItem2.id)
+
+                // No item until timeout ends
+                const newsItems = await NewsItem.getAll(residentClient, {})
+                expect(newsItems).toHaveLength(0)
+
+                await waitFor(async () => {
+                    const newsItemsAll = await NewsItem.getAll(residentClient, {})
+                    expect(newsItemsAll).toHaveLength(2)
+                    expect(newsItemsAll).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: newsItem1.id, title: newsItem1.title }),
+                        expect.objectContaining({ id: newsItem2.id, title: newsItem2.title }),
+                    ]))
+
+                    const newsItems1 = await NewsItem.getAll(residentClient, {
+                        scopes_some: {
+                            property: { id: property1.id },
+                            unitType: unitType1,
+                            unitName: unitName1,
+                        },
+                    })
+                    expect(newsItems1).toHaveLength(1)
+                    expect(newsItems1).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: newsItem1.id, title: newsItem1.title }),
+                    ]))
+
+                    const newsItems2 = await NewsItem.getAll(residentClient, {
+                        scopes_some: {
+                            property: { id: property2.id },
+                        },
+                    })
+                    expect(newsItems2).toHaveLength(1)
+                    expect(newsItems2).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: newsItem2.id, title: newsItem2.title }),
+                    ]))
+
+                }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+            })
+
             test('two residents, two organizations: each must see eligible news items', async () => {
                 const residentClient1 = await makeClientWithResidentUser()
                 const residentClient2 = await makeClientWithResidentUser()

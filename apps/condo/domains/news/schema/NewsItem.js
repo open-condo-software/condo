@@ -122,7 +122,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
             type: 'Relationship',
             ref: 'NewsItemScope.newsItem',
             many: true,
-            access: { read: false, create: false, update: false },
+            access: { read: () => false, create: false, update: false },
         },
 
         sentAt: {
