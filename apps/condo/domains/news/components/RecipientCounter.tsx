@@ -1,6 +1,6 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import { BuildingSection, NewsItemScope, Property as PropertyType, Resident as ResidentType } from '@app/condo/schema'
-import styled from '@emotion/styled'
+import { Col, Row } from 'antd'
 import compact from 'lodash/compact'
 import difference from 'lodash/difference'
 import every from 'lodash/every'
@@ -42,10 +42,6 @@ const Counter: React.FC<CounterProps> = ({ label, value, hint }) => (
         <Typography.Text type='secondary'>{label}</Typography.Text>
     </Space>
 )
-
-const JustifiedSpace = styled(Space)`
-  justify-content: space-evenly;
-`
 
 const isTargetedToOrganization = ({ property, unitType, unitName }: NewsItemScope) => (
     !property && !unitType && !unitName
@@ -182,12 +178,32 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
         <div style={{ maxWidth: '500px' }}>
             <Card>
                 <Space direction='vertical' size={24} width='100%'>
-                    <Typography.Text>{MailingMessage} <Typography.Text strong>{message}</Typography.Text></Typography.Text>
-                    <JustifiedSpace direction='horizontal' align='start' size={24} width='100%'>
-                        <Counter label={PropertiesLabelMessage} value={propertiesWillReceive.length}/>
-                        <Counter label={WillReceiveLabelMessage} value={unitsWillReceive.length} hint={formatWillReceiveHintMessage(unitsWillReceive.length)}/>
-                        <Counter label={WillNotReceiveLabelMessage} value={willNotReceiveUnitsCount} hint={WillNotReceiveHintMessage}/>
-                    </JustifiedSpace>
+                    <Typography.Text>{MailingMessage} <Typography.Text
+                        strong>{message}</Typography.Text></Typography.Text>
+                    <Col xs={24}>
+                        <Row align='top' justify='space-evenly'>
+                            <Col>
+                                <Counter
+                                    label={PropertiesLabelMessage}
+                                    value={propertiesWillReceive.length}
+                                />
+                            </Col>
+                            <Col>
+                                <Counter
+                                    label={WillReceiveLabelMessage}
+                                    value={unitsWillReceive.length}
+                                    hint={formatWillReceiveHintMessage(unitsWillReceive.length)}
+                                />
+                            </Col>
+                            <Col>
+                                <Counter
+                                    label={WillNotReceiveLabelMessage}
+                                    value={willNotReceiveUnitsCount}
+                                    hint={WillNotReceiveHintMessage}
+                                />
+                            </Col>
+                        </Row>
+                    </Col>
                 </Space>
             </Card>
         </div>
