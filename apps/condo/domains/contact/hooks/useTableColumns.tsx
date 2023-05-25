@@ -1,10 +1,14 @@
-import { Contact } from '@app/condo/schema'
+import { Contact, ContactWhereInput } from '@app/condo/schema'
+import { ColumnsType, ColumnType } from 'antd/es/table/interface'
 import get from 'lodash/get'
+import identity from 'lodash/identity'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
+import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
     getAddressRender,
     getTableCellRenderer,
@@ -14,11 +18,11 @@ import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
+import { IFilters } from '@condo/domains/contact/utils/helpers'
 
-import { IFilters } from '../utils/helpers'
-
-
-export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
+type UseTableColumns = (filterMetas: Array<FiltersMeta<ContactWhereInput>>) => ColumnsType<Contact>
+export const useTableColumns: UseTableColumns = (filterMetas) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
@@ -28,10 +32,21 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
     const RoleMessage = intl.formatMessage({ id: 'ContactRole' })
 
+    const { organization } = useOrganization()
+    const organizationId = get(organization, 'id', null)
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
     const search = getFilteredValue(filters, 'search')
+
+    const { objs: contactRoles, loading } = ContactRole.useObjects({
+        where: {
+            OR: [
+                { organization_is_null: true },
+                { organization: { id: organizationId } },
+            ],
+        },
+    })
 
     const renderAddress = useCallback(
         (_, contact) => getAddressRender(get(contact, 'property'), DeletedMessage, search),
@@ -40,6 +55,11 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const renderUnitName = useCallback(
         (text, contact) => getUnitNameRender<Contact>(intl, text, contact, search)
         , [search])
+
+    const renderRolesFilterDropdown: ColumnType<Contact>['filterDropdown'] = useCallback((filterProps) => {
+        const adaptedRoles = contactRoles.map(ContactRole.convertGQLItemToFormSelectState).filter(identity)
+        return getOptionFilterDropdown({ checkboxGroupProps: { options: adaptedRoles, disabled: loading } })(filterProps)
+    }, [contactRoles, loading])
 
     const render = useMemo(() => getTableCellRenderer({ search }), [search])
 
@@ -79,7 +99,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 key: 'role',
                 sorter: true,
                 width: '20%',
-                filterDropdown: getFilterDropdownByKey(filterMetas, 'role'),
+                filterDropdown: renderRolesFilterDropdown,
                 filterIcon: getFilterIcon,
                 render: (role) => render(get(role, 'name')),
             },
@@ -121,5 +141,5 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render,
             },
         ]
-    }, [NameMessage, sorterMap, filters, filterMetas, render, AddressMessage, renderAddress, RoleMessage, UnitMessage, renderUnitName, PhoneMessage, EmailMessage])
+    }, [NameMessage, sorterMap, filters, filterMetas, render, AddressMessage, renderAddress, RoleMessage, renderRolesFilterDropdown, UnitMessage, renderUnitName, PhoneMessage, EmailMessage])
 }
