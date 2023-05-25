@@ -21,6 +21,8 @@ import { queryFindResidentsByNewsItemAndScopes } from '@condo/domains/news/utils
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Resident } from '@condo/domains/resident/utils/clientSchema'
 
+import { TNewsItemScopeNoInstance } from './types'
+
 interface CounterProps {
     label: string
     value: number
@@ -43,15 +45,15 @@ const Counter: React.FC<CounterProps> = ({ label, value, hint }) => (
     </Space>
 )
 
-const isTargetedToOrganization = ({ property, unitType, unitName }: NewsItemScope) => (
+const isTargetedToOrganization = ({ property, unitType, unitName }: TNewsItemScopeNoInstance) => (
     !property && !unitType && !unitName
 )
 
-const isTargetedToEntireProperty = ({ property, unitType, unitName }: NewsItemScope) => (
+const isTargetedToEntireProperty = ({ property, unitType, unitName }: TNewsItemScopeNoInstance) => (
     !!property && !unitType && !unitName
 )
 
-const isTargetedToUnitName = ({ property, unitType, unitName }: NewsItemScope) => (
+const isTargetedToUnitName = ({ property, unitType, unitName }: TNewsItemScopeNoInstance) => (
     !!property && !unitType && !!unitName
 )
 
@@ -127,7 +129,7 @@ const calculateWillNotReceiveCount = (residents: ResidentType[], properties: Pro
 }
 
 interface RecipientCounterProps {
-    newsItemScopes: NewsItemScope[]
+    newsItemScopes: TNewsItemScopeNoInstance[]
 }
 
 export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScopes }) => {
