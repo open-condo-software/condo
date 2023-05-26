@@ -35,7 +35,7 @@ const PosterMobileFooter = styled.div`
 `
 
 const POSTER_WRAPPER_STUMB_STYLE: CSSProperties = { padding: '36px 0 36px 36px', height: '100vh' }
-const POSTER_WRAPPER_COL_STYLE: CSSProperties = { position: 'fixed', left: '36px', top: '36px', bottom: '36px' }
+const POSTER_WRAPPER_COL_STYLE: CSSProperties = { position: 'fixed', left: '36px', top: '36px', bottom: '36px', width: '100%' }
 const PAGE_WRAPPER_STYLE: CSSProperties = { minHeight: '100vh' }
 
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, Header, Footer, layoutBgColor, layoutBgImage }) => {
