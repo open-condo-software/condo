@@ -56,9 +56,6 @@ const FieldPairRow: React.FC<IFieldPairRowProps> = (props) => {
         </>
     )
 }
-const newsItemScope = [{
-    property: { id: 'a90ad671-f54e-446a-bca9-d74855c49dbf' },
-}]
 
 const NewsItemCard: React.FC = () => {
     const intl = useIntl()
