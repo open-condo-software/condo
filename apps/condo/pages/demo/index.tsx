@@ -2,11 +2,11 @@ import { Tabs, Select } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 
-import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 
 const Component: React.FC = () => {
