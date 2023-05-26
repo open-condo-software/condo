@@ -45,10 +45,6 @@ const Counter: React.FC<CounterProps> = ({ label, value, hint }) => (
     </Space>
 )
 
-const isTargetedToOrganization = ({ property, unitType, unitName }: TNewsItemScopeNoInstance) => (
-    !property && !unitType && !unitName
-)
-
 const isTargetedToEntireProperty = ({ property, unitType, unitName }: TNewsItemScopeNoInstance) => (
     !!property && !unitType && !unitName
 )
@@ -168,7 +164,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     // - When some records of NewsItemScope have unitName, that does not exist in connected Property
     // - When some Resident's unitName is out of units range of a property, that can happen if Property.map was changed after Resident was registered
 
-    const propertiesWillReceive = newsItemScopes.length === 0 || newsItemScopes.length === 1 && isTargetedToOrganization(newsItemScopes[0])
+    const propertiesWillReceive = newsItemScopes.length === 0
         ? properties
         : properties.filter(p => propertyIdsFromNewsItemScopes.includes(p.id)) // Take Property objects with full set of fields, obtained using Property client utils
 
