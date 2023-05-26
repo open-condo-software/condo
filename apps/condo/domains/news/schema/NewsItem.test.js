@@ -198,14 +198,14 @@ describe('NewsItems', () => {
             })
 
             test('resident can\'t', async () => {
-                const [o10n, o10nAttrs] = await createTestOrganization(adminClient)
+                const [o10n] = await createTestOrganization(adminClient)
                 const [objCreated] = await createTestNewsItem(adminClient, o10n)
 
                 const client = await makeClientWithResidentAccessAndProperty()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     const body = faker.lorem.words(10)
-                    const [obj, attrs] = await updateTestNewsItem(client, objCreated.id, { body })
+                    await updateTestNewsItem(client, objCreated.id, { body })
                 })
             })
 
@@ -216,6 +216,26 @@ describe('NewsItems', () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await updateTestNewsItem(client, objCreated.id)
                 })
+            })
+
+            test('user can successfully un-publish news item', async () => {
+                const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
+                await publishTestNewsItem(adminClient, objCreated.id)
+                const [objUnpublished] = await updateTestNewsItem(adminClient, objCreated.id, { isPublished: false })
+
+                expect(objUnpublished.title).toEqual(objCreated.title)
+                expect(objUnpublished.body).toEqual(objCreated.body)
+                expect(objUnpublished.validBefore).toEqual(objCreated.validBefore)
+                expect(objUnpublished.sendAt).toEqual(objCreated.sendAt)
+                expect(objUnpublished.type).toEqual(objCreated.type)
+            })
+
+            test('The common type set on user try to delete the type', async () => {
+                const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
+                expect(objCreated.type).toEqual(NEWS_TYPE_COMMON)
+
+                const [objUpdated] = await updateTestNewsItem(adminClient, objCreated.id, { type: null })
+                expect(objUpdated.type).toEqual(NEWS_TYPE_COMMON)
             })
         })
 
@@ -249,7 +269,7 @@ describe('NewsItems', () => {
 
         describe('read', () => {
             test('admin can', async () => {
-                const [obj, attrs] = await createTestNewsItem(adminClient, dummyO10n)
+                const [obj] = await createTestNewsItem(adminClient, dummyO10n)
 
                 const objs = await NewsItem.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -288,7 +308,7 @@ describe('NewsItems', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [obj, attrs] = await createTestNewsItem(adminClient, dummyO10n)
+                await createTestNewsItem(adminClient, dummyO10n)
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
@@ -327,7 +347,7 @@ describe('NewsItems', () => {
 
                 // News item for particular unit
                 const [newsItem1, newsItem1Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope1] = await createTestNewsItemScope(adminClient, newsItem1, {
+                await createTestNewsItemScope(adminClient, newsItem1, {
                     property: { connect: { id: property.id } },
                     unitType: unitType1,
                     unitName: unitName1,
@@ -335,13 +355,12 @@ describe('NewsItems', () => {
 
                 // News item for property
                 const [newsItem2, newsItem2Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope2] = await createTestNewsItemScope(adminClient, newsItem2, {
+                await createTestNewsItemScope(adminClient, newsItem2, {
                     property: { connect: { id: property.id } },
                 })
 
                 // News item for all organization
                 const [newsItem3, newsItem3Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope3] = await createTestNewsItemScope(adminClient, newsItem3)
 
                 await publishTestNewsItem(adminClient, newsItem1.id)
                 const newsItems1 = await NewsItem.getAll(residentClient1, {})
@@ -400,24 +419,24 @@ describe('NewsItems', () => {
                 })
 
                 const [newsItem1, newsItem1Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope1] = await createTestNewsItemScope(adminClient, newsItem1, {
+                await createTestNewsItemScope(adminClient, newsItem1, {
                     property: { connect: { id: property.id } },
                     unitType: unitType1,
                     unitName: unitName1,
                 })
 
                 const [newsItem2, newsItem2Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope2] = await createTestNewsItemScope(adminClient, newsItem2, {
+                await createTestNewsItemScope(adminClient, newsItem2, {
                     property: { connect: { id: property.id } },
                     unitType: unitType2,
                     unitName: unitName2,
                 })
 
+                // Without scope == all organization
                 const [newsItem3, newsItem3Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope3] = await createTestNewsItemScope(adminClient, newsItem3)
 
-                const [newsItem4, newsItem4Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope4] = await createTestNewsItemScope(adminClient, newsItem4, {
+                const [newsItem4] = await createTestNewsItem(adminClient, o10n)
+                await createTestNewsItemScope(adminClient, newsItem4, {
                     property: { connect: { id: otherProperty.id } },
                 })
 
@@ -439,6 +458,80 @@ describe('NewsItems', () => {
                         expect.objectContaining({ id: newsItem2.id, title: newsItem2Attrs.title }),
                         expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
                     ]))
+                }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+            })
+
+            test('Each of two user\'s residents must see eligible news items', async () => {
+                const residentClient = await makeClientWithResidentUser()
+                const [o10n] = await createTestOrganization(adminClient)
+
+                const [property1] = await createTestProperty(adminClient, o10n)
+                const [property2] = await createTestProperty(adminClient, o10n)
+
+                const unitType1 = FLAT_UNIT_TYPE
+                const unitName1 = faker.lorem.word()
+                const unitType2 = FLAT_UNIT_TYPE
+                const unitName2 = faker.lorem.word()
+
+                await createTestResident(adminClient, residentClient.user, property1, {
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+                await createTestResident(adminClient, residentClient.user, property2, {
+                    unitType: unitType2,
+                    unitName: unitName2,
+                })
+
+                const [newsItem1] = await createTestNewsItem(adminClient, o10n)
+                await createTestNewsItemScope(adminClient, newsItem1, {
+                    property: { connect: { id: property1.id } },
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+                const [newsItem2] = await createTestNewsItem(adminClient, o10n)
+                await createTestNewsItemScope(adminClient, newsItem2, {
+                    property: { connect: { id: property2.id } },
+                })
+
+                await publishTestNewsItem(adminClient, newsItem1.id)
+                await publishTestNewsItem(adminClient, newsItem2.id)
+
+                // No item until timeout ends
+                const newsItems = await NewsItem.getAll(residentClient, {})
+                expect(newsItems).toHaveLength(0)
+
+                await waitFor(async () => {
+                    const newsItemsAll = await NewsItem.getAll(residentClient, {})
+                    expect(newsItemsAll).toHaveLength(2)
+                    expect(newsItemsAll).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: newsItem1.id, title: newsItem1.title }),
+                        expect.objectContaining({ id: newsItem2.id, title: newsItem2.title }),
+                    ]))
+
+                    const newsItems1 = await NewsItem.getAll(residentClient, {
+                        scopes_some: {
+                            property: { id: property1.id },
+                            unitType: unitType1,
+                            unitName: unitName1,
+                        },
+                    })
+                    expect(newsItems1).toHaveLength(1)
+                    expect(newsItems1).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: newsItem1.id, title: newsItem1.title }),
+                    ]))
+
+                    const newsItems2 = await NewsItem.getAll(residentClient, {
+                        scopes_some: {
+                            property: { id: property2.id },
+                        },
+                    })
+                    expect(newsItems2).toHaveLength(1)
+                    expect(newsItems2).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: newsItem2.id, title: newsItem2.title }),
+                    ]))
+
                 }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
             })
 
@@ -467,17 +560,17 @@ describe('NewsItems', () => {
 
                 // News item for one organization
                 const [newsItem1, newsItem1Attrs] = await createTestNewsItem(adminClient, o10n1)
-                const [newsItemScope1] = await createTestNewsItemScope(adminClient, newsItem1, {
+                await createTestNewsItemScope(adminClient, newsItem1, {
                     property: { connect: { id: property1.id } },
                 })
 
                 // Two news items for another organization
                 const [newsItem2, newsItem2Attrs] = await createTestNewsItem(adminClient, o10n2)
-                const [newsItemScope2] = await createTestNewsItemScope(adminClient, newsItem2, {
+                await createTestNewsItemScope(adminClient, newsItem2, {
                     property: { connect: { id: property2.id } },
                 })
                 const [newsItem3, newsItem3Attrs] = await createTestNewsItem(adminClient, o10n2)
-                const [newsItemScope3] = await createTestNewsItemScope(adminClient, newsItem3, {
+                await createTestNewsItemScope(adminClient, newsItem3, {
                     property: { connect: { id: property2.id } },
                 })
 
@@ -525,7 +618,7 @@ describe('NewsItems', () => {
         })
 
         test('The \'common\' news type the default one', async () => {
-            const [obj, attrs] = await createTestNewsItem(adminClient, dummyO10n, { type: undefined })
+            const [obj] = await createTestNewsItem(adminClient, dummyO10n, { type: undefined })
 
             //after creation
             expect(obj.type).toMatch(NEWS_TYPE_COMMON)
@@ -622,6 +715,20 @@ describe('NewsItems', () => {
                 },
             )
         })
+
+        test('must throw an error if send date points to the past', async () => {
+            await expectToThrowGQLError(
+                async () => await createTestNewsItem(adminClient, dummyO10n, {
+                    sendAt: dayjs().subtract(1, 'day').toISOString(),
+                }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'WRONG_SEND_DATE',
+                    message: 'Wrong send date',
+                    messageForUser: 'api.newsItem.WRONG_SEND_DATE',
+                },
+            )
+        })
     })
 
     describe('Delayed news items', () => {
@@ -647,17 +754,18 @@ describe('NewsItems', () => {
             const newsItems1 = await NewsItem.getAll(residentClient1, {})
             expect(newsItems1).toHaveLength(0)
 
-            // Imagine that publication scheduled at 1 hour ago
-            await updateTestNewsItem(adminClient, newsItem1.id, { sendAt: dayjs().subtract(1, 'hour').toISOString() })
+            // Imagine that publication scheduled after 3 seconds
+            await updateTestNewsItem(adminClient, newsItem1.id, { sendAt: dayjs().add(3, 'seconds').toISOString() })
 
             const newsItems2 = await NewsItem.getAll(residentClient1, {})
             expect(newsItems2).toHaveLength(0)
 
             // Make news item published
-            await updateTestNewsItem(adminClient, newsItem1.id, { isPublished: true })
-
-            const newsItems3 = await NewsItem.getAll(residentClient1, {})
-            expect(newsItems3).toHaveLength(1)
+            await publishTestNewsItem(adminClient, newsItem1.id)
+            await waitFor(async () => {
+                const newsItems3 = await NewsItem.getAll(residentClient1, {})
+                expect(newsItems3).toHaveLength(1)
+            }, { delay: 4 * 1000 })
         })
     })
 

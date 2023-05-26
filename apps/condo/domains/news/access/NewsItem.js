@@ -27,15 +27,28 @@ async function canReadNewsItems ({ authentication: { item: user } }) {
         const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
         if (isEmpty(residents)) return false
 
+        const organizationsIds = residents.map((resident) => resident.organization)
+        const scopesCondition = queryFindNewsItemsScopesByResidents(residents)
+
         return {
             isPublished: true,
-            scopes_some: queryFindNewsItemsScopesByResidents(residents),
-            OR: [
-                // We should show delayed news items on time
-                { AND: [{ sendAt_not: null }, { sendAt_lte: dayjs().toISOString() }] },
+            organization: { id_in: organizationsIds },
+            AND: [
+                {
+                    OR: [
+                        { scopes_none: true },
+                        { scopes_some: scopesCondition },
+                    ],
+                },
+                {
+                    OR: [
+                        // We should show delayed news items on time
+                        { AND: [{ sendAt_not: null }, { sendAt_lte: dayjs().toISOString() }] },
 
-                // We should show not delayed news items that have expired publication delay
-                { AND: [{ sendAt: null }, { updatedAt_lte: dayjs().subtract(SENDING_DELAY_SEC, 'second').toISOString() }] },
+                        // We should show not delayed news items that have expired publication delay
+                        { AND: [{ sendAt: null }, { updatedAt_lte: dayjs().subtract(SENDING_DELAY_SEC, 'second').toISOString() }] },
+                    ],
+                },
             ],
         }
     }

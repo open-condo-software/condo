@@ -2,52 +2,37 @@ const { flatten, get } = require('lodash')
 
 /**
  * @param {Resident[]} residents
- * @returns {{deletedAt: null, OR: Object[]}}}
+ * @returns {{OR: Object[]}}}
  */
 function queryFindNewsItemsScopesByResidents (residents) {
     return {
         OR: flatten(residents.map((resident) => {
-            const organizationId = get(resident, 'organization')
             const propertyId = get(resident, 'property')
             const unitType = get(resident, 'unitType')
             const unitName = get(resident, 'unitName')
 
             return [
                 {
-                    AND: [
+                    OR: [
                         {
-                            newsItem: { organization: { id: organizationId } },
+                            AND: [
+                                { property: { id: propertyId } },
+                                { unitType: null },
+                                { unitName: null },
+                            ],
                         },
                         {
-                            OR: [
-                                {
-                                    AND: [
-                                        { property_is_null: true },
-                                        { unitType: null },
-                                        { unitName: null },
-                                    ],
-                                },
-                                {
-                                    AND: [
-                                        { property: { id: propertyId } },
-                                        { unitType: null },
-                                        { unitName: null },
-                                    ],
-                                },
-                                {
-                                    AND: [
-                                        { property: { id: propertyId } },
-                                        { unitType },
-                                        { unitName: null },
-                                    ],
-                                },
-                                {
-                                    AND: [
-                                        { property: { id: propertyId } },
-                                        { unitType },
-                                        { unitName: unitName },
-                                    ],
-                                },
+                            AND: [
+                                { property: { id: propertyId } },
+                                { unitType },
+                                { unitName: null },
+                            ],
+                        },
+                        {
+                            AND: [
+                                { property: { id: propertyId } },
+                                { unitType },
+                                { unitName: unitName },
                             ],
                         },
                     ],
@@ -58,38 +43,45 @@ function queryFindNewsItemsScopesByResidents (residents) {
 }
 
 /**
- * @param {NewsItem} newsItem
+ * @param {String} organizationId
  * @param {NewsItemScope[]} newsItemScopes
  */
-function queryFindResidentsByNewsItemAndScopes (newsItem, newsItemScopes) {
-    return {
-        AND: [
-            { organization: { id: newsItem.organization } },
-            {
-                OR: newsItemScopes.map((scope) => {
-                    const propertyId = get(scope, 'property')
-                    const unitType = get(scope, 'unitType')
-                    const unitName = get(scope, 'unitName')
-
-                    const AND = []
-
-                    if (propertyId) {
-                        AND.push({ property: { id: propertyId } })
-                    }
-
-                    if (unitType) {
-                        AND.push({ unitType })
-                    }
-
-                    if (unitName) {
-                        AND.push({ unitName })
-                    }
-
-                    return { AND }
-                }),
-            },
-        ],
+function queryFindResidentsByNewsItemAndScopes (organizationId, newsItemScopes) {
+    const whereConditions = {
+        AND: [],
     }
+    if (organizationId) {
+        whereConditions.AND.push({
+            organization: { id: organizationId },
+            deletedAt: null,
+        })
+    }
+    if (newsItemScopes.length > 0) {
+        whereConditions.AND.push({
+            OR: newsItemScopes.map((scope) => {
+                const unitType = get(scope, 'unitType')
+                const unitName = get(scope, 'unitName')
+                const propertyId = get(scope, ['property', 'id'])
+
+                const AND = []
+
+                if (propertyId) {
+                    AND.push({ property: { id: propertyId } })
+                }
+
+                if (unitType) {
+                    AND.push({ unitType })
+                }
+
+                if (unitName) {
+                    AND.push({ unitName })
+                }
+
+                return { AND }
+            }),
+        })
+    }
+    return whereConditions
 }
 
 module.exports = {

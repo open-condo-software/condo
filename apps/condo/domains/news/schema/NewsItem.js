@@ -5,6 +5,7 @@
 const BadWordsNext = require('bad-words-next')
 const badWordsRu = require('bad-words-next/data/ru.json')
 const badWordsRuLat = require('bad-words-next/data/ru_lat.json')
+const dayjs = require('dayjs')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
@@ -20,6 +21,7 @@ const {
     EDIT_DENIED_ALREADY_SENT,
     EDIT_DENIED_PUBLISHED,
     PROFANITY_DETECTED_MOT_ERF_KER,
+    WRONG_SEND_DATE,
 } = require('@condo/domains/news/constants/errors')
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks')
@@ -63,6 +65,12 @@ const ERRORS = {
         type: PROFANITY_DETECTED_MOT_ERF_KER,
         message: 'Profanity detected',
         messageForUser: 'api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER',
+    },
+    WRONG_SEND_DATE: {
+        code: BAD_USER_INPUT,
+        type: WRONG_SEND_DATE,
+        message: 'Wrong send date',
+        messageForUser: 'api.newsItem.WRONG_SEND_DATE',
     },
 }
 
@@ -114,7 +122,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
             type: 'Relationship',
             ref: 'NewsItemScope.newsItem',
             many: true,
-            access: { read: false, create: false, update: false },
+            access: { read: () => false, create: false, update: false },
         },
 
         sentAt: {
@@ -131,15 +139,10 @@ const NewsItem = new GQLListSchema('NewsItem', {
     },
     hooks: {
         resolveInput: async (args) => {
-            const { resolvedData, operation, existingItem } = args
+            const { resolvedData, existingItem } = args
             const resultItemData = { ...existingItem, ...resolvedData }
 
-            if (
-                (
-                    operation === 'create'
-                    || (operation === 'update' && !get(resultItemData, 'isPublished'))
-                )
-                && !get(resolvedData, 'type')) {
+            if (!get(resultItemData, 'type')) {
                 resolvedData['type'] = NEWS_TYPE_COMMON
             }
 
@@ -172,6 +175,10 @@ const NewsItem = new GQLListSchema('NewsItem', {
                 throw new GQLError(ERRORS.EMPTY_VALID_BEFORE_DATE, context)
             }
 
+            if (!!sendAt && Date.parse(sendAt) < Date.parse(dayjs())) {
+                throw new GQLError(ERRORS.WRONG_SEND_DATE, context)
+            }
+
             if (!!sendAt && !!validBefore && Date.parse(validBefore) < Date.parse(sendAt)) {
                 throw new GQLError(ERRORS.VALIDITY_DATE_LESS_THAN_SEND_DATE, context)
             }
@@ -200,7 +207,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
             }
         },
 
-        afterChange: async ({ context, operation, existingItem, updatedItem }) => {
+        afterChange: async ({ updatedItem }) => {
             if (
                 updatedItem.isPublished
                 && !updatedItem.sendAt // There is a cron task to send delayed news items

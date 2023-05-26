@@ -42,14 +42,15 @@ describe('NewsItemScope', () => {
         adminClient = await makeLoggedInAdminClient()
         const [o10n] = await createTestOrganization(adminClient)
         dummyO10n = o10n
+        const [property] = await createTestProperty(adminClient, dummyO10n)
+        dummyProperty = property
     })
 
     describe('CRUD tests', () => {
         beforeAll(async () => {
             supportClient = await makeClientWithSupportUser()
             anonymousClient = await makeClient()
-            const [property] = await createTestProperty(adminClient, dummyO10n)
-            dummyProperty = property
+
             const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
             dummyNewsItem = newsItem
             residentClient = await makeClientWithResidentUser()
@@ -264,7 +265,7 @@ describe('NewsItemScope', () => {
             const [newsItem] = await createTestNewsItem(adminClient, dummyO10n, { isPublished: true })
 
             await expectToThrowGQLError(
-                async () => await createTestNewsItemScope(adminClient, newsItem),
+                async () => await createTestNewsItemScope(adminClient, newsItem, { property: { connect: { id: dummyProperty.id } } }),
                 {
                     code: 'BAD_USER_INPUT',
                     type: 'EDIT_DENIED_PUBLISHED',
@@ -281,12 +282,25 @@ describe('NewsItemScope', () => {
             })
 
             await expectToThrowGQLError(
-                async () => await createTestNewsItemScope(adminClient, newsItem),
+                async () => await createTestNewsItemScope(adminClient, newsItem, { property: { connect: { id: dummyProperty.id } } }),
                 {
                     code: 'BAD_USER_INPUT',
                     type: 'EDIT_DENIED_ALREADY_SENT',
                     message: 'The sent news item is restricted from editing',
                     messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
+                },
+            )
+        })
+
+        test('must throw an error on trying to create empty scope', async () => {
+            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+            await expectToThrowGQLError(
+                async () => await createTestNewsItemScope(adminClient, newsItem, { newsItem: null }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'EMPTY_NEWS_ITEM_SCOPE',
+                    message: 'News item scope is empty',
+                    messageForUser: 'api.newsItem.EMPTY_NEWS_ITEM_SCOPE',
                 },
             )
         })
