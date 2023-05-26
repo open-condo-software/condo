@@ -219,7 +219,6 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'workFinish'),
                 filterIcon: getFilterIcon,
                 render: renderWorkFinish,
-                ellipsis: true,
             },
         ],
     }), [ClassifiersLabel, DetailsLabel, NumberLabel, PropertiesLabel, StatusLabel, WorkFinishLabel, WorkStartLabel, filterMetas, filters, loading, renderClassifiers, renderDetails, renderNumber, renderProperties, renderStatus, renderWorkFinish, renderWorkStart, sorterMap])

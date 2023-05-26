@@ -96,7 +96,7 @@ export const getRenderWorkFinish: GetRenderWorkFinishType = (intl) => (stringDat
     return (
         <>
             {renderDate}
-            <Typography.Text type={timeLeftMessageType}>
+            <Typography.Text type={timeLeftMessageType} size='medium'>
                 {renderTimeLeftMessage}
             </Typography.Text>
         </>
