@@ -8,6 +8,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -215,8 +216,10 @@ describe('ServiceConsumer', () => {
             expect(deleted.id).toEqual(client1.serviceConsumer.id)
             expect(deleted.deletedAt).toBeDefined()
 
-            const contexts = await RecurrentPaymentContext.getAll(adminClient, { id: recurrentContext.id })
-            expect(contexts).toHaveLength(0)
+            await waitFor(async () => {
+                const contexts = await RecurrentPaymentContext.getAll(adminClient, { id: recurrentContext.id })
+                expect(contexts).toHaveLength(0)
+            })
         })
 
         it('cannot be soft-deleted by user with type === resident if this is not his own serviceConsumer', async () => {

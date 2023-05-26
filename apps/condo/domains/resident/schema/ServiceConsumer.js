@@ -9,7 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/utils/serverSchema/helpers')
+const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/tasks')
 const { ORGANIZATION_OWNED_FIELD } = require(
     '@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/resident/access/ServiceConsumer')
@@ -132,8 +132,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             // handle soft delete
             // in order to soft delete recurrent payment contexts
             if (operation === 'update' && deletedAt) {
-                await removeOrphansRecurrentPaymentContexts({
-                    context,
+                await removeOrphansRecurrentPaymentContexts.delay({
                     serviceConsumerId: updatedItem.id,
                     dv,
                     sender,

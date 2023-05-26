@@ -5,7 +5,7 @@
 const { faker } = require('@faker-js/faker')
 
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-const { makeClient } = require('@open-condo/keystone/test.utils')
+const { makeClient, waitFor } = require('@open-condo/keystone/test.utils')
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
@@ -270,8 +270,10 @@ describe('ResetUserService', () => {
         expect(resetUser.isPhoneVerified).toEqual(false)
         expect(resetUser.isEmailVerified).toEqual(false)
 
-        const contexts = await RecurrentPaymentContext.getAll(admin, { id: obj.id })
-        expect(contexts).toHaveLength(0)
+        await waitFor(async () => {
+            const contexts = await RecurrentPaymentContext.getAll(admin, { id: obj.id })
+            expect(contexts).toHaveLength(0)
+        })
     })
 
     test('user can reset their account with deleted RecurrentPaymentContext', async () => {
@@ -307,8 +309,10 @@ describe('ResetUserService', () => {
         expect(resetUser.isPhoneVerified).toEqual(false)
         expect(resetUser.isEmailVerified).toEqual(false)
 
-        const contexts = await RecurrentPaymentContext.getAll(admin, { id: obj.id })
-        expect(contexts).toHaveLength(0)
+        await waitFor(async () => {
+            const contexts = await RecurrentPaymentContext.getAll(admin, { id: obj.id })
+            expect(contexts).toHaveLength(0)
+        })
     })
 
     test('user cant reset another user', async () => {

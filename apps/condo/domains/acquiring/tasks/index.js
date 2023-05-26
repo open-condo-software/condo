@@ -1,4 +1,4 @@
-const { createCronTask, removeCronTask } = require('@open-condo/keystone/tasks')
+const { createCronTask, removeCronTask, createTask } = require('@open-condo/keystone/tasks')
 
 const {
     chargeRecurrentPayments,
@@ -12,7 +12,10 @@ const {
 const {
     notifyBeforeRecurrentPaymentDate,
 } = require('@condo/domains/acquiring/tasks/notifyBeforeRecurrentPaymentDate')
-
+const {
+    removeOrphansRecurrentPaymentContexts,
+    removeOutdatedRecurrentPayments,
+} = require('@condo/domains/acquiring/tasks/removeRecurrentPayments')
 
 /**
  * There are a list of jobs that main should have at list one sequence:
@@ -27,6 +30,9 @@ const {
  *          and create a RecurrentPayments for those receipts
  * - chargeRecurrentPayments: get all RecurrentPayments that ready to charge (just created case, retry case and delayed case) and charge them
  *
+ * Also we have few utility tasks:
+ * - removeOrphansRecurrentPaymentContexts - remove recurrent payment contexts in case if service consumer/resident/user was removed
+ * - removeOutdatedRecurrentPayments - remove recurrent payments in case if context was updated and all current payments should be canceled
  */
 
 // remove old cron task definitions
@@ -37,4 +43,7 @@ module.exports = {
     createRecurrentPaymentForNewBillingReceipt: createCronTask('createRecurrentPaymentForNewBillingReceipt', '0 9-13 * * *', createRecurrentPaymentForNewBillingReceipt),
     createRecurrentPaymentForReadyToPayRecurrentPaymentContexts: createCronTask('createRecurrentPaymentForReadyToPayRecurrentPaymentContexts', '0 11 * * *', createRecurrentPaymentForReadyToPayRecurrentPaymentContexts),
     chargeRecurrentPayments: createCronTask('chargeRecurrentPayments', '0 12 * * *', chargeRecurrentPayments),
+
+    removeOrphansRecurrentPaymentContexts: createTask('removeOrphansRecurrentPaymentContexts', removeOrphansRecurrentPaymentContexts),
+    removeOutdatedRecurrentPayments: createTask('removeOutdatedRecurrentPayments', removeOutdatedRecurrentPayments),
 }

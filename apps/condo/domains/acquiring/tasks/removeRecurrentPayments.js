@@ -1,11 +1,12 @@
-const { get, isNil, isUndefined } = require('lodash')
+const { isNil } = require('lodash')
+
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const {
     RECURRENT_PAYMENT_INIT_STATUS,
     RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
-
-const { RecurrentPaymentContext, RecurrentPayment } = require('./index')
+const { RecurrentPaymentContext, RecurrentPayment } = require('@condo/domains/acquiring/utils/serverSchema')
 
 /**
  * Remove orphans recurrent payment contexts
@@ -17,10 +18,11 @@ const { RecurrentPaymentContext, RecurrentPayment } = require('./index')
  * @param sender
  * @returns {Promise<void>}
  */
-const removeOrphansRecurrentPaymentContexts = async ({ context, userId, residentId, serviceConsumerId, dv, sender }) => {
+const removeOrphansRecurrentPaymentContexts = async ({ userId, residentId, serviceConsumerId, dv, sender }) => {
     if (isNil(userId) &&  isNil(residentId) && isNil(serviceConsumerId)) throw new Error('Can not removeOrphansRecurrentPaymentContexts for empty parent ids')
-
     if (isNil(dv) ||  isNil(sender)) throw new Error('Can not removeOrphansRecurrentPaymentContexts with empty dv and sender params')
+
+    const { keystone: context } = await getSchemaCtx('RecurrentPaymentContext')
 
     let parentCondition = null
     if (!isNil(serviceConsumerId)) {
@@ -51,9 +53,11 @@ const removeOrphansRecurrentPaymentContexts = async ({ context, userId, resident
  * @param sender
  * @returns {Promise<void>}
  */
-const removeOutdatedRecurrentPayments = async ({ context, recurrentPaymentContextId, dv, sender }) => {
+const removeOutdatedRecurrentPayments = async ({ recurrentPaymentContextId, dv, sender }) => {
     if (isNil(recurrentPaymentContextId)) throw new Error('Can not removeOutdatedRecurrentPayments for empty context id')
     if (isNil(dv) ||  isNil(sender)) throw new Error('Can not removeOutdatedRecurrentPayments with empty dv and sender params')
+
+    const { keystone: context } = await getSchemaCtx('RecurrentPayment')
 
     // get all RecurrentPayments
     const recurrentPayments = await RecurrentPayment.getAll(context, {
