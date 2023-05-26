@@ -9,7 +9,7 @@ import { useAuth } from '@open-condo/next/auth'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
-import { colors } from '@condo/domains/common/constants/style'
+import { colors, MAX_CONTENT_WIDTH } from '@condo/domains/common/constants/style'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
@@ -20,7 +20,7 @@ const DesktopHeader = styled(Layout.Header)`
   z-index: 9;
   background: ${colors.white};
   width: 100%;
-  max-width: 1400px;
+  max-width: ${MAX_CONTENT_WIDTH}px;
   padding: 20px 48px;
   display: flex;
   flex-direction: row;

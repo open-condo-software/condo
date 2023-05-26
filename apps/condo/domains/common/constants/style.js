@@ -225,6 +225,7 @@ const antGlobalVariables = {
 }
 
 const ELLIPSIS_ROWS = 3
+const MAX_CONTENT_WIDTH = 1600
 
 module.exports = {
     zIndex,
@@ -241,4 +242,5 @@ module.exports = {
     DEFAULT_BORDER_RADIUS,
     fontSizes,
     ELLIPSIS_ROWS,
+    MAX_CONTENT_WIDTH,
 }
