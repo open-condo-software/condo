@@ -17,9 +17,9 @@ export const useRegisterFormValidators = () => {
     const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
-    const NameContainsOnlyMsg = intl.formatMessage({ id: 'pages.auth.NameContainsOnly' })
     const NameMustContainMsg = intl.formatMessage({ id: 'pages.auth.NameMustContain' })
     const NameMustNotStartOrAndMsg = intl.formatMessage({ id: 'pages.auth.NameMustNotStartOrAnd' })
+    const NameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
 
     return useMemo<ValidatorsMap>(() => {
         return {
@@ -31,7 +31,7 @@ export const useRegisterFormValidators = () => {
                     whitespace: true,
                     type: 'string',
                 }, {
-                    message: NameContainsOnlyMsg,
+                    message: NameInvalidCharMessage,
                     // NOTE(pahaz): test it here https://regex101.com/r/sIntkL/1
                     pattern: /^([\p{L}-][ ]?)+$/ug,
                 }, {
