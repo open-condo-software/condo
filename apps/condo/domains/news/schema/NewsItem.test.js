@@ -198,14 +198,14 @@ describe('NewsItems', () => {
             })
 
             test('resident can\'t', async () => {
-                const [o10n, o10nAttrs] = await createTestOrganization(adminClient)
+                const [o10n] = await createTestOrganization(adminClient)
                 const [objCreated] = await createTestNewsItem(adminClient, o10n)
 
                 const client = await makeClientWithResidentAccessAndProperty()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     const body = faker.lorem.words(10)
-                    const [obj, attrs] = await updateTestNewsItem(client, objCreated.id, { body })
+                    await updateTestNewsItem(client, objCreated.id, { body })
                 })
             })
 
@@ -269,7 +269,7 @@ describe('NewsItems', () => {
 
         describe('read', () => {
             test('admin can', async () => {
-                const [obj, attrs] = await createTestNewsItem(adminClient, dummyO10n)
+                const [obj] = await createTestNewsItem(adminClient, dummyO10n)
 
                 const objs = await NewsItem.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -308,7 +308,7 @@ describe('NewsItems', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [obj, attrs] = await createTestNewsItem(adminClient, dummyO10n)
+                await createTestNewsItem(adminClient, dummyO10n)
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
@@ -347,7 +347,7 @@ describe('NewsItems', () => {
 
                 // News item for particular unit
                 const [newsItem1, newsItem1Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope1] = await createTestNewsItemScope(adminClient, newsItem1, {
+                await createTestNewsItemScope(adminClient, newsItem1, {
                     property: { connect: { id: property.id } },
                     unitType: unitType1,
                     unitName: unitName1,
@@ -355,7 +355,7 @@ describe('NewsItems', () => {
 
                 // News item for property
                 const [newsItem2, newsItem2Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope2] = await createTestNewsItemScope(adminClient, newsItem2, {
+                await createTestNewsItemScope(adminClient, newsItem2, {
                     property: { connect: { id: property.id } },
                 })
 
@@ -419,14 +419,14 @@ describe('NewsItems', () => {
                 })
 
                 const [newsItem1, newsItem1Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope1] = await createTestNewsItemScope(adminClient, newsItem1, {
+                await createTestNewsItemScope(adminClient, newsItem1, {
                     property: { connect: { id: property.id } },
                     unitType: unitType1,
                     unitName: unitName1,
                 })
 
                 const [newsItem2, newsItem2Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope2] = await createTestNewsItemScope(adminClient, newsItem2, {
+                await createTestNewsItemScope(adminClient, newsItem2, {
                     property: { connect: { id: property.id } },
                     unitType: unitType2,
                     unitName: unitName2,
@@ -435,8 +435,8 @@ describe('NewsItems', () => {
                 // Without scope == all organization
                 const [newsItem3, newsItem3Attrs] = await createTestNewsItem(adminClient, o10n)
 
-                const [newsItem4, newsItem4Attrs] = await createTestNewsItem(adminClient, o10n)
-                const [newsItemScope4] = await createTestNewsItemScope(adminClient, newsItem4, {
+                const [newsItem4] = await createTestNewsItem(adminClient, o10n)
+                await createTestNewsItemScope(adminClient, newsItem4, {
                     property: { connect: { id: otherProperty.id } },
                 })
 
@@ -560,17 +560,17 @@ describe('NewsItems', () => {
 
                 // News item for one organization
                 const [newsItem1, newsItem1Attrs] = await createTestNewsItem(adminClient, o10n1)
-                const [newsItemScope1] = await createTestNewsItemScope(adminClient, newsItem1, {
+                await createTestNewsItemScope(adminClient, newsItem1, {
                     property: { connect: { id: property1.id } },
                 })
 
                 // Two news items for another organization
                 const [newsItem2, newsItem2Attrs] = await createTestNewsItem(adminClient, o10n2)
-                const [newsItemScope2] = await createTestNewsItemScope(adminClient, newsItem2, {
+                await createTestNewsItemScope(adminClient, newsItem2, {
                     property: { connect: { id: property2.id } },
                 })
                 const [newsItem3, newsItem3Attrs] = await createTestNewsItem(adminClient, o10n2)
-                const [newsItemScope3] = await createTestNewsItemScope(adminClient, newsItem3, {
+                await createTestNewsItemScope(adminClient, newsItem3, {
                     property: { connect: { id: property2.id } },
                 })
 
@@ -618,7 +618,7 @@ describe('NewsItems', () => {
         })
 
         test('The \'common\' news type the default one', async () => {
-            const [obj, attrs] = await createTestNewsItem(adminClient, dummyO10n, { type: undefined })
+            const [obj] = await createTestNewsItem(adminClient, dummyO10n, { type: undefined })
 
             //after creation
             expect(obj.type).toMatch(NEWS_TYPE_COMMON)

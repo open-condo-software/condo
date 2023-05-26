@@ -8,7 +8,11 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemScope')
-const { EDIT_DENIED_ALREADY_SENT, EDIT_DENIED_PUBLISHED } = require('@condo/domains/news/constants/errors')
+const {
+    EDIT_DENIED_ALREADY_SENT,
+    EDIT_DENIED_PUBLISHED,
+    EMPTY_NEWS_ITEM_SCOPE,
+} = require('@condo/domains/news/constants/errors')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
 const ERRORS = {
@@ -23,6 +27,12 @@ const ERRORS = {
         type: EDIT_DENIED_ALREADY_SENT,
         message: 'The sent news item is restricted from editing',
         messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
+    },
+    EMPTY_NEWS_ITEM_SCOPE: {
+        code: BAD_USER_INPUT,
+        type: EMPTY_NEWS_ITEM_SCOPE,
+        message: 'News item scope is empty',
+        messageForUser: 'api.newsItem.EMPTY_NEWS_ITEM_SCOPE',
     },
 }
 
@@ -63,6 +73,12 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
     hooks: {
         validateInput: async (args) => {
             const { resolvedData, existingItem, context, operation } = args
+            const possibleItemData = { ...existingItem, ...resolvedData }
+
+            if (!get(possibleItemData, 'property') && !get(possibleItemData, 'unitType') && !get(possibleItemData, 'unitName')) {
+                throw new GQLError(ERRORS.EMPTY_NEWS_ITEM_SCOPE, context)
+            }
+
             let newsItemId
             if (operation === 'create') {
                 newsItemId = get(resolvedData, 'newsItem')
