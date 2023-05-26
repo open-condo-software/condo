@@ -9,11 +9,11 @@ import intersection from 'lodash/intersection'
 import map from 'lodash/map'
 import uniq from 'lodash/uniq'
 import uniqBy from 'lodash/uniqBy'
-import React from 'react'
+import React, { CSSProperties } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Card, Space, Typography } from '@open-condo/ui'
+import { Card, Space, Typography, TypographyTitleProps } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
@@ -26,18 +26,22 @@ import { TNewsItemScopeNoInstance } from './types'
 interface CounterProps {
     label: string
     value: number
+    type?: TypographyTitleProps['type'],
     hint?: string
 }
 
-const Counter: React.FC<CounterProps> = ({ label, value, hint }) => (
+const styleGrayColor: CSSProperties = { color: colors.gray['5'] }
+const styleMaxWidth: CSSProperties = { maxWidth: '500px' }
+
+const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint }) => (
     <Space direction='vertical' align='center' size={8}>
         <Space size={8} direction='horizontal' align='start'>
-            <Typography.Title level={3} type='success'>{value}</Typography.Title>
+            <Typography.Title level={3} type={type}>{value}</Typography.Title>
             {hint && (
                 <Tooltip
                     title={hint}
                     placement='bottom'
-                    children={<QuestionCircleOutlined style={{ color: colors.gray['5'] }}/>}
+                    children={<QuestionCircleOutlined style={styleGrayColor}/>}
                 />
             )}
         </Space>
@@ -173,7 +177,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     const willNotReceiveUnitsCount = calculateWillNotReceiveCount(residents, propertiesWillReceive)
 
     return (
-        <div style={{ maxWidth: '500px' }}>
+        <div style={styleMaxWidth}>
             <Card>
                 <Space direction='vertical' size={24} width='100%'>
                     <Typography.Text>{MailingMessage} <Typography.Text
@@ -197,6 +201,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                                 <Counter
                                     label={WillNotReceiveLabelMessage}
                                     value={willNotReceiveUnitsCount}
+                                    type='danger'
                                     hint={WillNotReceiveHintMessage}
                                 />
                             </Col>

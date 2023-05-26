@@ -2,7 +2,7 @@ import { Tabs, Select } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 
-import { RecipientCounter } from '../../domains/news/components/RecipientCounter'
+import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -25,7 +25,7 @@ const DemoPage: React.FC = () => {
     const router = useRouter()
     const [tab, setTab] = useState('acc')
     const [newsItemId, setNewsItemId] = useState()
-    
+
     const handleChange = useCallback((activeKey: string) => {
         router.replace({ query: { tab: activeKey } }).then(() => setTab(activeKey))
     }, [router])
