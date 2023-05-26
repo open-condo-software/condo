@@ -2,8 +2,7 @@ import { QuestionCircleOutlined } from '@ant-design/icons'
 import { useMutation } from '@apollo/client'
 import { BuildingSection, NewsItemScope, Property as PropertyType, Resident as ResidentType } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Row } from 'antd'
-import TransButton from 'antd/es/_util/transButton'
+import { Button, Col, Row } from 'antd'
 import compact from 'lodash/compact'
 import difference from 'lodash/difference'
 import every from 'lodash/every'
@@ -142,7 +141,12 @@ const calculateWillNotReceiveCount = (residents: ResidentType[], properties: Pro
     }, 0)
 }
 
-const downloaderButtonStyle = { marginLeft: '2px', paddingTop: '3px' }
+const downloaderButtonStyle = {
+    background: 'transparent',
+    border: 0,
+    padding: 0,
+    display: 'inline-block',
+}
 
 interface RecipientCounterProps {
     newsItemScopes: TNewsItemScopeNoInstance[]
@@ -253,7 +257,8 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                                     value={willNotReceiveUnitsCount}
                                     type='danger'
                                     hint={WillNotReceiveHintMessage}
-                                    downloader={<TransButton
+                                    downloader={<Button
+                                        size='small'
                                         onClick={() => runExportNewsRecipients()}
                                         disabled={isXlsLoading}
                                         children={<DownloadIcon/>}
