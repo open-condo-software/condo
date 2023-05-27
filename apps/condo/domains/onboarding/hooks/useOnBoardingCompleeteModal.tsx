@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 import { Col, Row } from 'antd'
 import { useRouter } from 'next/router'
-import React, { useState, Dispatch, SetStateAction } from 'react'
+import React, { useState, Dispatch, SetStateAction, CSSProperties } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Modal, Button, Typography } from '@open-condo/ui'
@@ -18,6 +18,9 @@ interface IApplySubscriptionModal {
     setIsVisible: Dispatch<SetStateAction<boolean>>
     isVisible: boolean
 }
+
+const IMAGE_WRAPPER_STYLE: CSSProperties = { maxHeight: '100%', display: 'flex', justifyContent: 'center' }
+const IMAGE_STYLE: CSSProperties = { maxHeight: '100%', maxWidth: '100%', width: 'auto' }
 
 export const useOnBoardingCompleteModal = (): IApplySubscriptionModal => {
     const intl = useIntl()
@@ -46,7 +49,11 @@ export const useOnBoardingCompleteModal = (): IApplySubscriptionModal => {
             <Row gutter={[0, 40]}>
                 <Col span={24}>
                     <PosterWrapper>
-                        <Poster src='/onBoardingSuccess.png'/>
+                        <Poster
+                            src='/onBoardingSuccess.png'
+                            imageWrapperStyle={IMAGE_WRAPPER_STYLE}
+                            imageStyle={IMAGE_STYLE}
+                        />
                     </PosterWrapper>
                 </Col>
                 <Col span={24}>

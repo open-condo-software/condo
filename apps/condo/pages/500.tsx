@@ -5,24 +5,19 @@ import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
-import { useIntl, FormattedMessage } from '@open-condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { Logo } from '@condo/domains/common/components/Logo'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
-const HEADER_ACTION_STYLES = { alignSelf:'center' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }
 const TYPOGRAPHY_CONTACT_STYLE: React.CSSProperties = { color: colors.black }
 
 const {
     publicRuntimeConfig: { HelpRequisites: { support_email: SUPPORT_EMAIL = null, support_phone: SUPPORT_PHONE = null } },
 } = getConfig()
-
-export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
-  height: 55vh;
-`
 
 const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
 const Src500 = { poster: '/500Poster.png', placeholder: '/500PosterPlaceholder.png' }
@@ -50,7 +45,7 @@ export default function Custom500 (): React.ReactElement {
     )
 }
 
-const ErrorLayoutHeader = () => {
+export const ErrorLayoutHeader = () => {
     const { push } = useRouter()
     const { isAuthenticated } = useAuth()
 
@@ -71,7 +66,7 @@ const ErrorLayoutHeader = () => {
     )
 }
 
-const ErrorLayoutFooter = () => {
+export const ErrorLayoutFooter = () => {
     return SUPPORT_EMAIL && SUPPORT_PHONE && (
         <Typography.Paragraph type='secondary' >
             <Typography.Link
@@ -91,12 +86,12 @@ const ErrorLayoutFooter = () => {
     )
 }
 
-export const ErrorLayout = (props): React.ReactElement => <PosterLayout
+const Error500Layout = (props): React.ReactElement => <PosterLayout
     {...props}
     Header={<ErrorLayoutHeader />}
     Footer={<ErrorLayoutFooter />}
     layoutBgImage={Src500}
 />
 
-Custom500.container = ErrorLayout
+Custom500.container = Error500Layout
 Custom500.isError = true

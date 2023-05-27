@@ -9,7 +9,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
-import { ErrorLayout } from './500'
+import { ErrorLayoutFooter, ErrorLayoutHeader } from './500'
 
 
 export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
@@ -28,12 +28,12 @@ export default function Custom404 (): React.ReactElement {
 
     return (
         <Row justify='center'>
-            <Col span={12}>
+            <Col span={24}>
                 <Row gutter={ROW_MESSAGE_GUTTER}>
-                    <Col span={18}>
+                    <Col span={24}>
                         <Typography.Title>{PageTitle}</Typography.Title>
                     </Col>
-                    <Col span={18}>
+                    <Col span={24}>
                         <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE}>
                             {DescriptionMessage}
                         </Typography.Paragraph>
@@ -56,5 +56,12 @@ export default function Custom404 (): React.ReactElement {
     )
 }
 
-Custom404.container = ErrorLayout
+const Error404Layout = (props): React.ReactElement => <PosterLayout
+    {...props}
+    Header={<ErrorLayoutHeader />}
+    Footer={<ErrorLayoutFooter />}
+    layoutBgImage={Src404}
+/>
+
+Custom404.container = Error404Layout
 Custom404.isError = true
