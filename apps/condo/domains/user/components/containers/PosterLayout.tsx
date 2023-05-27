@@ -37,6 +37,9 @@ const PosterMobileFooter = styled.div`
 const POSTER_WRAPPER_STUMB_STYLE: CSSProperties = { padding: '36px 0 36px 36px', height: '100vh' }
 const POSTER_WRAPPER_COL_STYLE: CSSProperties = { position: 'fixed', left: '36px', top: '36px', bottom: '36px', width: '100%' }
 const PAGE_WRAPPER_STYLE: CSSProperties = { minHeight: '100vh' }
+const IMAGE_STYLE: CSSProperties = { maxWidth: '300px', maxHeight: '300px', height: '100%', width: 'auto' }
+const IMAGE_WRAPPER_STYLE: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center', maxHeight: '50%' }
+const POSTER_CONTENT_STYLE: CSSProperties = { padding: '24px', height: '100%', display: 'flex', flexFlow: 'column', justifyContent: 'space-between' }
 
 export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, Header, Footer, layoutBgColor, layoutBgImage }) => {
     const { breakpoints } = useLayoutContext()
@@ -66,6 +69,9 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, Header, F
                             Footer={breakpoints.TABLET_LARGE && Footer}
                             src={BG_POSTER}
                             placeholderSrc={BG_POSTER_PLACEHOLDER}
+                            imageStyle={IMAGE_STYLE}
+                            imageWrapperStyle={IMAGE_WRAPPER_STYLE}
+                            posterContentStyle={POSTER_CONTENT_STYLE}
                         />
                     </PosterWrapper>
                 </Col>
