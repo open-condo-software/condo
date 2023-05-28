@@ -5,8 +5,11 @@ import { SimpleTracer } from '../../objects/helpers'
 import { TicketCreate, TicketView, TicketEdit, TicketImport } from '../../objects/Ticket'
 import { authUserWithCookies } from '../../plugins/auth'
 
-describe.skip('Ticket',  function () {
+describe('Ticket',  function () {
     describe('User', function () {
+        beforeEach(
+            () => cy.clearCookies()
+        )
 
         it('can create ticket',  () => {
             const trace = new SimpleTracer('user.canCreateTicket', 'ticket')

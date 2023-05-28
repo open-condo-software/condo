@@ -21,6 +21,7 @@ describe('Property', function () {
                 const condo = new Condo()
                 condo.visit()
 
+                let activeSpan = trace.startSpan('2.createPropertyMap')
                 cy.task('keystone:createProperty', organization).then(() => {
                     condo.clickOnMenu('property')
 
@@ -37,7 +38,9 @@ describe('Property', function () {
                         .clickSubmitButton()
                         .clickSavePropertyMap()
                 })
+                activeSpan.finish()
 
+                activeSpan = trace.startSpan('3.editPropertyMap')
                 cy.task('keystone:createProperty', organization).then(() => {
                     condo.clickOnMenu('property')
 
@@ -53,7 +56,9 @@ describe('Property', function () {
                         .clickSubmitButton()
                         .clickSavePropertyMap()
                 })
+                activeSpan.finish()
 
+                activeSpan = trace.startSpan('4.editPropertyMapWithUnits')
                 cy.task('keystone:createProperty', organization).then(() => {
                     condo.clickOnMenu('property')
 
@@ -74,6 +79,7 @@ describe('Property', function () {
                         .renameUnit()
                         .clickSavePropertyMap()
                 })
+                activeSpan.finish()
 
             }).then(() => {
                 trace.finish()
