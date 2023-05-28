@@ -1,8 +1,6 @@
 /**
  * @type {Cypress.PluginConfig}
  */
-const fs = require('fs')
-
 const isEmpty = require('lodash/isEmpty')
 
 const { resetOrganizationByTestClient } = require('@condo/domains/organization/utils/testSchema')
