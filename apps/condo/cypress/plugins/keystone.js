@@ -79,6 +79,30 @@ module.exports = async (on, config) => {
             return await ConfirmPhoneAction.getAll(supportClient, { phone })
         },
 
+        async 'keystone:createUserWithProperty' () {
+            const result = await cypressMakeClientWithRegisteredOrganization()
+
+            const client = await makeLoggedInClient(result.userAttrs)
+            const cookie = client.getCookie()
+
+            const [property] = await createTestProperty(supportClient, result.organization, { map: buildingMapJson })
+
+            const organizationLink = await OrganizationEmployee.getOne(client, {
+                user: { id: result.userAttrs.id }, isRejected: false, isBlocked: false,
+            })
+            const user = Object.assign({}, result.user)
+            userObject = Object.assign({}, {
+                user,
+                property: property,
+                cookie,
+                organizationLinkId: organizationLink.id,
+                userAttrs: result.userAttrs,
+                organization: result.organization,
+            })
+
+            return userObject
+        },
+
         async 'keystone:createProperty' (organization) {
             const [result] = await createTestProperty(supportClient, organization, { map: buildingMapJson })
 
@@ -97,7 +121,6 @@ module.exports = async (on, config) => {
             const user = Object.assign({}, result.user)
             userObject = Object.assign({}, {
                 user,
-                property: result.property,
                 cookie,
                 organizationLinkId: organizationLink.id,
                 userAttrs: result.userAttrs,
