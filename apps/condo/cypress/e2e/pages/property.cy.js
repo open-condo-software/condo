@@ -1,87 +1,83 @@
+import { faker } from '@faker-js/faker'
+
+import { Condo } from '../../objects/Condo'
 import { SimpleTracer } from '../../objects/helpers'
-import { PropertyMapCreate, PropertyMapEdit, PropertyMapUnitEdit } from '../../objects/Property'
+import {
+    Property,
+    PropertyMapCreate,
+    PropertyMapEdit,
+    PropertyMapUnitEdit,
+} from '../../objects/Property'
 import { authUserWithCookies } from '../../plugins/auth'
 
 describe('Property', function () {
     describe('User', function () {
-        it('can create property map', () => {
+        it('can create properties and manipulate their maps', () => {
             const trace = new SimpleTracer('user.canCreatePropertyMap', 'property')
-            const spanPrepare = trace.startSpan('1.createUserWithProperty')
-            cy.task('keystone:createUserWithProperty', true).then((response) => {
-                authUserWithCookies(response)
-                spanPrepare.finish()
-                const spanCreate = trace.startSpan('2.propertyMapCreate')
-                const propertyMapCreate = new PropertyMapCreate()
-                propertyMapCreate
-                    .visit()
-                    .clickOnPropertyTableRow()
-                    .clickEditPropertyMapButton()
-                    .clickSection()
-                    .clickRemoveSection()
-                    .clickOnEditMenu()
-                    .clickEditSection()
-                    .typeFloorCount()
-                    .typeUnitsOnFloorCount()
-                    .clickSubmitButton()
-                    .clickSavePropertyMap()
-                spanCreate.finish()
-            }).then(() => {
-                trace.finish()
-            })
-        })
-
-        it('can create and copy section', () => {
-            const trace = new SimpleTracer('user.canCreateAndCopySection', 'property')
-            const spanPrepare = trace.startSpan('1.createUserWithProperty')
-            cy.task('keystone:createUserWithProperty', true).then((response) => {
-                authUserWithCookies(response)
-                spanPrepare.finish()
-                const spanEdit = trace.startSpan('2.editPropertyMap')
-                const propertyMapEdit = new PropertyMapEdit()
-                propertyMapEdit
-                    .visit()
-                    .clickOnPropertyTableRow()
-                    .clickEditPropertyMapButton()
-                    .cleanUp()
-                    .createTestSection()
-                    .clickOnEditMenu()
-                    .clickEditSection()
-                    .clickSectionEditMode()
-                    .clickSubmitButton()
-                    .clickSavePropertyMap()
-                // TODO: @toplenboren (Doma-5845) await for loading!
-                spanEdit.finish()
-            }).then(() => {
-                trace.finish()
-            })
-        })
-
-        it('can add, remove and update section unit', () => {
-            const trace = new SimpleTracer('user.canAddRemoveAndUpdateSectionUnit', 'property')
-            const spanPrepare = trace.startSpan('1.createUserWithProperty')
-            cy.task('keystone:createUserWithProperty', true).then((response) => {
+            const spanPrepare = trace.startSpan('1.createUserWithOrganization')
+            cy.task('keystone:createUserWithOrganization').then(async (response) => {
                 authUserWithCookies(response)
                 spanPrepare.finish()
 
-                const spanEdit = trace.startSpan('2.editPropertyMap')
-                const propertyMapUnitEdit = new PropertyMapUnitEdit()
-                propertyMapUnitEdit
-                    .visit()
-                    .clickOnPropertyTableRow()
-                    .clickEditPropertyMapButton()
-                    .openUnitAddModal()
-                    .changeUnitType()
-                    .typeUnitLabel()
-                    .changeUnitSection()
-                    .changeUnitFloor()
-                    .clickSubmitButton()
-                    .quickSave()
-                    .selectUnit()
-                    .clickRemoveUnit()
-                    .quickSave()
-                    .renameUnit()
-                    .clickSavePropertyMap()
-                spanEdit.finish()
+                const organization = response.organization
+
+                const condo = new Condo()
+                condo.visit()
+
+                cy.task('keystone:createProperty', organization).then(property => {
+                    condo.clickOnMenu('property')
+
+                    const propertyMapCreate = new PropertyMapCreate()
+                    propertyMapCreate
+                        .clickOnPropertyTableRow()
+                        .clickEditPropertyMapButton()
+                        .clickSection()
+                        .clickRemoveSection()
+                        .clickOnEditMenu()
+                        .clickEditSection()
+                        .typeFloorCount()
+                        .typeUnitsOnFloorCount()
+                        .clickSubmitButton()
+                        .clickSavePropertyMap()
+                })
+
+                cy.task('keystone:createProperty', organization).then(property => {
+                    condo.clickOnMenu('property')
+
+                    const propertyMapEdit = new PropertyMapEdit()
+                    propertyMapEdit
+                        .clickOnPropertyTableRow()
+                        .clickEditPropertyMapButton()
+                        .cleanUp()
+                        .createTestSection()
+                        .clickOnEditMenu()
+                        .clickEditSection()
+                        .clickSectionEditMode()
+                        .clickSubmitButton()
+                        .clickSavePropertyMap()
+                })
+
+                cy.task('keystone:createProperty', organization).then(property => {
+                    condo.clickOnMenu('property')
+
+                    const propertyMapUnitEdit = new PropertyMapUnitEdit()
+                    propertyMapUnitEdit
+                        .clickOnPropertyTableRow()
+                        .clickEditPropertyMapButton()
+                        .openUnitAddModal()
+                        .changeUnitType()
+                        .typeUnitLabel()
+                        .changeUnitSection()
+                        .changeUnitFloor()
+                        .clickSubmitButton()
+                        .quickSave()
+                        .selectUnit()
+                        .clickRemoveUnit()
+                        .quickSave()
+                        .renameUnit()
+                        .clickSavePropertyMap()
+                })
+
             }).then(() => {
                 trace.finish()
             })

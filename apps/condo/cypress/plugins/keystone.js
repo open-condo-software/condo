@@ -81,28 +81,30 @@ module.exports = async (on, config) => {
             return await ConfirmPhoneAction.getAll(supportClient, { phone })
         },
 
-        async 'keystone:createUserWithProperty' (forceCreate = true) {
-            if (forceCreate || isEmpty(userObject)) {
-                const result = await cypressMakeClientWithProperty()
+        async 'keystone:createProperty' (organization) {
+            const [result] = await createTestProperty(supportClient, organization, { map: buildingMapJson })
 
-                const client = await makeLoggedInClient(result.userAttrs)
-                const cookie = client.getCookie()
+            return result
+        },
 
-                const organizationLink = await OrganizationEmployee.getOne(client, {
-                    user: { id: result.userAttrs.id }, isRejected: false, isBlocked: false,
-                })
-                const user = Object.assign({}, result.user)
-                userObject = Object.assign({}, {
-                    user,
-                    property: result.property,
-                    cookie,
-                    organizationLinkId: organizationLink.id,
-                    userAttrs: result.userAttrs,
-                    organization: result.organization,
-                })
+        async 'keystone:createUserWithOrganization' () {
+            const result = await cypressMakeClientWithRegisteredOrganization()
 
-                return userObject
-            }
+            const client = await makeLoggedInClient(result.userAttrs)
+            const cookie = client.getCookie()
+
+            const organizationLink = await OrganizationEmployee.getOne(client, {
+                user: { id: result.userAttrs.id }, isRejected: false, isBlocked: false,
+            })
+            const user = Object.assign({}, result.user)
+            userObject = Object.assign({}, {
+                user,
+                property: result.property,
+                cookie,
+                organizationLinkId: organizationLink.id,
+                userAttrs: result.userAttrs,
+                organization: result.organization,
+            })
 
             return userObject
         },

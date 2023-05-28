@@ -1,9 +1,13 @@
 import { trackedVisit } from './helpers'
+import {Condo} from "./Condo";
 
 const PROPERTY_URL = '/property'
 const PROPERTY_MAP_UPDATE_URL = '/map/update'
+const PROPERTY_CREATE_URL = '/create'
 
-class BasePropertyTest {
+const CREATE_BTN_TEXT = 'Create'
+
+class Property extends Condo{
     visit (): this {
         trackedVisit(PROPERTY_URL)
         cy.wait('@getAllOnBoardings')
@@ -14,8 +18,41 @@ class BasePropertyTest {
         return this
     }
 
+    createProperty (address: string, name: string | undefined, year: number | undefined, area: number | undefined): this {
+        if (name || year || area) { throw new Error('NotImplemented') }
+
+        cy.location('pathname').should('contain', PROPERTY_URL)
+
+        // Go to create page
+        cy.get('span').contains(CREATE_BTN_TEXT).click()
+        cy.location('pathname').should('contain', PROPERTY_CREATE_URL)
+
+        // Add info to the form:
+        // Todo (@toplenboen) refactor this! should not use 300ms in prod!
+        cy.get('[id=addressSuggestionsSearchInput]').type(address).wait(3000).type('{downArrow}').type('{enter}')
+
+        // Create property
+        cy.get('span').contains(CREATE_BTN_TEXT).click().wait(3000)
+
+        // When created, property page will redirect us to property/id page
+        cy.location('pathname').should('not.contain', PROPERTY_CREATE_URL)
+
+        return this
+    }
+
+    clickOnPropertyByAddress (address: string | null = null): this {
+
+        cy.get('[data-cy=property__table] tbody .ant-table-row.ant-table-row-level-0').click()
+
+        cy.location('pathname').should('contain', PROPERTY_URL)
+
+        return this
+    }
+
     clickOnPropertyTableRow (): this {
-        cy.get('[data-cy=property__table] tbody .ant-table-row.ant-table-row-level-0').trigger('click')
+
+        cy.get('[data-cy=property__table] tbody .ant-table-row.ant-table-row-level-0').first().click()
+
         cy.location('pathname').should('contain', PROPERTY_URL)
 
         return this
@@ -64,7 +101,7 @@ class BasePropertyTest {
     }
 }
 
-class PropertyMapCreate extends BasePropertyTest {
+class PropertyMapCreate extends Property {
     clickSection (): this {
         cy.get('[data-cy=property-map__section-button]').click()
 
@@ -103,7 +140,7 @@ class PropertyMapCreate extends BasePropertyTest {
     }
 }
 
-class PropertyMapEdit extends BasePropertyTest {
+class PropertyMapEdit extends Property {
     cleanUp (): this {
         cy.get('[data-cy=property-map__section-button]').click()
         cy.get('[data-cy=property-map__remove-section-button]').click()
@@ -163,7 +200,7 @@ class PropertyMapEdit extends BasePropertyTest {
     }
 }
 
-class PropertyMapUnitEdit extends BasePropertyTest {
+class PropertyMapUnitEdit extends Property {
     openUnitAddModal (): this {
         this.clickOnEditMenu()
         cy.get('[data-cy=property-map__edit-menu__add-unit-button]').click()
@@ -229,6 +266,7 @@ class PropertyMapUnitEdit extends BasePropertyTest {
 }
 
 export {
+    Property,
     PropertyMapCreate,
     PropertyMapEdit,
     PropertyMapUnitEdit,

@@ -5,7 +5,8 @@
  */
 const trackedVisit: (url) => Cypress.Chainable<Performance> = (url) => {
     // transforms /auth/signin/ to auth.signin
-    const normalizedUrl = url.replace(/^\/?|\/?$/g, '').replaceAll('/', '.')
+    // if empty: then 'index' is chosen as metric name
+    const normalizedUrl = url.replace(/^\/?|\/?$/g, '').replaceAll('/', '.') || 'index'
 
     return cy.visit(url, {
         onBeforeLoad: (win) => {

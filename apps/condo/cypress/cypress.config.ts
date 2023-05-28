@@ -14,7 +14,7 @@ const config = {
         waitForAnimations: true,
         defaultCommandTimeout: 10000,
         screenshotOnRunFailure: true,
-        retries: 3,
+        retries: 0,
         setupNodeEvents (cypressOn, config) {
         // eslint-disable-next-line import/order
             // https://github.com/cypress-io/cypress/issues/22428
