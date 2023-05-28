@@ -7,9 +7,6 @@ import { authUserWithCookies } from '../../plugins/auth'
 
 describe.skip('Ticket',  function () {
     describe('User', function () {
-        afterEach(() => {
-            cy.clearCookies()
-        })
 
         it('can create ticket',  () => {
             const trace = new SimpleTracer('user.canCreateTicket', 'ticket')
