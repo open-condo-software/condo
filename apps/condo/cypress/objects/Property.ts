@@ -1,5 +1,5 @@
+import { Condo } from './Condo'
 import { trackedVisit } from './helpers'
-import {Condo} from "./Condo";
 
 const PROPERTY_URL = '/property'
 const PROPERTY_MAP_UPDATE_URL = '/map/update'
@@ -14,37 +14,6 @@ class Property extends Condo{
 
         cy.location('pathname').should('contain', PROPERTY_URL)
         cy.get('[data-cy=property__table]').should('be.visible')
-
-        return this
-    }
-
-    createProperty (address: string, name: string | undefined, year: number | undefined, area: number | undefined): this {
-        if (name || year || area) { throw new Error('NotImplemented') }
-
-        cy.location('pathname').should('contain', PROPERTY_URL)
-
-        // Go to create page
-        cy.get('span').contains(CREATE_BTN_TEXT).click()
-        cy.location('pathname').should('contain', PROPERTY_CREATE_URL)
-
-        // Add info to the form:
-        // Todo (@toplenboen) refactor this! should not use 300ms in prod!
-        cy.get('[id=addressSuggestionsSearchInput]').type(address).wait(3000).type('{downArrow}').type('{enter}')
-
-        // Create property
-        cy.get('span').contains(CREATE_BTN_TEXT).click().wait(3000)
-
-        // When created, property page will redirect us to property/id page
-        cy.location('pathname').should('not.contain', PROPERTY_CREATE_URL)
-
-        return this
-    }
-
-    clickOnPropertyByAddress (address: string | null = null): this {
-
-        cy.get('[data-cy=property__table] tbody .ant-table-row.ant-table-row-level-0').click()
-
-        cy.location('pathname').should('contain', PROPERTY_URL)
 
         return this
     }

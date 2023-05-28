@@ -1,9 +1,6 @@
-import { faker } from '@faker-js/faker'
-
 import { Condo } from '../../objects/Condo'
 import { SimpleTracer } from '../../objects/helpers'
 import {
-    Property,
     PropertyMapCreate,
     PropertyMapEdit,
     PropertyMapUnitEdit,
@@ -24,7 +21,7 @@ describe('Property', function () {
                 const condo = new Condo()
                 condo.visit()
 
-                cy.task('keystone:createProperty', organization).then(property => {
+                cy.task('keystone:createProperty', organization).then(() => {
                     condo.clickOnMenu('property')
 
                     const propertyMapCreate = new PropertyMapCreate()
@@ -41,7 +38,7 @@ describe('Property', function () {
                         .clickSavePropertyMap()
                 })
 
-                cy.task('keystone:createProperty', organization).then(property => {
+                cy.task('keystone:createProperty', organization).then(() => {
                     condo.clickOnMenu('property')
 
                     const propertyMapEdit = new PropertyMapEdit()
@@ -57,7 +54,7 @@ describe('Property', function () {
                         .clickSavePropertyMap()
                 })
 
-                cy.task('keystone:createProperty', organization).then(property => {
+                cy.task('keystone:createProperty', organization).then(() => {
                     condo.clickOnMenu('property')
 
                     const propertyMapUnitEdit = new PropertyMapUnitEdit()
