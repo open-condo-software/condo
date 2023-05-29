@@ -57,7 +57,8 @@ const _internalSyncContactsWithResidentsForOrganizationService = new GQLCustomSc
                             name: user.name,
                         }
                         const createdContact = await Contact.create(context, contactProps)
-                        createdContacts.push(createdContact)
+                        const foundedContact = await getById('Contact', createdContact.id) // hack for getting contact with all fields
+                        createdContacts.push(foundedContact)
                     }
                 }
                 return createdContacts
