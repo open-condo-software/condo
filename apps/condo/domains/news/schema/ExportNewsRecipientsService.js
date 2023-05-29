@@ -4,6 +4,7 @@
 
 const dayjs = require('dayjs')
 const compact = require('lodash/compact')
+const filter = require('lodash/filter')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const map = require('lodash/map')
@@ -157,12 +158,7 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
                             }
 
                             if (!newsItemScope.unitName && newsItemScope.unitType) {
-                                const unitsFilteredByType = units.reduce((acc, unit) => {
-                                    if (unit.unitType === newsItemScope.unitType) {
-                                        acc.push(unit)
-                                    }
-                                    return [...acc]
-                                }, [])
+                                const unitsFilteredByType = filter(units, { unitType: newsItemScope.unitType })
 
                                 const recipientsData = unitsFilteredByType.reduce((acc, unit) => {
                                     if (residentsByProperties.find(resident => unit.unitName === resident.unitName)) {
