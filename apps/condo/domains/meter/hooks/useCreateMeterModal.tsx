@@ -1,6 +1,5 @@
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { Typography } from 'antd'
-import get from 'lodash/get'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -18,13 +17,9 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
 
     const handleMeterCreate = useCallback(values => {
         const numberOfTariffs = values.numberOfTariffs || 1
-        const number = get(values, 'number', '')
-        const accountNumber = get(values, 'accountNumber', '')
 
         createMeterAction({
             ...values,
-            accountNumber,
-            number,
             resource: { connect: { id: values.resource } },
             numberOfTariffs,
             organization: { connect: { id: organizationId } },
