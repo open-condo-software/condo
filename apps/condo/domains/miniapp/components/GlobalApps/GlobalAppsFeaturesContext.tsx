@@ -11,7 +11,8 @@ type MapGenerationFeatureContext = {
 
 type AttachRecordToTicketFeatureContext = {
     feature: B2BAppGlobalFeature.AttachRecordToTicket,
-    ticketId: Scalars['ID']
+    ticketId: Scalars['ID'],
+    ticketOrganizationId: Scalars['ID'],
 }
 
 // Group all features contexts using |

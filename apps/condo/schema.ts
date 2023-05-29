@@ -16386,7 +16386,7 @@ export type CallRecord = {
   /**  Time of conversation between operator and client (in seconds)  */
   talkTime?: Maybe<Scalars['Int']>;
   /**  Call start date in UTC  */
-  startDate?: Maybe<Scalars['String']>;
+  startedAt?: Maybe<Scalars['String']>;
   /**  Incoming or outgoing call for operator  */
   isIncomingCall?: Maybe<Scalars['Boolean']>;
   /**  Call unique identifier  */
@@ -16413,7 +16413,7 @@ export type CallRecordCreateInput = {
   callerPhone?: Maybe<Scalars['String']>;
   destCallerPhone?: Maybe<Scalars['String']>;
   talkTime?: Maybe<Scalars['Int']>;
-  startDate?: Maybe<Scalars['String']>;
+  startedAt?: Maybe<Scalars['String']>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
   callId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -16761,7 +16761,7 @@ export type CallRecordHistoryRecord = {
   callerPhone?: Maybe<Scalars['String']>;
   destCallerPhone?: Maybe<Scalars['String']>;
   talkTime?: Maybe<Scalars['Int']>;
-  startDate?: Maybe<Scalars['String']>;
+  startedAt?: Maybe<Scalars['String']>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
   callId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -16785,7 +16785,7 @@ export type CallRecordHistoryRecordCreateInput = {
   callerPhone?: Maybe<Scalars['String']>;
   destCallerPhone?: Maybe<Scalars['String']>;
   talkTime?: Maybe<Scalars['Int']>;
-  startDate?: Maybe<Scalars['String']>;
+  startedAt?: Maybe<Scalars['String']>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
   callId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -16814,7 +16814,7 @@ export type CallRecordHistoryRecordUpdateInput = {
   callerPhone?: Maybe<Scalars['String']>;
   destCallerPhone?: Maybe<Scalars['String']>;
   talkTime?: Maybe<Scalars['Int']>;
-  startDate?: Maybe<Scalars['String']>;
+  startedAt?: Maybe<Scalars['String']>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
   callId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -16886,14 +16886,14 @@ export type CallRecordHistoryRecordWhereInput = {
   talkTime_gte?: Maybe<Scalars['Int']>;
   talkTime_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   talkTime_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  startDate?: Maybe<Scalars['String']>;
-  startDate_not?: Maybe<Scalars['String']>;
-  startDate_lt?: Maybe<Scalars['String']>;
-  startDate_lte?: Maybe<Scalars['String']>;
-  startDate_gt?: Maybe<Scalars['String']>;
-  startDate_gte?: Maybe<Scalars['String']>;
-  startDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  startDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  startedAt?: Maybe<Scalars['String']>;
+  startedAt_not?: Maybe<Scalars['String']>;
+  startedAt_lt?: Maybe<Scalars['String']>;
+  startedAt_lte?: Maybe<Scalars['String']>;
+  startedAt_gt?: Maybe<Scalars['String']>;
+  startedAt_gte?: Maybe<Scalars['String']>;
+  startedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  startedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
   isIncomingCall_not?: Maybe<Scalars['Boolean']>;
   callId?: Maybe<Scalars['String']>;
@@ -17018,7 +17018,7 @@ export type CallRecordUpdateInput = {
   callerPhone?: Maybe<Scalars['String']>;
   destCallerPhone?: Maybe<Scalars['String']>;
   talkTime?: Maybe<Scalars['Int']>;
-  startDate?: Maybe<Scalars['String']>;
+  startedAt?: Maybe<Scalars['String']>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
   callId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -17085,14 +17085,14 @@ export type CallRecordWhereInput = {
   talkTime_gte?: Maybe<Scalars['Int']>;
   talkTime_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   talkTime_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  startDate?: Maybe<Scalars['String']>;
-  startDate_not?: Maybe<Scalars['String']>;
-  startDate_lt?: Maybe<Scalars['String']>;
-  startDate_lte?: Maybe<Scalars['String']>;
-  startDate_gt?: Maybe<Scalars['String']>;
-  startDate_gte?: Maybe<Scalars['String']>;
-  startDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  startDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  startedAt?: Maybe<Scalars['String']>;
+  startedAt_not?: Maybe<Scalars['String']>;
+  startedAt_lt?: Maybe<Scalars['String']>;
+  startedAt_lte?: Maybe<Scalars['String']>;
+  startedAt_gt?: Maybe<Scalars['String']>;
+  startedAt_gte?: Maybe<Scalars['String']>;
+  startedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  startedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
   isIncomingCall_not?: Maybe<Scalars['Boolean']>;
   callId?: Maybe<Scalars['String']>;
@@ -44402,6 +44402,10 @@ export type Organization = {
   avatar?: Maybe<File>;
   /**  Organization metadata. Depends on country level specificExample of data key: `kpp`  */
   meta?: Maybe<Scalars['JSON']>;
+  /**  Normalized organization phone in E.164 format without spaces  */
+  phone?: Maybe<Scalars['String']>;
+  /**  Additional number specified in the software for calling on behalf of another organization  */
+  phoneNumberPrefix?: Maybe<Scalars['String']>;
   employees: Array<OrganizationEmployee>;
   _employeesMeta?: Maybe<_QueryMeta>;
   relatedOrganizations: Array<OrganizationLink>;
@@ -44489,6 +44493,8 @@ export type OrganizationCreateInput = {
   description?: Maybe<Scalars['String']>;
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
+  phone?: Maybe<Scalars['String']>;
+  phoneNumberPrefix?: Maybe<Scalars['String']>;
   employees?: Maybe<OrganizationEmployeeRelateToManyInput>;
   relatedOrganizations?: Maybe<OrganizationLinkRelateToManyInput>;
   importRemoteSystem?: Maybe<Scalars['String']>;
@@ -46095,6 +46101,8 @@ export type OrganizationHistoryRecord = {
   description?: Maybe<Scalars['JSON']>;
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
+  phone?: Maybe<Scalars['String']>;
+  phoneNumberPrefix?: Maybe<Scalars['String']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
@@ -46123,6 +46131,8 @@ export type OrganizationHistoryRecordCreateInput = {
   description?: Maybe<Scalars['JSON']>;
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
+  phone?: Maybe<Scalars['String']>;
+  phoneNumberPrefix?: Maybe<Scalars['String']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
@@ -46156,6 +46166,8 @@ export type OrganizationHistoryRecordUpdateInput = {
   description?: Maybe<Scalars['JSON']>;
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
+  phone?: Maybe<Scalars['String']>;
+  phoneNumberPrefix?: Maybe<Scalars['String']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   defaultEmployeeRoleStatusTransitions?: Maybe<Scalars['JSON']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
@@ -46262,6 +46274,42 @@ export type OrganizationHistoryRecordWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  phone?: Maybe<Scalars['String']>;
+  phone_not?: Maybe<Scalars['String']>;
+  phone_contains?: Maybe<Scalars['String']>;
+  phone_not_contains?: Maybe<Scalars['String']>;
+  phone_starts_with?: Maybe<Scalars['String']>;
+  phone_not_starts_with?: Maybe<Scalars['String']>;
+  phone_ends_with?: Maybe<Scalars['String']>;
+  phone_not_ends_with?: Maybe<Scalars['String']>;
+  phone_i?: Maybe<Scalars['String']>;
+  phone_not_i?: Maybe<Scalars['String']>;
+  phone_contains_i?: Maybe<Scalars['String']>;
+  phone_not_contains_i?: Maybe<Scalars['String']>;
+  phone_starts_with_i?: Maybe<Scalars['String']>;
+  phone_not_starts_with_i?: Maybe<Scalars['String']>;
+  phone_ends_with_i?: Maybe<Scalars['String']>;
+  phone_not_ends_with_i?: Maybe<Scalars['String']>;
+  phone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phoneNumberPrefix?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_contains?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_contains?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_starts_with?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_starts_with?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_ends_with?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_ends_with?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_contains_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_contains_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_starts_with_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_starts_with_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_ends_with_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_ends_with_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phoneNumberPrefix_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   statusTransitions_not?: Maybe<Scalars['JSON']>;
   statusTransitions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -46736,6 +46784,8 @@ export type OrganizationUpdateInput = {
   description?: Maybe<Scalars['String']>;
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
+  phone?: Maybe<Scalars['String']>;
+  phoneNumberPrefix?: Maybe<Scalars['String']>;
   employees?: Maybe<OrganizationEmployeeRelateToManyInput>;
   relatedOrganizations?: Maybe<OrganizationLinkRelateToManyInput>;
   importRemoteSystem?: Maybe<Scalars['String']>;
@@ -46825,6 +46875,42 @@ export type OrganizationWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  phone?: Maybe<Scalars['String']>;
+  phone_not?: Maybe<Scalars['String']>;
+  phone_contains?: Maybe<Scalars['String']>;
+  phone_not_contains?: Maybe<Scalars['String']>;
+  phone_starts_with?: Maybe<Scalars['String']>;
+  phone_not_starts_with?: Maybe<Scalars['String']>;
+  phone_ends_with?: Maybe<Scalars['String']>;
+  phone_not_ends_with?: Maybe<Scalars['String']>;
+  phone_i?: Maybe<Scalars['String']>;
+  phone_not_i?: Maybe<Scalars['String']>;
+  phone_contains_i?: Maybe<Scalars['String']>;
+  phone_not_contains_i?: Maybe<Scalars['String']>;
+  phone_starts_with_i?: Maybe<Scalars['String']>;
+  phone_not_starts_with_i?: Maybe<Scalars['String']>;
+  phone_ends_with_i?: Maybe<Scalars['String']>;
+  phone_not_ends_with_i?: Maybe<Scalars['String']>;
+  phone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phoneNumberPrefix?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_contains?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_contains?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_starts_with?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_starts_with?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_ends_with?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_ends_with?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_contains_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_contains_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_starts_with_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_starts_with_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_ends_with_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_not_ends_with_i?: Maybe<Scalars['String']>;
+  phoneNumberPrefix_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phoneNumberPrefix_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   /**  condition must be true for all nodes  */
   employees_every?: Maybe<OrganizationEmployeeWhereInput>;
   /**  condition must be true for at least 1 node  */
@@ -63819,8 +63905,8 @@ export enum SortCallRecordHistoryRecordsBy {
   DestCallerPhoneDesc = 'destCallerPhone_DESC',
   TalkTimeAsc = 'talkTime_ASC',
   TalkTimeDesc = 'talkTime_DESC',
-  StartDateAsc = 'startDate_ASC',
-  StartDateDesc = 'startDate_DESC',
+  StartedAtAsc = 'startedAt_ASC',
+  StartedAtDesc = 'startedAt_DESC',
   IsIncomingCallAsc = 'isIncomingCall_ASC',
   IsIncomingCallDesc = 'isIncomingCall_DESC',
   CallIdAsc = 'callId_ASC',
@@ -63852,8 +63938,8 @@ export enum SortCallRecordsBy {
   DestCallerPhoneDesc = 'destCallerPhone_DESC',
   TalkTimeAsc = 'talkTime_ASC',
   TalkTimeDesc = 'talkTime_DESC',
-  StartDateAsc = 'startDate_ASC',
-  StartDateDesc = 'startDate_DESC',
+  StartedAtAsc = 'startedAt_ASC',
+  StartedAtDesc = 'startedAt_DESC',
   IsIncomingCallAsc = 'isIncomingCall_ASC',
   IsIncomingCallDesc = 'isIncomingCall_DESC',
   CallIdAsc = 'callId_ASC',
@@ -66096,6 +66182,10 @@ export enum SortOrganizationHistoryRecordsBy {
   TypeDesc = 'type_DESC',
   TinAsc = 'tin_ASC',
   TinDesc = 'tin_DESC',
+  PhoneAsc = 'phone_ASC',
+  PhoneDesc = 'phone_DESC',
+  PhoneNumberPrefixAsc = 'phoneNumberPrefix_ASC',
+  PhoneNumberPrefixDesc = 'phoneNumberPrefix_DESC',
   ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
   ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   ImportIdAsc = 'importId_ASC',
@@ -66171,6 +66261,10 @@ export enum SortOrganizationsBy {
   TinDesc = 'tin_DESC',
   DescriptionAsc = 'description_ASC',
   DescriptionDesc = 'description_DESC',
+  PhoneAsc = 'phone_ASC',
+  PhoneDesc = 'phone_DESC',
+  PhoneNumberPrefixAsc = 'phoneNumberPrefix_ASC',
+  PhoneNumberPrefixDesc = 'phoneNumberPrefix_DESC',
   EmployeesAsc = 'employees_ASC',
   EmployeesDesc = 'employees_DESC',
   RelatedOrganizationsAsc = 'relatedOrganizations_ASC',

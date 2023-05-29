@@ -1,7 +1,7 @@
 import isUndefined from 'lodash/isUndefined'
 import { createContext, useContext, useEffect, useState } from 'react'
 
-import { usePostMessageContext } from '../../common/components/PostMessageProvider'
+import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
 
 interface IActiveCallContext {
     isCallActive: boolean

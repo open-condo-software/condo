@@ -46,7 +46,7 @@ const CallRecord = new GQLListSchema('CallRecord', {
             type: Integer,
             isRequired: true,
         },
-        startDate: {
+        startedAt: {
             schemaDoc: 'Call start date in UTC',
             type: DateTimeUtc,
             isRequired: true,

@@ -3103,6 +3103,8 @@ type OrganizationHistoryRecord {
   description: JSON
   avatar: JSON
   meta: JSON
+  phone: String
+  phoneNumberPrefix: String
   statusTransitions: JSON
   defaultEmployeeRoleStatusTransitions: JSON
   importRemoteSystem: String
@@ -3210,6 +3212,42 @@ input OrganizationHistoryRecordWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  phone: String
+  phone_not: String
+  phone_contains: String
+  phone_not_contains: String
+  phone_starts_with: String
+  phone_not_starts_with: String
+  phone_ends_with: String
+  phone_not_ends_with: String
+  phone_i: String
+  phone_not_i: String
+  phone_contains_i: String
+  phone_not_contains_i: String
+  phone_starts_with_i: String
+  phone_not_starts_with_i: String
+  phone_ends_with_i: String
+  phone_not_ends_with_i: String
+  phone_in: [String]
+  phone_not_in: [String]
+  phoneNumberPrefix: String
+  phoneNumberPrefix_not: String
+  phoneNumberPrefix_contains: String
+  phoneNumberPrefix_not_contains: String
+  phoneNumberPrefix_starts_with: String
+  phoneNumberPrefix_not_starts_with: String
+  phoneNumberPrefix_ends_with: String
+  phoneNumberPrefix_not_ends_with: String
+  phoneNumberPrefix_i: String
+  phoneNumberPrefix_not_i: String
+  phoneNumberPrefix_contains_i: String
+  phoneNumberPrefix_not_contains_i: String
+  phoneNumberPrefix_starts_with_i: String
+  phoneNumberPrefix_not_starts_with_i: String
+  phoneNumberPrefix_ends_with_i: String
+  phoneNumberPrefix_not_ends_with_i: String
+  phoneNumberPrefix_in: [String]
+  phoneNumberPrefix_not_in: [String]
   statusTransitions: JSON
   statusTransitions_not: JSON
   statusTransitions_in: [JSON]
@@ -3349,6 +3387,10 @@ enum SortOrganizationHistoryRecordsBy {
   type_DESC
   tin_ASC
   tin_DESC
+  phone_ASC
+  phone_DESC
+  phoneNumberPrefix_ASC
+  phoneNumberPrefix_DESC
   importRemoteSystem_ASC
   importRemoteSystem_DESC
   importId_ASC
@@ -3379,6 +3421,8 @@ input OrganizationHistoryRecordUpdateInput {
   description: JSON
   avatar: JSON
   meta: JSON
+  phone: String
+  phoneNumberPrefix: String
   statusTransitions: JSON
   defaultEmployeeRoleStatusTransitions: JSON
   importRemoteSystem: String
@@ -3411,6 +3455,8 @@ input OrganizationHistoryRecordCreateInput {
   description: JSON
   avatar: JSON
   meta: JSON
+  phone: String
+  phoneNumberPrefix: String
   statusTransitions: JSON
   defaultEmployeeRoleStatusTransitions: JSON
   importRemoteSystem: String
@@ -3493,6 +3539,13 @@ type Organization {
   """ Organization metadata. Depends on country level specificExample of data key: `kpp` 
   """
   meta: JSON
+
+  """ Normalized organization phone in E.164 format without spaces """
+  phone: String
+
+  """ Additional number specified in the software for calling on behalf of another organization 
+  """
+  phoneNumberPrefix: String
   employees(where: OrganizationEmployeeWhereInput, search: String, sortBy: [SortOrganizationEmployeesBy!], orderBy: String, first: Int, skip: Int): [OrganizationEmployee!]!
   _employeesMeta(where: OrganizationEmployeeWhereInput, search: String, sortBy: [SortOrganizationEmployeesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
   relatedOrganizations(where: OrganizationLinkWhereInput, search: String, sortBy: [SortOrganizationLinksBy!], orderBy: String, first: Int, skip: Int): [OrganizationLink!]!
@@ -3611,6 +3664,42 @@ input OrganizationWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  phone: String
+  phone_not: String
+  phone_contains: String
+  phone_not_contains: String
+  phone_starts_with: String
+  phone_not_starts_with: String
+  phone_ends_with: String
+  phone_not_ends_with: String
+  phone_i: String
+  phone_not_i: String
+  phone_contains_i: String
+  phone_not_contains_i: String
+  phone_starts_with_i: String
+  phone_not_starts_with_i: String
+  phone_ends_with_i: String
+  phone_not_ends_with_i: String
+  phone_in: [String]
+  phone_not_in: [String]
+  phoneNumberPrefix: String
+  phoneNumberPrefix_not: String
+  phoneNumberPrefix_contains: String
+  phoneNumberPrefix_not_contains: String
+  phoneNumberPrefix_starts_with: String
+  phoneNumberPrefix_not_starts_with: String
+  phoneNumberPrefix_ends_with: String
+  phoneNumberPrefix_not_ends_with: String
+  phoneNumberPrefix_i: String
+  phoneNumberPrefix_not_i: String
+  phoneNumberPrefix_contains_i: String
+  phoneNumberPrefix_not_contains_i: String
+  phoneNumberPrefix_starts_with_i: String
+  phoneNumberPrefix_not_starts_with_i: String
+  phoneNumberPrefix_ends_with_i: String
+  phoneNumberPrefix_not_ends_with_i: String
+  phoneNumberPrefix_in: [String]
+  phoneNumberPrefix_not_in: [String]
 
   """ condition must be true for all nodes """
   employees_every: OrganizationEmployeeWhereInput
@@ -3742,6 +3831,10 @@ enum SortOrganizationsBy {
   tin_DESC
   description_ASC
   description_DESC
+  phone_ASC
+  phone_DESC
+  phoneNumberPrefix_ASC
+  phoneNumberPrefix_DESC
   employees_ASC
   employees_DESC
   relatedOrganizations_ASC
@@ -3776,6 +3869,8 @@ input OrganizationUpdateInput {
   description: String
   avatar: Upload
   meta: JSON
+  phone: String
+  phoneNumberPrefix: String
   employees: OrganizationEmployeeRelateToManyInput
   relatedOrganizations: OrganizationLinkRelateToManyInput
   importRemoteSystem: String
@@ -3805,6 +3900,8 @@ input OrganizationCreateInput {
   description: String
   avatar: Upload
   meta: JSON
+  phone: String
+  phoneNumberPrefix: String
   employees: OrganizationEmployeeRelateToManyInput
   relatedOrganizations: OrganizationLinkRelateToManyInput
   importRemoteSystem: String
@@ -33561,7 +33658,7 @@ type CallRecordHistoryRecord {
   callerPhone: String
   destCallerPhone: String
   talkTime: Int
-  startDate: String
+  startedAt: String
   isIncomingCall: Boolean
   callId: String
   id: ID!
@@ -33634,14 +33731,14 @@ input CallRecordHistoryRecordWhereInput {
   talkTime_gte: Int
   talkTime_in: [Int]
   talkTime_not_in: [Int]
-  startDate: String
-  startDate_not: String
-  startDate_lt: String
-  startDate_lte: String
-  startDate_gt: String
-  startDate_gte: String
-  startDate_in: [String]
-  startDate_not_in: [String]
+  startedAt: String
+  startedAt_not: String
+  startedAt_lt: String
+  startedAt_lte: String
+  startedAt_gt: String
+  startedAt_gte: String
+  startedAt_in: [String]
+  startedAt_not_in: [String]
   isIncomingCall: Boolean
   isIncomingCall_not: Boolean
   callId: String
@@ -33751,8 +33848,8 @@ enum SortCallRecordHistoryRecordsBy {
   destCallerPhone_DESC
   talkTime_ASC
   talkTime_DESC
-  startDate_ASC
-  startDate_DESC
+  startedAt_ASC
+  startedAt_DESC
   isIncomingCall_ASC
   isIncomingCall_DESC
   callId_ASC
@@ -33781,7 +33878,7 @@ input CallRecordHistoryRecordUpdateInput {
   callerPhone: String
   destCallerPhone: String
   talkTime: Int
-  startDate: String
+  startedAt: String
   isIncomingCall: Boolean
   callId: String
   v: Int
@@ -33809,7 +33906,7 @@ input CallRecordHistoryRecordCreateInput {
   callerPhone: String
   destCallerPhone: String
   talkTime: Int
-  startDate: String
+  startedAt: String
   isIncomingCall: Boolean
   callId: String
   v: Int
@@ -33857,7 +33954,7 @@ type CallRecord {
   talkTime: Int
 
   """ Call start date in UTC """
-  startDate: String
+  startedAt: String
 
   """ Incoming or outgoing call for operator """
   isIncomingCall: Boolean
@@ -33940,14 +34037,14 @@ input CallRecordWhereInput {
   talkTime_gte: Int
   talkTime_in: [Int]
   talkTime_not_in: [Int]
-  startDate: String
-  startDate_not: String
-  startDate_lt: String
-  startDate_lte: String
-  startDate_gt: String
-  startDate_gte: String
-  startDate_in: [String]
-  startDate_not_in: [String]
+  startedAt: String
+  startedAt_not: String
+  startedAt_lt: String
+  startedAt_lte: String
+  startedAt_gt: String
+  startedAt_gte: String
+  startedAt_in: [String]
+  startedAt_not_in: [String]
   isIncomingCall: Boolean
   isIncomingCall_not: Boolean
   callId: String
@@ -34039,8 +34136,8 @@ enum SortCallRecordsBy {
   destCallerPhone_DESC
   talkTime_ASC
   talkTime_DESC
-  startDate_ASC
-  startDate_DESC
+  startedAt_ASC
+  startedAt_DESC
   isIncomingCall_ASC
   isIncomingCall_DESC
   callId_ASC
@@ -34069,7 +34166,7 @@ input CallRecordUpdateInput {
   callerPhone: String
   destCallerPhone: String
   talkTime: Int
-  startDate: String
+  startedAt: String
   isIncomingCall: Boolean
   callId: String
   v: Int
@@ -34094,7 +34191,7 @@ input CallRecordCreateInput {
   callerPhone: String
   destCallerPhone: String
   talkTime: Int
-  startDate: String
+  startedAt: String
   isIncomingCall: Boolean
   callId: String
   v: Int

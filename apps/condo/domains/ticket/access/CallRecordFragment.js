@@ -8,7 +8,7 @@ const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('../../organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadCallRecordFragments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -40,7 +40,7 @@ async function canManageCallRecordFragments ({ authentication: { item: user }, o
         if (!itemId) return false
         // only soft delete update
         if (!originalInput.deletedAt) return false
-        const incidentProperty = await getById('CallRecordTicket', itemId)
+        const incidentProperty = await getById('CallRecordFragment', itemId)
         organizationId = get(incidentProperty, 'organization', null)
     }
 

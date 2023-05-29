@@ -766,6 +766,7 @@ __metadata:
     "@emotion/core": ^10.1.1
     "@emotion/react": ^11.9.3
     "@emotion/styled": ^11.10.0
+    "@graphql-tools/graphql-file-loader": ^7.5.17
     "@keystonejs/adapter-knex": ^13.2.0
     "@keystonejs/adapter-mongoose": ^11.2.0
     "@keystonejs/adapter-prisma": ^3.2.0
@@ -829,6 +830,7 @@ __metadata:
     graphql: ^15.6.1
     graphql-request: ^3.5.0
     graphql-tag: ^2.12.6
+    graphql-upload: ^15.0.1
     iconv: ^3.0.1
     identity-obj-proxy: ^3.0.0
     immer: 9.0.13
@@ -853,8 +855,7 @@ __metadata:
     react: ^16.13.1
     react-dom: ^16.13.1
     react-fittext: ^1.0.0
-    react-markdown: ^4.3.1
-    react-otp-input: ^2.4.0
+    react-markdown: 6.0.0
     react-responsive: ^8.1.0
     react-test-renderer: ^16.13.1
     socks-proxy-agent: ^6.1.0
@@ -7208,6 +7209,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@graphql-tools/graphql-file-loader@npm:^7.5.17":
+  version: 7.5.17
+  resolution: "@graphql-tools/graphql-file-loader@npm:7.5.17"
+  dependencies:
+    "@graphql-tools/import": 6.7.18
+    "@graphql-tools/utils": ^9.2.1
+    globby: ^11.0.3
+    tslib: ^2.4.0
+    unixify: ^1.0.0
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+  checksum: f0d6768fbb03fe6c5a0a2c1fe78e2fa8c009b13d6c40a7153c61e7266348192386310ace85dd46a96fa4317a4a37c02d1959fd2a0c6eaa521446234506147cdc
+  languageName: node
+  linkType: hard
+
 "@graphql-tools/graphql-file-loader@npm:^7.5.5":
   version: 7.5.5
   resolution: "@graphql-tools/graphql-file-loader@npm:7.5.5"
@@ -7235,6 +7251,19 @@ __metadata:
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0
   checksum: 3b7bb86158d45dc0afa5d72df274c199e2ae53d7370888f7fecce1967cdfc9b77ec910af905a731dce53fa9ec96572e2734d49bc9bb4f426ab162cb6756e98bc
+  languageName: node
+  linkType: hard
+
+"@graphql-tools/import@npm:6.7.18":
+  version: 6.7.18
+  resolution: "@graphql-tools/import@npm:6.7.18"
+  dependencies:
+    "@graphql-tools/utils": ^9.2.1
+    resolve-from: 5.0.0
+    tslib: ^2.4.0
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+  checksum: 15c32c5937899a25f8c2b0dee98ca1e1245ba85a56a8a59d52c2c78693da2e95fb27f235ef95c3a576bd96843d53541b6d90931a0032c0011dea871d53b5027a
   languageName: node
   linkType: hard
 
@@ -7642,7 +7671,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/utils@npm:9.2.1":
+"@graphql-tools/utils@npm:9.2.1, @graphql-tools/utils@npm:^9.2.1":
   version: 9.2.1
   resolution: "@graphql-tools/utils@npm:9.2.1"
   dependencies:

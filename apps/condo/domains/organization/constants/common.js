@@ -161,7 +161,7 @@ const DEFAULT_ROLES = {
         'canManageBankContractorAccounts': false,
         'canManageBankTransactions': false,
         'canManageBankAccountReports': false,
-        'canManageCallRecords': false,
+        'canManageCallRecords': true,
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
     },
     'Technician': {

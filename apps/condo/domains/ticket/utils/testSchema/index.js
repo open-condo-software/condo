@@ -885,7 +885,7 @@ async function createTestCallRecord (client, organization, extraAttrs = {}) {
     const callerPhone = faker.phone.number()
     const destCallerPhone = faker.phone.number()
     const talkTime = Number(faker.random.numeric(3))
-    const startDate = new Date()
+    const startedAt = new Date()
     const isIncomingCall = true
     const callId = faker.random.alphaNumeric(10)
 
@@ -896,7 +896,7 @@ async function createTestCallRecord (client, organization, extraAttrs = {}) {
         callerPhone,
         destCallerPhone,
         talkTime,
-        startDate,
+        startedAt,
         isIncomingCall,
         callId,
         ...extraAttrs,

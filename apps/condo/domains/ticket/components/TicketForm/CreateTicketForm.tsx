@@ -1,3 +1,4 @@
+import { B2BAppGlobalFeature } from '@app/condo/schema'
 import { Form, Typography } from 'antd'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
@@ -14,6 +15,7 @@ import { ActionBar } from '@open-condo/ui'
 import { colors } from '@condo/domains/common/constants/style'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
+import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
 import { TicketSubmitButton } from '@condo/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
@@ -22,8 +24,6 @@ import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
-import { B2BAppGlobalFeature } from '../../../../schema'
-import { useGlobalAppsFeaturesContext } from '../../../miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 
 dayjs.extend(isToday)
 
@@ -131,8 +131,11 @@ export const CreateTicketForm: React.FC = () => {
         })
 
         if (attachCallRecord) {
-            console.log('attach record to ticket', ticket.id)
-            requestFeature({ feature: B2BAppGlobalFeature.AttachRecordToTicket, ticketId: ticket.id })
+            requestFeature({
+                feature: B2BAppGlobalFeature.AttachRecordToTicket,
+                ticketId: ticket.id,
+                ticketOrganizationId: organization.id,
+            })
         }
 
         return ticket

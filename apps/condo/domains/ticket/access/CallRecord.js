@@ -8,8 +8,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('../../organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadCallRecords ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
