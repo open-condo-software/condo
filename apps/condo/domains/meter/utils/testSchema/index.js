@@ -15,6 +15,7 @@ const { EXPORT_METER_READINGS_QUERY } = require('@condo/domains/meter/gql')
 const { MeterReadingFilterTemplate: MeterReadingFilterTemplateGQL } = require('@condo/domains/meter/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { CommunalMeter: CommunalMeterGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -22,6 +23,7 @@ const MeterReadingSource = generateGQLTestUtils(MeterReadingSourceGQL)
 const Meter = generateGQLTestUtils(MeterGQL)
 const MeterReading = generateGQLTestUtils(MeterReadingGQL)
 const MeterReadingFilterTemplate = generateGQLTestUtils(MeterReadingFilterTemplateGQL)
+const CommunalMeter = generateGQLTestUtils(CommunalMeterGQL)
 /* AUTOGENERATE MARKER <CONST> */
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
@@ -220,6 +222,43 @@ async function updateTestMeterReadingFilterTemplate (client, id, extraAttrs = {}
     return [obj, attrs]
 }
 
+async function createTestCommunalMeter (client, organization, property, resource, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!property || !property.id) throw new Error('no property.id')
+    if (!resource || !resource.id) throw new Error('no resource.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestCommunalMeter logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        property: { connect: { id: property.id } },
+        resource: { connect: { id: resource.id } },
+        ...extraAttrs,
+    }
+    const obj = await CommunalMeter.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestCommunalMeter (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestCommunalMeter logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await CommunalMeter.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -230,5 +269,6 @@ module.exports = {
     exportMeterReadingsByTestClient,
     MeterReadingFilterTemplate, createTestMeterReadingFilterTemplate, updateTestMeterReadingFilterTemplate,
     makeClientWithResidentAndMeter,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+        CommunalMeter, createTestCommunalMeter, updateTestCommunalMeter,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

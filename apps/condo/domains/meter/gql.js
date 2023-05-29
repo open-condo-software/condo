@@ -34,6 +34,9 @@ const METER_READING_FILTERS_FIELDS = '{ organization address accountNumber place
 const METER_READING_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${METER_READING_FILTERS_FIELDS} ${COMMON_FIELDS} }`
 const MeterReadingFilterTemplate = generateGqlQueries('MeterReadingFilterTemplate', METER_READING_FILTER_TEMPLATE_FIELDS)
 
+const COMMUNAL_METER_FIELDS = `{ number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate isAutomatic organization { id } property { id } resource { id } meta ${COMMON_FIELDS} }`
+const CommunalMeter = generateGqlQueries('CommunalMeter', COMMUNAL_METER_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -43,6 +46,7 @@ module.exports = {
     MeterReading,
     EXPORT_METER_READINGS_QUERY,
     MeterReadingFilterTemplate,
+    CommunalMeter,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
