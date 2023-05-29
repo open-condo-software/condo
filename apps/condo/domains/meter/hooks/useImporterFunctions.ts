@@ -25,8 +25,6 @@ import {
     RowNormalizer,
     RowValidator,
 } from '@condo/domains/common/utils/importer'
-import { searchPropertyWithMap } from '@condo/domains/property/utils/clientSchema/search'
-
 import {
     COLD_WATER_METER_RESOURCE_ID,
     ELECTRICITY_METER_RESOURCE_ID,
@@ -34,9 +32,12 @@ import {
     HEAT_SUPPLY_METER_RESOURCE_ID,
     HOT_WATER_METER_RESOURCE_ID,
     IMPORT_CONDO_METER_READING_SOURCE_ID,
-} from '../constants/constants'
-import { Meter, MeterReading } from '../utils/clientSchema'
-import { searchMeter } from '../utils/clientSchema/search'
+} from '@condo/domains/meter/constants/constants'
+import { Meter, MeterReading } from '@condo/domains/meter/utils/clientSchema'
+import { searchMeter } from '@condo/domains/meter/utils/clientSchema/search'
+import { normalizeMeterValue, validateMeterValue } from '@condo/domains/meter/utils/helpers'
+import { searchPropertyWithMap } from '@condo/domains/property/utils/clientSchema/search'
+
 
 const MONTH_PARSING_FORMAT = 'YYYY-MM'
 
@@ -109,6 +110,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const IncorrectUnitTypeMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitType' })
     const AccountNumberInvalidValueMessage = intl.formatMessage({ id: 'meter.import.error.AccountNumberInvalidValue' })
     const MeterNumberInvalidValueMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberInvalidValue' })
+    const MeterValue1InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value1ColumnMessage })
+    const MeterValue2InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value2ColumnMessage })
+    const MeterValue3InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value3ColumnMessage })
+    const MeterValue4InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value4ColumnMessage })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -158,7 +163,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     }), [ApartmentUnitTypeValue, CommercialUnitTypeValue, FlatUnitTypeValue, ParkingUnitTypeValue, WarehouseUnitTypeValue])
 
     const meterReadingNormalizer: RowNormalizer = async (row) => {
-        const addons = { address: null, unitType: null, propertyId: null, propertyMap: null, meterId: null, meterResourceId: null, readingSubmissionDate: null, invalidReadingSubmissionDate: null, valuesAmount: 0, accountNumber: null, meterNumber: null }
         if (row.length !== columns.length) return Promise.resolve({ row })
         const [
             address,
@@ -175,10 +179,25 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             readingSubmissionDate,
         ] = map(row, 'value')
 
-        addons.valuesAmount = [value1, value2, value3, value4].filter(Boolean).length
+        const addons = {
+            address: null,
+            unitType: null,
+            propertyId: null,
+            propertyMap: null,
+            meterId: null,
+            meterResourceId: null,
+            readingSubmissionDate: null,
+            invalidReadingSubmissionDate: null,
+            accountNumber: accountNumber ? String(accountNumber).trim() : accountNumber,
+            meterNumber: meterNumber ? String(meterNumber).trim() : meterNumber,
+            valuesAmount: 0,
+            value1: normalizeMeterValue(value1),
+            value2: normalizeMeterValue(value2),
+            value3: normalizeMeterValue(value3),
+            value4: normalizeMeterValue(value4),
+        }
 
-        addons.accountNumber = accountNumber ? String(accountNumber).trim() : accountNumber
-        addons.meterNumber = meterNumber ? String(meterNumber).trim() : meterNumber
+        addons.valuesAmount = [addons.value1, addons.value2, addons.value3, addons.value4].filter(Boolean).length
 
         // Current suggestion API provider returns no suggestions for address with flat number
         const suggestionOptions = await addressApi.getSuggestions(String(address))
@@ -248,6 +267,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!isString(accountNumber) || accountNumber.length < 1) errors.push(AccountNumberInvalidValueMessage)
         if (!isString(meterNumber) || accountNumber.length < 1) errors.push(MeterNumberInvalidValueMessage)
 
+        if (!validateMeterValue(get(processedRow, ['addons', 'value1']))) errors.push(MeterValue1InvalidMessage)
+        if (!validateMeterValue(get(processedRow, ['addons', 'value2']))) errors.push(MeterValue2InvalidMessage)
+        if (!validateMeterValue(get(processedRow, ['addons', 'value3']))) errors.push(MeterValue3InvalidMessage)
+        if (!validateMeterValue(get(processedRow, ['addons', 'value4']))) errors.push(MeterValue4InvalidMessage)
+
         const unitType = get(processedRow, ['addons', 'unitType'], '')
         if (!unitType || String(unitType).trim().length === 0) errors.push(IncorrectUnitTypeMessage)
         // TODO(mrfoxpro): Implement custom validation https://github.com/open-condo-software/condo/pull/978
@@ -296,18 +320,18 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const meterReadingCreator: ObjectCreator = async ({ row, addons }: ProcessedRow) => {
         if (!row) return Promise.resolve()
         const [
-            address,
+            , // address
             unitName,
-            unitType,
-            accountNumber,
-            meterType,
-            meterNumber,
+            , // unitType
+            , // accountNumber
+            , // meterType
+            , // meterNumber
             numberOfTariffs,
-            value1,
-            value2,
-            value3,
-            value4,
-            readingSubmissionDate,
+            , // value1
+            , // value2
+            , // value3
+            , // value4
+            , // readingSubmissionDate
             verificationDate,
             nextVerificationDate,
             installationDate,
@@ -342,17 +366,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         return meterReadingCreateAction({
             meter: { connect: { id: meterId } },
             source: { connect: { id: IMPORT_CONDO_METER_READING_SOURCE_ID } },
-            // GraphQL input requirements for decimal and date field type should be passed as strings.
-            // It conflicts with typing system, so they are marked to be ignored by TypeScript
-            // @ts-ignore
-            value1,
-            // @ts-ignore
-            value2,
-            // @ts-ignore
-            value3,
-            // @ts-ignore
-            value4,
-            // @ts-ignore
+            value1: get(addons, 'value1'),
+            value2: get(addons, 'value2'),
+            value3: get(addons, 'value3'),
+            value4: get(addons, 'value4'),
             date: toISO(addons.readingSubmissionDate),
         })
     }
