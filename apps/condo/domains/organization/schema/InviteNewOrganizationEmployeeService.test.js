@@ -1,8 +1,13 @@
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
-const { expectToThrowAuthenticationErrorToObj, catchErrorFrom } = require('@open-condo/keystone/test.utils')
-const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    waitFor,
+    expectToThrowAuthenticationErrorToObj,
+    catchErrorFrom,
+    expectToThrowAccessDeniedErrorToObj,
+} = require('@open-condo/keystone/test.utils')
 
 const {
     DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
@@ -26,8 +31,13 @@ const {
     acceptOrRejectOrganizationInviteById,
 } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    createTestUser,
+    createTestPhone,
+    createTestEmail,
+} = require('@condo/domains/user/utils/testSchema')
+
 
 describe('InviteNewOrganizationEmployeeService', () => {
     let admin
@@ -293,7 +303,6 @@ describe('InviteNewOrganizationEmployeeService', () => {
             describe('without granted "canInviteNewOrganizationEmployees" permission', () => {
                 it('throws denied error', async () => {
                     const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const inviteClient = await makeClientWithNewRegisteredAndLoggedInUser()
                     const [organization] = await createTestOrganization(admin)
 
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
@@ -301,7 +310,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     })
                     const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role)
                     const employeeUserAttrs = {
-                        name: inviteClient.user.name,
+                        name: faker.name.fullName(),
                         email: createTestEmail(),
                         phone: createTestPhone(),
                     }

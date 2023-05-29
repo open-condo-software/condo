@@ -3,8 +3,8 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, DATETIME_RE, UUID_RE } = require('@open-condo/keystone/test.utils')
 const {
+    makeLoggedInAdminClient, makeClient, DATETIME_RE, UUID_RE,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
