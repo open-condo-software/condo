@@ -42750,7 +42750,7 @@ export type OrganizationCreateInput = {
   sender?: Maybe<SenderFieldInput>;
 };
 
-/**  B2B customer employees  */
+/**  B2B customer employees. For invite employee should use InviteNewOrganizationEmployeeInput and ReInviteOrganizationEmployeeInput  */
 export type OrganizationEmployee = {
   __typename?: 'OrganizationEmployee';
   /**
