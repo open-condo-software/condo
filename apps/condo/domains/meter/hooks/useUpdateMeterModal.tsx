@@ -45,8 +45,8 @@ export const useUpdateMeterModal = (refetch) => {
     }, [selectedMeter])
 
     const handleSubmit = useCallback(values => {
-        const number = String(get(values, 'number', '')).trim()
-        const accountNumber = String(get(values, 'accountNumber', '')).trim()
+        const number = get(values, 'number', '')
+        const accountNumber = get(values, 'accountNumber', '')
         if (values.resource) {
             values.resource = { connect: { id: values.resource } }
         }

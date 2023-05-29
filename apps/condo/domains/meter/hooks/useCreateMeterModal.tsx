@@ -18,8 +18,8 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
 
     const handleMeterCreate = useCallback(values => {
         const numberOfTariffs = values.numberOfTariffs || 1
-        const number = String(get(values, 'number', '')).trim()
-        const accountNumber = String(get(values, 'accountNumber', '')).trim()
+        const number = get(values, 'number', '')
+        const accountNumber = get(values, 'accountNumber', '')
 
         createMeterAction({
             ...values,
