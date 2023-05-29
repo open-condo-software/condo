@@ -43,6 +43,7 @@ describe('ExportNewsRecipientsService', () => {
         const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
             canManageNewsItems: false,
         })
+        await createTestOrganizationEmployee(admin, organization, client.user, role)
 
         await expectToThrowAccessDeniedErrorToResult(async () => {
             await exportNewsRecipientsByTestClient(client, organization)
