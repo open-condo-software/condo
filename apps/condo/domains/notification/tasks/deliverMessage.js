@@ -19,6 +19,8 @@ const {
     MESSAGE_SENT_STATUS,
     MESSAGE_DISABLED_BY_USER_STATUS,
     MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT,
+    MESSAGE_META,
+    MESSAGE_NOT_SENT_DUE_TO_HOOK,
 } = require('@condo/domains/notification/constants/constants')
 const emailAdapter = require('@condo/domains/notification/transports/email')
 const pushAdapter = require('@condo/domains/notification/transports/push')
@@ -102,6 +104,33 @@ async function deliverMessage (messageId) {
         return MESSAGE_BLACKLISTED_STATUS
     }
 
+
+    // Trying to call hook to define should the message be delivered or not
+    /** @type {AbstractHooksSet} */
+    let hooks
+    /** @constructor */
+    const hooksClass = get(MESSAGE_META, [message.type, 'hooksClass'])
+    if (hooksClass) {
+        hooks = new hooksClass(message)
+    }
+
+    if (hooks) {
+        const { shouldSend, why } = await hooks.shouldSend()
+        if (!shouldSend) {
+            const messageErrorData = {
+                ...baseAttrs,
+                status: MESSAGE_NOT_SENT_DUE_TO_HOOK,
+                processingMeta: {
+                    dv: 1,
+                    error: why,
+                },
+            }
+            await Message.update(context, message.id, messageErrorData)
+
+            return MESSAGE_NOT_SENT_DUE_TO_HOOK
+        }
+    }
+
     const { strategy, transports, isVoIP } = getMessageOptions(message.type)
 
     const userTransportSettings = await getUserSettingsForMessage(context, message)
@@ -177,6 +206,10 @@ async function deliverMessage (messageId) {
     }
 
     await Message.update(context, message.id, messageFinalData)
+
+    if (hooks) {
+        await hooks.afterSend()
+    }
 
     return messageFinalData.status
 }
