@@ -17,7 +17,6 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
 
     const handleMeterCreate = useCallback(values => {
         const numberOfTariffs = values.numberOfTariffs || 1
-
         createMeterAction({
             ...values,
             resource: { connect: { id: values.resource } },
