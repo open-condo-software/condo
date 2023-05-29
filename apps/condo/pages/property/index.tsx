@@ -2,15 +2,14 @@
 import {
     OrganizationEmployeeRole,
     PropertyWhereInput,
-    Property as PropertyType,
     SortPropertiesBy,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
-import { Col, Radio, Row, RowProps, Typography } from 'antd'
+import { Col, Row, RowProps, Typography } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState } from 'react'
+import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -19,7 +18,6 @@ import {
     PageWrapper,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import PropertiesMap from '@condo/domains/common/components/PropertiesMap'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -28,7 +26,11 @@ import BuildingsTable from '@condo/domains/property/components/BuildingsTable'
 import { useTableColumns as usePropertiesTableColumns } from '@condo/domains/property/hooks/useTableColumns'
 import { useTableFilters as usePropertyTableFilters } from '@condo/domains/property/hooks/useTableFilters'
 
-type PropertiesType = 'buildings'
+
+interface IPropertiesPage extends React.FC {
+    headerAction?: JSX.Element
+    requiredAccess?: React.FC
+}
 
 type PropertiesContentProps = {
     role: OrganizationEmployeeRole
@@ -43,18 +45,9 @@ const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 
 export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
     const intl = useIntl()
-
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.PageTitle' })
-    const ShowMap = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeMap' })
-    const ShowTable = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeTable' })
-
-    const [viewMode, changeViewMode] = useState('list')
 
     const { role, searchPropertiesQuery, propertiesTableColumns, sortPropertiesBy, loading, canDownloadProperties } = props
-
-    const handleViewModeChange = useCallback((e) => changeViewMode(e.target.value), [])
-
-    const [properties, setShownProperties] = useState<(PropertyType)[]>([])
 
     const { GlobalHints } = useGlobalHints()
 
@@ -72,45 +65,24 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                                 {PageTitleMessage}
                             </Typography.Title>
                         </Col>
-                        <Col>
-                            <Radio.Group
-                                className='sberRadioGroup'
-                                value={viewMode}
-                                buttonStyle='outline'
-                                onChange={handleViewModeChange}
-                            >
-                                <Radio.Button value='list'>{ShowTable}</Radio.Button>
-                                <Radio.Button value='map'>{ShowMap}</Radio.Button>
-                            </Radio.Group>
+                        <Col span={24}>
+                            <BuildingsTable
+                                role={role}
+                                searchPropertiesQuery={searchPropertiesQuery}
+                                tableColumns={propertiesTableColumns}
+                                sortBy={sortPropertiesBy}
+                                loading={loading}
+                                canDownloadProperties={canDownloadProperties}
+                            />
                         </Col>
-                        {
-                            viewMode !== 'map' && (
-                                <Col span={24}>
-                                    <BuildingsTable
-                                        role={role}
-                                        searchPropertiesQuery={searchPropertiesQuery}
-                                        tableColumns={propertiesTableColumns}
-                                        sortBy={sortPropertiesBy}
-                                        onSearch={(properties) => setShownProperties(properties)}
-                                        loading={loading}
-                                        canDownloadProperties={canDownloadProperties}
-                                    />
-                                </Col>
-                            )
-                        }
                     </Row>
-                    {viewMode === 'map' && <PropertiesMap properties={properties} />}
                 </TablePageContent>
             </PageWrapper>
         </>
     )
 }
 
-type PropertiesPageProps = {
-    tab?: PropertiesType
-}
-
-export default function PropertiesPage (props: PropertiesPageProps) {
+const PropertiesPage: IPropertiesPage = () => {
     const { link: { role = {} }, organization } = useOrganization()
 
     const router = useRouter()
@@ -141,3 +113,5 @@ export default function PropertiesPage (props: PropertiesPageProps) {
 }
 
 PropertiesPage.requiredAccess = OrganizationRequired
+
+export default PropertiesPage
