@@ -39,7 +39,7 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT, EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '@condo/domains/meter/constants/errors'
 import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
-import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunction'
+import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunctions'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
 import { MeterReading, MeterReadingFilterTemplate } from '@condo/domains/meter/utils/clientSchema'
