@@ -46,7 +46,7 @@ describe('Ticket',  function () {
                 spanPrepare.finish()
 
                 const spanCreateTickets = trace.startSpan('2.createTickets')
-                cy.task('keystone:createTickets', response).then(() => {
+                cy.task('keystone:createTickets', response, { emergency: 10, regular: 10, paid: 10, warranty: 10 }).then(() => {
                     const { address: propertyAddress } = response.property
                     spanCreateTickets.finish()
 
@@ -75,7 +75,10 @@ describe('Ticket',  function () {
                 spanPrepare.finish()
 
                 const spanCreateTickets = trace.startSpan('2.createTickets')
-                cy.task('keystone:createTickets', response).then((ticket) => {
+                cy.task('keystone:createTickets', response).then((tickets) => {
+
+                    const ticket = tickets[0]
+
                     spanCreateTickets.finish()
 
                     const spanEditTickets = trace.startSpan('3.editTickets')

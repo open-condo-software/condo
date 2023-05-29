@@ -2,12 +2,13 @@
  * @type {Cypress.PluginConfig}
  */
 const isEmpty = require('lodash/isEmpty')
+const { range } = require('lodash')
 
 const { resetOrganizationByTestClient } = require('@condo/domains/organization/utils/testSchema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { resetUserByTestClient } = require('@condo/domains/user/utils/testSchema')
 const {
@@ -122,14 +123,18 @@ module.exports = async (on, config) => {
 
             return userObject
         },
-
-        async 'keystone:createTickets' (ticketAttrs) {
+        
+        async 'keystone:createTickets' (ticketAttrs, options = { regular: 1, emergency: 1, paid: 1, warranty: 1 }) {
             const client = await makeLoggedInClient(ticketAttrs.userAttrs)
 
-            const [ticket] = await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isWarranty: true })
-            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isEmergency: true })
-            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isPaid: true })
-            return ticket
+            const { regular, emergency, paid, warranty } = options
+
+            const regularTickets = range(regular).map(async () => await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property) )
+            const emergencyTickets = range(emergency).map(async () => await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isEmergency: true }) )
+            const paidTickets = range(paid).map(async () => await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isPaid: true }) )
+            const warrantyTickets = range(warranty).map(async () => await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isWarranty: true }) )
+
+            return await Promise.all([...regularTickets, ...emergencyTickets, ...paidTickets, ...warrantyTickets])
         },
 
         async 'keystone:createSupportWithProperty' () {
