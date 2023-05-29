@@ -3,17 +3,16 @@
  */
 
 const dayjs = require('dayjs')
+const compact = require('lodash/compact')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
-const isNil = require('lodash/isNil')
+const map = require('lodash/map')
 
 const conf = require('@open-condo/config')
-const { GQLError, GQLErrorCode: { INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
-const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { getHeadersTranslations, EXPORT_TYPE_NEWS_RECIPIENTS } = require('@condo/domains/common/utils/exportToExcel')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -78,9 +77,7 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
 
                 let propertyIds = []
                 if (!isEmpty(newsItemScopes)) {
-                    propertyIds = newsItemScopes.map(newsItemScope => {
-                        if (!isNil(newsItemScope.property)) return newsItemScope.property.id
-                    }).filter(el => el !== undefined)
+                    propertyIds = compact(map(newsItemScopes, ['property', 'id']))
                 }
 
                 let residentsByProperties = []
