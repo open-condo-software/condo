@@ -14,7 +14,7 @@ const config = {
         waitForAnimations: true,
         defaultCommandTimeout: 10000,
         screenshotOnRunFailure: true,
-        retries: 0,
+        retries: 3,
         setupNodeEvents (cypressOn, config) {
         // eslint-disable-next-line import/order
             // https://github.com/cypress-io/cypress/issues/22428
@@ -34,7 +34,7 @@ const config = {
 }
 
 if (LOAD_TESTING) {
-    console.log('Cypress is loaded in LOAD TESTING mode. No videos will be recorded, and no screenshots will be saved')
+    console.log('Cypress is loaded in LOAD TESTING mode: No videos will be recorded, No screenshots will be saved, No retries would be made')
     config.e2e.video = false
     config.e2e.screenshotOnRunFailure = false
     config.e2e.retries = 0
