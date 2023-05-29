@@ -1,8 +1,8 @@
 /**
  * @type {Cypress.PluginConfig}
  */
-const isEmpty = require('lodash/isEmpty')
 const { range } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
 
 const { resetOrganizationByTestClient } = require('@condo/domains/organization/utils/testSchema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')

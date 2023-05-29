@@ -8,7 +8,7 @@ import { authUserWithCookies } from '../../plugins/auth'
 describe('Ticket',  function () {
     describe('User', function () {
 
-        it.skip('can create ticket',  () => {
+        it('can create ticket',  () => {
             const trace = new SimpleTracer('user.canCreateTicket', 'ticket')
             const spanPrepare = trace.startSpan('1.createUserWithProperty')
             
@@ -38,7 +38,7 @@ describe('Ticket',  function () {
             })
         })
 
-        it.skip('can view and filter tickets with table', () => {
+        it('can view and filter tickets with table', () => {
             const trace = new SimpleTracer('user.canViewAndFilterTicketsWithTable', 'ticket')
             const spanPrepare = trace.startSpan('1.createUserWithProperty')
             cy.task('keystone:createUserWithProperty').then((response) => {
