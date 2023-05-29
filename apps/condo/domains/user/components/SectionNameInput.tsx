@@ -22,6 +22,7 @@ const getOptionGroupBySectionType = (sections, sectionType, groupLabel) => {
                 value={`${sectionType}-${section.name}`}
                 data-sectionType={sectionType}
                 data-sectionName={String(section.name)}
+                data-sectionId={String(section.id)}
                 title={String(section.name)}
                 style={BASE_UNIT_NAME_INPUT_OPTION_STYLE}
             >
