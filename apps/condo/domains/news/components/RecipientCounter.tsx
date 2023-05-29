@@ -195,7 +195,6 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
         const sender = getClientSideSenderInfo()
         const meta = { dv: 1, sender }
         setIsXlsLoading(true)
-        // @ts-ignore
         return runMutation({
             mutation: newsRecipientsMutation,
             variables: {

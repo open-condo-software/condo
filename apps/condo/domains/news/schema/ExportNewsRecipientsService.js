@@ -86,10 +86,9 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
                 let residentsByProperties = []
                 if (!isEmpty(propertyIds)) {
                     residentsByProperties = await loadListByChunks({
-                        context: context,
+                        context,
                         list: Resident,
                         chunkSize: 50,
-                        limit: 100000,
                         where: {
                             property: {
                                 id_in: propertyIds,
@@ -109,10 +108,9 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
                     })
 
                     const propertiesByOrganization = await loadListByChunks({
-                        context: context,
+                        context,
                         list: Property,
                         chunkSize: 50,
-                        limit: 100000,
                         where: {
                             organization: {
                                 id: organizationId,
