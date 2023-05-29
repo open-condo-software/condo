@@ -15,7 +15,7 @@ describe('Ticket',  function () {
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
                 spanPrepare.finish()
-                
+
                 const span = trace.startSpan('2.createTicket')
                 const { address: propertyAddress, map: propertyMap } = response.property
                 const propertyUnits = propertyMap.sections

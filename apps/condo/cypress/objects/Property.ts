@@ -3,9 +3,6 @@ import { trackedVisit } from './helpers'
 
 const PROPERTY_URL = '/property'
 const PROPERTY_MAP_UPDATE_URL = '/map/update'
-const PROPERTY_CREATE_URL = '/create'
-
-const CREATE_BTN_TEXT = 'Create'
 
 class Property extends Condo{
     visit (): this {
@@ -19,9 +16,7 @@ class Property extends Condo{
     }
 
     clickOnPropertyTableRow (): this {
-
         cy.get('[data-cy=property__table] tbody .ant-table-row.ant-table-row-level-0').first().click()
-
         cy.location('pathname').should('contain', PROPERTY_URL)
 
         return this
