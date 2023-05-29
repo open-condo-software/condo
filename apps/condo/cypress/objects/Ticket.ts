@@ -71,6 +71,11 @@ class TicketCreate {
             .type('{downArrow}')
             .type('{enter}')
 
+        // Auto classificator can set second classifier value by itself:
+        if (cy.get('[data-cy="ticket__category-select-item"]').within(() => cy.get('[class=ant-select-selection-item]'))) {
+            return this
+        }
+
         cy.get('[data-cy=ticket__category-select-item] .ant-select-selection-search')
             .click()
             .type('{downArrow}')
