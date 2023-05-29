@@ -82,7 +82,7 @@ class TicketGenerator {
             sender: { dv: 1, fingerprint: 'import' },
             clientName: `${faker.name.firstName()} ${faker.name.lastName()}`,
             clientEmail: faker.internet.email(),
-            clientPhone: faker.phone.phoneNumber('+7922#######'),
+            clientPhone: faker.phone.number('+7922#######'),
             details: faker.lorem.sentence(),
             sectionName: unit.section,
             floorName: unit.floor,

@@ -335,7 +335,7 @@ describe('MessageBatch', () => {
         })
 
         it('handles messageBatch and creates sms notification of CUSTOM_CONTENT_MESSAGE_SMS_TYPE for phone', async () => {
-            const phone = faker.phone.phoneNumber('+79#########')
+            const phone = faker.phone.number('+79#########')
             const [customMessage] = await createTestMessageBatch(admin, { targets: [phone] })
             const date = dayjs().format(DATE_FORMAT)
             const messagesWhere = {
@@ -392,8 +392,8 @@ describe('MessageBatch', () => {
             const targets = [
                 faker.datatype.uuid(), // non existent user
                 faker.random.alphaNumeric(8), // some random string
-                faker.phone.phoneNumber('+79########'), //broken phone number
-                faker.phone.phoneNumber('+73#########'), //landline phone number
+                faker.phone.number('+79########'), //broken phone number
+                faker.phone.number('+73#########'), //landline phone number
                 `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}`, // broken email
                 '',
                 null,
@@ -426,7 +426,7 @@ describe('MessageBatch', () => {
 
         it('handles messageBatch, creates notifications of CUSTOM_CONTENT_MESSAGE_TYPE, skips duplicate targets', async () => {
             const email = `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`
-            const phone = faker.phone.phoneNumber('+79#########')
+            const phone = faker.phone.number('+79#########')
             const targets = [email, email, email, phone, phone, phone, admin.user.id, admin.user.id, admin.user.id]
             const [customMessage] = await createTestMessageBatch(admin, { targets })
 

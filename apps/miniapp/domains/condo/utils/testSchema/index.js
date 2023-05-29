@@ -16,7 +16,7 @@ const User = generateGQLTestUtils(UserGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toLowerCase()
-const createTestPhone = () => faker.phone.phoneNumber('+79#########')
+const createTestPhone = () => faker.phone.number('+79#########')
 
 async function createTestUser (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')

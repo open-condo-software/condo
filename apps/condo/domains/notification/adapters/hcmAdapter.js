@@ -37,7 +37,7 @@ const IS_LOCAL_ENV = conf.SERVER_URL.includes('localhost')
 const logger = getLogger('HCMAdapter')
 
 /** Generates randomly filled string of digits */
-const getRandomNumeric = (count) => faker.phone.phoneNumber(''.padStart(count, '#'))
+const getRandomNumeric = (count) => faker.phone.number(''.padStart(count, '#'))
 
 /**
  * HCM is Huawei Cloud Messaging

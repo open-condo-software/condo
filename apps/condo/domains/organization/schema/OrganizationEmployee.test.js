@@ -341,7 +341,7 @@ describe('OrganizationEmployee', () => {
         await createTestOrganizationEmployee(admin, organization1, userClient.user, role1, { isAccepted: true })
 
         const email = faker.random.alphaNumeric(10) + '@example.com'
-        const phone = faker.phone.phoneNumber('+79#########')
+        const phone = faker.phone.number('+79#########')
         await updateTestUser(admin, userClient.user.id, {
             email,
             phone,

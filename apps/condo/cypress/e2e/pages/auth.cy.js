@@ -29,7 +29,7 @@ describe('Auth scenarios', () => {
         it('can register after confirming phone', () => {
             const registration = new Registration()
             const user = {
-                phone: faker.phone.phoneNumber('+7922#######'),
+                phone: faker.phone.number('+7922#######'),
                 password: faker.internet.password(),
                 email: faker.internet.email(),
                 name: `${faker.name.firstName()} ${faker.name.lastName()}`,

@@ -47,7 +47,7 @@ class IntegrationControl {
             integrationDetails.currency = { connect: { id: currency.id } }
         }
         const userCredentials = {
-            phone: faker.phone.phoneNumber('+79#########'),
+            phone: faker.phone.number('+79#########'),
             password: faker.internet.password(),
         }
         const user = await User.create(this.context, {
