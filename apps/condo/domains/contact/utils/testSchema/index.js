@@ -7,13 +7,14 @@ const { faker } = require('@faker-js/faker')
 const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { createTestEmail } = require('@condo/domains/user/utils/testSchema')
 
-const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { Contact: ContactGQL } = require('@condo/domains/contact/gql')
 const { ContactRole: ContactRoleGQL } = require('@condo/domains/contact/gql')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { ContactExportTask: ContactExportTaskGQL } = require('@condo/domains/contact/gql')
 const { EXCEL } = require('../../../common/constants/export')
+const { _INTERNAL_SYNC_CONTACTS_WITH_RESIDENTS_FOR_ORGANIZATION_MUTATION } = require('@condo/domains/contact/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Contact = generateGQLTestUtils(ContactGQL)
@@ -120,11 +121,25 @@ async function updateTestContactExportTask (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function _internalSyncContactsWithResidentsForOrganizationByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(_INTERNAL_SYNC_CONTACTS_WITH_RESIDENTS_FOR_ORGANIZATION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Contact, createTestContact, updateTestContact,
     ContactRole, createTestContactRole, updateTestContactRole,
     ContactExportTask, createTestContactExportTask, updateTestContactExportTask,
+    _internalSyncContactsWithResidentsForOrganizationByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
