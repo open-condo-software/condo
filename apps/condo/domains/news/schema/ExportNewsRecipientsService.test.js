@@ -37,7 +37,7 @@ describe('ExportNewsRecipientsService', () => {
         expect(response.status).toEqual('OK')
     })
 
-    test('user: cannot execute if no canManageNewsItems', async () => {
+    test('user cannot execute if no canManageNewsItems', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const [organization] = await createTestOrganization(admin)
         const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
@@ -49,7 +49,7 @@ describe('ExportNewsRecipientsService', () => {
         })
     })
 
-    test('user: cannot be executed if there is no canManageNewsItems in the organization', async () => {
+    test('user cannot be executed if there is no canManageNewsItems in the organization', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const [anotherOrganization] = await createTestOrganization(admin)
         const [organization] = await createTestOrganization(admin)
@@ -65,7 +65,7 @@ describe('ExportNewsRecipientsService', () => {
         })
     })
 
-    test('anonymous: execute', async () => {
+    test('anonymous cannot execute', async () => {
         const client = await makeClient()
         await expectToThrowAuthenticationErrorToResult(async () => {
             await exportNewsRecipientsByTestClient(client, { id: 'id' })

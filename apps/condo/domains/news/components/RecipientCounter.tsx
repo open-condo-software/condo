@@ -2,7 +2,7 @@ import { QuestionCircleOutlined } from '@ant-design/icons'
 import { useMutation } from '@apollo/client'
 import { BuildingSection, NewsItemScope, Property as PropertyType, Resident as ResidentType } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Button, Col, Row } from 'antd'
+import { Button, ButtonProps, Col, Row } from 'antd'
 import compact from 'lodash/compact'
 import difference from 'lodash/difference'
 import every from 'lodash/every'
@@ -16,12 +16,12 @@ import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState, CSSProperties } from 'react'
 
+import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Card, Space, Typography, TypographyTitleProps } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { DownloadIcon } from '@condo/domains/common/components/icons/DownloadIcon'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
@@ -37,13 +37,13 @@ interface CounterProps {
     value: number
     type?: TypographyTitleProps['type'],
     hint?: string
-    downloader?: any
+    downloadButton?: ButtonProps
 }
 
 const styleGrayColor: CSSProperties = { color: colors.gray['5'] }
 const styleMaxWidth: CSSProperties = { maxWidth: '500px' }
 
-const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint, downloader }) => (
+const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint, downloadButton }) => (
     <Space direction='vertical' align='center' size={8}>
         <Space size={8} direction='horizontal' align='start'>
             <Typography.Title level={3} type={type}>{value}</Typography.Title>
@@ -57,7 +57,7 @@ const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint,
         </Space>
         <Row>
             <Typography.Text type='secondary'>{label}</Typography.Text>
-            {downloader ?? ''}
+            {downloadButton ?? ''}
         </Row>
     </Space>
 )
@@ -145,6 +145,7 @@ const downloaderButtonStyle = {
     background: 'transparent',
     border: 0,
     padding: 0,
+    paddingTop: '3px',
     display: 'inline-block',
 }
 
@@ -257,11 +258,11 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                                     value={willNotReceiveUnitsCount}
                                     type='danger'
                                     hint={WillNotReceiveHintMessage}
-                                    downloader={<Button
+                                    downloadButton={<Button
                                         size='small'
-                                        onClick={() => runExportNewsRecipients()}
+                                        onClick={runExportNewsRecipients}
                                         disabled={isXlsLoading}
-                                        children={<DownloadIcon/>}
+                                        children={<Download size='small'/>}
                                         style={downloaderButtonStyle}
                                     />}
                                 />

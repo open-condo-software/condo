@@ -179,7 +179,7 @@ const NewsItemCard: React.FC = () => {
                         </FrontLayerContainer>
                     </Col>
                     <Col span={8}>
-                        <RecipientCounter newsItemScopes={newsItemScopes} ></RecipientCounter>
+                        <RecipientCounter newsItemScopes={newsItemScopes}/>
                     </Col>
                     <Row>
                         {get(newsItem, 'sentAt') ? (

@@ -18,7 +18,6 @@ const { createExportFile } = require('@condo/domains/common/utils/createExportFi
 const { getHeadersTranslations, EXPORT_TYPE_NEWS_RECIPIENTS } = require('@condo/domains/common/utils/exportToExcel')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const access = require('@condo/domains/news/access/ExportNewsRecipientsService')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
@@ -57,27 +56,6 @@ const buildExportFile = async ({ rows, locale }) => {
     return linkToFile
 }
 
-/**
- * List of possible errors, that this custom schema can throw
- * They will be rendered in documentation section in GraphiQL for this custom schema
- */
-const errors = {
-    MISSING_PROPERTY: {
-        mutation: 'exportNewsRecipients',
-        code: INTERNAL_ERROR,
-        type: NOT_FOUND,
-        message: 'Could not found property related to newsItemScope',
-        messageForUser: 'api.user.exportNewsRecipients.MISSING_PROPERTY',
-    },
-    WRONG_ORGANIZATION_ID: {
-        mutation: 'exportNewsRecipients',
-        code: INTERNAL_ERROR,
-        type: NOT_FOUND,
-        message: 'Could not found organization by provided id',
-        messageForUser: 'api.user.exportNewsRecipients.WRONG_ORGANIZATION_ID',
-    },
-}
-
 const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsService', {
     types: [
         {
@@ -98,22 +76,15 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
                 const { data: { newsItemScopes, organizationId } } = args
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
-                const organization = await Organization.getOne(context, {
-                    id: organizationId,
-                    deletedAt: null,
-                })
-                if (!organization) throw new GQLError(errors.WRONG_ORGANIZATION_ID, context)
-
-                let properties
+                let propertyIds = []
                 if (!isEmpty(newsItemScopes)) {
-                    properties = newsItemScopes.map(newsItemScope => {
+                    propertyIds = newsItemScopes.map(newsItemScope => {
                         if (!isNil(newsItemScope.property)) return newsItemScope.property.id
-                    })
+                    }).filter(el => el !== undefined)
                 }
 
-
-                let residentsByProperties
-                if (!isEmpty(properties)) {
+                let residentsByProperties = []
+                if (!isEmpty(propertyIds)) {
                     residentsByProperties = await loadListByChunks({
                         context: context,
                         list: Resident,
@@ -121,7 +92,7 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
                         limit: 100000,
                         where: {
                             property: {
-                                id_in: properties,
+                                id_in: propertyIds,
                             },
                             deletedAt: null,
                         },
@@ -163,9 +134,6 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
                         }, [])
                         recipientsByOrganization.push(...recipientsData)
                     }
-
-
-
                 }
 
                 const recipientsByProperty = []
