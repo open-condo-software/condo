@@ -59329,6 +59329,12 @@ type SetMessageStatusOutput {
   status: String!
 }
 
+input _internalSyncContactsWithResidentsForOrganizationInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  organization: OrganizationWhereUniqueInput!
+}
+
 input RegisterResidentInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -68661,6 +68667,7 @@ type Mutation {
   syncRemoteClient(data: SyncRemoteClientInput!): RemoteClient
   disconnectUserFromRemoteClient(data: DisconnectUserFromRemoteClientInput!): DisconnectUserFromRemoteClientOutput
   setMessageStatus(data: SetMessageStatusInput!): SetMessageStatusOutput
+  _internalSyncContactsWithResidentsForOrganization(data: _internalSyncContactsWithResidentsForOrganizationInput!): [Contact]
   registerResident(data: RegisterResidentInput!): Resident
 
   """
