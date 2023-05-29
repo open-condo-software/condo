@@ -24,7 +24,7 @@ const ContactExportTask = generateGqlQueries('ContactExportTask', CONTACT_EXPORT
 
 const _INTERNAL_SYNC_CONTACTS_WITH_RESIDENTS_FOR_ORGANIZATION_MUTATION = gql`
     mutation _internalSyncContactsWithResidentsForOrganization ($data: _internalSyncContactsWithResidentsForOrganizationInput!) {
-        result: _internalSyncContactsWithResidentsForOrganization(data: $data) { id }
+        result: _internalSyncContactsWithResidentsForOrganization(data: $data) ${CONTACT_FIELDS}
     }
 `
 
