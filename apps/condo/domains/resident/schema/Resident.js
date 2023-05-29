@@ -13,8 +13,8 @@ const { addressService } = require('@open-condo/keystone/plugins/addressService'
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring/constants/integration')
+const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/tasks')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
-const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/utils/serverSchema/helpers')
 const { DEFAULT_BILLING_INTEGRATION_NAME } = require('@condo/domains/billing/constants/constants')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
@@ -256,8 +256,7 @@ const Resident = new GQLListSchema('Resident', {
             // handle soft delete
             // in order to soft delete recurrent payment contexts
             if (operation === 'update' && deletedAt) {
-                await removeOrphansRecurrentPaymentContexts({
-                    context,
+                await removeOrphansRecurrentPaymentContexts.delay({
                     residentId: updatedItem.id,
                     dv,
                     sender,

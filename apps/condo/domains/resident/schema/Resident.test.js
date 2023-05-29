@@ -6,7 +6,7 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const { cloneDeep } = require('lodash')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,
     expectToThrowAccessDeniedErrorToObj,
@@ -823,8 +823,10 @@ describe('Resident', () => {
             expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
 
-            const contexts = await RecurrentPaymentContext.getAll(adminClient, { id: recurrentContext.id })
-            expect(contexts).toHaveLength(0)
+            await waitFor(async () => {
+                const contexts = await RecurrentPaymentContext.getAll(adminClient, { id: recurrentContext.id })
+                expect(contexts).toHaveLength(0)
+            })
         })
 
         it('cannot be soft-deleted using update operation by current user with type resident when other fields gets passed as variables', async () => {

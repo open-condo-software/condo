@@ -19,7 +19,7 @@
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
-const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/utils/serverSchema/helpers')
+const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/tasks')
 const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/user/access/ResetUserService')
@@ -128,8 +128,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                 }
 
                 // remove RecurrentPaymentContext
-                await removeOrphansRecurrentPaymentContexts({
-                    context,
+                await removeOrphansRecurrentPaymentContexts.delay({
                     userId: user.id,
                     dv,
                     sender,

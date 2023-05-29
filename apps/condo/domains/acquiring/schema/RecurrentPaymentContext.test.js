@@ -4,7 +4,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowUniqueConstraintViolationError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowUniqueConstraintViolationError, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, catchErrorFrom,
@@ -434,11 +434,13 @@ describe('RecurrentPaymentContext', () => {
                 serviceConsumer: { connect: { id: newServiceConsumerId } },
             })
 
-            const recurrentPayments = await RecurrentPayment.getAll(admin, {
-                recurrentPaymentContext: { id: recurrentPaymentContext.id },
-            })
+            await waitFor(async () => {
+                const recurrentPayments = await RecurrentPayment.getAll(admin, {
+                    recurrentPaymentContext: { id: recurrentPaymentContext.id },
+                })
 
-            expect(recurrentPayments).toHaveLength(0)
+                expect(recurrentPayments).toHaveLength(0)
+            })
         })
         test('PaymentDay change that was eq today should remove outdated recurrent payments', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -459,11 +461,13 @@ describe('RecurrentPaymentContext', () => {
                 paymentDay: dayjs().add(1, 'day').date(),
             })
 
-            const recurrentPayments = await RecurrentPayment.getAll(admin, {
-                recurrentPaymentContext: { id: recurrentPaymentContext.id },
-            })
+            await waitFor(async () => {
+                const recurrentPayments = await RecurrentPayment.getAll(admin, {
+                    recurrentPaymentContext: { id: recurrentPaymentContext.id },
+                })
 
-            expect(recurrentPayments).toHaveLength(0)
+                expect(recurrentPayments).toHaveLength(0)
+            })
         })
         test('PaymentDay change that was\'t eq today should not remove recurrent payments', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -509,13 +513,14 @@ describe('RecurrentPaymentContext', () => {
                 autoPayReceipts: true,
             })
 
-            const recurrentPayments = await RecurrentPayment.getAll(admin, {
-                recurrentPaymentContext: { id: recurrentPaymentContext.id },
+            await waitFor(async () => {
+                const recurrentPayments = await RecurrentPayment.getAll(admin, {
+                    recurrentPaymentContext: { id: recurrentPaymentContext.id },
+                })
+
+                expect(recurrentPayments).toHaveLength(0)
             })
-
-            expect(recurrentPayments).toHaveLength(0)
         })
-
         test('Trigger change from autoPay to paymentDate should remove outdated recurrent payments', async () => {
             const admin = await makeLoggedInAdminClient()
             const createRecurrentPaymentContextRequest = await getContextRequest()
@@ -537,11 +542,13 @@ describe('RecurrentPaymentContext', () => {
                 autoPayReceipts: false,
             })
 
-            const recurrentPayments = await RecurrentPayment.getAll(admin, {
-                recurrentPaymentContext: { id: recurrentPaymentContext.id },
-            })
+            await waitFor(async () => {
+                const recurrentPayments = await RecurrentPayment.getAll(admin, {
+                    recurrentPaymentContext: { id: recurrentPaymentContext.id },
+                })
 
-            expect(recurrentPayments).toHaveLength(0)
+                expect(recurrentPayments).toHaveLength(0)
+            })
         })
     })
 })
