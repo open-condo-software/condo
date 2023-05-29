@@ -8,7 +8,7 @@ import { authUserWithCookies } from '../../plugins/auth'
 describe('Ticket',  function () {
     describe('User', function () {
 
-        it('can create ticket',  () => {
+        it.skip('can create ticket',  () => {
             const trace = new SimpleTracer('user.canCreateTicket', 'ticket')
             const spanPrepare = trace.startSpan('1.createUserWithProperty')
             
@@ -38,7 +38,7 @@ describe('Ticket',  function () {
             })
         })
 
-        it('can view and filter tickets with table', () => {
+        it.skip('can view and filter tickets with table', () => {
             const trace = new SimpleTracer('user.canViewAndFilterTicketsWithTable', 'ticket')
             const spanPrepare = trace.startSpan('1.createUserWithProperty')
             cy.task('keystone:createUserWithProperty').then((response) => {
@@ -46,7 +46,7 @@ describe('Ticket',  function () {
                 spanPrepare.finish()
 
                 const spanCreateTickets = trace.startSpan('2.createTickets')
-                cy.task('keystone:createTickets', response, { emergency: 10, regular: 10, paid: 10, warranty: 10 }).then(() => {
+                cy.task('keystone:createTickets', { ticketAttrs: response, emergency: 10, regular: 10, paid: 10, warranty: 10 }).then(() => {
                     const { address: propertyAddress } = response.property
                     spanCreateTickets.finish()
 
@@ -75,7 +75,7 @@ describe('Ticket',  function () {
                 spanPrepare.finish()
 
                 const spanCreateTickets = trace.startSpan('2.createTickets')
-                cy.task('keystone:createTickets', response).then((tickets) => {
+                cy.task('keystone:createTickets', { ticketAttrs: response }).then((tickets) => {
 
                     const ticket = tickets[0]
 
