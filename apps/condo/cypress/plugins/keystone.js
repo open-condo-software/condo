@@ -40,13 +40,6 @@ const cypressCreateTestUser = async (supportClient) => {
     return createdUser
 }
 
-const cypressMakeClientWithProperty = async (supportClient) => {
-    const client = await makeClientWithProperty(supportClient)
-    createdUsers.push(client.user.id)
-    createdOrganizations.push(client.organization.id)
-    return client
-}
-
 const cypressMakeClientWithRegisteredOrganization = async (supportClient) => {
     const client = await makeClientWithRegisteredOrganization(supportClient)
     createdUsers.push(client.user.id)
