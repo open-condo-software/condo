@@ -32453,6 +32453,7 @@ export type Mutation = {
   syncRemoteClient?: Maybe<RemoteClient>;
   disconnectUserFromRemoteClient?: Maybe<DisconnectUserFromRemoteClientOutput>;
   setMessageStatus?: Maybe<SetMessageStatusOutput>;
+  _internalSyncContactsWithResidentsForOrganization?: Maybe<Array<Maybe<Contact>>>;
   registerResident?: Maybe<Resident>;
   /**
    * Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount
@@ -39196,6 +39197,11 @@ export type MutationDisconnectUserFromRemoteClientArgs = {
 
 export type MutationSetMessageStatusArgs = {
   data: SetMessageStatusInput;
+};
+
+
+export type Mutation_InternalSyncContactsWithResidentsForOrganizationArgs = {
+  data: _InternalSyncContactsWithResidentsForOrganizationInput;
 };
 
 
@@ -76573,6 +76579,12 @@ export type _InternalScheduleTaskByNameInput = {
 export type _InternalScheduleTaskByNameOutput = {
   __typename?: '_internalScheduleTaskByNameOutput';
   id: Scalars['String'];
+};
+
+export type _InternalSyncContactsWithResidentsForOrganizationInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  organization: OrganizationWhereUniqueInput;
 };
 
 export type _KsListsMetaInput = {

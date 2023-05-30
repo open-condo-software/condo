@@ -21,11 +21,19 @@ const ContactRole = generateGqlQueries('ContactRole', CONTACT_ROLE_FIELDS)
 const CONTACT_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone user { id } __typename meta ${COMMON_FIELDS} }`
 const ContactExportTask = generateGqlQueries('ContactExportTask', CONTACT_EXPORT_TASK_FIELDS)
 
+
+const _INTERNAL_SYNC_CONTACTS_WITH_RESIDENTS_FOR_ORGANIZATION_MUTATION = gql`
+    mutation _internalSyncContactsWithResidentsForOrganization ($data: _internalSyncContactsWithResidentsForOrganizationInput!) {
+        result: _internalSyncContactsWithResidentsForOrganization(data: $data) ${CONTACT_FIELDS}
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Contact,
     ContactRole,
     ContactExportTask,
+    _INTERNAL_SYNC_CONTACTS_WITH_RESIDENTS_FOR_ORGANIZATION_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
