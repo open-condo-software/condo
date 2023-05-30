@@ -7,6 +7,7 @@ const {
     getById,
 } = require('@open-condo/keystone/schema')
 
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const access = require('@condo/domains/contact/access/_internalSyncContactsWithResidentsForOrganizationService')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
@@ -31,13 +32,21 @@ const _internalSyncContactsWithResidentsForOrganizationService = new GQLCustomSc
                 const { data } = args
                 const { dv, sender, organization } = data
                 const allResidents = []
-                const properties = await Property.getAll(context, {
-                    organization: { id: organization.id },
+                const properties = await loadListByChunks({
+                    context,
+                    list: Property,
+                    where: {
+                        organization: { id: organization.id },
+                    },
                 })
                 for (const property of properties) {
-                    const residents = await Resident.getAll(context, {
-                        organization: { id: organization.id },
-                        property: { id: property.id },
+                    const residents = await loadListByChunks({
+                        context,
+                        list: Resident,
+                        where: {
+                            organization: { id: organization.id },
+                            property: { id: property.id },
+                        },
                     })
                     allResidents.push(...residents)
                 }
