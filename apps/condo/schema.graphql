@@ -4127,7 +4127,7 @@ input OrganizationEmployeeRoleRelateToOneInput {
   disconnectAll: Boolean
 }
 
-""" B2B customer employees. For invite employee should use InviteNewOrganizationEmployeeInput and ReInviteOrganizationEmployeeInput 
+""" B2B customer employees. For invite employee should use inviteNewOrganizationEmployee and reInviteOrganizationEmployee 
 """
 type OrganizationEmployee {
   """
