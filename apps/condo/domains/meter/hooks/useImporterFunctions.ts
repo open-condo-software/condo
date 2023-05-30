@@ -95,6 +95,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const CommissioningDateMessage = intl.formatMessage({ id: 'meter.import.column.CommissioningDate' })
     const SealingDateMessage = intl.formatMessage({ id: 'meter.import.column.SealingDate' })
     const ControlReadingsDate = intl.formatMessage({ id: 'meter.import.column.ControlReadingsDate' })
+    const PlaceColumnMessage = intl.formatMessage({ id: 'meter.import.column.MeterPlace' })
     const HotWaterResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.hotWater' })
     const ColdWaterResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.coldWater' })
     const ElectricityResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.electricity' })
@@ -148,11 +149,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: CommissioningDateMessage, type: 'date', required: false },
         { name: SealingDateMessage, type: 'date', required: false },
         { name: ControlReadingsDate, type: 'date', required: false },
+        { name: PlaceColumnMessage, type: 'string', required: false },
     ]), [AccountNumberColumnMessage, AddressColumnMessage, CommissioningDateMessage, ControlReadingsDate,
         InstallationDateMessage, MeterNumberColumnMessage, MeterTariffsNumberColumnMessage, MeterTypeColumnMessage,
         NextVerificationDateMessage, ReadingSubmissionDateMessage, SealingDateMessage, UnitNameColumnMessage,
         UnitTypeColumnMessage, Value1ColumnMessage, Value2ColumnMessage, Value3ColumnMessage, Value4ColumnMessage,
-        VerificationDateMessage])
+        VerificationDateMessage, PlaceColumnMessage])
 
     const UNIT_TYPE_TRANSLATION_TO_TYPE = useMemo(() => ({
         [FlatUnitTypeValue.toLowerCase()]: FLAT_UNIT_TYPE,
@@ -177,6 +179,13 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             value3,
             value4,
             readingSubmissionDate,
+            , // verificationDate
+            , // nextVerificationDate
+            , // installationDate
+            , // commissioningDate
+            , // sealingDate
+            , // controlReadingsDate
+            place,
         ] = map(row, 'value')
 
         const addons = {
@@ -195,6 +204,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             value2: normalizeMeterValue(value2),
             value3: normalizeMeterValue(value3),
             value4: normalizeMeterValue(value4),
+            place: place ? String(place).trim() : place,
         }
 
         addons.valuesAmount = [addons.value1, addons.value2, addons.value3, addons.value4].filter(Boolean).length
@@ -359,6 +369,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 commissioningDate: toISO(commissioningDate),
                 sealingDate: toISO(sealingDate),
                 controlReadingsDate: controlReadingsDate ? toISO(controlReadingsDate) : dayjs().toISOString(),
+                place: get(addons, 'place'),
             })
             meterId = get(newMeter, 'id')
         }
