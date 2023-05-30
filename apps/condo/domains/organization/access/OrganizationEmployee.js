@@ -33,11 +33,10 @@ async function canReadOrganizationEmployees ({ authentication: { item: user } })
 async function canManageOrganizationEmployees ({ authentication: { item: user }, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return true
-
-    if (operation === 'create') {
-        return false
-    }
+    if (user.isAdmin) return true
+    // NOTE: you should use `inviteNewOrganizationEmployee`
+    if (operation === 'create') return false
+    if (user.isSupport) return true
 
     if (operation === 'update' && itemId) {
         const employeeToEdit = await getById('OrganizationEmployee', itemId)
