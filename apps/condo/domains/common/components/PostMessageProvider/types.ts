@@ -27,7 +27,7 @@ export type HandlerResultsMap = {
 export type AllRequestMethods = keyof RequestParamsMap
 export type RequestParams<Method extends AllRequestMethods> = RequestParamsMap[Method]
 export type HandlerResult<Method extends AllRequestMethods> = HandlerResultsMap[Method]
-export type RequestHandler<Method extends AllRequestMethods> = (params: RequestParams<Method>, origin: string) => HandlerResult<Method>
+export type RequestHandler<Method extends AllRequestMethods> = (params: RequestParams<Method>, origin: string) => HandlerResult<Method> | Promise<HandlerResult<Method>>
 export type RequestParamValidator<Method extends AllRequestMethods> = ValidateFunction<RequestParams<Method>>
 export type RequestIdType = string | number
 export type RequestId = { requestId?: RequestIdType }

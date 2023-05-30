@@ -43,6 +43,15 @@ const CondoWebAppRedirectParamsSchema = {
     additionalProperties: false,
 }
 
+const CondoWebAppRequestAuthSchema = {
+    type: 'object',
+    properties: {
+        url: { type: 'string' },
+    },
+    required: ['url'],
+    additionalProperties: false,
+}
+
 const CondoWebAppResizeWindowParamsSchema = {
     type: 'object',
     properties: {
@@ -113,6 +122,7 @@ export const validators: ValidatorsType = {
     CondoWebAppCloseModalWindow: ajv.compile(CondoWebAppCloseModalWindowParamsSchema),
     CondoWebAppGetActiveProgressBars: NoParamsValidator,
     CondoWebAppGetLaunchParams: NoParamsValidator,
+    CondoWebAppRequestAuth: ajv.compile(CondoWebAppRequestAuthSchema),
     CondoWebAppRedirect: ajv.compile(CondoWebAppRedirectParamsSchema),
     CondoWebAppResizeWindow: ajv.compile(CondoWebAppResizeWindowParamsSchema),
     CondoWebAppShowModalWindow: ajv.compile(CondoWebAppShowModalWindowParamsSchema),
