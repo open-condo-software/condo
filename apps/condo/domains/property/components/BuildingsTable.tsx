@@ -2,7 +2,6 @@ import { useLazyQuery } from '@apollo/client'
 import {
     OrganizationEmployeeRole,
     PropertyWhereInput,
-    Property as PropertyType,
     SortPropertiesBy,
 } from '@app/condo/schema'
 import { Col, notification, Row } from 'antd'
@@ -36,7 +35,6 @@ type BuildingTableProps = {
     searchPropertiesQuery: PropertyWhereInput
     tableColumns: ColumnsType
     sortBy: SortPropertiesBy[]
-    onSearch?: (properties: PropertyType[]) => void
     loading?: boolean
     canDownloadProperties?: boolean
 }
@@ -68,10 +66,6 @@ export default function BuildingsTable (props: BuildingTableProps) {
         where: { ...searchPropertiesQuery },
         skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
         first: PROPERTY_PAGE_SIZE,
-    }, {
-        onCompleted: () => {
-            props.onSearch && props.onSearch(properties)
-        },
     })
 
     const handleRowAction = (record) => {
