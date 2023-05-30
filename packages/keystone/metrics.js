@@ -48,7 +48,7 @@ const StatsDClient = new StatsD({
     port: STATSD_PORT,
     prefix: STATSD_METRIC_PREFIX,
     errorHandler: (err) => logger.error({ 'msg':'Something went wrong when sending metrics:', 'err': err }),
-    globalTags: { hostname: HOSTNAME },
+    globalTags: { hostname: HOSTNAME, command: process.argv[1] },
 })
 
 const gauge = ({ name, value }) => {
