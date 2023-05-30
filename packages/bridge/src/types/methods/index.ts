@@ -3,6 +3,7 @@ import type { CloseModalWindowParams, CloseModalWindowData } from './CloseModalW
 import type { GetActiveProgressBarsParams, GetActiveProgressBarsData } from './GetActiveProgressBars'
 import type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
 import type { RedirectData, RedirectParams } from './Redirect'
+import type { RequestAuthData, RequestAuthParams } from './RequestAuth'
 import type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
 import type { ShowModalWindowParams, ShowModalWindowData } from './ShowModalWindow'
 import type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
@@ -13,6 +14,7 @@ export type { CloseModalWindowParams, CloseModalWindowData } from './CloseModalW
 export type { GetActiveProgressBarsParams, GetActiveProgressBarData, GetActiveProgressBarsData } from './GetActiveProgressBars'
 export type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
 export type { RedirectData, RedirectParams } from './Redirect'
+export type { RequestAuthData, RequestAuthParams } from './RequestAuth'
 export type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
 export type { ShowModalWindowParams, ShowModalWindowData } from './ShowModalWindow'
 export type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
@@ -25,9 +27,9 @@ export type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdatePro
 export type RequestMethodsParamsMap = {
     CondoWebAppCloseModalWindow: CloseModalWindowParams
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsParams
-
     CondoWebAppGetLaunchParams: GetLaunchParamsParams
     CondoWebAppRedirect: RedirectParams
+    CondoWebAppRequestAuth: RequestAuthParams,
     CondoWebAppResizeWindow: ResizeWindowParams
     CondoWebAppShowModalWindow: ShowModalWindowParams
     CondoWebAppShowNotification: ShowNotificationParams
@@ -42,6 +44,7 @@ export type ResultResponseDataMap = {
     CondoWebAppCloseModalWindow: CloseModalWindowData
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsData
     CondoWebAppGetLaunchParams: GetLaunchParamsData
+    CondoWebAppRequestAuth: RequestAuthData,
     CondoWebAppRedirect: RedirectData
     CondoWebAppResizeWindow: ResizeWindowData
     CondoWebAppShowModalWindow: ShowModalWindowData
