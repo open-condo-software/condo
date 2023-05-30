@@ -13,6 +13,9 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 const _internalSyncContactsWithResidentsForOrganizationService = new GQLCustomSchema('_internalSyncContactsWithResidentsForOrganizationService', {
+    schemaDoc: 'Mutation to sync organization contacts with organization residents. ' +
+        'It takes all organization residents and create contact for each one (if contact with same phone number not exist). ' +
+        'Returns array of created contacts',
     types: [
         {
             access: true,
