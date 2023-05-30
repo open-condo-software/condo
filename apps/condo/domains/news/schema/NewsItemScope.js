@@ -12,7 +12,7 @@ const {
     EDIT_DENIED_ALREADY_SENT,
     EDIT_DENIED_PUBLISHED,
     EMPTY_NEWS_ITEM_SCOPE,
-    UNIT_NAME_WITHOUT_UNITTYPE,
+    UNITNAME_WITHOUT_UNITTYPE,
 } = require('@condo/domains/news/constants/errors')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
@@ -35,11 +35,11 @@ const ERRORS = {
         message: 'News item scope is empty',
         messageForUser: 'api.newsItem.EMPTY_NEWS_ITEM_SCOPE',
     },
-    UNIT_NAME_WITHOUT_UNITTYPE: {
+    UNITNAME_WITHOUT_UNITTYPE: {
         code: BAD_USER_INPUT,
-        type: UNIT_NAME_WITHOUT_UNITTYPE,
+        type: UNITNAME_WITHOUT_UNITTYPE,
         message: 'You set unitName without unitType',
-        messageForUser: 'api.newsItem.UNIT_NAME_WITHOUT_UNITTYPE',
+        messageForUser: 'api.newsItem.UNITNAME_WITHOUT_UNITTYPE',
     },
 }
 
@@ -87,7 +87,7 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
             }
 
             if (get(possibleItemData, 'unitName') && !get(possibleItemData, 'unitType')) {
-                throw new GQLError(ERRORS.UNIT_NAME_WITHOUT_UNITTYPE, context)
+                throw new GQLError(ERRORS.UNITNAME_WITHOUT_UNITTYPE, context)
             }
 
             let newsItemId
