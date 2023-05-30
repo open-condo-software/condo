@@ -46,7 +46,7 @@ async function canManageCommunalMeters ({ authentication: { item: user }, origin
     }
 
     if (operation === 'update' && itemId) {
-        const meter = await getByCondition('Meter', {
+        const meter = await getByCondition('CommunalMeter', {
             id: itemId,
             deletedAt: null,
         })

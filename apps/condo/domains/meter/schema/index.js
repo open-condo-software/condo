@@ -3,13 +3,13 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { CommunalMeter } = require('./CommunalMeter')
 const { ExportMeterReadingsService } = require('./ExportMeterReadingsService')
 const { Meter } = require('./Meter')
 const { MeterReading } = require('./MeterReading')
 const { MeterReadingFilterTemplate } = require('./MeterReadingFilterTemplate')
 const { MeterReadingSource } = require('./MeterReadingSource')
 const { MeterResource } = require('./MeterResource')
-const { CommunalMeter } = require('./CommunalMeter')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {

@@ -280,8 +280,4 @@ describe('CommunalMeter', () => {
             }, AUTOMATIC_METER_NO_MASTER_APP)
         })
     })
-
-    describe('notifications', () => {
-        // TODO(codegen): write notifications tests if you have any sendMessage calls or drop this block!
-    })
 })
