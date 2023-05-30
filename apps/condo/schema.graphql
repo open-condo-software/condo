@@ -61314,6 +61314,12 @@ type ExportMeterReadingsOutput {
   linkToFile: String!
 }
 
+input _internalDeleteMeterAndMeterReadingsInput {
+  dv: Int!
+  sender: JSON!
+  propertyIds: [String]!
+}
+
 input RegisterMultiPaymentServiceConsumerInput {
   serviceConsumer: ServiceConsumerWhereUniqueInput!
   receipts: [BillingReceiptWhereUniqueInput!]!
@@ -70967,6 +70973,7 @@ type Mutation {
   }`
   """
   createOnBoardingByType(data: CreateOnBoardingInput!): OnBoarding
+  _internalDeleteMeterAndMeterReadings(data: _internalDeleteMeterAndMeterReadingsInput!): [MeterReading]
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput

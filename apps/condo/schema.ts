@@ -33055,6 +33055,7 @@ export type Mutation = {
    * }`
    */
   createOnBoardingByType?: Maybe<OnBoarding>;
+  _internalDeleteMeterAndMeterReadings?: Maybe<Array<Maybe<MeterReading>>>;
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
@@ -39901,6 +39902,11 @@ export type MutationSendMessageToResidentScopesArgs = {
 
 export type MutationCreateOnBoardingByTypeArgs = {
   data: CreateOnBoardingInput;
+};
+
+
+export type Mutation_InternalDeleteMeterAndMeterReadingsArgs = {
+  data: _InternalDeleteMeterAndMeterReadingsInput;
 };
 
 
@@ -78943,6 +78949,12 @@ export type _ListSchemaRelatedFields = {
 export type _QueryMeta = {
   __typename?: '_QueryMeta';
   count?: Maybe<Scalars['Int']>;
+};
+
+export type _InternalDeleteMeterAndMeterReadingsInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  propertyIds: Array<Maybe<Scalars['String']>>;
 };
 
 export type _InternalScheduleTaskByNameInput = {
