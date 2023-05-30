@@ -158,7 +158,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         )
 
     const menuItem = (
-        <MenuItemWrapper onClick={handleClick} className={menuItemClassNames} isCollapsed={isCollapsed} {...restWrapperProps}>
+        <MenuItemWrapper id={`index-sidemenu-${path.replace('/', '')}`} onClick={handleClick} className={menuItemClassNames} isCollapsed={isCollapsed} {...restWrapperProps}>
             {(isCollapsed && !disabled) ? addToolTipForCollapsedMenu(linkContent, Message) : linkContent}
         </MenuItemWrapper>
     )
