@@ -31,7 +31,6 @@ const _internalSyncContactsWithResidentsForOrganizationService = new GQLCustomSc
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { dv, sender, organization } = data
-                const allResidents = []
                 const properties = await loadListByChunks({
                     context,
                     list: Property,
@@ -39,19 +38,16 @@ const _internalSyncContactsWithResidentsForOrganizationService = new GQLCustomSc
                         organization: { id: organization.id },
                     },
                 })
-                for (const property of properties) {
-                    const residents = await loadListByChunks({
-                        context,
-                        list: Resident,
-                        where: {
-                            organization: { id: organization.id },
-                            property: { id: property.id },
-                        },
-                    })
-                    allResidents.push(...residents)
-                }
+                const residents = await loadListByChunks({
+                    context,
+                    list: Resident,
+                    where: {
+                        organization: { id: organization.id },
+                        property: { id_in: [...properties.map(x => x.id)] },
+                    },
+                })
                 const createdContacts = []
-                for (const resident of allResidents) {
+                for (const resident of residents) {
                     const user = await getById('User', resident.user.id)
                     const phone = user.phone
                     if (phone){
