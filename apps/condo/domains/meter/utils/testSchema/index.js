@@ -229,11 +229,11 @@ async function createTestCommunalMeter (client, organization, property, resource
     if (!resource || !resource.id) throw new Error('no resource.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestCommunalMeter logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
+        numberOfTariffs: 1,
+        number: faker.random.alphaNumeric(5),
         organization: { connect: { id: organization.id } },
         property: { connect: { id: property.id } },
         resource: { connect: { id: resource.id } },
@@ -247,8 +247,6 @@ async function updateTestCommunalMeter (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestCommunalMeter logic for generate fields
 
     const attrs = {
         dv: 1,
