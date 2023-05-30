@@ -311,9 +311,9 @@ describe('NewsItemScope', () => {
                 async () => await createTestNewsItemScope(adminClient, newsItem, { unitName: '1' }),
                 {
                     code: 'BAD_USER_INPUT',
-                    type: 'UNITNAME_WITHOUT_UNITTYPE',
+                    type: 'UNIT_NAME_WITHOUT_UNIT_TYPE',
                     message: 'You set unitName without unitType',
-                    messageForUser: 'api.newsItem.UNITNAME_WITHOUT_UNITTYPE',
+                    messageForUser: 'api.newsItem.UNIT_NAME_WITHOUT_UNIT_TYPE',
                 },
             )
         })
