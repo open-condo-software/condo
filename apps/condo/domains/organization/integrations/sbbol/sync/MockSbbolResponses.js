@@ -251,7 +251,7 @@ class MockSbbolResponses {
         return {
             ...EXAMPLE_USER_INFO,
             inn,
-            phone_number: faker.phone.phoneNumber('+792########'),
+            phone_number: faker.phone.number('+792########'),
             email: faker.internet.email(),
             HashOrgId: uuid(),
             userGuid: uuid(),

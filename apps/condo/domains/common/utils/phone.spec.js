@@ -48,7 +48,7 @@ describe('normalizePhone()', () => {
         const { country_code, mobile_begin_with, phone_number_lengths } = faker.helpers.arrayElement(countryPhoneData.filter(x => get(x, 'mobile_begin_with.length', 0) > 0))
         const length = max(phone_number_lengths)
         const code = String(faker.helpers.arrayElement(mobile_begin_with))
-        const phone = faker.phone.phoneNumber('+' + country_code + code + repeat('#', length - code.length))
+        const phone = faker.phone.number('+' + country_code + code + repeat('#', length - code.length))
         expect(normalizePhone(phone)).toEqual(phone)
     })
 })

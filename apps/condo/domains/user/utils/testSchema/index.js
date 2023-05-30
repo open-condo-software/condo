@@ -55,11 +55,11 @@ function createTestPhone () {
     const length = max(phone_number_lengths)
     const code = String(faker.helpers.arrayElement(mobile_begin_with))
 
-    return faker.phone.phoneNumber('+' + country_code + code + repeat('#', length - code.length))
+    return faker.phone.number('+' + country_code + code + repeat('#', length - code.length))
 }
 
 function createTestLandlineNumber () {
-    return faker.phone.phoneNumber('+7343#######')
+    return faker.phone.number('+7343#######')
 }
 
 async function createTestUser (client, extraAttrs = {}, { raw = false } = {}) {

@@ -30,13 +30,13 @@ describe('sendMessageBatch', () => {
                 const user = {
                     id: faker.datatype.uuid(),
                     remoteClient: `rc:${faker.datatype.uuid()}`,
-                    phone: faker.phone.phoneNumber('+79#########'),
+                    phone: faker.phone.number('+79#########'),
                     email: `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`,
                 }
                 const brokenEmail = `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}`
-                const brokenPhone = faker.phone.phoneNumber('+79########')
-                const landLinePhone = faker.phone.phoneNumber('+7343#######')
-                const brokenLandLinePhone = faker.phone.phoneNumber('+7343######')
+                const brokenPhone = faker.phone.number('+79########')
+                const landLinePhone = faker.phone.number('+7343#######')
+                const brokenLandLinePhone = faker.phone.number('+7343######')
 
                 expect(selectTarget(user.phone)).toEqual({ to: { phone: user.phone } })
                 expect(selectTarget(user.email)).toEqual({ to: { email: user.email }, emailFrom: EMAIL_FROM })
@@ -59,13 +59,13 @@ describe('sendMessageBatch', () => {
                 const user = {
                     id: faker.datatype.uuid(),
                     remoteClient: `rc:${faker.datatype.uuid()}`,
-                    phone: faker.phone.phoneNumber('+79#########'),
+                    phone: faker.phone.number('+79#########'),
                     email: `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`,
                 }
                 const brokenEmail = `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}`
-                const brokenPhone = faker.phone.phoneNumber('+79########')
-                const landLinePhone = faker.phone.phoneNumber('+7343#######')
-                const brokenLandLinePhone = faker.phone.phoneNumber('+7343######')
+                const brokenPhone = faker.phone.number('+79########')
+                const landLinePhone = faker.phone.number('+7343#######')
+                const brokenLandLinePhone = faker.phone.number('+7343######')
 
                 expect(detectTransportType(user.phone)).toEqual(SMS_TRANSPORT)
                 expect(detectTransportType(user.email)).toEqual(EMAIL_TRANSPORT)
@@ -98,7 +98,7 @@ describe('sendMessageBatch', () => {
             it('normalizes target properly', async () => {
                 const targets = [
                     faker.datatype.uuid(),
-                    faker.phone.phoneNumber('+79#########'),
+                    faker.phone.number('+79#########'),
                     `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`.toLowerCase(),
                     null,
                     null,
@@ -174,7 +174,7 @@ describe('sendMessageBatch', () => {
             })
 
             it('prepares proper sms messageData', async () => {
-                const target = faker.phone.phoneNumber('+79#########')
+                const target = faker.phone.number('+79#########')
                 const batch = {
                     id: faker.datatype.uuid(),
                     title: faker.random.alphaNumeric(20),

@@ -4127,7 +4127,8 @@ input OrganizationEmployeeRoleRelateToOneInput {
   disconnectAll: Boolean
 }
 
-""" B2B customer employees """
+""" B2B customer employees. For invite employee should use inviteNewOrganizationEmployee and reInviteOrganizationEmployee 
+"""
 type OrganizationEmployee {
   """
   This virtual field will be resolved in one of the following ways (in this order):

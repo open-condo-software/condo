@@ -18,7 +18,8 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const { softDeletePropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/serverSchema')
 
 const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
-    schemaDoc: 'B2B customer employees',
+    schemaDoc: 'B2B customer employees. ' +
+        'For invite employee should use inviteNewOrganizationEmployee and reInviteOrganizationEmployee',
     fields: {
         organization: { ...ORGANIZATION_OWNED_FIELD, ref: 'Organization.employees' },
         user: {

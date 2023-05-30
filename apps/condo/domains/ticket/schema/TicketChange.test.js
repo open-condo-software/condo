@@ -70,7 +70,7 @@ describe('TicketChange', () => {
                 clientName: faker.name.firstName(),
                 clientEmail: faker.internet.email(),
                 // TODO (SavelevMatthew) Better way to generate phone numbers?
-                clientPhone: faker.phone.phoneNumber('+79#########'),
+                clientPhone: faker.phone.number('+79#########'),
                 sectionName: faker.lorem.word(),
                 floorName: faker.lorem.word(),
                 unitName: faker.lorem.word(),

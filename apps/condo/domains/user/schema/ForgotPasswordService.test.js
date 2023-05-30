@@ -379,7 +379,7 @@ describe('ForgotPasswordAction Service', () => {
         it('does change only staff member password', async () => {
             const admin = await makeLoggedInAdminClient()
             
-            const xiaomiSharedPhone = faker.phone.phoneNumber('+79#########')
+            const xiaomiSharedPhone = faker.phone.number('+79#########')
 
             const [user, userAttrs] = await createTestUser(admin, { phone: xiaomiSharedPhone })
             const [resident] = await createTestUser(admin, { phone: xiaomiSharedPhone, type: RESIDENT, isPhoneVerified: true })

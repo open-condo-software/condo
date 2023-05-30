@@ -22,7 +22,7 @@ const mockUserInfo = (identityId, phone) => ({
     id: identityId,
     issuer: 'testIssuer',
     email: faker.internet.email(),
-    phoneNumber: phone || faker.phone.phoneNumber('+792########'),
+    phoneNumber: phone || faker.phone.number('+792########'),
 })
 
 describe('syncUser from SberId', () => {

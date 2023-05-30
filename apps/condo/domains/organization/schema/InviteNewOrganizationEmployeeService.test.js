@@ -1,8 +1,13 @@
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
-const { expectToThrowAuthenticationErrorToObj, catchErrorFrom } = require('@open-condo/keystone/test.utils')
-const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    waitFor,
+    expectToThrowAuthenticationErrorToObj,
+    catchErrorFrom,
+    expectToThrowAccessDeniedErrorToObj,
+} = require('@open-condo/keystone/test.utils')
 
 const {
     DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
@@ -12,8 +17,13 @@ const {
     SMS_TRANSPORT,
 } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
-const { OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const {
+    OrganizationEmployeeSpecialization,
+    createTestOrganization,
+    createTestOrganizationEmployeeRole,
+    createTestOrganizationEmployee,
+    makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
+} = require('@condo/domains/organization/utils/testSchema')
 const {
     inviteNewOrganizationEmployee,
     reInviteNewOrganizationEmployee,
@@ -21,8 +31,13 @@ const {
     acceptOrRejectOrganizationInviteById,
 } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    createTestUser,
+    createTestPhone,
+    createTestEmail,
+} = require('@condo/domains/user/utils/testSchema')
+
 
 describe('InviteNewOrganizationEmployeeService', () => {
     let admin
@@ -66,7 +81,10 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     /**
                      * Check that notification about invitation as employee was sent
                      */
-                    const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE }
+                    const messageWhere = {
+                        user: { id: employee.user.id },
+                        type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
+                    }
 
                     await waitFor(async () => {
                         const message1 = await Message.getOne(admin, messageWhere)
@@ -253,47 +271,70 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 }
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await inviteNewOrganizationEmployee(anonymousClient, client.organization, employeeUserAttrs,  role, {})
+                    await inviteNewOrganizationEmployee(anonymousClient, client.organization, employeeUserAttrs, role, {})
                 })
             })
         })
 
-        describe('user: create invite employee', () => {
-            it('can with granted "canInviteNewOrganizationEmployees" permission', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const inviteClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [organization] = await createTestOrganization(admin)
+        describe('called by employee', () => {
+            describe('with granted "canInviteNewOrganizationEmployees" permission', () => {
+                it('returns new employee', async () => {
+                    const [organization] = await createTestOrganization(admin)
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canInviteNewOrganizationEmployees: true,
+                    })
+                    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role)
 
-                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canInviteNewOrganizationEmployees: true,
-                    canManageRoles: true,
+                    const employeeUserAttrs = {
+                        name: faker.name.fullName(),
+                        email: createTestEmail(),
+                        phone: createTestPhone(),
+                    }
+
+                    const [invitedEmployee] = await inviteNewOrganizationEmployee(client, employee.organization, employeeUserAttrs, role)
+
+                    expect(invitedEmployee.email).toEqual(employeeUserAttrs.email)
+                    expect(invitedEmployee.phone).toEqual(employeeUserAttrs.phone)
+                    expect(invitedEmployee.name).toEqual(employeeUserAttrs.name)
                 })
-                const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role)
-                const employeeUserAttrs = {
-                    name: inviteClient.user.name,
-                    email: createTestEmail(),
-                    phone: createTestPhone(),
-                }
-
-                await inviteNewOrganizationEmployee(client, employee.organization, employeeUserAttrs, role)
             })
-            it('cannot without granted "canInviteNewOrganizationEmployees" permission', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const inviteClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [organization] = await createTestOrganization(admin)
 
-                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canInviteNewOrganizationEmployees: false,
+            describe('without granted "canInviteNewOrganizationEmployees" permission', () => {
+                it('throws denied error', async () => {
+                    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canInviteNewOrganizationEmployees: false,
+                    })
+                    const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role)
+                    const employeeUserAttrs = {
+                        name: faker.name.fullName(),
+                        email: createTestEmail(),
+                        phone: createTestPhone(),
+                    }
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await inviteNewOrganizationEmployee(client, employee.organization, employeeUserAttrs, role)
+                    })
                 })
-                const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role)
-                const employeeUserAttrs = {
-                    name: inviteClient.user.name,
-                    email: createTestEmail(),
-                    phone: createTestPhone(),
-                }
+            })
 
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await inviteNewOrganizationEmployee(client, employee.organization, employeeUserAttrs, role)
+            describe('from another organization', () => {
+                it('throws denied error', async () => {
+                    const { organization, role } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()
+                    const { userClient: clientFromOtherO10n } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee()
+
+                    const newEmployeeUserAttrs = {
+                        name: faker.name.fullName(),
+                        email: createTestEmail(),
+                        phone: createTestPhone(),
+                    }
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await inviteNewOrganizationEmployee(clientFromOtherO10n, organization, newEmployeeUserAttrs, role)
+                    })
                 })
             })
         })
@@ -335,7 +376,10 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 /**
                  * Check that notification about invitation as employee was sent
                  */
-                const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE }
+                const messageWhere = {
+                    user: { id: employee.user.id },
+                    type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
+                }
 
                 await waitFor(async () => {
                     const message1 = await Message.getOne(admin, messageWhere)
@@ -375,7 +419,10 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 /**
                  * Check that notification about invitation as employee was sent
                  */
-                const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE }
+                const messageWhere = {
+                    user: { id: employee.user.id },
+                    type: DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
+                }
 
                 await waitFor(async () => {
                     const message1 = await Message.getOne(admin, messageWhere)
@@ -411,7 +458,10 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         /**
                          * Check that notifications about invitation as employee were sent
                          */
-                        const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE }
+                        const messageWhere = {
+                            user: { id: employee.user.id },
+                            type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
+                        }
                         const messages = await Message.getAll(admin, messageWhere)
 
                         expect(messages[0].status).toEqual(MESSAGE_SENT_STATUS)
