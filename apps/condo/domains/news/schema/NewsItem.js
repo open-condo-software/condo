@@ -124,7 +124,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
             ref: 'NewsItemScope.newsItem',
             many: true,
             access: {
-                read: () => ({ authentication: { item: user } }) => (user.isAdmin || user.isSupport),
+                read: ({ authentication: { item: user } }) => (user.isAdmin || user.isSupport),
                 create: false,
                 update: false,
             },
