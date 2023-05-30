@@ -710,6 +710,37 @@ const expectToThrowUniqueConstraintViolationError = async (testFunc, constraintN
     })
 }
 
+/**
+ * @param testFunc
+ * @param {string} path
+ * @param {string} field
+ * @param {Number} [count]
+ * @returns {Promise<void>}
+ */
+const expectToThrowAccessDeniedToFieldError = async (testFunc, path, field, count = 1) => {
+    if (!path) throw new Error('path is not specified')
+    if (!field) throw new Error('field is not specified')
+
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(caught).toMatchObject({
+            name: 'TestClientResponseError',
+            data: { [path]: Array(count).fill(null) },
+            errors: Array(count).fill(null).map((v, i) => expect.objectContaining({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': [path, i, field],
+                'locations': [expect.objectContaining({
+                    line: expect.anything(),
+                    column: expect.anything(),
+                })],
+                'extensions': {
+                    'code': 'INTERNAL_SERVER_ERROR',
+                },
+            })),
+        })
+    })
+}
+
 module.exports = {
     waitFor,
     isPostgres, isMongo,
@@ -746,4 +777,5 @@ module.exports = {
     expectToThrowGraphQLRequestError,
     expectValuesOfCommonFields,
     expectToThrowUniqueConstraintViolationError,
+    expectToThrowAccessDeniedToFieldError,
 }
