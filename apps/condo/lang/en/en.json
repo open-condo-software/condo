@@ -1661,7 +1661,7 @@
   "excelExport.header.contacts.forPeriod": "Contacts for the period",
   "excelExport.header.newsRecipients": "News recipients",
   "excelExport.headers.newsRecipients.address": "Address",
-  "excelExport.headers.newsRecipients.unitName": "Unit Name",
+  "excelExport.headers.newsRecipients.unitName": "Unit name",
   "excelExport.headers.newsRecipients.hasResident": "Resident mobile app installed",
   "excelExport.headers.payments.date": "Date",
   "excelExport.headers.payments.account": "Account",
