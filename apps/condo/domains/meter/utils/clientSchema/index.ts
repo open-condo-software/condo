@@ -21,6 +21,7 @@ export * as MeterReading from './MeterReading'
 export * as Meter from './Meter'
 export * as MeterReadingFilterTemplate from './MeterReadingFilterTemplate'
 export * as CommunalMeter from './CommunalMeter'
+export * as CommunalMeterReading from './CommunalMeterReading'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
 
 

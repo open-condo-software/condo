@@ -16829,6 +16829,448 @@ export type CommunalMeterHistoryRecordsUpdateInput = {
   data?: Maybe<CommunalMeterHistoryRecordUpdateInput>;
 };
 
+/**  Meter reading taken from a client or billing  */
+export type CommunalMeterReading = {
+  __typename?: 'CommunalMeterReading';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the CommunalMeterReading List config, or
+   *  2. As an alias to the field set on 'labelField' in the CommunalMeterReading List config, or
+   *  3. As an alias to a 'name' field on the CommunalMeterReading List (if one exists), or
+   *  4. As an alias to the 'id' field on the CommunalMeterReading List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Date when the readings were taken  */
+  date?: Maybe<Scalars['String']>;
+  /**  Meter from which readings were taken  */
+  meter?: Maybe<CommunalMeter>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  If the meter is single-tariff, then only this value will be filled in;If multi-tariff, then the value of the first tariff will be in this field  */
+  value1?: Maybe<Scalars['String']>;
+  /**  If the meter is multi-tariff, then the value of the second tariff is stored here  */
+  value2?: Maybe<Scalars['String']>;
+  /**  If the meter is multi-tariff, then the value of the second tariff is stored here  */
+  value3?: Maybe<Scalars['String']>;
+  /**  If the meter is multi-tariff, then the value of the second tariff is stored here  */
+  value4?: Maybe<Scalars['String']>;
+  /**  Meter reading source channel/system. Examples: call, mobile_app, billing, ...  */
+  source?: Maybe<MeterReadingSource>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type CommunalMeterReadingCreateInput = {
+  date?: Maybe<Scalars['String']>;
+  meter?: Maybe<CommunalMeterRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  value1?: Maybe<Scalars['String']>;
+  value2?: Maybe<Scalars['String']>;
+  value3?: Maybe<Scalars['String']>;
+  value4?: Maybe<Scalars['String']>;
+  source?: Maybe<MeterReadingSourceRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type CommunalMeterReadingHistoryRecord = {
+  __typename?: 'CommunalMeterReadingHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the CommunalMeterReadingHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the CommunalMeterReadingHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the CommunalMeterReadingHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the CommunalMeterReadingHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  date?: Maybe<Scalars['String']>;
+  meter?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  value1?: Maybe<Scalars['String']>;
+  value2?: Maybe<Scalars['String']>;
+  value3?: Maybe<Scalars['String']>;
+  value4?: Maybe<Scalars['String']>;
+  source?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<CommunalMeterReadingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type CommunalMeterReadingHistoryRecordCreateInput = {
+  date?: Maybe<Scalars['String']>;
+  meter?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  value1?: Maybe<Scalars['String']>;
+  value2?: Maybe<Scalars['String']>;
+  value3?: Maybe<Scalars['String']>;
+  value4?: Maybe<Scalars['String']>;
+  source?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<CommunalMeterReadingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum CommunalMeterReadingHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type CommunalMeterReadingHistoryRecordUpdateInput = {
+  date?: Maybe<Scalars['String']>;
+  meter?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  value1?: Maybe<Scalars['String']>;
+  value2?: Maybe<Scalars['String']>;
+  value3?: Maybe<Scalars['String']>;
+  value4?: Maybe<Scalars['String']>;
+  source?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<CommunalMeterReadingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type CommunalMeterReadingHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<CommunalMeterReadingHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<CommunalMeterReadingHistoryRecordWhereInput>>>;
+  date?: Maybe<Scalars['String']>;
+  date_not?: Maybe<Scalars['String']>;
+  date_lt?: Maybe<Scalars['String']>;
+  date_lte?: Maybe<Scalars['String']>;
+  date_gt?: Maybe<Scalars['String']>;
+  date_gte?: Maybe<Scalars['String']>;
+  date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meter?: Maybe<Scalars['String']>;
+  meter_not?: Maybe<Scalars['String']>;
+  meter_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meter_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value1?: Maybe<Scalars['String']>;
+  value1_not?: Maybe<Scalars['String']>;
+  value1_lt?: Maybe<Scalars['String']>;
+  value1_lte?: Maybe<Scalars['String']>;
+  value1_gt?: Maybe<Scalars['String']>;
+  value1_gte?: Maybe<Scalars['String']>;
+  value1_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value1_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value2?: Maybe<Scalars['String']>;
+  value2_not?: Maybe<Scalars['String']>;
+  value2_lt?: Maybe<Scalars['String']>;
+  value2_lte?: Maybe<Scalars['String']>;
+  value2_gt?: Maybe<Scalars['String']>;
+  value2_gte?: Maybe<Scalars['String']>;
+  value2_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value2_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value3?: Maybe<Scalars['String']>;
+  value3_not?: Maybe<Scalars['String']>;
+  value3_lt?: Maybe<Scalars['String']>;
+  value3_lte?: Maybe<Scalars['String']>;
+  value3_gt?: Maybe<Scalars['String']>;
+  value3_gte?: Maybe<Scalars['String']>;
+  value3_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value3_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value4?: Maybe<Scalars['String']>;
+  value4_not?: Maybe<Scalars['String']>;
+  value4_lt?: Maybe<Scalars['String']>;
+  value4_lte?: Maybe<Scalars['String']>;
+  value4_gt?: Maybe<Scalars['String']>;
+  value4_gte?: Maybe<Scalars['String']>;
+  value4_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value4_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  source?: Maybe<Scalars['String']>;
+  source_not?: Maybe<Scalars['String']>;
+  source_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  source_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<CommunalMeterReadingHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<CommunalMeterReadingHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<CommunalMeterReadingHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<CommunalMeterReadingHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type CommunalMeterReadingHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type CommunalMeterReadingHistoryRecordsCreateInput = {
+  data?: Maybe<CommunalMeterReadingHistoryRecordCreateInput>;
+};
+
+export type CommunalMeterReadingHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<CommunalMeterReadingHistoryRecordUpdateInput>;
+};
+
+export type CommunalMeterReadingUpdateInput = {
+  date?: Maybe<Scalars['String']>;
+  meter?: Maybe<CommunalMeterRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  value1?: Maybe<Scalars['String']>;
+  value2?: Maybe<Scalars['String']>;
+  value3?: Maybe<Scalars['String']>;
+  value4?: Maybe<Scalars['String']>;
+  source?: Maybe<MeterReadingSourceRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type CommunalMeterReadingWhereInput = {
+  AND?: Maybe<Array<Maybe<CommunalMeterReadingWhereInput>>>;
+  OR?: Maybe<Array<Maybe<CommunalMeterReadingWhereInput>>>;
+  date?: Maybe<Scalars['String']>;
+  date_not?: Maybe<Scalars['String']>;
+  date_lt?: Maybe<Scalars['String']>;
+  date_lte?: Maybe<Scalars['String']>;
+  date_gt?: Maybe<Scalars['String']>;
+  date_gte?: Maybe<Scalars['String']>;
+  date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meter?: Maybe<CommunalMeterWhereInput>;
+  meter_is_null?: Maybe<Scalars['Boolean']>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  value1?: Maybe<Scalars['String']>;
+  value1_not?: Maybe<Scalars['String']>;
+  value1_lt?: Maybe<Scalars['String']>;
+  value1_lte?: Maybe<Scalars['String']>;
+  value1_gt?: Maybe<Scalars['String']>;
+  value1_gte?: Maybe<Scalars['String']>;
+  value1_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value1_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value2?: Maybe<Scalars['String']>;
+  value2_not?: Maybe<Scalars['String']>;
+  value2_lt?: Maybe<Scalars['String']>;
+  value2_lte?: Maybe<Scalars['String']>;
+  value2_gt?: Maybe<Scalars['String']>;
+  value2_gte?: Maybe<Scalars['String']>;
+  value2_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value2_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value3?: Maybe<Scalars['String']>;
+  value3_not?: Maybe<Scalars['String']>;
+  value3_lt?: Maybe<Scalars['String']>;
+  value3_lte?: Maybe<Scalars['String']>;
+  value3_gt?: Maybe<Scalars['String']>;
+  value3_gte?: Maybe<Scalars['String']>;
+  value3_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value3_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value4?: Maybe<Scalars['String']>;
+  value4_not?: Maybe<Scalars['String']>;
+  value4_lt?: Maybe<Scalars['String']>;
+  value4_lte?: Maybe<Scalars['String']>;
+  value4_gt?: Maybe<Scalars['String']>;
+  value4_gte?: Maybe<Scalars['String']>;
+  value4_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  value4_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  source?: Maybe<MeterReadingSourceWhereInput>;
+  source_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type CommunalMeterReadingWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type CommunalMeterReadingsCreateInput = {
+  data?: Maybe<CommunalMeterReadingCreateInput>;
+};
+
+export type CommunalMeterReadingsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<CommunalMeterReadingUpdateInput>;
+};
+
+export type CommunalMeterRelateToOneInput = {
+  create?: Maybe<CommunalMeterCreateInput>;
+  connect?: Maybe<CommunalMeterWhereUniqueInput>;
+  disconnect?: Maybe<CommunalMeterWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export type CommunalMeterUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   number?: Maybe<Scalars['String']>;
@@ -30368,6 +30810,30 @@ export type Mutation = {
   deleteCommunalMeter?: Maybe<CommunalMeter>;
   /**  Delete multiple CommunalMeter items by ID.  */
   deleteCommunalMeters?: Maybe<Array<Maybe<CommunalMeter>>>;
+  /**  Create a single CommunalMeterReadingHistoryRecord item.  */
+  createCommunalMeterReadingHistoryRecord?: Maybe<CommunalMeterReadingHistoryRecord>;
+  /**  Create multiple CommunalMeterReadingHistoryRecord items.  */
+  createCommunalMeterReadingHistoryRecords?: Maybe<Array<Maybe<CommunalMeterReadingHistoryRecord>>>;
+  /**  Update a single CommunalMeterReadingHistoryRecord item by ID.  */
+  updateCommunalMeterReadingHistoryRecord?: Maybe<CommunalMeterReadingHistoryRecord>;
+  /**  Update multiple CommunalMeterReadingHistoryRecord items by ID.  */
+  updateCommunalMeterReadingHistoryRecords?: Maybe<Array<Maybe<CommunalMeterReadingHistoryRecord>>>;
+  /**  Delete a single CommunalMeterReadingHistoryRecord item by ID.  */
+  deleteCommunalMeterReadingHistoryRecord?: Maybe<CommunalMeterReadingHistoryRecord>;
+  /**  Delete multiple CommunalMeterReadingHistoryRecord items by ID.  */
+  deleteCommunalMeterReadingHistoryRecords?: Maybe<Array<Maybe<CommunalMeterReadingHistoryRecord>>>;
+  /**  Create a single CommunalMeterReading item.  */
+  createCommunalMeterReading?: Maybe<CommunalMeterReading>;
+  /**  Create multiple CommunalMeterReading items.  */
+  createCommunalMeterReadings?: Maybe<Array<Maybe<CommunalMeterReading>>>;
+  /**  Update a single CommunalMeterReading item by ID.  */
+  updateCommunalMeterReading?: Maybe<CommunalMeterReading>;
+  /**  Update multiple CommunalMeterReading items by ID.  */
+  updateCommunalMeterReadings?: Maybe<Array<Maybe<CommunalMeterReading>>>;
+  /**  Delete a single CommunalMeterReading item by ID.  */
+  deleteCommunalMeterReading?: Maybe<CommunalMeterReading>;
+  /**  Delete multiple CommunalMeterReading items by ID.  */
+  deleteCommunalMeterReadings?: Maybe<Array<Maybe<CommunalMeterReading>>>;
   /**  Create a single ServiceSubscriptionHistoryRecord item.  */
   createServiceSubscriptionHistoryRecord?: Maybe<ServiceSubscriptionHistoryRecord>;
   /**  Create multiple ServiceSubscriptionHistoryRecord items.  */
@@ -37934,6 +38400,68 @@ export type MutationDeleteCommunalMeterArgs = {
 
 
 export type MutationDeleteCommunalMetersArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateCommunalMeterReadingHistoryRecordArgs = {
+  data?: Maybe<CommunalMeterReadingHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateCommunalMeterReadingHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<CommunalMeterReadingHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateCommunalMeterReadingHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<CommunalMeterReadingHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateCommunalMeterReadingHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<CommunalMeterReadingHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteCommunalMeterReadingHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteCommunalMeterReadingHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateCommunalMeterReadingArgs = {
+  data?: Maybe<CommunalMeterReadingCreateInput>;
+};
+
+
+export type MutationCreateCommunalMeterReadingsArgs = {
+  data?: Maybe<Array<Maybe<CommunalMeterReadingsCreateInput>>>;
+};
+
+
+export type MutationUpdateCommunalMeterReadingArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<CommunalMeterReadingUpdateInput>;
+};
+
+
+export type MutationUpdateCommunalMeterReadingsArgs = {
+  data?: Maybe<Array<Maybe<CommunalMeterReadingsUpdateInput>>>;
+};
+
+
+export type MutationDeleteCommunalMeterReadingArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteCommunalMeterReadingsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -49955,6 +50483,22 @@ export type Query = {
   _allCommunalMetersMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the CommunalMeter list.  */
   _CommunalMetersMeta?: Maybe<_ListMeta>;
+  /**  Search for all CommunalMeterReadingHistoryRecord items which match the where clause.  */
+  allCommunalMeterReadingHistoryRecords?: Maybe<Array<Maybe<CommunalMeterReadingHistoryRecord>>>;
+  /**  Search for the CommunalMeterReadingHistoryRecord item with the matching ID.  */
+  CommunalMeterReadingHistoryRecord?: Maybe<CommunalMeterReadingHistoryRecord>;
+  /**  Perform a meta-query on all CommunalMeterReadingHistoryRecord items which match the where clause.  */
+  _allCommunalMeterReadingHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the CommunalMeterReadingHistoryRecord list.  */
+  _CommunalMeterReadingHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all CommunalMeterReading items which match the where clause.  */
+  allCommunalMeterReadings?: Maybe<Array<Maybe<CommunalMeterReading>>>;
+  /**  Search for the CommunalMeterReading item with the matching ID.  */
+  CommunalMeterReading?: Maybe<CommunalMeterReading>;
+  /**  Perform a meta-query on all CommunalMeterReading items which match the where clause.  */
+  _allCommunalMeterReadingsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the CommunalMeterReading list.  */
+  _CommunalMeterReadingsMeta?: Maybe<_ListMeta>;
   /**  Search for all ServiceSubscriptionHistoryRecord items which match the where clause.  */
   allServiceSubscriptionHistoryRecords?: Maybe<Array<Maybe<ServiceSubscriptionHistoryRecord>>>;
   /**  Search for the ServiceSubscriptionHistoryRecord item with the matching ID.  */
@@ -54390,6 +54934,56 @@ export type Query_AllCommunalMetersMetaArgs = {
   where?: Maybe<CommunalMeterWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortCommunalMetersBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllCommunalMeterReadingHistoryRecordsArgs = {
+  where?: Maybe<CommunalMeterReadingHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortCommunalMeterReadingHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryCommunalMeterReadingHistoryRecordArgs = {
+  where: CommunalMeterReadingHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllCommunalMeterReadingHistoryRecordsMetaArgs = {
+  where?: Maybe<CommunalMeterReadingHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortCommunalMeterReadingHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllCommunalMeterReadingsArgs = {
+  where?: Maybe<CommunalMeterReadingWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortCommunalMeterReadingsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryCommunalMeterReadingArgs = {
+  where: CommunalMeterReadingWhereUniqueInput;
+};
+
+
+export type Query_AllCommunalMeterReadingsMetaArgs = {
+  where?: Maybe<CommunalMeterReadingWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortCommunalMeterReadingsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -61466,6 +62060,70 @@ export enum SortCommunalMeterHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortCommunalMeterReadingHistoryRecordsBy {
+  DateAsc = 'date_ASC',
+  DateDesc = 'date_DESC',
+  Value1Asc = 'value1_ASC',
+  Value1Desc = 'value1_DESC',
+  Value2Asc = 'value2_ASC',
+  Value2Desc = 'value2_DESC',
+  Value3Asc = 'value3_ASC',
+  Value3Desc = 'value3_DESC',
+  Value4Asc = 'value4_ASC',
+  Value4Desc = 'value4_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortCommunalMeterReadingsBy {
+  DateAsc = 'date_ASC',
+  DateDesc = 'date_DESC',
+  MeterAsc = 'meter_ASC',
+  MeterDesc = 'meter_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  Value1Asc = 'value1_ASC',
+  Value1Desc = 'value1_DESC',
+  Value2Asc = 'value2_ASC',
+  Value2Desc = 'value2_DESC',
+  Value3Asc = 'value3_ASC',
+  Value3Desc = 'value3_DESC',
+  Value4Asc = 'value4_ASC',
+  Value4Desc = 'value4_DESC',
+  SourceAsc = 'source_ASC',
+  SourceDesc = 'source_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortCommunalMetersBy {

@@ -4,6 +4,7 @@
  */
 
 const { CommunalMeter } = require('./CommunalMeter')
+const { CommunalMeterReading } = require('./CommunalMeterReading')
 const { ExportMeterReadingsService } = require('./ExportMeterReadingsService')
 const { Meter } = require('./Meter')
 const { MeterReading } = require('./MeterReading')
@@ -20,5 +21,6 @@ module.exports = {
     ExportMeterReadingsService,
     MeterReadingFilterTemplate,
     CommunalMeter,
+    CommunalMeterReading,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

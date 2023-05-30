@@ -15,6 +15,7 @@ const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingFilterTemplate: MeterReadingFilterTemplateGQL } = require('@condo/domains/meter/gql')
 const { CommunalMeter: CommunalMeterGQL } = require('@condo/domains/meter/gql')
+const { CommunalMeterReading: CommunalMeterReadingGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils(MeterResourceGQL)
@@ -23,6 +24,7 @@ const Meter = generateServerUtils(MeterGQL)
 const MeterReading = generateServerUtils(MeterReadingGQL)
 const MeterReadingFilterTemplate = generateServerUtils(MeterReadingFilterTemplateGQL)
 const CommunalMeter = generateServerUtils(CommunalMeterGQL)
+const CommunalMeterReading = generateServerUtils(CommunalMeterReadingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -106,5 +108,6 @@ module.exports = {
     loadMeterReadingsForExcelExport,
     MeterReadingFilterTemplate,
     CommunalMeter,
+    CommunalMeterReading,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
