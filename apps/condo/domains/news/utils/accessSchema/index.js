@@ -46,7 +46,7 @@ function queryFindNewsItemsScopesByResidents (residents) {
  * @param {String} organizationId
  * @param {NewsItemScope[]} newsItemScopes
  */
-function queryFindResidentsByNewsItemAndScopes (organizationId, newsItemScopes) {
+function queryFindResidentsByOrganizationAndScopes (organizationId, newsItemScopes) {
     const whereConditions = {
         AND: [],
     }
@@ -86,5 +86,5 @@ function queryFindResidentsByNewsItemAndScopes (organizationId, newsItemScopes) 
 
 module.exports = {
     queryFindNewsItemsScopesByResidents,
-    queryFindResidentsByNewsItemAndScopes,
+    queryFindResidentsByOrganizationAndScopes,
 }
