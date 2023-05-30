@@ -158,7 +158,7 @@ class CondoOIDCMiddleware {
                 delete req.session[oidcSessionKey]
                 await req.session.save()
 
-                return res.redirect('/')
+                return res.json({ user: { id: user.id } })
             } catch (error) {
                 return next(error)
             }
