@@ -43,7 +43,7 @@ const _internalSyncContactsWithResidentsForOrganizationService = new GQLCustomSc
                     const user = await getById('User', resident.user.id)
                     const phone = user.phone
                     if (phone){
-                        const contact = await Contact.getOne(context, { phone: phone })
+                        const contact = await Contact.getOne(context, { organization: { id: organization.id }, phone: phone })
                         if (contact) continue
                         const contactProps = {
                             dv: dv,
