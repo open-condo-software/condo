@@ -1,14 +1,13 @@
 /**
  * @type {Cypress.PluginConfig}
  */
-const fs = require('fs')
+const { writeFile } = require('node:fs/promises')
 
 const Metrics = require('@open-condo/keystone/metrics')
 
 const registredTraces = []
 
 const METRIC_PREFIX = 'cypress.'
-const METRIC_REPORT_FOLDER = 'metrics/'
 const TRACES_REPORT_FILENAME = 'traces.json'
 
 module.exports = async (on, config) => {
@@ -32,10 +31,9 @@ module.exports = async (on, config) => {
 
     on('after:run', async (results) => {
         console.log('[metrics.js] Saving traces...')
-        const path = METRIC_REPORT_FOLDER + TRACES_REPORT_FILENAME
-        fs.writeFile(path, JSON.stringify(registredTraces), 'utf8', () => {
-            console.log(`[metrics.js] Traces have been saved to ${path}`)
-        })
+        const path = process.cwd() + '/' + TRACES_REPORT_FILENAME
+        await writeFile(path, JSON.stringify(registredTraces), 'utf8')
+        console.log(`[metrics.js] Metrics have been saved to ${path}`)
     })
 
     return config

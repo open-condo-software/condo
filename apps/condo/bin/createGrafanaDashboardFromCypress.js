@@ -1,9 +1,28 @@
+/**
+ * This script allows to generate grafana dashboard from cypress traces and spans configuration.
+ *
+ * Prepare:
+ * 1. Prepare and launch cypress tests (set required variables for cypress)
+ * 2. Set environment variables for grafana (see below)
+ *
+ * Usage:
+ *
+ * 1. Launch full set of cypress tests once to generate traces.json file.
+ * 2. Launch this script
+ *
+ */
+
 const { randomUUID } = require('crypto')
 const fs = require('fs')
 
 const fetch = require('isomorphic-fetch')
 
 const conf = require('@open-condo/config')
+
+// Variables to be set in env:
+const CYPRESS_TRACES_PATH = conf['CYPRESS_TRACES_PATH'] || '../cypress/traces.json'
+// Example: CYPRESS_GRAFANA_CONFIG='{"apiUrl":"***", "apiKey":"***", "dashboardUid":"***" }'
+const CYPRESS_GRAFANA_CONFIG = JSON.parse(conf['CYPRESS_GRAFANA_CONFIG'])
 
 
 const TOTAL_TARGET_CONFIG = {
@@ -19,10 +38,6 @@ const TOTAL_TARGET_CONFIG = {
 }
 
 const PANEL_CONFIG = {
-    'datasource': {
-        'type': 'prometheus',
-        'uid': 'P4169E866C3094E38',
-    },
     'fieldConfig': {
         'defaults': {
             'color': {
@@ -130,13 +145,9 @@ const PANEL_CONFIG = {
 }
 
 const TARGET_CONFIG = {
-    'datasource': {
-        'type': 'prometheus',
-        'uid': 'P4169E866C3094E38',
-    },
     'editorMode': 'builder',
     'exemplar': false,
-    'expr': 'condo_test_cypress_auth_test_anonymous_canRegisterAfterConfirmingPhone_registrationClickedToEnd_duration_avg',
+    'expr': 'INSERT',
     'instant': false,
     'interval': '',
     'legendFormat': 'INSERT',
@@ -302,21 +313,17 @@ const syncGrafanaDashboard = async (traces, config) => {
 
     const response = await updateGrafanaDashboard(newDashboard, config)
 
-    // TODO!
     return apiUrl.replace('/api', '') + response.url
 }
 
-const cypressTracesPath = '../cypress/metrics/traces.json'
-const cypressTraces = fs.readFileSync(cypressTracesPath)
+const cypressTraces = fs.readFileSync(CYPRESS_TRACES_PATH)
 const traces = JSON.parse(cypressTraces)
 
-const config = JSON.parse(conf['CYPRESS_GRAFANA_CONFIG'])
-
-syncGrafanaDashboard(traces, config)
+syncGrafanaDashboard(traces, CYPRESS_GRAFANA_CONFIG)
     .then((url) => {
         console.log('\r\n')
         console.log(`All done, please check the dashboard in grafana: ${url} `)
         process.exit(0)
     }).catch((err) => {
-        console.error('Failed to done', err)
+        console.error('Failed to generate grafana dashboard!', err)
     })
