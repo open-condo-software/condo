@@ -2,23 +2,23 @@ const { getSchemaCtx, find } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
 const { MeterReading } = require('@condo/domains/meter/utils/serverSchema')
-const { CommunalMeterReading } = require('@condo/domains/meter/utils/serverSchema')
+const { PropertyMeterReading } = require('@condo/domains/meter/utils/serverSchema')
 
 /**
  * Soft delete meter readings after soft delete meter
  */
-async function deleteReadingsOfDeletedMeter (deletedMeter, deletedMeterAt, isCommunalMeter = false) {
+async function deleteReadingsOfDeletedMeter (deletedMeter, deletedMeterAt, isPropertyMeter = false) {
     const { keystone: context } = await getSchemaCtx('Property')
 
     const meterId = deletedMeter.id
-    const meterReadings = await find(isCommunalMeter ? 'CommunalMeterReading' : 'MeterReading', {
+    const meterReadings = await find(isPropertyMeter ? 'PropertyMeterReading' : 'MeterReading', {
         meter: { id: meterId },
         deletedAt: null,
     })
 
-    if (isCommunalMeter) {
+    if (isPropertyMeter) {
         for (const reading of meterReadings) {
-            await CommunalMeterReading.update(context, reading.id, {
+            await PropertyMeterReading.update(context, reading.id, {
                 deletedAt: deletedMeterAt,
                 dv: deletedMeter.dv,
                 sender: deletedMeter.sender,

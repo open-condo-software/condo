@@ -43590,20 +43590,20 @@ input MeterReadingFilterTemplatesCreateInput {
   data: MeterReadingFilterTemplateCreateInput
 }
 
-enum CommunalMeterHistoryRecordHistoryActionType {
+enum PropertyMeterHistoryRecordHistoryActionType {
   c
   u
   d
 }
 
 """ A keystone list """
-type CommunalMeterHistoryRecord {
+type PropertyMeterHistoryRecord {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the CommunalMeterHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the CommunalMeterHistoryRecord List config, or
-   3. As an alias to a 'name' field on the CommunalMeterHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the CommunalMeterHistoryRecord List.
+   1. Execution of 'labelResolver' set on the PropertyMeterHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the PropertyMeterHistoryRecord List config, or
+   3. As an alias to a 'name' field on the PropertyMeterHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the PropertyMeterHistoryRecord List.
   """
   _label_: String
   organization: String
@@ -43618,7 +43618,6 @@ type CommunalMeterHistoryRecord {
   isAutomatic: Boolean
   property: String
   resource: String
-  b2cApp: String
   b2bApp: String
   meta: JSON
   id: ID!
@@ -43632,13 +43631,13 @@ type CommunalMeterHistoryRecord {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: CommunalMeterHistoryRecordHistoryActionType
+  history_action: PropertyMeterHistoryRecordHistoryActionType
   history_id: String
 }
 
-input CommunalMeterHistoryRecordWhereInput {
-  AND: [CommunalMeterHistoryRecordWhereInput]
-  OR: [CommunalMeterHistoryRecordWhereInput]
+input PropertyMeterHistoryRecordWhereInput {
+  AND: [PropertyMeterHistoryRecordWhereInput]
+  OR: [PropertyMeterHistoryRecordWhereInput]
   organization: String
   organization_not: String
   organization_in: [String]
@@ -43727,10 +43726,6 @@ input CommunalMeterHistoryRecordWhereInput {
   resource_not: String
   resource_in: [String]
   resource_not_in: [String]
-  b2cApp: String
-  b2cApp_not: String
-  b2cApp_in: [String]
-  b2cApp_not_in: [String]
   b2bApp: String
   b2bApp_not: String
   b2bApp_in: [String]
@@ -43807,21 +43802,21 @@ input CommunalMeterHistoryRecordWhereInput {
   history_date_gte: String
   history_date_in: [String]
   history_date_not_in: [String]
-  history_action: CommunalMeterHistoryRecordHistoryActionType
-  history_action_not: CommunalMeterHistoryRecordHistoryActionType
-  history_action_in: [CommunalMeterHistoryRecordHistoryActionType]
-  history_action_not_in: [CommunalMeterHistoryRecordHistoryActionType]
+  history_action: PropertyMeterHistoryRecordHistoryActionType
+  history_action_not: PropertyMeterHistoryRecordHistoryActionType
+  history_action_in: [PropertyMeterHistoryRecordHistoryActionType]
+  history_action_not_in: [PropertyMeterHistoryRecordHistoryActionType]
   history_id: String
   history_id_not: String
   history_id_in: [String]
   history_id_not_in: [String]
 }
 
-input CommunalMeterHistoryRecordWhereUniqueInput {
+input PropertyMeterHistoryRecordWhereUniqueInput {
   id: ID!
 }
 
-enum SortCommunalMeterHistoryRecordsBy {
+enum SortPropertyMeterHistoryRecordsBy {
   number_ASC
   number_DESC
   numberOfTariffs_ASC
@@ -43858,7 +43853,7 @@ enum SortCommunalMeterHistoryRecordsBy {
   history_action_DESC
 }
 
-input CommunalMeterHistoryRecordUpdateInput {
+input PropertyMeterHistoryRecordUpdateInput {
   organization: String
   number: String
   numberOfTariffs: Int
@@ -43871,7 +43866,6 @@ input CommunalMeterHistoryRecordUpdateInput {
   isAutomatic: Boolean
   property: String
   resource: String
-  b2cApp: String
   b2bApp: String
   meta: JSON
   v: Int
@@ -43884,16 +43878,16 @@ input CommunalMeterHistoryRecordUpdateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: CommunalMeterHistoryRecordHistoryActionType
+  history_action: PropertyMeterHistoryRecordHistoryActionType
   history_id: String
 }
 
-input CommunalMeterHistoryRecordsUpdateInput {
+input PropertyMeterHistoryRecordsUpdateInput {
   id: ID!
-  data: CommunalMeterHistoryRecordUpdateInput
+  data: PropertyMeterHistoryRecordUpdateInput
 }
 
-input CommunalMeterHistoryRecordCreateInput {
+input PropertyMeterHistoryRecordCreateInput {
   organization: String
   number: String
   numberOfTariffs: Int
@@ -43906,7 +43900,6 @@ input CommunalMeterHistoryRecordCreateInput {
   isAutomatic: Boolean
   property: String
   resource: String
-  b2cApp: String
   b2bApp: String
   meta: JSON
   v: Int
@@ -43919,22 +43912,22 @@ input CommunalMeterHistoryRecordCreateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: CommunalMeterHistoryRecordHistoryActionType
+  history_action: PropertyMeterHistoryRecordHistoryActionType
   history_id: String
 }
 
-input CommunalMeterHistoryRecordsCreateInput {
-  data: CommunalMeterHistoryRecordCreateInput
+input PropertyMeterHistoryRecordsCreateInput {
+  data: PropertyMeterHistoryRecordCreateInput
 }
 
-""" TODO DOC! """
-type CommunalMeter {
+""" Resource meter installed on the entire apartment building """
+type PropertyMeter {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the CommunalMeter List config, or
-   2. As an alias to the field set on 'labelField' in the CommunalMeter List config, or
-   3. As an alias to a 'name' field on the CommunalMeter List (if one exists), or
-   4. As an alias to the 'id' field on the CommunalMeter List.
+   1. Execution of 'labelResolver' set on the PropertyMeter List config, or
+   2. As an alias to the field set on 'labelField' in the PropertyMeter List config, or
+   3. As an alias to a 'name' field on the PropertyMeter List (if one exists), or
+   4. As an alias to the 'id' field on the PropertyMeter List.
   """
   _label_: String
 
@@ -43978,10 +43971,6 @@ type CommunalMeter {
   """ Meter resource, such as hot water or electricity """
   resource: MeterResource
 
-  """ Ref to the B2CApp which used to replace default integration with meter by resident's user in resident's app 
-  """
-  b2cApp: B2CApp
-
   """ Ref to B2BApp, which is used as a master system for this meter. Specified organization must connect this app. 
   """
   b2bApp: B2BApp
@@ -44012,9 +44001,9 @@ type CommunalMeter {
   sender: SenderField
 }
 
-input CommunalMeterWhereInput {
-  AND: [CommunalMeterWhereInput]
-  OR: [CommunalMeterWhereInput]
+input PropertyMeterWhereInput {
+  AND: [PropertyMeterWhereInput]
+  OR: [PropertyMeterWhereInput]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   number: String
@@ -44097,8 +44086,6 @@ input CommunalMeterWhereInput {
   property_is_null: Boolean
   resource: MeterResourceWhereInput
   resource_is_null: Boolean
-  b2cApp: B2CAppWhereInput
-  b2cApp_is_null: Boolean
   b2bApp: B2BAppWhereInput
   b2bApp_is_null: Boolean
   meta: JSON
@@ -44163,11 +44150,11 @@ input CommunalMeterWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input CommunalMeterWhereUniqueInput {
+input PropertyMeterWhereUniqueInput {
   id: ID!
 }
 
-enum SortCommunalMetersBy {
+enum SortPropertyMetersBy {
   organization_ASC
   organization_DESC
   number_ASC
@@ -44192,8 +44179,6 @@ enum SortCommunalMetersBy {
   property_DESC
   resource_ASC
   resource_DESC
-  b2cApp_ASC
-  b2cApp_DESC
   b2bApp_ASC
   b2bApp_DESC
   id_ASC
@@ -44214,7 +44199,7 @@ enum SortCommunalMetersBy {
   dv_DESC
 }
 
-input CommunalMeterUpdateInput {
+input PropertyMeterUpdateInput {
   organization: OrganizationRelateToOneInput
   number: String
   numberOfTariffs: Int
@@ -44227,7 +44212,6 @@ input CommunalMeterUpdateInput {
   isAutomatic: Boolean
   property: PropertyRelateToOneInput
   resource: MeterResourceRelateToOneInput
-  b2cApp: B2CAppRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
   meta: JSON
   v: Int
@@ -44241,12 +44225,12 @@ input CommunalMeterUpdateInput {
   sender: SenderFieldInput
 }
 
-input CommunalMetersUpdateInput {
+input PropertyMetersUpdateInput {
   id: ID!
-  data: CommunalMeterUpdateInput
+  data: PropertyMeterUpdateInput
 }
 
-input CommunalMeterCreateInput {
+input PropertyMeterCreateInput {
   organization: OrganizationRelateToOneInput
   number: String
   numberOfTariffs: Int
@@ -44259,7 +44243,6 @@ input CommunalMeterCreateInput {
   isAutomatic: Boolean
   property: PropertyRelateToOneInput
   resource: MeterResourceRelateToOneInput
-  b2cApp: B2CAppRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
   meta: JSON
   v: Int
@@ -44273,24 +44256,24 @@ input CommunalMeterCreateInput {
   sender: SenderFieldInput
 }
 
-input CommunalMetersCreateInput {
-  data: CommunalMeterCreateInput
+input PropertyMetersCreateInput {
+  data: PropertyMeterCreateInput
 }
 
-enum CommunalMeterReadingHistoryRecordHistoryActionType {
+enum PropertyMeterReadingHistoryRecordHistoryActionType {
   c
   u
   d
 }
 
 """ A keystone list """
-type CommunalMeterReadingHistoryRecord {
+type PropertyMeterReadingHistoryRecord {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the CommunalMeterReadingHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the CommunalMeterReadingHistoryRecord List config, or
-   3. As an alias to a 'name' field on the CommunalMeterReadingHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the CommunalMeterReadingHistoryRecord List.
+   1. Execution of 'labelResolver' set on the PropertyMeterReadingHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the PropertyMeterReadingHistoryRecord List config, or
+   3. As an alias to a 'name' field on the PropertyMeterReadingHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the PropertyMeterReadingHistoryRecord List.
   """
   _label_: String
   date: String
@@ -44312,13 +44295,13 @@ type CommunalMeterReadingHistoryRecord {
   sender: JSON
   organization: String
   history_date: String
-  history_action: CommunalMeterReadingHistoryRecordHistoryActionType
+  history_action: PropertyMeterReadingHistoryRecordHistoryActionType
   history_id: String
 }
 
-input CommunalMeterReadingHistoryRecordWhereInput {
-  AND: [CommunalMeterReadingHistoryRecordWhereInput]
-  OR: [CommunalMeterReadingHistoryRecordWhereInput]
+input PropertyMeterReadingHistoryRecordWhereInput {
+  AND: [PropertyMeterReadingHistoryRecordWhereInput]
+  OR: [PropertyMeterReadingHistoryRecordWhereInput]
   date: String
   date_not: String
   date_lt: String
@@ -44439,21 +44422,21 @@ input CommunalMeterReadingHistoryRecordWhereInput {
   history_date_gte: String
   history_date_in: [String]
   history_date_not_in: [String]
-  history_action: CommunalMeterReadingHistoryRecordHistoryActionType
-  history_action_not: CommunalMeterReadingHistoryRecordHistoryActionType
-  history_action_in: [CommunalMeterReadingHistoryRecordHistoryActionType]
-  history_action_not_in: [CommunalMeterReadingHistoryRecordHistoryActionType]
+  history_action: PropertyMeterReadingHistoryRecordHistoryActionType
+  history_action_not: PropertyMeterReadingHistoryRecordHistoryActionType
+  history_action_in: [PropertyMeterReadingHistoryRecordHistoryActionType]
+  history_action_not_in: [PropertyMeterReadingHistoryRecordHistoryActionType]
   history_id: String
   history_id_not: String
   history_id_in: [String]
   history_id_not_in: [String]
 }
 
-input CommunalMeterReadingHistoryRecordWhereUniqueInput {
+input PropertyMeterReadingHistoryRecordWhereUniqueInput {
   id: ID!
 }
 
-enum SortCommunalMeterReadingHistoryRecordsBy {
+enum SortPropertyMeterReadingHistoryRecordsBy {
   date_ASC
   date_DESC
   value1_ASC
@@ -44482,7 +44465,7 @@ enum SortCommunalMeterReadingHistoryRecordsBy {
   history_action_DESC
 }
 
-input CommunalMeterReadingHistoryRecordUpdateInput {
+input PropertyMeterReadingHistoryRecordUpdateInput {
   date: String
   meter: String
   value1: String
@@ -44501,16 +44484,16 @@ input CommunalMeterReadingHistoryRecordUpdateInput {
   sender: JSON
   organization: String
   history_date: String
-  history_action: CommunalMeterReadingHistoryRecordHistoryActionType
+  history_action: PropertyMeterReadingHistoryRecordHistoryActionType
   history_id: String
 }
 
-input CommunalMeterReadingHistoryRecordsUpdateInput {
+input PropertyMeterReadingHistoryRecordsUpdateInput {
   id: ID!
-  data: CommunalMeterReadingHistoryRecordUpdateInput
+  data: PropertyMeterReadingHistoryRecordUpdateInput
 }
 
-input CommunalMeterReadingHistoryRecordCreateInput {
+input PropertyMeterReadingHistoryRecordCreateInput {
   date: String
   meter: String
   value1: String
@@ -44529,29 +44512,29 @@ input CommunalMeterReadingHistoryRecordCreateInput {
   sender: JSON
   organization: String
   history_date: String
-  history_action: CommunalMeterReadingHistoryRecordHistoryActionType
+  history_action: PropertyMeterReadingHistoryRecordHistoryActionType
   history_id: String
 }
 
-input CommunalMeterReadingHistoryRecordsCreateInput {
-  data: CommunalMeterReadingHistoryRecordCreateInput
+input PropertyMeterReadingHistoryRecordsCreateInput {
+  data: PropertyMeterReadingHistoryRecordCreateInput
 }
 
-input CommunalMeterRelateToOneInput {
-  create: CommunalMeterCreateInput
-  connect: CommunalMeterWhereUniqueInput
-  disconnect: CommunalMeterWhereUniqueInput
+input PropertyMeterRelateToOneInput {
+  create: PropertyMeterCreateInput
+  connect: PropertyMeterWhereUniqueInput
+  disconnect: PropertyMeterWhereUniqueInput
   disconnectAll: Boolean
 }
 
 """ Meter reading taken from a client or billing """
-type CommunalMeterReading {
+type PropertyMeterReading {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the CommunalMeterReading List config, or
-   2. As an alias to the field set on 'labelField' in the CommunalMeterReading List config, or
-   3. As an alias to a 'name' field on the CommunalMeterReading List (if one exists), or
-   4. As an alias to the 'id' field on the CommunalMeterReading List.
+   1. Execution of 'labelResolver' set on the PropertyMeterReading List config, or
+   2. As an alias to the field set on 'labelField' in the PropertyMeterReading List config, or
+   3. As an alias to a 'name' field on the PropertyMeterReading List (if one exists), or
+   4. As an alias to the 'id' field on the PropertyMeterReading List.
   """
   _label_: String
 
@@ -44559,7 +44542,7 @@ type CommunalMeterReading {
   date: String
 
   """ Meter from which readings were taken """
-  meter: CommunalMeter
+  meter: PropertyMeter
 
   """ If the meter is single-tariff, then only this value will be filled in;If multi-tariff, then the value of the first tariff will be in this field 
   """
@@ -44607,9 +44590,9 @@ type CommunalMeterReading {
   organization: Organization
 }
 
-input CommunalMeterReadingWhereInput {
-  AND: [CommunalMeterReadingWhereInput]
-  OR: [CommunalMeterReadingWhereInput]
+input PropertyMeterReadingWhereInput {
+  AND: [PropertyMeterReadingWhereInput]
+  OR: [PropertyMeterReadingWhereInput]
   date: String
   date_not: String
   date_lt: String
@@ -44618,7 +44601,7 @@ input CommunalMeterReadingWhereInput {
   date_gte: String
   date_in: [String]
   date_not_in: [String]
-  meter: CommunalMeterWhereInput
+  meter: PropertyMeterWhereInput
   meter_is_null: Boolean
   value1: String
   value1_not: String
@@ -44714,11 +44697,11 @@ input CommunalMeterReadingWhereInput {
   organization_is_null: Boolean
 }
 
-input CommunalMeterReadingWhereUniqueInput {
+input PropertyMeterReadingWhereUniqueInput {
   id: ID!
 }
 
-enum SortCommunalMeterReadingsBy {
+enum SortPropertyMeterReadingsBy {
   date_ASC
   date_DESC
   meter_ASC
@@ -44753,9 +44736,9 @@ enum SortCommunalMeterReadingsBy {
   organization_DESC
 }
 
-input CommunalMeterReadingUpdateInput {
+input PropertyMeterReadingUpdateInput {
   date: String
-  meter: CommunalMeterRelateToOneInput
+  meter: PropertyMeterRelateToOneInput
   value1: String
   value2: String
   value3: String
@@ -44773,14 +44756,14 @@ input CommunalMeterReadingUpdateInput {
   organization: OrganizationRelateToOneInput
 }
 
-input CommunalMeterReadingsUpdateInput {
+input PropertyMeterReadingsUpdateInput {
   id: ID!
-  data: CommunalMeterReadingUpdateInput
+  data: PropertyMeterReadingUpdateInput
 }
 
-input CommunalMeterReadingCreateInput {
+input PropertyMeterReadingCreateInput {
   date: String
-  meter: CommunalMeterRelateToOneInput
+  meter: PropertyMeterRelateToOneInput
   value1: String
   value2: String
   value3: String
@@ -44798,8 +44781,8 @@ input CommunalMeterReadingCreateInput {
   organization: OrganizationRelateToOneInput
 }
 
-input CommunalMeterReadingsCreateInput {
-  data: CommunalMeterReadingCreateInput
+input PropertyMeterReadingsCreateInput {
+  data: PropertyMeterReadingCreateInput
 }
 
 enum ServiceSubscriptionHistoryRecordHistoryActionType {
@@ -63336,62 +63319,62 @@ type Query {
   """ Retrieve the meta-data for the MeterReadingFilterTemplate list. """
   _MeterReadingFilterTemplatesMeta: _ListMeta
 
-  """ Search for all CommunalMeterHistoryRecord items which match the where clause. 
+  """ Search for all PropertyMeterHistoryRecord items which match the where clause. 
   """
-  allCommunalMeterHistoryRecords(where: CommunalMeterHistoryRecordWhereInput, search: String, sortBy: [SortCommunalMeterHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [CommunalMeterHistoryRecord]
+  allPropertyMeterHistoryRecords(where: PropertyMeterHistoryRecordWhereInput, search: String, sortBy: [SortPropertyMeterHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [PropertyMeterHistoryRecord]
 
-  """ Search for the CommunalMeterHistoryRecord item with the matching ID. """
-  CommunalMeterHistoryRecord(where: CommunalMeterHistoryRecordWhereUniqueInput!): CommunalMeterHistoryRecord
+  """ Search for the PropertyMeterHistoryRecord item with the matching ID. """
+  PropertyMeterHistoryRecord(where: PropertyMeterHistoryRecordWhereUniqueInput!): PropertyMeterHistoryRecord
 
-  """ Perform a meta-query on all CommunalMeterHistoryRecord items which match the where clause. 
+  """ Perform a meta-query on all PropertyMeterHistoryRecord items which match the where clause. 
   """
-  _allCommunalMeterHistoryRecordsMeta(where: CommunalMeterHistoryRecordWhereInput, search: String, sortBy: [SortCommunalMeterHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allPropertyMeterHistoryRecordsMeta(where: PropertyMeterHistoryRecordWhereInput, search: String, sortBy: [SortPropertyMeterHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the CommunalMeterHistoryRecord list. """
-  _CommunalMeterHistoryRecordsMeta: _ListMeta
+  """ Retrieve the meta-data for the PropertyMeterHistoryRecord list. """
+  _PropertyMeterHistoryRecordsMeta: _ListMeta
 
-  """ Search for all CommunalMeter items which match the where clause. """
-  allCommunalMeters(where: CommunalMeterWhereInput, search: String, sortBy: [SortCommunalMetersBy!], orderBy: String, first: Int, skip: Int): [CommunalMeter]
+  """ Search for all PropertyMeter items which match the where clause. """
+  allPropertyMeters(where: PropertyMeterWhereInput, search: String, sortBy: [SortPropertyMetersBy!], orderBy: String, first: Int, skip: Int): [PropertyMeter]
 
-  """ Search for the CommunalMeter item with the matching ID. """
-  CommunalMeter(where: CommunalMeterWhereUniqueInput!): CommunalMeter
+  """ Search for the PropertyMeter item with the matching ID. """
+  PropertyMeter(where: PropertyMeterWhereUniqueInput!): PropertyMeter
 
-  """ Perform a meta-query on all CommunalMeter items which match the where clause. 
+  """ Perform a meta-query on all PropertyMeter items which match the where clause. 
   """
-  _allCommunalMetersMeta(where: CommunalMeterWhereInput, search: String, sortBy: [SortCommunalMetersBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allPropertyMetersMeta(where: PropertyMeterWhereInput, search: String, sortBy: [SortPropertyMetersBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the CommunalMeter list. """
-  _CommunalMetersMeta: _ListMeta
+  """ Retrieve the meta-data for the PropertyMeter list. """
+  _PropertyMetersMeta: _ListMeta
 
-  """ Search for all CommunalMeterReadingHistoryRecord items which match the where clause. 
+  """ Search for all PropertyMeterReadingHistoryRecord items which match the where clause. 
   """
-  allCommunalMeterReadingHistoryRecords(where: CommunalMeterReadingHistoryRecordWhereInput, search: String, sortBy: [SortCommunalMeterReadingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [CommunalMeterReadingHistoryRecord]
+  allPropertyMeterReadingHistoryRecords(where: PropertyMeterReadingHistoryRecordWhereInput, search: String, sortBy: [SortPropertyMeterReadingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [PropertyMeterReadingHistoryRecord]
 
-  """ Search for the CommunalMeterReadingHistoryRecord item with the matching ID. 
+  """ Search for the PropertyMeterReadingHistoryRecord item with the matching ID. 
   """
-  CommunalMeterReadingHistoryRecord(where: CommunalMeterReadingHistoryRecordWhereUniqueInput!): CommunalMeterReadingHistoryRecord
+  PropertyMeterReadingHistoryRecord(where: PropertyMeterReadingHistoryRecordWhereUniqueInput!): PropertyMeterReadingHistoryRecord
 
-  """ Perform a meta-query on all CommunalMeterReadingHistoryRecord items which match the where clause. 
+  """ Perform a meta-query on all PropertyMeterReadingHistoryRecord items which match the where clause. 
   """
-  _allCommunalMeterReadingHistoryRecordsMeta(where: CommunalMeterReadingHistoryRecordWhereInput, search: String, sortBy: [SortCommunalMeterReadingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allPropertyMeterReadingHistoryRecordsMeta(where: PropertyMeterReadingHistoryRecordWhereInput, search: String, sortBy: [SortPropertyMeterReadingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the CommunalMeterReadingHistoryRecord list. 
+  """ Retrieve the meta-data for the PropertyMeterReadingHistoryRecord list. 
   """
-  _CommunalMeterReadingHistoryRecordsMeta: _ListMeta
+  _PropertyMeterReadingHistoryRecordsMeta: _ListMeta
 
-  """ Search for all CommunalMeterReading items which match the where clause. 
+  """ Search for all PropertyMeterReading items which match the where clause. 
   """
-  allCommunalMeterReadings(where: CommunalMeterReadingWhereInput, search: String, sortBy: [SortCommunalMeterReadingsBy!], orderBy: String, first: Int, skip: Int): [CommunalMeterReading]
+  allPropertyMeterReadings(where: PropertyMeterReadingWhereInput, search: String, sortBy: [SortPropertyMeterReadingsBy!], orderBy: String, first: Int, skip: Int): [PropertyMeterReading]
 
-  """ Search for the CommunalMeterReading item with the matching ID. """
-  CommunalMeterReading(where: CommunalMeterReadingWhereUniqueInput!): CommunalMeterReading
+  """ Search for the PropertyMeterReading item with the matching ID. """
+  PropertyMeterReading(where: PropertyMeterReadingWhereUniqueInput!): PropertyMeterReading
 
-  """ Perform a meta-query on all CommunalMeterReading items which match the where clause. 
+  """ Perform a meta-query on all PropertyMeterReading items which match the where clause. 
   """
-  _allCommunalMeterReadingsMeta(where: CommunalMeterReadingWhereInput, search: String, sortBy: [SortCommunalMeterReadingsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allPropertyMeterReadingsMeta(where: PropertyMeterReadingWhereInput, search: String, sortBy: [SortPropertyMeterReadingsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the CommunalMeterReading list. """
-  _CommunalMeterReadingsMeta: _ListMeta
+  """ Retrieve the meta-data for the PropertyMeterReading list. """
+  _PropertyMeterReadingsMeta: _ListMeta
 
   """ Search for all ServiceSubscriptionHistoryRecord items which match the where clause. 
   """
@@ -67123,77 +67106,77 @@ type Mutation {
   """ Delete multiple MeterReadingFilterTemplate items by ID. """
   deleteMeterReadingFilterTemplates(ids: [ID!]): [MeterReadingFilterTemplate]
 
-  """ Create a single CommunalMeterHistoryRecord item. """
-  createCommunalMeterHistoryRecord(data: CommunalMeterHistoryRecordCreateInput): CommunalMeterHistoryRecord
+  """ Create a single PropertyMeterHistoryRecord item. """
+  createPropertyMeterHistoryRecord(data: PropertyMeterHistoryRecordCreateInput): PropertyMeterHistoryRecord
 
-  """ Create multiple CommunalMeterHistoryRecord items. """
-  createCommunalMeterHistoryRecords(data: [CommunalMeterHistoryRecordsCreateInput]): [CommunalMeterHistoryRecord]
+  """ Create multiple PropertyMeterHistoryRecord items. """
+  createPropertyMeterHistoryRecords(data: [PropertyMeterHistoryRecordsCreateInput]): [PropertyMeterHistoryRecord]
 
-  """ Update a single CommunalMeterHistoryRecord item by ID. """
-  updateCommunalMeterHistoryRecord(id: ID!, data: CommunalMeterHistoryRecordUpdateInput): CommunalMeterHistoryRecord
+  """ Update a single PropertyMeterHistoryRecord item by ID. """
+  updatePropertyMeterHistoryRecord(id: ID!, data: PropertyMeterHistoryRecordUpdateInput): PropertyMeterHistoryRecord
 
-  """ Update multiple CommunalMeterHistoryRecord items by ID. """
-  updateCommunalMeterHistoryRecords(data: [CommunalMeterHistoryRecordsUpdateInput]): [CommunalMeterHistoryRecord]
+  """ Update multiple PropertyMeterHistoryRecord items by ID. """
+  updatePropertyMeterHistoryRecords(data: [PropertyMeterHistoryRecordsUpdateInput]): [PropertyMeterHistoryRecord]
 
-  """ Delete a single CommunalMeterHistoryRecord item by ID. """
-  deleteCommunalMeterHistoryRecord(id: ID!): CommunalMeterHistoryRecord
+  """ Delete a single PropertyMeterHistoryRecord item by ID. """
+  deletePropertyMeterHistoryRecord(id: ID!): PropertyMeterHistoryRecord
 
-  """ Delete multiple CommunalMeterHistoryRecord items by ID. """
-  deleteCommunalMeterHistoryRecords(ids: [ID!]): [CommunalMeterHistoryRecord]
+  """ Delete multiple PropertyMeterHistoryRecord items by ID. """
+  deletePropertyMeterHistoryRecords(ids: [ID!]): [PropertyMeterHistoryRecord]
 
-  """ Create a single CommunalMeter item. """
-  createCommunalMeter(data: CommunalMeterCreateInput): CommunalMeter
+  """ Create a single PropertyMeter item. """
+  createPropertyMeter(data: PropertyMeterCreateInput): PropertyMeter
 
-  """ Create multiple CommunalMeter items. """
-  createCommunalMeters(data: [CommunalMetersCreateInput]): [CommunalMeter]
+  """ Create multiple PropertyMeter items. """
+  createPropertyMeters(data: [PropertyMetersCreateInput]): [PropertyMeter]
 
-  """ Update a single CommunalMeter item by ID. """
-  updateCommunalMeter(id: ID!, data: CommunalMeterUpdateInput): CommunalMeter
+  """ Update a single PropertyMeter item by ID. """
+  updatePropertyMeter(id: ID!, data: PropertyMeterUpdateInput): PropertyMeter
 
-  """ Update multiple CommunalMeter items by ID. """
-  updateCommunalMeters(data: [CommunalMetersUpdateInput]): [CommunalMeter]
+  """ Update multiple PropertyMeter items by ID. """
+  updatePropertyMeters(data: [PropertyMetersUpdateInput]): [PropertyMeter]
 
-  """ Delete a single CommunalMeter item by ID. """
-  deleteCommunalMeter(id: ID!): CommunalMeter
+  """ Delete a single PropertyMeter item by ID. """
+  deletePropertyMeter(id: ID!): PropertyMeter
 
-  """ Delete multiple CommunalMeter items by ID. """
-  deleteCommunalMeters(ids: [ID!]): [CommunalMeter]
+  """ Delete multiple PropertyMeter items by ID. """
+  deletePropertyMeters(ids: [ID!]): [PropertyMeter]
 
-  """ Create a single CommunalMeterReadingHistoryRecord item. """
-  createCommunalMeterReadingHistoryRecord(data: CommunalMeterReadingHistoryRecordCreateInput): CommunalMeterReadingHistoryRecord
+  """ Create a single PropertyMeterReadingHistoryRecord item. """
+  createPropertyMeterReadingHistoryRecord(data: PropertyMeterReadingHistoryRecordCreateInput): PropertyMeterReadingHistoryRecord
 
-  """ Create multiple CommunalMeterReadingHistoryRecord items. """
-  createCommunalMeterReadingHistoryRecords(data: [CommunalMeterReadingHistoryRecordsCreateInput]): [CommunalMeterReadingHistoryRecord]
+  """ Create multiple PropertyMeterReadingHistoryRecord items. """
+  createPropertyMeterReadingHistoryRecords(data: [PropertyMeterReadingHistoryRecordsCreateInput]): [PropertyMeterReadingHistoryRecord]
 
-  """ Update a single CommunalMeterReadingHistoryRecord item by ID. """
-  updateCommunalMeterReadingHistoryRecord(id: ID!, data: CommunalMeterReadingHistoryRecordUpdateInput): CommunalMeterReadingHistoryRecord
+  """ Update a single PropertyMeterReadingHistoryRecord item by ID. """
+  updatePropertyMeterReadingHistoryRecord(id: ID!, data: PropertyMeterReadingHistoryRecordUpdateInput): PropertyMeterReadingHistoryRecord
 
-  """ Update multiple CommunalMeterReadingHistoryRecord items by ID. """
-  updateCommunalMeterReadingHistoryRecords(data: [CommunalMeterReadingHistoryRecordsUpdateInput]): [CommunalMeterReadingHistoryRecord]
+  """ Update multiple PropertyMeterReadingHistoryRecord items by ID. """
+  updatePropertyMeterReadingHistoryRecords(data: [PropertyMeterReadingHistoryRecordsUpdateInput]): [PropertyMeterReadingHistoryRecord]
 
-  """ Delete a single CommunalMeterReadingHistoryRecord item by ID. """
-  deleteCommunalMeterReadingHistoryRecord(id: ID!): CommunalMeterReadingHistoryRecord
+  """ Delete a single PropertyMeterReadingHistoryRecord item by ID. """
+  deletePropertyMeterReadingHistoryRecord(id: ID!): PropertyMeterReadingHistoryRecord
 
-  """ Delete multiple CommunalMeterReadingHistoryRecord items by ID. """
-  deleteCommunalMeterReadingHistoryRecords(ids: [ID!]): [CommunalMeterReadingHistoryRecord]
+  """ Delete multiple PropertyMeterReadingHistoryRecord items by ID. """
+  deletePropertyMeterReadingHistoryRecords(ids: [ID!]): [PropertyMeterReadingHistoryRecord]
 
-  """ Create a single CommunalMeterReading item. """
-  createCommunalMeterReading(data: CommunalMeterReadingCreateInput): CommunalMeterReading
+  """ Create a single PropertyMeterReading item. """
+  createPropertyMeterReading(data: PropertyMeterReadingCreateInput): PropertyMeterReading
 
-  """ Create multiple CommunalMeterReading items. """
-  createCommunalMeterReadings(data: [CommunalMeterReadingsCreateInput]): [CommunalMeterReading]
+  """ Create multiple PropertyMeterReading items. """
+  createPropertyMeterReadings(data: [PropertyMeterReadingsCreateInput]): [PropertyMeterReading]
 
-  """ Update a single CommunalMeterReading item by ID. """
-  updateCommunalMeterReading(id: ID!, data: CommunalMeterReadingUpdateInput): CommunalMeterReading
+  """ Update a single PropertyMeterReading item by ID. """
+  updatePropertyMeterReading(id: ID!, data: PropertyMeterReadingUpdateInput): PropertyMeterReading
 
-  """ Update multiple CommunalMeterReading items by ID. """
-  updateCommunalMeterReadings(data: [CommunalMeterReadingsUpdateInput]): [CommunalMeterReading]
+  """ Update multiple PropertyMeterReading items by ID. """
+  updatePropertyMeterReadings(data: [PropertyMeterReadingsUpdateInput]): [PropertyMeterReading]
 
-  """ Delete a single CommunalMeterReading item by ID. """
-  deleteCommunalMeterReading(id: ID!): CommunalMeterReading
+  """ Delete a single PropertyMeterReading item by ID. """
+  deletePropertyMeterReading(id: ID!): PropertyMeterReading
 
-  """ Delete multiple CommunalMeterReading items by ID. """
-  deleteCommunalMeterReadings(ids: [ID!]): [CommunalMeterReading]
+  """ Delete multiple PropertyMeterReading items by ID. """
+  deletePropertyMeterReadings(ids: [ID!]): [PropertyMeterReading]
 
   """ Create a single ServiceSubscriptionHistoryRecord item. """
   createServiceSubscriptionHistoryRecord(data: ServiceSubscriptionHistoryRecordCreateInput): ServiceSubscriptionHistoryRecord

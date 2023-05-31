@@ -20,8 +20,8 @@ export * as MeterReadingSource from './MeterReadingSource'
 export * as MeterReading from './MeterReading'
 export * as Meter from './Meter'
 export * as MeterReadingFilterTemplate from './MeterReadingFilterTemplate'
-export * as CommunalMeter from './CommunalMeter'
-export * as CommunalMeterReading from './CommunalMeterReading'
+export * as PropertyMeter from './PropertyMeter'
+export * as PropertyMeterReading from './PropertyMeterReading'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
 
 

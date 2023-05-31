@@ -3,14 +3,14 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { CommunalMeter } = require('./CommunalMeter')
-const { CommunalMeterReading } = require('./CommunalMeterReading')
 const { ExportMeterReadingsService } = require('./ExportMeterReadingsService')
 const { Meter } = require('./Meter')
 const { MeterReading } = require('./MeterReading')
 const { MeterReadingFilterTemplate } = require('./MeterReadingFilterTemplate')
 const { MeterReadingSource } = require('./MeterReadingSource')
 const { MeterResource } = require('./MeterResource')
+const { PropertyMeter } = require('./PropertyMeter')
+const { PropertyMeterReading } = require('./PropertyMeterReading')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -20,7 +20,7 @@ module.exports = {
     Meter,
     ExportMeterReadingsService,
     MeterReadingFilterTemplate,
-    CommunalMeter,
-    CommunalMeterReading,
+    PropertyMeter,
+    PropertyMeterReading,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
