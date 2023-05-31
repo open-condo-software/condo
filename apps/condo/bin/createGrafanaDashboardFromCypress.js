@@ -21,8 +21,7 @@ const conf = require('@open-condo/config')
 
 // Variables to be set in env:
 const CYPRESS_TRACES_PATH = conf['CYPRESS_TRACES_PATH'] || '../cypress/traces.json'
-// Example: CYPRESS_GRAFANA_CONFIG='{"apiUrl":"***", "apiKey":"***", "dashboardUid":"***" }'
-const CYPRESS_GRAFANA_CONFIG = JSON.parse(conf['CYPRESS_GRAFANA_CONFIG'])
+const CYPRESS_GRAFANA_CONFIG = JSON.parse(conf['CYPRESS_GRAFANA_CONFIG']) || { 'apiUrl': null, 'apiKey': null, 'dashboardUid': null }
 
 
 const TOTAL_TARGET_CONFIG = {
