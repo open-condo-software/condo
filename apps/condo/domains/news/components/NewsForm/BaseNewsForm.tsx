@@ -1,6 +1,15 @@
-import { BuildingUnitSubType } from '@app/condo/schema'
-import styled from '@emotion/styled'
+import {
+    NewsItem as INewsItem,
+    NewsItemScope as INewsItemScope,
+    NewsItemTemplate as INewsItemTemplate,
+    NewsItemCreateInput as INewsItemCreateInput,
+    NewsItemUpdateInput as INewsItemUpdateInput,
+    QueryAllNewsItemsArgs as IQueryAllNewsItemsArgs,
+    NewsItemScopeUnitTypeType,
+} from '@app/condo/schema'
 import { Row, Col, Form, FormInstance, notification } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+import { ArgsProps } from 'antd/lib/notification/index'
 import dayjs from 'dayjs'
 import difference from 'lodash/difference'
 import flattenDeep from 'lodash/flattenDeep'
@@ -15,6 +24,7 @@ import { Rule } from 'rc-field-form/lib/interface'
 import React, { ComponentProps, useMemo, useCallback, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
+import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { useIntl } from '@open-condo/next/intl'
 import { Space, Radio, RadioGroup, Alert, Typography, Tabs } from '@open-condo/ui'
 
@@ -41,23 +51,48 @@ import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSc
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
-export const NewsPreview = styled(MemoizedNewsPreview)`
-    color: turquoise;   
-`
-const CounterWrapper = styled.div`
-    position: absolute;
-    right: 0;
-    margin: 12px;
-    bottom: 0;
-    padding: 2px 10px;
-    background-color: black;
-    border-radius: 100px;
-`
+type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
+
+type ActionBarProps = Pick<FormWithActionChildrenProps, 'handleSave' | 'isLoading' | 'form'>
+
+type ActionNameProps = 'create' | 'update'
+
+type NewsItemClientUtilsType = IGenerateHooksResult<INewsItem, INewsItemCreateInput, INewsItemUpdateInput, IQueryAllNewsItemsArgs>
+
+export type SendPeriodType = 'now' | 'later'
+
+export type BaseNewsFormProps = {
+    organizationId: string
+    ActionBar: React.FC<ActionBarProps>
+    action: (values: INewsItemCreateInput | INewsItemUpdateInput) => ReturnType<ReturnType<NewsItemClientUtilsType['useCreate' | 'useUpdate']>>
+    initialValues?: INewsItem
+    & {
+        newsItemScopes: INewsItemScope[],
+        hasAllProperties: boolean,
+        sendPeriod: SendPeriodType,
+    },
+    templates: { [key: string]: Pick<INewsItemTemplate, 'title' | 'body'> }
+    afterAction?: () => void,
+    newsItem?: INewsItem,
+    OnCompletedMsg: (INewsItem) => ArgsProps | null,
+    allNews: INewsItem[],
+    actionName: ActionNameProps,
+}
+
+const COUNTER_COL_STYLE: React.CSSProperties = { position: 'absolute', right: 0, bottom: 0, margin: '12px', padding: '2px 10px', backgroundColor: 'black', borderRadius: '100px' }
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
 export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
 export const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
+const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
+const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
+const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
+const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 
+const getIsDateInFuture = (form, fieldName) => {
+    const date = form.getFieldsValue([fieldName])[fieldName]
+    return date.isSameOrAfter(dayjs(), 'minute')
+}
 const getValidBeforeAfterSendAt = (form) => {
     const { sendAt, validBefore } = form.getFieldsValue(['sendAt', 'validBefore'])
     if (sendAt && validBefore) {
@@ -67,17 +102,16 @@ const getValidBeforeAfterSendAt = (form) => {
     return true
 }
 
-const doesNotContainWordsInBrackets = (str) => {
-    const regex = /\[[^\]]*\]/g
+const containWordsInBrackets = (str) => {
+    const regex = /\[[^\]]*?\]/g
     const words = str.match(regex) || []
-    return words.length === 0
+    return words.length !== 0
 }
 
 const getBodyTemplateChanged = (form) => {
     const { body } = form.getFieldsValue(['body'])
     // NOTE: this check blocks any sending of [] in the news body
-    if (!doesNotContainWordsInBrackets(body)) return false
-    return true
+    return !containWordsInBrackets(body)
 }
 
 const isDateDisabled = date => {
@@ -99,7 +133,16 @@ const isTimeDisabled = date => {
     }
 }
 
-
+export const getDateRule: (error: string) => Rule = (error) => (form) => {
+    return {
+        message: error,
+        validator: (rule) => {
+            const fieldName = get(rule, 'fullField', null)
+            if (fieldName) return getIsDateInFuture(form, fieldName) ? Promise.resolve() : Promise.reject()
+            return Promise.resolve()
+        },
+    }
+}
 export const getFinishWorkRule: (error: string) => Rule = (error) => (form) => {
     return {
         message: error,
@@ -147,7 +190,7 @@ const getNewsItemCountAtSameDay = (value, allNews) => {
 
 const INITIAL_VALUES = {}
 
-export const BaseNewsForm = ({
+export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     organizationId,
     ActionBar,
     action: createOrUpdateNewsItem,
@@ -157,6 +200,7 @@ export const BaseNewsForm = ({
     newsItem: currentNewsItem,
     OnCompletedMsg,
     allNews,
+    actionName,
 }) => {
     const intl = useIntl()
     const TypeLabel = intl.formatMessage({ id: 'news.fields.type.label' })
@@ -187,13 +231,18 @@ export const BaseNewsForm = ({
     const SelectSendPeriodLabel = intl.formatMessage({ id: 'news.fields.period.label' })
     const TemplateBodyErrorMessage = intl.formatMessage({ id: 'news.fields.templateBody.error' })
     const ValidBeforeErrorMessage = intl.formatMessage({ id: 'news.fields.validBefore.error' })
+    const ToManyMessagesMessage = intl.formatMessage({ id: 'news.fields.toManyMessages.error' })
+    const PastTimeErrorMessage = intl.formatMessage({ id: 'global.input.error.pastTime' })
 
     const router = useRouter()
 
     const { breakpoints } = useLayoutContext()
     const isMediumWindow = !breakpoints.DESKTOP_SMALL
-    const propertyInfoColSpan = isMediumWindow ? 24 : 14
+    const formFieldsColSpan = isMediumWindow ? 24 : 14
+    const formInfoColSpan = 24 - formFieldsColSpan
 
+    const initialValidBefore = useMemo(() => get(initialValues, 'validBefore', []), [initialValues])
+    const initialSendAt = useMemo(() => get(initialValues, 'sendAt', []), [initialValues])
     const initialNewsItemScopes = useMemo(() => get(initialValues, 'newsItemScopes', []), [initialValues])
     const initialHasAllProperties = useMemo(() => get(initialValues, 'hasAllProperties', false), [initialValues])
     const initialSentAt = useMemo(() => get(initialValues, 'sentAt', null), [initialValues])
@@ -292,6 +341,18 @@ export const BaseNewsForm = ({
         }
     }, [])
 
+    const handleChangeUnitNameInput = useCallback((_, options: UnitNameInputOption[]) => {
+        if (!options) {
+            setSelectedUnitNames(null)
+            setSelectedUnitTypes(null)
+        } else {
+            const unitNames = options.map(option => get(option, 'data-unitName'))
+            setSelectedUnitNames(unitNames)
+            const unitTypes = options.map(option => get(option, 'data-unitType', NewsItemScopeUnitTypeType.Flat))
+            setSelectedUnitTypes(unitTypes)
+        }
+    }, [])
+
     const Title = useInputWithCounter(Input.TextArea, 150)
     const Body = useInputWithCounter(Input.TextArea, 800)
 
@@ -347,6 +408,7 @@ export const BaseNewsForm = ({
     }), [PropertiesLabel])
 
     const { requiredValidator } = useValidations()
+    const dateRule: Rule = useMemo(() => getDateRule(PastTimeErrorMessage), [PastTimeErrorMessage])
     const finishWorkRule: Rule = useMemo(() => getFinishWorkRule(ValidBeforeErrorMessage), [ValidBeforeErrorMessage])
     const commonRule: Rule = useMemo(() => requiredValidator, [requiredValidator])
     const titleRules = useMemo(() => [{
@@ -371,15 +433,16 @@ export const BaseNewsForm = ({
             title: selectedTitle,
             body: selectedBody,
             properties: selectedPropertiesId,
+            validBefore: initialValidBefore ? dayjs(initialValidBefore) : null,
+            sendAt: initialSendAt ? dayjs(initialSendAt) : null,
         }
     }, [initialValues])
 
     const handleFormSubmit = useCallback(async (values) => {
-        if (currentNewsItem && !initialSentAt) {
+        if (actionName == 'update') {
             await updateNewsItem({ isPublished: false }, currentNewsItem)
         }
 
-        console.debug('values', values)
         const { properties, hasAllProperties, sendPeriod, template, type, sendAt, validBefore, unitNames, unitTypes, sectionIds, property, ...newsItemValues } = values
 
         const updatedNewsItemValues = {
@@ -392,23 +455,25 @@ export const BaseNewsForm = ({
         const newsItem = await createOrUpdateNewsItem(updatedNewsItemValues)
         const newsItemId = get(newsItem, 'id')
 
-        if (!initialHasAllProperties && !initialSentAt) {
+        if (actionName === 'update' && !initialHasAllProperties) {
             const deletedPropertyIds = difference(initialPropertyIds, properties)
             const newsItemScopesToDelete = initialNewsItemScopes
                 .filter(newsItemScope => deletedPropertyIds.includes(newsItemScope.property.id))
-            for (const newsItemScope of newsItemScopesToDelete) {
-                await softDeleteNewsItemScope(newsItemScope)
-            }
+
+            await Promise.all(newsItemScopesToDelete.map(newsItemScope => {
+                softDeleteNewsItemScope(newsItemScope)
+            }))
 
             if (isEmpty(deletedPropertyIds)) {
                 const deletedNames = difference(initialUnitNames, unitNames)
                 const newsItemScopesToDelete = initialNewsItemScopes
                     .filter(newsItemScope => deletedNames.includes(newsItemScope.unitName))
-                for (const newsItemScope of newsItemScopesToDelete) {
-                    await softDeleteNewsItemScope(newsItemScope)
-                }
 
-                if (deletedNames.length === initialUnitNames.length) {
+                await Promise.all(newsItemScopesToDelete.map(newsItemScope => {
+                    softDeleteNewsItemScope(newsItemScope)
+                }))
+
+                if (!isEmpty(initialUnitNames) && deletedNames.length === initialUnitNames.length) {
                     await createNewsItemScope({ 
                         newsItem: { connect: { id: newsItemId } },
                         property: { connect: { id: initialPropertyIds[0] } },
@@ -417,95 +482,92 @@ export const BaseNewsForm = ({
             }
         }
 
-        const addedPropertyIds = initialSentAt ? properties : difference(properties, initialPropertyIds)
-        
+        const addedPropertyIds = actionName === 'create' ? properties : difference(properties, initialPropertyIds)
         if (addedPropertyIds.length === 1 && unitNames.length === unitTypes.length && unitNames.length > 0) {
             const propertyId = addedPropertyIds[0]
             
-            unitNames.forEach(async (unitName, i) => {
-                await createNewsItemScope({ 
+            await Promise.all(unitNames.map((unitName, i) => {
+                createNewsItemScope({ 
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
                     unitType: unitTypes[i],
                 })
-            })
+            }))
         }
-
         if (addedPropertyIds.length === 1 && sectionIds.length > 0) {
             const propertyId = addedPropertyIds[0]
-            const selectedSections = get(property, ['map', 'sections']).filter(section => includes(sectionIds, section.id))
+            const selectedSections = get(property, ['map', 'sections'], []).filter(section => includes(sectionIds, section.id))
             const allSectionsUnits = getAllSectionsUnits(selectedSections)
             const unitNames = allSectionsUnits.map(unit => unit.label)
             const unitTypes = allSectionsUnits.map(unit => unit.unitType)
 
-            unitNames.forEach(async (unitName, i) => {
-                await createNewsItemScope({ 
+            await Promise.all(unitNames.map((unitName, i) => {
+                createNewsItemScope({ 
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
                     unitType: unitTypes[i],
                 })
-            })
+            }))
+        }
+        if (isEmpty(sectionIds) && isEmpty(unitNames) && isEmpty(unitTypes) && !isEmpty(addedPropertyIds)) {
+            await Promise.all(addedPropertyIds.map(propertyId => {
+                createNewsItemScope({ 
+                    newsItem: { connect: { id: newsItemId } },
+                    property: { connect: { id: propertyId } },
+                })
+            }))
         }
 
-        if (!hasAllProperties && addedPropertyIds.length === 0 && sectionIds.length > 0) {
+        if (actionName === 'update' && !hasAllProperties && isEmpty(addedPropertyIds) && sectionIds.length > 0) {
             const propertyId = initialPropertyIds[0]
-            const selectedSections = get(property, ['map', 'sections']).filter(section => includes(sectionIds, section.id))
+            const selectedSections = get(property, ['map', 'sections'], []).filter(section => includes(sectionIds, section.id))
             const allSectionsUnits = getAllSectionsUnits(selectedSections)
             const unitNames = allSectionsUnits.map(unit => unit.label)
             const unitTypes = allSectionsUnits.map(unit => unit.unitType)
 
-            unitNames.forEach(async (unitName, i) => {
-                await createNewsItemScope({ 
+            await Promise.all(unitNames.map((unitName, i) => {
+                createNewsItemScope({ 
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
                     unitType: unitTypes[i],
                 })
-            })
+            }))
         }
-
-        if (sectionIds.length === 0 && unitNames.length === 0 && unitTypes.length === 0 && !isEmpty(addedPropertyIds)) {
-            for (const propertyId of addedPropertyIds) {
-                await createNewsItemScope({ 
-                    newsItem: { connect: { id: newsItemId } },
-                    property: { connect: { id: propertyId } },
-                })
+        if (actionName === 'update' && !hasAllProperties && isEmpty(addedPropertyIds) && unitNames.length > 0) {
+            const propertyId = initialPropertyIds[0]
+            if (isEmpty(initialUnitNames) && initialNewsItemScopes.length === 1) {
+                softDeleteNewsItemScope(initialNewsItemScopes[0])
             }
-        }
-
-        if (isEmpty(addedPropertyIds) && !hasAllProperties) {
-            const propertyId = initialPropertyIds[0]
             const addedNames = difference(unitNames, initialUnitNames)
 
-            addedNames.forEach(async (unitName, i) => {
-                await createNewsItemScope({ 
+            await Promise.all(addedNames.map((unitName, i) => {
+                createNewsItemScope({ 
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
-                    unitType: BuildingUnitSubType.Flat,
+                    unitType: NewsItemScopeUnitTypeType.Flat,
                 })
-            })
+            }))
         }
 
         await updateNewsItem({ isPublished: true }, newsItem)
-
         if (!isNull(OnCompletedMsg)) {
             notification.info(OnCompletedMsg(newsItem))
         }
-
         if (isFunction(afterAction) && !initialSentAt) {
             await afterAction()
         } else {
             await router.push('/news')
         }
-    }, [initialSentAt, currentNewsItem, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitNames, createNewsItemScope, router])
+    }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialSentAt, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitNames, createNewsItemScope, router])
 
     const { loading: loadingProperty, obj: property } = Property.useObject({ where:{ id: selectedPropertiesId.length === 1 ? selectedPropertiesId[0] : null } })
 
     return (
-        <Row gutter={[50, 0]}>
+        <Row gutter={BIG_HORIZONTAL_GUTTER}>
             <Col span={24} flex='auto'>
                 <FormWithAction
                     initialValues={initialFormValues} 
@@ -523,11 +585,11 @@ export const BaseNewsForm = ({
                     }}
                     children={({ handleSave, isLoading, form }) => (
                         <>
-                            <Row gutter={[0, 60]}>
+                            <Row gutter={BIG_VERTICAL_GUTTER}>
                                 <Col span={24}>
-                                    <Row gutter={[50, 0]}>
-                                        <Col span={propertyInfoColSpan}>
-                                            <Row gutter={[0, 40]}>
+                                    <Row gutter={BIG_HORIZONTAL_GUTTER}>
+                                        <Col span={formFieldsColSpan}>
+                                            <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                                                 <Col span={24}>
                                                     <Row>
                                                         <Col span={24}>
@@ -554,7 +616,7 @@ export const BaseNewsForm = ({
                                                                     labelCol={FORM_FILED_COL_PROPS}
                                                                     name='validBefore'
                                                                     required
-                                                                    rules={[finishWorkRule, commonRule]}
+                                                                    rules={[finishWorkRule, commonRule, dateRule]}
                                                                 >
                                                                     <DatePicker
                                                                         style={FULL_WIDTH_STYLE}
@@ -571,7 +633,7 @@ export const BaseNewsForm = ({
                                                     </Row>
                                                 </Col>
                                                 {templates &&
-                                                    <Row gutter={[0, 24]}>
+                                                    <Row gutter={SMALL_VERTICAL_GUTTER}>
                                                         <Col span={24}>
                                                             <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
                                                         </Col>
@@ -610,9 +672,9 @@ export const BaseNewsForm = ({
                                                                 onChange={handleTitleChange}
                                                             />
                                                         </Form.Item>
-                                                        <CounterWrapper>
+                                                        <Col style={COUNTER_COL_STYLE}>
                                                             <Title.Counter type='inverted'/>
-                                                        </CounterWrapper>
+                                                        </Col>
                                                     </Col>
                                                     <Col span={24}>
                                                         <Form.Item
@@ -628,15 +690,14 @@ export const BaseNewsForm = ({
                                                                 onChange={handleBodyChange}
                                                             />
                                                         </Form.Item>
-                                                        {/* {TODO(Kekmus) fix layout of counters when field inst valid} */}
-                                                        <CounterWrapper>
+                                                        <Col style={COUNTER_COL_STYLE}>
                                                             <Body.Counter type='inverted'/>
-                                                        </CounterWrapper>
+                                                        </Col>
                                                     </Col>
                                                 </Col>
                                             </Row>
                                         </Col>
-                                        <Col span={24 - propertyInfoColSpan}>
+                                        <Col span={formInfoColSpan}>
                                             <MemoizedNewsPreview
                                                 body={selectedBody}
                                                 title={selectedTitle}
@@ -646,9 +707,9 @@ export const BaseNewsForm = ({
                                     </Row>
                                 </Col>
                                 <Col span={24}>
-                                    <Row gutter={[50, 0]}>
-                                        <Col span={propertyInfoColSpan}>
-                                            <Row gutter={[0, 24]}>
+                                    <Row gutter={BIG_HORIZONTAL_GUTTER}>
+                                        <Col span={formFieldsColSpan}>
+                                            <Row gutter={SMALL_VERTICAL_GUTTER}>
                                                 <Col span={24}>
                                                     <Typography.Title level={2}>{SelectAddressLabel}</Typography.Title>
                                                 </Col>
@@ -673,17 +734,7 @@ export const BaseNewsForm = ({
                                                             property={property}
                                                             allowClear={false}
                                                             loading={loadingProperty || !isEmpty(selectedSectionIds)}
-                                                            onChange={(_, options: UnitNameInputOption[]) => {
-                                                                if (!options) {
-                                                                    setSelectedUnitNames(null)
-                                                                    setSelectedUnitTypes(null)
-                                                                } else {
-                                                                    const unitNames = options.map(option => get(option, 'data-unitName'))
-                                                                    setSelectedUnitNames(unitNames)
-                                                                    const unitTypes = options.map(option => get(option, 'data-unitType', BuildingUnitSubType.Flat))
-                                                                    setSelectedUnitTypes(unitTypes)
-                                                                }
-                                                            }}
+                                                            onChange={handleChangeUnitNameInput}
                                                         />
                                                     </Form.Item>
                                                 </Col>
@@ -702,7 +753,7 @@ export const BaseNewsForm = ({
                                                 </Col>
                                             </Row>
                                         </Col>
-                                        <Col span={24 - propertyInfoColSpan}>
+                                        <Col span={formInfoColSpan}>
                                             <RecipientCounter
                                                 newsItemScopes={initialNewsItemScopes}
                                             />
@@ -710,9 +761,9 @@ export const BaseNewsForm = ({
                                     </Row>
                                 </Col>
                                 <Col span={24}>
-                                    <Row gutter={[50, 0]}>
-                                        <Col span={propertyInfoColSpan}>
-                                            <Row gutter={[0, 24]}>
+                                    <Row gutter={BIG_HORIZONTAL_GUTTER}>
+                                        <Col span={formFieldsColSpan}>
+                                            <Row gutter={SMALL_VERTICAL_GUTTER}>
                                                 <Col span={24}>
                                                     <Typography.Title level={2}>{SelectSendPeriodLabel}</Typography.Title>
                                                 </Col>
@@ -736,7 +787,7 @@ export const BaseNewsForm = ({
                                                             labelCol={FORM_FILED_COL_PROPS}
                                                             name='sendAt'
                                                             required
-                                                            rules={[commonRule]}
+                                                            rules={[commonRule, dateRule]}
                                                         >
                                                             <DatePicker
                                                                 style={FULL_WIDTH_STYLE}
@@ -765,7 +816,7 @@ export const BaseNewsForm = ({
                                                         <Alert
                                                             type='warning'
                                                             showIcon
-                                                            message='Мы рекомендуем отправлять не более 5 новостей в день, чтобы не докучать жителям. Лучше отложить отправку на завтра.'
+                                                            message={ToManyMessagesMessage}
                                                             description=' '
                                                         />
                                                     )

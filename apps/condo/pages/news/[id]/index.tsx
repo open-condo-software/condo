@@ -183,7 +183,7 @@ const NewsItemCard: React.FC = () => {
                     </Col>
                     <Row>
                         {get(newsItem, 'sentAt') ? (
-                            <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
+                            <Link key='create' href={`/news/${get(newsItem, 'id')}/create`}>
                                 <Button
                                     type='primary'
                                 >

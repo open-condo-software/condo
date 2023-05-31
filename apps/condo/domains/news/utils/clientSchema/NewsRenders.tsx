@@ -89,7 +89,7 @@ export const ResendNewsButton = ({ intl, newsItem }) => {
     
 
     return (
-        <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
+        <Link key='create' href={`/news/${get(newsItem, 'id')}/create`}>
             <Tooltip title={ResendMessage} placement='bottomLeft'>
                 <div style={RESEND_MESSAGE_CONTAINER_STYLE} onClick={handleClick}>
                     <RefreshCw size='small'/>

@@ -1,79 +1,22 @@
-import { Col, Row, notification } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Typography } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { NewsItem, NewsItemTemplate } from '@condo/domains/news/utils/clientSchema'
+import { getCompletedNotification, CreateNewsActionBar } from '@condo/domains/news/components/NewsForm/CreateNewsForm'
+import { NewsItem, NewsItemTemplate, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 
-import { BaseNewsForm, BaseNewsFormProps } from './BaseNewsForm'
+import { BaseNewsForm, SendPeriodType, BaseNewsFormProps } from './BaseNewsForm'
 
-const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 28]
-
-export const CreateNewsActionBar = (props) => {
-    const intl = useIntl()
-    const ShareButtonMessage = intl.formatMessage({ id: 'global.shareButton' })
-
-    const { handleSave, isLoading } = props
-
-    return (
-        <ActionBar
-            actions={[
-                <Button
-                    key='submit'
-                    type='primary'
-                    children={ShareButtonMessage}
-                    onClick={handleSave}
-                    disabled={isLoading}
-                />,
-            ]}
-        />
-    )
+export interface IResendNewsForm {
+    id: string
 }
 
-//TOOD(Kekmus) add reload table page after close
-export const getCompletedNotification = (intl, action, key) => {
-    const SuccessNotificationTitle = intl.formatMessage({ id: 'pages.condo.news.notification.success.title' })
-    const SuccessNotificationDescription = intl.formatMessage({ id: 'pages.condo.news.notification.success.description' })
-
-    return {
-        message: (
-            <Typography.Text strong size='large'>
-                {SuccessNotificationTitle}
-            </Typography.Text>
-        ),
-        description: (
-            <Row gutter={SMALL_VERTICAL_GUTTER}>
-                <Col>
-                    <Typography.Text size='medium' type='secondary'>
-                        {SuccessNotificationDescription}
-                    </Typography.Text>
-                </Col>
-                <Button
-                    htmlType='button'
-                    onClick={async () => { 
-                        notification.close(key)
-                        await action()
-                    }}
-                    type='primary'
-                >
-                    {intl.formatMessage(
-                        { id: 'pages.condo.news.notification.success.button' }
-                    )}
-                </Button>
-            </Row>
-        ),
-        key: key,
-        duration: 15,
-    }
-}
-
-export const CreateNewsForm: React.FC = () => {
+export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
     const intl = useIntl()
     const EmptyTemplateTitle = intl.formatMessage({ id: 'news.fields.emptyTemplate.title' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
@@ -85,6 +28,43 @@ export const CreateNewsForm: React.FC = () => {
     const action: BaseNewsFormProps['action'] = useCallback(async (values) => {
         return await createNewsItem(values)
     }, [createNewsItem])
+
+    const {
+        loading: newsItemLoading,
+        obj: newsItem,
+        error: newsItemError,
+    } = NewsItem.useObject({
+        where: { id },
+    })
+
+    const {
+        allDataLoaded: newsItemScopeAllDataLoaded,
+        objs: newsItemScopes,
+        error: newsItemScopeError,
+    } = NewsItemScope.useAllObjects({
+        where: {
+            newsItem: { 
+                id: id,
+            },
+        },
+    })
+
+    const sendPeriod: SendPeriodType = useMemo(() => {
+        return get(newsItem, 'sendAt', null) ? 'later' : 'now'
+    }, [newsItem])
+    const hasAllProperties = useMemo(() => {
+        return isEmpty(newsItemScopes)
+    }, [newsItemScopes])
+    const sendAt = useMemo(() => get(newsItem, 'sendAt', null), [newsItem])
+    const validBefore = useMemo(() => get(newsItem, 'validBefore', null), [newsItem])
+    const initialValues = useMemo(() => ({
+        ...newsItem,
+        newsItemScopes: newsItemScopes,
+        hasAllProperties: hasAllProperties,
+        sendPeriod: sendPeriod,
+        sendAt: sendAt ? sendAt : null,
+        validBefore: validBefore ? validBefore : null,
+    }), [hasAllProperties, newsItem, newsItemScopes, sendAt, sendPeriod, validBefore])
 
     const {
         loading: isNewsItemTemplatesFetching,
@@ -125,8 +105,12 @@ export const CreateNewsForm: React.FC = () => {
         return getCompletedNotification(intl, () => {softDeleteNewsItem(newsItem)}, newsItem.id)
     }, [intl, softDeleteNewsItem])
 
-    const error = useMemo(() => newsItemTemplatesError || allNewsError, [allNewsError, newsItemTemplatesError])
-    const loading = isNewsFetching || isNewsItemTemplatesFetching
+    const error = useMemo(
+        () => newsItemError || newsItemScopeError || newsItemTemplatesError || allNewsError, 
+        [allNewsError, newsItemError, newsItemScopeError, newsItemTemplatesError])
+    const loading = useMemo(
+        () => newsItemLoading || !newsItemScopeAllDataLoaded || isNewsFetching || isNewsItemTemplatesFetching, 
+        [isNewsFetching, isNewsItemTemplatesFetching, newsItemLoading, newsItemScopeAllDataLoaded])
 
     if (loading || error) {
         return (
@@ -142,6 +126,8 @@ export const CreateNewsForm: React.FC = () => {
             action={action}
             organizationId={organizationId}
             ActionBar={CreateNewsActionBar}
+            initialValues={initialValues}
+            newsItem={newsItem}
             templates={templates}
             OnCompletedMsg={OnCompletedMsg}
             allNews={allNews}

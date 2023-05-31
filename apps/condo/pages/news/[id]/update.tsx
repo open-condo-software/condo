@@ -31,7 +31,10 @@ const UpdateNewsPageContent: React.FC = () => {
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
                 <PageContent>
-                    <NewsForm id={id}/>
+                    <NewsForm 
+                        id={id}
+                        actionName='update'
+                    />
                 </PageContent>
             </PageWrapper>
         </>

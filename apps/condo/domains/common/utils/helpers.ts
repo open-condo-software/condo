@@ -59,7 +59,7 @@ export const getAddressDetails = (property: ObjectWithAddressInfo) => {
     const houseNameSuffix = blockType ? ` ${blockType} ${blockName}` : ''
     const flatType = get(addressMeta, 'flat_type')
     const flatName = get(addressMeta, 'flat')
-    const flat = flatType ? `${flatType} ${flatName}` : ''
+    const flatPart = flatType ? `${flatType} ${flatName}` : ''
 
     const regionType = get(addressMeta, 'region_type_full')
     const regionName = get(addressMeta, 'region')
@@ -73,7 +73,7 @@ export const getAddressDetails = (property: ObjectWithAddressInfo) => {
     const settlementPart = get(addressMeta, 'settlement_with_type')
 
     const settlement = streetWithType ? streetWithType : settlementPart
-    const streetPart = settlement && `${settlement}, ${houseNamePrefix}${houseName}${houseNameSuffix}, ${flat}`
+    const streetPart = settlement && `${settlement}, ${houseNamePrefix}${houseName}${houseNameSuffix}`
     const regionPart = regionName && regionName !== cityName && regionWithFullType
     const cityPart = cityWithType && cityWithType
 
@@ -86,7 +86,7 @@ export const getAddressDetails = (property: ObjectWithAddressInfo) => {
     const settlementLine = settlementPart ? `,\n${settlementPart}` : ''
     const renderPostfix = regionLine + areaLine + settlementLine + cityLine
 
-    return { streetPart, areaPart, settlementPart, regionPart, cityPart, renderPostfix }
+    return { flatPart, streetPart, areaPart, settlementPart, regionPart, cityPart, renderPostfix }
 }
 
 /**

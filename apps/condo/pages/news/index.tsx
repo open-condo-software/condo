@@ -89,11 +89,6 @@ const NewsTableContainer = ({
             const propertyAddress = get(item, ['property'], null)
             const unitType = get(item, ['unitType'], null)
             const unitName = get(item, ['unitName'], null)
-            if (unitType && unitName) {
-                //TODO(Kekmus) work unstable
-                // propertyAddress.addressMeta.data.flat_type = unitType
-                // propertyAddress.addressMeta.data.flat = unitName
-            }
             const newsItemId = get(item, ['newsItem', 'id'])
             if (propertyAddress) {
                 if (isArray(addresses[newsItemId])) {
