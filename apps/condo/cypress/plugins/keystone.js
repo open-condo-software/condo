@@ -165,7 +165,6 @@ module.exports = async (on, config) => {
                         block_type: '',
                         region_with_type: '',
                     })
-                // const client = await makeLoggedInClient(result.userAttrs)
                 const cookie = client.getCookie()
 
                 const organizationLink = await OrganizationEmployee.getOne(client, {

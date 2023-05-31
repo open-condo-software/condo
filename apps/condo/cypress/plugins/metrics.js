@@ -5,7 +5,7 @@ const { writeFile } = require('node:fs/promises')
 
 const Metrics = require('@open-condo/keystone/metrics')
 
-const registredTraces = []
+const registeredTraces = []
 
 const METRIC_PREFIX = 'cypress.'
 const TRACES_REPORT_FILENAME = 'traces.json'
@@ -20,19 +20,19 @@ module.exports = async (on, config) => {
         },
 
         'metrics:endTrace' ([trace]) {
-            registredTraces.push(trace)
+            registeredTraces.push(trace)
             return null
         },
 
         'metrics:getTraces' () {
-            return registredTraces
+            return registeredTraces
         },
     })
 
     on('after:run', async (results) => {
         console.log('[metrics.js] Saving traces...')
         const path = process.cwd() + '/' + TRACES_REPORT_FILENAME
-        await writeFile(path, JSON.stringify(registredTraces), 'utf8')
+        await writeFile(path, JSON.stringify(registeredTraces), 'utf8')
         console.log(`[metrics.js] Metrics have been saved to ${path}`)
     })
 

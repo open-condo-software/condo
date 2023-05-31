@@ -12,8 +12,8 @@ class Condo {
         return this
     }
 
-    clickOnMenu (menuItem: string): this {
-        cy.get(`a[href*='/${menuItem}']`).click()
+    clickOnMenuItem (menuItem: string): this {
+        cy.get(`div[id="menuitem-${menuItem}"]`).click()
         return this
     }
 }
