@@ -51,8 +51,8 @@ const _internalSyncContactsWithResidentsForOrganizationService = new GQLCustomSc
                     const user = await getById('User', resident.user.id)
                     const phone = user.phone
                     if (phone){
-                        const contact = await Contact.getOne(context, { organization: { id: organization.id }, phone: phone })
-                        if (contact) continue
+                        const existedContacts = await Contact.getAll(context, { organization: { id: organization.id }, phone: phone })
+                        if (existedContacts.length > 0) continue
                         const contactProps = {
                             dv: dv,
                             sender: sender,
@@ -64,9 +64,9 @@ const _internalSyncContactsWithResidentsForOrganizationService = new GQLCustomSc
                             phone: phone,
                             name: user.name,
                         }
-                        const createdContact = await Contact.create(context, contactProps)
-                        const foundedContact = await getById('Contact', createdContact.id) // hack for getting contact with all fields
-                        createdContacts.push(foundedContact)
+                        const contact = await Contact.create(context, contactProps)
+                        const createdContact = await getById('Contact', contact.id) // hack for getting contact with all fields
+                        createdContacts.push(createdContact)
                     }
                 }
                 return createdContacts
