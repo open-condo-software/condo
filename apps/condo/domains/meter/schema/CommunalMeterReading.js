@@ -10,7 +10,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/meter/access/CommunalMeterReading')
-const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 
 
 const CommunalMeterReading = new GQLListSchema('CommunalMeterReading', {
@@ -31,31 +31,25 @@ const CommunalMeterReading = new GQLListSchema('CommunalMeterReading', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
-        organization: ORGANIZATION_OWNED_FIELD,
-
         value1: {
             schemaDoc: 'If the meter is single-tariff, then only this value will be filled in;' +
                 'If multi-tariff, then the value of the first tariff will be in this field',
             type: Decimal,
-            isRequired: true,
         },
 
         value2: {
             schemaDoc: 'If the meter is multi-tariff, then the value of the second tariff is stored here',
             type: Decimal,
-            isRequired: true,
         },
 
         value3: {
             schemaDoc: 'If the meter is multi-tariff, then the value of the second tariff is stored here',
             type: Decimal,
-            isRequired: true,
         },
 
         value4: {
             schemaDoc: 'If the meter is multi-tariff, then the value of the second tariff is stored here',
             type: Decimal,
-            isRequired: true,
         },
 
         source: {
@@ -77,7 +71,15 @@ const CommunalMeterReading = new GQLListSchema('CommunalMeterReading', {
             return resolvedData
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        addOrganizationFieldPlugin({ fromField: 'meter', isRequired: true }),
+        historical(),
+    ],
     access: {
         read: access.canReadCommunalMeterReadings,
         create: access.canManageCommunalMeterReadings,

@@ -44295,7 +44295,6 @@ type CommunalMeterReadingHistoryRecord {
   _label_: String
   date: String
   meter: String
-  organization: String
   value1: String
   value2: String
   value3: String
@@ -44311,6 +44310,7 @@ type CommunalMeterReadingHistoryRecord {
   newId: JSON
   dv: Int
   sender: JSON
+  organization: String
   history_date: String
   history_action: CommunalMeterReadingHistoryRecordHistoryActionType
   history_id: String
@@ -44331,10 +44331,6 @@ input CommunalMeterReadingHistoryRecordWhereInput {
   meter_not: String
   meter_in: [String]
   meter_not_in: [String]
-  organization: String
-  organization_not: String
-  organization_in: [String]
-  organization_not_in: [String]
   value1: String
   value1_not: String
   value1_lt: String
@@ -44431,6 +44427,10 @@ input CommunalMeterReadingHistoryRecordWhereInput {
   sender_not: JSON
   sender_in: [JSON]
   sender_not_in: [JSON]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
   history_date: String
   history_date_not: String
   history_date_lt: String
@@ -44485,7 +44485,6 @@ enum SortCommunalMeterReadingHistoryRecordsBy {
 input CommunalMeterReadingHistoryRecordUpdateInput {
   date: String
   meter: String
-  organization: String
   value1: String
   value2: String
   value3: String
@@ -44500,6 +44499,7 @@ input CommunalMeterReadingHistoryRecordUpdateInput {
   newId: JSON
   dv: Int
   sender: JSON
+  organization: String
   history_date: String
   history_action: CommunalMeterReadingHistoryRecordHistoryActionType
   history_id: String
@@ -44513,7 +44513,6 @@ input CommunalMeterReadingHistoryRecordsUpdateInput {
 input CommunalMeterReadingHistoryRecordCreateInput {
   date: String
   meter: String
-  organization: String
   value1: String
   value2: String
   value3: String
@@ -44528,6 +44527,7 @@ input CommunalMeterReadingHistoryRecordCreateInput {
   newId: JSON
   dv: Int
   sender: JSON
+  organization: String
   history_date: String
   history_action: CommunalMeterReadingHistoryRecordHistoryActionType
   history_id: String
@@ -44560,10 +44560,6 @@ type CommunalMeterReading {
 
   """ Meter from which readings were taken """
   meter: CommunalMeter
-
-  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
-  """
-  organization: Organization
 
   """ If the meter is single-tariff, then only this value will be filled in;If multi-tariff, then the value of the first tariff will be in this field 
   """
@@ -44605,6 +44601,10 @@ type CommunalMeterReading {
   """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
+
+  """ Ref to the organization. It is filled in on the server and is read-only 
+  """
+  organization: Organization
 }
 
 input CommunalMeterReadingWhereInput {
@@ -44620,8 +44620,6 @@ input CommunalMeterReadingWhereInput {
   date_not_in: [String]
   meter: CommunalMeterWhereInput
   meter_is_null: Boolean
-  organization: OrganizationWhereInput
-  organization_is_null: Boolean
   value1: String
   value1_not: String
   value1_lt: String
@@ -44712,6 +44710,8 @@ input CommunalMeterReadingWhereInput {
   sender_not: SenderFieldInput
   sender_in: [SenderFieldInput]
   sender_not_in: [SenderFieldInput]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
 }
 
 input CommunalMeterReadingWhereUniqueInput {
@@ -44723,8 +44723,6 @@ enum SortCommunalMeterReadingsBy {
   date_DESC
   meter_ASC
   meter_DESC
-  organization_ASC
-  organization_DESC
   value1_ASC
   value1_DESC
   value2_ASC
@@ -44751,12 +44749,13 @@ enum SortCommunalMeterReadingsBy {
   deletedAt_DESC
   dv_ASC
   dv_DESC
+  organization_ASC
+  organization_DESC
 }
 
 input CommunalMeterReadingUpdateInput {
   date: String
   meter: CommunalMeterRelateToOneInput
-  organization: OrganizationRelateToOneInput
   value1: String
   value2: String
   value3: String
@@ -44771,6 +44770,7 @@ input CommunalMeterReadingUpdateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
+  organization: OrganizationRelateToOneInput
 }
 
 input CommunalMeterReadingsUpdateInput {
@@ -44781,7 +44781,6 @@ input CommunalMeterReadingsUpdateInput {
 input CommunalMeterReadingCreateInput {
   date: String
   meter: CommunalMeterRelateToOneInput
-  organization: OrganizationRelateToOneInput
   value1: String
   value2: String
   value3: String
@@ -44796,6 +44795,7 @@ input CommunalMeterReadingCreateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
+  organization: OrganizationRelateToOneInput
 }
 
 input CommunalMeterReadingsCreateInput {

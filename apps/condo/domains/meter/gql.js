@@ -37,7 +37,7 @@ const MeterReadingFilterTemplate = generateGqlQueries('MeterReadingFilterTemplat
 const COMMUNAL_METER_FIELDS = `{ number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate isAutomatic organization { id } property { id } resource { id } b2cApp { id } b2bApp { id } meta ${COMMON_FIELDS} }`
 const CommunalMeter = generateGqlQueries('CommunalMeter', COMMUNAL_METER_FIELDS)
 
-const COMMUNAL_METER_READING_FIELDS = `{ date meter { id } organization { id } value1 value2 value3 value4 source { id } ${COMMON_FIELDS} }`
+const COMMUNAL_METER_READING_FIELDS = `{ date meter { id } value1 value2 value3 value4 source { id } ${COMMON_FIELDS} }`
 const CommunalMeterReading = generateGqlQueries('CommunalMeterReading', COMMUNAL_METER_READING_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
