@@ -425,7 +425,7 @@
   "pages.condo.property.EmptyBuildingBlock.view.auto.EmptyBuildingDescription": "You can build a map in two ways: manually, by filling in several parameters about the house, or by generating a map automatically, based on data from {services}",
   "pages.condo.property.EmptyBuildingBlock.view.auto.EmptyBuildingDescription.services": "external services",
   "pages.condo.property.EmptyBuildingBlock.view.manual.EmptyBuildingDescription": "Specify a few parameters to automatically generate a house map",
-  "pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingDescription": "This is at upper right corner of the screen\nThen everything is intuitive \uD83D\uDE0A",
+  "pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingDescription": "This is at upper right corner of the screen.\nThen everything is intuitive \uD83D\uDE0A",
   "pages.condo.property.EmptyBuildingBlock.view.CreateMapManuallyTitle": "Create manually",
   "pages.condo.property.EmptyBuildingBlock.view.CreateMapAutomaticallyTitle": "Generate map",
   "pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingHeader": "Press on «Add element» button",
