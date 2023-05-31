@@ -177,8 +177,7 @@ class TicketView {
         cy.wait('@selectProperty')
 
         cy.get('[data-cy=search-input--option]').should('be.visible')
-        cy.get('[data-cy=search-input--option]')
-            .click()
+        cy.get('[data-cy=search-input--option]').click()
         cy.get('[data-cy=common__filters-button-submit]').click()
 
         cy.wait('@getAllTickets')
@@ -237,8 +236,7 @@ class TicketEdit {
         cy.wait('@getAllTicketStatuses')
         cy.wait('@getAllOrganizationEmployees')
 
-        cy.get('[data-cy=ticket__status-select]')
-            .click()
+        cy.get('[data-cy=ticket__status-select]').click()
         cy.get('[data-cy=ticket__status-select]').should('have.class', 'ant-select-open')
 
         cy.get('[data-cy=ticket__status-select-option]').first().click()
@@ -261,17 +259,12 @@ class TicketEdit {
     }
 
     clickProblemClassifier (): this {
-        cy.get('[data-cy=ticket__place-select-item] .ant-select-selection-search')
-            .click()
+        cy.get('[data-cy=ticket__place-select-item] .ant-select-selection-search').click()
 
-        cy.get('[data-cy=ticket__classifier-option]')
-            .first()
-            .click()
+        cy.get('[data-cy=ticket__classifier-option]').first().click()
         cy.get('[data-cy=ticket__place-select-item] .ant-select-selection-search').should('not.have.class', '.ant-select-open')
 
-        cy.get('[data-cy=ticket__category-select-item] .ant-select-selection-search')
-            .click()
-            .type('{downArrow}')
+        cy.get('[data-cy=ticket__category-select-item] .ant-select-selection-search').click().type('{downArrow}')
         cy.get('.ant-select-dropdown:not(.ant-select-dropdown-hidden) [data-cy=ticket__classifier-option]')
             .first()
             .click({ force: true })

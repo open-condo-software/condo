@@ -23,7 +23,7 @@ describe('Property', function () {
 
                 let activeSpan = trace.startSpan('2.createPropertyMap')
                 cy.task('keystone:createProperty', organization).then(() => {
-                    condo.clickOnMenu('property')
+                    condo.clickOnMenuItem('property')
 
                     const propertyMapCreate = new PropertyMapCreate()
                     propertyMapCreate
@@ -42,7 +42,7 @@ describe('Property', function () {
 
                 activeSpan = trace.startSpan('3.editPropertyMap')
                 cy.task('keystone:createProperty', organization).then(() => {
-                    condo.clickOnMenu('property')
+                    condo.clickOnMenuItem('property')
 
                     const propertyMapEdit = new PropertyMapEdit()
                     propertyMapEdit
@@ -60,7 +60,7 @@ describe('Property', function () {
 
                 activeSpan = trace.startSpan('4.editPropertyMapWithUnits')
                 cy.task('keystone:createProperty', organization).then(() => {
-                    condo.clickOnMenu('property')
+                    condo.clickOnMenuItem('property')
 
                     const propertyMapUnitEdit = new PropertyMapUnitEdit()
                     propertyMapUnitEdit
