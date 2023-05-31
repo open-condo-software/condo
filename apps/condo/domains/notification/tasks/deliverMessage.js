@@ -83,7 +83,7 @@ async function _sendMessageByAdapter (transport, adapter, messageContext, isVoIP
  * @returns {string}
  */
 function getThrottlingCacheKey (message) {
-    return `user:${get(message, ['user', 'id'])}:lastSending`
+    return `user:${get(message, ['user', 'id'])}:messageType:${get(message, 'type')}:lastSending`
 }
 
 /**
