@@ -32368,8 +32368,7 @@ export type Mutation = {
    * 			"organizationId": {
    * 				"required": true
    * 			}
-   * 		},
-   * 		"throttlePeriodForUser": 3600
+   * 		}
    * 	},
    * 	"NEWS_ITEM_EMERGENCY_MESSAGE_TYPE": {
    * 		"dv": {
