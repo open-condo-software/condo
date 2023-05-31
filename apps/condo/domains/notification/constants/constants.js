@@ -6,8 +6,6 @@ const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
 
-const { NewsItemCommonHooksSet } = require('@condo/domains/notification/utils/serverSchema/messageTypeHooks')
-
 const JSON_NO_REQUIRED_ATTR_ERROR = '[json:noRequiredAttr:'
 const JSON_SUSPICIOUS_ATTR_NAME_ERROR = '[json:suspiciousAttrName:'
 const JSON_UNKNOWN_ATTR_NAME_ERROR = '[json:unknownAttrName:'
@@ -101,7 +99,7 @@ const recurrentPaymentProceedingFailedCommonMessageMeta = {
 //TODO: maybe we should gather all data about messages types in the single object
 //TODO(DOMA-2778) add recursive validation for internal objects like [TICKET_EXECUTOR_CONNECTED_TYPE].data
 /**
- * @type {Object<string, { dv: { defaultValue: number, required: boolean }, [hooksClass]: Class }>}
+ * @type {Object<string, { dv: { defaultValue: number, required: boolean }, [throttlePeriodForUser]: Number }>}
  */
 const MESSAGE_META = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
@@ -480,7 +478,7 @@ const MESSAGE_META = {
             url: { required: true },
         },
     },
-    [NEWS_ITEM_COMMON_MESSAGE_TYPE]: { ...newsItemMessageMeta, hooksClass: NewsItemCommonHooksSet },
+    [NEWS_ITEM_COMMON_MESSAGE_TYPE]: { ...newsItemMessageMeta, throttlePeriodForUser: 3600 },
     [NEWS_ITEM_EMERGENCY_MESSAGE_TYPE]: { ...newsItemMessageMeta },
 }
 
@@ -660,7 +658,7 @@ const MESSAGE_CANCELED_STATUS = 'canceled'
 const MESSAGE_SENT_STATUS = 'sent'
 const MESSAGE_READ_STATUS = 'read'
 const MESSAGE_DISABLED_BY_USER_STATUS = 'disabledByUser'
-const MESSAGE_NOT_SENT_DUE_TO_HOOK = 'notSentDueToHook'
+const MESSAGE_THROTTLED_STATUS = 'throttled'
 const MESSAGE_STATUSES = [
     MESSAGE_SENDING_STATUS,
     MESSAGE_RESENDING_STATUS,
@@ -672,7 +670,7 @@ const MESSAGE_STATUSES = [
     MESSAGE_READ_STATUS,
     MESSAGE_CANCELED_STATUS,
     MESSAGE_DISABLED_BY_USER_STATUS,
-    MESSAGE_NOT_SENT_DUE_TO_HOOK,
+    MESSAGE_THROTTLED_STATUS,
 ]
 
 const MESSAGE_BATCH_CREATED_STATUS = 'created'
@@ -759,7 +757,7 @@ module.exports = {
     MESSAGE_READ_STATUS,
     MESSAGE_CANCELED_STATUS,
     MESSAGE_DISABLED_BY_USER_STATUS,
-    MESSAGE_NOT_SENT_DUE_TO_HOOK,
+    MESSAGE_THROTTLED_STATUS,
     DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
     DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
     MESSAGE_STATUSES,

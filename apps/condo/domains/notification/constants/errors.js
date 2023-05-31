@@ -11,7 +11,7 @@ const MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST = 'Notification not delivered beca
 const EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR = 'One of the "user", "phone" or "email" fields should be provided'
 const WRONG_MESSAGE_TYPE_PROVIDED_ERROR = 'Wrong messageType provided: ${messageType}'
 const MESSAGE_DISABLED_BY_USER = 'Notification not delivered because user disabled it'
-const ONE_COMMON_NEWS_ITEM_PER_HOUR_THROTTLING = '1 message per hour throttling for user'
+const ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER = '1 message per %s sec for user. The latest message was at %s'
 
 //api errors
 const NO_NEED_TO_ENABLE_NOTIFICATIONS = 'NO_NEED_TO_ENABLE_NOTIFICATIONS'
@@ -29,5 +29,5 @@ module.exports = {
     WRONG_MESSAGE_TYPE_PROVIDED_ERROR,
     NO_NEED_TO_ENABLE_NOTIFICATIONS,
     MESSAGE_DISABLED_BY_USER,
-    ONE_COMMON_NEWS_ITEM_PER_HOUR_THROTTLING,
+    ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER,
 }

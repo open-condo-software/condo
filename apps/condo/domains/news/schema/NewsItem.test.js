@@ -977,11 +977,11 @@ describe('NewsItems', () => {
                     expect.objectContaining({ type: 'NEWS_ITEM_COMMON_MESSAGE_TYPE', status: 'sent' }),
                     expect.objectContaining({
                         type: 'NEWS_ITEM_COMMON_MESSAGE_TYPE',
-                        status: 'notSentDueToHook',
+                        status: 'throttled',
                         meta: expect.objectContaining({
                             data: expect.objectContaining({ newsItemId: newsItem2.id }),
                         }),
-                        processingMeta: expect.objectContaining({ error: '1 message per hour throttling for user' }),
+                        processingMeta: expect.objectContaining({ error: expect.stringContaining('1 message per 3600 sec for user. The latest message was at ') }),
                     }),
                 ]))
             }, { delay: (SENDING_DELAY_SEC + 3) * 1000 })
