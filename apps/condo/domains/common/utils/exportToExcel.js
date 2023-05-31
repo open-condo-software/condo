@@ -12,6 +12,7 @@ const EXPORT_TYPE_BUILDINGS = 'buildings'
 const EXPORT_TYPE_TICKETS = 'tickets'
 const EXPORT_TYPE_PROPERTY_SCOPES = 'propertyScopes'
 const EXPORT_TYPE_INCIDENTS = 'incidents'
+const EXPORT_TYPE_NEWS_RECIPIENTS = 'newsRecipients'
 
 const TICKETS_REPORTS_PREFIX = 'ticket_report_'
 const TICKET_REPORT_PROPERTY_STATUS = 'property_status'
@@ -60,6 +61,9 @@ const EXCEL_TEMPLATES_HEADERS = {
     [EXPORT_TYPE_INCIDENTS]: [
         'number', 'addresses', 'classifiers', 'details', 'textForResident', 'status', 'workStart', 'workFinish',
         'organization', 'createdBy', 'createdAt', 'workType',
+    ],
+    [EXPORT_TYPE_NEWS_RECIPIENTS]: [
+        'address', 'unitName', 'hasResident',
     ],
 }
 
@@ -118,6 +122,7 @@ module.exports = {
     EXPORT_TYPE_BUILDINGS,
     EXPORT_TYPE_TICKETS,
     EXPORT_TYPE_INCIDENTS,
+    EXPORT_TYPE_NEWS_RECIPIENTS,
     TICKETS_REPORTS_PREFIX,
     TICKET_REPORT_PROPERTY_STATUS,
     TICKET_REPORT_STATUS_ASSIGNEE,

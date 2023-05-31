@@ -76,7 +76,6 @@ const addressFieldHooks = {
     },
 }
 
-// ORGANIZATION_OWNED_FIELD
 const Property = new GQLListSchema('Property', {
     schemaDoc: 'Common property. The property is divided into separate `unit` parts, each of which can be owned by an independent owner. Community farm, residential buildings, or a cottage settlement',
     fields: {

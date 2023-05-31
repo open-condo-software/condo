@@ -22,8 +22,9 @@ import {
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
+import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
-import { NewsItem } from '@condo/domains/news/utils/clientSchema'
+import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
@@ -89,6 +90,17 @@ const NewsItemCard: React.FC = () => {
             id: newsItemId,
         },
     })
+
+    const {
+        objs: newsItemScopes,
+        loading: newsItemScopesLoading,
+        error: newsItemScopesError,
+    } = NewsItemScope.useObjects({
+        where: {
+            newsItem: { id: newsItemId },
+        },
+    })
+
     const typesNamesMapping = {
         [NEWS_TYPE_COMMON]: Regular,
         [NEWS_TYPE_EMERGENCY]: Emergency,
@@ -140,7 +152,7 @@ const NewsItemCard: React.FC = () => {
                             {CreatedByLabel}
                         </Typography.Text>
                     </Col>
-                    <Col span={24}>
+                    <Col span={16}>
                         <FrontLayerContainer>
                             <Row gutter={HORIZONTAL_ROW_GUTTER}>
                                 <FieldPairRow
@@ -165,6 +177,9 @@ const NewsItemCard: React.FC = () => {
                                 />
                             </Row>
                         </FrontLayerContainer>
+                    </Col>
+                    <Col span={8}>
+                        <RecipientCounter newsItemScopes={newsItemScopes}/>
                     </Col>
                     <Row>
                         {get(newsItem, 'sentAt') ? (

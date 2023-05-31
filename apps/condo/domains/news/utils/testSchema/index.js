@@ -12,6 +12,7 @@ const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { NewsItemScope: NewsItemScopeGQL } = require('@condo/domains/news/gql')
 const { NewsItemTemplate: NewsItemTemplateGQL } = require('@condo/domains/news/gql')
 const { NewsItemUserRead: NewsItemUserReadGQL } = require('@condo/domains/news/gql')
+const { EXPORT_NEWS_RECIPIENTS_MUTATION } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateGQLTestUtils(NewsItemGQL)
@@ -158,6 +159,22 @@ async function updateTestNewsItemUserRead (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function exportNewsRecipientsByTestClient(client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organizationId: organization.id,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(EXPORT_NEWS_RECIPIENTS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -165,5 +182,6 @@ module.exports = {
     NewsItemScope, createTestNewsItemScope, updateTestNewsItemScope,
     NewsItemTemplate, createTestNewsItemTemplate, updateTestNewsItemTemplate,
     NewsItemUserRead, createTestNewsItemUserRead, updateTestNewsItemUserRead,
+    exportNewsRecipientsByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
