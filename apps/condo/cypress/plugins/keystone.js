@@ -145,11 +145,7 @@ module.exports = async (on, config) => {
             const paidTickets = range(paid).map(async () => (await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isPaid: true }))[0] )
             const warrantyTickets = range(warranty).map(async () => (await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isWarranty: true }))[0] )
 
-            const createdTickets = await Promise.all([...regularTickets, ...emergencyTickets, ...paidTickets, ...warrantyTickets])
-
-            console.log(createdTickets)
-
-            return createdTickets
+            return await Promise.all([...regularTickets, ...emergencyTickets, ...paidTickets, ...warrantyTickets])
         },
 
         async 'keystone:createSupportWithProperty' () {
