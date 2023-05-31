@@ -5,6 +5,8 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const {
     makeLoggedInAdminClient,
     makeClient,
@@ -12,10 +14,10 @@ const {
     DATETIME_RE,
     expectToThrowGQLError,
     waitFor,
-} = require('@open-condo/keystone/test.utils')
-const {
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedToFieldError,
 } = require('@open-condo/keystone/test.utils')
 
 const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
@@ -27,13 +29,13 @@ const {
     publishTestNewsItem,
     createTestNewsItemScope,
 } = require('@condo/domains/news/utils/testSchema')
-const { NEWS_ITEM_COMMON_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const {
+    NEWS_ITEM_COMMON_MESSAGE_TYPE,
     DEVICE_PLATFORM_ANDROID,
     APP_RESIDENT_ID_ANDROID,
     MESSAGE_SENT_STATUS,
 } = require('@condo/domains/notification/constants/constants')
-const { syncRemoteClientByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
+const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const {
     getRandomTokenData,
     getRandomFakeSuccessToken,
@@ -599,6 +601,124 @@ describe('NewsItems', () => {
                         expect.objectContaining({ id: newsItem3.id, title: newsItem3Attrs.title }),
                     ]))
                 }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+            })
+
+            describe('Read the `scopes` field', () => {
+                let scopes_property, scopes_newsItem, CustomNewsItemUtils
+
+                beforeAll(async () => {
+                    // Generate utils containing the `scopes` field
+                    const CustomNewsItemGQL = generateGqlQueries(
+                        'NewsItem',
+                        '{ organization { id } title body type validBefore scopes { id property { id address } unitType unitName } sendAt sentAt isPublished }',
+                    )
+                    CustomNewsItemUtils = generateGQLTestUtils(CustomNewsItemGQL)
+
+                    const [property] = await createTestProperty(adminClient, dummyO10n)
+                    scopes_property = property
+
+                    const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+                    scopes_newsItem = newsItem
+
+                    await createTestNewsItemScope(adminClient, newsItem, {
+                        property: { connect: { id: property.id } },
+                    })
+                })
+
+                test('admin can', async () => {
+                    const newsItems = await CustomNewsItemUtils.getAll(adminClient, { id: scopes_newsItem.id })
+
+                    expect(newsItems).toHaveLength(1)
+                    expect(newsItems[0]).toEqual(expect.objectContaining({
+                        scopes: expect.arrayContaining([
+                            expect.objectContaining({
+                                property: {
+                                    id: scopes_property.id,
+                                    address: scopes_property.address,
+                                },
+                            }),
+                        ]),
+                    }))
+                })
+
+                test('support can', async () => {
+                    const newsItems = await CustomNewsItemUtils.getAll(supportClient, { id: scopes_newsItem.id })
+
+                    expect(newsItems).toHaveLength(1)
+                    expect(newsItems[0]).toEqual(expect.objectContaining({
+                        scopes: expect.arrayContaining([
+                            expect.objectContaining({
+                                property: {
+                                    id: scopes_property.id,
+                                    address: scopes_property.address,
+                                },
+                            }),
+                        ]),
+                    }))
+                })
+
+                describe('user can\'t', () => {
+                    let user_cant_o10n, user_cant_property1, user_cant_newsItem1, user_cant_newsItem2
+
+                    beforeAll(async () => {
+                        const [o10n] = await createTestOrganization(adminClient)
+                        user_cant_o10n = o10n
+
+                        const [property1] = await createTestProperty(adminClient, o10n)
+                        user_cant_property1 = property1
+
+                        const [property2] = await createTestProperty(adminClient, o10n)
+
+                        const [newsItem1] = await createTestNewsItem(adminClient, o10n)
+                        user_cant_newsItem1 = newsItem1
+                        await createTestNewsItemScope(adminClient, newsItem1, {
+                            property: { connect: { id: property1.id } },
+                        })
+
+                        const [newsItem2] = await createTestNewsItem(adminClient, o10n)
+                        user_cant_newsItem2 = newsItem2
+                        await createTestNewsItemScope(adminClient, newsItem2, {
+                            property: { connect: { id: property2.id } },
+                        })
+                    })
+
+                    test('staff can\'t', async () => {
+                        const staffClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                        const [role] = await createTestOrganizationEmployeeRole(adminClient, user_cant_o10n, { canManageNewsItems: true })
+                        await createTestOrganizationEmployee(adminClient, user_cant_o10n, staffClient.user, role)
+
+                        await expectToThrowAccessDeniedToFieldError(async () => {
+                            await CustomNewsItemUtils.getAll(staffClient)
+                        }, 'objs', 'scopes', 2)
+                    })
+
+                    test('resident can\'t', async () => {
+                        const residentClient = await makeClientWithResidentUser()
+
+                        const unitType1 = FLAT_UNIT_TYPE
+                        const unitName1 = faker.lorem.word()
+
+                        await createTestResident(adminClient, residentClient.user, user_cant_property1, {
+                            unitType: unitType1,
+                            unitName: unitName1,
+                        })
+
+                        await publishTestNewsItem(adminClient, user_cant_newsItem1.id)
+                        await publishTestNewsItem(adminClient, user_cant_newsItem2.id)
+
+                        await waitFor(async () => {
+                            await expectToThrowAccessDeniedToFieldError(async () => {
+                                await CustomNewsItemUtils.getAll(residentClient)
+                            }, 'objs', 'scopes')
+                        }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+                    })
+                })
+
+                test('anonymous can\'t', async () => {
+                    await expectToThrowAuthenticationErrorToObjects(async () => {
+                        await CustomNewsItemUtils.getAll(anonymousClient, { id: scopes_newsItem.id })
+                    })
+                })
             })
         })
     })

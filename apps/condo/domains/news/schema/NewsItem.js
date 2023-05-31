@@ -78,6 +78,7 @@ const readOnlyFieldsWhenPublished = ['organization', 'title', 'body', 'type', 's
 
 const NewsItem = new GQLListSchema('NewsItem', {
     schemaDoc: 'The news item created by the organization to show on resident\'s mobile devices',
+    labelResolver: ({ title, type }) => `${type === NEWS_TYPE_EMERGENCY ? '🚨' : ''} ${title}`,
     fields: {
 
         organization: {
@@ -122,7 +123,11 @@ const NewsItem = new GQLListSchema('NewsItem', {
             type: 'Relationship',
             ref: 'NewsItemScope.newsItem',
             many: true,
-            access: { read: () => false, create: false, update: false },
+            access: {
+                read: ({ authentication: { item: user } }) => (user.isAdmin || user.isSupport),
+                create: false,
+                update: false,
+            },
         },
 
         sentAt: {
