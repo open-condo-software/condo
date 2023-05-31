@@ -24682,12 +24682,8 @@ export type Meter = {
   _label_?: Maybe<Scalars['String']>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
-  /**  Link to property which contains unit with this meter  */
-  property?: Maybe<Property>;
-  /**  Number of resource meter, such as "А03 9908"  */
-  number?: Maybe<Scalars['String']>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
-  /**  Date when the meter was installed in the unit  */
+  /**  Date when the meter was installed in the property  */
   installationDate?: Maybe<Scalars['String']>;
   /**  Date when the meter was commissioned.Commissioning - documentation of the meter as a billing meter  */
   commissioningDate?: Maybe<Scalars['String']>;
@@ -24699,6 +24695,16 @@ export type Meter = {
   controlReadingsDate?: Maybe<Scalars['String']>;
   /**  The date when meter was sealed.Sealing is the installation of a unique single-use device (directly a seal and a sealing rope)on the metering device, which is designed to control unauthorized access to the equipment.  */
   sealingDate?: Maybe<Scalars['String']>;
+  /**  Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading.So MeterReadings only be acquired through external integration or adjusted by organization employee  */
+  isAutomatic?: Maybe<Scalars['Boolean']>;
+  /**  Meter resource, such as hot water or electricity  */
+  resource?: Maybe<MeterResource>;
+  /**  Ref to B2BApp, which is used as a master system for this meter. Specified organization must connect this app.  */
+  b2bApp?: Maybe<B2BApp>;
+  /**  Link to property which contains unit with this meter  */
+  property?: Maybe<Property>;
+  /**  Number of resource meter, such as "А03 9908"  */
+  number?: Maybe<Scalars['String']>;
   /**  Client's billing account  */
   accountNumber?: Maybe<Scalars['String']>;
   /**  Unit with this meter  */
@@ -24707,16 +24713,10 @@ export type Meter = {
   unitType?: Maybe<Scalars['String']>;
   /**  Certain place in unit where meter is, such as kitchen  */
   place?: Maybe<Scalars['String']>;
-  /**  Meter resource, such as hot water or electricity  */
-  resource?: Maybe<MeterResource>;
-  /**  Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading. So MeterReadings only be acquired through external integration or adjusted by organization employee  */
-  isAutomatic?: Maybe<Scalars['Boolean']>;
   /**  Meter metadata. Can be used to store additional settings from external sources, such as billing integrations or mini apps  */
   meta?: Maybe<Scalars['JSON']>;
   /**  Ref to the B2CApp which used to replace default integration with meter by resident's user in resident's app  */
   b2cApp?: Maybe<B2CApp>;
-  /**  Ref to B2BApp, which is used as a master system for this meter. Specified organization must connect this app.  */
-  b2bApp?: Maybe<B2BApp>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -24735,8 +24735,6 @@ export type Meter = {
 
 export type MeterCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
-  property?: Maybe<PropertyRelateToOneInput>;
-  number?: Maybe<Scalars['String']>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
@@ -24744,15 +24742,17 @@ export type MeterCreateInput = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
+  resource?: Maybe<MeterResourceRelateToOneInput>;
+  b2bApp?: Maybe<B2BAppRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  number?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
-  resource?: Maybe<MeterResourceRelateToOneInput>;
-  isAutomatic?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   b2cApp?: Maybe<B2CAppRelateToOneInput>;
-  b2bApp?: Maybe<B2BAppRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -24776,8 +24776,6 @@ export type MeterHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
-  property?: Maybe<Scalars['String']>;
-  number?: Maybe<Scalars['String']>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
@@ -24785,15 +24783,17 @@ export type MeterHistoryRecord = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
+  resource?: Maybe<Scalars['String']>;
+  b2bApp?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
-  resource?: Maybe<Scalars['String']>;
-  isAutomatic?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   b2cApp?: Maybe<Scalars['String']>;
-  b2bApp?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -24811,8 +24811,6 @@ export type MeterHistoryRecord = {
 
 export type MeterHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
-  property?: Maybe<Scalars['String']>;
-  number?: Maybe<Scalars['String']>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
@@ -24820,15 +24818,17 @@ export type MeterHistoryRecordCreateInput = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
+  resource?: Maybe<Scalars['String']>;
+  b2bApp?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
-  resource?: Maybe<Scalars['String']>;
-  isAutomatic?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   b2cApp?: Maybe<Scalars['String']>;
-  b2bApp?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -24851,8 +24851,6 @@ export enum MeterHistoryRecordHistoryActionType {
 
 export type MeterHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
-  property?: Maybe<Scalars['String']>;
-  number?: Maybe<Scalars['String']>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
@@ -24860,15 +24858,17 @@ export type MeterHistoryRecordUpdateInput = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
+  resource?: Maybe<Scalars['String']>;
+  b2bApp?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
-  resource?: Maybe<Scalars['String']>;
-  isAutomatic?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   b2cApp?: Maybe<Scalars['String']>;
-  b2bApp?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -24890,28 +24890,6 @@ export type MeterHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  property?: Maybe<Scalars['String']>;
-  property_not?: Maybe<Scalars['String']>;
-  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  number?: Maybe<Scalars['String']>;
-  number_not?: Maybe<Scalars['String']>;
-  number_contains?: Maybe<Scalars['String']>;
-  number_not_contains?: Maybe<Scalars['String']>;
-  number_starts_with?: Maybe<Scalars['String']>;
-  number_not_starts_with?: Maybe<Scalars['String']>;
-  number_ends_with?: Maybe<Scalars['String']>;
-  number_not_ends_with?: Maybe<Scalars['String']>;
-  number_i?: Maybe<Scalars['String']>;
-  number_not_i?: Maybe<Scalars['String']>;
-  number_contains_i?: Maybe<Scalars['String']>;
-  number_not_contains_i?: Maybe<Scalars['String']>;
-  number_starts_with_i?: Maybe<Scalars['String']>;
-  number_not_starts_with_i?: Maybe<Scalars['String']>;
-  number_ends_with_i?: Maybe<Scalars['String']>;
-  number_not_ends_with_i?: Maybe<Scalars['String']>;
-  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   numberOfTariffs_not?: Maybe<Scalars['Int']>;
   numberOfTariffs_lt?: Maybe<Scalars['Int']>;
@@ -24968,6 +24946,38 @@ export type MeterHistoryRecordWhereInput = {
   sealingDate_gte?: Maybe<Scalars['String']>;
   sealingDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sealingDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
+  isAutomatic_not?: Maybe<Scalars['Boolean']>;
+  resource?: Maybe<Scalars['String']>;
+  resource_not?: Maybe<Scalars['String']>;
+  resource_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  resource_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  b2bApp?: Maybe<Scalars['String']>;
+  b2bApp_not?: Maybe<Scalars['String']>;
+  b2bApp_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  b2bApp_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number?: Maybe<Scalars['String']>;
+  number_not?: Maybe<Scalars['String']>;
+  number_contains?: Maybe<Scalars['String']>;
+  number_not_contains?: Maybe<Scalars['String']>;
+  number_starts_with?: Maybe<Scalars['String']>;
+  number_not_starts_with?: Maybe<Scalars['String']>;
+  number_ends_with?: Maybe<Scalars['String']>;
+  number_not_ends_with?: Maybe<Scalars['String']>;
+  number_i?: Maybe<Scalars['String']>;
+  number_not_i?: Maybe<Scalars['String']>;
+  number_contains_i?: Maybe<Scalars['String']>;
+  number_not_contains_i?: Maybe<Scalars['String']>;
+  number_starts_with_i?: Maybe<Scalars['String']>;
+  number_not_starts_with_i?: Maybe<Scalars['String']>;
+  number_ends_with_i?: Maybe<Scalars['String']>;
+  number_not_ends_with_i?: Maybe<Scalars['String']>;
+  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber?: Maybe<Scalars['String']>;
   accountNumber_not?: Maybe<Scalars['String']>;
   accountNumber_contains?: Maybe<Scalars['String']>;
@@ -25040,12 +25050,6 @@ export type MeterHistoryRecordWhereInput = {
   place_not_ends_with_i?: Maybe<Scalars['String']>;
   place_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   place_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  resource?: Maybe<Scalars['String']>;
-  resource_not?: Maybe<Scalars['String']>;
-  resource_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  resource_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  isAutomatic?: Maybe<Scalars['Boolean']>;
-  isAutomatic_not?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -25054,10 +25058,6 @@ export type MeterHistoryRecordWhereInput = {
   b2cApp_not?: Maybe<Scalars['String']>;
   b2cApp_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   b2cApp_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  b2bApp?: Maybe<Scalars['String']>;
-  b2bApp_not?: Maybe<Scalars['String']>;
-  b2bApp_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  b2bApp_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -26868,8 +26868,6 @@ export type MeterResourcesUpdateInput = {
 
 export type MeterUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
-  property?: Maybe<PropertyRelateToOneInput>;
-  number?: Maybe<Scalars['String']>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
@@ -26877,15 +26875,17 @@ export type MeterUpdateInput = {
   nextVerificationDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
+  resource?: Maybe<MeterResourceRelateToOneInput>;
+  b2bApp?: Maybe<B2BAppRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  number?: Maybe<Scalars['String']>;
   accountNumber?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   place?: Maybe<Scalars['String']>;
-  resource?: Maybe<MeterResourceRelateToOneInput>;
-  isAutomatic?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   b2cApp?: Maybe<B2CAppRelateToOneInput>;
-  b2bApp?: Maybe<B2BAppRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26902,26 +26902,6 @@ export type MeterWhereInput = {
   OR?: Maybe<Array<Maybe<MeterWhereInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
-  property?: Maybe<PropertyWhereInput>;
-  property_is_null?: Maybe<Scalars['Boolean']>;
-  number?: Maybe<Scalars['String']>;
-  number_not?: Maybe<Scalars['String']>;
-  number_contains?: Maybe<Scalars['String']>;
-  number_not_contains?: Maybe<Scalars['String']>;
-  number_starts_with?: Maybe<Scalars['String']>;
-  number_not_starts_with?: Maybe<Scalars['String']>;
-  number_ends_with?: Maybe<Scalars['String']>;
-  number_not_ends_with?: Maybe<Scalars['String']>;
-  number_i?: Maybe<Scalars['String']>;
-  number_not_i?: Maybe<Scalars['String']>;
-  number_contains_i?: Maybe<Scalars['String']>;
-  number_not_contains_i?: Maybe<Scalars['String']>;
-  number_starts_with_i?: Maybe<Scalars['String']>;
-  number_not_starts_with_i?: Maybe<Scalars['String']>;
-  number_ends_with_i?: Maybe<Scalars['String']>;
-  number_not_ends_with_i?: Maybe<Scalars['String']>;
-  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   numberOfTariffs_not?: Maybe<Scalars['Int']>;
   numberOfTariffs_lt?: Maybe<Scalars['Int']>;
@@ -26978,6 +26958,32 @@ export type MeterWhereInput = {
   sealingDate_gte?: Maybe<Scalars['String']>;
   sealingDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sealingDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
+  isAutomatic_not?: Maybe<Scalars['Boolean']>;
+  resource?: Maybe<MeterResourceWhereInput>;
+  resource_is_null?: Maybe<Scalars['Boolean']>;
+  b2bApp?: Maybe<B2BAppWhereInput>;
+  b2bApp_is_null?: Maybe<Scalars['Boolean']>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
+  number?: Maybe<Scalars['String']>;
+  number_not?: Maybe<Scalars['String']>;
+  number_contains?: Maybe<Scalars['String']>;
+  number_not_contains?: Maybe<Scalars['String']>;
+  number_starts_with?: Maybe<Scalars['String']>;
+  number_not_starts_with?: Maybe<Scalars['String']>;
+  number_ends_with?: Maybe<Scalars['String']>;
+  number_not_ends_with?: Maybe<Scalars['String']>;
+  number_i?: Maybe<Scalars['String']>;
+  number_not_i?: Maybe<Scalars['String']>;
+  number_contains_i?: Maybe<Scalars['String']>;
+  number_not_contains_i?: Maybe<Scalars['String']>;
+  number_starts_with_i?: Maybe<Scalars['String']>;
+  number_not_starts_with_i?: Maybe<Scalars['String']>;
+  number_ends_with_i?: Maybe<Scalars['String']>;
+  number_not_ends_with_i?: Maybe<Scalars['String']>;
+  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   accountNumber?: Maybe<Scalars['String']>;
   accountNumber_not?: Maybe<Scalars['String']>;
   accountNumber_contains?: Maybe<Scalars['String']>;
@@ -27036,18 +27042,12 @@ export type MeterWhereInput = {
   place_not_ends_with_i?: Maybe<Scalars['String']>;
   place_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   place_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  resource?: Maybe<MeterResourceWhereInput>;
-  resource_is_null?: Maybe<Scalars['Boolean']>;
-  isAutomatic?: Maybe<Scalars['Boolean']>;
-  isAutomatic_not?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   b2cApp?: Maybe<B2CAppWhereInput>;
   b2cApp_is_null?: Maybe<Scalars['Boolean']>;
-  b2bApp?: Maybe<B2BAppWhereInput>;
-  b2bApp_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -47035,8 +47035,6 @@ export type PropertyMeter = {
   _label_?: Maybe<Scalars['String']>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
-  /**  Number of resource meter, such as "А03 9908"  */
-  number?: Maybe<Scalars['String']>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   /**  Date when the meter was installed in the property  */
   installationDate?: Maybe<Scalars['String']>;
@@ -47052,12 +47050,14 @@ export type PropertyMeter = {
   sealingDate?: Maybe<Scalars['String']>;
   /**  Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading.So MeterReadings only be acquired through external integration or adjusted by organization employee  */
   isAutomatic?: Maybe<Scalars['Boolean']>;
-  /**  Link to property which contains unit with this meter  */
-  property?: Maybe<Property>;
   /**  Meter resource, such as hot water or electricity  */
   resource?: Maybe<MeterResource>;
   /**  Ref to B2BApp, which is used as a master system for this meter. Specified organization must connect this app.  */
   b2bApp?: Maybe<B2BApp>;
+  /**  Number of resource meter, such as "А03 9908"  */
+  number?: Maybe<Scalars['String']>;
+  /**  Link to property which contains this meter  */
+  property?: Maybe<Property>;
   /**  Meter metadata. Can be used to store additional settings from external sources, such as billing integrations or mini apps  */
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -47078,7 +47078,6 @@ export type PropertyMeter = {
 
 export type PropertyMeterCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
-  number?: Maybe<Scalars['String']>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
@@ -47087,9 +47086,10 @@ export type PropertyMeterCreateInput = {
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
-  property?: Maybe<PropertyRelateToOneInput>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
   b2bApp?: Maybe<B2BAppRelateToOneInput>;
+  number?: Maybe<Scalars['String']>;
+  property?: Maybe<PropertyRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -47114,7 +47114,6 @@ export type PropertyMeterHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
-  number?: Maybe<Scalars['String']>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
@@ -47123,9 +47122,10 @@ export type PropertyMeterHistoryRecord = {
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
-  property?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   b2bApp?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -47144,7 +47144,6 @@ export type PropertyMeterHistoryRecord = {
 
 export type PropertyMeterHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
-  number?: Maybe<Scalars['String']>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
@@ -47153,9 +47152,10 @@ export type PropertyMeterHistoryRecordCreateInput = {
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
-  property?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   b2bApp?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -47179,7 +47179,6 @@ export enum PropertyMeterHistoryRecordHistoryActionType {
 
 export type PropertyMeterHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
-  number?: Maybe<Scalars['String']>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
@@ -47188,9 +47187,10 @@ export type PropertyMeterHistoryRecordUpdateInput = {
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
-  property?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   b2bApp?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -47213,24 +47213,6 @@ export type PropertyMeterHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  number?: Maybe<Scalars['String']>;
-  number_not?: Maybe<Scalars['String']>;
-  number_contains?: Maybe<Scalars['String']>;
-  number_not_contains?: Maybe<Scalars['String']>;
-  number_starts_with?: Maybe<Scalars['String']>;
-  number_not_starts_with?: Maybe<Scalars['String']>;
-  number_ends_with?: Maybe<Scalars['String']>;
-  number_not_ends_with?: Maybe<Scalars['String']>;
-  number_i?: Maybe<Scalars['String']>;
-  number_not_i?: Maybe<Scalars['String']>;
-  number_contains_i?: Maybe<Scalars['String']>;
-  number_not_contains_i?: Maybe<Scalars['String']>;
-  number_starts_with_i?: Maybe<Scalars['String']>;
-  number_not_starts_with_i?: Maybe<Scalars['String']>;
-  number_ends_with_i?: Maybe<Scalars['String']>;
-  number_not_ends_with_i?: Maybe<Scalars['String']>;
-  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   numberOfTariffs_not?: Maybe<Scalars['Int']>;
   numberOfTariffs_lt?: Maybe<Scalars['Int']>;
@@ -47289,10 +47271,6 @@ export type PropertyMeterHistoryRecordWhereInput = {
   sealingDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   isAutomatic_not?: Maybe<Scalars['Boolean']>;
-  property?: Maybe<Scalars['String']>;
-  property_not?: Maybe<Scalars['String']>;
-  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   resource?: Maybe<Scalars['String']>;
   resource_not?: Maybe<Scalars['String']>;
   resource_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -47301,6 +47279,28 @@ export type PropertyMeterHistoryRecordWhereInput = {
   b2bApp_not?: Maybe<Scalars['String']>;
   b2bApp_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   b2bApp_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number?: Maybe<Scalars['String']>;
+  number_not?: Maybe<Scalars['String']>;
+  number_contains?: Maybe<Scalars['String']>;
+  number_not_contains?: Maybe<Scalars['String']>;
+  number_starts_with?: Maybe<Scalars['String']>;
+  number_not_starts_with?: Maybe<Scalars['String']>;
+  number_ends_with?: Maybe<Scalars['String']>;
+  number_not_ends_with?: Maybe<Scalars['String']>;
+  number_i?: Maybe<Scalars['String']>;
+  number_not_i?: Maybe<Scalars['String']>;
+  number_contains_i?: Maybe<Scalars['String']>;
+  number_not_contains_i?: Maybe<Scalars['String']>;
+  number_starts_with_i?: Maybe<Scalars['String']>;
+  number_not_starts_with_i?: Maybe<Scalars['String']>;
+  number_ends_with_i?: Maybe<Scalars['String']>;
+  number_not_ends_with_i?: Maybe<Scalars['String']>;
+  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -47840,7 +47840,6 @@ export type PropertyMeterRelateToOneInput = {
 
 export type PropertyMeterUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
-  number?: Maybe<Scalars['String']>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   installationDate?: Maybe<Scalars['String']>;
   commissioningDate?: Maybe<Scalars['String']>;
@@ -47849,9 +47848,10 @@ export type PropertyMeterUpdateInput = {
   controlReadingsDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
-  property?: Maybe<PropertyRelateToOneInput>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
   b2bApp?: Maybe<B2BAppRelateToOneInput>;
+  number?: Maybe<Scalars['String']>;
+  property?: Maybe<PropertyRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -47869,24 +47869,6 @@ export type PropertyMeterWhereInput = {
   OR?: Maybe<Array<Maybe<PropertyMeterWhereInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
-  number?: Maybe<Scalars['String']>;
-  number_not?: Maybe<Scalars['String']>;
-  number_contains?: Maybe<Scalars['String']>;
-  number_not_contains?: Maybe<Scalars['String']>;
-  number_starts_with?: Maybe<Scalars['String']>;
-  number_not_starts_with?: Maybe<Scalars['String']>;
-  number_ends_with?: Maybe<Scalars['String']>;
-  number_not_ends_with?: Maybe<Scalars['String']>;
-  number_i?: Maybe<Scalars['String']>;
-  number_not_i?: Maybe<Scalars['String']>;
-  number_contains_i?: Maybe<Scalars['String']>;
-  number_not_contains_i?: Maybe<Scalars['String']>;
-  number_starts_with_i?: Maybe<Scalars['String']>;
-  number_not_starts_with_i?: Maybe<Scalars['String']>;
-  number_ends_with_i?: Maybe<Scalars['String']>;
-  number_not_ends_with_i?: Maybe<Scalars['String']>;
-  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
   numberOfTariffs_not?: Maybe<Scalars['Int']>;
   numberOfTariffs_lt?: Maybe<Scalars['Int']>;
@@ -47945,12 +47927,30 @@ export type PropertyMeterWhereInput = {
   sealingDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   isAutomatic_not?: Maybe<Scalars['Boolean']>;
-  property?: Maybe<PropertyWhereInput>;
-  property_is_null?: Maybe<Scalars['Boolean']>;
   resource?: Maybe<MeterResourceWhereInput>;
   resource_is_null?: Maybe<Scalars['Boolean']>;
   b2bApp?: Maybe<B2BAppWhereInput>;
   b2bApp_is_null?: Maybe<Scalars['Boolean']>;
+  number?: Maybe<Scalars['String']>;
+  number_not?: Maybe<Scalars['String']>;
+  number_contains?: Maybe<Scalars['String']>;
+  number_not_contains?: Maybe<Scalars['String']>;
+  number_starts_with?: Maybe<Scalars['String']>;
+  number_not_starts_with?: Maybe<Scalars['String']>;
+  number_ends_with?: Maybe<Scalars['String']>;
+  number_not_ends_with?: Maybe<Scalars['String']>;
+  number_i?: Maybe<Scalars['String']>;
+  number_not_i?: Maybe<Scalars['String']>;
+  number_contains_i?: Maybe<Scalars['String']>;
+  number_not_contains_i?: Maybe<Scalars['String']>;
+  number_starts_with_i?: Maybe<Scalars['String']>;
+  number_not_starts_with_i?: Maybe<Scalars['String']>;
+  number_ends_with_i?: Maybe<Scalars['String']>;
+  number_not_ends_with_i?: Maybe<Scalars['String']>;
+  number_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -63022,8 +63022,6 @@ export enum SortMessagesBy {
 }
 
 export enum SortMeterHistoryRecordsBy {
-  NumberAsc = 'number_ASC',
-  NumberDesc = 'number_DESC',
   NumberOfTariffsAsc = 'numberOfTariffs_ASC',
   NumberOfTariffsDesc = 'numberOfTariffs_DESC',
   InstallationDateAsc = 'installationDate_ASC',
@@ -63038,6 +63036,10 @@ export enum SortMeterHistoryRecordsBy {
   ControlReadingsDateDesc = 'controlReadingsDate_DESC',
   SealingDateAsc = 'sealingDate_ASC',
   SealingDateDesc = 'sealingDate_DESC',
+  IsAutomaticAsc = 'isAutomatic_ASC',
+  IsAutomaticDesc = 'isAutomatic_DESC',
+  NumberAsc = 'number_ASC',
+  NumberDesc = 'number_DESC',
   AccountNumberAsc = 'accountNumber_ASC',
   AccountNumberDesc = 'accountNumber_DESC',
   UnitNameAsc = 'unitName_ASC',
@@ -63046,8 +63048,6 @@ export enum SortMeterHistoryRecordsBy {
   UnitTypeDesc = 'unitType_DESC',
   PlaceAsc = 'place_ASC',
   PlaceDesc = 'place_DESC',
-  IsAutomaticAsc = 'isAutomatic_ASC',
-  IsAutomaticDesc = 'isAutomatic_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -63285,10 +63285,6 @@ export enum SortMeterResourcesBy {
 export enum SortMetersBy {
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
-  PropertyAsc = 'property_ASC',
-  PropertyDesc = 'property_DESC',
-  NumberAsc = 'number_ASC',
-  NumberDesc = 'number_DESC',
   NumberOfTariffsAsc = 'numberOfTariffs_ASC',
   NumberOfTariffsDesc = 'numberOfTariffs_DESC',
   InstallationDateAsc = 'installationDate_ASC',
@@ -63303,6 +63299,16 @@ export enum SortMetersBy {
   ControlReadingsDateDesc = 'controlReadingsDate_DESC',
   SealingDateAsc = 'sealingDate_ASC',
   SealingDateDesc = 'sealingDate_DESC',
+  IsAutomaticAsc = 'isAutomatic_ASC',
+  IsAutomaticDesc = 'isAutomatic_DESC',
+  ResourceAsc = 'resource_ASC',
+  ResourceDesc = 'resource_DESC',
+  B2bAppAsc = 'b2bApp_ASC',
+  B2bAppDesc = 'b2bApp_DESC',
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
+  NumberAsc = 'number_ASC',
+  NumberDesc = 'number_DESC',
   AccountNumberAsc = 'accountNumber_ASC',
   AccountNumberDesc = 'accountNumber_DESC',
   UnitNameAsc = 'unitName_ASC',
@@ -63311,14 +63317,8 @@ export enum SortMetersBy {
   UnitTypeDesc = 'unitType_DESC',
   PlaceAsc = 'place_ASC',
   PlaceDesc = 'place_DESC',
-  ResourceAsc = 'resource_ASC',
-  ResourceDesc = 'resource_DESC',
-  IsAutomaticAsc = 'isAutomatic_ASC',
-  IsAutomaticDesc = 'isAutomatic_DESC',
   B2cAppAsc = 'b2cApp_ASC',
   B2cAppDesc = 'b2cApp_DESC',
-  B2bAppAsc = 'b2bApp_ASC',
-  B2bAppDesc = 'b2bApp_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -64490,8 +64490,6 @@ export enum SortPropertyHistoryRecordsBy {
 }
 
 export enum SortPropertyMeterHistoryRecordsBy {
-  NumberAsc = 'number_ASC',
-  NumberDesc = 'number_DESC',
   NumberOfTariffsAsc = 'numberOfTariffs_ASC',
   NumberOfTariffsDesc = 'numberOfTariffs_DESC',
   InstallationDateAsc = 'installationDate_ASC',
@@ -64508,6 +64506,8 @@ export enum SortPropertyMeterHistoryRecordsBy {
   SealingDateDesc = 'sealingDate_DESC',
   IsAutomaticAsc = 'isAutomatic_ASC',
   IsAutomaticDesc = 'isAutomatic_DESC',
+  NumberAsc = 'number_ASC',
+  NumberDesc = 'number_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -64593,8 +64593,6 @@ export enum SortPropertyMeterReadingsBy {
 export enum SortPropertyMetersBy {
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
-  NumberAsc = 'number_ASC',
-  NumberDesc = 'number_DESC',
   NumberOfTariffsAsc = 'numberOfTariffs_ASC',
   NumberOfTariffsDesc = 'numberOfTariffs_DESC',
   InstallationDateAsc = 'installationDate_ASC',
@@ -64611,12 +64609,14 @@ export enum SortPropertyMetersBy {
   SealingDateDesc = 'sealingDate_DESC',
   IsAutomaticAsc = 'isAutomatic_ASC',
   IsAutomaticDesc = 'isAutomatic_DESC',
-  PropertyAsc = 'property_ASC',
-  PropertyDesc = 'property_DESC',
   ResourceAsc = 'resource_ASC',
   ResourceDesc = 'resource_DESC',
   B2bAppAsc = 'b2bApp_ASC',
   B2bAppDesc = 'b2bApp_DESC',
+  NumberAsc = 'number_ASC',
+  NumberDesc = 'number_DESC',
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

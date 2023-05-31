@@ -16,22 +16,14 @@ async function deleteReadingsOfDeletedMeter (deletedMeter, deletedMeterAt, isPro
         deletedAt: null,
     })
 
-    if (isPropertyMeter) {
-        for (const reading of meterReadings) {
-            await PropertyMeterReading.update(context, reading.id, {
-                deletedAt: deletedMeterAt,
-                dv: deletedMeter.dv,
-                sender: deletedMeter.sender,
-            })
-        }
-    } else {
-        for (const reading of meterReadings) {
-            await MeterReading.update(context, reading.id, {
-                deletedAt: deletedMeterAt,
-                dv: deletedMeter.dv,
-                sender: deletedMeter.sender,
-            })
-        }
+    const readingModel = isPropertyMeter ? PropertyMeterReading : MeterReading
+
+    for (const reading of meterReadings) {
+        await readingModel.update(context, reading.id, {
+            deletedAt: deletedMeterAt,
+            dv: deletedMeter.dv,
+            sender: deletedMeter.sender,
+        })
     }
 }
 

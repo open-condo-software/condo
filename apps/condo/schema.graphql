@@ -42299,8 +42299,6 @@ type MeterHistoryRecord {
   """
   _label_: String
   organization: String
-  property: String
-  number: String
   numberOfTariffs: Int
   installationDate: String
   commissioningDate: String
@@ -42308,15 +42306,17 @@ type MeterHistoryRecord {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  isAutomatic: Boolean
+  resource: String
+  b2bApp: String
+  property: String
+  number: String
   accountNumber: String
   unitName: String
   unitType: String
   place: String
-  resource: String
-  isAutomatic: Boolean
   meta: JSON
   b2cApp: String
-  b2bApp: String
   id: ID!
   v: Int
   createdAt: String
@@ -42339,28 +42339,6 @@ input MeterHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
-  property: String
-  property_not: String
-  property_in: [String]
-  property_not_in: [String]
-  number: String
-  number_not: String
-  number_contains: String
-  number_not_contains: String
-  number_starts_with: String
-  number_not_starts_with: String
-  number_ends_with: String
-  number_not_ends_with: String
-  number_i: String
-  number_not_i: String
-  number_contains_i: String
-  number_not_contains_i: String
-  number_starts_with_i: String
-  number_not_starts_with_i: String
-  number_ends_with_i: String
-  number_not_ends_with_i: String
-  number_in: [String]
-  number_not_in: [String]
   numberOfTariffs: Int
   numberOfTariffs_not: Int
   numberOfTariffs_lt: Int
@@ -42417,6 +42395,38 @@ input MeterHistoryRecordWhereInput {
   sealingDate_gte: String
   sealingDate_in: [String]
   sealingDate_not_in: [String]
+  isAutomatic: Boolean
+  isAutomatic_not: Boolean
+  resource: String
+  resource_not: String
+  resource_in: [String]
+  resource_not_in: [String]
+  b2bApp: String
+  b2bApp_not: String
+  b2bApp_in: [String]
+  b2bApp_not_in: [String]
+  property: String
+  property_not: String
+  property_in: [String]
+  property_not_in: [String]
+  number: String
+  number_not: String
+  number_contains: String
+  number_not_contains: String
+  number_starts_with: String
+  number_not_starts_with: String
+  number_ends_with: String
+  number_not_ends_with: String
+  number_i: String
+  number_not_i: String
+  number_contains_i: String
+  number_not_contains_i: String
+  number_starts_with_i: String
+  number_not_starts_with_i: String
+  number_ends_with_i: String
+  number_not_ends_with_i: String
+  number_in: [String]
+  number_not_in: [String]
   accountNumber: String
   accountNumber_not: String
   accountNumber_contains: String
@@ -42489,12 +42499,6 @@ input MeterHistoryRecordWhereInput {
   place_not_ends_with_i: String
   place_in: [String]
   place_not_in: [String]
-  resource: String
-  resource_not: String
-  resource_in: [String]
-  resource_not_in: [String]
-  isAutomatic: Boolean
-  isAutomatic_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -42503,10 +42507,6 @@ input MeterHistoryRecordWhereInput {
   b2cApp_not: String
   b2cApp_in: [String]
   b2cApp_not_in: [String]
-  b2bApp: String
-  b2bApp_not: String
-  b2bApp_in: [String]
-  b2bApp_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -42590,8 +42590,6 @@ input MeterHistoryRecordWhereUniqueInput {
 }
 
 enum SortMeterHistoryRecordsBy {
-  number_ASC
-  number_DESC
   numberOfTariffs_ASC
   numberOfTariffs_DESC
   installationDate_ASC
@@ -42606,6 +42604,10 @@ enum SortMeterHistoryRecordsBy {
   controlReadingsDate_DESC
   sealingDate_ASC
   sealingDate_DESC
+  isAutomatic_ASC
+  isAutomatic_DESC
+  number_ASC
+  number_DESC
   accountNumber_ASC
   accountNumber_DESC
   unitName_ASC
@@ -42614,8 +42616,6 @@ enum SortMeterHistoryRecordsBy {
   unitType_DESC
   place_ASC
   place_DESC
-  isAutomatic_ASC
-  isAutomatic_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -42636,8 +42636,6 @@ enum SortMeterHistoryRecordsBy {
 
 input MeterHistoryRecordUpdateInput {
   organization: String
-  property: String
-  number: String
   numberOfTariffs: Int
   installationDate: String
   commissioningDate: String
@@ -42645,15 +42643,17 @@ input MeterHistoryRecordUpdateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  isAutomatic: Boolean
+  resource: String
+  b2bApp: String
+  property: String
+  number: String
   accountNumber: String
   unitName: String
   unitType: String
   place: String
-  resource: String
-  isAutomatic: Boolean
   meta: JSON
   b2cApp: String
-  b2bApp: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -42675,8 +42675,6 @@ input MeterHistoryRecordsUpdateInput {
 
 input MeterHistoryRecordCreateInput {
   organization: String
-  property: String
-  number: String
   numberOfTariffs: Int
   installationDate: String
   commissioningDate: String
@@ -42684,15 +42682,17 @@ input MeterHistoryRecordCreateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  isAutomatic: Boolean
+  resource: String
+  b2bApp: String
+  property: String
+  number: String
   accountNumber: String
   unitName: String
   unitType: String
   place: String
-  resource: String
-  isAutomatic: Boolean
   meta: JSON
   b2cApp: String
-  b2bApp: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -42718,17 +42718,17 @@ input MeterResourceRelateToOneInput {
   disconnectAll: Boolean
 }
 
-input B2CAppRelateToOneInput {
-  create: B2CAppCreateInput
-  connect: B2CAppWhereUniqueInput
-  disconnect: B2CAppWhereUniqueInput
-  disconnectAll: Boolean
-}
-
 input B2BAppRelateToOneInput {
   create: B2BAppCreateInput
   connect: B2BAppWhereUniqueInput
   disconnect: B2BAppWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+input B2CAppRelateToOneInput {
+  create: B2CAppCreateInput
+  connect: B2CAppWhereUniqueInput
+  disconnect: B2CAppWhereUniqueInput
   disconnectAll: Boolean
 }
 
@@ -42746,15 +42746,9 @@ type Meter {
   """ Ref to the organization. The object will be deleted if the organization ceases to exist 
   """
   organization: Organization
-
-  """ Link to property which contains unit with this meter """
-  property: Property
-
-  """ Number of resource meter, such as "А03 9908" """
-  number: String
   numberOfTariffs: Int
 
-  """ Date when the meter was installed in the unit """
+  """ Date when the meter was installed in the property """
   installationDate: String
 
   """ Date when the meter was commissioned.Commissioning - documentation of the meter as a billing meter 
@@ -42776,6 +42770,23 @@ type Meter {
   """
   sealingDate: String
 
+  """ Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading.So MeterReadings only be acquired through external integration or adjusted by organization employee 
+  """
+  isAutomatic: Boolean
+
+  """ Meter resource, such as hot water or electricity """
+  resource: MeterResource
+
+  """ Ref to B2BApp, which is used as a master system for this meter. Specified organization must connect this app. 
+  """
+  b2bApp: B2BApp
+
+  """ Link to property which contains unit with this meter """
+  property: Property
+
+  """ Number of resource meter, such as "А03 9908" """
+  number: String
+
   """ Client's billing account """
   accountNumber: String
 
@@ -42788,13 +42799,6 @@ type Meter {
   """ Certain place in unit where meter is, such as kitchen """
   place: String
 
-  """ Meter resource, such as hot water or electricity """
-  resource: MeterResource
-
-  """ Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading. So MeterReadings only be acquired through external integration or adjusted by organization employee 
-  """
-  isAutomatic: Boolean
-
   """ Meter metadata. Can be used to store additional settings from external sources, such as billing integrations or mini apps 
   """
   meta: JSON
@@ -42802,10 +42806,6 @@ type Meter {
   """ Ref to the B2CApp which used to replace default integration with meter by resident's user in resident's app 
   """
   b2cApp: B2CApp
-
-  """ Ref to B2BApp, which is used as a master system for this meter. Specified organization must connect this app. 
-  """
-  b2bApp: B2BApp
   id: ID!
   v: Int
   createdAt: String
@@ -42834,26 +42834,6 @@ input MeterWhereInput {
   OR: [MeterWhereInput]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
-  property: PropertyWhereInput
-  property_is_null: Boolean
-  number: String
-  number_not: String
-  number_contains: String
-  number_not_contains: String
-  number_starts_with: String
-  number_not_starts_with: String
-  number_ends_with: String
-  number_not_ends_with: String
-  number_i: String
-  number_not_i: String
-  number_contains_i: String
-  number_not_contains_i: String
-  number_starts_with_i: String
-  number_not_starts_with_i: String
-  number_ends_with_i: String
-  number_not_ends_with_i: String
-  number_in: [String]
-  number_not_in: [String]
   numberOfTariffs: Int
   numberOfTariffs_not: Int
   numberOfTariffs_lt: Int
@@ -42910,6 +42890,32 @@ input MeterWhereInput {
   sealingDate_gte: String
   sealingDate_in: [String]
   sealingDate_not_in: [String]
+  isAutomatic: Boolean
+  isAutomatic_not: Boolean
+  resource: MeterResourceWhereInput
+  resource_is_null: Boolean
+  b2bApp: B2BAppWhereInput
+  b2bApp_is_null: Boolean
+  property: PropertyWhereInput
+  property_is_null: Boolean
+  number: String
+  number_not: String
+  number_contains: String
+  number_not_contains: String
+  number_starts_with: String
+  number_not_starts_with: String
+  number_ends_with: String
+  number_not_ends_with: String
+  number_i: String
+  number_not_i: String
+  number_contains_i: String
+  number_not_contains_i: String
+  number_starts_with_i: String
+  number_not_starts_with_i: String
+  number_ends_with_i: String
+  number_not_ends_with_i: String
+  number_in: [String]
+  number_not_in: [String]
   accountNumber: String
   accountNumber_not: String
   accountNumber_contains: String
@@ -42968,18 +42974,12 @@ input MeterWhereInput {
   place_not_ends_with_i: String
   place_in: [String]
   place_not_in: [String]
-  resource: MeterResourceWhereInput
-  resource_is_null: Boolean
-  isAutomatic: Boolean
-  isAutomatic_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
   b2cApp: B2CAppWhereInput
   b2cApp_is_null: Boolean
-  b2bApp: B2BAppWhereInput
-  b2bApp_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -43045,10 +43045,6 @@ input MeterWhereUniqueInput {
 enum SortMetersBy {
   organization_ASC
   organization_DESC
-  property_ASC
-  property_DESC
-  number_ASC
-  number_DESC
   numberOfTariffs_ASC
   numberOfTariffs_DESC
   installationDate_ASC
@@ -43063,6 +43059,16 @@ enum SortMetersBy {
   controlReadingsDate_DESC
   sealingDate_ASC
   sealingDate_DESC
+  isAutomatic_ASC
+  isAutomatic_DESC
+  resource_ASC
+  resource_DESC
+  b2bApp_ASC
+  b2bApp_DESC
+  property_ASC
+  property_DESC
+  number_ASC
+  number_DESC
   accountNumber_ASC
   accountNumber_DESC
   unitName_ASC
@@ -43071,14 +43077,8 @@ enum SortMetersBy {
   unitType_DESC
   place_ASC
   place_DESC
-  resource_ASC
-  resource_DESC
-  isAutomatic_ASC
-  isAutomatic_DESC
   b2cApp_ASC
   b2cApp_DESC
-  b2bApp_ASC
-  b2bApp_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -43099,8 +43099,6 @@ enum SortMetersBy {
 
 input MeterUpdateInput {
   organization: OrganizationRelateToOneInput
-  property: PropertyRelateToOneInput
-  number: String
   numberOfTariffs: Int
   installationDate: String
   commissioningDate: String
@@ -43108,15 +43106,17 @@ input MeterUpdateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  isAutomatic: Boolean
+  resource: MeterResourceRelateToOneInput
+  b2bApp: B2BAppRelateToOneInput
+  property: PropertyRelateToOneInput
+  number: String
   accountNumber: String
   unitName: String
   unitType: String
   place: String
-  resource: MeterResourceRelateToOneInput
-  isAutomatic: Boolean
   meta: JSON
   b2cApp: B2CAppRelateToOneInput
-  b2bApp: B2BAppRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -43135,8 +43135,6 @@ input MetersUpdateInput {
 
 input MeterCreateInput {
   organization: OrganizationRelateToOneInput
-  property: PropertyRelateToOneInput
-  number: String
   numberOfTariffs: Int
   installationDate: String
   commissioningDate: String
@@ -43144,15 +43142,17 @@ input MeterCreateInput {
   nextVerificationDate: String
   controlReadingsDate: String
   sealingDate: String
+  isAutomatic: Boolean
+  resource: MeterResourceRelateToOneInput
+  b2bApp: B2BAppRelateToOneInput
+  property: PropertyRelateToOneInput
+  number: String
   accountNumber: String
   unitName: String
   unitType: String
   place: String
-  resource: MeterResourceRelateToOneInput
-  isAutomatic: Boolean
   meta: JSON
   b2cApp: B2CAppRelateToOneInput
-  b2bApp: B2BAppRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -43607,7 +43607,6 @@ type PropertyMeterHistoryRecord {
   """
   _label_: String
   organization: String
-  number: String
   numberOfTariffs: Int
   installationDate: String
   commissioningDate: String
@@ -43616,9 +43615,10 @@ type PropertyMeterHistoryRecord {
   controlReadingsDate: String
   sealingDate: String
   isAutomatic: Boolean
-  property: String
   resource: String
   b2bApp: String
+  number: String
+  property: String
   meta: JSON
   id: ID!
   v: Int
@@ -43642,24 +43642,6 @@ input PropertyMeterHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
-  number: String
-  number_not: String
-  number_contains: String
-  number_not_contains: String
-  number_starts_with: String
-  number_not_starts_with: String
-  number_ends_with: String
-  number_not_ends_with: String
-  number_i: String
-  number_not_i: String
-  number_contains_i: String
-  number_not_contains_i: String
-  number_starts_with_i: String
-  number_not_starts_with_i: String
-  number_ends_with_i: String
-  number_not_ends_with_i: String
-  number_in: [String]
-  number_not_in: [String]
   numberOfTariffs: Int
   numberOfTariffs_not: Int
   numberOfTariffs_lt: Int
@@ -43718,10 +43700,6 @@ input PropertyMeterHistoryRecordWhereInput {
   sealingDate_not_in: [String]
   isAutomatic: Boolean
   isAutomatic_not: Boolean
-  property: String
-  property_not: String
-  property_in: [String]
-  property_not_in: [String]
   resource: String
   resource_not: String
   resource_in: [String]
@@ -43730,6 +43708,28 @@ input PropertyMeterHistoryRecordWhereInput {
   b2bApp_not: String
   b2bApp_in: [String]
   b2bApp_not_in: [String]
+  number: String
+  number_not: String
+  number_contains: String
+  number_not_contains: String
+  number_starts_with: String
+  number_not_starts_with: String
+  number_ends_with: String
+  number_not_ends_with: String
+  number_i: String
+  number_not_i: String
+  number_contains_i: String
+  number_not_contains_i: String
+  number_starts_with_i: String
+  number_not_starts_with_i: String
+  number_ends_with_i: String
+  number_not_ends_with_i: String
+  number_in: [String]
+  number_not_in: [String]
+  property: String
+  property_not: String
+  property_in: [String]
+  property_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -43817,8 +43817,6 @@ input PropertyMeterHistoryRecordWhereUniqueInput {
 }
 
 enum SortPropertyMeterHistoryRecordsBy {
-  number_ASC
-  number_DESC
   numberOfTariffs_ASC
   numberOfTariffs_DESC
   installationDate_ASC
@@ -43835,6 +43833,8 @@ enum SortPropertyMeterHistoryRecordsBy {
   sealingDate_DESC
   isAutomatic_ASC
   isAutomatic_DESC
+  number_ASC
+  number_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -43855,7 +43855,6 @@ enum SortPropertyMeterHistoryRecordsBy {
 
 input PropertyMeterHistoryRecordUpdateInput {
   organization: String
-  number: String
   numberOfTariffs: Int
   installationDate: String
   commissioningDate: String
@@ -43864,9 +43863,10 @@ input PropertyMeterHistoryRecordUpdateInput {
   controlReadingsDate: String
   sealingDate: String
   isAutomatic: Boolean
-  property: String
   resource: String
   b2bApp: String
+  number: String
+  property: String
   meta: JSON
   v: Int
   createdAt: String
@@ -43889,7 +43889,6 @@ input PropertyMeterHistoryRecordsUpdateInput {
 
 input PropertyMeterHistoryRecordCreateInput {
   organization: String
-  number: String
   numberOfTariffs: Int
   installationDate: String
   commissioningDate: String
@@ -43898,9 +43897,10 @@ input PropertyMeterHistoryRecordCreateInput {
   controlReadingsDate: String
   sealingDate: String
   isAutomatic: Boolean
-  property: String
   resource: String
   b2bApp: String
+  number: String
+  property: String
   meta: JSON
   v: Int
   createdAt: String
@@ -43934,9 +43934,6 @@ type PropertyMeter {
   """ Ref to the organization. The object will be deleted if the organization ceases to exist 
   """
   organization: Organization
-
-  """ Number of resource meter, such as "А03 9908" """
-  number: String
   numberOfTariffs: Int
 
   """ Date when the meter was installed in the property """
@@ -43965,15 +43962,18 @@ type PropertyMeter {
   """
   isAutomatic: Boolean
 
-  """ Link to property which contains unit with this meter """
-  property: Property
-
   """ Meter resource, such as hot water or electricity """
   resource: MeterResource
 
   """ Ref to B2BApp, which is used as a master system for this meter. Specified organization must connect this app. 
   """
   b2bApp: B2BApp
+
+  """ Number of resource meter, such as "А03 9908" """
+  number: String
+
+  """ Link to property which contains this meter """
+  property: Property
 
   """ Meter metadata. Can be used to store additional settings from external sources, such as billing integrations or mini apps 
   """
@@ -44006,24 +44006,6 @@ input PropertyMeterWhereInput {
   OR: [PropertyMeterWhereInput]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
-  number: String
-  number_not: String
-  number_contains: String
-  number_not_contains: String
-  number_starts_with: String
-  number_not_starts_with: String
-  number_ends_with: String
-  number_not_ends_with: String
-  number_i: String
-  number_not_i: String
-  number_contains_i: String
-  number_not_contains_i: String
-  number_starts_with_i: String
-  number_not_starts_with_i: String
-  number_ends_with_i: String
-  number_not_ends_with_i: String
-  number_in: [String]
-  number_not_in: [String]
   numberOfTariffs: Int
   numberOfTariffs_not: Int
   numberOfTariffs_lt: Int
@@ -44082,12 +44064,30 @@ input PropertyMeterWhereInput {
   sealingDate_not_in: [String]
   isAutomatic: Boolean
   isAutomatic_not: Boolean
-  property: PropertyWhereInput
-  property_is_null: Boolean
   resource: MeterResourceWhereInput
   resource_is_null: Boolean
   b2bApp: B2BAppWhereInput
   b2bApp_is_null: Boolean
+  number: String
+  number_not: String
+  number_contains: String
+  number_not_contains: String
+  number_starts_with: String
+  number_not_starts_with: String
+  number_ends_with: String
+  number_not_ends_with: String
+  number_i: String
+  number_not_i: String
+  number_contains_i: String
+  number_not_contains_i: String
+  number_starts_with_i: String
+  number_not_starts_with_i: String
+  number_ends_with_i: String
+  number_not_ends_with_i: String
+  number_in: [String]
+  number_not_in: [String]
+  property: PropertyWhereInput
+  property_is_null: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -44157,8 +44157,6 @@ input PropertyMeterWhereUniqueInput {
 enum SortPropertyMetersBy {
   organization_ASC
   organization_DESC
-  number_ASC
-  number_DESC
   numberOfTariffs_ASC
   numberOfTariffs_DESC
   installationDate_ASC
@@ -44175,12 +44173,14 @@ enum SortPropertyMetersBy {
   sealingDate_DESC
   isAutomatic_ASC
   isAutomatic_DESC
-  property_ASC
-  property_DESC
   resource_ASC
   resource_DESC
   b2bApp_ASC
   b2bApp_DESC
+  number_ASC
+  number_DESC
+  property_ASC
+  property_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -44201,7 +44201,6 @@ enum SortPropertyMetersBy {
 
 input PropertyMeterUpdateInput {
   organization: OrganizationRelateToOneInput
-  number: String
   numberOfTariffs: Int
   installationDate: String
   commissioningDate: String
@@ -44210,9 +44209,10 @@ input PropertyMeterUpdateInput {
   controlReadingsDate: String
   sealingDate: String
   isAutomatic: Boolean
-  property: PropertyRelateToOneInput
   resource: MeterResourceRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
+  number: String
+  property: PropertyRelateToOneInput
   meta: JSON
   v: Int
   createdAt: String
@@ -44232,7 +44232,6 @@ input PropertyMetersUpdateInput {
 
 input PropertyMeterCreateInput {
   organization: OrganizationRelateToOneInput
-  number: String
   numberOfTariffs: Int
   installationDate: String
   commissioningDate: String
@@ -44241,9 +44240,10 @@ input PropertyMeterCreateInput {
   controlReadingsDate: String
   sealingDate: String
   isAutomatic: Boolean
-  property: PropertyRelateToOneInput
   resource: MeterResourceRelateToOneInput
   b2bApp: B2BAppRelateToOneInput
+  number: String
+  property: PropertyRelateToOneInput
   meta: JSON
   v: Int
   createdAt: String
