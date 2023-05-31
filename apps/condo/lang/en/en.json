@@ -1642,6 +1642,7 @@
   "api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER": "Profanity detected",
   "api.newsItem.WRONG_SEND_DATE": "Wrong send date",
   "api.newsItem.EMPTY_NEWS_ITEM_SCOPE": "Empty scope",
+  "api.newsItem.UNIT_NAME_WITHOUT_UNIT_TYPE": "Unit name set without unit type",
   "api.ticket.QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE": "Additional quality control parameters must match the specified scoring",
   "api.ticket.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED": "When specifying a comment or additional evaluation parameters, you must specify the evaluation itself",
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PERIOD_PROVIDED": "Please provide proper period not before start of previous and not later than start of current month, valid format is YYYY-MM-DD",

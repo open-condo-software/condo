@@ -304,5 +304,18 @@ describe('NewsItemScope', () => {
                 },
             )
         })
+
+        test('must throw an error on trying to create scope with unitName and without unitType', async () => {
+            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+            await expectToThrowGQLError(
+                async () => await createTestNewsItemScope(adminClient, newsItem, { unitName: '1' }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'UNIT_NAME_WITHOUT_UNIT_TYPE',
+                    message: 'You set unitName without unitType',
+                    messageForUser: 'api.newsItem.UNIT_NAME_WITHOUT_UNIT_TYPE',
+                },
+            )
+        })
     })
 })

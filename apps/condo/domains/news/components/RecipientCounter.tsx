@@ -17,7 +17,7 @@ import { Card, Space, Typography, TypographyTitleProps } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { queryFindResidentsByNewsItemAndScopes } from '@condo/domains/news/utils/accessSchema'
+import { queryFindResidentsByOrganizationAndScopes } from '@condo/domains/news/utils/accessSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Resident } from '@condo/domains/resident/utils/clientSchema'
 
@@ -154,7 +154,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     })
 
     const { objs: residents, loading: loadingResidents } = Resident.useAllObjects({
-        where: queryFindResidentsByNewsItemAndScopes(organization.id, newsItemScopes),
+        where: queryFindResidentsByOrganizationAndScopes(organization.id, newsItemScopes),
     })
 
     if (loadingProperties || loadingResidents) {

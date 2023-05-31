@@ -12,6 +12,7 @@ const {
     EDIT_DENIED_ALREADY_SENT,
     EDIT_DENIED_PUBLISHED,
     EMPTY_NEWS_ITEM_SCOPE,
+    UNIT_NAME_WITHOUT_UNIT_TYPE,
 } = require('@condo/domains/news/constants/errors')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
@@ -33,6 +34,12 @@ const ERRORS = {
         type: EMPTY_NEWS_ITEM_SCOPE,
         message: 'News item scope is empty',
         messageForUser: 'api.newsItem.EMPTY_NEWS_ITEM_SCOPE',
+    },
+    UNIT_NAME_WITHOUT_UNIT_TYPE: {
+        code: BAD_USER_INPUT,
+        type: UNIT_NAME_WITHOUT_UNIT_TYPE,
+        message: 'You set unitName without unitType',
+        messageForUser: 'api.newsItem.UNIT_NAME_WITHOUT_UNIT_TYPE',
     },
 }
 
@@ -65,7 +72,7 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
         },
 
         unitName: {
-            schemaDoc: 'Filter on Resident by unit name, who can read news',
+            schemaDoc: 'Filter on Resident by unit name, who can read news. Because in case when a Property will have several units of different types, NewsItem can go to wrong recipients. In practice, when an organization needs to address specific residents it is usually assumed, that they are from units of some specific type, for example, a flat. Without this restriction, a NewsItem, targeted only to unitName 1 can potentially be received by residents of flat 1, parking 1 etc.',
             type: 'Text',
         },
 
@@ -77,6 +84,10 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
 
             if (!get(possibleItemData, 'property') && !get(possibleItemData, 'unitType') && !get(possibleItemData, 'unitName')) {
                 throw new GQLError(ERRORS.EMPTY_NEWS_ITEM_SCOPE, context)
+            }
+
+            if (get(possibleItemData, 'unitName') && !get(possibleItemData, 'unitType')) {
+                throw new GQLError(ERRORS.UNIT_NAME_WITHOUT_UNIT_TYPE, context)
             }
 
             let newsItemId

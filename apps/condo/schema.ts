@@ -39631,7 +39631,7 @@ export type NewsItemScope = {
   property?: Maybe<Property>;
   /**  Filter on Resident by unit type, who can read news  */
   unitType?: Maybe<NewsItemScopeUnitTypeType>;
-  /**  Filter on Resident by unit name, who can read news  */
+  /**  Filter on Resident by unit name, who can read news. Because in case when a Property will have several units of different types, NewsItem can go to wrong recipients. In practice, when an organization needs to address specific residents it is usually assumed, that they are from units of some specific type, for example, a flat. Without this restriction, a NewsItem, targeted only to unitName 1 can potentially be received by residents of flat 1, parking 1 etc.  */
   unitName?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;

@@ -10,7 +10,7 @@ const { createTask } = require('@open-condo/keystone/tasks')
 const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { defineMessageType } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem.helpers')
-const { queryFindResidentsByNewsItemAndScopes } = require('@condo/domains/news/utils/accessSchema')
+const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
 const { NewsItem, NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
@@ -56,7 +56,7 @@ async function sendNotifications (context, newsItem) {
     }
 
     const scopes = await NewsItemScope.getAll(context, { newsItem: { id: newsItem.id } })
-    const residents = await Resident.getAll(context, queryFindResidentsByNewsItemAndScopes(newsItem.organization.id, scopes))
+    const residents = await Resident.getAll(context, queryFindResidentsByOrganizationAndScopes(newsItem.organization.id, scopes))
 
     const { keystone: contextMessage } = await getSchemaCtx('Message')
     for (const resident of residents) {
