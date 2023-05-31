@@ -4,7 +4,7 @@
 
 const { isEmpty } = require('lodash')
 
-const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/meter/access/_internalDeleteMeterAndMeterReadingsService')
 
@@ -29,7 +29,7 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
         {
             access: access.can_internalDeleteMeterAndMeterReadings,
             schema: '_internalDeleteMeterAndMeterReadings(data: _internalDeleteMeterAndMeterReadingsInput!): [MeterReading]',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data } = args
                 const { dv, sender, propertyIds } = data
 
@@ -54,7 +54,8 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
                 for (const meter of meters) {
                     console.info(`Deleting Meter (id = "${meter.id}")`)
                     const deletedMeter = await Meter.softDelete(context, meter.id, { dv, sender })
-                    deletedMeters.push(deletedMeter)
+                    const foundedMeter = await getById('Meter', deletedMeter.id) // hack for getting meter with all fields
+                    deletedMeters.push(foundedMeter)
                 }
                 console.info('[INFO] Deleted all Meter records with associated MeterReading')
 
