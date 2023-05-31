@@ -5,6 +5,9 @@ import {
     NewsItemCreateInput as INewsItemCreateInput,
     NewsItemUpdateInput as INewsItemUpdateInput,
     QueryAllNewsItemsArgs as IQueryAllNewsItemsArgs,
+    Property as IProperty,
+    BuildingSection as IBuildingSection,
+    BuildingUnit as IBuildingUnit,
     NewsItemScopeUnitTypeType,
 } from '@app/condo/schema'
 import { Row, Col, Form, FormInstance, notification } from 'antd'
@@ -168,7 +171,7 @@ export const handleChangeDate: handleChangeDateType = (form, fieldName, action) 
     form.setFieldValue(fieldName, value.set('seconds', 0).set('milliseconds', 0))
 }
 
-const getAllSectionsUnits = (sections) => {
+const getAllSectionsUnits: (IBuildingSection) => IBuildingUnit[] = (sections) => {
     if (!sections) return null
 
     const unflattenUnits = sections.map((section) => {
@@ -246,7 +249,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const initialNewsItemScopes = useMemo(() => get(initialValues, 'newsItemScopes', []), [initialValues])
     const initialHasAllProperties = useMemo(() => get(initialValues, 'hasAllProperties', false), [initialValues])
     const initialSentAt = useMemo(() => get(initialValues, 'sentAt', null), [initialValues])
-    const initialPropertyIds = useMemo(() => {
+    const initialPropertyIds: string[] = useMemo(() => {
         if (initialHasAllProperties) return []
 
         return uniq(initialNewsItemScopes.map(item => item.property.id))
@@ -260,7 +263,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             if (unitType && unitName) return `${unitType}-${unitName}`
         }).filter(a => a)
     }, [initialHasAllProperties, initialNewsItemScopes])
-    const initialUnitNames = useMemo(() => {
+    const initialUnitNames: string[] = useMemo(() => {
         if (initialHasAllProperties) return []
 
         return initialNewsItemScopes.map(item => {
@@ -500,7 +503,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const selectedSections = get(property, ['map', 'sections'], []).filter(section => includes(sectionIds, section.id))
             const allSectionsUnits = getAllSectionsUnits(selectedSections)
             const unitNames = allSectionsUnits.map(unit => unit.label)
-            const unitTypes = allSectionsUnits.map(unit => unit.unitType)
+            const unitTypes = allSectionsUnits.map(unit =>  get(unit, 'unitType', NewsItemScopeUnitTypeType.Flat) as NewsItemScopeUnitTypeType)
 
             await Promise.all(unitNames.map((unitName, i) => {
                 createNewsItemScope({ 
@@ -525,7 +528,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const selectedSections = get(property, ['map', 'sections'], []).filter(section => includes(sectionIds, section.id))
             const allSectionsUnits = getAllSectionsUnits(selectedSections)
             const unitNames = allSectionsUnits.map(unit => unit.label)
-            const unitTypes = allSectionsUnits.map(unit => unit.unitType)
+            const unitTypes = allSectionsUnits.map(unit => get(unit, 'unitType', NewsItemScopeUnitTypeType.Flat) as NewsItemScopeUnitTypeType)
 
             await Promise.all(unitNames.map((unitName, i) => {
                 createNewsItemScope({ 
@@ -564,7 +567,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialSentAt, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitNames, createNewsItemScope, router])
 
-    const { loading: loadingProperty, obj: property } = Property.useObject({ where:{ id: selectedPropertiesId.length === 1 ? selectedPropertiesId[0] : null } })
+    const { loading: loadingProperty, obj: property }: { loading: boolean, obj: IProperty }  = Property.useObject({ where:{ id: selectedPropertiesId.length === 1 ? selectedPropertiesId[0] : null } })
 
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
