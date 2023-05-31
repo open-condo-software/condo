@@ -183,7 +183,7 @@ const MenuItems: React.FC = () => {
             label: 'global.section.SPP',
             access: () => sppBillingId && isSPPOrg,
         }, {
-            id: 'miniapp-settings',
+            id: 'menuitem-settings',
             path: 'settings',
             icon: Settings,
             label: 'global.section.settings',
