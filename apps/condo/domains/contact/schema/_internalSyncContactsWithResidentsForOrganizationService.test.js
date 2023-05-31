@@ -79,6 +79,18 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
             const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
             expect(contacts).toHaveLength(0)
         })
+        test('sync single contact if few contacts already exist', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
+            const duplicatedFields = {
+                phone: userClient.userAttrs.phone,
+            }
+            await createTestContact(adminClient, resident.organization, resident.property, duplicatedFields)
+            await createTestContact(adminClient, resident.organization, resident.property, duplicatedFields)
+            const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+            expect(contacts).toHaveLength(0)
+        })
 
     })
     describe('Access', () => {
