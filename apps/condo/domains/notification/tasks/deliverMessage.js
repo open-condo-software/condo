@@ -53,7 +53,7 @@ const MESSAGE_SENDING_STATUSES = {
     [MESSAGE_RESENDING_STATUS]: true,
 }
 
-const throttlingCacheClient = getRedisClient('NewsItemCommonHooksSet', 'throttleCommonNewsItemsNotifications')
+const throttlingCacheClient = getRedisClient('deliverMessage', 'throttleNotificationsForUser')
 
 /**
  * Sends message using corresponding adapter
