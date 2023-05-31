@@ -85,6 +85,7 @@ const ANT_LOCALES = {
 }
 
 interface IMenuItemData {
+    id?: string,
     path: string,
     icon: React.FC,
     label: string,
@@ -120,35 +121,42 @@ const MenuItems: React.FC = () => {
 
     const menuItemsData: IMenuItemData[] = useMemo(() => {
         const itemsConfigs = [{
+            id: 'menuitem-reports',
             path: 'reports',
             icon: BarChartVertical,
             label: 'global.section.analytics',
             access: () => !isAssignedVisibilityType,
         }, {
+            id: 'menuitem-ticket',
             path: 'ticket',
             icon: LayoutList,
             label: 'global.section.controlRoom',
         }, {
+            id: 'menuitem-incident',
             path: 'incident',
             icon: OnOff,
             label: 'global.section.incidents',
             access: () => !isAssignedVisibilityType,
         }, {
+            id: 'menuitem-property',
             path: 'property',
             icon: Building,
             label: 'global.section.properties',
             access: () => !isAssignedVisibilityType,
         }, {
+            id: 'menuitem-contact',
             path: 'contact',
             icon: Contacts,
             label: 'global.section.contacts',
             access: () => !isAssignedVisibilityType,
         }, {
+            id: 'menuitem-emloyee',
             path: 'employee',
             icon: Employee,
             label: 'global.section.employees',
             access: () => !isAssignedVisibilityType,
         }, {
+            id: 'menuitem-billing',
             path: 'billing',
             icon: Wallet,
             label: 'global.section.accrualsAndPayments',
@@ -157,21 +165,25 @@ const MenuItems: React.FC = () => {
                 ? hasAccessToBilling && anyReceiptsLoaded
                 : hasAccessToBilling,
         }, {
+            id: 'menuitem-meter',
             path: 'meter',
             icon: Meters,
             label: 'global.section.meters',
             access: () => !isAssignedVisibilityType,
         }, {
+            id: 'menuitem-miniapps',
             path: 'miniapps',
             icon: Services,
             label: 'global.section.miniapps',
             access: () => !isAssignedVisibilityType,
         }, {
+            id: 'menuitem-service-provider-profile',
             path: 'service-provider-profile',
             icon: Sber,
             label: 'global.section.SPP',
             access: () => sppBillingId && isSPPOrg,
         }, {
+            id: 'menuitem-settings',
             path: 'settings',
             icon: Settings,
             label: 'global.section.settings',
@@ -187,6 +199,7 @@ const MenuItems: React.FC = () => {
                     <FocusElement>
                         <OnBoardingProgressIconContainer>
                             <MenuItem
+                                id='menuitem-onboarding'
                                 path='/onboarding'
                                 icon={OnBoardingProgress}
                                 label='global.section.onBoarding'
@@ -199,6 +212,7 @@ const MenuItems: React.FC = () => {
             <div>
                 {menuItemsData.map((menuItemData) => (
                     <MenuItem
+                        id={menuItemData.id}
                         key={`menu-item-${menuItemData.path}`}
                         path={`/${menuItemData.path}`}
                         icon={menuItemData.icon}
