@@ -33386,7 +33386,7 @@ enum MessageStatusType {
   read
   canceled
   disabledByUser
-  notSentDueToHook
+  throttled
 }
 
 """ Notification message """
@@ -68582,7 +68582,8 @@ type Mutation {
   			"organizationId": {
   				"required": true
   			}
-  		}
+  		},
+  		"throttlePeriodForUser": 3600
   	},
   	"NEWS_ITEM_EMERGENCY_MESSAGE_TYPE": {
   		"dv": {

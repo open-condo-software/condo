@@ -23970,7 +23970,7 @@ export enum MessageStatusType {
   Read = 'read',
   Canceled = 'canceled',
   DisabledByUser = 'disabledByUser',
-  NotSentDueToHook = 'notSentDueToHook'
+  Throttled = 'throttled'
 }
 
 export type MessageUpdateInput = {
@@ -32368,7 +32368,8 @@ export type Mutation = {
    * 			"organizationId": {
    * 				"required": true
    * 			}
-   * 		}
+   * 		},
+   * 		"throttlePeriodForUser": 3600
    * 	},
    * 	"NEWS_ITEM_EMERGENCY_MESSAGE_TYPE": {
    * 		"dv": {
