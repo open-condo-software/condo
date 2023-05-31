@@ -119,7 +119,7 @@ async function deliverMessage (messageId) {
         return MESSAGE_BLACKLISTED_STATUS
     }
 
-    const throttlePeriodForUser = get(MESSAGE_META, [message.type, 'throttlePeriodForUser'])
+    const { strategy, transports, isVoIP, throttlePeriodForUser = null } = getMessageOptions(message.type)
 
     if (throttlePeriodForUser) {
         const throttlingCacheKey = getThrottlingCacheKey(message)
@@ -139,8 +139,6 @@ async function deliverMessage (messageId) {
             return MESSAGE_THROTTLED_STATUS
         }
     }
-
-    const { strategy, transports, isVoIP } = getMessageOptions(message.type)
 
     const userTransportSettings = await getUserSettingsForMessage(context, message)
 

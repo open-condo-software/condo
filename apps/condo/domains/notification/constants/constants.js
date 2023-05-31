@@ -98,9 +98,6 @@ const recurrentPaymentProceedingFailedCommonMessageMeta = {
 
 //TODO: maybe we should gather all data about messages types in the single object
 //TODO(DOMA-2778) add recursive validation for internal objects like [TICKET_EXECUTOR_CONNECTED_TYPE].data
-/**
- * @type {Object<string, { dv: { defaultValue: number, required: boolean }, [throttlePeriodForUser]: Number }>}
- */
 const MESSAGE_META = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -478,7 +475,7 @@ const MESSAGE_META = {
             url: { required: true },
         },
     },
-    [NEWS_ITEM_COMMON_MESSAGE_TYPE]: { ...newsItemMessageMeta, throttlePeriodForUser: 3600 },
+    [NEWS_ITEM_COMMON_MESSAGE_TYPE]: { ...newsItemMessageMeta },
     [NEWS_ITEM_EMERGENCY_MESSAGE_TYPE]: { ...newsItemMessageMeta },
 }
 
@@ -503,6 +500,7 @@ const DEFAULT_MESSAGE_DELIVERY_OPTIONS = {
     defaultTransports: [PUSH_TRANSPORT],
     isAllowedToChangeDefaultTransport: true,
     isVoIP: false,
+    throttlePeriodForUser: null,
 }
 
 /**
@@ -591,6 +589,7 @@ const MESSAGE_DELIVERY_OPTIONS = {
         allowedTransports: [PUSH_TRANSPORT],
         defaultTransports: [PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
+        throttlePeriodForUser: 3600,
     },
     [NEWS_ITEM_EMERGENCY_MESSAGE_TYPE]: {
         allowedTransports: [PUSH_TRANSPORT],
