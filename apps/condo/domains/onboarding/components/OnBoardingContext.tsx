@@ -3,6 +3,7 @@ import {
     OnBoarding as IOnBoarding,
     OnBoardingStep as IOnBoardingStep,
 } from '@app/condo/schema'
+import filter from 'lodash/filter'
 import get from 'lodash/get'
 import Router, { useRouter } from 'next/router'
 import React, { createContext, useContext, useEffect } from 'react'
@@ -83,6 +84,8 @@ export const OnBoardingProvider: React.FC = (props) => {
 
     const { logEvent } = useTracking()
 
+    const userId = get(user, 'id')
+
     const onBoardingStepsConfig = {
         'create.Organization': {
             query: OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
@@ -96,7 +99,7 @@ export const OnBoardingProvider: React.FC = (props) => {
         },
         'create.OrganizationEmployee': {
             query: OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
-            resolver: (data) => get(data, 'objs', []).length > 1,
+            resolver: (data) => filter(get(data, 'objs', []), (employee) => userId && get(employee, 'user.id') !== userId).length > 0,
             action: () => Router.push('/employee/create'),
         },
         'create.Billing': {
