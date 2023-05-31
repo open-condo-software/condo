@@ -70,7 +70,7 @@ const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
 `
 
 interface IMenuItemProps {
-    id: string
+    id?: string
     path?: string
     icon: React.ElementType
     label: string
@@ -159,8 +159,10 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
             </Space>
         )
 
+    const menuItemIdProp = id ? { id: id } : {}
+
     const menuItem = (
-        <MenuItemWrapper id={id} onClick={handleClick} className={menuItemClassNames} isCollapsed={isCollapsed} {...restWrapperProps}>
+        <MenuItemWrapper onClick={handleClick} className={menuItemClassNames} isCollapsed={isCollapsed} {...menuItemIdProp} {...restWrapperProps}>
             {(isCollapsed && !disabled) ? addToolTipForCollapsedMenu(linkContent, Message) : linkContent}
         </MenuItemWrapper>
     )

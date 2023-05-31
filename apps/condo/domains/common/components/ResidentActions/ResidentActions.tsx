@@ -48,6 +48,7 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchBy
                 !isAssignedVisibilityType && (
                     <>
                         <MenuItem
+                            id='menuitem-action-SearchByPhoneNumber'
                             onClick={handleButtonClick}
                             menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                             icon={Smartphone}
@@ -59,6 +60,7 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchBy
                 )
             }
             <MenuItem
+                id='menuitem-action-CreateAppeal'
                 menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                 path='/ticket/create'
                 icon={NewAppeal}
@@ -70,6 +72,7 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchBy
                     <>
                         <Divider style={DIVIDER_STYLES}/>
                         <MenuItem
+                            id='menuitem-action-CreateMeterReading'
                             menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                             path='/meter/create'
                             icon={Readings}

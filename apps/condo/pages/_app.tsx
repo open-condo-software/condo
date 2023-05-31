@@ -85,7 +85,7 @@ const ANT_LOCALES = {
 }
 
 interface IMenuItemData {
-    id: string,
+    id?: string,
     path: string,
     icon: React.FC,
     label: string,
