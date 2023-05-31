@@ -76,9 +76,7 @@ describe('Ticket',  function () {
 
                 const spanCreateTickets = trace.startSpan('2.createTickets')
                 cy.task('keystone:createTickets', { ticketAttrs: response }).then((tickets) => {
-
                     const ticket = tickets[0]
-
                     spanCreateTickets.finish()
 
                     const spanEditTickets = trace.startSpan('3.editTickets')
