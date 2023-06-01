@@ -188,7 +188,7 @@ const getNewsItemCountAtSameDay = (value, allNews) => {
     const sendDate = isSendNow ? dayjs() : value
     const newsItemCountAtSameDay = allNews.filter(newsItem => sendDate.isSame(newsItem.sentAt, 'day') || sendDate.isSame(newsItem.sendAt, 'day')).length
     return newsItemCountAtSameDay
-} 
+}
 
 const INITIAL_VALUES = {}
 
@@ -435,7 +435,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             ...initialValues,
             sendPeriod: sendPeriod,
             template: 1,
-            unitNames: initialUnitKeys, 
+            unitNames: initialUnitKeys,
             type: selectedType,
             title: selectedTitle,
             body: selectedBody,
@@ -481,7 +481,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 }))
 
                 if (!isEmpty(initialUnitNames) && deletedNames.length === initialUnitNames.length) {
-                    await createNewsItemScope({ 
+                    await createNewsItemScope({
                         newsItem: { connect: { id: newsItemId } },
                         property: { connect: { id: initialPropertyIds[0] } },
                     })
@@ -492,9 +492,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         const addedPropertyIds = actionName === 'create' ? properties : difference(properties, initialPropertyIds)
         if (addedPropertyIds.length === 1 && unitNames.length === unitTypes.length && unitNames.length > 0) {
             const propertyId = addedPropertyIds[0]
-            
+
             await Promise.all(unitNames.map((unitName, i) => {
-                createNewsItemScope({ 
+                createNewsItemScope({
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
@@ -510,7 +510,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const unitTypes = allSectionsUnits.map(unit =>  get(unit, 'unitType', NewsItemScopeUnitTypeType.Flat) as NewsItemScopeUnitTypeType)
 
             await Promise.all(unitNames.map((unitName, i) => {
-                createNewsItemScope({ 
+                createNewsItemScope({
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
@@ -520,7 +520,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
         if (isEmpty(sectionIds) && isEmpty(unitNames) && isEmpty(unitTypes) && !isEmpty(addedPropertyIds)) {
             await Promise.all(addedPropertyIds.map(propertyId => {
-                createNewsItemScope({ 
+                createNewsItemScope({
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                 })
@@ -535,7 +535,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const unitTypes = allSectionsUnits.map(unit => get(unit, 'unitType', NewsItemScopeUnitTypeType.Flat) as NewsItemScopeUnitTypeType)
 
             await Promise.all(unitNames.map((unitName, i) => {
-                createNewsItemScope({ 
+                createNewsItemScope({
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
@@ -551,7 +551,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const addedNames = difference(unitNames, initialUnitNames)
 
             await Promise.all(addedNames.map((unitName, i) => {
-                createNewsItemScope({ 
+                createNewsItemScope({
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
@@ -577,7 +577,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
             <Col span={24} flex='auto'>
                 <FormWithAction
-                    initialValues={initialFormValues} 
+                    initialValues={initialFormValues}
                     colon={false}
                     action={handleFormSubmit}
                     OnCompletedMsg={isNull(OnCompletedMsg) ? undefined : null}
@@ -648,7 +648,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             <Form.Item
                                                                 name='template'
                                                             >
-                                                                <Tabs 
+                                                                <Tabs
                                                                     onChange={handleTemplateChange(form, 'template')}
                                                                     items={
                                                                         Object.keys(templates).map(id => ({
@@ -673,7 +673,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             required
                                                             rules={titleRules}
                                                         >
-                                                            <Title.InputWithCounter 
+                                                            <Title.InputWithCounter
                                                                 rows={4}
                                                                 placeholder={TitlePlaceholderMessage}
                                                                 onChange={handleTitleChange}
@@ -691,8 +691,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             required
                                                             rules={[bodyRule, bodyTemplateChanged]}
                                                         >
-                                                            <Body.InputWithCounter 
-                                                                rows={7} 
+                                                            <Body.InputWithCounter
+                                                                rows={7}
                                                                 placeholder={BodyPlaceholderMessage}
                                                                 onChange={handleBodyChange}
                                                             />
@@ -708,7 +708,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                             <MemoizedNewsPreview
                                                 body={selectedBody}
                                                 title={selectedTitle}
-                                                validBefore={selectedValidBeforeText}
+                                                validBefore={selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null}
                                             />
                                         </Col>
                                     </Row>
