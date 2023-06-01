@@ -3,7 +3,7 @@ import { css, jsx } from '@emotion/react'
 import { Select, SelectProps } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useCallback } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -90,9 +90,11 @@ export const OrganizationSelect: React.FC = () => {
 
     const userId = get(user, 'id', null)
 
-    const { objs: userOrganizations, loading: organizationLinksLoading } = OrganizationEmployee.useAllObjects(
+    const { objs: userOrganizations, allDataLoaded: organizationLinksLoaded } = OrganizationEmployee.useAllObjects(
         { where: { user: { id: userId }, isRejected: false, isBlocked: false } }
     )
+
+    const organizationLinksLoading = !organizationLinksLoaded
 
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({})
 
@@ -146,6 +148,9 @@ export const OrganizationSelect: React.FC = () => {
         loading: organizationLinksLoading || organizationLoading,
     }
 
+    const filterSort = useCallback((optionA, optionB) =>
+        get(optionA, 'title', '').toLowerCase().localeCompare(get(optionB, 'title', '').toLowerCase()), [])
+
     return (
         <>
             {!(organizationLoading || organizationLinksLoading) && (
@@ -155,6 +160,7 @@ export const OrganizationSelect: React.FC = () => {
                         css={blackSelectCss}
                         size='middle'
                         showAction={ORGANIZATION_SELECT_SHOW_ACTIONS}
+                        filterSort={filterSort}
                         dropdownRender={menu => (
                             <div>
                                 {menu}

@@ -1,7 +1,7 @@
 import { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
 import { Col, Row, Skeleton, Tag, Typography } from 'antd'
 import get from 'lodash/get'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -106,23 +106,29 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
 }
 
 export const UserOrganizationsList = ({ userOrganization, organizationEmployeesQuery }) => {
-    const { objs: userOrganizations, loading } = OrganizationEmployee.useAllObjects(
+    const { objs: userOrganizations, allDataLoaded } = OrganizationEmployee.useAllObjects(
         organizationEmployeesQuery,
         { fetchPolicy: 'network-only' }
     )
 
-    const list = userOrganizations.map((employee, index) => (
-        <OrganizationEmployeeItem
-            employee={employee}
-            key={index}
-            userOrganization={userOrganization}
-        />
-    ))
+    const list = useMemo(() => {
+        return userOrganizations
+            .sort((optionA, optionB) =>
+                get(optionA, 'organization.name', '').toLowerCase().localeCompare(get(optionB, 'organization.name', '').toLowerCase())
+            )
+            .map((employee, index) => (
+                <OrganizationEmployeeItem
+                    employee={employee}
+                    key={index}
+                    userOrganization={userOrganization}
+                />
+            ))
+    }, [userOrganization, userOrganizations])
 
     return (
         <Row gutter={[0, 60]}>
             {
-                loading
+                !allDataLoaded
                     ? <Skeleton active/>
                     : list
             }
