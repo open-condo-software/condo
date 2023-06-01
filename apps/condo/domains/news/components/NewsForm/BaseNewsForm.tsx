@@ -91,6 +91,7 @@ const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
+const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX  = /\[[^\]]*?\]/g
 
 const getIsDateInFuture = (form, fieldName) => {
     const date = form.getFieldsValue([fieldName])[fieldName]
@@ -105,15 +106,14 @@ const getValidBeforeAfterSendAt = (form) => {
     return true
 }
 
-const containWordsInBrackets = (str) => {
-    const getAllSquareBracketsOccurrencesRegex  = /\[[^\]]*?\]/g
-    return getAllSquareBracketsOccurrencesRegex.test(str)
+const containWordsInSquareBrackets = (str) => {
+    return ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX.test(str)
 }
 
 const getBodyTemplateChanged = (form) => {
     const { body } = form.getFieldsValue(['body'])
     // NOTE: this check blocks any sending of [] in the news body
-    return !containWordsInBrackets(body)
+    return !containWordsInSquareBrackets(body)
 }
 
 const isDateDisabled = date => {
@@ -697,6 +697,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 onChange={handleBodyChange}
                                                             />
                                                         </Form.Item>
+                                                        {console.debug('form', form)}
                                                         <Col style={COUNTER_COL_STYLE}>
                                                             <Body.Counter type='inverted'/>
                                                         </Col>
