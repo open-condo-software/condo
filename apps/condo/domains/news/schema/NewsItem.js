@@ -110,7 +110,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
         },
 
         type: {
-            schemaDoc: 'The news item type',
+            schemaDoc: 'The news item type. The `common` type generates push messages no more than 1 per hour per single user. Also, the resident may disable push messages for this type. The `emergency` type will always be accompanied by a push message and shown at the top of the news list. Also, this type always has a news item validity date.',
             type: 'Select',
             options: NEWS_TYPES,
             isRequired: true,

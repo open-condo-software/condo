@@ -39474,7 +39474,7 @@ export type NewsItem = {
   title?: Maybe<Scalars['String']>;
   /**  The news item main body  */
   body?: Maybe<Scalars['String']>;
-  /**  The news item type  */
+  /**  The news item type. The `common` type generates push messages no more than 1 per hour per single user. Also, the resident may disable push messages for this type. The `emergency` type will always be accompanied by a push message and shown at the top of the news list. Also, this type always has a news item validity date.  */
   type?: Maybe<NewsItemTypeType>;
   /**  Date before which the news item makes sense  */
   validBefore?: Maybe<Scalars['String']>;
