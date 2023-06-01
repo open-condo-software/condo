@@ -11,6 +11,7 @@ import get from 'lodash/get'
 import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
 import map from 'lodash/map'
+import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
 import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
@@ -67,7 +68,7 @@ const isTargetedToEntireProperty = ({ property, unitType, unitName }: TNewsItemS
 )
 
 const isTargetedToUnitName = ({ property, unitType, unitName }: TNewsItemScopeNoInstance) => (
-    !!property && !unitType && !!unitName
+    !!property && !!unitType && !!unitName
 )
 
 const getUnitsFromProperty = ({ map }: PropertyType) => (
@@ -84,7 +85,7 @@ const detectTargetedSections = (newsItemScopes: NewsItemScope[], property: Prope
         const sectionUnits = getUnitsFromSection(section)
         const newsItemScopesUnits = map(newsItemScopes, 'unitName')
         return intersection(sectionUnits, newsItemScopesUnits).length === sectionUnits.length
-    })
+    }) || []
 )
 
 const areTargetedToOneProperty = (newsItemScopes) => uniq(map(newsItemScopes, ['property', 'id'])).length === 1
@@ -98,7 +99,7 @@ const buildMessageFromNewsItemScopes = (newsItemScopes, intl) => {
         })
     } else if (every(newsItemScopes, isTargetedToEntireProperty)) {
         const displayCount = 3
-        const addressList = newsItemScopes.map(({ property }) => property.name).join(', ')
+        const addressList = slice(newsItemScopes.map(({ property }) => property.address), 0, displayCount).join(', ')
         const andMoreCount = newsItemScopes.length <= displayCount ? null : newsItemScopes.length - displayCount
         const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperties.andMore' }, { count: andMoreCount })
         return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperties' }, {
