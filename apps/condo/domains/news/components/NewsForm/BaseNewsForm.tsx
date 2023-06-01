@@ -24,7 +24,7 @@ import isNull from 'lodash/isNull'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { ComponentProps, useMemo, useCallback, useState } from 'react'
+import React, { ComponentProps, useMemo, useCallback, useState, useEffect } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
@@ -106,9 +106,8 @@ const getValidBeforeAfterSendAt = (form) => {
 }
 
 const containWordsInBrackets = (str) => {
-    const regex = /\[[^\]]*?\]/g
-    const words = str.match(regex) || []
-    return words.length !== 0
+    const getAllSquareBracketsOccurrencesRegex  = /\[[^\]]*?\]/g
+    return getAllSquareBracketsOccurrencesRegex.test(str)
 }
 
 const getBodyTemplateChanged = (form) => {
@@ -154,7 +153,7 @@ export const getFinishWorkRule: (error: string) => Rule = (error) => (form) => {
         },
     }
 }
-export const getBodyTemplateChangedRule: (error: string) => Rule  = (error) => (form) => {
+export const getBodyTemplateChangedRule: (error: string) => Rule = (error) => (form) => {
     return {
         message: error,
         validator: () => {
@@ -244,8 +243,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const formFieldsColSpan = isMediumWindow ? 24 : 14
     const formInfoColSpan = 24 - formFieldsColSpan
 
-    const initialValidBefore = useMemo(() => get(initialValues, 'validBefore', []), [initialValues])
-    const initialSendAt = useMemo(() => get(initialValues, 'sendAt', []), [initialValues])
+    const initialValidBefore = useMemo(() => get(initialValues, 'validBefore', null), [initialValues])
+    const initialSendAt = useMemo(() => get(initialValues, 'sendAt', null), [initialValues])
     const initialNewsItemScopes = useMemo(() => get(initialValues, 'newsItemScopes', []), [initialValues])
     const initialHasAllProperties = useMemo(() => get(initialValues, 'hasAllProperties', false), [initialValues])
     const initialSentAt = useMemo(() => get(initialValues, 'sentAt', null), [initialValues])
@@ -261,7 +260,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const unitType = item.unitType
             const unitName = item.unitName
             if (unitType && unitName) return `${unitType}-${unitName}`
-        }).filter(a => a)
+        }).filter(Boolean)
     }, [initialHasAllProperties, initialNewsItemScopes])
     const initialUnitNames: string[] = useMemo(() => {
         if (initialHasAllProperties) return []
@@ -269,7 +268,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         return initialNewsItemScopes.map(item => {
             const unitName = item.unitName
             if (unitName) return unitName
-        }).filter(a => a)
+        }).filter(Boolean)
     }, [initialHasAllProperties, initialNewsItemScopes])
     const initialUnitTypes = useMemo(() => {
         if (initialHasAllProperties) return []
@@ -277,7 +276,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         return initialNewsItemScopes.map(item => {
             const unitType = item.unitType
             if (unitType) return unitType
-        }).filter(a => a)
+        }).filter(Boolean)
     }, [initialHasAllProperties, initialNewsItemScopes])
 
     const [sendPeriod, setSendPeriod] = useState<string>(get(initialValues, 'sendPeriod', 'now'))
@@ -285,7 +284,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [selectedType, setSelectedType] = useState<string>(get(initialValues, 'type', NEWS_TYPE_COMMON))
     const [selectedTitle, setSelectedTitle] = useState<string>(get(initialValues, 'title', ''))
     const [selectedBody, setSelectedBody] = useState<string>(get(initialValues, 'body', ''))
-    const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(get(initialValues, 'validBefore', null))
+    const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
     const [isValidBeforeAfterSendAt, setIsValidBeforeAfterSendAt] = useState<boolean>(true)
     const [newsItemCountAtSameDay, setNewsItemCountAtSameDay] = useState(getNewsItemCountAtSameDay(null, allNews))
     const [selectedUnitNames, setSelectedUnitNames] = useState(initialUnitNames)
@@ -359,6 +358,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const Title = useInputWithCounter(Input.TextArea, 150)
     const Body = useInputWithCounter(Input.TextArea, 800)
 
+    useEffect(() => {
+        const initialTitle = get(initialValues, 'title', '')
+        const initialBody = get(initialValues, 'body', '')
+        Title.setTextLength(initialTitle.length)
+        Body.setTextLength(initialBody.length)
+    }, [])
+
     const handleTemplateChange = useCallback((form, fieldName) => (value) => {
         const templateId = value
         const title = templateId !== 'emptyTemplate' ? templates[templateId].title : ''
@@ -372,8 +378,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         setSelectedBody(body)
         Body.setTextLength(body.length)
     }, [Body, Title, templates])
-    
-    //TODO(Kekmus) if checkbox is checked, then all id's should be there, not an empty array
     const propertyCheckboxChange = (form) => {
         return (value) => {
             if (value) setSelectedPropertiesId([])

@@ -127,10 +127,12 @@ export const getRenderProperties: GetRenderPropertiesType = (intl, search) => (p
         return AllPropertiesMessage
     }
 
-    properties.forEach(property => {
+    const propertiesWithUnits =  properties.map(property => {
         if (property.addressMeta.data.flat_type === FLAT_UNIT_TYPE) {
             property.addressMeta.data.flat_type = ShortFlatNumber
         }
+        return property
     })
-    return getOneAddressAndPropertiesCountRender(search)(intl, properties)
+
+    return getOneAddressAndPropertiesCountRender(search)(intl, propertiesWithUnits)
 }

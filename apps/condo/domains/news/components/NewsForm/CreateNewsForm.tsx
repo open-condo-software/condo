@@ -17,7 +17,7 @@ const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 28]
 
 export const CreateNewsActionBar = (props) => {
     const intl = useIntl()
-    const ShareButtonMessage = intl.formatMessage({ id: 'global.shareButton' })
+    const ShareButtonMessage = intl.formatMessage({ id: 'global.share' })
 
     const { handleSave, isLoading } = props
 
@@ -36,7 +36,6 @@ export const CreateNewsActionBar = (props) => {
     )
 }
 
-//TOOD(Kekmus) add reload table page after close
 export const getCompletedNotification = (intl, action, key) => {
     const SuccessNotificationTitle = intl.formatMessage({ id: 'pages.condo.news.notification.success.title' })
     const SuccessNotificationDescription = intl.formatMessage({ id: 'pages.condo.news.notification.success.description' })

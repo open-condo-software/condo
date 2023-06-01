@@ -211,7 +211,7 @@
   "global.select.deletedEmployee": "Deleted employee",
   "global.select.deletedOption": "Deleted",
   "global.select.address": "Select address",
-  "global.shareButton": "Share",
+  "global.share": "Share",
   "global.filters.dateRange.start": "Start date",
   "global.filters.dateRange.end": "Final date",
   "global.input.error.wrongEmails": "Wrong format of E-mail addresses",
