@@ -500,6 +500,7 @@ const DEFAULT_MESSAGE_DELIVERY_OPTIONS = {
     defaultTransports: [PUSH_TRANSPORT],
     isAllowedToChangeDefaultTransport: true,
     isVoIP: false,
+    throttlePeriodForUser: null,
 }
 
 /**
@@ -588,6 +589,7 @@ const MESSAGE_DELIVERY_OPTIONS = {
         allowedTransports: [PUSH_TRANSPORT],
         defaultTransports: [PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
+        throttlePeriodForUser: 3600,
     },
     [NEWS_ITEM_EMERGENCY_MESSAGE_TYPE]: {
         allowedTransports: [PUSH_TRANSPORT],
@@ -655,6 +657,7 @@ const MESSAGE_CANCELED_STATUS = 'canceled'
 const MESSAGE_SENT_STATUS = 'sent'
 const MESSAGE_READ_STATUS = 'read'
 const MESSAGE_DISABLED_BY_USER_STATUS = 'disabledByUser'
+const MESSAGE_THROTTLED_STATUS = 'throttled'
 const MESSAGE_STATUSES = [
     MESSAGE_SENDING_STATUS,
     MESSAGE_RESENDING_STATUS,
@@ -666,6 +669,7 @@ const MESSAGE_STATUSES = [
     MESSAGE_READ_STATUS,
     MESSAGE_CANCELED_STATUS,
     MESSAGE_DISABLED_BY_USER_STATUS,
+    MESSAGE_THROTTLED_STATUS,
 ]
 
 const MESSAGE_BATCH_CREATED_STATUS = 'created'
@@ -752,6 +756,7 @@ module.exports = {
     MESSAGE_READ_STATUS,
     MESSAGE_CANCELED_STATUS,
     MESSAGE_DISABLED_BY_USER_STATUS,
+    MESSAGE_THROTTLED_STATUS,
     DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
     DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
     MESSAGE_STATUSES,

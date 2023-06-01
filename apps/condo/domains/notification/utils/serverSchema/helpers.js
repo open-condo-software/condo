@@ -81,15 +81,15 @@ async function getUserSettingsForMessage (context, message) {
 /**
  * Extends DEFAULT_MESSAGE_DELIVERY_OPTIONS with MESSAGE_DELIVERY_OPTIONS[type] if available
  * @param type
- * @returns {{isVoIP: boolean, transports: string[], strategy: string}}
+ * @returns {{isVoIP: boolean, transports: string[], strategy: string, throttlePeriodForUser: Number?}}
  */
 function getMessageOptions (type) {
-    const { strategy, defaultTransports, isVoIP } = {
+    const { strategy, defaultTransports, isVoIP, throttlePeriodForUser = null } = {
         ...DEFAULT_MESSAGE_DELIVERY_OPTIONS,
         ...get(MESSAGE_DELIVERY_OPTIONS, type, {}),
     }
 
-    return { strategy, transports: defaultTransports, isVoIP }
+    return { strategy, transports: defaultTransports, isVoIP, throttlePeriodForUser }
 }
 
 module.exports = {

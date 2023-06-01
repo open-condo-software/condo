@@ -33386,6 +33386,7 @@ enum MessageStatusType {
   read
   canceled
   disabledByUser
+  throttled
 }
 
 """ Notification message """

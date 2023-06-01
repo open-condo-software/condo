@@ -960,7 +960,7 @@ describe('NewsItems', () => {
                 }))
             }, { delay: (SENDING_DELAY_SEC + 3) * 1000 })
 
-            // This news item shouldn't generate notification for the same user
+            // This news item shouldn't send notification for the same user
             const [newsItem2] = await createTestNewsItem(adminClient, o10n)
             await createTestNewsItemScope(adminClient, newsItem2, {
                 property: { connect: { id: property.id } },
@@ -968,11 +968,22 @@ describe('NewsItems', () => {
 
             // Publish 2nd news item...
             await publishTestNewsItem(adminClient, newsItem2.id)
-            //... and shouldn't see any message for it (still 1 message in database)
+            //... and shouldn't see any sent message for it
             await waitFor(async () => {
                 const messages = await Message.getAll(adminClient, messageWhere)
 
-                expect(messages).toHaveLength(1)
+                expect(messages).toHaveLength(2)
+                expect(messages).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ type: 'NEWS_ITEM_COMMON_MESSAGE_TYPE', status: 'sent' }),
+                    expect.objectContaining({
+                        type: 'NEWS_ITEM_COMMON_MESSAGE_TYPE',
+                        status: 'throttled',
+                        meta: expect.objectContaining({
+                            data: expect.objectContaining({ newsItemId: newsItem2.id }),
+                        }),
+                        processingMeta: expect.objectContaining({ error: expect.stringContaining('1 message per 3600 sec for user. The latest message was at ') }),
+                    }),
+                ]))
             }, { delay: (SENDING_DELAY_SEC + 3) * 1000 })
         })
     })

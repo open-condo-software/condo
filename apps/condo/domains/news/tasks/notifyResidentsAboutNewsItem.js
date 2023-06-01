@@ -3,12 +3,10 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
 const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
-const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { defineMessageType } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem.helpers')
 const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
 const { NewsItem, NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
@@ -18,7 +16,6 @@ const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { generateUniqueMessageKey } = require('./notifyResidentsAboutNewsItem.helpers')
 
 const logger = getLogger('notifyResidentsAboutNewsItem')
-const cacheClient = getRedisClient('notifyResidentsAboutNewsItem', 'throttleCommonNewsItemsNotifications')
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'notifyResidentsAboutNewsItem' } }
 
@@ -60,21 +57,6 @@ async function sendNotifications (context, newsItem) {
 
     const { keystone: contextMessage } = await getSchemaCtx('Message')
     for (const resident of residents) {
-        // Throttle common news items. 1 message per hour.
-        const throttlingCacheKey = `user:${resident.user.id}:lastSending`
-        if (newsItem.type === NEWS_TYPE_COMMON) {
-            const lastCommonNewsItemSentDate = await cacheClient.get(throttlingCacheKey)
-            if (lastCommonNewsItemSentDate) {
-                logger.info({
-                    message: 'Notification about the news item was not sent due to throttling reasons',
-                    lastCommonNewsItemSentDate,
-                    newsItem,
-                    resident,
-                })
-                continue
-            }
-        }
-
         await sendMessage(contextMessage, {
             ...DV_SENDER,
             to: { user: { id: resident.user.id } },
@@ -97,10 +79,6 @@ async function sendNotifications (context, newsItem) {
             },
             uniqKey: generateUniqueMessageKey(resident.user.id, newsItem.id),
         })
-
-        if (newsItem.type === NEWS_TYPE_COMMON) {
-            await cacheClient.set(throttlingCacheKey, dayjs().toISOString(), 'EX', 3600)
-        }
     }
 
     //

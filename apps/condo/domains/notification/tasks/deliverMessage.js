@@ -1,9 +1,13 @@
+const { format } = require('util')
+
+const dayjs = require('dayjs')
 const { isEmpty } = require('lodash')
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
@@ -19,7 +23,10 @@ const {
     MESSAGE_SENT_STATUS,
     MESSAGE_DISABLED_BY_USER_STATUS,
     MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT,
+    MESSAGE_META,
+    MESSAGE_THROTTLED_STATUS,
 } = require('@condo/domains/notification/constants/constants')
+const { ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER } = require('@condo/domains/notification/constants/errors')
 const emailAdapter = require('@condo/domains/notification/transports/email')
 const pushAdapter = require('@condo/domains/notification/transports/push')
 const smsAdapter = require('@condo/domains/notification/transports/sms')
@@ -46,6 +53,8 @@ const MESSAGE_SENDING_STATUSES = {
     [MESSAGE_RESENDING_STATUS]: true,
 }
 
+const throttlingCacheClient = getRedisClient('deliverMessage', 'throttleNotificationsForUser')
+
 /**
  * Sends message using corresponding adapter
  * @param transport
@@ -67,6 +76,14 @@ async function _sendMessageByAdapter (transport, adapter, messageContext, isVoIP
     }
 
     return await adapter.send(messageContext, isVoIP)
+}
+
+/**
+ * @param {Message} message
+ * @returns {string}
+ */
+function getThrottlingCacheKey (message) {
+    return `user:${get(message, ['user', 'id'])}:messageType:${get(message, 'type')}:lastSending`
 }
 
 /**
@@ -102,7 +119,26 @@ async function deliverMessage (messageId) {
         return MESSAGE_BLACKLISTED_STATUS
     }
 
-    const { strategy, transports, isVoIP } = getMessageOptions(message.type)
+    const { strategy, transports, isVoIP, throttlePeriodForUser = null } = getMessageOptions(message.type)
+
+    if (throttlePeriodForUser) {
+        const throttlingCacheKey = getThrottlingCacheKey(message)
+        const lastMessageTypeSentDate = await throttlingCacheClient.get(throttlingCacheKey)
+
+        if (lastMessageTypeSentDate) {
+            const messageErrorData = {
+                ...baseAttrs,
+                status: MESSAGE_THROTTLED_STATUS,
+                processingMeta: {
+                    dv: 1,
+                    error: format(ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER, throttlePeriodForUser, lastMessageTypeSentDate),
+                },
+            }
+            await Message.update(context, message.id, messageErrorData)
+
+            return MESSAGE_THROTTLED_STATUS
+        }
+    }
 
     const userTransportSettings = await getUserSettingsForMessage(context, message)
 
@@ -177,6 +213,10 @@ async function deliverMessage (messageId) {
     }
 
     await Message.update(context, message.id, messageFinalData)
+
+    if (throttlePeriodForUser) {
+        await throttlingCacheClient.set(getThrottlingCacheKey(message), dayjs().toISOString(), 'EX', throttlePeriodForUser)
+    }
 
     return messageFinalData.status
 }
