@@ -123,15 +123,15 @@ async function deliverMessage (messageId) {
 
     if (throttlePeriodForUser) {
         const throttlingCacheKey = getThrottlingCacheKey(message)
-        const lastCommonNewsItemSentDate = await throttlingCacheClient.get(throttlingCacheKey)
+        const lastMessageTypeSentDate = await throttlingCacheClient.get(throttlingCacheKey)
 
-        if (lastCommonNewsItemSentDate) {
+        if (lastMessageTypeSentDate) {
             const messageErrorData = {
                 ...baseAttrs,
                 status: MESSAGE_THROTTLED_STATUS,
                 processingMeta: {
                     dv: 1,
-                    error: format(ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER, throttlePeriodForUser, lastCommonNewsItemSentDate),
+                    error: format(ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER, throttlePeriodForUser, lastMessageTypeSentDate),
                 },
             }
             await Message.update(context, message.id, messageErrorData)
