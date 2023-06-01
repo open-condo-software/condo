@@ -9,6 +9,7 @@ const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError
 
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 
 const testIfConfigExists = process.env.METABASE_CONFIG ? test : test.skip
@@ -48,6 +49,23 @@ describe('GetExternalReportIframeUrlService', () => {
             expect(data).toHaveProperty('title', obj.title)
             expect(data).toHaveProperty('iframeUrl')
             expect(data.iframeUrl).toContain(JSON.parse(process.env.METABASE_CONFIG).url)
+        })
+
+        test('user: can\'t query public report from another organization', async () => {
+            const { getExternalReportIframeUrlByTestClient, createTestExternalReport } = require('@condo/domains/analytics/utils/testSchema')
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await registerNewOrganization(admin)
+            const client = await makeClientWithRegisteredOrganization()
+
+            const [obj] = await createTestExternalReport(admin, {
+                meta: { dashboard: faker.datatype.number() },
+            })
+
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await getExternalReportIframeUrlByTestClient(client, {
+                    id: obj.id, organizationId: organization.id,
+                })
+            })
         })
 
         test('user: can\'t query report from another organizations ', async () => {
