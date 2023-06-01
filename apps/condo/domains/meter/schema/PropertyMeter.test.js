@@ -60,6 +60,22 @@ describe('PropertyMeter', () => {
                 })
             })
 
+            test('employee from another organization with "canManageMeters" role cannot', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [organization2] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization2, { map: buildingMapJson })
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageMeters: false,
+                })
+                await createTestOrganizationEmployee(admin, organization, client.user, role)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    const [objCreated] = await createTestPropertyMeter(client, organization2, property, resource)
+                })
+            })
+
             test('admin can', async () => {
                 const [organization] = await createTestOrganization(admin)
                 const [property] = await createTestProperty(admin, organization)
@@ -112,7 +128,7 @@ describe('PropertyMeter', () => {
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
             })
 
-            test('employee without "canManageMeters" role: cannot update Meter', async () => {
+            test('employee without "canManageMeters" role cannot', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -123,6 +139,24 @@ describe('PropertyMeter', () => {
                 await createTestOrganizationEmployee(admin, organization, client.user, role)
 
                 const [objCreated] = await createTestPropertyMeter(admin, organization, property, resource)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    const [obj, attrs] = await updateTestPropertyMeter(client, objCreated.id)
+                })
+            })
+
+            test('employee from another organization with "canManageMeters" role cannot', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [organization2] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization2, { map: buildingMapJson })
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageMeters: false,
+                })
+                await createTestOrganizationEmployee(admin, organization, client.user, role)
+
+                const [objCreated] = await createTestPropertyMeter(admin, organization2, property, resource)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     const [obj, attrs] = await updateTestPropertyMeter(client, objCreated.id)
@@ -203,59 +237,42 @@ describe('PropertyMeter', () => {
 
     describe('Validation tests', () => {
 
-        test('employee with "canManageMeters" role: cannot create Meter if Meter with same number exist in user organization', async () => {
+        test('uniqueness within organization', async () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const number = faker.lorem.word()
 
             const [organization] = await createTestOrganization(admin)
+            const [organization2] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization, { map: buildingMapJson })
             const [property2] = await createTestProperty(admin, organization, { map: buildingMapJson })
+            const [property3] = await createTestProperty(admin, organization2, { map: buildingMapJson })
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canManageMeters: true,
+            })
+            const [role2] = await createTestOrganizationEmployeeRole(admin, organization2, {
                 canManageMeters: true,
             })
             const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role)
 
-            const number = faker.lorem.word()
+            await createTestOrganizationEmployee(admin, organization2, client.user, role2)
 
             await createTestPropertyMeter(client, organization, property, resource, {
                 number,
             })
+
+            const [meter] = await createTestPropertyMeter(client, organization2, property3, resource, {
+                number,
+            })
+            expect(meter.id).toMatch(UUID_RE)
 
             await catchErrorFrom(async () => {
                 await createTestPropertyMeter(client, organization, property2, resource, {
                     number,
                 })
             }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toContain('Meter with same number and resource exist in current organization')
+                expect(errors[0].message).toMatch('duplicate key value violates unique constraint')
                 expect(data).toEqual({ 'obj': null })
             })
-        })
-
-        test('employee with "canManageMeters" role: can create Meter if Meter with same number exist in other organization', async () => {
-            const client = await makeClientWithNewRegisteredAndLoggedInUser()
-            const number = faker.lorem.word()
-
-            const [organization] = await createTestOrganization(admin)
-            const [property] = await createTestProperty(admin, organization, { map: buildingMapJson })
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageMeters: true,
-            })
-            await createTestOrganizationEmployee(admin, organization, client.user, role)
-            await createTestPropertyMeter(client, organization, property, resource, {
-                number,
-            })
-
-            const [organization2] = await createTestOrganization(admin)
-            const [role2] = await createTestOrganizationEmployeeRole(admin, organization2, {
-                canManageMeters: true,
-            })
-            const [property2] = await createTestProperty(admin, organization2, { map: buildingMapJson })
-            await createTestOrganizationEmployee(admin, organization2, client.user, role2)
-            const [meter] = await createTestPropertyMeter(client, organization2, property2, resource, {
-                number,
-            })
-
-            expect(meter.id).toMatch(UUID_RE)
         })
 
         test('If automatic must have master-system b2b app', async () => {

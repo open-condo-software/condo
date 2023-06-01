@@ -24683,7 +24683,7 @@ export type Meter = {
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
-  /**  Date when the meter was installed in the property  */
+  /**  Date when the meter was installed  */
   installationDate?: Maybe<Scalars['String']>;
   /**  Date when the meter was commissioned.Commissioning - documentation of the meter as a billing meter  */
   commissioningDate?: Maybe<Scalars['String']>;
@@ -47036,7 +47036,7 @@ export type PropertyMeter = {
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   numberOfTariffs?: Maybe<Scalars['Int']>;
-  /**  Date when the meter was installed in the property  */
+  /**  Date when the meter was installed  */
   installationDate?: Maybe<Scalars['String']>;
   /**  Date when the meter was commissioned.Commissioning - documentation of the meter as a billing meter  */
   commissioningDate?: Maybe<Scalars['String']>;

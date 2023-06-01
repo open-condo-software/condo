@@ -42748,7 +42748,7 @@ type Meter {
   organization: Organization
   numberOfTariffs: Int
 
-  """ Date when the meter was installed in the property """
+  """ Date when the meter was installed """
   installationDate: String
 
   """ Date when the meter was commissioned.Commissioning - documentation of the meter as a billing meter 
@@ -43936,7 +43936,7 @@ type PropertyMeter {
   organization: Organization
   numberOfTariffs: Int
 
-  """ Date when the meter was installed in the property """
+  """ Date when the meter was installed """
   installationDate: String
 
   """ Date when the meter was commissioned.Commissioning - documentation of the meter as a billing meter 

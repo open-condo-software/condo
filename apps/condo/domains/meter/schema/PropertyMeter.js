@@ -38,36 +38,6 @@ const PropertyMeter = new GQLListSchema('PropertyMeter', {
             schemaDoc: 'Number of resource meter, such as "А03 9908"',
             type: Text,
             isRequired: true,
-            hooks: {
-                validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath, addFieldValidationError }) => {
-                    // should be unique inside organization
-                    const value = resolvedData[fieldPath]
-                    let metersWithSameResourceAndNumberInOrganization
-                    if (operation === 'create') {
-                        metersWithSameResourceAndNumberInOrganization = await find('PropertyMeter', {
-                            number: value,
-                            organization: { id: resolvedData.organization },
-                            resource: { id: resolvedData.resource },
-                            deletedAt: null,
-                        })
-                    }
-                    else if (operation === 'update' && resolvedData.number !== existingItem.number) {
-                        const organization = resolvedData.organization ? resolvedData.organization : existingItem.organization
-                        const resource = resolvedData.resource ? resolvedData.resource : existingItem.resource
-
-                        metersWithSameResourceAndNumberInOrganization = await PropertyMeterAPI.getAll(context, {
-                            number: value,
-                            organization: { id: organization },
-                            resource: { id: resource },
-                            deletedAt: null,
-                        })
-                    }
-
-                    if (metersWithSameResourceAndNumberInOrganization && metersWithSameResourceAndNumberInOrganization.length > 0) {
-                        addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Meter with same number and resource exist in current organization`)
-                    }
-                },
-            },
         },
 
         property: {
@@ -92,7 +62,7 @@ const PropertyMeter = new GQLListSchema('PropertyMeter', {
                 type: 'models.UniqueConstraint',
                 fields: ['organization', 'number', 'resource'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'propertymeter_unique_organization_and_number',
+                name: 'propertymeter_unique_organization_number_resource',
             },
         ],
     },
@@ -130,7 +100,7 @@ const PropertyMeter = new GQLListSchema('PropertyMeter', {
                 const deletedMeterAt = get(originalInput, 'deletedAt')
 
                 if (deletedMeterAt) {
-                    await deleteReadingsOfDeletedMeter.delay(updatedItem, deletedMeterAt, true)
+                    await deleteReadingsOfDeletedMeter.delay(updatedItem, deletedMeterAt)
                 }
             }
         },

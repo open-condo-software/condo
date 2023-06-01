@@ -8,7 +8,7 @@ const numberOfTariffs = {
 }
 
 const installationDate = {
-    schemaDoc: 'Date when the meter was installed in the property',
+    schemaDoc: 'Date when the meter was installed',
     type: DateTimeUtc,
 }
 
