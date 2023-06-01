@@ -7,6 +7,7 @@ const { ExternalReport } = require('./ExternalReport')
 const { GetExternalReportIframeUrlService } = require('./GetExternalReportIframeUrlService')
 const { TicketAnalyticsReportService } = require('./TicketAnalyticsReportService')
 const { TicketReportService } = require('./TicketReportService')
+const { OverviewDashboardService } = require('./OverviewDashboardService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -14,5 +15,6 @@ module.exports = {
     TicketReportService,
     TicketAnalyticsReportService,
     GetExternalReportIframeUrlService,
+    OverviewDashboardService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

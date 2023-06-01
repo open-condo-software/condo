@@ -7,6 +7,7 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { Dashboard } from '@condo/domains/analytics/components/Dashboard'
 import ExternalReportCard from '@condo/domains/analytics/components/ExternalReportCard'
 import { ExternalReport } from '@condo/domains/analytics/utils/clientSchema/index'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -45,25 +46,28 @@ const IndexPage = () => {
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitleMsg}</Typography.Title>} />
                 <PageContent>
+                    <Dashboard organizationId={get(organization, 'id')} />
+
                     <Row
                         gutter={EXTERNAL_REPORT_ROW_GUTTER}
                         align={isEmptyReports ? 'middle' : 'top'}
                         style={{ height: isEmptyReports ? '100%' : 'initial' }}
                     >
-                        {loading
-                            ? <Loader size='large' fill />
-                            : (externalReports
-                                .map((externalReport, key) => (
-                                    <Col key={key} lg={12} md={24} xs={24} sm={24}>
-                                        <ExternalReportCard externalReport={externalReport} />
-                                    </Col>
-                                )))
-                        }
-                        {isEmptyReports && (
-                            <BasicEmptyListView image='/dino/searching@2x.png' spaceSize={16}>
-                                <Typography.Title level={4}>{NoDataTitle}</Typography.Title>
-                            </BasicEmptyListView>
-                        )}
+                        {/*{loading*/}
+                        {/*    ? <Loader size='large' fill />*/}
+                        {/*    : (externalReports*/}
+                        {/*        .map((externalReport, key) => (*/}
+                        {/*            <Col key={key} lg={12} md={24} xs={24} sm={24}>*/}
+                        {/*                <ExternalReportCard externalReport={externalReport} />*/}
+                        {/*            </Col>*/}
+                        {/*        )))*/}
+                        {/*}*/}
+
+                        {/*{isEmptyReports && (*/}
+                        {/*    <BasicEmptyListView image='/dino/searching@2x.png' spaceSize={16}>*/}
+                        {/*        <Typography.Title level={4}>{NoDataTitle}</Typography.Title>*/}
+                        {/*    </BasicEmptyListView>*/}
+                        {/*)}*/}
                     </Row>
                 </PageContent>
             </PageWrapper>

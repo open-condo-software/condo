@@ -20,6 +20,12 @@ const GET_EXTERNAL_REPORT_IFRAME_URL_QUERY = gql`
     }
 `
 
+const OVERVIEW_DASHBOARD_MUTATION = gql`
+    query overviewDashboard ($data: OverviewDashboardInput!) {
+        result: overviewDashboard(data: $data) { overview }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const GET_TICKET_WIDGET_REPORT_DATA = gql`
@@ -45,5 +51,6 @@ module.exports = {
     TICKET_ANALYTICS_REPORT_QUERY,
     EXPORT_TICKET_ANALYTICS_TO_EXCEL,
     GET_EXTERNAL_REPORT_IFRAME_URL_QUERY,
+    OVERVIEW_DASHBOARD_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

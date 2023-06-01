@@ -47915,6 +47915,23 @@ export type OrganizationsUpdateInput = {
   data?: Maybe<OrganizationUpdateInput>;
 };
 
+export type OverviewDashboardInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  where: OverviewDashboardWhereInput;
+};
+
+export type OverviewDashboardOutput = {
+  __typename?: 'OverviewDashboardOutput';
+  overview: Scalars['JSON'];
+};
+
+export type OverviewDashboardWhereInput = {
+  organization: Scalars['String'];
+  dateFrom: Scalars['String'];
+  dateTo: Scalars['String'];
+};
+
 /**  Information about completed transaction from user to a specific organization  */
 export type Payment = {
   __typename?: 'Payment';
@@ -53686,6 +53703,7 @@ export type Query = {
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
   getExternalReportIframeUrl?: Maybe<GetExternalReportIframeUrlOutput>;
+  overviewDashboard?: Maybe<OverviewDashboardOutput>;
   exportPropertyScopesToExcel?: Maybe<ExportPropertyScopeToExcelOutput>;
   getNewsItemsRecipientsCounters?: Maybe<GetNewsItemsRecipientsCountersOutput>;
   /** The version of the Keystone application serving this API. */
@@ -59304,6 +59322,11 @@ export type QueryExportTicketAnalyticsToExcelArgs = {
 
 export type QueryGetExternalReportIframeUrlArgs = {
   data: GetExternalReportIframeUrlInput;
+};
+
+
+export type QueryOverviewDashboardArgs = {
+  data: OverviewDashboardInput;
 };
 
 

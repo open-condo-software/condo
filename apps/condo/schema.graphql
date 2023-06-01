@@ -63594,6 +63594,22 @@ type GetExternalReportIframeUrlOutput {
   iframeUrl: String
 }
 
+input OverviewDashboardWhereInput {
+  organization: String!
+  dateFrom: String!
+  dateTo: String!
+}
+
+input OverviewDashboardInput {
+  dv: Int!
+  sender: JSON!
+  where: OverviewDashboardWhereInput!
+}
+
+type OverviewDashboardOutput {
+  overview: JSON!
+}
+
 input ExportPropertyScopeToExcelInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -66904,6 +66920,7 @@ type Query {
   ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput
   exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput
   getExternalReportIframeUrl(data: GetExternalReportIframeUrlInput!): GetExternalReportIframeUrlOutput
+  overviewDashboard(data: OverviewDashboardInput!): OverviewDashboardOutput
   exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
   getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
 
