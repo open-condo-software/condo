@@ -23,6 +23,7 @@ export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'on
     selectedFloorName?: string
     selectedSectionName?: string
     selectedSections?: BuildingSection[]
+    multiple?: boolean
 }
 interface IGetOptionGroupBySectionType {
     units: BuildingUnit[]
@@ -102,7 +103,7 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
     const CommercialGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.commercial' })
     const ApartmentGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.apartment' })
     const {
-        placeholder, property, loading, mode, selectedFloorName, selectedSectionName, selectedSections, ...restInputProps
+        placeholder, property, loading, mode, selectedFloorName, selectedSectionName, selectedSections, multiple, ...restInputProps
     } = props
 
     const sections = get(property, 'map.sections', [])
@@ -118,6 +119,7 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
 
     return (
         <Select
+            mode={multiple ? 'multiple' : undefined}
             allowClear
             showSearch
             placeholder={placeholder}

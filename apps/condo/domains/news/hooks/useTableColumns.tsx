@@ -1,3 +1,4 @@
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
@@ -33,6 +34,9 @@ export const useTableColumns = (filterMetas: UseNewsTableFiltersReturnType) => {
     const search = getFilteredValue(filters, 'search')
     
     const renderResendNews = useCallback((_, newsItem) => {
+        const isSentAt = get(newsItem, 'sentAt', null)
+        if (!isSentAt) return
+
         return (
             <ResendNewsButton
                 intl={intl}

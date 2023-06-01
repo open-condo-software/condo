@@ -2,11 +2,11 @@
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
-import has from 'lodash/has'
 import isArray from 'lodash/isArray'
+import isUndefined from 'lodash/isUndefined'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { Search, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -87,28 +87,22 @@ const NewsTableContainer = ({
 
         newsItemScope.forEach(item => {
             const propertyAddress = get(item, ['property'], null)
+            const unitType = get(item, ['unitType'], null)
+            const unitName = get(item, ['unitName'], null)
             const newsItemId = get(item, ['newsItem', 'id'])
-            if (propertyAddress && addresses[newsItemId] !== 'hasAllProperties') {
+            if (propertyAddress) {
                 if (isArray(addresses[newsItemId])) {
                     addresses[newsItemId] = [...addresses[newsItemId], propertyAddress]
                 } else {
                     addresses[newsItemId] = [propertyAddress]
                 }
-            } else {
-                addresses[newsItemId] = 'hasAllProperties'
             }
         })
 
         const newsWithAddresses = news
-            .filter(newsItem => {
-                const newsItemId = get(newsItem, 'id')
-                const hasScope = has(addresses, [newsItemId])
-                
-                return hasScope
-            })
             .map(newsItem => {
                 const newsItemId = get(newsItem, 'id')
-                const hasAllProperties = addresses[newsItemId] === 'hasAllProperties'
+                const hasAllProperties = isUndefined(addresses[newsItemId])
                 return {
                     newsItemAddresses: addresses[newsItemId] || [],
                     hasAllProperties: hasAllProperties,
@@ -121,10 +115,9 @@ const NewsTableContainer = ({
 
     const columns = useTableColumns(filterMetas)
 
-    //TODO(DOMA-5917) this functionality will be implemented as part of next task
-    const handleAddNews = useCallback((e) => {
-        e.stopPropagation()
-    }, [])
+    const handleAddNews = useCallback(async () => {
+        await router.push('/news/create')
+    }, [router])
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -186,7 +179,6 @@ const NewsPageContent = ({
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
-    //TODO(DOMA-5917)now sorting by date sorts only by the createdAt field regardless of whether there is sendAt, need to understand what kind of behavior we expect
     const sortBy = sortersToSortBy(sorters, NEWS_DEFAULT_SORT_BY) 
     const searchNewsQuery = useMemo(() => ({ ...baseNewsQuery, ...filtersToWhere(filters) }),
         [baseNewsQuery, filters, filtersToWhere])

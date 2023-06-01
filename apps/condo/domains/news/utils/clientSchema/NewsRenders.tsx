@@ -7,6 +7,7 @@ import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isNull from 'lodash/isNil'
 import getConfig from 'next/config'
+import Link from 'next/link'
 import { ColumnType } from 'rc-table/lib/interface'
 import React, { CSSProperties, useCallback } from 'react'
 import { IntlShape } from 'react-intl/src/types'
@@ -17,6 +18,7 @@ import { getTableCellRenderer } from '@condo/domains/common/components/Table/Ren
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
+import { FLAT_UNIT_TYPE } from '@condo/domains/property/constants/common'
 import { getOneAddressAndPropertiesCountRender } from '@condo/domains/property/utils/clientSchema/Renders'
 
 
@@ -80,19 +82,20 @@ const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-
 
 export const ResendNewsButton = ({ intl, newsItem }) => {
     const ResendMessage = intl.formatMessage({ id: 'pages.condo.news.resend' })
-
-    //TODO(DOMA-5917) this functionality will be implemented as part of next task
+    
     const handleClick = useCallback((e) => {
         e.stopPropagation()
     }, [])
     
 
     return (
-        <Tooltip title={ResendMessage} placement='bottomLeft'>
-            <div style={RESEND_MESSAGE_CONTAINER_STYLE} onClick={handleClick}>
-                <RefreshCw size='small'/>
-            </div>
-        </Tooltip>
+        <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>
+            <Tooltip title={ResendMessage} placement='bottomLeft'>
+                <div style={RESEND_MESSAGE_CONTAINER_STYLE} onClick={handleClick}>
+                    <RefreshCw size='small'/>
+                </div>
+            </Tooltip>
+        </Link>
     )
 }
 
@@ -118,10 +121,18 @@ export const getTypeRender: GetTypeRenderType = (intl, search) => (text, newsIte
 
 export const getRenderProperties: GetRenderPropertiesType = (intl, search) => (properties, newsItem) => {
     const AllPropertiesMessage = intl.formatMessage({ id: 'news.fields.properties.allSelected' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
     if (get(newsItem, 'hasAllProperties')) {
         return AllPropertiesMessage
     }
 
-    return getOneAddressAndPropertiesCountRender(search)(intl, properties)
+    const propertiesWithUnits =  properties.map(property => {
+        if (property.addressMeta.data.flat_type === FLAT_UNIT_TYPE) {
+            property.addressMeta.data.flat_type = ShortFlatNumber
+        }
+        return property
+    })
+
+    return getOneAddressAndPropertiesCountRender(search)(intl, propertiesWithUnits)
 }
