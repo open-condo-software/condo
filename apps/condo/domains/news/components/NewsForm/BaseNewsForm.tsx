@@ -697,7 +697,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 onChange={handleBodyChange}
                                                             />
                                                         </Form.Item>
-                                                        {console.debug('form', form)}
                                                         <Col style={COUNTER_COL_STYLE}>
                                                             <Body.Counter type='inverted'/>
                                                         </Col>
