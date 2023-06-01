@@ -35,7 +35,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, se
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
     const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParkingUnits' })
-    const UnitErrorLabel = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
+    const ParkingPlaceErrorLabel = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameParkingPlaceNamesErrorMsg' })
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
@@ -179,7 +179,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, se
                             status={isValidationErrorVisible ? 'error' : ''}
                         />
                         {isValidationErrorVisible && (
-                            <Typography.Text style={ERROR_TEXT_STYLE}>{UnitErrorLabel}</Typography.Text>
+                            <Typography.Text style={ERROR_TEXT_STYLE}>{ParkingPlaceErrorLabel}</Typography.Text>
                         )}
                         <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
                             {RenameNextParkingUnitsLabel}

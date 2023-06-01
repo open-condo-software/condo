@@ -76,13 +76,14 @@ interface IEmptyBuildingBlock extends Pick<IPropertyMapFormProps, 'canManageProp
     mode?: 'view' | 'edit'
 }
 
-const DESCRIPTION_STYLE = {
+const DESCRIPTION_STYLE: React.CSSProperties = {
     display: 'block',
     fontSize: fontSizes.content,
     maxWidth: '350px',
     color: colors.inputBorderHover,
     margin: 'auto',
     marginTop: '8px',
+    whiteSpace: 'pre-line',
 }
 
 const EMPTY_BUILDING_BLOCK_BUTTON_STYLE = {
