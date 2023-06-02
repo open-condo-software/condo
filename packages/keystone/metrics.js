@@ -66,6 +66,8 @@ const count = ({ name, value }) => {
     StatsDClient.count(name, value)
 }
 
+setInterval(() => {gauge({ name:'custom.metrics.working', value: 1 })}, 1000)
+
 module.exports = {
     gauge,
     count,
