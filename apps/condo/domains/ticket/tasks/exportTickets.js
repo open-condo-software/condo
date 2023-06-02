@@ -195,6 +195,7 @@ const buildExportFile = async ({ rows, task }) => {
     }
 
     const feedbackValuesTranslations = buildFeedbackValuesTranslationsFrom(locale)
+    const qualityControlValuesTranslations = buildQualityControlValuesTranslationsFrom(locale)
 
     const { stream } = await _buildExportFile({
         templatePath: './domains/ticket/templates/TicketsExportTemplate.xlsx',
@@ -210,6 +211,7 @@ const buildExportFile = async ({ rows, task }) => {
 
                 yes: i18n('Yes', { locale }),
                 feedbackValues: feedbackValuesTranslations,
+                qualityControlValues: qualityControlValuesTranslations,
             },
         },
     })
