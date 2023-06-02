@@ -9,6 +9,7 @@ const SBBOL_IDP_TYPE = 'sbbol'
 const IDP_TYPES = [SBER_ID_IDP_TYPE, SBBOL_IDP_TYPE]
 
 const MIN_PASSWORD_LENGTH = 8
+const MAX_PASSWORD_LENGTH = 128
 const LOCK_TIMEOUT = 1
 const SMS_CODE_LENGTH = 4
 const SMS_CODE_TTL = 60 // seconds
@@ -23,8 +24,12 @@ const LOCALE_RU = 'ru'
 const LOCALE_EN = 'en'
 const LOCALES = [LOCALE_RU, LOCALE_EN]
 
+const SPACES_AT_BEGINNING_OR_END_OF_LINE_REGEX = /((^\s+\S*)|(\S*\s$))/gu
+const IDENTICAL_CHARACTERS_REGEX = /^([\w\W])\1+$/gu
+
 module.exports = {
     MIN_PASSWORD_LENGTH,
+    MAX_PASSWORD_LENGTH,
     LOCK_TIMEOUT,
     SMS_CODE_LENGTH,
     SMS_CODE_TTL,
@@ -41,4 +46,6 @@ module.exports = {
     IDP_TYPES,
     SBER_ID_SESSION_KEY,
     LOCALES,
+    SPACES_AT_BEGINNING_OR_END_OF_LINE_REGEX,
+    IDENTICAL_CHARACTERS_REGEX,
 }
