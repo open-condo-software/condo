@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
 import { InputNumber } from 'antd'
+import compact from 'lodash/compact'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
@@ -11,6 +12,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { getDateRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { METER_TYPES, MeterTypes } from '@condo/domains/meter/utils/clientSchema'
 
 const inputNumberCSS = css`
   & .ant-input-number-handler-wrap {
@@ -88,7 +90,7 @@ const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) =>
     )
 }
 
-export const useMeterTableColumns = () => {
+export const useMeterTableColumns = (meterType: MeterTypes) => {
     const intl = useIntl()
     const AccountMessage = intl.formatMessage({ id: 'pages.condo.meter.Account' })
     const ResourceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
@@ -103,6 +105,7 @@ export const useMeterTableColumns = () => {
     const ThirdTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff3Message' })
     const FourthTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff4Message' })
 
+    const isPropertyMeter = meterType === METER_TYPES.propertyMeter
     const [newMeterReadings, setNewMeterReadings] = useState({})
     const tariffNumberMessages = useMemo(() =>
         [`(${FirstTariffMessage})`, `(${SecondTariffMessage})`, `(${ThirdTariffMessage})`, `(${FourthTariffMessage})`],
@@ -130,13 +133,13 @@ export const useMeterTableColumns = () => {
     const textRenderer = useMemo(() => getTextRender(), [getTextRender])
     const dateRenderer = useMemo(() => getDateRender(intl), [intl, getDateRender])
 
-    const tableColumns = useMemo(() => [
-        {
+    const tableColumns = useMemo(() => compact([
+        !isPropertyMeter ? {
             title: AccountMessage,
             dataIndex: ['meter', 'accountNumber'],
             width: '10%',
             render: textRenderer,
-        },
+        } : undefined,
         {
             title: ResourceMessage,
             width: '10%',
@@ -148,12 +151,12 @@ export const useMeterTableColumns = () => {
             width: '10%',
             render: textRenderer,
         },
-        {
+        !isPropertyMeter ? {
             title: PlaceMessage,
             dataIndex: ['meter', 'place'],
             width: '10%',
             render: textRenderer,
-        },
+        } : undefined,
         {
             title: LastReadingMessage,
             dataIndex: 'lastMeterReading',
@@ -177,9 +180,9 @@ export const useMeterTableColumns = () => {
             width: '20%',
             render: meterReadingRenderer,
         },
-    ],
+    ]),
     [
-        AccountMessage, LastReadingMessage, MeterNumberMessage, MeterReadingsMessage, PlaceMessage,
+        AccountMessage, LastReadingMessage, MeterNumberMessage, MeterReadingsMessage, PlaceMessage, isPropertyMeter,
         ResourceMessage, SourceMessage, VerificationDateMessage, dateRenderer, meterReadingRenderer, meterResourceRenderer, textRenderer,
     ])
 

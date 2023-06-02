@@ -34,10 +34,10 @@ const METER_READING_FILTERS_FIELDS = '{ organization address accountNumber place
 const METER_READING_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${METER_READING_FILTERS_FIELDS} ${COMMON_FIELDS} }`
 const MeterReadingFilterTemplate = generateGqlQueries('MeterReadingFilterTemplate', METER_READING_FILTER_TEMPLATE_FIELDS)
 
-const PROPERTY_METER_FIELDS = `{ number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate isAutomatic organization { id } property { id } resource { id } b2bApp { id } meta ${COMMON_FIELDS} }`
+const PROPERTY_METER_FIELDS = `{ number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate isAutomatic organization { id } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } resource { ${METER_RESOURCE_FIELDS} } b2bApp { id } meta ${COMMON_FIELDS} }`
 const PropertyMeter = generateGqlQueries('PropertyMeter', PROPERTY_METER_FIELDS)
 
-const PROPERTY_METER_READING_FIELDS = `{ date meter { id } value1 value2 value3 value4 source { id } ${COMMON_FIELDS} }`
+const PROPERTY_METER_READING_FIELDS = `{ date meter ${PROPERTY_METER_FIELDS} value1 value2 value3 value4 source { id name type } ${COMMON_FIELDS} }`
 const PropertyMeterReading = generateGqlQueries('PropertyMeterReading', PROPERTY_METER_READING_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

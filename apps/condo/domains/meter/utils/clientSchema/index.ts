@@ -8,12 +8,11 @@ import { FireIcon } from '@condo/domains/common/components/icons/FireIcon'
 import { RadiatorIcon } from '@condo/domains/common/components/icons/RadiatorIcon'
 import { SnowflakeIcon } from '@condo/domains/common/components/icons/SnowflakeIcon'
 import { StoveIcon } from '@condo/domains/common/components/icons/StoveIcon'
-
 import {
     COLD_WATER_METER_RESOURCE_ID, ELECTRICITY_METER_RESOURCE_ID,
     GAS_SUPPLY_METER_RESOURCE_ID, HEAT_SUPPLY_METER_RESOURCE_ID,
     HOT_WATER_METER_RESOURCE_ID,
-} from '../../constants/constants'
+} from '@condo/domains/meter/constants/constants'
 
 export * as MeterResource from './MeterResource'
 export * as MeterReadingSource from './MeterReadingSource'
@@ -47,4 +46,14 @@ export const resourceIdToCreateMeterTitleIdMap = {
     [GAS_SUPPLY_METER_RESOURCE_ID]: 'pages.condo.meter.AddGasSupplyMeterModalTitle',
     [ELECTRICITY_METER_RESOURCE_ID]: 'pages.condo.meter.AddElectricityMeterModalTitle',
     [HEAT_SUPPLY_METER_RESOURCE_ID]: 'pages.condo.meter.AddHeatSupplyMeterModalTitle',
+}
+
+export type MeterTypes = 'property-meter' | 'meter'
+type MeterTypesSwitch = {
+    propertyMeter: MeterTypes
+    meter: MeterTypes
+}
+export const METER_TYPES: MeterTypesSwitch = {
+    propertyMeter: 'property-meter',
+    meter: 'meter',
 }
