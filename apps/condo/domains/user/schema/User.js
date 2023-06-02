@@ -3,9 +3,8 @@
  */
 
 const { Text, Checkbox, Password, File, Select, Virtual } = require('@keystonejs/fields')
-const { get, isEmpty, isUndefined, isNull, isString } = require('lodash')
+const { get, isEmpty, isUndefined, isNull } = require('lodash')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -19,10 +18,7 @@ const {
     STAFF,
     USER_TYPES,
     MIN_PASSWORD_LENGTH,
-    MAX_PASSWORD_LENGTH,
     LOCALES,
-    IDENTICAL_CHARACTERS_REGEX,
-    SPACES_AT_BEGINNING_OR_END_OF_LINE_REGEX,
 } = require('@condo/domains/user/constants/common')
 const {
     EMAIL_ALREADY_REGISTERED_ERROR,
@@ -31,83 +27,11 @@ const {
     PHONE_WRONG_FORMAT_ERROR,
     PHONE_IS_REQUIRED_ERROR,
 } = require('@condo/domains/user/constants/errors')
-const {
-    WRONG_PASSWORD_FORMAT, PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END, INVALID_PASSWORD_LENGTH,
-    PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS, PASSWORD_CONTAINS_EMAIL, PASSWORD_CONTAINS_PHONE, PASSWORD_CONTAINS_NAME,
-} = require('@condo/domains/user/constants/errors')
 const { USER_CUSTOM_ACCESS_GRAPHQL_TYPES, USER_CUSTOM_ACCESS_FIELDS } = require('@condo/domains/user/gql')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 
 
-/**
- *
- * @param str {string|*}
- * @param substr {string|*}
- * @return {boolean}
- */
-const hasSubstring = (str, substr) => {
-    if (!isString(str) || isEmpty(str)) return false
-    if (!isString(substr) || isEmpty(substr)) return false
-    return str.toLowerCase().includes(substr.toLowerCase())
-}
-
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
-
-const ERRORS = {
-    WRONG_PASSWORD_FORMAT: {
-        variable: ['data', 'password'],
-        code: BAD_USER_INPUT,
-        type: WRONG_PASSWORD_FORMAT,
-        message: 'Password must be in string format',
-        messageForUser: 'api.user.WRONG_PASSWORD_FORMAT',
-    },
-    PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END: {
-        variable: ['data', 'password'],
-        code: BAD_USER_INPUT,
-        type: PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
-        message: 'Password must not start or end with a space',
-        messageForUser: 'api.user.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END',
-    },
-    INVALID_PASSWORD_LENGTH: {
-        variable: ['data', 'password'],
-        code: BAD_USER_INPUT,
-        type: INVALID_PASSWORD_LENGTH,
-        message: `Password length must be between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`,
-        messageForUser: 'api.user.INVALID_PASSWORD_LENGTH',
-        messageInterpolation: {
-            min: MIN_PASSWORD_LENGTH,
-            max: MAX_PASSWORD_LENGTH,
-        },
-    },
-    PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS: {
-        variable: ['data', 'password'],
-        code: BAD_USER_INPUT,
-        type: PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
-        message: 'Password must consist of different characters',
-        messageForUser: 'api.user.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS',
-    },
-    PASSWORD_CONTAINS_EMAIL: {
-        variable: ['data', 'password'],
-        code: BAD_USER_INPUT,
-        type: PASSWORD_CONTAINS_EMAIL,
-        message: 'Password must not contain email',
-        messageForUser: 'api.user.PASSWORD_CONTAINS_EMAIL',
-    },
-    PASSWORD_CONTAINS_PHONE: {
-        variable: ['data', 'password'],
-        code: BAD_USER_INPUT,
-        type: PASSWORD_CONTAINS_PHONE,
-        message: 'Password must not contain phone',
-        messageForUser: 'api.user.PASSWORD_CONTAINS_PHONE',
-    },
-    PASSWORD_CONTAINS_NAME: {
-        variable: ['data', 'password'],
-        code: BAD_USER_INPUT,
-        type: PASSWORD_CONTAINS_NAME,
-        message: 'Password must not contain mane',
-        messageForUser: 'api.user.PASSWORD_CONTAINS_NAME',
-    },
-}
 
 const User = new GQLListSchema('User', {
     schemaDoc: 'Individual / person / service account / impersonal company account. Used primarily for authorization purposes, optimized access control with checking of `type` field, tracking authority of performed CRUD operations. Think of `User` as a technical entity, not a business actor. Business actor entities are Resident, OrganizationEmployee etc., — they are participating in high-level business scenarios and have connected to `User`. Almost everyting, created in the system, ends up to `User` as a source of action.',
@@ -128,47 +52,6 @@ const User = new GQLListSchema('User', {
             rejectCommon: true,
             minLength: MIN_PASSWORD_LENGTH,
             access: access.canAccessToPasswordField,
-            hooks: {
-                validateInput: async ({ resolvedData, fieldPath, existingItem, context }) => {
-                    const newItem = { ...existingItem, ...resolvedData }
-                    const pass = resolvedData[fieldPath]
-
-                    // Password must be in string format
-                    if (!isString(pass)) {
-                        throw new GQLError(ERRORS.WRONG_PASSWORD_FORMAT, context)
-                    }
-
-                    // Password must not start or end with a space
-                    if (SPACES_AT_BEGINNING_OR_END_OF_LINE_REGEX.test(pass)) {
-                        throw new GQLError(ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END, context)
-                    }
-
-                    // Password must be of the appropriate length
-                    if (pass.length < 8 || pass.length > 128) {
-                        throw new GQLError(ERRORS.INVALID_PASSWORD_LENGTH, context)
-                    }
-
-                    // Password must consist of different characters
-                    if (IDENTICAL_CHARACTERS_REGEX.test(pass)) {
-                        throw new GQLError(ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS, context)
-                    }
-
-                    // Password must not contain email
-                    if (hasSubstring(pass, newItem['email'])) {
-                        throw new GQLError(ERRORS.PASSWORD_CONTAINS_EMAIL, context)
-                    }
-
-                    // Password must not contain phone
-                    if (hasSubstring(pass, newItem['phone'])) {
-                        throw new GQLError(ERRORS.PASSWORD_CONTAINS_PHONE, context)
-                    }
-
-                    // Password must not contain name
-                    if (hasSubstring(pass, newItem['name'])) {
-                        throw new GQLError(ERRORS.PASSWORD_CONTAINS_NAME, context)
-                    }
-                },
-            },
         },
         type: {
             schemaDoc: 'Field that allows you to distinguish CRM users from mobile app users',
@@ -378,5 +261,4 @@ const User = new GQLListSchema('User', {
 
 module.exports = {
     User,
-    ERRORS,
 }

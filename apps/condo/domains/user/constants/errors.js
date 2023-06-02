@@ -1,3 +1,8 @@
+const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+
+const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } = require('./common')
+
+
 const WRONG_PASSWORD_ERROR = '[passwordAuth:secret:mismatch'
 const EMPTY_PASSWORD_ERROR = '[passwordAuth:secret:notSet'
 const WRONG_EMAIL_ERROR = '[passwordAuth:identity:notFound'
@@ -60,20 +65,73 @@ const PASSWORD_CONTAINS_NAME = 'PASSWORD_CONTAINS_NAME'
 
 const GQL_ERRORS = {
     TOO_MANY_REQUESTS: {
-        code: 'BAD_USER_INPUT',
+        code: BAD_USER_INPUT,
         type: TOO_MANY_REQUESTS,
         message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
         messageForUser: 'api.user.TOO_MANY_REQUESTS',
     },
     SMS_FOR_PHONE_DAY_LIMIT_REACHED: {
-        code: 'BAD_USER_INPUT',
+        code: BAD_USER_INPUT,
         type: SMS_FOR_PHONE_DAY_LIMIT_REACHED,
         message: 'Too many sms requests for this phone number. Try again tomorrow',
     },
     SMS_FOR_IP_DAY_LIMIT_REACHED: {
-        code: 'BAD_USER_INPUT',
+        code: BAD_USER_INPUT,
         type: SMS_FOR_IP_DAY_LIMIT_REACHED,
         message: 'Too many sms requests from this ip address. Try again tomorrow',
+    },
+    WRONG_PASSWORD_FORMAT: {
+        variable: ['data', 'password'],
+        code: BAD_USER_INPUT,
+        type: WRONG_PASSWORD_FORMAT,
+        message: 'Password must be in string format',
+        messageForUser: 'api.user.WRONG_PASSWORD_FORMAT',
+    },
+    PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END: {
+        variable: ['data', 'password'],
+        code: BAD_USER_INPUT,
+        type: PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
+        message: 'Password must not start or end with a space',
+        messageForUser: 'api.user.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END',
+    },
+    INVALID_PASSWORD_LENGTH: {
+        variable: ['data', 'password'],
+        code: BAD_USER_INPUT,
+        type: INVALID_PASSWORD_LENGTH,
+        message: `Password length must be between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`,
+        messageForUser: 'api.user.INVALID_PASSWORD_LENGTH',
+        messageInterpolation: {
+            min: MIN_PASSWORD_LENGTH,
+            max: MAX_PASSWORD_LENGTH,
+        },
+    },
+    PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS: {
+        variable: ['data', 'password'],
+        code: BAD_USER_INPUT,
+        type: PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
+        message: 'Password must consist of different characters',
+        messageForUser: 'api.user.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS',
+    },
+    PASSWORD_CONTAINS_EMAIL: {
+        variable: ['data', 'password'],
+        code: BAD_USER_INPUT,
+        type: PASSWORD_CONTAINS_EMAIL,
+        message: 'Password must not contain email',
+        messageForUser: 'api.user.PASSWORD_CONTAINS_EMAIL',
+    },
+    PASSWORD_CONTAINS_PHONE: {
+        variable: ['data', 'password'],
+        code: BAD_USER_INPUT,
+        type: PASSWORD_CONTAINS_PHONE,
+        message: 'Password must not contain phone',
+        messageForUser: 'api.user.PASSWORD_CONTAINS_PHONE',
+    },
+    PASSWORD_CONTAINS_NAME: {
+        variable: ['data', 'password'],
+        code: BAD_USER_INPUT,
+        type: PASSWORD_CONTAINS_NAME,
+        message: 'Password must not contain mane',
+        messageForUser: 'api.user.PASSWORD_CONTAINS_NAME',
     },
 }
 
