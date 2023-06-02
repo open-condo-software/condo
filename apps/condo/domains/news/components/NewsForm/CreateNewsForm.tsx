@@ -1,8 +1,11 @@
-import { Col, Row, notification } from 'antd'
+import { Col, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import { ArgsProps as NotificationApiProps } from 'antd/es/notification'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
-import React, { useCallback, useMemo } from 'react'
+import getConfig from 'next/config'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { IntlShape } from 'react-intl/src/types'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -15,7 +18,7 @@ import { BaseNewsForm, BaseNewsFormProps } from './BaseNewsForm'
 
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 28]
 
-export const CreateNewsActionBar = (props) => {
+export const CreateNewsActionBar: React.FC<{ handleSave: () => void, isLoading: boolean }> = (props) => {
     const intl = useIntl()
     const ShareButtonMessage = intl.formatMessage({ id: 'global.share' })
 
@@ -36,9 +39,49 @@ export const CreateNewsActionBar = (props) => {
     )
 }
 
-export const getCompletedNotification = (intl, action, key) => {
+interface IButtonWithCountdownProps {
+    notificationKey: string,
+    action: () => void,
+    intl: IntlShape,
+    initialCountdown: number,
+}
+
+const ButtonWithCountdown = ({ notificationKey, action, intl, initialCountdown }: IButtonWithCountdownProps) => {
+    const SuccessNotificationButtonText = intl.formatMessage({ id: 'pages.condo.news.notification.success.button' })
+    const [countdown, setCountdown] = useState<number>(initialCountdown)
+
+    const interval = useMemo(() => {
+        return setInterval(() => {
+            setCountdown((prev) => (prev - 1))
+        }, 1000)
+    }, [])
+
+    useEffect(() => {
+        if (countdown <= 0 && interval) {
+            clearInterval(interval)
+        }
+    }, [countdown, interval])
+
+    return (
+        <Button
+            htmlType='button'
+            onClick={async () => {
+                clearInterval(interval)
+                notification.close(notificationKey)
+                await action()
+            }}
+            type='primary'
+        >
+            {`${SuccessNotificationButtonText} (${countdown})`}
+        </Button>
+    )
+}
+
+export const getCompletedNotification = (intl: IntlShape, action: () => void, key: string): NotificationApiProps => {
     const SuccessNotificationTitle = intl.formatMessage({ id: 'pages.condo.news.notification.success.title' })
     const SuccessNotificationDescription = intl.formatMessage({ id: 'pages.condo.news.notification.success.description' })
+
+    const { publicRuntimeConfig: { newsItemsSendingDelay } } = getConfig()
 
     return {
         message: (
@@ -53,27 +96,23 @@ export const getCompletedNotification = (intl, action, key) => {
                         {SuccessNotificationDescription}
                     </Typography.Text>
                 </Col>
-                <Button
-                    htmlType='button'
-                    onClick={async () => { 
-                        notification.close(key)
-                        await action()
-                    }}
-                    type='primary'
-                >
-                    {intl.formatMessage(
-                        { id: 'pages.condo.news.notification.success.button' }
-                    )}
-                </Button>
             </Row>
         ),
         key: key,
-        duration: 15,
+        duration: newsItemsSendingDelay,
+        btn: (
+            <ButtonWithCountdown
+                notificationKey={key}
+                action={action}
+                intl={intl}
+                initialCountdown={newsItemsSendingDelay}
+            />
+        ),
     }
 }
 
 export const CreateNewsForm: React.FC = () => {
-    const intl = useIntl()
+    const intl: IntlShape = useIntl()
     const EmptyTemplateTitle = intl.formatMessage({ id: 'news.fields.emptyTemplate.title' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
@@ -104,7 +143,7 @@ export const CreateNewsForm: React.FC = () => {
         objs: allNews,
         error: allNewsError,
     } = NewsItem.useAllObjects({
-        where: { 
+        where: {
             organization: { id: organizationId },
             createdAt_gte: dateStart.toISOString(),
         },
@@ -121,7 +160,13 @@ export const CreateNewsForm: React.FC = () => {
 
     const softDeleteNewsItem = NewsItem.useSoftDelete()
     const OnCompletedMsg = useCallback((newsItem) => {
-        return getCompletedNotification(intl, () => {softDeleteNewsItem(newsItem)}, newsItem.id)
+        return getCompletedNotification(
+            intl,
+            async () => {
+                await softDeleteNewsItem(newsItem)
+            },
+            newsItem.id,
+        )
     }, [intl, softDeleteNewsItem])
 
     const error = useMemo(() => newsItemTemplatesError || allNewsError, [allNewsError, newsItemTemplatesError])
