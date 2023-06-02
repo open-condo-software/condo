@@ -129,9 +129,7 @@ const User = new GQLListSchema('User', {
             minLength: MIN_PASSWORD_LENGTH,
             access: access.canAccessToPasswordField,
             hooks: {
-                validateInput: async (props) => {
-                    const { resolvedData, fieldPath, existingItem, context } = props
-                    console.log({ props })
+                validateInput: async ({ resolvedData, fieldPath, existingItem, context }) => {
                     const newItem = { ...existingItem, ...resolvedData }
                     const pass = resolvedData[fieldPath]
 
