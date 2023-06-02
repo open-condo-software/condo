@@ -2,6 +2,8 @@ const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/error
 
 const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } = require('./common')
 
+const { WRONG_VALUE } = require('../../common/constants/errors')
+
 
 const WRONG_PASSWORD_ERROR = '[passwordAuth:secret:mismatch'
 const EMPTY_PASSWORD_ERROR = '[passwordAuth:secret:notSet'
@@ -21,7 +23,6 @@ const UNABLE_TO_CREATE_USER = 'UNABLE_TO_CREATE_USER'
 const UNABLE_TO_CREATE_CONTACT_DUPLICATE = 'UNABLE_TO_CREATE_CONTACT'
 const UNABLE_TO_UPDATE_CONTACT_DUPLICATE = 'UNABLE_TO_UPDATE_CONTACT_DUPLICATE'
 
-const PASSWORD_IS_TOO_SHORT = 'PASSWORD_IS_TOO_SHORT'
 const TOKEN_EXPIRED_ERROR = '[resetPassword:token:expired'
 
 const MIN_PASSWORD_LENGTH_ERROR = '[register:password:minLength'
@@ -133,6 +134,13 @@ const GQL_ERRORS = {
         message: 'Password must not contain mane',
         messageForUser: 'api.user.PASSWORD_CONTAINS_NAME',
     },
+    PASSWORD_IS_FREQUENTLY_USED: {
+        variable: ['data', 'password'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'The password is too simple. We found it in the list of stolen passwords. You need to use something more secure',
+        messageForUser: 'api.user.PASSWORD_IS_FREQUENTLY_USED',
+    },
 }
 
 module.exports = {
@@ -156,7 +164,6 @@ module.exports = {
     UNABLE_TO_CREATE_CONTACT_DUPLICATE,
     UNABLE_TO_UPDATE_CONTACT_DUPLICATE,
     UNABLE_TO_CREATE_USER,
-    PASSWORD_IS_TOO_SHORT,
     TOKEN_EXPIRED_ERROR,
     MIN_PASSWORD_LENGTH_ERROR,
     PASSWORD_IS_FREQUENTLY_USED_ERROR,

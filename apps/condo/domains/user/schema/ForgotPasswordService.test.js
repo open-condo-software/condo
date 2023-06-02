@@ -1,17 +1,15 @@
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError, expectToThrowGraphQLRequestError } = require('@open-condo/keystone/test.utils')
 
 const { MIN_PASSWORD_LENGTH, RESIDENT } = require('@condo/domains/user/constants/common')
 const { MAX_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const { START_PASSWORD_RECOVERY_MUTATION, CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN, COMPLETE_CONFIRM_PHONE_MUTATION } = require('@condo/domains/user/gql')
 const { makeLoggedInClient, createTestConfirmPhoneAction, ConfirmPhoneAction } = require('@condo/domains/user/utils/testSchema')
 const { User, createTestForgotPasswordAction, updateTestForgotPasswordAction, createTestUser, changePasswordWithTokenByTestClient } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./ForgotPasswordService')
-
 
 
 const captcha = () => {
@@ -77,7 +75,7 @@ describe('ForgotPasswordAction Service', () => {
             const password = userAttrs.password.slice(0, MIN_PASSWORD_LENGTH - 1)
             await expectToThrowGQLError(
                 async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                USER_ERRORS.INVALID_PASSWORD_LENGTH,
+                ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                 'result'
             )
         })
@@ -100,7 +98,7 @@ describe('ForgotPasswordAction Service', () => {
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
             await expectToThrowGQLError(
                 async () => await changePasswordWithTokenByTestClient(client, { token, password: '' }),
-                USER_ERRORS.INVALID_PASSWORD_LENGTH,
+                ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                 'result'
             )
         })
@@ -189,7 +187,7 @@ describe('ForgotPasswordAction Service', () => {
             const password = userAttrs.password.slice(0, MIN_PASSWORD_LENGTH - 1)
             await expectToThrowGQLError(
                 async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                USER_ERRORS.INVALID_PASSWORD_LENGTH,
+                ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                 'result'
             )
         })
@@ -212,7 +210,7 @@ describe('ForgotPasswordAction Service', () => {
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
             await expectToThrowGQLError(
                 async () => await changePasswordWithTokenByTestClient(client, { token, password: '' }),
-                USER_ERRORS.INVALID_PASSWORD_LENGTH,
+                ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                 'result'
             )
         })
@@ -388,7 +386,7 @@ describe('ForgotPasswordAction Service', () => {
 
     describe('Validations', () => {
         describe('Password', () => {
-            test('register with empty password', async () => {
+            test('change to empty password', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -397,12 +395,12 @@ describe('ForgotPasswordAction Service', () => {
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                    USER_ERRORS.INVALID_PASSWORD_LENGTH,
+                    ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                     'result'
                 )
             })
 
-            test('register with weak password', async () => {
+            test('change to weak password', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -416,7 +414,7 @@ describe('ForgotPasswordAction Service', () => {
                 )
             })
 
-            test('register user with short password', async () => {
+            test('change to short password', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -425,12 +423,12 @@ describe('ForgotPasswordAction Service', () => {
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                    USER_ERRORS.INVALID_PASSWORD_LENGTH,
+                    ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                     'result'
                 )
             })
 
-            test('register user with password starting or ending with a space', async () => {
+            test('change to password starting or ending with a space', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -439,12 +437,12 @@ describe('ForgotPasswordAction Service', () => {
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                    USER_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
+                    ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
                     'result'
                 )
             })
 
-            test('register user with very long password', async () => {
+            test('change to very long password', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -453,12 +451,12 @@ describe('ForgotPasswordAction Service', () => {
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                    USER_ERRORS.INVALID_PASSWORD_LENGTH,
+                    ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                     'result'
                 )
             })
 
-            test('register user with password consisting of different characters', async () => {
+            test('change to password consisting of different characters', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -467,12 +465,12 @@ describe('ForgotPasswordAction Service', () => {
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                    USER_ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
+                    ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
                     'result'
                 )
             })
 
-            test('register user with password containing email', async () => {
+            test('change to password containing email', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -481,12 +479,12 @@ describe('ForgotPasswordAction Service', () => {
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                    USER_ERRORS.PASSWORD_CONTAINS_EMAIL,
+                    ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_EMAIL,
                     'result'
                 )
             })
 
-            test('register user with password containing phone', async () => {
+            test('change to password containing phone', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -495,12 +493,12 @@ describe('ForgotPasswordAction Service', () => {
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                    USER_ERRORS.PASSWORD_CONTAINS_PHONE,
+                    ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_PHONE,
                     'result'
                 )
             })
 
-            test('register user with password containing name', async () => {
+            test('change to password containing name', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -509,8 +507,21 @@ describe('ForgotPasswordAction Service', () => {
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                    USER_ERRORS.PASSWORD_CONTAINS_NAME,
+                    ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_NAME,
                     'result'
+                )
+            })
+
+            test('change to wrong format password', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [{ token }] = await createTestForgotPasswordAction(admin, client.user)
+                const password = faker.datatype.number()
+
+                await expectToThrowGraphQLRequestError(
+                    async () => await changePasswordWithTokenByTestClient(client, { token, password }),
+                    '"data.password"; String cannot represent a non string value'
                 )
             })
         })

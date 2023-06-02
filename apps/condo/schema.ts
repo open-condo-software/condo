@@ -30951,22 +30951,87 @@ export type Mutation = {
    * }`
    *
    * `{
-   *   "mutation": "registerNewUser",
    *   "variable": [
    *     "data",
    *     "password"
    *   ],
    *   "code": "BAD_USER_INPUT",
-   *   "type": "WRONG_FORMAT",
-   *   "message": "Password length is less then {min} characters",
-   *   "messageForUser": "api.user.PASSWORD_IS_TOO_SHORT",
+   *   "type": "WRONG_PASSWORD_FORMAT",
+   *   "message": "Password must be in string format",
+   *   "messageForUser": "api.user.WRONG_PASSWORD_FORMAT"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END",
+   *   "message": "Password must not start or end with a space",
+   *   "messageForUser": "api.user.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "INVALID_PASSWORD_LENGTH",
+   *   "message": "Password length must be between 8 and 128 characters",
+   *   "messageForUser": "api.user.INVALID_PASSWORD_LENGTH",
    *   "messageInterpolation": {
-   *     "min": 8
+   *     "min": 8,
+   *     "max": 128
    *   }
    * }`
    *
    * `{
-   *   "mutation": "registerNewUser",
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS",
+   *   "message": "Password must consist of different characters",
+   *   "messageForUser": "api.user.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PASSWORD_CONTAINS_EMAIL",
+   *   "message": "Password must not contain email",
+   *   "messageForUser": "api.user.PASSWORD_CONTAINS_EMAIL"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PASSWORD_CONTAINS_PHONE",
+   *   "message": "Password must not contain phone",
+   *   "messageForUser": "api.user.PASSWORD_CONTAINS_PHONE"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PASSWORD_CONTAINS_NAME",
+   *   "message": "Password must not contain mane",
+   *   "messageForUser": "api.user.PASSWORD_CONTAINS_NAME"
+   * }`
+   *
+   * `{
    *   "variable": [
    *     "data",
    *     "password"
@@ -31067,22 +31132,87 @@ export type Mutation = {
    * Following objects will be presented in `extensions` property of thrown error
    *
    * `{
-   *   "mutation": "changePasswordWithToken",
    *   "variable": [
    *     "data",
    *     "password"
    *   ],
    *   "code": "BAD_USER_INPUT",
-   *   "type": "PASSWORD_IS_TOO_SHORT",
-   *   "message": "Password length is less then {min} characters",
-   *   "messageForUser": "api.user.PASSWORD_IS_TOO_SHORT",
+   *   "type": "WRONG_PASSWORD_FORMAT",
+   *   "message": "Password must be in string format",
+   *   "messageForUser": "api.user.WRONG_PASSWORD_FORMAT"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END",
+   *   "message": "Password must not start or end with a space",
+   *   "messageForUser": "api.user.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "INVALID_PASSWORD_LENGTH",
+   *   "message": "Password length must be between 8 and 128 characters",
+   *   "messageForUser": "api.user.INVALID_PASSWORD_LENGTH",
    *   "messageInterpolation": {
-   *     "min": 8
+   *     "min": 8,
+   *     "max": 128
    *   }
    * }`
    *
    * `{
-   *   "mutation": "changePasswordWithToken",
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS",
+   *   "message": "Password must consist of different characters",
+   *   "messageForUser": "api.user.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PASSWORD_CONTAINS_EMAIL",
+   *   "message": "Password must not contain email",
+   *   "messageForUser": "api.user.PASSWORD_CONTAINS_EMAIL"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PASSWORD_CONTAINS_PHONE",
+   *   "message": "Password must not contain phone",
+   *   "messageForUser": "api.user.PASSWORD_CONTAINS_PHONE"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PASSWORD_CONTAINS_NAME",
+   *   "message": "Password must not contain mane",
+   *   "messageForUser": "api.user.PASSWORD_CONTAINS_NAME"
+   * }`
+   *
+   * `{
    *   "variable": [
    *     "data",
    *     "password"

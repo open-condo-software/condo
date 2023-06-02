@@ -1,10 +1,9 @@
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectToThrowGraphQLRequestError } = require('@open-condo/keystone/test.utils')
 const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
 const { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { createTestUser, registerNewUser, createTestPhone, createTestEmail, createTestLandlineNumber, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -85,7 +84,7 @@ describe('RegisterNewUserService', () => {
         const password = ''
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password }),
-            USER_ERRORS.INVALID_PASSWORD_LENGTH,
+            errors.INVALID_PASSWORD_LENGTH,
             'user',
         )
     })
@@ -101,6 +100,17 @@ describe('RegisterNewUserService', () => {
         )
     })
 
+    test('register user with wrong format password', async () => {
+        const client = await makeClient()
+        const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
+        const password = faker.datatype.number()
+
+        await expectToThrowGraphQLRequestError(
+            async () => await registerNewUser(client, { name, password }),
+            '"data.password"; String cannot represent a non string value'
+        )
+    })
+
     test('register user with short password', async () => {
         const client = await makeClient()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
@@ -108,7 +118,7 @@ describe('RegisterNewUserService', () => {
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password }),
-            USER_ERRORS.INVALID_PASSWORD_LENGTH,
+            errors.INVALID_PASSWORD_LENGTH,
             'user',
         )
     })
@@ -120,7 +130,7 @@ describe('RegisterNewUserService', () => {
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password }),
-            USER_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
+            errors.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
             'user',
         )
     })
@@ -132,7 +142,7 @@ describe('RegisterNewUserService', () => {
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password }),
-            USER_ERRORS.INVALID_PASSWORD_LENGTH,
+            errors.INVALID_PASSWORD_LENGTH,
             'user',
         )
     })
@@ -144,7 +154,7 @@ describe('RegisterNewUserService', () => {
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password }),
-            USER_ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
+            errors.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
             'user',
         )
     })
@@ -157,7 +167,7 @@ describe('RegisterNewUserService', () => {
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password, email }),
-            USER_ERRORS.PASSWORD_CONTAINS_EMAIL,
+            errors.PASSWORD_CONTAINS_EMAIL,
             'user',
         )
     })
@@ -170,7 +180,7 @@ describe('RegisterNewUserService', () => {
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password, phone }),
-            USER_ERRORS.PASSWORD_CONTAINS_PHONE,
+            errors.PASSWORD_CONTAINS_PHONE,
             'user',
         )
     })
@@ -182,7 +192,7 @@ describe('RegisterNewUserService', () => {
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password }),
-            USER_ERRORS.PASSWORD_CONTAINS_NAME,
+            errors.PASSWORD_CONTAINS_NAME,
             'user',
         )
     })

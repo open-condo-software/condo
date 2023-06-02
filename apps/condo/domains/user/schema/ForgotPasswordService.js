@@ -1,16 +1,16 @@
-const isEmpty = require('lodash/isEmpty')
+const { pick, isEmpty } = require('lodash')
 const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
-const { WRONG_PHONE_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
+const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
-const { GQL_ERRORS: USER_ERRORS, TOKEN_NOT_FOUND, PASSWORD_IS_TOO_SHORT, USER_NOT_FOUND } = require('@condo/domains/user/constants/errors')
+const { GQL_ERRORS: USER_ERRORS, TOKEN_NOT_FOUND, USER_NOT_FOUND } = require('@condo/domains/user/constants/errors')
 const { ForgotPasswordAction, User } = require('@condo/domains/user/utils/serverSchema')
 const { findTokenAndRelatedUser, markTokenAsUsed } = require('@condo/domains/user/utils/serverSchema')
 const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
@@ -61,25 +61,16 @@ const ERRORS = {
         },
     },
     changePasswordWithToken: {
-        // PASSWORD_IS_TOO_SHORT: {
-        //     mutation: 'changePasswordWithToken',
-        //     variable: ['data', 'password'],
-        //     code: BAD_USER_INPUT,
-        //     type: PASSWORD_IS_TOO_SHORT,
-        //     message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
-        //     messageForUser: 'api.user.PASSWORD_IS_TOO_SHORT',
-        //     messageInterpolation: {
-        //         min: MIN_PASSWORD_LENGTH,
-        //     },
-        // },
-        PASSWORD_IS_FREQUENTLY_USED: {
-            mutation: 'changePasswordWithToken',
-            variable: ['data', 'password'],
-            code: BAD_USER_INPUT,
-            type: WRONG_VALUE,
-            message: 'The password is too simple. We found it in the list of stolen passwords. You need to use something more secure',
-            messageForUser: 'api.user.PASSWORD_IS_FREQUENTLY_USED',
-        },
+        ...pick(USER_ERRORS, [
+            'WRONG_PASSWORD_FORMAT',
+            'PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END',
+            'INVALID_PASSWORD_LENGTH',
+            'PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS',
+            'PASSWORD_CONTAINS_EMAIL',
+            'PASSWORD_CONTAINS_PHONE',
+            'PASSWORD_CONTAINS_NAME',
+            'PASSWORD_IS_FREQUENTLY_USED',
+        ]),
         TOKEN_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'token'],
@@ -247,15 +238,15 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
 
                 await User.update(context, user.id, { dv: 1, sender, password }, {
                     errorMapping: {
-                        '[password:minLength:User:password]': USER_ERRORS.INVALID_PASSWORD_LENGTH,
+                        '[password:minLength:User:password]': ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                         '[password:rejectCommon:User:password]': ERRORS.changePasswordWithToken.PASSWORD_IS_FREQUENTLY_USED,
-                        [USER_ERRORS.WRONG_PASSWORD_FORMAT.message]: USER_ERRORS.WRONG_PASSWORD_FORMAT,
-                        [USER_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END.message]: USER_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
-                        [USER_ERRORS.INVALID_PASSWORD_LENGTH.message]: USER_ERRORS.INVALID_PASSWORD_LENGTH,
-                        [USER_ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS.message]: USER_ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
-                        [USER_ERRORS.PASSWORD_CONTAINS_EMAIL.message]: USER_ERRORS.PASSWORD_CONTAINS_EMAIL,
-                        [USER_ERRORS.PASSWORD_CONTAINS_PHONE.message]: USER_ERRORS.PASSWORD_CONTAINS_PHONE,
-                        [USER_ERRORS.PASSWORD_CONTAINS_NAME.message]: USER_ERRORS.PASSWORD_CONTAINS_NAME,
+                        [ERRORS.changePasswordWithToken.WRONG_PASSWORD_FORMAT.message]: ERRORS.changePasswordWithToken.WRONG_PASSWORD_FORMAT,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
+                        [ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH.message]: ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS.message]: ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_EMAIL,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_PHONE.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_PHONE,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_NAME.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_NAME,
                     },
                 })
 
