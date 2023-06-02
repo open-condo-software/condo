@@ -41,6 +41,7 @@ const popupSmartUrl = conf['POPUP_SMART_URL']
 const hasSbbolAuth = Boolean((conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}).client_id)
 const sppConfig = JSON.parse(conf['SPP_CONFIG'] || '{}')
 const globalHints = JSON.parse(conf['GLOBAL_HINTS'] || '{}')
+const newsItemsSendingDelay = Number(conf['NEWS_ITEMS_SENDING_DELAY_SEC']) || 15
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -65,6 +66,7 @@ module.exports = withTM(withLess(withCSS({
         hasSbbolAuth,
         sppConfig,
         globalHints,
+        newsItemsSendingDelay,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
