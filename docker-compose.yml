@@ -31,6 +31,25 @@ services:
       - "127.0.0.1:6379:6379"
     networks:
       - app-network
+  dd-agent:
+    image: "gcr.io/datadoghq/agent:7.40.0"
+    cgroup_parent: host
+    pid: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    ports:
+      - "127.0.0.1:8125:8125/udp"
+      - "127.0.0.1:5002:5002"
+      - "127.0.0.1:5555:5555"
+    networks:
+      - app-network
+    env_file:
+      - .env
+    environment:
+      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
+
 networks:
   app-network:
     driver: bridge
