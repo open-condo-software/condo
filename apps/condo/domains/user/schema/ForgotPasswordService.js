@@ -9,12 +9,12 @@ const { WRONG_PHONE_FORMAT, WRONG_VALUE } = require('@condo/domains/common/const
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/common')
+const { STAFF } = require('@condo/domains/user/constants/common')
+const { GQL_ERRORS: USER_ERRORS, TOKEN_NOT_FOUND, PASSWORD_IS_TOO_SHORT, USER_NOT_FOUND } = require('@condo/domains/user/constants/errors')
 const { ForgotPasswordAction, User } = require('@condo/domains/user/utils/serverSchema')
+const { findTokenAndRelatedUser, markTokenAsUsed } = require('@condo/domains/user/utils/serverSchema')
+const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
 
-
-const { TOKEN_NOT_FOUND, PASSWORD_IS_TOO_SHORT, USER_NOT_FOUND } = require('../constants/errors')
-const { findTokenAndRelatedUser, markTokenAsUsed } = require('../utils/serverSchema')
 
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 
@@ -61,17 +61,17 @@ const ERRORS = {
         },
     },
     changePasswordWithToken: {
-        PASSWORD_IS_TOO_SHORT: {
-            mutation: 'changePasswordWithToken',
-            variable: ['data', 'password'],
-            code: BAD_USER_INPUT,
-            type: PASSWORD_IS_TOO_SHORT,
-            message: 'Password length is less then {min} characters',
-            messageForUser: 'api.user.PASSWORD_IS_TOO_SHORT',
-            messageInterpolation: {
-                min: MIN_PASSWORD_LENGTH,
-            },
-        },
+        // PASSWORD_IS_TOO_SHORT: {
+        //     mutation: 'changePasswordWithToken',
+        //     variable: ['data', 'password'],
+        //     code: BAD_USER_INPUT,
+        //     type: PASSWORD_IS_TOO_SHORT,
+        //     message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
+        //     messageForUser: 'api.user.PASSWORD_IS_TOO_SHORT',
+        //     messageInterpolation: {
+        //         min: MIN_PASSWORD_LENGTH,
+        //     },
+        // },
         PASSWORD_IS_FREQUENTLY_USED: {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'password'],
@@ -234,10 +234,6 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 // TODO(DOMA-3209): check the dv, sender value
                 const { data: { token, password, sender, dv } } = args
 
-                if (password.length < MIN_PASSWORD_LENGTH) {
-                    throw new GQLError(ERRORS.changePasswordWithToken.PASSWORD_IS_TOO_SHORT, context)
-                }
-
                 const [tokenType, tokenAction, user] = await findTokenAndRelatedUser(context, token)
 
                 if (!tokenType || !tokenAction) {
@@ -247,10 +243,19 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     throw new GQLError(ERRORS.changePasswordWithToken.USER_NOT_FOUND, context)
                 }
 
+                await passwordValidations(context, password, user.email, user.phone, user.name)
+
                 await User.update(context, user.id, { dv: 1, sender, password }, {
                     errorMapping: {
-                        '[password:minLength:User:password]': ERRORS.changePasswordWithToken.PASSWORD_IS_TOO_SHORT,
+                        '[password:minLength:User:password]': USER_ERRORS.INVALID_PASSWORD_LENGTH,
                         '[password:rejectCommon:User:password]': ERRORS.changePasswordWithToken.PASSWORD_IS_FREQUENTLY_USED,
+                        [USER_ERRORS.WRONG_PASSWORD_FORMAT.message]: USER_ERRORS.WRONG_PASSWORD_FORMAT,
+                        [USER_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END.message]: USER_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
+                        [USER_ERRORS.INVALID_PASSWORD_LENGTH.message]: USER_ERRORS.INVALID_PASSWORD_LENGTH,
+                        [USER_ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS.message]: USER_ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
+                        [USER_ERRORS.PASSWORD_CONTAINS_EMAIL.message]: USER_ERRORS.PASSWORD_CONTAINS_EMAIL,
+                        [USER_ERRORS.PASSWORD_CONTAINS_PHONE.message]: USER_ERRORS.PASSWORD_CONTAINS_PHONE,
+                        [USER_ERRORS.PASSWORD_CONTAINS_NAME.message]: USER_ERRORS.PASSWORD_CONTAINS_NAME,
                     },
                 })
 
@@ -264,4 +269,5 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
 
 module.exports = {
     ForgotPasswordService,
+    ERRORS,
 }

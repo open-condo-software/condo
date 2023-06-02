@@ -10,7 +10,9 @@ const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { STAFF } = require('@condo/domains/user/constants/common')
+const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
+const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
 
 const { UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, UNABLE_TO_CREATE_USER } = require('../constants/errors')
 
@@ -37,17 +39,17 @@ const ERRORS = {
         messageForUser: 'api.common.WRONG_PHONE_FORMAT',
         correctExample: '+79991234567',
     },
-    PASSWORD_IS_TOO_SHORT: {
-        mutation: 'registerNewUser',
-        variable: ['data', 'password'],
-        code: BAD_USER_INPUT,
-        type: WRONG_FORMAT,
-        message: 'Password length is less then {min} characters',
-        messageForUser: 'api.user.PASSWORD_IS_TOO_SHORT',
-        messageInterpolation: {
-            min: MIN_PASSWORD_LENGTH,
-        },
-    },
+    // PASSWORD_IS_TOO_SHORT: {
+    //     mutation: 'registerNewUser',
+    //     variable: ['data', 'password'],
+    //     code: BAD_USER_INPUT,
+    //     type: WRONG_FORMAT,
+    //     message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
+    //     messageForUser: 'api.user.PASSWORD_IS_TOO_SHORT',
+    //     messageInterpolation: {
+    //         min: MIN_PASSWORD_LENGTH,
+    //     },
+    // },
     PASSWORD_IS_FREQUENTLY_USED: {
         mutation: 'registerNewUser',
         variable: ['data', 'password'],
@@ -122,9 +124,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     dv,
                 }
 
-                if (get(userData, 'password.length', 0) < MIN_PASSWORD_LENGTH) {
-                    throw new GQLError(ERRORS.PASSWORD_IS_TOO_SHORT, context)
-                }
+                await passwordValidations(context, userData.password, userData.email, userData.phone, userData.name)
 
                 let action = null
                 if (confirmPhoneActionToken) {
@@ -148,8 +148,15 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
                 const user = await User.create(context, userData, {
                     errorMapping: {
-                        '[password:minLength:User:password]': ERRORS.PASSWORD_IS_TOO_SHORT,
+                        '[password:minLength:User:password]': USER_ERRORS.INVALID_PASSWORD_LENGTH,
                         '[password:rejectCommon:User:password]': ERRORS.PASSWORD_IS_FREQUENTLY_USED,
+                        [USER_ERRORS.WRONG_PASSWORD_FORMAT.message]: USER_ERRORS.WRONG_PASSWORD_FORMAT,
+                        [USER_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END.message]: USER_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
+                        [USER_ERRORS.INVALID_PASSWORD_LENGTH.message]: USER_ERRORS.INVALID_PASSWORD_LENGTH,
+                        [USER_ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS.message]: USER_ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
+                        [USER_ERRORS.PASSWORD_CONTAINS_EMAIL.message]: USER_ERRORS.PASSWORD_CONTAINS_EMAIL,
+                        [USER_ERRORS.PASSWORD_CONTAINS_PHONE.message]: USER_ERRORS.PASSWORD_CONTAINS_PHONE,
+                        [USER_ERRORS.PASSWORD_CONTAINS_NAME.message]: USER_ERRORS.PASSWORD_CONTAINS_NAME,
                     },
                 })
                 if (action) {
