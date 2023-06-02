@@ -1,14 +1,13 @@
-const { isEmpty, get } = require('lodash')
+const { isEmpty, pick } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
-const { NOT_UNIQUE, WRONG_FORMAT, WRONG_VALUE, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
+const { NOT_UNIQUE, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
@@ -39,25 +38,16 @@ const ERRORS = {
         messageForUser: 'api.common.WRONG_PHONE_FORMAT',
         correctExample: '+79991234567',
     },
-    // PASSWORD_IS_TOO_SHORT: {
-    //     mutation: 'registerNewUser',
-    //     variable: ['data', 'password'],
-    //     code: BAD_USER_INPUT,
-    //     type: WRONG_FORMAT,
-    //     message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
-    //     messageForUser: 'api.user.PASSWORD_IS_TOO_SHORT',
-    //     messageInterpolation: {
-    //         min: MIN_PASSWORD_LENGTH,
-    //     },
-    // },
-    PASSWORD_IS_FREQUENTLY_USED: {
-        mutation: 'registerNewUser',
-        variable: ['data', 'password'],
-        code: BAD_USER_INPUT,
-        type: WRONG_VALUE,
-        message: 'The password is too simple. We found it in the list of stolen passwords. You need to use something more secure',
-        messageForUser: 'api.user.PASSWORD_IS_FREQUENTLY_USED',
-    },
+    ...pick(USER_ERRORS, [
+        'WRONG_PASSWORD_FORMAT',
+        'PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END',
+        'INVALID_PASSWORD_LENGTH',
+        'PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS',
+        'PASSWORD_CONTAINS_EMAIL',
+        'PASSWORD_CONTAINS_PHONE',
+        'PASSWORD_CONTAINS_NAME',
+        'PASSWORD_IS_FREQUENTLY_USED',
+    ]),
     USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS: {
         mutation: 'registerNewUser',
         variable: ['data', 'phone'],
@@ -148,15 +138,15 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
                 const user = await User.create(context, userData, {
                     errorMapping: {
-                        '[password:minLength:User:password]': USER_ERRORS.INVALID_PASSWORD_LENGTH,
+                        '[password:minLength:User:password]': ERRORS.INVALID_PASSWORD_LENGTH,
                         '[password:rejectCommon:User:password]': ERRORS.PASSWORD_IS_FREQUENTLY_USED,
-                        [USER_ERRORS.WRONG_PASSWORD_FORMAT.message]: USER_ERRORS.WRONG_PASSWORD_FORMAT,
-                        [USER_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END.message]: USER_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
-                        [USER_ERRORS.INVALID_PASSWORD_LENGTH.message]: USER_ERRORS.INVALID_PASSWORD_LENGTH,
-                        [USER_ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS.message]: USER_ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
-                        [USER_ERRORS.PASSWORD_CONTAINS_EMAIL.message]: USER_ERRORS.PASSWORD_CONTAINS_EMAIL,
-                        [USER_ERRORS.PASSWORD_CONTAINS_PHONE.message]: USER_ERRORS.PASSWORD_CONTAINS_PHONE,
-                        [USER_ERRORS.PASSWORD_CONTAINS_NAME.message]: USER_ERRORS.PASSWORD_CONTAINS_NAME,
+                        [ERRORS.WRONG_PASSWORD_FORMAT.message]: ERRORS.WRONG_PASSWORD_FORMAT,
+                        [ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END.message]: ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
+                        [ERRORS.INVALID_PASSWORD_LENGTH.message]: ERRORS.INVALID_PASSWORD_LENGTH,
+                        [ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS.message]: ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
+                        [ERRORS.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.PASSWORD_CONTAINS_EMAIL,
+                        [ERRORS.PASSWORD_CONTAINS_PHONE.message]: ERRORS.PASSWORD_CONTAINS_PHONE,
+                        [ERRORS.PASSWORD_CONTAINS_NAME.message]: ERRORS.PASSWORD_CONTAINS_NAME,
                     },
                 })
                 if (action) {
