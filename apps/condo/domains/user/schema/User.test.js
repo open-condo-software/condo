@@ -26,7 +26,7 @@ const { DEFAULT_TEST_USER_IDENTITY } = require('@open-condo/keystone/test.utils'
 
 const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
-const { WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
+const { WRONG_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const { ERRORS } = require('@condo/domains/user/schema/User')
 const {
@@ -89,12 +89,11 @@ describe('SIGNIN', () => {
     })
 
     test('check auth by empty password', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [, userAttrs] = await createTestUser(admin, { password: '' })
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const checkAuthByEmptyPassword = async () => {
-            await makeLoggedInClient({ email: userAttrs.email, password: '' })
+            await makeLoggedInClient({ email: client.userAttrs.email, password: '' })
         }
-        await expect(checkAuthByEmptyPassword).rejects.toThrow(EMPTY_PASSWORD_ERROR)
+        await expect(checkAuthByEmptyPassword).rejects.toThrow(WRONG_PASSWORD_ERROR)
     })
 })
 
