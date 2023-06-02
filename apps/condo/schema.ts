@@ -30580,9 +30580,23 @@ export type Mutation = {
    *     "password"
    *   ],
    *   "code": "BAD_USER_INPUT",
-   *   "type": "WRONG_VALUE",
+   *   "type": "PASSWORD_IS_FREQUENTLY_USED",
    *   "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
    *   "messageForUser": "api.user.PASSWORD_IS_FREQUENTLY_USED"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+   *   "message": "Password must contain at least 4 different characters",
+   *   "messageForUser": "api.user.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+   *   "messageInterpolation": {
+   *     "min": 4
+   *   }
    * }`
    *
    * `{
@@ -30761,9 +30775,23 @@ export type Mutation = {
    *     "password"
    *   ],
    *   "code": "BAD_USER_INPUT",
-   *   "type": "WRONG_VALUE",
+   *   "type": "PASSWORD_IS_FREQUENTLY_USED",
    *   "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
    *   "messageForUser": "api.user.PASSWORD_IS_FREQUENTLY_USED"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "password"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+   *   "message": "Password must contain at least 4 different characters",
+   *   "messageForUser": "api.user.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+   *   "messageInterpolation": {
+   *     "min": 4
+   *   }
    * }`
    *
    * `{
