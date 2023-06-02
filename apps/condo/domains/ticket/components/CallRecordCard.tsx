@@ -18,6 +18,7 @@ const DynamicAudioPlayer = dynamic(
 
 interface ICallRecordCardProps {
     callRecord: CallRecord
+    autoPlay?: boolean
 }
 
 const MAIN_ROW_GUTTER: [Gutter, Gutter] = [0, 24]
@@ -25,7 +26,7 @@ const TITLE_ROW_GUTTER: [Gutter, Gutter] = [12, 0]
 
 const PHONE_ICON_WRAPPER_STYLE: CSSProperties = { position: 'relative', top: '5px' }
 
-export const CallRecordCard: React.FC<ICallRecordCardProps> = ({ callRecord }) => {
+export const CallRecordCard: React.FC<ICallRecordCardProps> = ({ callRecord, autoPlay }) => {
     const intl = useIntl()
 
     const { isIncomingCall, callerPhone, destCallerPhone, startedAt, file } = callRecord
@@ -60,7 +61,11 @@ export const CallRecordCard: React.FC<ICallRecordCardProps> = ({ callRecord }) =
                     </Row>
                 </Col>
                 <Col span={24}>
-                    <DynamicAudioPlayer src={file.publicUrl} trackId={file.id} />
+                    <DynamicAudioPlayer
+                        src={file.publicUrl}
+                        trackId={file.id}
+                        autoPlay={autoPlay}
+                    />
                 </Col>
             </Row>
         </Card>

@@ -10,7 +10,7 @@ type UseDownloadFileFromServerType = () => { downloadFile: DownloadFileType }
 type GetRedirectUrlType = (response: Response) => Promise<string | null>
 
 const ERROR_DOWNLOAD_FILE = 'Failed to download file'
-const DIRECT_DOWNLOAD_FILE_TYPES_REGEX = /.*\.(svg|html|htm|xml|txt)$/i
+const DIRECT_DOWNLOAD_FILE_TYPES_REGEX = /.*\.(svg|html|htm|xml|txt|wav|mp3)$/i
 
 const downloadFile = async (response: Response, file: FileType) => {
     const blob = await response.blob()

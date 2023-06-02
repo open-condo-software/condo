@@ -240,7 +240,7 @@ const IncidentExportTask = generateGqlQueries('IncidentExportTask', INCIDENT_EXP
 const CALL_RECORD_FIELDS = `{ organization { id } file { id originalFilename publicUrl mimetype } callerPhone destCallerPhone talkTime startedAt isIncomingCall importId ${COMMON_FIELDS} }`
 const CallRecord = generateGqlQueries('CallRecord', CALL_RECORD_FIELDS)
 
-const CALL_RECORD_FRAGMENT_FIELDS = `{ ticket { id } callRecord ${CALL_RECORD_FIELDS} organization { id } ${COMMON_FIELDS} }`
+const CALL_RECORD_FRAGMENT_FIELDS = `{ ticket { id number clientName property { ${TICKET_PROPERTY_FIELDS} } } callRecord ${CALL_RECORD_FIELDS} organization { id } startedAt ${COMMON_FIELDS} }`
 const CallRecordFragment = generateGqlQueries('CallRecordFragment', CALL_RECORD_FRAGMENT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

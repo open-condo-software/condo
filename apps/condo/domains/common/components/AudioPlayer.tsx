@@ -31,9 +31,10 @@ const WAVE_WRAPPER_STYLE: CSSProperties = { width: '100%', height: '28px' }
 interface IAudioPlayerProps {
     src: string
     trackId: string
+    autoPlay?: boolean
 }
 
-export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src }) => {
+export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPlay }) => {
     const intl = useIntl()
     const SpeedMessage = intl.formatMessage({ id: 'ticket.callRecord.speed' })
 
@@ -58,10 +59,16 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src }) => {
                 barWidth: 2,
                 barHeight: 28,
                 cursorWidth: 0,
+                hideScrollbar: true,
             })
 
             waveform.current.on('ready', () => {
                 setTotalTime(formatTime(waveform.current.getDuration()))
+
+                if (autoPlay) {
+                    waveform.current.play()
+                    setPlaying(true)
+                }
             })
 
             waveform.current.on('audioprocess', () => {

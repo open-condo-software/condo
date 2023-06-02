@@ -1,4 +1,4 @@
-import { TicketWhereInput } from '@app/condo/schema'
+import { CallRecordFragmentWhereInput, TicketWhereInput } from '@app/condo/schema'
 import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
 import uniq from 'lodash/uniq'
@@ -50,6 +50,47 @@ export const getIsResidentContactFilter = () => {
 
         return {
             OR: search.map(contactTypeValue => ({ contact_is_null: contactTypeValue === 'true' })),
+        }
+    }
+}
+
+export const getIsIncomingCallFilter = () => {
+    return function getWhereQuery (search) {
+        if (isEmpty(search)) return
+
+        return {
+            callRecord: {
+                OR: search.map(isIncomingCall => ({ isIncomingCall: isIncomingCall === 'true' })),
+            },
+        }
+    }
+}
+
+export const getCallRecordPhoneFilter = () => {
+    return function getWhereQuery (search): CallRecordFragmentWhereInput {
+        if (isEmpty(search)) return
+
+        return {
+            callRecord: {
+                OR: [
+                    {
+                        AND: [
+                            {
+                                isIncomingCall: true,
+                                callerPhone_contains_i: search,
+                            },
+                        ],
+                    },
+                    {
+                        AND: [
+                            {
+                                isIncomingCall: false,
+                                destCallerPhone_contains_i: search,
+                            },
+                        ],
+                    },
+                ],
+            },
         }
     }
 }
