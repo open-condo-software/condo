@@ -1,9 +1,6 @@
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 
-const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } = require('./common')
-
-const { WRONG_VALUE } = require('../../common/constants/errors')
-
+const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD } = require('./common')
 
 const WRONG_PASSWORD_ERROR = '[passwordAuth:secret:mismatch'
 const EMPTY_PASSWORD_ERROR = '[passwordAuth:secret:notSet'
@@ -63,6 +60,8 @@ const PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS = 'PASSWORD_CONSISTS_OF_IDENTICA
 const PASSWORD_CONTAINS_EMAIL = 'PASSWORD_CONTAINS_EMAIL'
 const PASSWORD_CONTAINS_PHONE = 'PASSWORD_CONTAINS_PHONE'
 const PASSWORD_CONTAINS_NAME = 'PASSWORD_CONTAINS_NAME'
+const PASSWORD_IS_FREQUENTLY_USED = 'PASSWORD_IS_FREQUENTLY_USED'
+const PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS = 'PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS'
 
 const GQL_ERRORS = {
     TOO_MANY_REQUESTS: {
@@ -137,9 +136,19 @@ const GQL_ERRORS = {
     PASSWORD_IS_FREQUENTLY_USED: {
         variable: ['data', 'password'],
         code: BAD_USER_INPUT,
-        type: WRONG_VALUE,
+        type: PASSWORD_IS_FREQUENTLY_USED,
         message: 'The password is too simple. We found it in the list of stolen passwords. You need to use something more secure',
         messageForUser: 'api.user.PASSWORD_IS_FREQUENTLY_USED',
+    },
+    PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS: {
+        variable: ['data', 'password'],
+        code: BAD_USER_INPUT,
+        type: PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
+        message: `Password must contain at least ${MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD} different characters`,
+        messageForUser: 'api.user.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS',
+        messageInterpolation: {
+            min: MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD,
+        },
     },
 }
 

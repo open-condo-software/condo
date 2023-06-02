@@ -10,10 +10,9 @@ const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
+const { UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, UNABLE_TO_CREATE_USER } = require('@condo/domains/user/constants/errors')
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
 const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
-
-const { UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, UNABLE_TO_CREATE_USER } = require('../constants/errors')
 
 
 /**
@@ -47,6 +46,7 @@ const ERRORS = {
         'PASSWORD_CONTAINS_PHONE',
         'PASSWORD_CONTAINS_NAME',
         'PASSWORD_IS_FREQUENTLY_USED',
+        'PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS',
     ]),
     USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS: {
         mutation: 'registerNewUser',
@@ -147,6 +147,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                         [ERRORS.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.PASSWORD_CONTAINS_EMAIL,
                         [ERRORS.PASSWORD_CONTAINS_PHONE.message]: ERRORS.PASSWORD_CONTAINS_PHONE,
                         [ERRORS.PASSWORD_CONTAINS_NAME.message]: ERRORS.PASSWORD_CONTAINS_NAME,
+                        [ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message]: ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
                     },
                 })
                 if (action) {
