@@ -107,7 +107,8 @@ const getValidBeforeAfterSendAt = (form) => {
 }
 
 const containWordsInSquareBrackets = (str) => {
-    return ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX.test(str)
+    const words = str.match(ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX) || []
+    return words.length !== 0
 }
 
 const getBodyTemplateChanged = (form) => {
@@ -302,11 +303,19 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [allNews])
 
     const handleSendPeriodChange = useCallback((form) => (e) => {
-        if (e.target.value === 'now') handleSetSendDate(null)
+        if (e.target.value === 'now') {
+            handleSetSendDate(null)
+            setIsValidBeforeAfterSendAt(true)
+            form.setFieldValue('sendAt', null)
+        }
         setSendPeriod(e.target.value)
     }, [handleSetSendDate])
 
     const handleTypeChange = useCallback((form) => (e) => {
+        if (e.target.value === NEWS_TYPE_COMMON) {
+            setIsValidBeforeAfterSendAt(true)
+            form.setFieldValue('validBefore', null)
+        }
         setSelectedType(e.target.value)
     }, [])
 
