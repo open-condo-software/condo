@@ -49,6 +49,7 @@ import {
     EXTENDED_RECORDS_LIMIT_FOR_IMPORT,
 } from '@condo/domains/common/constants/import'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import {
@@ -346,6 +347,8 @@ const TicketsTableContainer = ({
     const { filters, offset } = useMemo(() => parseQuery(router.query), [router.query])
 
     const [isRefetching, setIsRefetching] = useState(false)
+    const ticketsCountRef = useRef(null)
+    const audio = useAudio()
 
     const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE), [offset])
 
@@ -360,6 +363,16 @@ const TicketsTableContainer = ({
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
+
+    useEffect(() => {
+        if (tickets && tickets.length > 0) {
+            const firstTimeLoading = ticketsCountRef.current === null
+            if (!firstTimeLoading && ticketsCountRef.current !== tickets.length) {
+                audio.playNewItemsFetchedSound()
+            }
+            ticketsCountRef.current = tickets.length
+        }
+    }, [tickets?.length])
 
     const {
         columns,

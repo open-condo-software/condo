@@ -42,6 +42,7 @@ const hasSbbolAuth = Boolean((conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUT
 const sppConfig = JSON.parse(conf['SPP_CONFIG'] || '{}')
 const globalHints = JSON.parse(conf['GLOBAL_HINTS'] || '{}')
 const newsItemsSendingDelay = Number(conf['NEWS_ITEMS_SENDING_DELAY_SEC']) || 15
+const audioConfig = JSON.parse(conf['AUDIO_CONFIG'] || '{}')
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -67,6 +68,7 @@ module.exports = withTM(withLess(withCSS({
         sppConfig,
         globalHints,
         newsItemsSendingDelay,
+        audioConfig,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
