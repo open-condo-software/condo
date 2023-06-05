@@ -8,18 +8,18 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { Meter } from '@condo/domains/meter/utils/clientSchema'
 
-export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string, initialNumber: number | null ) => {
+export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string, initialNumber: string | null ) => {
     const intl = useIntl()
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const MeterWithSameAccountNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameAccountNumberIsExist' })
     const CanNotBeEarlierThanInstallationMessage = intl.formatMessage({ id: 'pages.condo.meter.СanNotBeEarlierThanInstallation' })
     const CanNotBeEarlierThanFirstVerificationMessage = intl.formatMessage({ id: 'pages.condo.meter.CanNotBeEarlierThanFirstVerification' })
 
-    const { objs: metersWithSameNumber, refetch } = Meter.useObjects({
+    const { refetch } = Meter.useObjects({
         where: {
             organization: { id: organizationId },
         },
-    })
+    }, { skip: true })
 
     const earlierThanInstallationValidator: Rule = useMemo(() => ({
         validator: async (_, value) => {
@@ -51,10 +51,15 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
         validator: async (_, value) => {
             if (!value) return Promise.resolve()
 
+            const trimmedValue = value.trim()
+
+            if (!trimmedValue) return Promise.resolve()
+            if (initialNumber && initialNumber === trimmedValue) return Promise.resolve()
+
             const { data: { objs } } = await refetch({
                 where: {
                     organization: { id: organizationId },
-                    number: value,
+                    number: trimmedValue,
                 },
             })
 
@@ -63,25 +68,7 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
 
             return Promise.resolve()
         },
-    }), [MeterWithSameNumberIsExistMessage, metersWithSameNumber, organizationId, refetch])
-
-    const meterWithExistingNumberValidator: Rule = useMemo(() => ({
-        validator: async (_, value) => {
-            if (!value || value === initialNumber) return Promise.resolve()
-            const { data: { objs } } = await refetch({
-                where: {
-                    organization: { id: organizationId },
-                    number: value,
-                },
-            })
-
-            if (!isEmpty(objs)) {
-                return Promise.reject(MeterWithSameNumberIsExistMessage)
-            }
-
-            return Promise.resolve()
-        },
-    }), [refetch, initialNumber, MeterWithSameNumberIsExistMessage])
+    }), [MeterWithSameNumberIsExistMessage, initialNumber, organizationId])
 
     const meterWithSameAccountNumberInOtherUnitValidation: Rule = useMemo(() => ({
         validator: async (_, value) => {
@@ -111,12 +98,10 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
         meterWithSameNumberValidator,
         earlierThanFirstVerificationDateValidator,
         earlierThanInstallationValidator,
-        meterWithExistingNumberValidator,
     }), [
         earlierThanFirstVerificationDateValidator,
         earlierThanInstallationValidator,
         meterWithSameAccountNumberInOtherUnitValidation,
         meterWithSameNumberValidator,
-        meterWithExistingNumberValidator,
     ])
 }
