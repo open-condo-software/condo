@@ -16440,6 +16440,8 @@ export type CallRecordFragment = {
   _label_?: Maybe<Scalars['String']>;
   ticket?: Maybe<Ticket>;
   callRecord?: Maybe<CallRecord>;
+  /**  Call fragment start date in UTC  */
+  startedAt?: Maybe<Scalars['String']>;
   /**  Ref to the organization. It is filled in on the server and is read-only  */
   organization?: Maybe<Organization>;
   id: Scalars['ID'];
@@ -16461,6 +16463,7 @@ export type CallRecordFragment = {
 export type CallRecordFragmentCreateInput = {
   ticket?: Maybe<TicketRelateToOneInput>;
   callRecord?: Maybe<CallRecordRelateToOneInput>;
+  startedAt?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -16486,6 +16489,7 @@ export type CallRecordFragmentHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   ticket?: Maybe<Scalars['String']>;
   callRecord?: Maybe<Scalars['String']>;
+  startedAt?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -16505,6 +16509,7 @@ export type CallRecordFragmentHistoryRecord = {
 export type CallRecordFragmentHistoryRecordCreateInput = {
   ticket?: Maybe<Scalars['String']>;
   callRecord?: Maybe<Scalars['String']>;
+  startedAt?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -16529,6 +16534,7 @@ export enum CallRecordFragmentHistoryRecordHistoryActionType {
 export type CallRecordFragmentHistoryRecordUpdateInput = {
   ticket?: Maybe<Scalars['String']>;
   callRecord?: Maybe<Scalars['String']>;
+  startedAt?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -16555,6 +16561,14 @@ export type CallRecordFragmentHistoryRecordWhereInput = {
   callRecord_not?: Maybe<Scalars['String']>;
   callRecord_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   callRecord_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  startedAt?: Maybe<Scalars['String']>;
+  startedAt_not?: Maybe<Scalars['String']>;
+  startedAt_lt?: Maybe<Scalars['String']>;
+  startedAt_lte?: Maybe<Scalars['String']>;
+  startedAt_gt?: Maybe<Scalars['String']>;
+  startedAt_gte?: Maybe<Scalars['String']>;
+  startedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  startedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization?: Maybe<Scalars['String']>;
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -16653,6 +16667,7 @@ export type CallRecordFragmentHistoryRecordsUpdateInput = {
 export type CallRecordFragmentUpdateInput = {
   ticket?: Maybe<TicketRelateToOneInput>;
   callRecord?: Maybe<CallRecordRelateToOneInput>;
+  startedAt?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -16672,6 +16687,14 @@ export type CallRecordFragmentWhereInput = {
   ticket_is_null?: Maybe<Scalars['Boolean']>;
   callRecord?: Maybe<CallRecordWhereInput>;
   callRecord_is_null?: Maybe<Scalars['Boolean']>;
+  startedAt?: Maybe<Scalars['String']>;
+  startedAt_not?: Maybe<Scalars['String']>;
+  startedAt_lt?: Maybe<Scalars['String']>;
+  startedAt_lte?: Maybe<Scalars['String']>;
+  startedAt_gt?: Maybe<Scalars['String']>;
+  startedAt_gte?: Maybe<Scalars['String']>;
+  startedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  startedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
@@ -63855,6 +63878,8 @@ export enum SortBillingRecipientsBy {
 }
 
 export enum SortCallRecordFragmentHistoryRecordsBy {
+  StartedAtAsc = 'startedAt_ASC',
+  StartedAtDesc = 'startedAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -63878,6 +63903,8 @@ export enum SortCallRecordFragmentsBy {
   TicketDesc = 'ticket_DESC',
   CallRecordAsc = 'callRecord_ASC',
   CallRecordDesc = 'callRecord_DESC',
+  StartedAtAsc = 'startedAt_ASC',
+  StartedAtDesc = 'startedAt_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
   IdAsc = 'id_ASC',

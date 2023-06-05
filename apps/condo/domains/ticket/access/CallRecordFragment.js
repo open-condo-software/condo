@@ -40,8 +40,8 @@ async function canManageCallRecordFragments ({ authentication: { item: user }, o
         if (!itemId) return false
         // only soft delete update
         if (!originalInput.deletedAt) return false
-        const incidentProperty = await getById('CallRecordFragment', itemId)
-        organizationId = get(incidentProperty, 'organization', null)
+        const callRecordFragment = await getById('CallRecordFragment', itemId)
+        organizationId = get(callRecordFragment, 'organization', null)
     }
 
     return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageCallRecords')

@@ -34227,6 +34227,7 @@ type CallRecordFragmentHistoryRecord {
   _label_: String
   ticket: String
   callRecord: String
+  startedAt: String
   organization: String
   id: ID!
   v: Int
@@ -34254,6 +34255,14 @@ input CallRecordFragmentHistoryRecordWhereInput {
   callRecord_not: String
   callRecord_in: [String]
   callRecord_not_in: [String]
+  startedAt: String
+  startedAt_not: String
+  startedAt_lt: String
+  startedAt_lte: String
+  startedAt_gt: String
+  startedAt_gte: String
+  startedAt_in: [String]
+  startedAt_not_in: [String]
   organization: String
   organization_not: String
   organization_in: [String]
@@ -34341,6 +34350,8 @@ input CallRecordFragmentHistoryRecordWhereUniqueInput {
 }
 
 enum SortCallRecordFragmentHistoryRecordsBy {
+  startedAt_ASC
+  startedAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -34362,6 +34373,7 @@ enum SortCallRecordFragmentHistoryRecordsBy {
 input CallRecordFragmentHistoryRecordUpdateInput {
   ticket: String
   callRecord: String
+  startedAt: String
   organization: String
   v: Int
   createdAt: String
@@ -34385,6 +34397,7 @@ input CallRecordFragmentHistoryRecordsUpdateInput {
 input CallRecordFragmentHistoryRecordCreateInput {
   ticket: String
   callRecord: String
+  startedAt: String
   organization: String
   v: Int
   createdAt: String
@@ -34424,6 +34437,9 @@ type CallRecordFragment {
   ticket: Ticket
   callRecord: CallRecord
 
+  """ Call fragment start date in UTC """
+  startedAt: String
+
   """ Ref to the organization. It is filled in on the server and is read-only 
   """
   organization: Organization
@@ -34457,6 +34473,14 @@ input CallRecordFragmentWhereInput {
   ticket_is_null: Boolean
   callRecord: CallRecordWhereInput
   callRecord_is_null: Boolean
+  startedAt: String
+  startedAt_not: String
+  startedAt_lt: String
+  startedAt_lte: String
+  startedAt_gt: String
+  startedAt_gte: String
+  startedAt_in: [String]
+  startedAt_not_in: [String]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   id: ID
@@ -34526,6 +34550,8 @@ enum SortCallRecordFragmentsBy {
   ticket_DESC
   callRecord_ASC
   callRecord_DESC
+  startedAt_ASC
+  startedAt_DESC
   organization_ASC
   organization_DESC
   id_ASC
@@ -34549,6 +34575,7 @@ enum SortCallRecordFragmentsBy {
 input CallRecordFragmentUpdateInput {
   ticket: TicketRelateToOneInput
   callRecord: CallRecordRelateToOneInput
+  startedAt: String
   organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
@@ -34569,6 +34596,7 @@ input CallRecordFragmentsUpdateInput {
 input CallRecordFragmentCreateInput {
   ticket: TicketRelateToOneInput
   callRecord: CallRecordRelateToOneInput
+  startedAt: String
   organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
