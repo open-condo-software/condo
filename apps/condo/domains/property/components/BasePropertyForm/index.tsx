@@ -44,7 +44,7 @@ const FORM_WITH_ACTION_STYLES = {
     width: '100%',
 }
 const PROPERTY_FULLSCREEN_ROW_GUTTER: RowProps['gutter'] = [0, 40]
-const PROPERTY_ROW_GUTTER: RowProps['gutter'] = [50, 40]
+const PROPERTY_ROW_GUTTER: RowProps['gutter'] = [40, 40]
 
 const FORM_WITH_ACTION_VALIDATION_TRIGGERS = ['onBlur', 'onSubmit']
 
