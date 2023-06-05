@@ -17,13 +17,7 @@ const { spawn } = require('child_process')
 
 const conf = require('@open-condo/config')
 
-const CYPRESS_BROWSER = conf['CYPRESS_BROWSER'] || 'electron'
-const CYPRESS_CONFIG_PATH = conf['CYPRESS_CONFIG_PATH'] || './cypress/cypress.config.ts'
-
 const logger = console
-
-const RUN_TESTS_COMMAND = 'yarn'
-const RUN_TESTS_ARGS = ['workspace', '@app/condo', 'cypress', 'run', '-b', CYPRESS_BROWSER, 'C', CYPRESS_CONFIG_PATH]
 
 /**
  * Transforms cypress message to the one-liner.
@@ -54,12 +48,12 @@ const processCypressStderrMessage = (message, instance) => {
 }
 
 
-const runCypressInParallel = (instances) => {
+const runCypressInParallel = (instances, cmd, args) => {
     const cypressInstances = []
 
     for (let i = 0; i < instances; i++) {
 
-        const cypressInstance = spawn(RUN_TESTS_COMMAND, RUN_TESTS_ARGS)
+        const cypressInstance = spawn(cmd, args)
 
         cypressInstance.stdout.on('data', (data) => {
             processCypressStdoutMessage(data, i)
@@ -82,7 +76,7 @@ const runCypressInParallel = (instances) => {
 }
 
 
-const runCypressContinuously = async (instances) => {
+const runCypressContinuously = async (instances, cmd, args) => {
 
     let idx = 0
     let cypressInstances = {}
@@ -96,7 +90,7 @@ const runCypressContinuously = async (instances) => {
 
         const instanceId = idx++
 
-        const cypressInstance = spawn(RUN_TESTS_COMMAND, RUN_TESTS_ARGS)
+        const cypressInstance = spawn(cmd, args)
 
         cypressInstance.stdout.on('data', (data) => {
             processCypressStdoutMessage(data, instanceId)
@@ -130,14 +124,20 @@ const runCypressContinuously = async (instances) => {
 
 
 const runCypressLoadTests = async () => {
-    const [,,instances, continuous] = process.argv
+
+    const CYPRESS_LT_CONFIG = JSON.parse(conf['CYPRESS_LT_CONFIG']) || {}
+
+    const { instances = 5, continuous = true, browser = 'electron', configPath = './cypress/cypress.config.ts' } = CYPRESS_LT_CONFIG
+
+    const cmd = 'yarn'
+    const args = ['workspace', '@app/condo', 'cypress', 'run', '-b', browser, 'C', configPath]
+
+    logger.info(`Cypress load testing configuration:\r\nInstances: ${instances}\r\nContinous: ${continuous}\r\nBrowser: ${browser}\r\nPath: ${configPath}`)
 
     if (continuous) {
-        logger.info('Cypress load tests will run in CONTINUOUS mode!')
-        await runCypressContinuously(parseInt(instances))
+        await runCypressContinuously(instances, cmd, args)
     } else {
-        logger.info('Cypress load tests will run only once!')
-        await runCypressInParallel(parseInt(instances))
+        await runCypressInParallel(instances, cmd, args)
     }
 }
 
