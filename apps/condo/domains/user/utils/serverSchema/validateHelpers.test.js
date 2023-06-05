@@ -46,7 +46,7 @@ describe('Validate helpers', () => {
                     ['empty line', '', GQL_ERRORS.INVALID_PASSWORD_LENGTH],
                     ['very short', faker.internet.password(MIN_PASSWORD_LENGTH - 1), GQL_ERRORS.INVALID_PASSWORD_LENGTH],
                     ['very long', faker.internet.password(MAX_PASSWORD_LENGTH + 1), GQL_ERRORS.INVALID_PASSWORD_LENGTH],
-                    ['only spaces', '1111111111', GQL_ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS],
+                    ['only spaces', '1111111111', GQL_ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS],
                     ['contains spaces at start and end', ' 123 456 ', GQL_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END],
                     ['contains many spaces at start and end', '   123 456   ', GQL_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END],
                     ['contains spaces at start', ' 123 456', GQL_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END],
@@ -55,6 +55,7 @@ describe('Validate helpers', () => {
                     ['contains many spaces at end', '123 456   ', GQL_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END],
                     ['few different characters', faker.internet.password(12, false, /[123]/), GQL_ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS],
                     ['non-standard very short', '😀😃😄😁😆😅😂', GQL_ERRORS.INVALID_PASSWORD_LENGTH],
+                    ['non-standard contains TAB at start and end', '\t😀😃😄 😆😅😂\t', GQL_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END],
                 ]
 
                 test.each(invalidCases)('%s', async (caseName, password, error) => {

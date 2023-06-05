@@ -1633,7 +1633,6 @@
   "api.user.WRONG_PASSWORD_FORMAT": "Password must be in string format",
   "api.user.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END": "Password must not start or end with a space",
   "api.user.INVALID_PASSWORD_LENGTH": "Password length must be between {min} and {max} characters",
-  "api.user.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS": "Password must consist of different characters",
   "api.user.PASSWORD_CONTAINS_EMAIL": "Password must not contain email",
   "api.user.PASSWORD_CONTAINS_PHONE": "Password must not contain phone",
   "api.user.PASSWORD_CONTAINS_NAME": "Password must not contain mane",

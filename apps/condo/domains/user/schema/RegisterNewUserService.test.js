@@ -166,7 +166,7 @@ describe('RegisterNewUserService', () => {
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password }),
-            errors.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
+            errors.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
             'user',
         )
     })
