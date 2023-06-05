@@ -30536,17 +30536,6 @@ export type Mutation = {
    *     "password"
    *   ],
    *   "code": "BAD_USER_INPUT",
-   *   "type": "PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS",
-   *   "message": "Password must consist of different characters",
-   *   "messageForUser": "api.user.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS"
-   * }`
-   *
-   * `{
-   *   "variable": [
-   *     "data",
-   *     "password"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
    *   "type": "PASSWORD_CONTAINS_EMAIL",
    *   "message": "Password must not contain email",
    *   "messageForUser": "api.user.PASSWORD_CONTAINS_EMAIL"
@@ -30723,17 +30712,6 @@ export type Mutation = {
    *     "min": 8,
    *     "max": 128
    *   }
-   * }`
-   *
-   * `{
-   *   "variable": [
-   *     "data",
-   *     "password"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS",
-   *   "message": "Password must consist of different characters",
-   *   "messageForUser": "api.user.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS"
    * }`
    *
    * `{
