@@ -38,11 +38,11 @@ import { TicketClientField } from '@condo/domains/ticket/components/TicketId/Tic
 import { TicketDeadlineField } from '@condo/domains/ticket/components/TicketId/TicketDeadlineField'
 import { TicketDetailsField } from '@condo/domains/ticket/components/TicketId/TicketDetailsField'
 import { TicketExecutorField } from '@condo/domains/ticket/components/TicketId/TicketExecutorField'
+import { TicketFeedbackFields } from '@condo/domains/ticket/components/TicketId/TicketFeedbackFields'
 import { TicketFileListField } from '@condo/domains/ticket/components/TicketId/TicketFileListField'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 import { TicketQualityControlFields } from '@condo/domains/ticket/components/TicketId/TicketQualityControlFields'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
-import { TicketReviewField } from '@condo/domains/ticket/components/TicketId/TicketReviewField'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
@@ -294,9 +294,9 @@ const TicketContent = ({ ticket }) => {
         <Col span={24}>
             <Row gutter={BIG_VERTICAL_GUTTER}>
                 <TicketQualityControlFields ticket={ticket} />
+                <TicketFeedbackFields ticket={ticket} />
                 <Col span={24}>
                     <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-                        <TicketReviewField ticket={ticket} />
                         <TicketDeadlineField ticket={ticket} />
                         <TicketPropertyField ticket={ticket} />
                         <TicketClientField ticket={ticket} />

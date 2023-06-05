@@ -1,4 +1,5 @@
 const Ajv = require('ajv')
+const { get, isUndefined } = require('lodash')
 
 const { Json } = require('@open-condo/keystone/fields')
 
@@ -32,7 +33,9 @@ const TicketFilterFields = {
     problemClassifier: '[String]',
     clientPhone: '[String]',
     createdBy: '[String]',
+    // TODO(DOMA-5833): should remove "reviewValue" soon
     reviewValue: '[String]',
+    feedbackValue: '[String]',
     qualityControlValue: '[String]',
     contactIsNull: '[String]',
     completedAt: '[String]',
@@ -69,6 +72,34 @@ const TICKET_FILTER_FIELD = {
     isRequired: true,
     hooks: {
         validateInput: validateTicketFilter,
+        resolveInput: async ({ resolvedData, fieldPath, existingItem }) => {
+            // TODO(DOMA-5833): should remove this logic for override 'reviewValue' or 'feedbackValue'
+            //  and drop 'reviewValue' from database soon
+
+            const existingFields = get(existingItem, fieldPath, {}) || {}
+            const fields = get(resolvedData, fieldPath, {}) || {}
+
+            const existingFeedbackValue = get(existingFields, 'feedbackValue')
+            const inputFeedbackValue = get(fields, 'feedbackValue')
+            const existingReviewValue = get(existingFields, 'reviewValue')
+            const inputReviewValue = get(fields, 'reviewValue')
+
+            if (!isUndefined(inputFeedbackValue) && JSON.stringify(existingFeedbackValue) !== JSON.stringify(inputFeedbackValue)) {
+                if (inputFeedbackValue) {
+                    fields['reviewValue'] = fields['feedbackValue']
+                } else {
+                    delete fields['reviewValue']
+                }
+            } else if (!isUndefined(inputReviewValue) && JSON.stringify(existingReviewValue) !== JSON.stringify(inputReviewValue)) {
+                if (inputReviewValue) {
+                    fields['feedbackValue'] = fields['reviewValue']
+                } else {
+                    delete fields['feedbackValue']
+                }
+            }
+
+            return fields
+        },
     },
 }
 

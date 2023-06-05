@@ -14,7 +14,6 @@ import { get, isUndefined, isNull } from 'lodash'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
-import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 
 const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'organization', 'source', 'property', 'executor', 'related', 'classifier']
@@ -82,15 +81,6 @@ function formValuesProcessor (formValues: ITicketFormState): TicketMutationType 
     return result
 }
 
-function getReviewMessageByValue (reviewValue, intl) {
-    switch (reviewValue) {
-        case REVIEW_VALUES.BAD:
-            return intl.formatMessage({ id: 'ticket.reviewValue.bad' })
-        case REVIEW_VALUES.GOOD:
-            return intl.formatMessage({ id: 'ticket.reviewValue.good' })
-    }
-}
-
 const {
     useObject,
     useObjects,
@@ -109,5 +99,4 @@ export {
     useCount,
     convertToFormState,
     formValuesProcessor,
-    getReviewMessageByValue,
 }

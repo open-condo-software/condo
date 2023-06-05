@@ -17,9 +17,10 @@ const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 const { getHeadersTranslations, EXPORT_TYPE_TICKETS, ticketStatusesTranslations } = require('@condo/domains/common/utils/exportToExcel')
 const { exportRecordsAsXlsxFile, exportRecordsAsCsvFile } = require('@condo/domains/common/utils/serverSchema/export')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
-const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE, REVIEW_VALUES } = require('@condo/domains/ticket/constants')
+const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const { FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY, FEEDBACK_VALUES_BY_KEY } = require('@condo/domains/ticket/constants/feedback')
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS_BY_KEY, QUALITY_CONTROL_VALUES_BY_KEY } = require('@condo/domains/ticket/constants/qualityControl')
-const { convertQualityControlOptionsToText, filterQualityControlOptionsByScore } = require('@condo/domains/ticket/utils/qualityControl')
+const { convertQualityControlOrFeedbackOptionsToText, filterFeedbackOptionsByScore, filterQualityControlOptionsByScore } = require( '@condo/domains/ticket/utils')
 const { buildTicketsLoader, loadTicketCommentsForExcelExport, loadClassifiersForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
 const { TicketExportTask, TicketStatus, Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { exportTicketBlanksToPdf } = require('@condo/domains/ticket/utils/serverSchema/exportTicketBlanksToPdf')
@@ -42,9 +43,16 @@ const EMPTY_VALUE = '—'
 // When records count is more than this constant, CSV file will be generated instead of Excel
 const MAX_XLSX_FILE_ROWS = 10000
 
-const buildReviewValuesTranslationsFrom = (locale) => ({
-    [REVIEW_VALUES.BAD]: i18n('ticket.reviewValue.bad', { locale }),
-    [REVIEW_VALUES.GOOD]: i18n('ticket.reviewValue.good', { locale }),
+const buildFeedbackValuesTranslationsFrom = (locale) => ({
+    [FEEDBACK_VALUES_BY_KEY.BAD]: i18n('ticket.feedback.bad', { locale }),
+    [FEEDBACK_VALUES_BY_KEY.GOOD]: i18n('ticket.feedback.good', { locale }),
+})
+
+const buildFeedbackAdditionalOptionsTranslationsFrom = (locale) => ({
+    [FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.LOW_QUALITY]: i18n('ticket.feedback.options.lowQuality', { locale }).toLowerCase(),
+    [FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.SLOWLY]: i18n('ticket.feedback.options.slowly', { locale }).toLowerCase(),
+    [FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.HIGH_QUALITY]: i18n('ticket.feedback.options.highQuality', { locale }).toLowerCase(),
+    [FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.QUICKLY]: i18n('ticket.feedback.options.quickly', { locale }).toLowerCase(),
 })
 
 const buildQualityControlValuesTranslationsFrom = (locale) => ({
@@ -70,25 +78,37 @@ const renderComment = (comment, locale, timeZone) => {
     return `${createdAt}, ${createdBy} (${userType}): «${content}» ${filesCountToRender}`
 }
 
+const renderFeedbackAdditionalOptions = (ticket, locale) => {
+    if (!ticket.feedbackAdditionalOptions || !ticket.feedbackValue) return null
+
+    const optionsTranslations = buildFeedbackAdditionalOptionsTranslationsFrom(locale)
+
+    const selectedOption = filterFeedbackOptionsByScore(ticket.feedbackValue, ticket.feedbackAdditionalOptions)
+    return convertQualityControlOrFeedbackOptionsToText(selectedOption, optionsTranslations)
+}
+
 const renderQualityControlAdditionalOptions = (ticket, locale) => {
     if (!ticket.qualityControlAdditionalOptions || !ticket.qualityControlValue) return null
 
     const optionsTranslations = buildQualityControlAdditionalOptionsTranslationsFrom(locale)
 
     const selectedOption = filterQualityControlOptionsByScore(ticket.qualityControlValue, ticket.qualityControlAdditionalOptions)
-    return convertQualityControlOptionsToText(selectedOption, optionsTranslations)
+    return convertQualityControlOrFeedbackOptionsToText(selectedOption, optionsTranslations)
 }
 
 /**
  * Converts record obtained from database to JSON representation for file row
  *
+ * @param task
  * @param ticket - record of Ticket with related objects converted by `GqlWithKnexLoadList` to its display names (for example `Ticket.source` -> `Ticket.source.name`)
- * @return {Promise<{clientName, description: string, source: string, operator: (*|string), number, isEmergency: (string), createdAt: *, statusReopenedCounter: string, executor: string, property, classifier: string, details, isWarranty: (string), floorName, place: string, organizationComments: string, deadline: (*|string), entranceName, updatedAt: *, inworkAt: (*|string), completedAt: (*|string), residentComments: string, unitName, reviewComment: (*|string), clientPhone, isPaid: (string), organization, assignee: string, category: string, reviewValue: (*|string), status}>}
+ * @param indexedStatuses
+ * @param classifier
+ * @return {Promise<{clientName, deferredUntil: (*|string), description: string, source: (string|string), feedbackComment: string, operator: string, unitType: (string|string), number, isEmergency: string, createdAt: *, statusReopenedCounter: (*|number|string), executor: string, contact: string, property: (*|string), details, isWarranty: string, floorName, place: string, organizationComments: (string|string), closedAt: (*|string), deadline: (*|string), entranceName: (string|string), updatedAt: *, inworkAt: (*|string), completedAt: (*|string), residentComments: (string|string), feedbackAdditionalOptions: (*|string), unitName, clientPhone, feedbackValue: (*|string), isPaid: string, organization, assignee: string, category: string, status: *}>}
  */
 const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
     const { locale, timeZone } = task
 
-    const reviewValuesTranslations = buildReviewValuesTranslationsFrom(locale)
+    const feedbackValuesTranslations = buildFeedbackValuesTranslationsFrom(locale)
     const qualityControlValuesTranslations = buildQualityControlValuesTranslationsFrom(locale)
 
     const ticketClassifier = classifier.filter(rule => rule.id === ticket.classifier)
@@ -149,8 +169,10 @@ const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
         organizationComments: renderedOrganizationComments.join(TICKET_COMMENTS_SEPARATOR) || EMPTY_VALUE,
         residentComments: renderedResidentComments.join(TICKET_COMMENTS_SEPARATOR) || EMPTY_VALUE,
         deadline: ticket.deadline ? formatDate(ticket.deadline) : EMPTY_VALUE,
-        reviewValue: ticket.reviewValue ? reviewValuesTranslations[ticket.reviewValue] : EMPTY_VALUE,
-        reviewComment: ticket.reviewComment || EMPTY_VALUE,
+        feedbackValue: ticket.feedbackValue ? feedbackValuesTranslations[ticket.feedbackValue] : EMPTY_VALUE,
+        feedbackComment: ticket.feedbackComment || EMPTY_VALUE,
+        feedbackAdditionalOptions: renderFeedbackAdditionalOptions(ticket, locale) || EMPTY_VALUE,
+        feedbackUpdatedAt: ticket.feedbackUpdatedAt ? formatDate(ticket.feedbackUpdatedAt) : EMPTY_VALUE,
         statusReopenedCounter: ticket.statusReopenedCounter || EMPTY_VALUE,
         qualityControlValue: ticket.qualityControlValue ? qualityControlValuesTranslations[ticket.qualityControlValue] : EMPTY_VALUE,
         qualityControlComment: ticket.qualityControlComment || EMPTY_VALUE,
@@ -172,7 +194,8 @@ const buildExportFile = async ({ rows, task }) => {
         headerMessage = `${i18n('excelExport.header.tickets.forPeriod', { locale })} ${formatDate(createdAtGte)} — ${formatDate(createdAtLte)}`
     }
 
-    const reviewValuesTranslations = buildReviewValuesTranslationsFrom(locale)
+    const feedbackValuesTranslations = buildFeedbackValuesTranslationsFrom(locale)
+    const qualityControlValuesTranslations = buildQualityControlValuesTranslationsFrom(locale)
 
     const { stream } = await _buildExportFile({
         templatePath: './domains/ticket/templates/TicketsExportTemplate.xlsx',
@@ -187,7 +210,8 @@ const buildExportFile = async ({ rows, task }) => {
                 statusNames: ticketStatusesTranslations(locale),
 
                 yes: i18n('Yes', { locale }),
-                reviewValues: reviewValuesTranslations,
+                feedbackValues: feedbackValuesTranslations,
+                qualityControlValues: qualityControlValuesTranslations,
             },
         },
     })

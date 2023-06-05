@@ -6,7 +6,7 @@ const crypto = require('crypto')
 
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox, Select } = require('@keystonejs/fields')
 const dayjs = require('dayjs')
-const { isEmpty, get, isNull } = require('lodash')
+const { isEmpty, get, isNull, compact, isArray, isString, uniq } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keystone/errors')
@@ -41,9 +41,11 @@ const access = require('@condo/domains/ticket/access/Ticket')
 const {
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE,
 } = require('@condo/domains/ticket/constants')
+const { FEEDBACK_VALUES, FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY } = require('@condo/domains/ticket/constants/feedback')
 const { QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qualityControl')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS_FIELD } = require('@condo/domains/ticket/schema/fields/QualityControlAdditionalOptions')
+const { FEEDBACK_ADDITIONAL_OPTIONS_FIELD } = require('@condo/domains/ticket/schema/fields/TicketFeedbackAdditionalOptions')
 const { sendTicketNotifications } = require('@condo/domains/ticket/utils/handlers')
 const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const {
@@ -53,7 +55,7 @@ const {
     calculateCompletedAt,
     calculateStatusUpdatedAt,
     calculateDeferredUntil,
-    setDeadline, updateStatusAfterResidentReview,
+    setDeadline, updateStatusAfterResidentFeedback,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const { classifyTicket } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const {
@@ -73,11 +75,11 @@ const DAILY_TICKET_LIMIT = parseInt(conf.DAILY_TICKET_LIMIT) || 10
 const DAILY_SAME_TICKET_LIMIT = parseInt(conf.DAILY_SAME_TICKET_LIMIT) || 2
 
 const ERRORS = {
-    QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE: {
+    FEEDBACK_VALUE_MUST_BE_SPECIFIED: {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: '"qualityControlAdditionalOptions" value should not contradict "qualityControlValue"',
-        messageForUser: 'api.ticket.QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE',
+        message: '"feedbackValue" must be specified if there is "feedbackAdditionalOptions" or "feedbackComment"',
+        messageForUser: 'api.ticket.FEEDBACK_VALUE_MUST_BE_SPECIFIED',
     },
     QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED: {
         code: BAD_USER_INPUT,
@@ -143,6 +145,26 @@ const checkDailyTicketLimit = async ({ userId, organizationId, details, context 
         throw new GQLError(ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 }
+/*
+* TODO(DOMA-5833): This is a temporary hardcode.
+*  Should delete "convertReviewCommentOptionToFeedbackAdditionalOptionKey"
+*  and "convertFeedbackAdditionalOptionKeyToReviewCommentOption"
+*  functions when the mobile app will use 'feedback*' fields
+*/
+const convertReviewCommentOptionToFeedbackAdditionalOptionKey = (option) => {
+    if (option === 'Сделали на совесть' || option === 'Made in good faith') return FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.HIGH_QUALITY
+    if (option === 'Быстро сделали' || option === 'Quickly done') return FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.QUICKLY
+    if (option === 'It was done poorly' || option === 'Сделали некачественно') return FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.LOW_QUALITY
+    if (option === 'It took a long time' || option === 'Долго делали') return FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.SLOWLY
+    return null
+}
+const convertFeedbackAdditionalOptionKeyToReviewCommentOption = (option) => {
+    if (option === FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.HIGH_QUALITY) return 'Сделали на совесть'
+    if (option === FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.QUICKLY) return 'Быстро сделали'
+    if (option === FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.LOW_QUALITY) return 'Сделали некачественно'
+    if (option === FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.SLOWLY) return 'Долго делали'
+    return null
+}
 
 
 const Ticket = new GQLListSchema('Ticket', {
@@ -171,14 +193,44 @@ const Ticket = new GQLListSchema('Ticket', {
             },
         },
 
+        // TODO(DOMA-5833): delete 'reviewValue' and 'reviewComment' when the mobile app will use 'feedback*' fields
         reviewValue: {
-            schemaDoc: 'Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review',
+            schemaDoc: '@deprecated - use "feedbackValue". This field will be removed soon. ' +
+                'Review of the ticket by a resident on a 2-point scale. 0 – ticket returned, 1 – bad review, 2 – good review',
             type: Select,
             options: Object.values(REVIEW_VALUES).join(','),
         },
         reviewComment: {
-            schemaDoc: 'Resident\'s comment on ticket review',
+            schemaDoc: '@deprecated - use "feedbackAdditionalOptions" and "feedbackComment". This field will be removed soon. ' +
+                'Resident\'s comment on ticket review',
             type: Text,
+        },
+
+        feedbackValue: {
+            schemaDoc: 'Feedback of the ticket by a resident on a 2-point scale (0 – ticket returned, 1 – bad review, 2 – good review)',
+            type: Select,
+            options: FEEDBACK_VALUES.join(','),
+        },
+        feedbackComment: {
+            schemaDoc: 'Staff\'s comment on ticket feedback',
+            type: Text,
+            hooks: {
+                resolveInput: async ({ resolvedData, fieldPath }) => {
+                    if (fieldPath in resolvedData) {
+                        return normalizeText(resolvedData[fieldPath]) || null
+                    }
+                },
+            },
+        },
+        feedbackAdditionalOptions: FEEDBACK_ADDITIONAL_OPTIONS_FIELD,
+        feedbackUpdatedAt: {
+            schemaDoc: 'Feedback update time',
+            type: DateTimeUtc,
+            access: {
+                read: true,
+                update: false,
+                create: false,
+            },
         },
 
         qualityControlValue: {
@@ -540,13 +592,58 @@ const Ticket = new GQLListSchema('Ticket', {
                 resolvedData.status = STATUS_IDS.OPEN
             }
 
+            // TODO(DOMA-5833):  delete this block when the mobile app will use 'feedback*' fields
+            {
+                /*
+                NOTE: if you pass 'feedbackValue', 'feedbackAdditionalOptions' or 'feedbackComment'
+                then reset 'reviewValue', 'reviewComment' and set value from feedback fields.
+
+                If you pass only 'reviewValue' or 'reviewComment'
+                then auto-set 'feedbackValue' and 'feedbackAdditionalOptions'
+                 */
+                if ('feedbackValue' in resolvedData || 'feedbackAdditionalOptions' in resolvedData || 'feedbackComment' in resolvedData) {
+                    delete resolvedData.reviewValue
+                    delete resolvedData.reviewComment
+
+                    if ('feedbackValue' in resolvedData) {
+                        resolvedData.reviewValue = resolvedData.feedbackValue
+                    }
+                    if ('feedbackAdditionalOptions' in resolvedData) {
+                        resolvedData.reviewComment = isArray(resolvedData.feedbackAdditionalOptions)
+                            ? resolvedData.feedbackAdditionalOptions
+                                .map(key => convertFeedbackAdditionalOptionKeyToReviewCommentOption(key))
+                                .filter(Boolean)
+                                .join(';')
+                            : null
+                    }
+                } else {
+                    if ('reviewValue' in resolvedData) {
+                        resolvedData.feedbackValue = resolvedData.reviewValue
+                    }
+                    if ('reviewComment' in resolvedData) {
+                        const reviewComment = resolvedData.reviewComment
+                        if (isString(reviewComment)) {
+                            const option = reviewComment
+                                .split(';')
+                                .map(option => convertReviewCommentOptionToFeedbackAdditionalOptionKey(option))
+                            if (isArray(option)) {
+                                // NOTE: We clear the array of values from duplicates.
+                                // Also sort values and convert empty arrays to null to get rid of changes history problems
+                                const preparedValue = compact(uniq(option.sort()))
+                                resolvedData.feedbackAdditionalOptions = isEmpty(preparedValue) ? null : preparedValue
+                            }
+                        }
+                    }
+                }
+            }
+
             if (
                 userType === RESIDENT
                 && isUpdateOperation
-                && resolvedData.reviewValue
+                && resolvedData.feedbackValue
                 && existingItem.status === STATUS_IDS.COMPLETED
             ) {
-                updateStatusAfterResidentReview(resolvedData)
+                updateStatusAfterResidentFeedback(resolvedData)
             }
 
             const newItem = { ...existingItem, ...resolvedData }
@@ -639,6 +736,11 @@ const Ticket = new GQLListSchema('Ticket', {
                 }
             }
 
+            const hasUpdatedFeedbackFields = 'feedbackValue' in resolvedData || 'feedbackComment' in resolvedData || 'feedbackAdditionalOptions' in resolvedData
+            if (hasUpdatedFeedbackFields) {
+                resolvedData.feedbackUpdatedAt = dayjs().toISOString()
+            }
+
             return resolvedData
         },
         validateInput: async ({ resolvedData, existingItem, addValidationError, context, operation, originalInput }) => {
@@ -680,6 +782,12 @@ const Ticket = new GQLListSchema('Ticket', {
 
             if ((!isEmpty(qualityControlAdditionalOptions) || !!newItem.qualityControlComment) && !newItem.qualityControlValue) {
                 throw new GQLError(ERRORS.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED, context)
+            }
+
+            const feedbackAdditionalOptions = get(newItem, 'feedbackAdditionalOptions')
+
+            if ((!isEmpty(feedbackAdditionalOptions) || !!newItem.feedbackComment) && !newItem.feedbackValue) {
+                throw new GQLError(ERRORS.FEEDBACK_VALUE_MUST_BE_SPECIFIED, context)
             }
 
             if (!newItem.deferredUntil && resolvedStatus.type === DEFERRED_STATUS_TYPE) {
