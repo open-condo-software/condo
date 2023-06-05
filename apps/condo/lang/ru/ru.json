@@ -432,7 +432,7 @@
   "pages.condo.property.EmptyBuildingBlock.view.auto.EmptyBuildingDescription": "Построить шахматку дома можно вручную, указав несколько параметров, или автоматически, на основе данных {services}",
   "pages.condo.property.EmptyBuildingBlock.view.auto.EmptyBuildingDescription.services": "ГИС ЖКХ и Росреестра",
   "pages.condo.property.EmptyBuildingBlock.view.manual.EmptyBuildingDescription": "Укажите несколько параметров, чтобы автоматически сгенерировать шахматку дома",
-  "pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingDescription": "Она в верхнем правом углу.\nДальше - все интуитивно-понятно \uD83D\uDE0A",
+  "pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingDescription": "Она в верхнем правом углу.\nДальше — все интуитивно-понятно \uD83D\uDE0A",
   "pages.condo.property.EmptyBuildingBlock.view.CreateMapManuallyTitle": "Создать вручную",
   "pages.condo.property.EmptyBuildingBlock.view.CreateMapAutomaticallyTitle": "Сгенерировать автоматически",
   "pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingHeader": "Нажмите кнопку «Добавить элемент»",
