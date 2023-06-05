@@ -24,7 +24,7 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import {
     CALL_METER_READING_SOURCE_ID,
-    WEB_APP_METER_READING_SOURCE_ID,
+    CRM_METER_READING_SOURCE_ID,
 } from '@condo/domains/meter/constants/constants'
 import { useCreateMeterModal } from '@condo/domains/meter/hooks/useCreateMeterModal'
 import { useMeterTableColumns } from '@condo/domains/meter/hooks/useMeterTableColumns'
@@ -490,7 +490,7 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
     const router = useRouter()
 
     const createMeterReadingAction = PropertyMeterReading.useCreate({
-        source: { connect: { id: WEB_APP_METER_READING_SOURCE_ID } },
+        source: { connect: { id: CRM_METER_READING_SOURCE_ID } },
     }, async () => {
         await router.push(`/meter?meterType=${METER_TYPES.propertyMeter}`)
     })

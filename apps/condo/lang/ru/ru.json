@@ -1074,6 +1074,7 @@
   "meterReadingSource.Messenger.name": "Мессенджеры (tg, whatsapp, viber, ..)",
   "meterReadingSource.SocialNetwork.name": "Соц. сети (vk, fb, ..)",
   "meterReadingSource.MobileAppStaff.name": "ЛК приложение сотрудника",
+  "meterReadingSource.crm.name": "CRM",
   "meterResource.ColdWater.name": "Холодная вода",
   "meterResource.HotWater.name": "Горячая вода",
   "meterResource.Electricity.name": "Электроэнергия",
