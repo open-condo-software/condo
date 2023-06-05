@@ -113,8 +113,6 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     dv,
                 }
 
-                await passwordValidations(context, userData.password, userData.email, userData.phone, userData.name)
-
                 let action = null
                 if (confirmPhoneActionToken) {
                     action = await ConfirmPhoneAction.getOne(context, {
@@ -135,17 +133,13 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 if (!isEmpty(userData.email)) {
                     await ensureNotExists(context, 'email', userData.email)
                 }
+
+                await passwordValidations(context, userData.password, userData.email, userData.phone, userData.name)
+
                 const user = await User.create(context, userData, {
                     errorMapping: {
                         '[password:minLength:User:password]': ERRORS.INVALID_PASSWORD_LENGTH,
                         '[password:rejectCommon:User:password]': ERRORS.PASSWORD_IS_FREQUENTLY_USED,
-                        [ERRORS.WRONG_PASSWORD_FORMAT.message]: ERRORS.WRONG_PASSWORD_FORMAT,
-                        [ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END.message]: ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
-                        [ERRORS.INVALID_PASSWORD_LENGTH.message]: ERRORS.INVALID_PASSWORD_LENGTH,
-                        [ERRORS.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.PASSWORD_CONTAINS_EMAIL,
-                        [ERRORS.PASSWORD_CONTAINS_PHONE.message]: ERRORS.PASSWORD_CONTAINS_PHONE,
-                        [ERRORS.PASSWORD_CONTAINS_NAME.message]: ERRORS.PASSWORD_CONTAINS_NAME,
-                        [ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message]: ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
                     },
                 })
                 if (action) {
