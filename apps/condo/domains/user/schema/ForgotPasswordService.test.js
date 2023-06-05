@@ -458,7 +458,7 @@ describe('ForgotPasswordAction Service', () => {
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                    ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS,
+                    ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
                     'result'
                 )
             })

@@ -4,12 +4,13 @@ const isArray = require('lodash/isArray')
 const { GQLError } = require('@open-condo/keystone/errors')
 
 const {
-    SPACES_AT_BEGINNING_OR_END_OF_LINE_REGEX,
-    IDENTICAL_CHARACTERS_REGEX,
-    MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD, MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH,
+    MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD,
+    MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH,
 } = require('@condo/domains/user/constants/common')
 const { GQL_ERRORS: ERRORS } = require('@condo/domains/user/constants/errors')
 
+
+const UNICODE_ChARS_REGEX = /[\w\W]/gu
 
 /**
  * Checks for the presence of a substring in a string, case insensitive
@@ -35,7 +36,7 @@ const hasSubstring = (str, substr) => {
 const hasDifferentCharacters = (str, count = 0) => {
     if (!isString(str) || isEmpty(str)) return false
 
-    const chars = str.match(/[\w\W]/gu)
+    const chars = str.match(UNICODE_ChARS_REGEX)
     return isArray(chars) && new Set(chars).size >= count
 }
 
@@ -62,8 +63,20 @@ const hasDifferentCharacters = (str, count = 0) => {
 const getStringLength = (str) => {
     if (!isString(str) || isEmpty(str)) return 0
 
-    const chars = str.match(/[\w\W]/gu)
+    const chars = str.match(UNICODE_ChARS_REGEX)
     return isArray(chars) ? chars.length : 0
+}
+
+/**
+ *
+ *
+ * @param str {string}
+ * @return {boolean}
+ */
+const hasSpacesAtStartOrAtEnd = (str) => {
+    if (!isString(str) || isEmpty(str)) return false
+
+    return str.trim() !== str
 }
 
 const passwordValidations = async (context, pass, email, phone, name) => {
@@ -73,19 +86,15 @@ const passwordValidations = async (context, pass, email, phone, name) => {
     }
 
     // Password must not start or end with a space
-    if (SPACES_AT_BEGINNING_OR_END_OF_LINE_REGEX.test(pass)) {
+    if (hasSpacesAtStartOrAtEnd(pass)) {
         throw new GQLError(ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END, context)
     }
 
     // Password must be of the appropriate length
     const passwordLength = getStringLength(pass)
+    console.log({ passwordLength })
     if (passwordLength < MIN_PASSWORD_LENGTH || passwordLength > MAX_PASSWORD_LENGTH) {
         throw new GQLError(ERRORS.INVALID_PASSWORD_LENGTH, context)
-    }
-
-    // Password must consist of different characters
-    if (IDENTICAL_CHARACTERS_REGEX.test(pass)) {
-        throw new GQLError(ERRORS.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS, context)
     }
 
     // Password must contain at least 4 different characters

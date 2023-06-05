@@ -1624,7 +1624,6 @@
   "api.user.WRONG_PASSWORD_FORMAT": "Пароль должен быть строкой",
   "api.user.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END": "Пароль не должен начинаться и заканчиваться пробелом",
   "api.user.INVALID_PASSWORD_LENGTH": "Длина пароля должна быть от {min} до {max} символов",
-  "api.user.PASSWORD_CONSISTS_OF_IDENTICAL_CHARACTERS": "Пароль не может состоять из одинаковых символов",
   "api.user.PASSWORD_CONTAINS_EMAIL": "Пароль не может быть похож на email",
   "api.user.PASSWORD_CONTAINS_PHONE": "Пароль не может быть похож на телефон",
   "api.user.PASSWORD_CONTAINS_NAME": "Пароль не может быть похож на имя",
