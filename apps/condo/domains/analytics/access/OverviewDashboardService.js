@@ -3,12 +3,17 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-async function canOverviewDashboard ({ authentication: { item: user } }) {
+const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
+
+async function canOverviewDashboard ({ authentication: { item: user }, args: { data: { organization } } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    // TODO(codegen): write mutation access logic!
+    const userBelongsToOrganization = checkUserBelongsToOrganization(user.id, organization)
+    if (!userBelongsToOrganization) return false
+    // TODO: write access for all entities with canManage...
+
     return false
 }
 

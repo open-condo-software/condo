@@ -8,6 +8,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
+const { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const access = require('@condo/domains/analytics/access/OverviewDashboardService')
 const { AnalyticsDataProvider } = require('@condo/domains/analytics/utils/services/AnalyticsDataProvider')
 const { PaymentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/payment')
@@ -86,6 +87,7 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                             queryOptions: {
                                 where: {
                                     organization: { id: where.organization },
+                                    status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
                                     AND: [
                                         { createdAt_gte: dayjs().startOf('month').toISOString() },
                                         { createdAt_lte: dayjs().endOf('month').toISOString() },

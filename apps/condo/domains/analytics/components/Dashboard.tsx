@@ -52,23 +52,31 @@ const PerformanceCard = ({ tickets }) => {
                 <Col span={24}>
                     <Space direction='horizontal' size={12}>
                         <Card>
-                            <Space direction='vertical' size={12}>
-                                <Typography.Text>{DoneLabel}</Typography.Text>
-                                <Typography.Title level={3}>
-                                    {completionPercent}
-                                </Typography.Title>
-                            </Space>
+                            <Row gutter={[0, 12]}>
+                                <Col span={24}>
+                                    <Typography.Text>{DoneLabel}</Typography.Text>
+                                </Col>
+                                <Col span={24}>
+                                    <Typography.Title level={3}>
+                                        {completionPercent}
+                                    </Typography.Title>
+                                </Col>
+                            </Row>
                         </Card>
                         {Object.entries(ticketGroups).map(([label, values]) => {
                             if (ENABLED_TICKET_STATUSES.includes(statusMap[label])) {
                                 return (
                                     <Card key={label}>
-                                        <Space direction='vertical' size={12}>
-                                            <Typography.Text>{label}</Typography.Text>
-                                            <Typography.Title level={3}>
-                                                {values.reduce((prev, curr) => prev + curr.count, 0)}
-                                            </Typography.Title>
-                                        </Space>
+                                        <Row gutter={[0, 12]}>
+                                            <Col span={24}>
+                                                <Typography.Text>{label}</Typography.Text>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Typography.Title level={3}>
+                                                    {values.reduce((prev, curr) => prev + curr.count, 0)}
+                                                </Typography.Title>
+                                            </Col>
+                                        </Row>
                                     </Card>
                                 )
                             }
@@ -181,7 +189,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
             <Col span={24}>
                 <DateRangePicker value={dateRange} onChange={setDateRange} />
             </Col>
-            <Col span={12}>
+            <Col lg={12} md={24}>
                 <PerformanceCard tickets={get(overview, 'ticketByProperty')} />
             </Col>
             <Col span={24}>
