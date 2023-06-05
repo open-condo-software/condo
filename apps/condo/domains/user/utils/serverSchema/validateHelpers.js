@@ -92,7 +92,6 @@ const passwordValidations = async (context, pass, email, phone, name) => {
 
     // Password must be of the appropriate length
     const passwordLength = getStringLength(pass)
-    console.log({ passwordLength })
     if (passwordLength < MIN_PASSWORD_LENGTH || passwordLength > MAX_PASSWORD_LENGTH) {
         throw new GQLError(ERRORS.INVALID_PASSWORD_LENGTH, context)
     }
