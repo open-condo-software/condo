@@ -6,6 +6,63 @@ const { plugin } = require('./utils/typing')
 
 const { queryHasField } = require('../queryHasField')
 
+const CASCADE = 'CASCADE'
+const SET_NULL = 'SET_NULL'
+const PROTECT = 'PROTECT'
+
+const dependencies = {}
+
+/** Example:
+ *
+const dependencies = {
+    'Authors': [{listName: 'Books', mode: 'CASCADE' }],
+}
+*/
+
+const saveDependencies = (schemaName, fields) => {
+    const schemaDependencies = []
+    Object.entries(fields).forEach(([fieldName, fieldData]) => {
+        if (fieldData.type === 'Relationship') {
+            schemaDependencies.push({ listName: fieldName, mode: fieldData.kmigratorOptions.on_delete })
+        }
+    })
+    dependencies[schemaName] = schemaDependencies
+}
+
+const markForSoftDeletion = (listName, id) => {
+    console.log(`Marked ${listName} with ${id} to be CASCADE soft-deleted`)
+}
+
+const markForSetNull = (listName, id) => {
+    console.log(`Marked ${listName} with ${id} to be set NULL`)
+}
+
+const processRelations = (listName, object) => {
+
+    const deps = dependencies[listName]
+    if (!Array.isArray(deps) || deps.length === 0) {
+        return
+    }
+
+    deps.forEach(rel => {
+
+        // If parent did not have any connected orphans
+        if (!object[rel.listName]) {
+            return
+        }
+
+        if (rel.mode === CASCADE) {
+            markForSoftDeletion(rel.listName, object[rel.listName].id)
+        }
+        if (rel.mode === SET_NULL) {
+            markForSetNull(rel.listName, object[rel.listName].id)
+        }
+        if (rel.mode === PROTECT) {
+            throw new Error(`You tried to soft-delete object from list ${listName}, but some connected orphan objects from ${rel.listName} still exist. Delete them`)
+        }
+    })
+}
+
 const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}) => plugin(({ fields = {}, hooks = {}, access, ...rest }, { schemaName }) => {
     // TODO(pahaz):
     //  [x] 1) filter by default deletedAt = null (access.read), how-to change it?!
@@ -18,6 +75,8 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     //  [ ] 3) what if some object has FK (Relation) to mergeable() list ?
     //  [ ] 4) check is newId object have newId (merge merged list)
     //  [ ] 5) check access to newId
+
+    saveDependencies(schemaName, fields)
 
     const datedOptions = {
         type: 'DateTimeUtc',
@@ -52,6 +111,8 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
         }
         if (resolvedData[deletedAtField]) {
             resolvedData[deletedAtField] = new Date().toISOString()
+
+            processRelations({ existingItem, resolvedData })
         }
         if (resolvedData[newIdField]) {
             // TODO(pahaz): check newIdField ID!
@@ -112,7 +173,7 @@ function getWhereVariables (args) {
 
 /**
  * SYNOPSIS:
- * We dont want developer to manually set the filter on every query like this:
+ * We don't want developer to manually set the filter on every query like this:
  * getAllEntities where : {deletedAt: null}
  * Instead we want to automatically hide deleted items.
  * Right now (keystone v5) we can only implement this functionality by merging
