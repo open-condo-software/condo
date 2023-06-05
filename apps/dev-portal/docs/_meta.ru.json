@@ -4,5 +4,6 @@
     "hidden": true
   },
   "ui": "Condo UI",
-  "bridge": "Condo Bridge"
+  "bridge": "Condo Bridge",
+  "api": "Condo API"
 }
