@@ -36,6 +36,7 @@ type ReadableHint = Omit<Hint, 'i18n'> & HintI18n
 
 const { publicRuntimeConfig: { globalHints } } = getConfig()
 
+const HINTS_CONTAINER_CLASS = 'global-hints-slider'
 const HINTS_BY_PAGES = get(globalHints, 'pages', []) || []
 const HINTS_AUTOPLAY_SPEED = 5000
 const HINTS_WRAPPER_STYLE: CSSProperties = { marginBottom: 40 }
@@ -106,7 +107,7 @@ export const useGlobalHints = () => {
     }, [route, showHints, locale, hideHints])
 
     const renderHints = useMemo(() => !isEmpty(hints) && (
-        <div style={HINTS_WRAPPER_STYLE}>
+        <div style={HINTS_WRAPPER_STYLE} className={HINTS_CONTAINER_CLASS}>
             <Row gutter={HINTS_ROW_GUTTERS}>
                 <Col span={24}>
                     <Carousel
