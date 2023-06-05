@@ -147,7 +147,8 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
 
                 let bankContractorAccount
                 // in mvp we will keep the contractor account for debit payments as well. Dividing them into individuals and legal entities
-                if (transaction.direction === 'CREDIT') {
+                // A debit transaction is an expense, since the direction of the transaction looks relative to the bank from which the data was received
+                if (transaction.direction === 'DEBIT') {
                     [bankContractorAccount] = await BankContractorAccount.getAll(context, {
                         organization: { id: organizationId },
                         tin: transaction.rurTransfer.payeeInn,
