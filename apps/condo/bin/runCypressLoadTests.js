@@ -125,7 +125,7 @@ const runCypressContinuously = async (instances, cmd, args) => {
 
 const runCypressLoadTests = async () => {
 
-    const CYPRESS_LT_CONFIG = JSON.parse(conf['CYPRESS_LT_CONFIG']) || {}
+    const CYPRESS_LT_CONFIG = conf['CYPRESS_LT_CONFIG'] ? JSON.parse(conf['CYPRESS_LT_CONFIG']) : {}
 
     const { instances = 5, continuous = true, browser = 'electron', configPath = './cypress/cypress.config.ts' } = CYPRESS_LT_CONFIG
 
