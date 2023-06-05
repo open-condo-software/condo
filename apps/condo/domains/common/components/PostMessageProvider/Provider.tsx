@@ -186,7 +186,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     const handleMessage = useCallback((event: MessageEvent) => {
         if (!event.isTrusted ||
             !event.source ||
-            (event.source instanceof MessagePort || event.source instanceof ServiceWorker)) {
+            !('self' in event.source)) {
             return
         }
 
