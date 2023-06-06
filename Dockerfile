@@ -57,3 +57,19 @@ FROM base
 USER app:app
 WORKDIR /app
 COPY --from=build --chown=root:root /app /app
+
+# Load testing container
+FROM base as loadtest
+WORKDIR /app
+
+# Copy intstalled stuff
+COPY --from=build --chown=root:root /app /app
+
+# Install deps for Cypress
+# https://docs.cypress.io/guides/continuous-integration/introduction#Dependencies
+RUN apt-get update && apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+
+USER app:app
+
+# For some reason Cypress is not installed properly during build stage's yarn install
+RUN $(npm bin)/cypress install

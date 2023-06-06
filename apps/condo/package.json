@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "test": "mkdirp dist/admin && jest --unhandled-rejections=strict",
-    "cypress": "cypress run -b chrome -C ./cypress/cypress.config.ts --env CYPRESS_BASE_URL=condo.d.doma.ai",
+    "cypress": "cypress run -b chrome -C ./cypress/cypress.config.ts",
+    "cypress:loadtest": "node ./bin/runCypressLoadTests.js",
     "prepare": "node ./bin/prepare.js",
     "dev": "yarn build:deps && node --trace-warnings ./../../bin/keystone-dev.js",
     "debug": "node inspect node_modules/.bin/keystone dev",
