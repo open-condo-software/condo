@@ -1,4 +1,5 @@
 import { MeterReadingWhereInput, MeterReadingSource as MeterReadingSourceType, MeterResource as MeterResourceType } from '@app/condo/schema'
+import compact from 'lodash/compact'
 import get from 'lodash/get'
 import { useMemo } from 'react'
 
@@ -15,9 +16,9 @@ import {
     getDayRangeFilter, getFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
+import { METER_TYPES, MeterReadingSource, MeterResource, MeterTypes } from '@condo/domains/meter/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
-import { MeterReadingSource, MeterResource } from '../utils/clientSchema'
 
 const addressFilter = getFilter(['meter', 'property', 'id'], 'array', 'string', 'in')
 const addressStringContainsFilter = getStringContainsFilter(['meter', 'property', 'address'])
@@ -37,7 +38,7 @@ const controlReadingDateRangeFilter = getDayRangeFilter(['meter', 'controlReadin
 const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
 const resourceFilter = getFilter(['meter', 'resource', 'id'], 'array', 'string', 'in')
 
-export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
+export function useFilters (meterType: MeterTypes): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
@@ -73,8 +74,10 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
     const resourcesOptions = convertToOptions<MeterResourceType>(resources, 'name', 'id')
 
+    const isPropertyMeter = meterType === METER_TYPES.propertyMeter
+
     return useMemo(() => {
-        return [
+        return compact([
             {
                 keyword: 'address',
                 filters: [addressFilter],
@@ -96,7 +99,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     },
                 },
             },
-            {
+            isPropertyMeter ? undefined : {
                 keyword: 'unitName',
                 filters: [unitNameFilter],
                 component: {
@@ -111,7 +114,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     },
                 },
             },
-            {
+            isPropertyMeter ? undefined : {
                 keyword: 'accountNumber',
                 filters: [accountNumberFilter],
                 component: {
@@ -125,7 +128,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     },
                 },
             },
-            {
+            isPropertyMeter ? undefined : {
                 keyword: 'clientName',
                 filters: [clientNameFilter],
                 component: {
@@ -185,7 +188,7 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
                     },
                 },
             },
-            {
+            isPropertyMeter ? undefined : {
                 keyword: 'place',
                 filters: [placeFilter],
                 component: {
@@ -288,17 +291,17 @@ export function useFilters (): Array<FiltersMeta<MeterReadingWhereInput>>  {
             },
             {
                 keyword: 'search',
-                filters: [
+                filters: compact([
                     addressStringContainsFilter,
                     resourceStringContainsFilter,
-                    placeFilter,
                     numberFilter,
-                    clientNameFilter,
-                    unitNameStringContainsFilter,
-                    accountNumberFilter,
-                ],
+                    isPropertyMeter ? undefined : placeFilter,
+                    isPropertyMeter ? undefined : clientNameFilter,
+                    isPropertyMeter ? undefined : unitNameStringContainsFilter,
+                    isPropertyMeter ? undefined : accountNumberFilter,
+                ]),
                 combineType: 'OR',
             },
-        ]
+        ])
     }, [sources, resources])
 }

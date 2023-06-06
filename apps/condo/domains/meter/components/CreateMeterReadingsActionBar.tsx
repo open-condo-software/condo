@@ -7,6 +7,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { ActionBar } from '@open-condo/ui'
 
 import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
+import { METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 
 
 const PROPERTY_DEPENDENCY = ['property']
@@ -17,11 +18,12 @@ export const CreateMeterReadingsActionBar = ({
     handleAddMeterButtonClick,
     isLoading,
     newMeterReadings,
+    meterType,
 }) => {
     const intl = useIntl()
     const SendMetersReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.SendMetersReading' })
     const AddMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
-    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
+    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
@@ -33,20 +35,33 @@ export const CreateMeterReadingsActionBar = ({
             shouldUpdate={handleShouldUpdate}
         >
             {
-                ({ getFieldsValue, getFieldError }) => {
-                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
-                    const isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings)
-                    const isCreateMeterButtonDisabled = !property || !unitName
-                    const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
-                    const propertyErrorMessage = !property && AddressLabel
-                    const unitErrorMessage = !unitName && UnitMessage
-                    const fieldsErrorMessages = [propertyErrorMessage, unitErrorMessage]
-                        .filter(Boolean)
-                        .map(errorField => errorField.toLowerCase())
-                        .join(', ')
-                    const requiredErrorMessage = fieldsErrorMessages && ErrorsContainerTitle.concat(' ', fieldsErrorMessages)
+                ({ getFieldsValue, getFieldValue, getFieldError }) => {
+                    let isSubmitButtonDisabled, isCreateMeterButtonDisabled, errors, requiredErrorMessage
+                    if (meterType === METER_TYPES.meter) {
+                        const { property, unitName } = getFieldsValue(['property', 'unitName'])
+                        isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings)
+                        isCreateMeterButtonDisabled = !property || !unitName
+                        const propertyMismatchError = getFieldError('property').find((error)=>error.includes(FieldIsRequiredMessage))
+                        const propertyErrorMessage = !property && AddressLabel
+                        const unitErrorMessage = !unitName && UnitMessage
+                        const fieldsErrorMessages = [propertyErrorMessage, unitErrorMessage]
+                            .filter(Boolean)
+                            .map(errorField => errorField.toLowerCase())
+                            .join(', ')
+                        const requiredErrorMessage = fieldsErrorMessages && ErrorsContainerTitle.concat(' ', fieldsErrorMessages)
 
-                    const errors = [requiredErrorMessage, propertyMismatchError].filter(Boolean).join(',')
+                        errors = [requiredErrorMessage, propertyMismatchError].filter(Boolean).join(',')
+                    } else {
+                        const property = getFieldValue('property')
+                        const propertyMismatchError = getFieldError('property').find((error)=>error.includes(FieldIsRequiredMessage))
+                        const propertyErrorMessage = !property && AddressLabel
+                        isSubmitButtonDisabled = !property || isEmpty(newMeterReadings)
+                        isCreateMeterButtonDisabled = !property
+                        requiredErrorMessage = propertyErrorMessage && ErrorsContainerTitle.concat(' ', propertyErrorMessage)
+
+                        errors = [requiredErrorMessage, propertyMismatchError].filter(Boolean).join(',')
+                    }
+
 
                     return (
                         <ActionBar

@@ -11,15 +11,19 @@ import {
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { AutoSourceAlert } from '@condo/domains/meter/components/BaseMeterModal/AutoSourceAlert'
 import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterModal/BaseMeterModalForm'
-import { Meter } from '@condo/domains/meter/utils/clientSchema'
+import { Meter, PropertyMeter, METER_TYPES, MeterTypes } from '@condo/domains/meter/utils/clientSchema'
 
 
-const INITIAL_VALUES_KEYS = [
+const INITIAL_METER_VALUES_KEYS = [
     'accountNumber', 'number', 'resource', 'place', 'numberOfTariffs', 'installationDate',
     'commissioningDate', 'sealingDate', 'verificationDate', 'nextVerificationDate', 'controlReadingsDate',
 ]
+const INITIAL_PROPERTY_METER_VALUES_KEYS = [
+    'number', 'resource', 'numberOfTariffs', 'installationDate',
+    'commissioningDate', 'sealingDate', 'verificationDate', 'nextVerificationDate', 'controlReadingsDate',
+]
 
-export const useUpdateMeterModal = (refetch) => {
+export const useUpdateMeterModal = (refetch, meterType: MeterTypes = METER_TYPES.meter) => {
     const intl = useIntl()
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.NumberOfMeter' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.meter.form.ConfirmDeleteTitle' })
@@ -33,14 +37,16 @@ export const useUpdateMeterModal = (refetch) => {
     const masterAppName = get(selectedMeter, ['b2bApp', 'name'], DeletedMessage)
     const organizationId = get(selectedMeter, ['organization', 'id'])
 
-    const updateMeterAction = Meter.useUpdate({}, () => {
+    const isPropertyMeter = meterType === METER_TYPES.propertyMeter
+    const MeterIdentity = !isPropertyMeter ? Meter : PropertyMeter
+    const updateMeterAction = MeterIdentity.useUpdate({}, () => {
         setSelectedMeter(null)
         refetch()
     })
 
     const initialValues = useMemo(() => {
         if (selectedMeter) {
-            return pick(selectedMeter, INITIAL_VALUES_KEYS)
+            return pick(selectedMeter, isPropertyMeter ? INITIAL_PROPERTY_METER_VALUES_KEYS : INITIAL_METER_VALUES_KEYS)
         }
     }, [selectedMeter])
 
@@ -94,6 +100,7 @@ export const useUpdateMeterModal = (refetch) => {
                     : null
                 }
                 organizationId={organizationId}
+                meterType={meterType}
             />
         )
     }, [

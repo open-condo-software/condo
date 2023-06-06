@@ -1,4 +1,12 @@
-import { BuildingUnitSubType, SortMeterReadingsBy, SortMetersBy, Meter as MeterType, MeterReading as MeterReadingType } from '@app/condo/schema'
+import {
+    BuildingUnitSubType,
+    SortMeterReadingsBy,
+    SortMetersBy,
+    Meter as MeterType,
+    PropertyMeter as PropertyMeterType,
+    MeterReading as MeterReadingType,
+    PropertyMeterReading as PropertyMeterReadingType, SortPropertyMeterReadingsBy,
+} from '@app/condo/schema'
 import { Col, ColProps, Form, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
@@ -14,6 +22,20 @@ import Prompt from '@condo/domains/common/components/Prompt'
 import { Table, TABLE_SCROlL_CONFIG } from '@condo/domains/common/components/Table/Index'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
+import {
+    CALL_METER_READING_SOURCE_ID,
+    CRM_METER_READING_SOURCE_ID,
+} from '@condo/domains/meter/constants/constants'
+import { useCreateMeterModal } from '@condo/domains/meter/hooks/useCreateMeterModal'
+import { useMeterTableColumns } from '@condo/domains/meter/hooks/useMeterTableColumns'
+import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
+import {
+    Meter,
+    MeterReading,
+    PropertyMeterReading,
+    PropertyMeter,
+    METER_TYPES,
+} from '@condo/domains/meter/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
@@ -22,13 +44,6 @@ import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
 
 import { CreateMeterReadingsActionBar } from './CreateMeterReadingsActionBar'
 
-import {
-    CALL_METER_READING_SOURCE_ID,
-} from '../constants/constants'
-import { useCreateMeterModal } from '../hooks/useCreateMeterModal'
-import { useMeterTableColumns } from '../hooks/useMeterTableColumns'
-import { useUpdateMeterModal } from '../hooks/useUpdateMeterModal'
-import { Meter, MeterReading } from '../utils/clientSchema'
 
 export const LAYOUT = {
     labelCol: { span: 8 },
@@ -36,14 +51,16 @@ export const LAYOUT = {
 }
 
 type MetersTableRecord = {
-    meter: MeterType
+    meter: MeterType | PropertyMeterType
     lastMeterReading: string
     meterReadingSource: string
     tariffNumber: string
 }
 
-function getTableData (meters: MeterType[], meterReadings: MeterReadingType[]): MetersTableRecord[] {
+function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings: MeterReadingType[] | PropertyMeterReadingType[]): MetersTableRecord[] {
     const dataSource: MetersTableRecord[] = []
+
+    // @ts-ignore
     const lastMeterReadings = uniqWith(meterReadings,
         (meterReading1, meterReading2) =>
             meterReading1.meter.id === meterReading2.meter.id
@@ -72,6 +89,7 @@ function getTableData (meters: MeterType[], meterReadings: MeterReadingType[]): 
                 lastMeterReading: lastMeterReading && lastMeterReading.value1,
                 meterReadingSource: lastMeterReading && lastMeterReading.source.name,
                 tariffNumber: '1',
+
             })
         }
     }
@@ -79,7 +97,7 @@ function getTableData (meters: MeterType[], meterReadings: MeterReadingType[]): 
     return dataSource
 }
 
-export const PropertyMetersForm = ({
+export const MetersForm = ({
     handleSave,
     selectedPropertyId,
     selectedUnitName,
@@ -117,7 +135,7 @@ export const PropertyMetersForm = ({
     }, [refetchMeterReadings, refetchMeters])
 
     const loading = metersLoading || meterReadingsLoading
-    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, selectedUnitName, selectedUnitType, refetch)
+    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, METER_TYPES.meter, selectedUnitName, selectedUnitType, refetch)
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
 
     useEffect(() => {
@@ -163,6 +181,7 @@ export const PropertyMetersForm = ({
                     newMeterReadings={newMeterReadings}
                     handleAddMeterButtonClick={handleAddMeterButtonClick}
                     isLoading={loading}
+                    meterType={METER_TYPES.meter}
                 />
             </Col>
             <CreateMeterModal />
@@ -185,7 +204,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
 
-    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns()
+    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_TYPES.meter)
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
@@ -340,10 +359,215 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                     </Col>
                                 </Row>
                             </Col>
-                            <PropertyMetersForm
+                            <MetersForm
                                 selectedPropertyId={selectedPropertyId}
                                 selectedUnitName={selectedUnitName}
                                 selectedUnitType={selectedUnitType}
+                                handleSave={handleSave}
+                                organizationId={organization.id}
+                                tableColumns={tableColumns}
+                                setNewMeterReadings={setNewMeterReadings}
+                                newMeterReadings={newMeterReadings}
+                            />
+                        </Row>
+                    </Col>
+                </>
+            )}
+        </FormWithAction>
+    )
+}
+export const PropertyMetersForm = ({
+    handleSave,
+    selectedPropertyId,
+    organizationId,
+    tableColumns,
+    newMeterReadings,
+    setNewMeterReadings,
+}) => {
+    const intl = useIntl()
+    const MetersAndReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MetersAndReadings' })
+
+    const { breakpoints } = useLayoutContext()
+    const tableScrollConfig = useMemo(() => !breakpoints.TABLET_LARGE ? TABLE_SCROlL_CONFIG : null,  [breakpoints.TABLET_LARGE])
+
+    const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = PropertyMeter.useObjects({
+        where: {
+            property: { id: selectedPropertyId },
+        },
+        orderBy: SortMetersBy.CreatedAtDesc,
+    })
+
+    const meterIds = meters.map(meter => meter.id)
+    const { objs: meterReadings, refetch: refetchMeterReadings, loading: meterReadingsLoading } = PropertyMeterReading.useObjects({
+        where: {
+            meter: { id_in: meterIds },
+        },
+        sortBy: [SortPropertyMeterReadingsBy.CreatedAtAsc],
+    })
+    const refetch = useCallback(() => {
+        refetchMeters()
+        refetchMeterReadings()
+    }, [refetchMeterReadings, refetchMeters])
+
+    const loading = metersLoading || meterReadingsLoading
+    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, METER_TYPES.propertyMeter, null, null, refetch)
+    const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
+
+    useEffect(() => {
+        refetch()
+        setNewMeterReadings({})
+    }, [selectedPropertyId])
+
+    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch, METER_TYPES.propertyMeter)
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: () => {
+                const meter = get(record, 'meter')
+                setSelectedMeter(meter)
+            },
+        }
+    }, [setSelectedMeter])
+    const handleAddMeterButtonClick = useCallback(() => setIsCreateMeterModalVisible(true),
+        [setIsCreateMeterModalVisible])
+
+    return (
+        <>
+            <Col span={24}>
+                <Row gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
+                    <Typography.Title level={2}>{MetersAndReadingsMessage}</Typography.Title>
+                    {
+                        dataSource.length ? (
+                            <Table
+                                scroll={tableScrollConfig}
+                                loading={loading}
+                                totalRows={total}
+                                dataSource={dataSource}
+                                columns={tableColumns}
+                                pagination={false}
+                                onRow={handleRowAction}
+                            />
+                        ) : null
+                    }
+                </Row>
+            </Col>
+            <Col span={24}>
+                <CreateMeterReadingsActionBar
+                    handleSave={handleSave}
+                    newMeterReadings={newMeterReadings}
+                    handleAddMeterButtonClick={handleAddMeterButtonClick}
+                    isLoading={loading}
+                    meterType={METER_TYPES.propertyMeter}
+                />
+            </Col>
+            <CreateMeterModal />
+            <UpdateMeterModal />
+        </>
+    )
+}
+
+export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
+    const intl = useIntl()
+    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
+    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
+    const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
+    const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
+    const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
+
+    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_TYPES.propertyMeter)
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
+    const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
+    const selectPropertyIdRef = useRef(selectedPropertyId)
+    useEffect(() => {
+        selectPropertyIdRef.current = selectedPropertyId
+    }, [selectedPropertyId])
+
+    const { requiredValidator } = useValidations()
+    const { addressValidator } = usePropertyValidations()
+    const validations = {
+        property: [requiredValidator, addressValidator(selectedPropertyId, isMatchSelectedProperty)],
+    }
+
+    const router = useRouter()
+
+    const createMeterReadingAction = PropertyMeterReading.useCreate({
+        source: { connect: { id: CRM_METER_READING_SOURCE_ID } },
+    }, async () => {
+        await router.push(`/meter?meterType=${METER_TYPES.propertyMeter}`)
+    })
+
+    const handleSubmit = useCallback(async (values) => {
+        for (const [meterId, newMeterReading] of Object.entries(newMeterReadings)) {
+            const value1 = get(newMeterReading, '1')
+            const value2 = get(newMeterReading, '2')
+            const value3 = get(newMeterReading, '3')
+            const value4 = get(newMeterReading, '4')
+
+            createMeterReadingAction({
+                meter: { connect: { id: meterId } },
+                date: new Date().toDateString(),
+                value1,
+                value2,
+                value3,
+                value4,
+            })
+        }
+    }, [createMeterReadingAction, newMeterReadings])
+
+    const getHandleSelectPropertyAddress = useCallback((form) => (_, option) => {
+        setSelectedPropertyId(String(option.key))
+    }, [])
+
+    return (
+        <FormWithAction
+            {...LAYOUT}
+            validateTrigger={VALIDATE_FORM_TRIGGER}
+            action={handleSubmit}
+        >
+            {({ handleSave, form }) => (
+                <>
+                    <Prompt
+                        title={PromptTitle}
+                        form={form}
+                        handleSave={handleSave}
+                    >
+                        <Typography.Paragraph>
+                            {PromptHelpMessage}
+                        </Typography.Paragraph>
+                    </Prompt>
+                    <Col span={24}>
+                        <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
+                            <Col span={24}>
+                                <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER} justify='space-between'>
+                                    <Col span={24}>
+                                        <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER} style={{ width: '100%' }}>
+                                            <Col span={24}>
+                                                <Row justify='space-between' gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
+                                                    <Col span={24}>
+                                                        <Form.Item
+                                                            name='property'
+                                                            label={AddressLabel}
+                                                            rules={validations.property}
+                                                            wrapperCol={FORM_ITEM_WRAPPER_COLUMN_STYLE}
+                                                            shouldUpdate
+                                                        >
+                                                            <PropertyAddressSearchInput
+                                                                organization={organization}
+                                                                setIsMatchSelectedProperty={setIsMatchSelectedProperty}
+                                                                autoFocus={true}
+                                                                onSelect={getHandleSelectPropertyAddress(form)}
+                                                                placeholder={AddressPlaceholder}
+                                                                notFoundContent={AddressNotFoundContent}
+                                                            />
+                                                        </Form.Item>
+                                                    </Col>
+                                                </Row>
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <PropertyMetersForm
+                                selectedPropertyId={selectedPropertyId}
                                 handleSave={handleSave}
                                 organizationId={organization.id}
                                 tableColumns={tableColumns}

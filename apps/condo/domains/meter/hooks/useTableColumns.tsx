@@ -1,4 +1,5 @@
-import { get } from 'lodash'
+import compact from 'lodash/compact'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
@@ -14,8 +15,10 @@ import {
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { METER_TYPES, MeterTypes } from '@condo/domains/meter/utils/clientSchema'
 import { getResourceRender, getUnitRender } from '@condo/domains/meter/utils/clientSchema/Renders'
 import { getTicketUserNameRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
+
 
 const renderMeterRecord = (record) => {
     const value1 = get(record, 'value1')
@@ -28,7 +31,7 @@ const renderMeterRecord = (record) => {
     return renderMeterReading([value1, value2, value3, value4], resourceId, measure)
 }
 
-export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
+export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterType: MeterTypes = METER_TYPES.meter) {
     const intl = useIntl()
     const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
@@ -48,6 +51,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
 
     const search = getFilteredValue(filters, 'search')
 
+    const isPropertyMeter = meterType === METER_TYPES.propertyMeter
+
     const renderAddress = useCallback((_, meterReading) =>
         getAddressRender(get(meterReading, ['meter', 'property']), DeletedMessage, search),
     [DeletedMessage, search])
@@ -55,7 +60,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const renderSource = useCallback((source) => getTableCellRenderer({ search })(source.name), [search])
 
     return useMemo(() => {
-        return [
+        return compact([
             {
                 title: MeterReadingDateMessage,
                 sortOrder: get(sorterMap, 'date'),
@@ -76,7 +81,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 filterIcon: getFilterIcon,
             },
-            {
+            isPropertyMeter ? undefined : {
                 title: UnitMessage,
                 filteredValue: getFilteredValue(filters, 'unitName'),
                 key: 'unitName',
@@ -96,7 +101,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render: getResourceRender(intl, search),
                 filterIcon: getFilterIcon,
             },
-            {
+            isPropertyMeter ? undefined : {
                 title: AccountNumberMessage,
                 filteredValue: getFilteredValue(filters, 'accountNumber'),
                 dataIndex: ['meter', 'accountNumber'],
@@ -116,7 +121,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render: getTextRender(search),
                 filterIcon: getFilterIcon,
             },
-            {
+            isPropertyMeter ? undefined : {
                 title: PlaceMessage,
                 filteredValue: getFilteredValue(filters, 'place'),
                 dataIndex: ['meter', 'place'],
@@ -133,7 +138,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 width: '15%',
                 render: renderMeterRecord,
             },
-            {
+            isPropertyMeter ? undefined : {
                 title: ClientNameMessage,
                 sortOrder: get(sorterMap, 'clientName'),
                 filteredValue: getFilteredValue(filters, 'clientName'),
@@ -157,6 +162,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render: renderSource,
                 filterIcon: getFilterIcon,
             },
-        ]
-    }, [MeterReadingDateMessage, sorterMap, filters, intl, search, filterMetas, AddressMessage, renderAddress, UnitMessage, ServiceMessage, AccountNumberMessage, MeterNumberMessage, PlaceMessage, MeterReadingMessage, ClientNameMessage, SourceMessage, renderSource])
+        ])
+    }, [meterType, MeterReadingDateMessage, sorterMap, filters, intl, search, filterMetas, AddressMessage, renderAddress, UnitMessage, ServiceMessage, AccountNumberMessage, MeterNumberMessage, PlaceMessage, MeterReadingMessage, ClientNameMessage, SourceMessage, renderSource])
 }

@@ -1,13 +1,13 @@
 /** @jsx jsx */
 import { SortMeterReadingsBy } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
-import { Col, Row, Typography } from 'antd'
+import { Col, Row, Tabs, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { FileDown, Filter } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -42,7 +42,13 @@ import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunctions'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
-import { MeterReading, MeterReadingFilterTemplate } from '@condo/domains/meter/utils/clientSchema'
+import {
+    MeterReading,
+    PropertyMeterReading,
+    MeterReadingFilterTemplate,
+    MeterTypes,
+    METER_TYPES,
+} from '@condo/domains/meter/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 
@@ -57,7 +63,6 @@ export const MetersPageContent = ({
     loading,
 }) => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
     const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -71,8 +76,6 @@ export const MetersPageContent = ({
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-
-    const { GlobalHints } = useGlobalHints()
 
     const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
@@ -121,138 +124,225 @@ export const MetersPageContent = ({
 
     return (
         <>
-            <Head>
-                <title>{PageTitleMessage}</title>
-            </Head>
-            <PageWrapper>
-                {GlobalHints}
-                <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
-                <TablePageContent>
-                    <EmptyListView
-                        label={EmptyListLabel}
-                        message=''
-                        button={(
-                            <ImportWrapper
-                                objectsName={MeterReadingImportObjectsName}
-                                accessCheck={canManageMeterReadings}
-                                onFinish={refetch}
-                                columns={columns}
-                                maxTableLength={
-                                    hasFeature('bigger_limit_for_import') ?
-                                        EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                        DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                                }
-                                rowNormalizer={meterReadingNormalizer}
-                                rowValidator={meterReadingValidator}
-                                objectCreator={meterReadingCreator}
-                                domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                exampleTemplateLink={exampleTemplateLink}
-                                mutationErrorsToMessages={mutationErrorsToMessages}
-                            >
-                                <Button
-                                    type='secondary'
-                                    icon={<FileDown size='medium' />}
-                                />
-                            </ImportWrapper>
-                        )}
-                        createRoute='/meter/create'
-                        createLabel={CreateMeter}
-                        containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
-                    />
-                    <Row
-                        gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
-                        align='middle'
-                        justify='center'
-                        hidden={isNoMeterData}
-                    >
-                        <Col span={24}>
-                            <TableFiltersContainer>
-                                <Row justify='space-between' gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
-                                    <Col xs={24} lg={7}>
-                                        <Input
-                                            placeholder={SearchPlaceholder}
-                                            onChange={handleSearch}
-                                            value={search}
-                                            allowClear
-                                        />
-                                    </Col>
-                                    <Col>
-                                        <Row gutter={[10, 0]} align='middle' justify='center'>
-                                            {
-                                                appliedFiltersCount > 0 ? (
-                                                    <Col>
-                                                        <ResetFiltersModalButton />
-                                                    </Col>
-                                                ) : null
-                                            }
-                                            <Col>
-                                                <Button
-                                                    type='secondary'
-                                                    onClick={handleMultipleFiltersButtonClick}
-                                                    icon={<Filter size='medium'/>}
-                                                >
-                                                    {
-                                                        appliedFiltersCount > 0 ?
-                                                            `${FiltersButtonLabel} (${appliedFiltersCount})`
-                                                            : FiltersButtonLabel
-                                                    }
-                                                </Button>
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                </Row>
-                            </TableFiltersContainer>
-                        </Col>
-                        <Col span={24}>
-                            <Table
-                                totalRows={total}
-                                loading={metersLoading || loading}
-                                dataSource={meterReadings}
-                                columns={tableColumns}
-                                onRow={handleRowAction}
+            <TablePageContent>
+                <EmptyListView
+                    label={EmptyListLabel}
+                    message=''
+                    button={(
+                        <ImportWrapper
+                            objectsName={MeterReadingImportObjectsName}
+                            accessCheck={canManageMeterReadings}
+                            onFinish={refetch}
+                            columns={columns}
+                            maxTableLength={
+                                hasFeature('bigger_limit_for_import') ?
+                                    EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
+                                    DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                            }
+                            rowNormalizer={meterReadingNormalizer}
+                            rowValidator={meterReadingValidator}
+                            objectCreator={meterReadingCreator}
+                            domainTranslate={MeterReadingImportObjectsNameManyGenitive}
+                            exampleTemplateLink={exampleTemplateLink}
+                            mutationErrorsToMessages={mutationErrorsToMessages}
+                        >
+                            <Button
+                                type='secondary'
+                                icon={<FileDown size='medium' />}
                             />
-                        </Col>
-                        <Col span={24}>
-                            <ExportToExcelActionBar
-                                hidden={!breakpoints.TABLET_LARGE}
-                                searchObjectsQuery={searchMeterReadingsQuery}
-                                exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
-                                sortBy={sortBy}
-                                actions={[
-                                    canManageMeterReadings && (
-                                        <ImportWrapper
-                                            key='import'
-                                            objectsName={MeterReadingImportObjectsName}
-                                            accessCheck={canManageMeterReadings}
-                                            onFinish={refetch}
-                                            columns={columns}
-                                            maxTableLength={hasFeature('bigger_limit_for_import') ?
-                                                EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                                DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                                            }
-                                            rowNormalizer={meterReadingNormalizer}
-                                            rowValidator={meterReadingValidator}
-                                            objectCreator={meterReadingCreator}
-                                            domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                            exampleTemplateLink={exampleTemplateLink}
-                                            mutationErrorsToMessages={mutationErrorsToMessages}
-                                        >
+                        </ImportWrapper>
+                    )}
+                    createRoute={`/meter/create?meterType=${METER_TYPES.meter}`}
+                    createLabel={CreateMeter}
+                    containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
+                />
+                <Row
+                    gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
+                    align='middle'
+                    justify='center'
+                    hidden={isNoMeterData}
+                >
+                    <Col span={24}>
+                        <TableFiltersContainer>
+                            <Row justify='space-between' gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
+                                <Col xs={24} lg={7}>
+                                    <Input
+                                        placeholder={SearchPlaceholder}
+                                        onChange={handleSearch}
+                                        value={search}
+                                        allowClear
+                                    />
+                                </Col>
+                                <Col>
+                                    <Row gutter={[10, 0]} align='middle' justify='center'>
+                                        {
+                                            appliedFiltersCount > 0 ? (
+                                                <Col>
+                                                    <ResetFiltersModalButton />
+                                                </Col>
+                                            ) : null
+                                        }
+                                        <Col>
                                             <Button
                                                 type='secondary'
-                                                icon={<FileDown size='medium' />}
+                                                onClick={handleMultipleFiltersButtonClick}
+                                                icon={<Filter size='medium'/>}
                                             >
-                                                {ImportButtonMessage}
+                                                {
+                                                    appliedFiltersCount > 0 ?
+                                                        `${FiltersButtonLabel} (${appliedFiltersCount})`
+                                                        : FiltersButtonLabel
+                                                }
                                             </Button>
-                                        </ImportWrapper>
-                                    ),
-                                ]}
-                            />
-                        </Col>
-                    </Row>
-                    <UpdateMeterModal />
-                    <MultipleFiltersModal />
-                </TablePageContent>
-            </PageWrapper>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                            </Row>
+                        </TableFiltersContainer>
+                    </Col>
+                    <Col span={24}>
+                        <Table
+                            totalRows={total}
+                            loading={metersLoading || loading}
+                            dataSource={meterReadings}
+                            columns={tableColumns}
+                            onRow={handleRowAction}
+                        />
+                    </Col>
+                    <Col span={24}>
+                        <ExportToExcelActionBar
+                            hidden={!breakpoints.TABLET_LARGE}
+                            searchObjectsQuery={searchMeterReadingsQuery}
+                            exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
+                            sortBy={sortBy}
+                            actions={[
+                                canManageMeterReadings && (
+                                    <ImportWrapper
+                                        key='import'
+                                        objectsName={MeterReadingImportObjectsName}
+                                        accessCheck={canManageMeterReadings}
+                                        onFinish={refetch}
+                                        columns={columns}
+                                        maxTableLength={hasFeature('bigger_limit_for_import') ?
+                                            EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
+                                            DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                                        }
+                                        rowNormalizer={meterReadingNormalizer}
+                                        rowValidator={meterReadingValidator}
+                                        objectCreator={meterReadingCreator}
+                                        domainTranslate={MeterReadingImportObjectsNameManyGenitive}
+                                        exampleTemplateLink={exampleTemplateLink}
+                                        mutationErrorsToMessages={mutationErrorsToMessages}
+                                    >
+                                        <Button
+                                            type='secondary'
+                                            icon={<FileDown size='medium' />}
+                                        >
+                                            {ImportButtonMessage}
+                                        </Button>
+                                    </ImportWrapper>
+                                ),
+                            ]}
+                        />
+                    </Col>
+                </Row>
+                <UpdateMeterModal />
+                <MultipleFiltersModal />
+            </TablePageContent>
+        </>
+    )
+}
+
+export const PropertyMetersPageContent = ({
+    searchMeterReadingsQuery,
+    tableColumns,
+    sortBy,
+    filterMetas,
+    role,
+    loading,
+}) => {
+    const intl = useIntl()
+    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
+    const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+
+    const router = useRouter()
+    const { filters, offset } = parseQuery(router.query)
+    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+
+    const canManageMeterReadings = get(role, 'canManageMeterReadings', false)
+
+    const {
+        loading: metersLoading,
+        count: total,
+        objs: PropertyMeterReadings,
+        refetch,
+    } = PropertyMeterReading.useObjects({
+        sortBy,
+        where: searchMeterReadingsQuery,
+        first: DEFAULT_PAGE_SIZE,
+        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+    }, {
+        fetchPolicy: 'network-only',
+    })
+
+    const { breakpoints } = useLayoutContext()
+    const [search, handleSearchChange, handleSearchReset] = useSearch()
+    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch, METER_TYPES.propertyMeter)
+    const isNoMeterData = isEmpty(PropertyMeterReadings) && isEmpty(filters) && !metersLoading && !loading
+
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: () => {
+                const meter = get(record, 'meter')
+                setSelectedMeter(meter)
+            },
+        }
+    }, [setSelectedMeter])
+    const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
+
+    return (
+        <>
+            <TablePageContent>
+                <EmptyListView
+                    label={EmptyListLabel}
+                    message=''
+                    createRoute={`/meter/create?meterType=${METER_TYPES.propertyMeter}`}
+                    createLabel={CreateMeter}
+                    containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
+                />
+                <Row
+                    gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
+                    align='middle'
+                    justify='center'
+                    hidden={isNoMeterData}
+                >
+                    <Col span={24}>
+                        <TableFiltersContainer>
+                            <Row justify='space-between' gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
+                                <Col xs={24} lg={7}>
+                                    <Input
+                                        placeholder={SearchPlaceholder}
+                                        onChange={handleSearch}
+                                        value={search}
+                                        allowClear
+                                    />
+                                </Col>
+                            </Row>
+                        </TableFiltersContainer>
+                    </Col>
+                    <Col span={24}>
+                        <Table
+                            totalRows={total}
+                            loading={metersLoading || loading}
+                            dataSource={PropertyMeterReadings}
+                            columns={tableColumns}
+                            onRow={handleRowAction}
+                        />
+                    </Col>
+                </Row>
+                <UpdateMeterModal />
+            </TablePageContent>
         </>
     )
 }
@@ -265,15 +355,24 @@ interface IMeterIndexPage extends React.FC {
 const sortableProperties = ['date', 'clientName', 'source']
 
 const MetersPage: IMeterIndexPage = () => {
+    const intl = useIntl()
+    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
+    const MeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.meterTab' })
+    const PropertyMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.propertyMeterTab' })
+
     const { organization, link, isLoading } = useOrganization()
     const userOrganizationId = get(organization, 'id')
     const role = get(link, 'role')
 
-    const filterMetas = useFilters()
+    const { GlobalHints } = useGlobalHints()
+
+    const [tab, setTab] = useState<MeterTypes>(METER_TYPES.meter)
+
+    const filterMetas = useFilters(tab)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
-    const tableColumns = useTableColumns(filterMetas)
+    const tableColumns = useTableColumns(filterMetas, tab)
     const searchMeterReadingsQuery = useMemo(() => ({
         ...filtersToWhere(filters),
         meter: { deletedAt: null },
@@ -281,16 +380,49 @@ const MetersPage: IMeterIndexPage = () => {
     [filters, filtersToWhere, userOrganizationId])
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
 
+
+    const handleTabChange = useCallback((tab: MeterTypes) => {
+        setTab(tab)
+    }, [])
+
     return (
         <MultipleFilterContextProvider>
-            <MetersPageContent
-                tableColumns={tableColumns}
-                searchMeterReadingsQuery={searchMeterReadingsQuery}
-                sortBy={sortBy}
-                filterMetas={filterMetas}
-                role={role}
-                loading={isLoading}
-            />
+            <Head>
+                <title>{PageTitleMessage}</title>
+            </Head>
+            <PageWrapper>
+                {GlobalHints}
+                <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
+                <Tabs activeKey={tab} onChange={handleTabChange}>
+                    <Tabs.TabPane tab={MeterMessage} key={METER_TYPES.meter} />
+                    <Tabs.TabPane tab={PropertyMeterMessage} key={METER_TYPES.propertyMeter} />
+                </Tabs>
+                {
+                    tab === METER_TYPES.meter && (
+                        <MetersPageContent
+                            tableColumns={tableColumns}
+                            searchMeterReadingsQuery={searchMeterReadingsQuery}
+                            sortBy={sortBy}
+                            filterMetas={filterMetas}
+                            role={role}
+                            loading={isLoading}
+                        />
+                    )
+                }
+                {
+                    tab === METER_TYPES.propertyMeter && (
+                        <PropertyMetersPageContent
+                            tableColumns={tableColumns}
+                            searchMeterReadingsQuery={searchMeterReadingsQuery}
+                            sortBy={sortBy}
+                            filterMetas={filterMetas}
+                            role={role}
+                            loading={isLoading}
+                        />
+                    )
+                }
+
+            </PageWrapper>
         </MultipleFilterContextProvider>
     )
 }

@@ -13,19 +13,19 @@ import { BaseModalForm } from '@condo/domains/common/components/containers/FormL
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { ShowMoreFieldsButton } from '@condo/domains/common/components/ShowMoreFieldsButton'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { METER_MODAL_FORM_ITEM_SPAN } from '@condo/domains/meter/constants/constants'
+import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
+import {
+    EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT,
+    EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
+} from '@condo/domains/meter/constants/errors'
+import { useMeterValidations } from '@condo/domains/meter/hooks/useMeterValidations'
+import { METER_TYPES, MeterTypes } from '@condo/domains/meter/utils/clientSchema'
+import { searchMeterResources } from '@condo/domains/meter/utils/clientSchema/search'
 
 import { BaseMeterModalAccountNumberField } from './BaseMeterModalAccountNumberField'
 import { MeterModalDatePicker } from './BaseMeterModalDatePicker'
 import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
-
-import { METER_MODAL_FORM_ITEM_SPAN } from '../../constants/constants'
-import { ELECTRICITY_METER_RESOURCE_ID } from '../../constants/constants'
-import {
-    EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT,
-    EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
-} from '../../constants/errors'
-import { useMeterValidations } from '../../hooks/useMeterValidations'
-import { searchMeterResources } from '../../utils/clientSchema/search'
 
 type InitialMeterFormValuesType = {
     propertyId?: string
@@ -51,6 +51,7 @@ type BaseMeterModalFormProps = ComponentProps<typeof BaseModalForm> & {
     modalNotification?: JSX.Element | string
     disabled?: boolean
     organizationId: string
+    meterType: MeterTypes
 }
 
 const METER_MODAL_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
@@ -85,6 +86,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
     ModalTitleMsg,
     organizationId,
     disabled,
+    meterType,
     ...otherProps
 }) => {
     const intl = useIntl()
@@ -101,6 +103,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
     const ControlReadingsDateMessage = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
     const ResourceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
 
+    const isPropertyMeter = meterType === METER_TYPES.propertyMeter
     const meterResourceId = get(initialValues, ['resource', 'id'])
     const initialInstallationDate = useCallback(() => getInitialDateValue(initialValues, ['installationDate']),
         [initialValues])
@@ -130,7 +133,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
     ], [requiredValidator, trimValidator, meterWithSameNumberValidator])
 
     const validations = useMemo(() => ({
-        accountNumber: [requiredValidator, trimValidator, meterWithSameAccountNumberInOtherUnitValidation],
+        accountNumber: isPropertyMeter ? undefined : [requiredValidator, trimValidator, meterWithSameAccountNumberInOtherUnitValidation],
         number: meterNumberValidations,
         resource: [requiredValidator],
         numberOfTariffs: [requiredValidator],
@@ -139,7 +142,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
         nextVerificationDate: [earlierThanFirstVerificationDateValidator],
         controlReadingsDate: [earlierThanInstallationValidator],
     }),
-    [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterNumberValidations, meterWithSameAccountNumberInOtherUnitValidation, requiredValidator, trimValidator])
+    [meterType, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterNumberValidations, meterWithSameAccountNumberInOtherUnitValidation, requiredValidator, trimValidator])
 
     const initialResourceValue = get(initialValues, ['resource', 'id'])
     const handleCancelModal = useCallback(() => () => setModalVisible(false), [])
@@ -183,14 +186,16 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                         <Row gutter={METER_MODAL_ROW_GUTTERS}>
                             <Col span={24}>
                                 <Row justify='space-between' gutter={METER_MODAL_ROW_GUTTERS}>
-                                    <Col span={24}>
-                                        <BaseMeterModalAccountNumberField
-                                            initialValues={initialValues}
-                                            rules={validations.accountNumber}
-                                            disabled={disabled}
-                                            validateFirst
-                                        />
-                                    </Col>
+                                    {!isPropertyMeter && (
+                                        <Col span={24}>
+                                            <BaseMeterModalAccountNumberField
+                                                initialValues={initialValues}
+                                                rules={validations.accountNumber}
+                                                disabled={disabled}
+                                                validateFirst
+                                            />
+                                        </Col>
+                                    )}
                                     <Col span={24}>
                                         <BaseMeterModalFormItem
                                             label={ResourceMessage}
@@ -217,7 +222,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                             <Input disabled={disabled}/>
                                         </BaseMeterModalFormItem>
                                     </Col>
-                                    <Col span={METER_MODAL_FORM_ITEM_SPAN}>
+                                    {!isPropertyMeter && <Col span={METER_MODAL_FORM_ITEM_SPAN}>
                                         <BaseMeterModalFormItem
                                             label={MeterPlaceMessage}
                                             name='place'
@@ -225,7 +230,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                         >
                                             <Input disabled={disabled}/>
                                         </BaseMeterModalFormItem>
-                                    </Col>
+                                    </Col>}
                                     {
                                         !isTariffsCountHidden ? (
                                             <Col span={24}>
