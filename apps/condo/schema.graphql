@@ -41385,6 +41385,7 @@ enum MeterReadingSourceTypeType {
   messenger
   social_network
   mobile_app_staff
+  crm
 }
 
 """ Ticket source. Income call, mobile_app, ... """

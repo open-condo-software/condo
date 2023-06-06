@@ -26169,7 +26169,8 @@ export enum MeterReadingSourceTypeType {
   OrganizationSite = 'organization_site',
   Messenger = 'messenger',
   SocialNetwork = 'social_network',
-  MobileAppStaff = 'mobile_app_staff'
+  MobileAppStaff = 'mobile_app_staff',
+  Crm = 'crm'
 }
 
 export type MeterReadingSourceUpdateInput = {
