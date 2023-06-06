@@ -368,7 +368,7 @@ const MetersPage: IMeterIndexPage = () => {
 
     const [tab, setTab] = useState<MeterTypes>(METER_TYPES.meter)
 
-    const filterMetas = useFilters()
+    const filterMetas = useFilters(tab)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
