@@ -112,7 +112,7 @@ export const UserOrganizationsList = ({ userOrganization, organizationEmployeesQ
     )
 
     const list = useMemo(() => {
-        return userOrganizations
+        return userOrganizations.slice()
             .sort((optionA, optionB) =>
                 get(optionA, 'organization.name', '').toLowerCase().localeCompare(get(optionB, 'organization.name', '').toLowerCase())
             )

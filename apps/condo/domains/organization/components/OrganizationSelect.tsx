@@ -89,6 +89,7 @@ export const OrganizationSelect: React.FC = () => {
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
 
     const userId = get(user, 'id', null)
+    const userIdFromSelectedLink = get(link, 'user.id', null)
 
     const { objs: userOrganizations, allDataLoaded: organizationLinksLoaded } = OrganizationEmployee.useAllObjects(
         { where: { user: { id: userId }, isRejected: false, isBlocked: false } }
@@ -135,6 +136,12 @@ export const OrganizationSelect: React.FC = () => {
             router.push('/ticket')
         }
     }, [link, router])
+
+    useEffect(() => {
+        if (userId && userIdFromSelectedLink && userId !== userIdFromSelectedLink) {
+            selectLink(null)
+        }
+    }, [selectLink, userId, userIdFromSelectedLink])
 
     const chooseOrganizationByLinkId = React.useCallback((value) => {
         selectLink({ id: value })
