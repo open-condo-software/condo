@@ -5,24 +5,17 @@ import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import {
     getDateTimeGteFilter, getDateTimeLteFilter,
-    getDayGteFilter,
-    getDayLteFilter,
     getDayRangeFilter,
-    getFilter,
     getNumberFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
-import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
 import {
     getCallRecordPhoneFilter,
-    getIncidentAttributesFilter,
     getIsIncomingCallFilter,
 } from '@condo/domains/ticket/utils/tables.utils'
-
-import { searchOrganizationProperty } from '../utils/clientSchema/search'
 
 
 const filterTicketNumber = getNumberFilter(['ticket', 'number'])

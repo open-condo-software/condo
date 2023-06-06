@@ -1,8 +1,9 @@
 import { Col, Row } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 import { difference } from 'lodash'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { Download } from '@open-condo/icons'
@@ -21,6 +22,15 @@ const DROPDOWN_POPUP_CONTAINER_ID = 'attachTicketsToCallRecord'
 function getPopupContainer (): HTMLElement {
     return document.getElementById(DROPDOWN_POPUP_CONTAINER_ID)
 }
+
+const MAIN_ROW_GUTTER: [Gutter, Gutter] = [0, 40]
+const RECORD_INFO_ROW_GUTTER: [Gutter, Gutter] = [0, 24]
+const CLIENT_INFO_ROW_GUTTER: [Gutter, Gutter] = [0, 10]
+const CALL_RECORD_ROW_GUTTER: [Gutter, Gutter] = [0, 16]
+const DOWNLOAD_RECORD_ROW_GUTTER: [Gutter, Gutter] = [10, 0]
+const ATTACH_TICKETS_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
+
+const TICKETS_SELECT_STYLE: CSSProperties = { width: '100%' }
 
 export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRecordFragment, refetchFragments }) => {
     const intl = useIntl()
@@ -154,11 +164,11 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
             title={Title}
             width='big'
         >
-            <Row gutter={[0, 40]}>
+            <Row gutter={MAIN_ROW_GUTTER}>
                 <Col span={24}>
-                    <Row gutter={[0, 24]}>
+                    <Row gutter={RECORD_INFO_ROW_GUTTER}>
                         <Col span={24}>
-                            <Row gutter={[0, 10]}>
+                            <Row gutter={CLIENT_INFO_ROW_GUTTER}>
                                 <Col span={24}>
                                     <Typography.Title level={4}>{clientName}</Typography.Title>
                                 </Col>
@@ -168,7 +178,7 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
                             </Row>
                         </Col>
                         <Col span={24}>
-                            <Row gutter={[0, 16]}>
+                            <Row gutter={CALL_RECORD_ROW_GUTTER}>
                                 <Col span={24}>
                                     <CallRecordCard
                                         callRecord={callRecord}
@@ -177,7 +187,7 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
                                 </Col>
                                 <Col span={24}>
                                     <Typography.Link size='large' onClick={handleDownloadFile}>
-                                        <Row align='middle' gutter={[10, 0]}>
+                                        <Row align='middle' gutter={DOWNLOAD_RECORD_ROW_GUTTER}>
                                             <Col>
                                                 <Download size='medium' />
                                             </Col>
@@ -192,13 +202,13 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
                     </Row>
                 </Col>
                 <Col span={24}>
-                    <Row gutter={[0, 20]}>
+                    <Row gutter={ATTACH_TICKETS_ROW_GUTTER}>
                         <Col span={24}>
                             <Typography.Title level={4}>{AttachTicketsMessage}</Typography.Title>
                         </Col>
                         <Col span={24} id={DROPDOWN_POPUP_CONTAINER_ID}>
                             <GraphQlSearchInput
-                                style={{ width: '100%' }}
+                                style={TICKETS_SELECT_STYLE}
                                 mode='multiple'
                                 placeholder={AttachTicketsPlaceholder}
                                 search={getOrganizationTickets(organizationId)}

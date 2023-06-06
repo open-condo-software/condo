@@ -1,4 +1,5 @@
 import { Col, Row } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
@@ -9,14 +10,12 @@ import { Tag, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { IFilters } from '@app/callcenter/domains/contact/utils/helpers'
-
-
-import { getAddressRender, getDateRender, getTableCellRenderer } from '../../common/components/Table/Renders'
-import { getFilterIcon } from '../../common/components/TableFilter'
-import { useDownloadFileFromServer } from '../../common/hooks/useDownloadFileFromServer'
-import { getFilterDropdownByKey } from '../../common/utils/filters.utils'
-import { formatPhone, getFilteredValue } from '../../common/utils/helpers'
-import { getSorterMap, parseQuery } from '../../common/utils/tables.utils'
+import { getAddressRender, getDateRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
+import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
+import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
+import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { formatPhone, getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 const COLUMNS_WIDTH = {
     startedAt: '12%',
@@ -28,6 +27,8 @@ const COLUMNS_WIDTH = {
     ticketNumber: '12%',
     callRecord: '12%',
 }
+
+const CALL_RECORD_ACTIONS_ROW_GUTTER: [Gutter, Gutter] = [20, 0]
 
 export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFragment })  => {
     const intl = useIntl()
@@ -119,7 +120,7 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
 
         return (
             <>
-                <Row gutter={[20, 0]}>
+                <Row gutter={CALL_RECORD_ACTIONS_ROW_GUTTER}>
                     <Tooltip title={PlayMessage}>
                         <Col>
                             <Play
@@ -141,7 +142,7 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
                 </Row>
             </>
         )
-    }, [DownloadMessage, PlayMessage, downloadFile])
+    }, [DownloadMessage, PlayMessage, downloadFile, setSelectedCallRecordFragment])
 
     return useMemo(() => ([
         {

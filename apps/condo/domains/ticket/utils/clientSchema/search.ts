@@ -90,15 +90,6 @@ const GET_ALL_TICKETS_QUERY = gql`
         }
     }
 `
-//
-// const GET_ALL_TICKETS_QUERY = gql`
-//     query selectTickets ($value: String, $organizationId: ID) {
-//         objs: allTickets(where: { details_contains_i: $value, organization: { id: $organizationId } }) {
-//             id
-//             number
-//         }
-//     }
-// `
 
 const GET_ALL_CONTACTS_QUERY = gql`
     query selectContact ($organizationId: ID, $propertyId: ID, $unitName: String, $unitType: String) {

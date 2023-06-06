@@ -292,9 +292,9 @@ const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, sho
             {
                 email && (
                     <Col span={24}>
-                        <Typography.Text style={CLIENT_TEXT_STYLE}>
+                        <Typography.Link href={`mailto:${email}`} style={LINK_STYLE}>
                             {email}
-                        </Typography.Text>
+                        </Typography.Link>
                     </Col>
                 )
             }
@@ -621,16 +621,28 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
 //#endregion
 
 //#region Page Content
+
+const LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
+
 const ClientCardPageContent = ({
     phoneNumber,
     tabsData,
     canManageContacts,
     loading,
+    phoneNumberPrefix,
     showOrganizationMessage = false,
 }) => {
     const intl = useIntl()
     const ClientCardTitle = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
         phone: renderPhone(phoneNumber),
+    })
+    const phoneLink = phoneNumberPrefix ? `tel:${phoneNumberPrefix}${phoneNumber}` : `tel:${phoneNumber}`
+    const ClientCardHeader = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
+        phone: (
+            <Typography.Link href={phoneLink} style={LINK_STYLE}>
+                {renderPhone(phoneNumber)}
+            </Typography.Link>
+        ),
     })
 
     const router = useRouter()
@@ -758,7 +770,7 @@ const ClientCardPageContent = ({
                 <PageContent>
                     <Row gutter={ROW_MEDIUM_GUTTER}>
                         <Col span={24}>
-                            <Typography.Title>{ClientCardTitle}</Typography.Title>
+                            <Typography.Title>{ClientCardHeader}</Typography.Title>
                         </Col>
                         <Col span={24}>
                             <Row gutter={[0, 20]}>
@@ -855,9 +867,16 @@ export const ClientCardPageContentWrapper = ({ organizationQuery, ticketsQuery, 
             .filter(tabsData => tabsData.organization && tabsData.property)
     }, [contacts, employeeTickets, notResidentTickets])
 
+    const phoneNumberPrefixFromContacts = get(contacts, ['0', 'organization', 'phoneNumberPrefix'])
+    const phoneNumberPrefixFromEmployees = get(employees, ['0', 'organization', 'phoneNumberPrefix'])
+    const phoneNumberPrefixFromTickets = get(tickets, ['0', 'organization', 'phoneNumberPrefix'])
+
+    const phoneNumberPrefix = phoneNumberPrefixFromContacts || phoneNumberPrefixFromEmployees || phoneNumberPrefixFromTickets
+
     return (
         <ClientCardPageContent
             phoneNumber={phoneNumber}
+            phoneNumberPrefix={phoneNumberPrefix}
             tabsData={tabsData}
             canManageContacts={canManageContacts}
             loading={ticketsLoading || contactsLoading || employeesLoading}

@@ -15,6 +15,8 @@ type TicketClientFieldProps = {
     ticket: Ticket
 }
 
+const ELLIPSIS_CONFIG = { rows: 2 }
+
 export const TicketClientField: React.FC<TicketClientFieldProps> = ({ ticket }) => {
     const intl = useIntl()
     const ResidentClientMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.ResidentClient' })
@@ -35,16 +37,14 @@ export const TicketClientField: React.FC<TicketClientFieldProps> = ({ ticket }) 
     }), [ticket])
 
     return (
-        <PageFieldRow title={ClientMessage} ellipsis={{ rows: 2 }}>
+        <PageFieldRow title={ClientMessage} ellipsis={ELLIPSIS_CONFIG}>
             {
                 contactId
-                    ? <Link href={`/contact/${contactId}`}>
-                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                            <TicketUserInfoField
-                                user={contactUser}
-                            />
-                        </Typography.Link>
-                    </Link>
+                    ? <TicketUserInfoField
+                        user={contactUser}
+                        nameLink={`/contact/${contactId}`}
+                        ticket={ticket}
+                    />
                     : <Typography.Text>
                         <TicketUserInfoField
                             user={clientUser}

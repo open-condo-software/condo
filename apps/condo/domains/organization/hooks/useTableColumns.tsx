@@ -16,7 +16,7 @@ import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
-import { getEmployeeSpecializationsMessage, renderPhone } from '@condo/domains/organization/utils/clientSchema/Renders'
+import { getEmployeeSpecializationsMessage } from '@condo/domains/organization/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
 
 
@@ -62,6 +62,14 @@ export const useTableColumns = (
             </Typography.Paragraph>
         )
     }, [intl, organizationEmployeeSpecializations])
+
+    const renderPhone = useCallback((phone, employee) => {
+        const phonePrefix = get(employee, 'organization.phoneNumberPrefix')
+
+        return getTableCellRenderer(
+            { search, href: `tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}` }
+        )(phone)
+    }, [search])
 
     return useMemo(() => {
         return [
