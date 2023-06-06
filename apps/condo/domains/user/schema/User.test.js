@@ -12,19 +12,17 @@ const {
     makeClient,
     DEFAULT_TEST_ADMIN_IDENTITY,
     DEFAULT_TEST_USER_SECRET,
-    UUID_RE,
-} = require('@open-condo/keystone/test.utils')
-const {
+    UUID_RE, expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-    expectToThrowGQLError,
+    expectToThrowGQLError, DEFAULT_TEST_USER_IDENTITY, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
-const { DEFAULT_TEST_USER_IDENTITY } = require('@open-condo/keystone/test.utils')
 
-const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
-const { WRONG_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
-const { EMPTY_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
+const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
+const {
+    WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR, GQL_ERRORS: ERRORS,
+} = require('@condo/domains/user/constants/errors')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const {
     User,
@@ -92,28 +90,6 @@ describe('SIGNIN', () => {
             await makeLoggedInClient({ email: userAttrs.email, password: '' })
         }
         await expect(checkAuthByEmptyPassword).rejects.toThrow(EMPTY_PASSWORD_ERROR)
-    })
-
-    test('check auth by old password', async () => {
-        // NOTE: Checks the authorization with the password that was before the validation update
-        const client = await makeClient()
-        const admin = await makeLoggedInAdminClient()
-        const [user1, userAttrs1] = await createTestUser(admin, { password: '        ' })
-        const [user2, userAttrs2] = await createTestUser(admin, { password: faker.internet.password(12, false, /[123]/) })
-
-        const result1 = await client.mutate(SIGNIN_MUTATION, {
-            'identity': userAttrs1.email,
-            'secret': userAttrs1.password,
-        })
-        expect(result1.errors).toEqual(undefined)
-        expect(result1.data.obj.item.id).toEqual(user1.id)
-
-        const result2 = await client.mutate(SIGNIN_MUTATION, {
-            'identity': userAttrs2.email,
-            'secret': userAttrs2.password,
-        })
-        expect(result2.errors).toEqual(undefined)
-        expect(result2.data.obj.item.id).toEqual(user2.id)
     })
 })
 
@@ -582,5 +558,152 @@ describe('Custom access rights', () => {
 
         expect(createdUser).toBeDefined()
         expect(createdUser).toHaveProperty('id')
+    })
+})
+
+describe('Validations', () => {
+    describe('Password', () => {
+        test('set to empty password', async () => {
+            const admin = await makeLoggedInAdminClient()
+
+            const [user] = await createTestUser(admin, { password: '' })
+            expect(user.id).toBeDefined()
+
+            const [user2] = await createTestUser(admin, { password: null })
+            expect(user2.id).toBeDefined()
+        })
+
+        test('set to weak password', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const password = '123456789'
+
+            await catchErrorFrom(
+                async () => await createTestUser(admin, { password }),
+                ({ errors }) => {
+                    expect(errors).toHaveLength(1)
+                    expect(errors[0]).toEqual(expect.objectContaining({
+                        message: '[password:rejectCommon:User:password] Common and frequently-used passwords are not allowed.',
+                    }))
+                }
+            )
+        })
+
+        test('set to short password', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const password = faker.internet.password(MIN_PASSWORD_LENGTH - 1)
+
+            await catchErrorFrom(
+                async () => await createTestUser(admin, { password }),
+                ({ errors }) => {
+                    expect(errors).toHaveLength(1)
+                    expect(errors[0]).toEqual(expect.objectContaining({
+                        message: ERRORS.INVALID_PASSWORD_LENGTH.message,
+                    }))
+                }
+            )
+        })
+
+        test('set to password starting or ending with a space', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const password = '  ' + faker.internet.password(12) + '  '
+
+            await catchErrorFrom(
+                async () => await createTestUser(admin, { password }),
+                ({ errors }) => {
+                    expect(errors).toHaveLength(1)
+                    expect(errors[0]).toEqual(expect.objectContaining({
+                        message: ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END.message,
+                    }))
+                }
+            )
+        })
+
+        test('set to very long password', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const password = faker.internet.password(MAX_PASSWORD_LENGTH + 1)
+
+            await catchErrorFrom(
+                async () => await createTestUser(admin, { password }),
+                ({ errors }) => {
+                    expect(errors).toHaveLength(1)
+                    expect(errors[0]).toEqual(expect.objectContaining({
+                        message: ERRORS.INVALID_PASSWORD_LENGTH.message,
+                    }))
+                }
+            )
+        })
+
+        test('set to password containing email', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [user, userAttrs] = await createTestUser(admin)
+            const password = userAttrs.email + faker.internet.password(12)
+
+            await catchErrorFrom(
+                async () => await updateTestUser(admin, user.id, { password }),
+                ({ errors }) => {
+                    expect(errors).toHaveLength(1)
+                    expect(errors[0]).toEqual(expect.objectContaining({
+                        message: ERRORS.PASSWORD_CONTAINS_EMAIL.message,
+                    }))
+                }
+            )
+        })
+
+        test('set to password containing phone', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [user, userAttrs] = await createTestUser(admin)
+            const password = userAttrs.phone + faker.internet.password(12)
+
+            await catchErrorFrom(
+                async () => await updateTestUser(admin, user.id, { password }),
+                ({ errors }) => {
+                    expect(errors).toHaveLength(1)
+                    expect(errors[0]).toEqual(expect.objectContaining({
+                        message: ERRORS.PASSWORD_CONTAINS_PHONE.message,
+                    }))
+                }
+            )
+        })
+
+        test('set to password containing name', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [user, userAttrs] = await createTestUser(admin)
+            const password = userAttrs.name + faker.internet.password(12)
+
+            await catchErrorFrom(
+                async () => await updateTestUser(admin, user.id, { password }),
+                ({ errors }) => {
+                    expect(errors).toHaveLength(1)
+                    expect(errors[0]).toEqual(expect.objectContaining({
+                        message: ERRORS.PASSWORD_CONTAINS_NAME.message,
+                    }))
+                }
+            )
+        })
+
+        test('set to wrong format password', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const password = faker.datatype.number()
+
+            await expectToThrowGraphQLRequestError(
+                async () => await createTestUser(admin, { password }),
+                '"data.password"; String cannot represent a non string value'
+            )
+        })
+
+        test('set to password that does not containing at least 4 different characters', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const password = faker.internet.password(12, false, /[123]/)
+
+            await catchErrorFrom(
+                async () => await createTestUser(admin, { password }),
+                ({ errors }) => {
+                    expect(errors).toHaveLength(1)
+                    expect(errors[0]).toEqual(expect.objectContaining({
+                        message: ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message,
+                    }))
+                }
+            )
+        })
     })
 })

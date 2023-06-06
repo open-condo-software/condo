@@ -449,12 +449,12 @@ describe('ForgotPasswordAction Service', () => {
                 )
             })
 
-            test('change to password consisting of different characters', async () => {
+            test('change to password that does not containing at least 4 different characters', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [{ token }] = await createTestForgotPasswordAction(admin, client.user)
-                const password = faker.internet.password(12, false, /a+/)
+                const password = faker.internet.password(12, false, /[123]/)
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
@@ -515,20 +515,6 @@ describe('ForgotPasswordAction Service', () => {
                 await expectToThrowGraphQLRequestError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
                     '"data.password"; String cannot represent a non string value'
-                )
-            })
-
-            test('change to password that does not containing at least 4 different characters', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-
-                const [{ token }] = await createTestForgotPasswordAction(admin, client.user)
-                const password = '123123123123123123'
-
-                await expectToThrowGQLError(
-                    async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                    ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
-                    'result',
                 )
             })
         })
