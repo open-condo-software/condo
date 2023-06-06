@@ -135,18 +135,6 @@ describe('RegisterNewUserService', () => {
         )
     })
 
-    test('register user with password that does not containing at least 4 different characters', async () => {
-        const client = await makeClientWithNewRegisteredAndLoggedInUser()
-        const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
-        const password = '123123123123123123'
-
-        await expectToThrowGQLError(
-            async () => await registerNewUser(client, { name, password }),
-            errors.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
-            'user',
-        )
-    })
-
     test('register user with very long password', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
@@ -159,10 +147,10 @@ describe('RegisterNewUserService', () => {
         )
     })
 
-    test('register user with password consisting of different characters', async () => {
+    test('register user with password that does not containing at least 4 different characters', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
-        const password = faker.internet.password(12, false, /a+/)
+        const password = faker.internet.password(12, false, /[123]/)
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password }),

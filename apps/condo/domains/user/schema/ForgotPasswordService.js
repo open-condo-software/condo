@@ -13,7 +13,6 @@ const { STAFF } = require('@condo/domains/user/constants/common')
 const { GQL_ERRORS: USER_ERRORS, TOKEN_NOT_FOUND, USER_NOT_FOUND } = require('@condo/domains/user/constants/errors')
 const { ForgotPasswordAction, User } = require('@condo/domains/user/utils/serverSchema')
 const { findTokenAndRelatedUser, markTokenAsUsed } = require('@condo/domains/user/utils/serverSchema')
-const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
 
 
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
@@ -62,7 +61,6 @@ const ERRORS = {
     },
     changePasswordWithToken: {
         ...pick(USER_ERRORS, [
-            'WRONG_PASSWORD_FORMAT',
             'PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END',
             'INVALID_PASSWORD_LENGTH',
             'PASSWORD_CONTAINS_EMAIL',
@@ -234,12 +232,20 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     throw new GQLError(ERRORS.changePasswordWithToken.USER_NOT_FOUND, context)
                 }
 
-                await passwordValidations(context, password, user.email, user.phone, user.name)
+                if (!password) {
+                    throw new GQLError(ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH, context)
+                }
 
                 await User.update(context, user.id, { dv: 1, sender, password }, {
                     errorMapping: {
                         '[password:minLength:User:password]': ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                         '[password:rejectCommon:User:password]': ERRORS.changePasswordWithToken.PASSWORD_IS_FREQUENTLY_USED,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
+                        [ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH.message]: ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message]: ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_EMAIL,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_PHONE.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_PHONE,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_NAME.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_NAME,
                     },
                 })
 

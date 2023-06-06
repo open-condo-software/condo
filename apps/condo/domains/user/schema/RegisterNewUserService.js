@@ -12,7 +12,6 @@ const { STAFF } = require('@condo/domains/user/constants/common')
 const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const { UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, UNABLE_TO_CREATE_USER } = require('@condo/domains/user/constants/errors')
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
-const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
 
 
 /**
@@ -38,7 +37,6 @@ const ERRORS = {
         correctExample: '+79991234567',
     },
     ...pick(USER_ERRORS, [
-        'WRONG_PASSWORD_FORMAT',
         'PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END',
         'INVALID_PASSWORD_LENGTH',
         'PASSWORD_CONTAINS_EMAIL',
@@ -134,12 +132,20 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     await ensureNotExists(context, 'email', userData.email)
                 }
 
-                await passwordValidations(context, userData.password, userData.email, userData.phone, userData.name)
+                if (!userData.password) {
+                    throw new GQLError(ERRORS.INVALID_PASSWORD_LENGTH, context)
+                }
 
                 const user = await User.create(context, userData, {
                     errorMapping: {
                         '[password:minLength:User:password]': ERRORS.INVALID_PASSWORD_LENGTH,
                         '[password:rejectCommon:User:password]': ERRORS.PASSWORD_IS_FREQUENTLY_USED,
+                        [ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END.message]: ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
+                        [ERRORS.INVALID_PASSWORD_LENGTH.message]: ERRORS.INVALID_PASSWORD_LENGTH,
+                        [ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message]: ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
+                        [ERRORS.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.PASSWORD_CONTAINS_EMAIL,
+                        [ERRORS.PASSWORD_CONTAINS_PHONE.message]: ERRORS.PASSWORD_CONTAINS_PHONE,
+                        [ERRORS.PASSWORD_CONTAINS_NAME.message]: ERRORS.PASSWORD_CONTAINS_NAME,
                     },
                 })
                 if (action) {

@@ -54,14 +54,19 @@ const User = new GQLListSchema('User', {
             minLength: MIN_PASSWORD_LENGTH,
             access: access.canAccessToPasswordField,
             hooks: {
-                validateInput: async (props) => {
-                    const { context, resolvedData, existingItem, fieldPath, operation } = props
+                resolveInput: async ({ resolvedData, fieldPath }) => {
+                    const pass = resolvedData[fieldPath]
 
-                    if (operation === 'update') {
-                        const newItem = { ...existingItem, ...resolvedData }
-                        const pass = newItem[fieldPath]
+                    if (pass === '') return null
+                    return pass
+                },
+                validateInput: async ({ context, resolvedData, existingItem, fieldPath }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const pass = newItem[fieldPath]
 
-                        await passwordValidations(context, pass,  newItem.email, newItem.phone, newItem.name)
+                    // NOTE: it should be possible to reset the password
+                    if (!isNull(pass)) {
+                        await passwordValidations(context, pass, newItem.email, newItem.phone, newItem.name)
                     }
                 },
             },
