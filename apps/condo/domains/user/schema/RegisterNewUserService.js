@@ -37,7 +37,6 @@ const ERRORS = {
         correctExample: '+79991234567',
     },
     ...pick(USER_ERRORS, [
-        'PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END',
         'INVALID_PASSWORD_LENGTH',
         'PASSWORD_CONTAINS_EMAIL',
         'PASSWORD_CONTAINS_PHONE',
@@ -140,7 +139,6 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     errorMapping: {
                         '[password:minLength:User:password]': ERRORS.INVALID_PASSWORD_LENGTH,
                         '[password:rejectCommon:User:password]': ERRORS.PASSWORD_IS_FREQUENTLY_USED,
-                        [ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END.message]: ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
                         [ERRORS.INVALID_PASSWORD_LENGTH.message]: ERRORS.INVALID_PASSWORD_LENGTH,
                         [ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message]: ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
                         [ERRORS.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.PASSWORD_CONTAINS_EMAIL,

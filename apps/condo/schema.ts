@@ -30499,28 +30499,6 @@ export type Mutation = {
    *     "password"
    *   ],
    *   "code": "BAD_USER_INPUT",
-   *   "type": "WRONG_PASSWORD_FORMAT",
-   *   "message": "Password must be in string format",
-   *   "messageForUser": "api.user.WRONG_PASSWORD_FORMAT"
-   * }`
-   *
-   * `{
-   *   "variable": [
-   *     "data",
-   *     "password"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END",
-   *   "message": "Password must not start or end with a space",
-   *   "messageForUser": "api.user.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END"
-   * }`
-   *
-   * `{
-   *   "variable": [
-   *     "data",
-   *     "password"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
    *   "type": "INVALID_PASSWORD_LENGTH",
    *   "message": "Password length must be between 8 and 128 characters",
    *   "messageForUser": "api.user.INVALID_PASSWORD_LENGTH",
@@ -30676,28 +30654,6 @@ export type Mutation = {
    * **Errors**
    *
    * Following objects will be presented in `extensions` property of thrown error
-   *
-   * `{
-   *   "variable": [
-   *     "data",
-   *     "password"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "WRONG_PASSWORD_FORMAT",
-   *   "message": "Password must be in string format",
-   *   "messageForUser": "api.user.WRONG_PASSWORD_FORMAT"
-   * }`
-   *
-   * `{
-   *   "variable": [
-   *     "data",
-   *     "password"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END",
-   *   "message": "Password must not start or end with a space",
-   *   "messageForUser": "api.user.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END"
-   * }`
    *
    * `{
    *   "variable": [

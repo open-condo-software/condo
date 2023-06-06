@@ -128,11 +128,8 @@ describe('RegisterNewUserService', () => {
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
         const password = '  ' + faker.internet.password(12) + '  '
 
-        await expectToThrowGQLError(
-            async () => await registerNewUser(client, { name, password }),
-            errors.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
-            'user',
-        )
+        const [user] = await registerNewUser(client, { name, password })
+        expect(user.name).toBe(name)
     })
 
     test('register user with very long password', async () => {

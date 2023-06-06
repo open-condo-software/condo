@@ -67,27 +67,11 @@ const getStringLength = (str) => {
     return isArray(chars) ? chars.length : 0
 }
 
-/**
- *
- *
- * @param str {string}
- * @return {boolean}
- */
-const hasSpacesAtStartOrAtEnd = (str) => {
-    if (!isString(str) || isEmpty(str)) return false
-
-    return str.trim() !== str
-}
 
 const passwordValidations = async (context, pass, email, phone, name) => {
     // Password must be in string format
     if (!isString(pass)) {
         throw new GQLError(ERRORS.WRONG_PASSWORD_FORMAT, context)
-    }
-
-    // Password must not start or end with a space
-    if (hasSpacesAtStartOrAtEnd(pass)) {
-        throw new GQLError(ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END, context)
     }
 
     // Password must be of the appropriate length
