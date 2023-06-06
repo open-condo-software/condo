@@ -41,7 +41,6 @@ class AppsGenerator {
                 await BillingIntegration.create(this.context, {
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'generator' },
-                    developer: faker.company.name(),
                     name: `${faker.company.companyName(0)} billing`,
                     shortDescription: faker.commerce.productDescription(),
                     detailedDescription: faker.lorem.paragraphs(2),

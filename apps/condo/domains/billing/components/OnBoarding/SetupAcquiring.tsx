@@ -1,25 +1,51 @@
+import { Col, Row } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect } from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography } from '@open-condo/ui'
+import { Typography, Space } from '@open-condo/ui'
 
 import { AcquiringIntegrationContext as AcquiringContext, AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
+import { LoginWithSBBOLButton } from '@condo/domains/common/components/Button'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
+import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/constants'
+
+
+import type{ RowProps } from 'antd'
 
 type SetupAcquiringProps = {
     onFinish: () => void
 }
 
+const AUTH_BUTTON_GUTTER: RowProps['gutter'] = [0, 40]
+const AUTH_TITLE_SPACE = 12
+const PARAGRAPH_SPACE = 16
+const FULL_COL_SPAN = 24
+const CERTIFICATES_INFO_LINK = 'https://help.doma.ai/article/262-minc'
+const CONNECT_EMAIL = 'sales@doma.ai'
+
 export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
+    const intl = useIntl()
+    const AuthRequiredTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.title' })
+    const AuthRequiredLink = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.link' })
+    const AuthRequiredCertMessage = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.message.certs' }, {
+        link: <Typography.Link href={CERTIFICATES_INFO_LINK} target='_blank'>{AuthRequiredLink}</Typography.Link>,
+    })
+    const AuthRequiredContactMessage = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationNeeded.message.contact' }, {
+        email: <Typography.Link href={`mailto:${CONNECT_EMAIL}`}>{CONNECT_EMAIL}</Typography.Link>,
+    })
+
     const router = useRouter()
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
+    const remoteSystem = get(organization, 'importRemoteSystem', null)
+    const isOrgVerified = remoteSystem === SBBOL_IMPORT_NAME
 
     const createAction = AcquiringContext.useCreate({
         status: CONTEXT_IN_PROGRESS_STATUS,
@@ -66,11 +92,12 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         }
     }, [billingCtxLoading, billingCtxError, billingCtxId, router])
 
-    // If no context for selected acquiring => need to create it and re-fetch
+    // If no context for selected acquiring and correct organization => need to create it and re-fetch
     useEffect(() => {
         if ((!acquiringLoading && !acquiringError) &&
             (!acquiringCtxLoading && !acquiringCtxError) &&
-            (acquiringId && orgId && !acquiringCtxId)) {
+            (acquiringId && orgId && !acquiringCtxId) &&
+            isOrgVerified) {
             createAction({
                 organization: { connect: { id: orgId } },
                 integration: { connect: { id: acquiringId } },
@@ -110,6 +137,29 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
             return () => window.removeEventListener('message', handleDoneMessage)
         }
     }, [handleDoneMessage])
+
+    if (!isOrgVerified) {
+        return (
+            <Row gutter={AUTH_BUTTON_GUTTER}>
+                <Col span={FULL_COL_SPAN}>
+                    <Space size={AUTH_TITLE_SPACE} direction='vertical'>
+                        <Typography.Title level={3}>{AuthRequiredTitle}</Typography.Title>
+                        <Space size={PARAGRAPH_SPACE} direction='vertical'>
+                            <Typography.Paragraph type='secondary'>
+                                {AuthRequiredCertMessage}
+                            </Typography.Paragraph>
+                            <Typography.Paragraph type='secondary'>
+                                {AuthRequiredContactMessage}
+                            </Typography.Paragraph>
+                        </Space>
+                    </Space>
+                </Col>
+                <Col span={FULL_COL_SPAN}>
+                    <LoginWithSBBOLButton redirect={router.asPath}/>
+                </Col>
+            </Row>
+        )
+    }
 
     if (acquiringError || acquiringCtxError || billingCtxError) {
         return <Typography.Title>{acquiringError || acquiringCtxError || billingCtxError}</Typography.Title>

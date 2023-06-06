@@ -9,8 +9,7 @@ import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
-import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
+import { Button, LoginWithSBBOLButton } from '@condo/domains/common/components/Button'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
@@ -41,7 +40,6 @@ export const SignInForm = (): React.ReactElement => {
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
     const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
-    const LoginBySBBOLMsg = intl.formatMessage({ id: 'LoginBySBBOL' })
 
     const LOGIN_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
     const PASSWORD_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PasswordMsg}</label>
@@ -171,16 +169,7 @@ export const SignInForm = (): React.ReactElement => {
                                 </Col>
                                 <Col span={24}>
                                     <Form.Item>
-                                        <Button
-                                            key='submit'
-                                            type='sberAction'
-                                            secondary
-                                            icon={<SberIconWithoutLabel/>}
-                                            href='/api/sbbol/auth'
-                                            block
-                                        >
-                                            {LoginBySBBOLMsg}
-                                        </Button>
+                                        <LoginWithSBBOLButton block/>
                                     </Form.Item>
                                 </Col>
                             </>
