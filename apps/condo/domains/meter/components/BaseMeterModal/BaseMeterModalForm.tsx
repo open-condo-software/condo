@@ -113,7 +113,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
     const [installationDate, setInstallationDate] = useState<Dayjs>(initialInstallationDate)
     const [verificationDate, setVerificationDate] = useState<Dayjs>(initialVerificationDate)
 
-    const initialMeterNumber = get(initialValues, ['number'], null)
+    const initialMeterNumber = get<InitialMeterFormValuesType['number']>(initialValues, ['number'], null)
 
     const { requiredValidator, trimValidator } = useValidations()
     const {
@@ -121,14 +121,13 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
         earlierThanInstallationValidator,
         earlierThanFirstVerificationDateValidator,
         meterWithSameAccountNumberInOtherUnitValidation,
-        meterWithExistingNumberValidator,
     } = useMeterValidations(installationDate, verificationDate, propertyId, unitName, organizationId, initialMeterNumber)
 
     const meterNumberValidations = useMemo(() => [
         requiredValidator,
         trimValidator,
-        initialMeterNumber ? meterWithExistingNumberValidator : meterWithSameNumberValidator,
-    ], [requiredValidator, trimValidator, initialMeterNumber, meterWithExistingNumberValidator, meterWithSameNumberValidator])
+        meterWithSameNumberValidator,
+    ], [requiredValidator, trimValidator, meterWithSameNumberValidator])
 
     const validations = useMemo(() => ({
         accountNumber: [requiredValidator, trimValidator, meterWithSameAccountNumberInOtherUnitValidation],
@@ -189,7 +188,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                             initialValues={initialValues}
                                             rules={validations.accountNumber}
                                             disabled={disabled}
-                                            validateFirst={false}
+                                            validateFirst
                                         />
                                     </Col>
                                     <Col span={24}>
@@ -212,7 +211,6 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                             label={MeterNumberMessage}
                                             name='number'
                                             rules={validations.number}
-                                            validateTrigger={METER_MODAL_VALIDATE_TRIGGER}
                                             initialValue={initialValues.number}
                                             validateFirst
                                         >
