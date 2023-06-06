@@ -29,6 +29,7 @@ const {
 } = require('@condo/domains/user/constants/errors')
 const { USER_CUSTOM_ACCESS_GRAPHQL_TYPES, USER_CUSTOM_ACCESS_FIELDS } = require('@condo/domains/user/gql')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
+const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
 
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
@@ -52,6 +53,20 @@ const User = new GQLListSchema('User', {
             rejectCommon: true,
             minLength: MIN_PASSWORD_LENGTH,
             access: access.canAccessToPasswordField,
+            hooks: {
+                validateInput: async (props) => {
+                    const { context, resolvedData, existingItem, fieldPath, operation } = props
+
+                    if (operation === 'update') {
+                        console.log({ context, resolvedData, existingItem, props })
+
+                        const newItem = { ...existingItem, ...resolvedData }
+                        const pass = newItem[fieldPath]
+
+                        await passwordValidations(context, pass,  newItem.email, newItem.phone, newItem.name)
+                    }
+                },
+            },
         },
         type: {
             schemaDoc: 'Field that allows you to distinguish CRM users from mobile app users',
