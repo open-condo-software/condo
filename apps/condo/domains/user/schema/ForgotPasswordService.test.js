@@ -428,11 +428,8 @@ describe('ForgotPasswordAction Service', () => {
                 const [{ token }] = await createTestForgotPasswordAction(admin, client.user)
                 const password = '  ' + faker.internet.password(12) + '  '
 
-                await expectToThrowGQLError(
-                    async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                    ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
-                    'result'
-                )
+                const [result] = await changePasswordWithTokenByTestClient(client, { token, password })
+                expect(result.status).toBe('ok')
             })
 
             test('change to very long password', async () => {

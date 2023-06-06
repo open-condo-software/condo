@@ -4,7 +4,7 @@ const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 const { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
-const { createTestPhone } = require('@condo/domains/user/utils//testSchema')
+const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 
 const { passwordValidations } = require('./validateHelpers')
 
@@ -32,6 +32,13 @@ describe('Validate helpers', () => {
                 ['random', faker.internet.password()],
                 ['random long', faker.internet.password(MAX_PASSWORD_LENGTH)],
                 ['random short', faker.internet.password(MIN_PASSWORD_LENGTH)],
+                ['contains spaces at start and end', ' 123 456 '],
+                ['contains many spaces at start and end', '   123 456   '],
+                ['contains spaces at start', ' 123 456'],
+                ['contains many spaces at start', '   123 456'],
+                ['contains spaces at end', '123 456 '],
+                ['contains many spaces at end', '123 456   '],
+                ['non-standard contains TAB at start and end', '\t😀😃😄 😆😅😂\t'],
             ]
 
             test.each(validCases)('%s', async (caseName, password) => {
@@ -47,15 +54,8 @@ describe('Validate helpers', () => {
                     ['very short', faker.internet.password(MIN_PASSWORD_LENGTH - 1), GQL_ERRORS.INVALID_PASSWORD_LENGTH],
                     ['very long', faker.internet.password(MAX_PASSWORD_LENGTH + 1), GQL_ERRORS.INVALID_PASSWORD_LENGTH],
                     ['only spaces', '1111111111', GQL_ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS],
-                    ['contains spaces at start and end', ' 123 456 ', GQL_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END],
-                    ['contains many spaces at start and end', '   123 456   ', GQL_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END],
-                    ['contains spaces at start', ' 123 456', GQL_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END],
-                    ['contains many spaces at start', '   123 456', GQL_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END],
-                    ['contains spaces at end', '123 456 ', GQL_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END],
-                    ['contains many spaces at end', '123 456   ', GQL_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END],
                     ['few different characters', faker.internet.password(12, false, /[123]/), GQL_ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS],
                     ['non-standard very short', '😀😃😄😁😆😅😂', GQL_ERRORS.INVALID_PASSWORD_LENGTH],
-                    ['non-standard contains TAB at start and end', '\t😀😃😄 😆😅😂\t', GQL_ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END],
                 ]
 
                 test.each(invalidCases)('%s', async (caseName, password, error) => {

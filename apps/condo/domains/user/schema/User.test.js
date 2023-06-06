@@ -607,15 +607,8 @@ describe('Validations', () => {
             const admin = await makeLoggedInAdminClient()
             const password = '  ' + faker.internet.password(12) + '  '
 
-            await catchErrorFrom(
-                async () => await createTestUser(admin, { password }),
-                ({ errors }) => {
-                    expect(errors).toHaveLength(1)
-                    expect(errors[0]).toEqual(expect.objectContaining({
-                        message: ERRORS.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END.message,
-                    }))
-                }
-            )
+            const [user] = await createTestUser(admin, { password })
+            expect(user.id).toBeDefined()
         })
 
         test('set to very long password', async () => {

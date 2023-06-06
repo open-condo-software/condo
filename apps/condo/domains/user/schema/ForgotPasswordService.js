@@ -61,7 +61,6 @@ const ERRORS = {
     },
     changePasswordWithToken: {
         ...pick(USER_ERRORS, [
-            'PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END',
             'INVALID_PASSWORD_LENGTH',
             'PASSWORD_CONTAINS_EMAIL',
             'PASSWORD_CONTAINS_PHONE',
@@ -240,7 +239,6 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     errorMapping: {
                         '[password:minLength:User:password]': ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                         '[password:rejectCommon:User:password]': ERRORS.changePasswordWithToken.PASSWORD_IS_FREQUENTLY_USED,
-                        [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_SPACES_AT_BEGINNING_OR_END,
                         [ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH.message]: ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                         [ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message]: ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
                         [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_EMAIL,
