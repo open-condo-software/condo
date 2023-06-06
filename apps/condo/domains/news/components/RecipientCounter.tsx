@@ -80,7 +80,7 @@ const getUnitsFromProperty = ({ map }: PropertyType) => (
 
 const getUnitsFromSection = (section: BuildingSection) => section.floors.flatMap(floor => floor.units.map(unit => unit.label))
 
-const detectTargetedSections = (newsItemScopes: NewsItemScope[], property: PropertyType): BuildingSection[] => (
+export const detectTargetedSections = (newsItemScopes: NewsItemScope[], property: PropertyType): BuildingSection[] => (
     property.map?.sections?.filter(section => {
         const sectionUnits = getUnitsFromSection(section)
         const newsItemScopesUnits = map(newsItemScopes, 'unitName')
