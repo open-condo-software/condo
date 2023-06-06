@@ -43,7 +43,8 @@ import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import MemoizedNewsPreview from '@condo/domains/news/components/NewsPreview'
-import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
+import { RecipientCounter, detectTargetedSections } from '@condo/domains/news/components/RecipientCounter'
+import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import {
     NewsItemScope,
@@ -73,6 +74,7 @@ export type BaseNewsFormProps = {
         newsItemScopes: INewsItemScope[],
         hasAllProperties: boolean,
         sendPeriod: SendPeriodType,
+        properties?: IProperty[],
     },
     templates: { [key: string]: Pick<INewsItemTemplate, 'title' | 'body'> }
     afterAction?: () => void,
@@ -92,6 +94,14 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX  = /\[[^\]]*?\]/g
+
+const getUnitNamesAndUnitTypes = (property, sectionIds) => {
+    const selectedSections = get(property, ['map', 'sections'], []).filter(section => includes(sectionIds, section.id))
+    const allSectionsUnits = getAllSectionsUnits(selectedSections)
+    const unitNames = allSectionsUnits.map(unit => unit.label)
+    const unitTypes = allSectionsUnits.map(unit =>  get(unit, 'unitType', NewsItemScopeUnitTypeType.Flat) as NewsItemScopeUnitTypeType)
+    return { unitNames, unitTypes }
+}
 
 const getIsDateInFuture = (form, fieldName) => {
     const date = form.getFieldsValue([fieldName])[fieldName]
@@ -248,37 +258,63 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const initialSendAt = useMemo(() => get(initialValues, 'sendAt', null), [initialValues])
     const initialNewsItemScopes = useMemo(() => get(initialValues, 'newsItemScopes', []), [initialValues])
     const initialHasAllProperties = useMemo(() => get(initialValues, 'hasAllProperties', false), [initialValues])
+    const initialProperties = useMemo(() => get(initialValues, 'properties', []), [initialValues])
     const initialSentAt = useMemo(() => get(initialValues, 'sentAt', null), [initialValues])
     const initialPropertyIds: string[] = useMemo(() => {
         if (initialHasAllProperties) return []
 
         return uniq(initialNewsItemScopes.map(item => item.property.id))
     }, [initialHasAllProperties, initialNewsItemScopes])
+    const initialSectionKeys = useMemo(() => {
+        if (initialHasAllProperties) return []
+        if (initialProperties.length !== 1) return []
+
+        const targetedSections = detectTargetedSections(initialNewsItemScopes, initialProperties[0])
+        return targetedSections.map(section => {
+            const sectionName = section.name
+            if (sectionName) return `section-${sectionName}`
+        }).filter(Boolean)
+    }, [initialHasAllProperties, initialNewsItemScopes, initialProperties])
+    const initialSectionIds = useMemo(() => {
+        if (initialHasAllProperties) return []
+        if (initialProperties.length !== 1) return []
+
+        const targetedSections = detectTargetedSections(initialNewsItemScopes, initialProperties[0])
+        return targetedSections.map(section => {
+            const sectionName = section.name
+            if (sectionName) return sectionName
+        }).filter(Boolean)
+    }, [initialHasAllProperties, initialNewsItemScopes, initialProperties])
     const initialUnitKeys = useMemo(() => {
         if (initialHasAllProperties) return []
+        if (initialProperties.length !== 1) return []
+        if (!isEmpty(initialSectionKeys)) return []
 
         return initialNewsItemScopes.map(item => {
             const unitType = item.unitType
             const unitName = item.unitName
             if (unitType && unitName) return `${unitType}-${unitName}`
         }).filter(Boolean)
-    }, [initialHasAllProperties, initialNewsItemScopes])
+    }, [initialHasAllProperties, initialNewsItemScopes, initialProperties.length, initialSectionKeys])
     const initialUnitNames: string[] = useMemo(() => {
         if (initialHasAllProperties) return []
+        if (initialProperties.length !== 1) return []
 
         return initialNewsItemScopes.map(item => {
             const unitName = item.unitName
             if (unitName) return unitName
         }).filter(Boolean)
-    }, [initialHasAllProperties, initialNewsItemScopes])
+    }, [initialHasAllProperties, initialNewsItemScopes, initialProperties.length])
     const initialUnitTypes = useMemo(() => {
         if (initialHasAllProperties) return []
+        if (initialProperties.length !== 1) return []
+        if (!isEmpty(initialSectionKeys)) return []
 
         return initialNewsItemScopes.map(item => {
             const unitType = item.unitType
             if (unitType) return unitType
         }).filter(Boolean)
-    }, [initialHasAllProperties, initialNewsItemScopes])
+    }, [initialHasAllProperties, initialNewsItemScopes, initialProperties.length, initialSectionKeys])
 
     const [sendPeriod, setSendPeriod] = useState<string>(get(initialValues, 'sendPeriod', 'now'))
 
@@ -288,10 +324,19 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
     const [isValidBeforeAfterSendAt, setIsValidBeforeAfterSendAt] = useState<boolean>(true)
     const [newsItemCountAtSameDay, setNewsItemCountAtSameDay] = useState(getNewsItemCountAtSameDay(null, allNews))
-    const [selectedUnitNames, setSelectedUnitNames] = useState(initialUnitNames)
+    const [selectedUnitNames, setSelectedUnitNames] = useState(isEmpty(initialSectionKeys) ? initialUnitNames : [])
     const [selectedUnitTypes, setSelectedUnitTypes] = useState(initialUnitTypes)
     const [selectedPropertiesId, setSelectedPropertiesId] = useState(initialPropertyIds)
-    const [selectedSectionIds, setSelectedSectionIds] = useState([])
+    const [selectedSectionIds, setSelectedSectionIds] = useState(initialSectionIds)
+
+    const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
+        where: { id_in: selectedPropertiesId },
+    })
+
+    const isOnlyOnePropertySelected: boolean = useMemo(() => {
+        if (selectedPropertiesId.length === 1) return true
+        return false
+    }, [selectedPropertiesId.length])
 
     const softDeleteNewsItemScope = NewsItemScope.useSoftDelete()
     const createNewsItemScope = NewsItemScope.useCreate({})
@@ -445,6 +490,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             sendPeriod: sendPeriod,
             template: 1,
             unitNames: initialUnitKeys,
+            sectionIds: initialSectionKeys,
             type: selectedType,
             title: selectedTitle,
             body: selectedBody,
@@ -513,10 +559,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
         if (addedPropertyIds.length === 1 && sectionIds.length > 0) {
             const propertyId = addedPropertyIds[0]
-            const selectedSections = get(property, ['map', 'sections'], []).filter(section => includes(sectionIds, section.id))
-            const allSectionsUnits = getAllSectionsUnits(selectedSections)
-            const unitNames = allSectionsUnits.map(unit => unit.label)
-            const unitTypes = allSectionsUnits.map(unit =>  get(unit, 'unitType', NewsItemScopeUnitTypeType.Flat) as NewsItemScopeUnitTypeType)
+            const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
 
             await Promise.all(unitNames.map((unitName, i) => {
                 createNewsItemScope({
@@ -538,10 +581,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
         if (actionName === 'update' && !hasAllProperties && isEmpty(addedPropertyIds) && sectionIds.length > 0) {
             const propertyId = initialPropertyIds[0]
-            const selectedSections = get(property, ['map', 'sections'], []).filter(section => includes(sectionIds, section.id))
-            const allSectionsUnits = getAllSectionsUnits(selectedSections)
-            const unitNames = allSectionsUnits.map(unit => unit.label)
-            const unitTypes = allSectionsUnits.map(unit => get(unit, 'unitType', NewsItemScopeUnitTypeType.Flat) as NewsItemScopeUnitTypeType)
+            const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
 
             await Promise.all(unitNames.map((unitName, i) => {
                 createNewsItemScope({
@@ -580,8 +620,32 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialSentAt, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitNames, createNewsItemScope, router])
 
-    const { loading: loadingProperty, obj: property }: { loading: boolean, obj: IProperty }  = Property.useObject({ where:{ id: selectedPropertiesId.length === 1 ? selectedPropertiesId[0] : null } })
+    const newsItemScopesNoInstance: TNewsItemScopeNoInstance[]  = useMemo(() => {
+        if (isOnlyOnePropertySelected) {
+            if (!isEmpty(selectedUnitNames)) {
+                return selectedUnitNames.map((unitName, i) => {
+                    return { property: selectedProperties[0], unitType: selectedUnitTypes[i], unitName: unitName }
+                })
+            }
+            if (!isEmpty(selectedSectionIds)) {
+                const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(selectedProperties[0], selectedSectionIds)
+                return unitNames.map((unitName, i) => {
+                    return { property: selectedProperties[0], unitType: unitTypes[i], unitName: unitName }
+                })
+            }
+            if (isEmpty(selectedUnitNames) && isEmpty(selectedSectionIds)) {
+                return [{ property: selectedProperties[0] }]
+            }
+            return []
+        } else if (!isEmpty(selectedProperties)) {
+            return selectedProperties.map(property => {
+                return { property: property }
+            })
+        }
 
+        return []
+    }, [isOnlyOnePropertySelected, selectedProperties, selectedSectionIds, selectedUnitNames, selectedUnitTypes])
+    
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
             <Col span={24} flex='auto'>
@@ -595,7 +659,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                         values.unitNames = selectedUnitNames
                         values.unitTypes = selectedUnitTypes
                         values.sectionIds = selectedSectionIds
-                        values.property = property
+                        values.property = selectedProperties[0]
 
                         return values
                     }}
@@ -743,13 +807,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 <Col span={11}>
                                                     <Form.Item
                                                         name='unitNames'
-                                                        label={isNull(property) || loadingProperty || !isEmpty(selectedSectionIds) ? <LabelWithInfo title={UnitsMessage} message={UnitsLabel}/> : UnitsLabel}
+                                                        label={!isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedSectionIds) ? <LabelWithInfo title={UnitsMessage} message={UnitsLabel}/> : UnitsLabel}
                                                     >
                                                         <UnitNameInput
                                                             multiple={true}
-                                                            property={property}
+                                                            property={selectedProperties[0]}
                                                             allowClear={false}
-                                                            loading={loadingProperty || !isEmpty(selectedSectionIds)}
+                                                            loading={selectedPropertiesLoading || !isEmpty(selectedSectionIds)}
                                                             onChange={handleChangeUnitNameInput}
                                                         />
                                                     </Form.Item>
@@ -757,12 +821,12 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 <Col span={11} offset={2}>
                                                     <Form.Item
                                                         name='sectionIds'
-                                                        label={isNull(property) || loadingProperty || !isEmpty(selectedUnitNames) ? <LabelWithInfo title={SectionsMessage} message={SectionsLabel}/> : SectionsLabel}
+                                                        label={!isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedUnitNames) ? <LabelWithInfo title={SectionsMessage} message={SectionsLabel}/> : SectionsLabel}
                                                     >
                                                         <SectionNameInput
-                                                            disabled={isNull(property) || loadingProperty || !isEmpty(selectedUnitNames)}
-                                                            property={property}
-                                                            onChange={handleChangeSectionNameInput(property)}
+                                                            disabled={!isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedUnitNames)}
+                                                            property={selectedProperties[0]}
+                                                            onChange={handleChangeSectionNameInput(selectedProperties[0])}
                                                             mode='multiple'
                                                         />
                                                     </Form.Item>
@@ -771,8 +835,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                         </Col>
                                         <Col span={formInfoColSpan}>
                                             <RecipientCounter
-                                                newsItemScopes={initialNewsItemScopes}
-                                            />
+                                                newsItemScopes={newsItemScopesNoInstance}
+                                            /> 
                                         </Col>
                                     </Row>
                                 </Col>

@@ -1,6 +1,7 @@
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import uniq from 'lodash/uniq'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -9,6 +10,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { getCompletedNotification, CreateNewsActionBar } from '@condo/domains/news/components/NewsForm/CreateNewsForm'
 import { NewsItem, NewsItemTemplate, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseNewsForm, SendPeriodType, BaseNewsFormProps } from './BaseNewsForm'
 
@@ -49,6 +51,13 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
         },
     })
 
+    const selectedPropertiesId = useMemo(() => {
+        return uniq(newsItemScopes.map(item => item.property.id))
+    }, [newsItemScopes]) 
+    const { loading: propertiesLoading, objs: properties } = Property.useAllObjects({
+        where: { id_in: selectedPropertiesId },
+    })
+
     const sendPeriod: SendPeriodType = useMemo(() => {
         return get(newsItem, 'sendAt', null) ? 'later' : 'now'
     }, [newsItem])
@@ -61,10 +70,11 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
         ...newsItem,
         newsItemScopes: newsItemScopes,
         hasAllProperties: hasAllProperties,
+        properties: properties,
         sendPeriod: sendPeriod,
         sendAt: sendAt ? sendAt : null,
         validBefore: validBefore ? validBefore : null,
-    }), [hasAllProperties, newsItem, newsItemScopes, sendAt, sendPeriod, validBefore])
+    }), [hasAllProperties, newsItem, newsItemScopes, properties, sendAt, sendPeriod, validBefore])
 
     const {
         loading: isNewsItemTemplatesFetching,
@@ -109,8 +119,8 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
         () => newsItemError || newsItemScopeError || newsItemTemplatesError || allNewsError, 
         [allNewsError, newsItemError, newsItemScopeError, newsItemTemplatesError])
     const loading = useMemo(
-        () => newsItemLoading || !newsItemScopeAllDataLoaded || isNewsFetching || isNewsItemTemplatesFetching, 
-        [isNewsFetching, isNewsItemTemplatesFetching, newsItemLoading, newsItemScopeAllDataLoaded])
+        () => propertiesLoading || newsItemLoading || !newsItemScopeAllDataLoaded || isNewsFetching || isNewsItemTemplatesFetching, 
+        [isNewsFetching, isNewsItemTemplatesFetching, newsItemLoading, newsItemScopeAllDataLoaded, propertiesLoading])
 
     if (loading || error) {
         return (
