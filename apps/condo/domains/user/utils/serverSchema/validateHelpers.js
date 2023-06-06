@@ -10,7 +10,7 @@ const {
 const { GQL_ERRORS: ERRORS } = require('@condo/domains/user/constants/errors')
 
 
-const UNICODE_ChARS_REGEX = /[\w\W]/gu
+const UNICODE_CHARS_REGEX = /[\w\W]/gu
 
 /**
  * Checks for the presence of a substring in a string, case insensitive
@@ -19,7 +19,7 @@ const UNICODE_ChARS_REGEX = /[\w\W]/gu
  * @param substr {string}
  * @return {boolean}
  */
-const hasSubstring = (str, substr) => {
+const hasCaseInsensitiveSubstring = (str, substr) => {
     if (!isString(str) || isEmpty(str)) return false
     if (!isString(substr) || isEmpty(substr)) return false
     return str.toLowerCase().includes(substr.toLowerCase())
@@ -36,7 +36,7 @@ const hasSubstring = (str, substr) => {
 const hasDifferentCharacters = (str, count = 0) => {
     if (!isString(str) || isEmpty(str)) return false
 
-    const chars = str.match(UNICODE_ChARS_REGEX)
+    const chars = str.match(UNICODE_CHARS_REGEX)
     return isArray(chars) && new Set(chars).size >= count
 }
 
@@ -63,7 +63,7 @@ const hasDifferentCharacters = (str, count = 0) => {
 const getStringLength = (str) => {
     if (!isString(str) || isEmpty(str)) return 0
 
-    const chars = str.match(UNICODE_ChARS_REGEX)
+    const chars = str.match(UNICODE_CHARS_REGEX)
     return isArray(chars) ? chars.length : 0
 }
 
@@ -102,17 +102,17 @@ const passwordValidations = async (context, pass, email, phone, name) => {
     }
 
     // Password must not contain email
-    if (hasSubstring(pass, email)) {
+    if (hasCaseInsensitiveSubstring(pass, email)) {
         throw new GQLError(ERRORS.PASSWORD_CONTAINS_EMAIL, context)
     }
 
     // Password must not contain phone
-    if (hasSubstring(pass, phone)) {
+    if (hasCaseInsensitiveSubstring(pass, phone)) {
         throw new GQLError(ERRORS.PASSWORD_CONTAINS_PHONE, context)
     }
 
     // Password must not contain name
-    if (hasSubstring(pass, name)) {
+    if (hasCaseInsensitiveSubstring(pass, name)) {
         throw new GQLError(ERRORS.PASSWORD_CONTAINS_NAME, context)
     }
 }

@@ -58,8 +58,6 @@ const User = new GQLListSchema('User', {
                     const { context, resolvedData, existingItem, fieldPath, operation } = props
 
                     if (operation === 'update') {
-                        console.log({ context, resolvedData, existingItem, props })
-
                         const newItem = { ...existingItem, ...resolvedData }
                         const pass = newItem[fieldPath]
 
