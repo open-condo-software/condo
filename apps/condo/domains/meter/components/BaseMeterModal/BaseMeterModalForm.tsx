@@ -186,14 +186,16 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                         <Row gutter={METER_MODAL_ROW_GUTTERS}>
                             <Col span={24}>
                                 <Row justify='space-between' gutter={METER_MODAL_ROW_GUTTERS}>
-                                    {!isPropertyMeter && <Col span={24}>
-                                        <BaseMeterModalAccountNumberField
-                                            initialValues={initialValues}
-                                            rules={validations.accountNumber}
-                                            disabled={disabled}
-                                            validateFirst
-                                        />
-                                    </Col>}
+                                    {!isPropertyMeter && (
+                                        <Col span={24}>
+                                            <BaseMeterModalAccountNumberField
+                                                initialValues={initialValues}
+                                                rules={validations.accountNumber}
+                                                disabled={disabled}
+                                                validateFirst
+                                            />
+                                        </Col>
+                                    )}
                                     <Col span={24}>
                                         <BaseMeterModalFormItem
                                             label={ResourceMessage}
