@@ -1647,7 +1647,7 @@
   "api.user.checkPasswordRecoveryToken.TOKEN_NOT_FOUND": "Токен на смену пароля не найден либо просрочен. Попробуйте пройти процедуру смены пароля заново.",
   "api.user.startPasswordRecovery.USER_NOT_FOUND": "Не найден пользователь, для которого требуется восстановить доступ",
   "api.user.startPasswordRecovery.MULTIPLE_USERS_FOUND": "Что-то пошло не так. Обратитесь в техническую поддержку",
-  "api.user.changePasswordWithToken.USER_NOT_FOUND": "Что-то пошло не так. Попробуйте пройти процедуру восстановления доступа заново",
+  "api.user.changePasswordWithToken.USER_NOT_FOUND": "Не удалось найти пользователя с указанным телефоном",
   "api.user.signinAsUser.USER_NOT_FOUND": "Пользователь не найден",
   "api.user.signinAsUser.DENIED_FOR_ADMIN": "Вы не можете авторизоваться за другого администратора",
   "api.user.signinAsUser.DENIED_FOR_SUPPORT": "Вы не можете авторизоваться за другого пользователя тех-поддержки",

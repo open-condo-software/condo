@@ -1647,7 +1647,7 @@
   "api.user.checkPasswordRecoveryToken.TOKEN_NOT_FOUND": "Could not find token to recover password or it was expired. Try to start password recovery procedure from scratch.",
   "api.user.startPasswordRecovery.USER_NOT_FOUND": "Could not find user to recover access for",
   "api.user.startPasswordRecovery.MULTIPLE_USERS_FOUND": "Something went wrong. Ask support for further assistance",
-  "api.user.changePasswordWithToken.USER_NOT_FOUND": "Something went wrong. Try to start access recovery from scratch",
+  "api.user.changePasswordWithToken.USER_NOT_FOUND": "Unable to find user with specified phone",
   "api.user.signinAsUser.USER_NOT_FOUND": "User not found",
   "api.user.signinAsUser.DENIED_FOR_ADMIN": "You cannot authenticate for an another admin user",
   "api.user.signinAsUser.DENIED_FOR_SUPPORT": "You cannot authenticate for an another support user",
