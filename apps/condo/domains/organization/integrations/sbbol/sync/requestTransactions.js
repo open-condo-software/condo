@@ -152,7 +152,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 if (transaction.direction === 'DEBIT') {
                     [bankContractorAccount] = await BankContractorAccount.getAll(context, {
                         organization: { id: organizationId },
-                        tin: transaction.rurTransfer.payerName,
+                        tin: transaction.rurTransfer.payerInn,
                         number: transaction.rurTransfer.payerAccount,
                         deletedAt: null,
                     }, { first: 1 })
