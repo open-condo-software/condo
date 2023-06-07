@@ -17,6 +17,7 @@ const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/c
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { PropertyMeter: PropertyMeterGQL } = require('@condo/domains/meter/gql')
 const { PropertyMeterReading: PropertyMeterReadingGQL } = require('@condo/domains/meter/gql')
+const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -26,6 +27,7 @@ const MeterReading = generateGQLTestUtils(MeterReadingGQL)
 const MeterReadingFilterTemplate = generateGQLTestUtils(MeterReadingFilterTemplateGQL)
 const PropertyMeter = generateGQLTestUtils(PropertyMeterGQL)
 const PropertyMeterReading = generateGQLTestUtils(PropertyMeterReadingGQL)
+const MeterReportingPeriod = generateGQLTestUtils(MeterReportingPeriodGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
@@ -293,6 +295,43 @@ async function updateTestPropertyMeterReading (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMeterReportingPeriod (client, organization, property, meter, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!property || !property.id) throw new Error('no property.id')
+    if (!meter || !meter.id) throw new Error('no meter.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestMeterReportingPeriod logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        property: { connect: { id: property.id } },
+        meter: { connect: { id: meter.id } },
+        ...extraAttrs,
+    }
+    const obj = await MeterReportingPeriod.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMeterReportingPeriod (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestMeterReportingPeriod logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MeterReportingPeriod.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -305,5 +344,6 @@ module.exports = {
     makeClientWithResidentAndMeter,
         PropertyMeter, createTestPropertyMeter, updateTestPropertyMeter,
     PropertyMeterReading, createTestPropertyMeterReading, updateTestPropertyMeterReading,
+    MeterReportingPeriod, createTestMeterReportingPeriod, updateTestMeterReportingPeriod,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

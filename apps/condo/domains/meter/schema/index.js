@@ -11,6 +11,7 @@ const { MeterReadingSource } = require('./MeterReadingSource')
 const { MeterResource } = require('./MeterResource')
 const { PropertyMeter } = require('./PropertyMeter')
 const { PropertyMeterReading } = require('./PropertyMeterReading')
+const { MeterReportingPeriod } = require('./MeterReportingPeriod')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -22,5 +23,6 @@ module.exports = {
     MeterReadingFilterTemplate,
     PropertyMeter,
     PropertyMeterReading,
+    MeterReportingPeriod,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
