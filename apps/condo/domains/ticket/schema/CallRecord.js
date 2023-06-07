@@ -11,6 +11,9 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/ticket/access/CallRecord')
 
+const { PHONE_WRONG_FORMAT_ERROR } = require('../../common/constants/errors')
+const { normalizePhone } = require('../../common/utils/phone')
+
 const TICKET_FILE_FOLDER_NAME = 'ticket-call-record'
 const Adapter = new FileAdapter(TICKET_FILE_FOLDER_NAME)
 const fileMetaAfterChange = getFileMetaAfterChange(Adapter)
@@ -35,11 +38,35 @@ const CallRecord = new GQLListSchema('CallRecord', {
             schemaDoc: 'Phone number of the person who called',
             type: Text,
             isRequired: true,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    const newValue = normalizePhone(resolvedData['phone'], true)
+                    return newValue || resolvedData['phone']
+                },
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                    const newValue = normalizePhone(resolvedData['phone'], true)
+                    if (resolvedData['phone'] && newValue !== resolvedData['phone']) {
+                        addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
+                    }
+                },
+            },
         },
         destCallerPhone: {
             schemaDoc: 'Phone number of the person to whom called',
             type: Text,
             isRequired: true,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    const newValue = normalizePhone(resolvedData['phone'], true)
+                    return newValue || resolvedData['phone']
+                },
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                    const newValue = normalizePhone(resolvedData['phone'], true)
+                    if (resolvedData['phone'] && newValue !== resolvedData['phone']) {
+                        addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
+                    }
+                },
+            },
         },
         talkTime: {
             schemaDoc: 'Time of conversation between operator and client (in seconds)',
