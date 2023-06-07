@@ -132,7 +132,8 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     amount: transaction.amount.amount,
                     currencyCode: transaction.amount.currencyName,
                     purpose: transaction.paymentPurpose,
-                    isOutcome: transaction.direction === 'CREDIT',
+                    // A debit transaction is an expense, since the direction of the transaction looks relative to the bank from which the data was received
+                    isOutcome: transaction.direction === 'DEBIT',
                     importId: transaction.uuid,
                     importRemoteSystem: SBBOL_IMPORT_NAME,
                 }
