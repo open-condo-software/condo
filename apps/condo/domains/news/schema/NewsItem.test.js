@@ -88,6 +88,7 @@ describe('NewsItems', () => {
                 expect(obj.body).toEqual(attrs.body)
                 expect(obj.type).toEqual(attrs.type)
                 expect(obj.isPublished).toEqual(false)
+                expect(obj.number).toEqual(1)
             })
 
             test('support can', async () => {
@@ -136,6 +137,21 @@ describe('NewsItems', () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await createTestNewsItem(anonymousClient, dummyO10n)
                 })
+            })
+
+            test('The news item number autoincrement works fine', async () => {
+                const [o10n1] = await createTestOrganization(adminClient)
+                const [o10n2] = await createTestOrganization(adminClient)
+
+                const [obj11] = await createTestNewsItem(adminClient, o10n1)
+                const [obj12] = await createTestNewsItem(adminClient, o10n1)
+                const [obj21] = await createTestNewsItem(adminClient, o10n2)
+                const [obj13] = await createTestNewsItem(adminClient, o10n1)
+
+                expect(obj11.number).toEqual(1)
+                expect(obj12.number).toEqual(2)
+                expect(obj13.number).toEqual(3)
+                expect(obj21.number).toEqual(1)
             })
         })
 

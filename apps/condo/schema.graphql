@@ -57073,6 +57073,7 @@ type NewsItemHistoryRecord {
   """
   _label_: String
   organization: String
+  number: JSON
   title: String
   body: String
   type: String
@@ -57102,6 +57103,10 @@ input NewsItemHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
+  number: JSON
+  number_not: JSON
+  number_in: [JSON]
+  number_not_in: [JSON]
   title: String
   title_not: String
   title_contains: String
@@ -57299,6 +57304,7 @@ enum SortNewsItemHistoryRecordsBy {
 
 input NewsItemHistoryRecordUpdateInput {
   organization: String
+  number: JSON
   title: String
   body: String
   type: String
@@ -57327,6 +57333,7 @@ input NewsItemHistoryRecordsUpdateInput {
 
 input NewsItemHistoryRecordCreateInput {
   organization: String
+  number: JSON
   title: String
   body: String
   type: String
@@ -57379,6 +57386,9 @@ type NewsItem {
   """ The organization the news item created by """
   organization: Organization
 
+  """ The news item number """
+  number: Int
+
   """ The news item title """
   title: String
 
@@ -57429,6 +57439,14 @@ input NewsItemWhereInput {
   OR: [NewsItemWhereInput]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
+  number: Int
+  number_not: Int
+  number_lt: Int
+  number_lte: Int
+  number_gt: Int
+  number_gte: Int
+  number_in: [Int]
+  number_not_in: [Int]
   title: String
   title_not: String
   title_contains: String
@@ -57569,6 +57587,8 @@ input NewsItemWhereUniqueInput {
 enum SortNewsItemsBy {
   organization_ASC
   organization_DESC
+  number_ASC
+  number_DESC
   title_ASC
   title_DESC
   body_ASC
@@ -57605,6 +57625,7 @@ enum SortNewsItemsBy {
 
 input NewsItemUpdateInput {
   organization: OrganizationRelateToOneInput
+  number: Int
   title: String
   body: String
   type: NewsItemTypeType
@@ -57631,6 +57652,7 @@ input NewsItemsUpdateInput {
 
 input NewsItemCreateInput {
   organization: OrganizationRelateToOneInput
+  number: Int
   title: String
   body: String
   type: NewsItemTypeType
