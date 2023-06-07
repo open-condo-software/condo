@@ -38,6 +38,7 @@ if (LOAD_TESTING) {
     config.e2e.video = false
     config.e2e.screenshotOnRunFailure = false
     config.e2e.retries = 0
+    config.e2e.defaultCommandTimeout = 30000
 }
 
 export default defineConfig(config)
