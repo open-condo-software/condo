@@ -29,6 +29,7 @@ export const WindowTitleContextProvider: React.FC = ({ children }) => {
             if (!isNull(titleConfig)) {
                 clearInterval(intervalRef.current)
                 document.title = originalTitle.current
+                changeFavicon(originalIconHref.current)
 
                 intervalRef.current = null
                 setTitleConfig(null)
@@ -40,22 +41,22 @@ export const WindowTitleContextProvider: React.FC = ({ children }) => {
             originalIconHref.current = getFaviconHref()
 
             if (document.hasFocus()) {
-                document.title = titleConfig.label
                 changeFavicon(titleConfig.iconPath)
+                document.title = titleConfig.label
 
                 setTimeout(() => {
-                    document.title = originalTitle.current
                     changeFavicon(originalIconHref.current)
+                    document.title = originalTitle.current
                     setTitleConfig(null)
                 }, TITLE_BLINK_INTERVAL)
             } else {
                 intervalRef.current = setInterval(() => {
                     if (document.title !== originalTitle.current) {
-                        document.title = originalTitle.current
                         changeFavicon(originalIconHref.current)
+                        document.title = originalTitle.current
                     } else {
-                        document.title = titleConfig.label
                         changeFavicon(titleConfig.iconPath)
+                        document.title = titleConfig.label
                     }
                 }, TITLE_BLINK_INTERVAL)
 
