@@ -168,8 +168,8 @@ const ROW_PANEL_CONFIG = {
     'type': 'row',
 }
 
-const METRICS_PREFIX = conf['STATSD_METRIC_PREFIX'] + 'cypress.'
-const METRICS_POSTFIX = '.avg'
+const METRICS_PREFIX = 'avg(' + conf['STATSD_METRIC_PREFIX'] + 'cypress.'
+const METRICS_POSTFIX = '.avg)'
 
 const GRAFANA_DASHBOARD_PANEL_WIDTH = 8
 const GRAFANA_DASHBOARD_PANEL_HEIGHT = 8
