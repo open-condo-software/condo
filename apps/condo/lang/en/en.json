@@ -678,6 +678,8 @@
   "pages.condo.ticket.index.ResetFilters": "Reset",
   "pages.condo.ticket.index.CancelSelectedTicket": "Deselect",
   "pages.condo.ticket.index.CountSelectedTicket": "Items selected",
+  "pages.condo.ticket.index.fewNewTicketsTitle": "New tickets: {count}",
+  "pages.condo.ticket.index.manyNewTicketsTitle": "Lots of new tickets",
   "pages.condo.ticket.exportBlank.title": "Add to Form for Printing",
   "pages.condo.ticket.exportBlank.SaveToPDF.label": "Print",
   "pages.condo.ticket.exportBlank.SaveToPDF.tooltip": "You can print up to 50 tickets at a time",

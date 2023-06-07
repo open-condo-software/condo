@@ -347,7 +347,6 @@ const TicketsTableContainer = ({
     TicketImportButton,
 }) => {
     const intl = useIntl()
-    const TicketTitle = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
 
     const { count: ticketsWithFiltersCount } = Ticket.useCount({ where: searchTicketsQuery })
 
@@ -357,7 +356,7 @@ const TicketsTableContainer = ({
     const [isRefetching, setIsRefetching] = useState(false)
     const ticketsCountRef = useRef(null)
     const audio = useAudio()
-    const { setNewTitle } = useWindowTitleContext()
+    const { setTitleConfig } = useWindowTitleContext()
 
     const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE), [offset])
 
@@ -376,7 +375,17 @@ const TicketsTableContainer = ({
     const [loadNewTicketCount] = useLazyQuery(TicketGQL.GET_COUNT_OBJS_QUERY, {
         onCompleted: ({ meta: { count } }) => {
             if (!isNull(ticketsCountRef.current) && ticketsCountRef.current !== count) {
-                setNewTitle(`${TicketTitle} (${count - ticketsCountRef.current})`)
+                const totalNewTicketsCount = count - ticketsCountRef.current
+                const iconPath = totalNewTicketsCount > 9
+                    ? '/favicons/infinity.svg'
+                    : `/favicons/${totalNewTicketsCount}.svg`
+                const newTitle = totalNewTicketsCount > 9
+                    ? intl.formatMessage({ id: 'pages.condo.ticket.index.manyNewTicketsTitle' })
+                    : intl.formatMessage({ id: 'pages.condo.ticket.index.fewNewTicketsTitle' }, { count: totalNewTicketsCount })
+                setTitleConfig({
+                    label: newTitle,
+                    iconPath,
+                })
                 audio.playNewItemsFetchedSound()
             }
             ticketsCountRef.current = count
