@@ -20,6 +20,8 @@ services:
       context: .
       dockerfile: Dockerfile
     user: app
+    env_file:
+      - .env
     volumes:
       - ./apps/:/app/apps
       - ./packages/:/app/packages
