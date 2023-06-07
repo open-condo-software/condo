@@ -2490,6 +2490,7 @@ input UserExternalIdentityHistoryRecordsCreateInput {
 }
 
 enum UserExternalIdentityIdentityTypeType {
+  apple_id
   sber_id
   sbbol
 }

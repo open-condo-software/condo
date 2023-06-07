@@ -1,8 +1,10 @@
+const bodyParser = require('body-parser')
 const express = require('express')
 
 const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
 
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
+const { AppleIdRoutes } = require('@condo/domains/user/integration/appleid/routes')
 const { SberIdRoutes } = require('@condo/domains/user/integration/sberid/routes')
 
 class UserExternalIdentityMiddleware {
@@ -13,6 +15,12 @@ class UserExternalIdentityMiddleware {
         const sbbolRoutes = new SbbolRoutes()
         app.get('/api/sbbol/auth', sbbolRoutes.startAuth.bind(sbbolRoutes))
         app.get('/api/sbbol/auth/callback', sbbolRoutes.completeAuth.bind(sbbolRoutes))
+
+        // apple_id route
+        const appleIdRoutes = new AppleIdRoutes()
+        app.get('/api/apple_id/auth', appleIdRoutes.startAuth.bind(appleIdRoutes))
+        app.get('/api/apple_id/auth/callback', appleIdRoutes.completeAuth.bind(appleIdRoutes))
+        app.post('/api/apple_id/auth/callback', appleIdRoutes.completeAuth.bind(appleIdRoutes))
 
         // sber_id route
         const sberIdRoutes = new SberIdRoutes()
