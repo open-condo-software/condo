@@ -10,9 +10,11 @@ import { TableRowSelection } from 'antd/lib/table/interface'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
+import isNull from 'lodash/isNull'
 import isNumber from 'lodash/isNumber'
 import isString from 'lodash/isString'
 import omit from 'lodash/omit'
+import pick from 'lodash/pick'
 import Head from 'next/head'
 import { NextRouter, useRouter } from 'next/router'
 import { TableComponents } from 'rc-table/lib/interface'
@@ -21,6 +23,7 @@ import React, { CSSProperties, Key, useCallback, useEffect, useMemo, useRef, use
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { FileUp, Filter, Search, Close } from '@open-condo/icons'
+import { useLazyQuery } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -42,6 +45,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table, TableRecord } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
 import { EXCEL } from '@condo/domains/common/constants/export'
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import {
@@ -74,6 +78,7 @@ import {
     useFavoriteTickets,
 } from '@condo/domains/ticket/contexts/FavoriteTicketsContext'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
+import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
@@ -341,6 +346,9 @@ const TicketsTableContainer = ({
     baseQueryLoading,
     TicketImportButton,
 }) => {
+    const intl = useIntl()
+    const TicketTitle = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
+
     const { count: ticketsWithFiltersCount } = Ticket.useCount({ where: searchTicketsQuery })
 
     const router = useRouter()
@@ -349,6 +357,7 @@ const TicketsTableContainer = ({
     const [isRefetching, setIsRefetching] = useState(false)
     const ticketsCountRef = useRef(null)
     const audio = useAudio()
+    const { setNewTitle } = useWindowTitleContext()
 
     const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE), [offset])
 
@@ -364,20 +373,35 @@ const TicketsTableContainer = ({
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
 
-    useEffect(() => {
-        if (tickets && tickets.length > 0) {
-            const firstTimeLoading = ticketsCountRef.current === null
-            if (!firstTimeLoading && ticketsCountRef.current !== tickets.length) {
+    const [loadNewTicketCount] = useLazyQuery(TicketGQL.GET_COUNT_OBJS_QUERY, {
+        onCompleted: ({ meta: { count } }) => {
+            if (!isNull(ticketsCountRef.current) && ticketsCountRef.current !== count) {
+                setNewTitle(`${TicketTitle} (${count - ticketsCountRef.current})`)
                 audio.playNewItemsFetchedSound()
             }
-            ticketsCountRef.current = tickets.length
-        }
-    }, [tickets?.length])
+            ticketsCountRef.current = count
+        },
+        onError: () => {
+            ticketsCountRef.current = null
+        },
+        fetchPolicy: 'network-only',
+        variables: {
+            where: { AND: [
+                pick(searchTicketsQuery, 'organization'), { status: { type: TicketStatusTypeType.NewOrReopened } },
+            ] },
+            first: DEFAULT_PAGE_SIZE,
+        },
+    })
+
+    const refetchTickets = useCallback(async () => {
+        await refetch()
+        await loadNewTicketCount()
+    }, [loadNewTicketCount, refetch])
 
     const {
         columns,
         loading: columnsLoading,
-    } = useTableColumns(filterMetas, tickets, refetch, isRefetching, setIsRefetching)
+    } = useTableColumns(filterMetas, tickets, refetchTickets, isRefetching, setIsRefetching)
 
     const loading = (isTicketsFetching || columnsLoading || baseQueryLoading) && !isRefetching
 
@@ -1007,50 +1031,52 @@ const TicketsPage: ITicketIndexPage = () => {
                     <FavoriteTicketsContextProvider
                         extraTicketsQuery={{ ...ticketFilterQuery, organization: { id: userOrganizationId } }}
                     >
-                        <Row
-                            gutter={breakpoints.DESKTOP_LARGE && MEDIUM_VERTICAL_ROW_GUTTER}
-                            style={ticketsWithoutFiltersCount === 0 && EMPTY_TICKETS_ROW_STYLE}
-                        >
-                            <Col span={24}>
-                                <Row justify='space-between' gutter={MEDIUM_VERTICAL_ROW_GUTTER}>
-                                    <Col>
-                                        <PageHeader
-                                            style={HEADER_STYLES}
-                                            title={
-                                                <Typography.Title>
-                                                    {PageTitleMessage}
-                                                </Typography.Title>
-                                            }
-                                        />
-                                    </Col>
-                                    {
-                                        !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount > 0 && (
-                                            <Col>
-                                                <TicketTypeFilterSwitch
-                                                    ticketFilterQuery={ticketFilterQuery}
-                                                />
-                                            </Col>
-                                        )
-                                    }
-                                </Row>
-                            </Col>
-                            <Col span={24}>
-                                <TablePageContent>
-                                    <MultipleFilterContextProvider>
-                                        <TicketsPageContent
-                                            filterMetas={filterMetas}
-                                            useTableColumns={useTableColumns}
-                                            baseTicketsQuery={ticketFilterQuery}
-                                            loading={ticketFilterQueryLoading || ticketsWithoutFiltersCountLoading}
-                                            sortableProperties={SORTABLE_PROPERTIES}
-                                            showImport
-                                            ticketsWithoutFiltersCount={ticketsWithoutFiltersCount}
-                                            error={error}
-                                        />
-                                    </MultipleFilterContextProvider>
-                                </TablePageContent>
-                            </Col>
-                        </Row>
+                        <WindowTitleContextProvider>
+                            <Row
+                                gutter={breakpoints.DESKTOP_LARGE && MEDIUM_VERTICAL_ROW_GUTTER}
+                                style={ticketsWithoutFiltersCount === 0 && EMPTY_TICKETS_ROW_STYLE}
+                            >
+                                <Col span={24}>
+                                    <Row justify='space-between' gutter={MEDIUM_VERTICAL_ROW_GUTTER}>
+                                        <Col>
+                                            <PageHeader
+                                                style={HEADER_STYLES}
+                                                title={
+                                                    <Typography.Title>
+                                                        {PageTitleMessage}
+                                                    </Typography.Title>
+                                                }
+                                            />
+                                        </Col>
+                                        {
+                                            !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount > 0 && (
+                                                <Col>
+                                                    <TicketTypeFilterSwitch
+                                                        ticketFilterQuery={ticketFilterQuery}
+                                                    />
+                                                </Col>
+                                            )
+                                        }
+                                    </Row>
+                                </Col>
+                                <Col span={24}>
+                                    <TablePageContent>
+                                        <MultipleFilterContextProvider>
+                                            <TicketsPageContent
+                                                filterMetas={filterMetas}
+                                                useTableColumns={useTableColumns}
+                                                baseTicketsQuery={ticketFilterQuery}
+                                                loading={ticketFilterQueryLoading || ticketsWithoutFiltersCountLoading}
+                                                sortableProperties={SORTABLE_PROPERTIES}
+                                                showImport
+                                                ticketsWithoutFiltersCount={ticketsWithoutFiltersCount}
+                                                error={error}
+                                            />
+                                        </MultipleFilterContextProvider>
+                                    </TablePageContent>
+                                </Col>
+                            </Row>
+                        </WindowTitleContextProvider>
                     </FavoriteTicketsContextProvider>
                 </AutoRefetchTicketsContextProvider>
             </PageWrapper>
