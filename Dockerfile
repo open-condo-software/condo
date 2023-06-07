@@ -53,7 +53,7 @@ RUN set -ex \
     && ls -lah /app/
 
 # Runtime container
-FROM base
+FROM base as app
 USER app:app
 WORKDIR /app
 COPY --from=build --chown=root:root /app /app
