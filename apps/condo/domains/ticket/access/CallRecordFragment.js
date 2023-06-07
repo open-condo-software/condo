@@ -13,7 +13,7 @@ const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizatio
 async function canReadCallRecordFragments ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return {}
+    if (user.isAdmin) return {}
 
     return {
         organization: {
@@ -28,8 +28,7 @@ async function canReadCallRecordFragments ({ authentication: { item: user } }) {
 async function canManageCallRecordFragments ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (operation === 'update' && !isSoftDelete(originalInput)) return false
-    if (user.isAdmin || user.isSupport) return true
+    if (user.isAdmin) return true
 
     let organizationId
     if (operation === 'create') {
@@ -38,8 +37,7 @@ async function canManageCallRecordFragments ({ authentication: { item: user }, o
         organizationId = get(callRecord, 'organization', null)
     } else if (operation === 'update') {
         if (!itemId) return false
-        // only soft delete update
-        if (!originalInput.deletedAt) return false
+
         const callRecordFragment = await getById('CallRecordFragment', itemId)
         organizationId = get(callRecordFragment, 'organization', null)
     }

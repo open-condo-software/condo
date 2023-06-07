@@ -4,16 +4,16 @@
 const {
     makeLoggedInAdminClient, makeClient,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObj, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { CALL_RECORD_ERRORS } = require('@condo/domains/ticket/constants/errors')
 const { CallRecord, createTestCallRecord, updateTestCallRecord } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
-
 describe('CallRecord', () => {
-    let admin, support, employeeUser, notEmployeeUser, anonymous, organization, callRecord
+    let admin, support, employeeUser, notEmployeeUser, anonymous, organization, testCallRecord
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
@@ -35,63 +35,55 @@ describe('CallRecord', () => {
         await createTestOrganizationEmployee(admin, secondTestOrganization, notEmployeeUser.user, secondRole)
     })
     beforeEach(async () => {
-        const [testCallRecord] = await createTestCallRecord(admin, organization)
-        callRecord = testCallRecord
+        [testCallRecord] = await createTestCallRecord(admin, organization)
     })
     describe('Accesses', () => {
         describe('Admin', () => {
             test('can create', async () => {
-                expect(callRecord).toBeDefined()
-                expect(callRecord).toHaveProperty('organization.id', organization.id)
-                expect(callRecord.callerPhone).toBeDefined()
-                expect(callRecord.destCallerPhone).toBeDefined()
-                expect(callRecord.talkTime).toBeDefined()
-                expect(callRecord.startedAt).toBeDefined()
-                expect(callRecord.isIncomingCall).toBeDefined()
-                expect(callRecord.callId).toBeDefined()
+                expect(testCallRecord).toBeDefined()
+                expect(testCallRecord).toHaveProperty('organization.id', organization.id)
+                expect(testCallRecord.callerPhone).toBeDefined()
+                expect(testCallRecord.destCallerPhone).toBeDefined()
+                expect(testCallRecord.talkTime).toBeDefined()
+                expect(testCallRecord.startedAt).toBeDefined()
+                expect(testCallRecord.isIncomingCall).toBeDefined()
+                expect(testCallRecord.callId).toBeDefined()
             })
             test('can read', async () => {
-                const callRecord = await CallRecord.getOne(admin, { id: callRecord.id }, { sortBy: ['updatedAt_DESC'] })
+                const callRecord = await CallRecord.getOne(admin, { id: testCallRecord.id }, { sortBy: ['updatedAt_DESC'] })
                 expect(callRecord).toBeDefined()
-                expect(callRecord).toHaveProperty('id', callRecord.id)
+                expect(callRecord).toHaveProperty('id', testCallRecord.id)
             })
             test('can update', async () => {
-                const [callRecord] = await updateTestCallRecord(admin, callRecord.id, { isIncomingCall: false })
+                const [callRecord] = await updateTestCallRecord(admin, testCallRecord.id, { isIncomingCall: false })
                 expect(callRecord).toBeDefined()
                 expect(callRecord).toHaveProperty('isIncomingCall', false)
             })
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await CallRecord.delete(admin, callRecord.id)
+                    await CallRecord.delete(admin, testCallRecord.id)
                 })
             })
         })
 
         describe('Support', () => {
-            test('can create', async () => {
-                const [callRecord] = await createTestCallRecord(support, organization)
-                expect(callRecord).toBeDefined()
-                expect(callRecord).toHaveProperty('organization.id', organization.id)
-                expect(callRecord.callerPhone).toBeDefined()
-                expect(callRecord.destCallerPhone).toBeDefined()
-                expect(callRecord.talkTime).toBeDefined()
-                expect(callRecord.startedAt).toBeDefined()
-                expect(callRecord.isIncomingCall).toBeDefined()
-                expect(callRecord.callId).toBeDefined()
+            test('can\'t create', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestCallRecord(support, organization)
+                })
             })
-            test('can read', async () => {
-                const callRecord = await CallRecord.getOne(support, { id: callRecord.id }, { sortBy: ['updatedAt_DESC'] })
-                expect(callRecord).toBeDefined()
-                expect(callRecord).toHaveProperty('id', callRecord.id)
+            test('can\'t read', async () => {
+                const callRecord = await CallRecord.getOne(support, { id: testCallRecord.id }, { sortBy: ['updatedAt_DESC'] })
+                expect(callRecord).toBeUndefined()
             })
-            test('can update', async () => {
-                const [callRecord] = await updateTestCallRecord(support, callRecord.id, { isIncomingCall: false })
-                expect(callRecord).toBeDefined()
-                expect(callRecord).toHaveProperty('isIncomingCall', false)
+            test('can\'t update', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestCallRecord(support, testCallRecord.id, { isIncomingCall: false })
+                })
             })
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await CallRecord.delete(support, callRecord.id)
+                    await CallRecord.delete(support, testCallRecord.id)
                 })
             })
         })
@@ -109,18 +101,18 @@ describe('CallRecord', () => {
                 expect(callRecord.callId).toBeDefined()
             })
             test('can read', async () => {
-                const callRecord = await CallRecord.getOne(employeeUser, { id: callRecord.id }, { sortBy: ['updatedAt_DESC'] })
+                const callRecord = await CallRecord.getOne(employeeUser, { id: testCallRecord.id }, { sortBy: ['updatedAt_DESC'] })
                 expect(callRecord).toBeDefined()
                 expect(callRecord).toHaveProperty('id', callRecord.id)
             })
             test('can update', async () => {
-                const [callRecord] = await updateTestCallRecord(employeeUser, callRecord.id, { isIncomingCall: false })
+                const [callRecord] = await updateTestCallRecord(employeeUser, testCallRecord.id, { isIncomingCall: false })
                 expect(callRecord).toBeDefined()
                 expect(callRecord).toHaveProperty('isIncomingCall', false)
             })
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await CallRecord.delete(employeeUser, callRecord.id)
+                    await CallRecord.delete(employeeUser, testCallRecord.id)
                 })
             })
         })
@@ -132,17 +124,17 @@ describe('CallRecord', () => {
                 })
             })
             test('can\'t read', async () => {
-                const callRecords = await CallRecord.getAll(notEmployeeUser, { id: callRecord.id }, { sortBy: ['updatedAt_DESC'], first: 10 })
+                const callRecords = await CallRecord.getAll(notEmployeeUser, { id: testCallRecord.id }, { sortBy: ['updatedAt_DESC'], first: 10 })
                 expect(callRecords).toHaveLength(0)
             })
             test('can\'t update', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestCallRecord(notEmployeeUser, callRecord.id)
+                    await updateTestCallRecord(notEmployeeUser, testCallRecord.id)
                 })
             })
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await CallRecord.delete(notEmployeeUser, callRecord.id)
+                    await CallRecord.delete(notEmployeeUser, testCallRecord.id)
                 })
             })
         })
@@ -155,18 +147,36 @@ describe('CallRecord', () => {
             })
             test('can\'t read', async () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await CallRecord.getOne(anonymous, { id: callRecord.id }, { sortBy: ['updatedAt_DESC'] })
+                    await CallRecord.getOne(anonymous, { id: testCallRecord.id }, { sortBy: ['updatedAt_DESC'] })
                 })
             })
             test('can\'t update', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestCallRecord(anonymous, callRecord.id)
+                    await updateTestCallRecord(anonymous, testCallRecord.id)
                 })
             })
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await CallRecord.delete(anonymous, callRecord.id)
+                    await CallRecord.delete(anonymous, testCallRecord.id)
                 })
+            })
+        })
+    })
+
+    describe('Validations', () => {
+        describe('Phone validations', () => {
+            it('throw error when callerPhone has invalid format', async () => {
+                await expectToThrowGQLError(
+                    async () => await createTestCallRecord(employeeUser, organization, { callerPhone: '42' }),
+                    CALL_RECORD_ERRORS.INVALID_CALLER_PHONE_NUMBER_FORMAT
+                )
+            })
+
+            it('throw error when destCallerPhone has invalid format', async () => {
+                await expectToThrowGQLError(
+                    async () => await createTestCallRecord(employeeUser, organization, { destCallerPhone: '42' }),
+                    CALL_RECORD_ERRORS.INVALID_DEST_CALLER_PHONE_NUMBER_FORMAT
+                )
             })
         })
     })

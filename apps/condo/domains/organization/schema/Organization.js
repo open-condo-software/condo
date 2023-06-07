@@ -7,21 +7,21 @@ const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const get = require('lodash/get')
 
 const userAccess = require('@open-condo/keystone/access')
+const { GQLError } = require('@open-condo/keystone/errors')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
-const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/organization/access/Organization')
 const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
+const { ORGANIZATION_ERRORS } = require('@condo/domains/organization/constants/errors')
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
-
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
 
@@ -107,12 +107,6 @@ const Organization = new GQLListSchema('Organization', {
                     const newValue = normalizePhone(resolvedData['phone'], true)
                     return newValue || resolvedData['phone']
                 },
-                validateInput: async ({ resolvedData, addFieldValidationError }) => {
-                    const newValue = normalizePhone(resolvedData['phone'], true)
-                    if (resolvedData['phone'] && newValue !== resolvedData['phone']) {
-                        addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
-                    }
-                },
             },
         },
         phoneNumberPrefix: {
@@ -166,6 +160,15 @@ const Organization = new GQLListSchema('Organization', {
             kmigratorOptions: { null: true, unique: false },
         },
         features: ORGANIZATION_FEATURES_FIELD,
+    },
+    hooks: {
+        validateInput: async ({ resolvedData }) => {
+            const normalizedPhone = normalizePhone(resolvedData['phone'], true)
+
+            if (resolvedData['phone'] && normalizedPhone !== resolvedData['phone']) {
+                throw new GQLError(ORGANIZATION_ERRORS.INVALID_PHONE_NUMBER_FORMAT)
+            }
+        },
     },
     kmigratorOptions: {
         constraints: [

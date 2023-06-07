@@ -4,15 +4,15 @@
 
 const { Text, Relationship, Integer, Checkbox, DateTimeUtc, File } = require('@keystonejs/fields')
 
+const { GQLError } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/ticket/access/CallRecord')
-
-const { PHONE_WRONG_FORMAT_ERROR } = require('../../common/constants/errors')
-const { normalizePhone } = require('../../common/utils/phone')
+const { CALL_RECORD_ERRORS } = require('@condo/domains/ticket/constants/errors')
 
 const TICKET_FILE_FOLDER_NAME = 'ticket-call-record'
 const Adapter = new FileAdapter(TICKET_FILE_FOLDER_NAME)
@@ -40,14 +40,8 @@ const CallRecord = new GQLListSchema('CallRecord', {
             isRequired: true,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
-                    const newValue = normalizePhone(resolvedData['phone'], true)
-                    return newValue || resolvedData['phone']
-                },
-                validateInput: async ({ resolvedData, addFieldValidationError }) => {
-                    const newValue = normalizePhone(resolvedData['phone'], true)
-                    if (resolvedData['phone'] && newValue !== resolvedData['phone']) {
-                        addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
-                    }
+                    const newValue = normalizePhone(resolvedData['callerPhone'], true)
+                    return newValue || resolvedData['callerPhone']
                 },
             },
         },
@@ -57,14 +51,8 @@ const CallRecord = new GQLListSchema('CallRecord', {
             isRequired: true,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
-                    const newValue = normalizePhone(resolvedData['phone'], true)
-                    return newValue || resolvedData['phone']
-                },
-                validateInput: async ({ resolvedData, addFieldValidationError }) => {
-                    const newValue = normalizePhone(resolvedData['phone'], true)
-                    if (resolvedData['phone'] && newValue !== resolvedData['phone']) {
-                        addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}phone] invalid format`)
-                    }
+                    const newValue = normalizePhone(resolvedData['destCallerPhone'], true)
+                    return newValue || resolvedData['destCallerPhone']
                 },
             },
         },
@@ -90,6 +78,17 @@ const CallRecord = new GQLListSchema('CallRecord', {
         },
     },
     hooks: {
+        validateInput: async ({ resolvedData }) => {
+            const newCallerPhone = normalizePhone(resolvedData['callerPhone'], true)
+            const newDestCallerPhone = normalizePhone(resolvedData['destCallerPhone'], true)
+
+            if (resolvedData['callerPhone'] && newCallerPhone !== resolvedData['callerPhone']) {
+                throw new GQLError(CALL_RECORD_ERRORS.INVALID_CALLER_PHONE_NUMBER_FORMAT)
+            }
+            if (resolvedData['destCallerPhone'] && newDestCallerPhone !== resolvedData['destCallerPhone']) {
+                throw new GQLError(CALL_RECORD_ERRORS.INVALID_DEST_CALLER_PHONE_NUMBER_FORMAT)
+            }
+        },
         afterChange: fileMetaAfterChange,
         afterDelete: async ({ existingItem }) => {
             if (existingItem.file) {

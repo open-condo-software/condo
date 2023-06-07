@@ -14,7 +14,7 @@ async function canReadCallRecords ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin || user.isSupport) return {}
+    if (user.isAdmin) return {}
 
     return {
         organization: {
@@ -29,7 +29,7 @@ async function canReadCallRecords ({ authentication: { item: user } }) {
 async function canManageCallRecords ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return true
+    if (user.isAdmin) return true
 
     let organizationId
     if (operation === 'create') {

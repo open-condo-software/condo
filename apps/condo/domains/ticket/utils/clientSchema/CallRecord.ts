@@ -13,8 +13,6 @@ import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
 import { CallRecord as CallRecordGQL } from '@condo/domains/ticket/gql'
 
-// TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO
-
 const {
     useObject,
     useObjects,

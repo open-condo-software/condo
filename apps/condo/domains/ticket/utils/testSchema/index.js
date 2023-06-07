@@ -44,6 +44,7 @@ const { UserFavoriteTicket: UserFavoriteTicketGQL } = require('@condo/domains/ti
 const { IncidentExportTask: IncidentExportTaskGQL } = require('@condo/domains/ticket/gql')
 const { CallRecord: CallRecordGQL } = require('@condo/domains/ticket/gql')
 const { CallRecordFragment: CallRecordFragmentGQL } = require('@condo/domains/ticket/gql')
+const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -882,8 +883,8 @@ async function createTestCallRecord (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const callerPhone = faker.phone.number()
-    const destCallerPhone = faker.phone.number()
+    const callerPhone = createTestPhone()
+    const destCallerPhone = createTestPhone()
     const talkTime = Number(faker.random.numeric(3))
     const startedAt = new Date()
     const isIncomingCall = true
@@ -930,6 +931,7 @@ async function createTestCallRecordFragment (client, ticket, callRecord, extraAt
         sender,
         ticket: { connect: { id: ticket.id } },
         callRecord: { connect: { id: callRecord.id } },
+        startedAt: new Date(),
         ...extraAttrs,
     }
     const obj = await CallRecordFragment.create(client, attrs)

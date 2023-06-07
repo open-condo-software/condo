@@ -14,7 +14,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 
 
 describe('CallRecordFragment', () => {
-    let admin, support, employeeUser, notEmployeeUser, anonymous, organization, property, callRecordTicketByAdmin
+    let admin, support, employeeUser, notEmployeeUser, anonymous, organization, property, callRecordByAdmin, callRecordFragmentByAdmin
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
@@ -42,57 +42,55 @@ describe('CallRecordFragment', () => {
         const [testCallRecord] = await createTestCallRecord(admin, organization)
         const [testTicket] = await createTestTicket(admin, organization, property)
         const [testCallRecordFragment] = await createTestCallRecordFragment(admin, testTicket, testCallRecord)
-        callRecordTicketByAdmin = testCallRecordFragment
+
+        callRecordByAdmin = testCallRecord
+        callRecordFragmentByAdmin = testCallRecordFragment
     })
     describe('Accesses', () => {
         describe('Admin', () => {
             test('can create', async () => {
-                expect(callRecordTicketByAdmin).toBeDefined()
-                expect(callRecordTicketByAdmin).toHaveProperty('organization.id', organization.id)
-                expect(callRecordTicketByAdmin.ticket.id).toMatch(UUID_RE)
-                expect(callRecordTicketByAdmin.callRecord.id).toMatch(UUID_RE)
+                expect(callRecordFragmentByAdmin).toBeDefined()
+                expect(callRecordFragmentByAdmin).toHaveProperty('organization.id', organization.id)
+                expect(callRecordFragmentByAdmin.ticket.id).toMatch(UUID_RE)
+                expect(callRecordFragmentByAdmin.callRecord.id).toMatch(UUID_RE)
             })
             test('can read', async () => {
-                const callRecord = await CallRecordFragment.getOne(admin, { id: callRecordTicketByAdmin.id }, { sortBy: ['updatedAt_DESC'] })
+                const callRecord = await CallRecordFragment.getOne(admin, { id: callRecordFragmentByAdmin.id }, { sortBy: ['updatedAt_DESC'] })
                 expect(callRecord).toBeDefined()
-                expect(callRecord).toHaveProperty('id', callRecordTicketByAdmin.id)
+                expect(callRecord).toHaveProperty('id', callRecordFragmentByAdmin.id)
             })
             test('can update', async () => {
-                const [callRecord] = await updateTestCallRecordFragment(admin, callRecordTicketByAdmin.id, { deletedAt: 'true' })
+                const [callRecord] = await updateTestCallRecordFragment(admin, callRecordFragmentByAdmin.id, { deletedAt: 'true' })
                 expect(callRecord).toBeDefined()
                 expect(callRecord.deletedAt).toBeTruthy()
             })
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await CallRecordFragment.delete(admin, callRecordTicketByAdmin.id)
+                    await CallRecordFragment.delete(admin, callRecordFragmentByAdmin.id)
                 })
             })
         })
 
         describe('Support', () => {
-            test('can create', async () => {
-                const [testCallRecord] = await createTestCallRecord(admin, organization)
+            test('can\'t create', async () => {
                 const [testTicket] = await createTestTicket(admin, organization, property)
-                const [callRecordTicket] = await createTestCallRecordFragment(support, testTicket, testCallRecord)
 
-                expect(callRecordTicket).toBeDefined()
-                expect(callRecordTicket).toHaveProperty('organization.id', organization.id)
-                expect(callRecordTicket.ticket.id).toMatch(UUID_RE)
-                expect(callRecordTicket.callRecord.id).toMatch(UUID_RE)
+                await expectToThrowAccessDeniedErrorToObj(
+                    async () => await createTestCallRecordFragment(support, testTicket, callRecordByAdmin)
+                )
             })
-            test('can read', async () => {
-                const callRecord = await CallRecordFragment.getOne(support, { id: callRecordTicketByAdmin.id }, { sortBy: ['updatedAt_DESC'] })
-                expect(callRecord).toBeDefined()
-                expect(callRecord).toHaveProperty('id', callRecordTicketByAdmin.id)
+            test('can\'t read', async () => {
+                const callRecord = await CallRecordFragment.getOne(support, { id: callRecordFragmentByAdmin.id }, { sortBy: ['updatedAt_DESC'] })
+                expect(callRecord).toBeUndefined()
             })
-            test('can update', async () => {
-                const [callRecord] = await updateTestCallRecordFragment(support, callRecordTicketByAdmin.id, { deletedAt: 'true' })
-                expect(callRecord).toBeDefined()
-                expect(callRecord.deletedAt).toBeTruthy()
+            test('can\'t update', async () => {
+                await expectToThrowAccessDeniedErrorToObj(
+                    async () => await updateTestCallRecordFragment(support, callRecordFragmentByAdmin.id, { deletedAt: 'true' })
+                )
             })
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await CallRecordFragment.delete(support, callRecordTicketByAdmin.id)
+                    await CallRecordFragment.delete(support, callRecordFragmentByAdmin.id)
                 })
             })
         })
@@ -101,26 +99,26 @@ describe('CallRecordFragment', () => {
             test('can create', async () => {
                 const [testCallRecord] = await createTestCallRecord(employeeUser, organization)
                 const [testTicket] = await createTestTicket(employeeUser, organization, property)
-                const [callRecordTicket] = await createTestCallRecordFragment(employeeUser, testTicket, testCallRecord)
+                const [callRecordFragment] = await createTestCallRecordFragment(employeeUser, testTicket, testCallRecord)
 
-                expect(callRecordTicket).toBeDefined()
-                expect(callRecordTicket).toHaveProperty('organization.id', organization.id)
-                expect(callRecordTicket.ticket.id).toMatch(UUID_RE)
-                expect(callRecordTicket.callRecord.id).toMatch(UUID_RE)
+                expect(callRecordFragment).toBeDefined()
+                expect(callRecordFragment).toHaveProperty('organization.id', organization.id)
+                expect(callRecordFragment.ticket.id).toMatch(UUID_RE)
+                expect(callRecordFragment.callRecord.id).toMatch(UUID_RE)
             })
             test('can read', async () => {
-                const callRecord = await CallRecordFragment.getOne(employeeUser, { id: callRecordTicketByAdmin.id }, { sortBy: ['updatedAt_DESC'] })
+                const callRecord = await CallRecordFragment.getOne(employeeUser, { id: callRecordFragmentByAdmin.id }, { sortBy: ['updatedAt_DESC'] })
                 expect(callRecord).toBeDefined()
-                expect(callRecord).toHaveProperty('id', callRecordTicketByAdmin.id)
+                expect(callRecord).toHaveProperty('id', callRecordFragmentByAdmin.id)
             })
             test('can update', async () => {
-                const [callRecord] = await updateTestCallRecordFragment(employeeUser, callRecordTicketByAdmin.id, { deletedAt: 'true' })
+                const [callRecord] = await updateTestCallRecordFragment(employeeUser, callRecordFragmentByAdmin.id, { deletedAt: 'true' })
                 expect(callRecord).toBeDefined()
                 expect(callRecord.deletedAt).toBeTruthy()
             })
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await CallRecordFragment.delete(employeeUser, callRecordTicketByAdmin.id)
+                    await CallRecordFragment.delete(employeeUser, callRecordFragmentByAdmin.id)
                 })
             })
         })
@@ -135,17 +133,17 @@ describe('CallRecordFragment', () => {
                 })
             })
             test('can\'t read', async () => {
-                const callRecords = await CallRecordFragment.getAll(notEmployeeUser, { id: callRecordTicketByAdmin.id }, { sortBy: ['updatedAt_DESC'], first: 10 })
+                const callRecords = await CallRecordFragment.getAll(notEmployeeUser, { id: callRecordFragmentByAdmin.id }, { sortBy: ['updatedAt_DESC'], first: 10 })
                 expect(callRecords).toHaveLength(0)
             })
             test('can\'t update', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestCallRecordFragment(notEmployeeUser, callRecordTicketByAdmin.id)
+                    await updateTestCallRecordFragment(notEmployeeUser, callRecordFragmentByAdmin.id)
                 })
             })
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await CallRecordFragment.delete(notEmployeeUser, callRecordTicketByAdmin.id)
+                    await CallRecordFragment.delete(notEmployeeUser, callRecordFragmentByAdmin.id)
                 })
             })
         })
@@ -161,17 +159,17 @@ describe('CallRecordFragment', () => {
             })
             test('can\'t read', async () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await CallRecordFragment.getOne(anonymous, { id: callRecordTicketByAdmin.id }, { sortBy: ['updatedAt_DESC'] })
+                    await CallRecordFragment.getOne(anonymous, { id: callRecordFragmentByAdmin.id }, { sortBy: ['updatedAt_DESC'] })
                 })
             })
             test('can\'t update', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestCallRecordFragment(anonymous, callRecordTicketByAdmin.id)
+                    await updateTestCallRecordFragment(anonymous, callRecordFragmentByAdmin.id)
                 })
             })
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await CallRecordFragment.delete(anonymous, callRecordTicketByAdmin.id)
+                    await CallRecordFragment.delete(anonymous, callRecordFragmentByAdmin.id)
                 })
             })
         })
