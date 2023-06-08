@@ -1,7 +1,6 @@
 import { B2BAppGlobalFeature, SortCallRecordFragmentsBy } from '@app/condo/schema'
-import { Col, Row } from 'antd'
+import { Col, Row, RowProps } from 'antd'
 import { notification } from 'antd'
-import { Gutter } from 'antd/lib/grid/row'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { Link } from '@open-condo/icons'
@@ -19,8 +18,8 @@ interface ITicketCallRecordHistoryProps {
     ticketOrganizationId: string
 }
 
-const MAIN_ROW_GUTTER: [Gutter, Gutter] = [0, 24]
-const CALL_RECORDS_ROW_GUTTER: [Gutter, Gutter] = [0, 16]
+const MAIN_ROW_GUTTER: RowProps['gutter'] = [0, 24]
+const CALL_RECORDS_ROW_GUTTER: RowProps['gutter'] = [0, 16]
 
 const ALERT_DESCRIPTION_WRAPPER_STYLE: CSSProperties = { paddingTop: '24px' }
 
@@ -52,7 +51,7 @@ export const TicketCallRecordHistory: React.FC<ITicketCallRecordHistoryProps> = 
 
     const handleAttachCallRecordClick = useCallback(() => {
         requestFeature({
-            feature: B2BAppGlobalFeature.AttachRecordToTicket,
+            feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
             ticketId,
             ticketOrganizationId,
         })
@@ -63,7 +62,7 @@ export const TicketCallRecordHistory: React.FC<ITicketCallRecordHistoryProps> = 
     const showAttachCallToTicketAlert = isCallActive && !connectedTickets.find(id => ticketId === id)
     
     if (ticketCalls.length === 0 && !showAttachCallToTicketAlert) {
-        return <></>
+        return null
     }
 
     return (
@@ -84,6 +83,7 @@ export const TicketCallRecordHistory: React.FC<ITicketCallRecordHistoryProps> = 
                                 description={
                                     <div style={ALERT_DESCRIPTION_WRAPPER_STYLE}>
                                         <Button
+                                            id='TicketIndexAttachCallRecord'
                                             icon={<Link size='medium'/>}
                                             type='secondary'
                                             onClick={handleAttachCallRecordClick}

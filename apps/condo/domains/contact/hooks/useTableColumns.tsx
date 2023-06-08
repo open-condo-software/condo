@@ -151,5 +151,5 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
                 render: renderEmail,
             },
         ]
-    }, [NameMessage, sorterMap, filters, filterMetas, render, AddressMessage, renderAddress, RoleMessage, renderRolesFilterDropdown, UnitMessage, renderUnitName, PhoneMessage, EmailMessage])
+    }, [NameMessage, sorterMap, filters, filterMetas, render, AddressMessage, renderAddress, RoleMessage, renderRolesFilterDropdown, UnitMessage, renderUnitName, PhoneMessage, renderPhone, EmailMessage, renderEmail])
 }

@@ -209,7 +209,7 @@ export const getDateTimeGteFilter: (dataIndex: DataIndexType) => FilterType = (d
 
 export const getDateTimeLteFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
     const filter = getFilter(dataIndex, 'single', 'dateTime', 'lte')
-    return function searchDayGte (search) {
+    return function searchDayLte (search) {
         if (!search || Array.isArray(search)) return
         const date = dayjs(search)
         if (!date.isValid()) return

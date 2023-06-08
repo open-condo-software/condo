@@ -1,6 +1,5 @@
-import { Col, Row } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
-import { difference } from 'lodash'
+import { Col, Row, RowProps } from 'antd'
+import difference from 'lodash/difference'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
@@ -23,12 +22,12 @@ function getPopupContainer (): HTMLElement {
     return document.getElementById(DROPDOWN_POPUP_CONTAINER_ID)
 }
 
-const MAIN_ROW_GUTTER: [Gutter, Gutter] = [0, 40]
-const RECORD_INFO_ROW_GUTTER: [Gutter, Gutter] = [0, 24]
-const CLIENT_INFO_ROW_GUTTER: [Gutter, Gutter] = [0, 10]
-const CALL_RECORD_ROW_GUTTER: [Gutter, Gutter] = [0, 16]
-const DOWNLOAD_RECORD_ROW_GUTTER: [Gutter, Gutter] = [10, 0]
-const ATTACH_TICKETS_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
+const MAIN_ROW_GUTTER: RowProps['gutter'] = [0, 40]
+const RECORD_INFO_ROW_GUTTER: RowProps['gutter'] = [0, 24]
+const CLIENT_INFO_ROW_GUTTER: RowProps['gutter'] = [0, 10]
+const CALL_RECORD_ROW_GUTTER: RowProps['gutter'] = [0, 16]
+const DOWNLOAD_RECORD_ROW_GUTTER: RowProps['gutter'] = [10, 0]
+const ATTACH_TICKETS_ROW_GUTTER: RowProps['gutter'] = [0, 20]
 
 const TICKETS_SELECT_STYLE: CSSProperties = { width: '100%' }
 
@@ -60,7 +59,7 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
         .map(fragment => get(fragment, 'ticket.id'))
         .filter(Boolean), [initialCallRecordFragments])
 
-    const [attachedTickets, setAttachedTickets] = useState<string[]>()
+    const [attachedTickets, setAttachedTickets] = useState<string[]>([])
 
     useDeepCompareEffect(() => {
         if (!loading) {
@@ -138,7 +137,7 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
     }
 
     if (!selectedCallRecordFragment || loading) {
-        return <></>
+        return null
     }
 
     const { callRecord, ticket } = selectedCallRecordFragment

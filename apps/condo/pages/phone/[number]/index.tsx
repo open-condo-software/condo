@@ -4,10 +4,10 @@ import {
     Organization as OrganizationType,
     Property,
     SortTicketsBy,
-    Ticket as TicketType,
+    Ticket as TicketType, TicketStatusTypeType as TicketStatusType,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, ColProps, Row, Typography } from 'antd'
+import { Col, ColProps, Row } from 'antd'
 import { CarouselRef } from 'antd/es/carousel'
 import { Gutter } from 'antd/es/grid/row'
 import { EllipsisConfig } from 'antd/es/typography/Base'
@@ -16,12 +16,14 @@ import isEmpty from 'lodash/isEmpty'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
+import qs from 'qs'
 import React, { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { History } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Carousel, Typography as UITypography } from '@open-condo/ui'
+import { ActionBar, Button, Carousel, Space, Typography, Typography as UITypography } from '@open-condo/ui'
 
 import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
@@ -44,7 +46,7 @@ import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketI
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { CallRecordFragment, Ticket } from '@condo/domains/ticket/utils/clientSchema'
 
 
 //#region Constants, types and styles
@@ -52,20 +54,17 @@ const ADDRESS_STREET_ONE_ROW_HEIGHT = 25
 const ADDRESS_POSTFIX_ONE_ROW_HEIGHT = 22
 
 const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
-const STREET_PARAGRAPH_STYLE: CSSProperties = { margin: 0, fontSize: fontSizes.content, lineHeight: `${ADDRESS_STREET_ONE_ROW_HEIGHT}px` }
-const ADDRESS_POSTFIX_STYLE: CSSProperties = { margin: 0, fontSize: fontSizes.label, lineHeight: `${ADDRESS_POSTFIX_ONE_ROW_HEIGHT}px` }
 const ROW_BIG_GUTTER: [Gutter, Gutter] = [0, 60]
 const ROW_MEDIUM_GUTTER: [Gutter, Gutter] = [0, 40]
 const ROW_MEDIUM_SMALL_GUTTER: [Gutter, Gutter] = [0, 24]
-const ADD_ADDRESS_TEXT_STYLE: CSSProperties = { marginTop: '12px', marginBottom: '0' }
 const HINT_CARD_STYLE = { maxHeight: '3em' }
-const CLIENT_TEXT_STYLE = { fontSize: fontSizes.content }
 const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
 const PLUS_ICON_WRAPPER_CLASS = 'plusIconWrapper'
 const ADD_ADDRESS_TAB_KEY = 'addAddress'
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 
 interface IClientContactProps {
+    phone: string
     lastTicket: TicketType,
     contact?: ContactType
     showOrganizationMessage?: boolean
@@ -190,12 +189,14 @@ const AddAddressCard = ({ onClick }) => {
 
     return (
         <StyledAddAddressButton onClick={onClick} eventName='ClientCardAddAddressClick'>
-            <PlusIconWrapper className={PLUS_ICON_WRAPPER_CLASS}>
-                <PlusIcon/>
-            </PlusIconWrapper>
-            <Typography.Paragraph style={ADD_ADDRESS_TEXT_STYLE}>
-                {AddAddressMessage}
-            </Typography.Paragraph>
+            <Space size={12} direction='vertical' align='center'>
+                <PlusIconWrapper className={PLUS_ICON_WRAPPER_CLASS}>
+                    <PlusIcon/>
+                </PlusIconWrapper>
+                <Typography.Paragraph>
+                    {AddAddressMessage}
+                </Typography.Paragraph>
+            </Space>
         </StyledAddAddressButton>
     )
 }
@@ -245,26 +246,25 @@ const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType
                         {typeToMessage[type]}
                     </Tag>
                 </div>
-                <div>
+                <Space size={8} direction='vertical'>
                     <Typography.Paragraph
                         ref={addressStreetRef}
                         ellipsis={addressStreetEllipsis}
                         title={streetAndFlatMessage}
                         strong
-                        style={STREET_PARAGRAPH_STYLE}
                     >
                         {streetAndFlatMessage}
                     </Typography.Paragraph>
                     <Typography.Paragraph
+                        size='medium'
                         ref={addressPostfixRef}
                         ellipsis={addressPostfixEllipsis}
                         title={postfix}
                         type='secondary'
-                        style={ADDRESS_POSTFIX_STYLE}
                     >
                         {postfix}
                     </Typography.Paragraph>
-                </div>
+                </Space>
             </StyledAddressTabContent>
         </StyledAddressTabWrapper>
     )
@@ -272,36 +272,85 @@ const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType
 //#endregion
 
 //#region Contact and Not resident client Tab content
-const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, showOrganizationMessage }) => {
+const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, showOrganizationMessage, phone }) => {
+    const intl = useIntl()
+    const CallRecordsLogMessage = intl.formatMessage({ id: 'pages.clientCard.callRecordsLog' })
+
     const name = get(contact, 'name', get(lastTicket, 'clientName'))
     const email = get(contact, 'email', get(lastTicket, 'clientEmail'))
     const organizationName = get(contact, 'organization.name', get(lastTicket, 'organization.name'))
 
+    const propertyId = get(contact, 'property.id', get(lastTicket, 'property.id', null))
+
+    const {
+        count,
+    } = CallRecordFragment.useCount({
+        where: {
+            callRecord: {
+                OR: [{ callerPhone: phone, destCallerPhone: phone }],
+            },
+            OR: [
+                { ticket_is_null: true },
+                { ticket: { property: { id: propertyId } } },
+            ],
+        },
+    })
+
+    const handleCallRecordLinkClick = useCallback(() => {
+        if (typeof window !== 'undefined') {
+            const query = qs.stringify({
+                filters: JSON.stringify({
+                    phone,
+                    property: [propertyId],
+                }),
+            }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
+
+            window.open(`/callRecord${query}`, '_blank')
+        }
+    }, [phone, propertyId])
+
     return (
         <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
             <Col span={24}>
-                <Row justify='space-between'>
-                    <Typography.Title level={3}>{name}</Typography.Title>
-                    {
-                        lastTicket && (
-                            <TicketResidentFeatures ticket={lastTicket}/>
-                        )
-                    }
-                </Row>
+                <Typography.Title level={2}>{name}</Typography.Title>
+                {
+                    lastTicket && (
+                        <TicketResidentFeatures ticket={lastTicket}/>
+                    )
+                }
             </Col>
             {
-                email && (
+                (email || count > 0) && (
                     <Col span={24}>
-                        <Typography.Link href={`mailto:${email}`} style={LINK_STYLE}>
-                            {email}
-                        </Typography.Link>
+                        <Space size={60}>
+                            {
+                                email && (
+                                    <Typography.Link size='large' href={`mailto:${email}`}>
+                                        {email}
+                                    </Typography.Link>
+                                )
+                            }
+                            {
+                                count > 0 && (
+                                    <Typography.Link
+                                        size='large'
+                                        onClick={handleCallRecordLinkClick}
+                                    >
+                                        <Space size={8} align='center'>
+                                            <History />
+                                            {CallRecordsLogMessage}
+                                        </Space>
+                                    </Typography.Link>
+                                )
+                            }
+                        </Space>
                     </Col>
                 )
             }
             {
                 showOrganizationMessage && (
                     <Col span={24}>
-                        <Typography.Text style={CLIENT_TEXT_STYLE}>
+                        <Typography.Text size='large'>
                             {organizationName}
                         </Typography.Text>
                     </Col>
@@ -382,7 +431,7 @@ const ClientCardTabContent = ({
                 property && (
                     <>
                         <Col span={24}>
-                            <Row gutter={ROW_MEDIUM_GUTTER}>
+                            <Row gutter={ROW_BIG_GUTTER}>
                                 <Col span={24}>
                                     <Row>
                                         <StyledCol>
@@ -401,6 +450,7 @@ const ClientCardTabContent = ({
                                 </Col>
                                 <Col span={24}>
                                     <ClientContent
+                                        phone={phone}
                                         lastTicket={lastCreatedTicket}
                                         contact={contact}
                                         showOrganizationMessage={showOrganizationMessage}
@@ -621,9 +671,6 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
 //#endregion
 
 //#region Page Content
-
-const LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
-
 const ClientCardPageContent = ({
     phoneNumber,
     tabsData,
@@ -639,7 +686,7 @@ const ClientCardPageContent = ({
     const phoneLink = phoneNumberPrefix ? `tel:${phoneNumberPrefix}${phoneNumber}` : `tel:${phoneNumber}`
     const ClientCardHeader = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
         phone: (
-            <Typography.Link href={phoneLink} style={LINK_STYLE}>
+            <Typography.Link href={phoneLink}>
                 {renderPhone(phoneNumber)}
             </Typography.Link>
         ),

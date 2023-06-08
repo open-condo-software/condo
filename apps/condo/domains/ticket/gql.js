@@ -22,7 +22,7 @@ const TICKET_QUALITY_CONTROL_FIELDS = 'qualityControlValue qualityControlComment
  * @type {string}
  */
 const REVIEW_CONTROL_FIELDS = 'reviewValue reviewComment'
-const TICKET_FIELDS = `{ canReadByResident completedAt lastCommentAt lastResidentCommentAt isResidentTicket reviewValue reviewComment ${TICKET_QUALITY_CONTROL_FIELDS} deadline deferredUntil organization { id name country phone phoneNumberPrefix } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone email unitName unitType } assignee { id name } executor { id name } details related { id details } isAutoClassified isEmergency isPaid isWarranty meta source { id name type } sourceMeta categoryClassifier { id } placeClassifier { id } problemClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
+const TICKET_FIELDS = `{ canReadByResident completedAt lastCommentAt lastResidentCommentAt isResidentTicket ${REVIEW_CONTROL_FIELDS} ${FEEDBACK_CONTROL_FIELDS} ${TICKET_QUALITY_CONTROL_FIELDS} deadline deferredUntil organization { id name country phone phoneNumberPrefix } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone email unitName unitType } assignee { id name } executor { id name } details related { id details } isAutoClassified isEmergency isPaid isWarranty meta source { id name type } sourceMeta categoryClassifier { id } placeClassifier { id } problemClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
 const TICKET_STATUS_FIELDS = `{ organization { id } type name nameNonLocalized colors { primary secondary additional } ${COMMON_FIELDS} }`
@@ -240,7 +240,7 @@ const IncidentExportTask = generateGqlQueries('IncidentExportTask', INCIDENT_EXP
 const CALL_RECORD_FIELDS = `{ organization { id } file { id originalFilename publicUrl mimetype } callerPhone destCallerPhone talkTime startedAt isIncomingCall importId ${COMMON_FIELDS} }`
 const CallRecord = generateGqlQueries('CallRecord', CALL_RECORD_FIELDS)
 
-const CALL_RECORD_FRAGMENT_FIELDS = `{ ticket { id number clientName property { ${TICKET_PROPERTY_FIELDS} } } callRecord ${CALL_RECORD_FIELDS} organization { id } startedAt ${COMMON_FIELDS} }`
+const CALL_RECORD_FRAGMENT_FIELDS = `{ ticket { id number clientName property { ${TICKET_PROPERTY_FIELDS} } } callRecord ${CALL_RECORD_FIELDS} organization { id name } startedAt ${COMMON_FIELDS} }`
 const CallRecordFragment = generateGqlQueries('CallRecordFragment', CALL_RECORD_FRAGMENT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

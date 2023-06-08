@@ -1,6 +1,4 @@
-import styled from '@emotion/styled'
-import { Col, Row, Select } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
+import { Col, Row, Select, RowProps } from 'antd'
 import React, { CSSProperties, useEffect, useRef, useState } from 'react'
 import WaveSurfer from 'wavesurfer.js'
 
@@ -11,20 +9,9 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 const { Option } = Select
 
-const StyledSelect = styled(Select)`
-    .ant-select-selector {
-      border: none !important;
-      box-shadow: none !important;
-      
-      .ant-select-selection-item {
-        font-size: 14px;
-      }
-    }
-`
-
-const PLAYER_ROW_GUTTER: [Gutter, Gutter] = [40, 0]
-const RECORD_ROW_GUTTER: [Gutter, Gutter] = [12, 0]
-const SPEED_ROW_GUTTER: [Gutter, Gutter] = [8, 0]
+const PLAYER_ROW_GUTTER: RowProps['gutter'] = [40, 0]
+const RECORD_ROW_GUTTER: RowProps['gutter'] = [12, 0]
+const SPEED_ROW_GUTTER: RowProps['gutter'] = [8, 0]
 const PLAYER_ICON_WRAPPER_STYLE: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
 const WAVE_WRAPPER_STYLE: CSSProperties = { width: '100%', height: '28px' }
 
@@ -39,72 +26,83 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
     const SpeedMessage = intl.formatMessage({ id: 'ticket.callRecord.speed' })
 
     const [playing, setPlaying] = useState(false)
-    const [currentTime, setCurrentTime] = useState('00:00')
+    const [currentSeconds, setCurrentSeconds] = useState(0)
     const [totalTime, setTotalTime] = useState('00:00')
     const [speed, setSpeed] = useState(1)
     const waveformRef = useRef<HTMLDivElement>(null)
-    const waveform = useRef<WaveSurfer>()
+    const waveform = useRef<WaveSurfer>(null)
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const track: HTMLMediaElement = document.querySelector(`#${trackId}`)
+        const track: HTMLMediaElement = document.querySelector(`#${trackId}`)
 
-            waveform.current = WaveSurfer.create({
-                container: waveformRef.current,
-                height: 28,
-                progressColor: createGradient(),
-                waveColor: colors.gray[5],
-                responsive: true,
-                barGap: 1,
-                barWidth: 2,
-                barHeight: 28,
-                cursorWidth: 0,
-                hideScrollbar: true,
-            })
+        waveform.current = WaveSurfer.create({
+            container: waveformRef.current,
+            height: 28,
+            progressColor: createGradient(),
+            waveColor: colors.gray[5],
+            responsive: true,
+            barGap: 1,
+            barWidth: 2,
+            barHeight: 28,
+            cursorWidth: 0,
+            hideScrollbar: true,
+        })
 
-            waveform.current.on('ready', () => {
-                setTotalTime(formatTime(waveform.current.getDuration()))
+        waveform.current.on('ready', () => {
+            const duration = waveform.current.getDuration()
+            setTotalTime(formatTime(duration))
 
-                if (autoPlay) {
-                    waveform.current.play()
-                    setPlaying(true)
-                }
-            })
+            if (autoPlay) {
+                waveform.current.play()
+                setPlaying(true)
+            }
+        })
 
-            waveform.current.on('audioprocess', () => {
-                setCurrentTime(formatTime(waveform.current.getCurrentTime()))
-            })
+        waveform.current.on('audioprocess', () => {
+            setCurrentSeconds(Math.floor(waveform.current.getCurrentTime()))
+        })
 
-            waveform.current.on('finish', () => {
-                setPlaying(false)
-            })
+        waveform.current.on('finish', () => {
+            setPlaying(false)
+        })
 
-            waveform.current.load(track)
+        waveform.current.load(track)
 
-            return () => {
-                if (waveform.current) {
-                    waveform.current.destroy()
-                }
+        return () => {
+            if (waveform.current) {
+                waveform.current.destroy()
             }
         }
-    }, [])
+    }, [autoPlay, trackId])
 
     const handlePlay = () => {
         setPlaying(!playing)
-        waveform.current.playPause()
+
+        if (waveform.current) {
+            waveform.current.playPause()
+        }
     }
 
     const handleSpeedChange = (value: number) => {
         setSpeed(value)
-        waveform.current.setPlaybackRate(value)
+
+        if (waveform.current) {
+            waveform.current.setPlaybackRate(value)
+        }
     }
 
     const PlayerIcon = playing ? Pause : Play
 
     const formatTime = (time: number): string => {
-        const minutes = Math.floor(time / 60).toString().padStart(2, '0')
+        const hours = Math.floor(time / 3600).toString().padStart(2, '0')
+        const minutes = Math.floor((time % 3600) / 60).toString().padStart(2, '0')
         const seconds = Math.floor(time % 60).toString().padStart(2, '0')
-        return `${minutes}:${seconds}`
+
+        if (hours === '00') {
+            return `${minutes}:${seconds}`
+        } else {
+            return `${hours}:${minutes}:${seconds}`
+        }
     }
 
     const createGradient = (): CanvasGradient => {
@@ -121,16 +119,16 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
         <Row gutter={PLAYER_ROW_GUTTER} align='middle'>
             <Col span={18}>
                 <Row gutter={RECORD_ROW_GUTTER} align='middle'>
-                    <Col span={2} style={PLAYER_ICON_WRAPPER_STYLE}>
+                    <Col style={PLAYER_ICON_WRAPPER_STYLE}>
                         <PlayerIcon color={colors.gray[7]} onClick={handlePlay} />
                     </Col>
                     <Col span={18}>
                         <div id='waveform' ref={waveformRef} style={WAVE_WRAPPER_STYLE} />
                         <audio id={trackId} src={src} />
                     </Col>
-                    <Col span={4}>
+                    <Col>
                         <Typography.Text size='small'>
-                            {`${currentTime}/${totalTime}`}
+                            {`${formatTime(currentSeconds)}/${totalTime}`}
                         </Typography.Text>
                     </Col>
                 </Row>
@@ -141,12 +139,12 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
                         <Typography.Text size='medium' type='secondary'>{SpeedMessage}</Typography.Text>
                     </Col>
                     <Col>
-                        <StyledSelect value={speed} onChange={handleSpeedChange}>
+                        <Select value={speed} onChange={handleSpeedChange}>
                             <Option value={0.5}>0.5x</Option>
                             <Option value={1}>1x</Option>
                             <Option value={1.5}>1.5x</Option>
                             <Option value={2}>2x</Option>
-                        </StyledSelect>
+                        </Select>
                     </Col>
                 </Row>
             </Col>

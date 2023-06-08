@@ -245,14 +245,14 @@ export const getUnitNameRender = <T extends Record<string, unknown>>(intl, text:
     return getTableCellRenderer({ search, extraTitle })(unitName)
 }
 
-export const getDateRender = (intl, search?: FilterValue | string, newLinePostfix = true) => {
+export const getDateRender = (intl, search?: FilterValue | string, prefix = '\n') => {
     return function render (stringDate: string): RenderReturnType {
         if (!stringDate) return '—'
 
         const locale = get(LOCALES, intl.locale)
         const date = locale ? dayjs(stringDate).locale(locale) : dayjs(stringDate)
         const text = `${date.format(DATE_FORMAT)}`
-        const postfix = `${newLinePostfix ? '\n' : ' '}${date.format(TIME_FORMAT)}`
+        const postfix = `${prefix}${date.format(TIME_FORMAT)}`
 
         return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(text)
     }

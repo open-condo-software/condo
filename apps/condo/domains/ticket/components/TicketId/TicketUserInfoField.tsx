@@ -1,14 +1,11 @@
 import { Ticket, User } from '@app/condo/schema'
-import { Typography } from 'antd'
 import { get } from 'lodash'
 import React, { useMemo } from 'react'
 
-import { colors } from '@condo/domains/common/constants/style'
+import { Typography } from '@open-condo/ui'
+
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
-
-
-const TICKET_CARD_LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
 
 interface IUserInfoLink {
     href?: string
@@ -17,11 +14,11 @@ interface IUserInfoLink {
 
 const UserInfoLink: React.FC<IUserInfoLink> = ({ href, children }) => {
     if (!href) {
-        return <>{children}</>
+        return <Typography.Text>{children}</Typography.Text>
     }
 
     return (
-        <Typography.Link href={href} style={TICKET_CARD_LINK_STYLE}>
+        <Typography.Link href={href}>
             {children}
         </Typography.Link>
     )
@@ -43,10 +40,10 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
     if (name) {
         userInfo.push(
             <UserNameField user={{ name, id }}>
-                {({ name, postfix }) => (
+                {({ name: userName, postfix }) => (
                     <UserInfoLink href={props.nameLink}>
                         <>
-                            {name}
+                            {userName}
                             {postfix && (
                                 <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
                             )}
@@ -80,7 +77,7 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
             <div key={i}>
                 {item}
                 {i !== userInfo.length - 1 && (
-                    <br/>
+                    <br />
                 )}
             </div>
         ))

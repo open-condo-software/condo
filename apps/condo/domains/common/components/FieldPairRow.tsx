@@ -3,11 +3,8 @@ import React from 'react'
 
 import { Typography } from '@open-condo/ui'
 
-import { colors } from '@condo/domains/common/constants/style'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 
-
-const LINK_STYLE = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[5] }
 
 export type FieldPairRowProps = {
     fieldTitle: string,
@@ -36,7 +33,7 @@ export const FieldPairRow: React.FC<FieldPairRowProps> = (props) => {
             <Col {...valueColProps}>
                 {
                     href ? (
-                        <Typography.Link href={href} style={LINK_STYLE}>
+                        <Typography.Link href={href}>
                             <NotDefinedField value={fieldValue}/>
                         </Typography.Link>
                     ) : <NotDefinedField value={fieldValue}/>

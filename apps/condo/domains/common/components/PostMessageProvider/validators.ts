@@ -64,6 +64,7 @@ const CondoWebAppResizeWindowParamsSchema = {
 const CondoWebSetActiveCallParamsSchema = {
     type: 'object',
     properties: {
+        error: { type: 'string' },
         isCallActive: { type: 'boolean' },
         connectedTickets: {
             items: { type: 'string' },

@@ -1,14 +1,9 @@
 import {
-    IncidentWhereInput,
-    Incident as IIncident,
     CallRecordFragment as ICallRecordFragment,
     OrganizationWhereInput, SortCallRecordFragmentsBy,
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
-import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import dayjs, { Dayjs } from 'dayjs'
-import timezone from 'dayjs/plugin/timezone'
-import utc from 'dayjs/plugin/utc'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -20,14 +15,13 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Checkbox } from '@open-condo/ui'
+import { Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Loader } from '@condo/domains/common/components/Loader'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -39,11 +33,9 @@ import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/he
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { CallRecordModal } from '@condo/domains/ticket/components/CallRecordModal'
-import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
 import { useCallRecordTableColumns } from '@condo/domains/ticket/hooks/useCallRecordTableColumns'
 import { useCallRecordTableFilters } from '@condo/domains/ticket/hooks/useCallRecordTableFilters'
 import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
-import { getOrganizationTickets } from '@condo/domains/ticket/utils/clientSchema/search'
 
 export interface ICallRecordIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -116,7 +108,7 @@ const FilterContainer = () => {
                             </Col>
                         </Row>
                     </Col>
-                    <Col xs={24} md={9}>
+                    <Col xs={24} sm={24} md={9}>
                         <Row gutter={CHECKBOX_WRAPPER_GUTTERS} align='middle' justify='space-between'>
                             <Col md={12}>
                                 <StartedAtFilter

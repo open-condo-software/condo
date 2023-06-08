@@ -43,6 +43,7 @@ export const useCallRecordTableFilters = (): UseCallRecordTableFiltersReturnType
     const OutgoingCallMessage = intl.formatMessage({ id: 'callRecord.callType.outgoing' })
     const EnterPhoneNumberMessage = intl.formatMessage({ id: 'EnterPhoneNumber' })
     const NameMessage = intl.formatMessage({ id: 'field.FullName.short' })
+    const TicketNumberMessage = intl.formatMessage({ id: 'callRecord.table.column.ticketNumber' })
 
     const isIncomingCallOptions = useMemo(() => [
         { label: OutgoingCallMessage, value: 'false' },
@@ -68,7 +69,7 @@ export const useCallRecordTableFilters = (): UseCallRecordTableFiltersReturnType
             component: {
                 type: ComponentType.Input,
                 props: {
-                    placeholder: '',
+                    placeholder: TicketNumberMessage,
                 },
             },
         },

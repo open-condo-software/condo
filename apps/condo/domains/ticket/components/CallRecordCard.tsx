@@ -1,10 +1,8 @@
 import { CallRecord } from '@app/condo/schema'
-import { Row, Col } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
+import { Row, Col, RowProps } from 'antd'
 import dynamic from 'next/dynamic'
-import React, { CSSProperties, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
-import { PhoneIncoming, PhoneOutgoing } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography } from '@open-condo/ui'
 
@@ -21,10 +19,7 @@ interface ICallRecordCardProps {
     autoPlay?: boolean
 }
 
-const MAIN_ROW_GUTTER: [Gutter, Gutter] = [0, 24]
-const TITLE_ROW_GUTTER: [Gutter, Gutter] = [12, 0]
-
-const PHONE_ICON_WRAPPER_STYLE: CSSProperties = { position: 'relative', top: '5px' }
+const MAIN_ROW_GUTTER: RowProps['gutter'] = [0, 24]
 
 export const CallRecordCard: React.FC<ICallRecordCardProps> = ({ callRecord, autoPlay }) => {
     const intl = useIntl()
@@ -32,13 +27,12 @@ export const CallRecordCard: React.FC<ICallRecordCardProps> = ({ callRecord, aut
     const { isIncomingCall, callerPhone, destCallerPhone, startedAt, file } = callRecord
 
     const formattedStartDate = useMemo(
-        () => getDateRender(intl, '', false)(startedAt),
+        () => getDateRender(intl, '', ' ')(startedAt),
         [intl, startedAt])
 
     const TitleMessage = isIncomingCall ?
         intl.formatMessage({ id: 'ticket.callRecord.incomingCall' }, { phone: formatPhone(callerPhone) }) :
         intl.formatMessage({ id: 'ticket.callRecord.outgoingCall' }, { phone: formatPhone(destCallerPhone) })
-    const PhoneIcon = isIncomingCall ? PhoneIncoming : PhoneOutgoing
 
     return (
         <Card>
@@ -46,14 +40,7 @@ export const CallRecordCard: React.FC<ICallRecordCardProps> = ({ callRecord, aut
                 <Col span={24}>
                     <Row justify='space-between'>
                         <Col>
-                            <Row gutter={TITLE_ROW_GUTTER} align='middle'>
-                                <Col style={PHONE_ICON_WRAPPER_STYLE}>
-                                    <PhoneIcon size='medium' />
-                                </Col>
-                                <Col>
-                                    <Typography.Title level={4}>{TitleMessage}</Typography.Title>
-                                </Col>
-                            </Row>
+                            <Typography.Title level={4}>{TitleMessage}</Typography.Title>
                         </Col>
                         <Col>
                             <Typography.Text size='medium'>{formattedStartDate}</Typography.Text>

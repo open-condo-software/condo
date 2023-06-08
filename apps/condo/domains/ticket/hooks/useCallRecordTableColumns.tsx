@@ -1,5 +1,4 @@
-import { Col, Row } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
+import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
@@ -28,7 +27,7 @@ const COLUMNS_WIDTH = {
     callRecord: '12%',
 }
 
-const CALL_RECORD_ACTIONS_ROW_GUTTER: [Gutter, Gutter] = [20, 0]
+const CALL_RECORD_ACTIONS_ROW_GUTTER: RowProps['gutter'] = [20, 0]
 
 export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFragment })  => {
     const intl = useIntl()
