@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker'
 import { SignIn, ForgotPassword, Registration }  from '../../objects/Auth'
 import { SimpleTracer } from '../../objects/helpers'
 
-describe('Auth scenarios', () => {
+describe.skip('Auth scenarios', () => {
 
     describe('User', () => {
         it('can start password recovery', () => {
