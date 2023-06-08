@@ -10,9 +10,9 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
-
 
 const access = require('@condo/domains/news/access/NewsItem')
 const {
@@ -88,6 +88,13 @@ const NewsItem = new GQLListSchema('NewsItem', {
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        },
+
+        number: {
+            schemaDoc: 'The news item number',
+            type: AutoIncrementInteger,
+            isRequired: false,
+            autoIncrementScopeFields: ['organization'],
         },
 
         title: {

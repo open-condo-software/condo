@@ -39468,6 +39468,8 @@ export type NewsItem = {
   _label_?: Maybe<Scalars['String']>;
   /**  The organization the news item created by  */
   organization?: Maybe<Organization>;
+  /**  The news item number  */
+  number?: Maybe<Scalars['Int']>;
   /**  The news item title  */
   title?: Maybe<Scalars['String']>;
   /**  The news item main body  */
@@ -39524,6 +39526,7 @@ export type NewsItem_ScopesMetaArgs = {
 
 export type NewsItemCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
+  number?: Maybe<Scalars['Int']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   type?: Maybe<NewsItemTypeType>;
@@ -39555,6 +39558,7 @@ export type NewsItemHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['JSON']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
@@ -39579,6 +39583,7 @@ export type NewsItemHistoryRecord = {
 
 export type NewsItemHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['JSON']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
@@ -39608,6 +39613,7 @@ export enum NewsItemHistoryRecordHistoryActionType {
 
 export type NewsItemHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
+  number?: Maybe<Scalars['JSON']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
@@ -39636,6 +39642,10 @@ export type NewsItemHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  number?: Maybe<Scalars['JSON']>;
+  number_not?: Maybe<Scalars['JSON']>;
+  number_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  number_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   title?: Maybe<Scalars['String']>;
   title_not?: Maybe<Scalars['String']>;
   title_contains?: Maybe<Scalars['String']>;
@@ -40595,6 +40605,7 @@ export enum NewsItemTypeType {
 
 export type NewsItemUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
+  number?: Maybe<Scalars['Int']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   type?: Maybe<NewsItemTypeType>;
@@ -40926,6 +40937,14 @@ export type NewsItemWhereInput = {
   OR?: Maybe<Array<Maybe<NewsItemWhereInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
+  number?: Maybe<Scalars['Int']>;
+  number_not?: Maybe<Scalars['Int']>;
+  number_lt?: Maybe<Scalars['Int']>;
+  number_lte?: Maybe<Scalars['Int']>;
+  number_gt?: Maybe<Scalars['Int']>;
+  number_gte?: Maybe<Scalars['Int']>;
+  number_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  number_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   title?: Maybe<Scalars['String']>;
   title_not?: Maybe<Scalars['String']>;
   title_contains?: Maybe<Scalars['String']>;
@@ -63616,6 +63635,8 @@ export enum SortNewsItemUserReadsBy {
 export enum SortNewsItemsBy {
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
+  NumberAsc = 'number_ASC',
+  NumberDesc = 'number_DESC',
   TitleAsc = 'title_ASC',
   TitleDesc = 'title_DESC',
   BodyAsc = 'body_ASC',

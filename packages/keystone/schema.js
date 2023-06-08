@@ -142,20 +142,6 @@ async function find (schemaName, condition) {
     return await schemaList._keystone.lists[schemaName].adapter.find(condition)
 }
 
-/**
- * @param {string} schemaName
- * @param {Object} condition
- * @returns {Promise<number>}
- */
-async function count (schemaName, condition) {
-    if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
-    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
-    const schemaList = SCHEMAS.get(schemaName)
-    const result = await schemaList._keystone.lists[schemaName].adapter.itemsQueryMeta({ where: condition })
-
-    return result.count
-}
-
 async function getByCondition (schemaName, condition) {
     const res = await find(schemaName, condition)
     if (res.length > 1) throw new Error('getByCondition() returns multiple objects')
@@ -193,7 +179,6 @@ module.exports = {
     unregisterAllSchemas,
     getSchemaCtx,
     find,
-    count,
     getById,
     getByCondition,
     GQL_SCHEMA_TYPES,
