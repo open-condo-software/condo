@@ -327,6 +327,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [selectedUnitNames, setSelectedUnitNames] = useState(isEmpty(initialSectionKeys) ? initialUnitNames : [])
     const [selectedUnitTypes, setSelectedUnitTypes] = useState(initialUnitTypes)
     const [selectedPropertiesId, setSelectedPropertiesId] = useState(initialPropertyIds)
+    const [isAllPropertiesChecked, setIsAllPropertiesChecked] = useState(false)
     const [selectedSectionIds, setSelectedSectionIds] = useState(initialSectionIds)
 
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
@@ -435,6 +436,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const propertyCheckboxChange = (form) => {
         return (value) => {
             if (value) setSelectedPropertiesId([])
+            setIsAllPropertiesChecked(value)
             form.setFieldsValue({ 'unitNames': [] })
             form.setFieldsValue({ 'sectionIds': [] })
             setSelectedUnitNames([])
@@ -645,7 +647,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
         return []
     }, [isOnlyOnePropertySelected, selectedProperties, selectedSectionIds, selectedUnitNames, selectedUnitTypes])
-    
+
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
             <Col span={24} flex='auto'>
@@ -834,9 +836,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                             </Row>
                                         </Col>
                                         <Col span={formInfoColSpan}>
-                                            <RecipientCounter
-                                                newsItemScopes={newsItemScopesNoInstance}
-                                            /> 
+                                            {(newsItemScopesNoInstance.length > 0 || isAllPropertiesChecked) && (
+                                                <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
+                                            )}
                                         </Col>
                                     </Row>
                                 </Col>
