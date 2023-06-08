@@ -92,7 +92,7 @@ export const CreateTicketForm: React.FC = () => {
     const auth = useAuth() as { user: { id: string } }
     const client = useApolloClient()
     const { addTicketToQueryCacheForTicketCardList } = useCacheUtils(client.cache)
-    const { features: { AttachRecordToTicket: generatorAppOrigin }, requestFeature } = useGlobalAppsFeaturesContext()
+    const { requestFeature } = useGlobalAppsFeaturesContext()
 
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
@@ -132,7 +132,7 @@ export const CreateTicketForm: React.FC = () => {
 
         if (attachCallRecord) {
             requestFeature({
-                feature: B2BAppGlobalFeature.AttachRecordToTicket,
+                feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
                 ticketId: ticket.id,
                 ticketOrganizationId: organization.id,
             })

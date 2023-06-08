@@ -4,9 +4,8 @@
 
 const get = require('lodash/get')
 
-const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById } = require('@open-condo/keystone/schema')
+const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 
@@ -33,12 +32,19 @@ async function canManageCallRecordFragments ({ authentication: { item: user }, o
     let organizationId
     if (operation === 'create') {
         const callRecordId = get(originalInput, 'callRecord.connect.id')
-        const callRecord = await getById('CallRecord', callRecordId)
+        const callRecord = await getByCondition('CallRecord', {
+            id: callRecordId,
+            deletedAt: null,
+        })
+
         organizationId = get(callRecord, 'organization', null)
     } else if (operation === 'update') {
         if (!itemId) return false
-
-        const callRecordFragment = await getById('CallRecordFragment', itemId)
+        const callRecordFragment = await getByCondition('CallRecordFragment', {
+            id: itemId,
+            deletedAt: null,
+        })
+        
         organizationId = get(callRecordFragment, 'organization', null)
     }
 

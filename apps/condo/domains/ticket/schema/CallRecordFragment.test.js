@@ -4,11 +4,12 @@
 const {
     makeLoggedInAdminClient, makeClient, UUID_RE,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObj, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { CALL_RECORD_FRAGMENT_ERRORS } = require('@condo/domains/ticket/constants/errors')
 const { CallRecordFragment, createTestCallRecordFragment, updateTestCallRecordFragment, createTestTicket, createTestCallRecord } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -172,6 +173,19 @@ describe('CallRecordFragment', () => {
                     await CallRecordFragment.delete(anonymous, callRecordFragmentByAdmin.id)
                 })
             })
+        })
+    })
+    describe('Validations',  () => {
+        it('Ticket organization must be the same as callRecord organization', async () => {
+            const [organization1] = await createTestOrganization(admin)
+            const [testCallRecord] = await createTestCallRecord(admin, organization1)
+
+            const [testTicket] = await createTestTicket(admin, organization, property)
+
+            await expectToThrowGQLError(
+                async () => await createTestCallRecordFragment(admin, testTicket, testCallRecord),
+                CALL_RECORD_FRAGMENT_ERRORS.INVALID_TICKET_ORGANIZATION
+            )
         })
     })
 })

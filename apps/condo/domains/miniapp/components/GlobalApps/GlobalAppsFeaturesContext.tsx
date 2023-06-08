@@ -9,14 +9,14 @@ type MapGenerationFeatureContext = {
     propertyId: Scalars['ID']
 }
 
-type AttachRecordToTicketFeatureContext = {
-    feature: B2BAppGlobalFeature.AttachRecordToTicket,
+type AttachCallRecordToTicketFeatureContext = {
+    feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
     ticketId: Scalars['ID'],
     ticketOrganizationId: Scalars['ID'],
 }
 
 // Group all features contexts using |
-export type FeatureContext = MapGenerationFeatureContext | AttachRecordToTicketFeatureContext
+export type FeatureContext = MapGenerationFeatureContext | AttachCallRecordToTicketFeatureContext
 
 // Store all miniapps available features
 type IFeaturesType = { [key in B2BAppGlobalFeature]?: string }

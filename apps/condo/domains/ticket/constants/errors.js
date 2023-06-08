@@ -1,25 +1,27 @@
 const UNKNOWN_GROUP_BY_FILTER = 'UNKNOWN_GROUP_BY_FILTER'
-const INVALID_PHONE_NUMBER_FORMAT = 'INVALID_PHONE_NUMBER_FORMAT'
-
-const INVALID_PHONE_NUMBER_FORMAT_MESSAGE = 'Invalid phone number format, should start with +'
 
 const CALL_RECORD_ERRORS = {
-    INVALID_CALLER_PHONE_NUMBER_FORMAT: {
+    NEGATIVE_TALK_TIME_VALUE: {
         code: 'BAD_USER_INPUT',
-        type: INVALID_PHONE_NUMBER_FORMAT,
-        message: INVALID_PHONE_NUMBER_FORMAT_MESSAGE,
-        variable: ['data', 'callerPhone'],
+        type: 'NEGATIVE_TALK_TIME',
+        message: 'Talk time must be positive number',
+        messageForUser: 'api.callRecord.NEGATIVE_TALK_TIME',
+        variable: ['data', 'talkTime'],
     },
-    INVALID_DEST_CALLER_PHONE_NUMBER_FORMAT: {
+}
+
+const CALL_RECORD_FRAGMENT_ERRORS = {
+    INVALID_TICKET_ORGANIZATION: {
         code: 'BAD_USER_INPUT',
-        type: INVALID_PHONE_NUMBER_FORMAT,
-        message: INVALID_PHONE_NUMBER_FORMAT_MESSAGE,
-        variable: ['data', 'destCallerPhone'],
+        type: 'INVALID_TICKET_ORGANIZATION',
+        message: 'The organization of the ticket must be the same as callRecord',
+        messageForUser: 'api.callRecordFragment.INVALID_TICKET_ORGANIZATION',
+        variable: ['data', 'ticket'],
     },
 }
 
 module.exports = {
     UNKNOWN_GROUP_BY_FILTER,
-    INVALID_PHONE_NUMBER_FORMAT,
     CALL_RECORD_ERRORS,
+    CALL_RECORD_FRAGMENT_ERRORS,
 }

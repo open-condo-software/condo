@@ -20,8 +20,10 @@ const ActiveCallContextProvider = ({ children = {} }) => {
 
     useEffect(() => {
         if (!isUndefined(window)) {
-            addEventHandler('CondoWebSetActiveCall', '*', ({ isActiveCall }) => {
-                setIsCallActive(isActiveCall)
+            addEventHandler('CondoWebSetActiveCall', '*', ({ isCallActive }) => {
+                setIsCallActive(isCallActive)
+
+                return { sent: true }
             })
         }
     }, [addEventHandler])

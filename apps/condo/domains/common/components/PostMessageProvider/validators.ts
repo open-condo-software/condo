@@ -64,9 +64,9 @@ const CondoWebAppResizeWindowParamsSchema = {
 const CondoWebSetActiveCallParamsSchema = {
     type: 'object',
     properties: {
-        isActiveCall: { type: 'boolean' },
+        isCallActive: { type: 'boolean' },
     },
-    required: ['isActiveCall'],
+    required: ['isCallActive'],
     additionalProperties: false,
 }
 

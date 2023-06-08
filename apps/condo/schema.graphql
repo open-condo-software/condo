@@ -3543,7 +3543,10 @@ type Organization {
   """ Normalized organization phone in E.164 format without spaces """
   phone: String
 
-  """ Additional number specified in the software for calling on behalf of another organization 
+  """
+   Numeric identifier assigned to a specific line in software for calling. 
+  Used when outgoing call before the number to be called. 
+  For example phoneNumberPrefix = 01, then the result phone number to be called = 01{phone number}. 
   """
   phoneNumberPrefix: String
   employees(where: OrganizationEmployeeWhereInput, search: String, sortBy: [SortOrganizationEmployeesBy!], orderBy: String, first: Int, skip: Int): [OrganizationEmployee!]!
@@ -33660,7 +33663,7 @@ type CallRecordHistoryRecord {
   talkTime: Int
   startedAt: String
   isIncomingCall: Boolean
-  callId: String
+  importId: String
   id: ID!
   v: Int
   createdAt: String
@@ -33741,24 +33744,24 @@ input CallRecordHistoryRecordWhereInput {
   startedAt_not_in: [String]
   isIncomingCall: Boolean
   isIncomingCall_not: Boolean
-  callId: String
-  callId_not: String
-  callId_contains: String
-  callId_not_contains: String
-  callId_starts_with: String
-  callId_not_starts_with: String
-  callId_ends_with: String
-  callId_not_ends_with: String
-  callId_i: String
-  callId_not_i: String
-  callId_contains_i: String
-  callId_not_contains_i: String
-  callId_starts_with_i: String
-  callId_not_starts_with_i: String
-  callId_ends_with_i: String
-  callId_not_ends_with_i: String
-  callId_in: [String]
-  callId_not_in: [String]
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -33852,8 +33855,8 @@ enum SortCallRecordHistoryRecordsBy {
   startedAt_DESC
   isIncomingCall_ASC
   isIncomingCall_DESC
-  callId_ASC
-  callId_DESC
+  importId_ASC
+  importId_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -33880,7 +33883,7 @@ input CallRecordHistoryRecordUpdateInput {
   talkTime: Int
   startedAt: String
   isIncomingCall: Boolean
-  callId: String
+  importId: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -33908,7 +33911,7 @@ input CallRecordHistoryRecordCreateInput {
   talkTime: Int
   startedAt: String
   isIncomingCall: Boolean
-  callId: String
+  importId: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -33960,7 +33963,7 @@ type CallRecord {
   isIncomingCall: Boolean
 
   """ Call unique identifier """
-  callId: String
+  importId: String
   id: ID!
   v: Int
   createdAt: String
@@ -34047,24 +34050,24 @@ input CallRecordWhereInput {
   startedAt_not_in: [String]
   isIncomingCall: Boolean
   isIncomingCall_not: Boolean
-  callId: String
-  callId_not: String
-  callId_contains: String
-  callId_not_contains: String
-  callId_starts_with: String
-  callId_not_starts_with: String
-  callId_ends_with: String
-  callId_not_ends_with: String
-  callId_i: String
-  callId_not_i: String
-  callId_contains_i: String
-  callId_not_contains_i: String
-  callId_starts_with_i: String
-  callId_not_starts_with_i: String
-  callId_ends_with_i: String
-  callId_not_ends_with_i: String
-  callId_in: [String]
-  callId_not_in: [String]
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -34140,8 +34143,8 @@ enum SortCallRecordsBy {
   startedAt_DESC
   isIncomingCall_ASC
   isIncomingCall_DESC
-  callId_ASC
-  callId_DESC
+  importId_ASC
+  importId_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -34168,7 +34171,7 @@ input CallRecordUpdateInput {
   talkTime: Int
   startedAt: String
   isIncomingCall: Boolean
-  callId: String
+  importId: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -34193,7 +34196,7 @@ input CallRecordCreateInput {
   talkTime: Int
   startedAt: String
   isIncomingCall: Boolean
-  callId: String
+  importId: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -34434,7 +34437,11 @@ type CallRecordFragment {
    4. As an alias to the 'id' field on the CallRecordFragment List.
   """
   _label_: String
+
+  """ Ticket to which this call fragment belongs """
   ticket: Ticket
+
+  """ Call record to which this call fragment belongs """
   callRecord: CallRecord
 
   """ Call fragment start date in UTC """
@@ -52552,7 +52559,7 @@ input B2BAppAccessRightRelateToManyInput {
 
 enum B2BAppGlobalFeature {
   PropertyMapGeneration
-  AttachRecordToTicket
+  AttachCallRecordToTicket
 }
 
 """ B2B app """
@@ -52612,7 +52619,7 @@ type B2BApp {
   accessRights(where: B2BAppAccessRightWhereInput, search: String, sortBy: [SortB2BAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): [B2BAppAccessRight!]!
   _accessRightsMeta(where: B2BAppAccessRightWhereInput, search: String, sortBy: [SortB2BAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration, AttachRecordToTicket] 
+  """ List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration, AttachCallRecordToTicket] 
   """
   features: [B2BAppGlobalFeature!]
 

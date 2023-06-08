@@ -4,23 +4,29 @@
 
 const { Relationship, DateTimeUtc } = require('@keystonejs/fields')
 
+const { GQLError } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const access = require('@condo/domains/ticket/access/CallRecordFragment')
+
+const { CALL_RECORD_FRAGMENT_ERRORS } = require('../constants/errors')
 
 
 const CallRecordFragment = new GQLListSchema('CallRecordFragment', {
     schemaDoc: 'M2M relationship between ticket and call record',
     fields: {
         ticket: {
-            type: Relationship,
+            schemaDoc: 'Ticket to which this call fragment belongs',
+            type: 'Relationship',
             ref: 'Ticket',
             knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         callRecord: {
-            type: Relationship,
+            schemaDoc: 'Call record to which this call fragment belongs',
+            type: 'Relationship',
             ref: 'CallRecord',
             isRequired: true,
             knexOptions: { isNotNullable: true },
@@ -30,6 +36,19 @@ const CallRecordFragment = new GQLListSchema('CallRecordFragment', {
             schemaDoc: 'Call fragment start date in UTC',
             type: DateTimeUtc,
             isRequired: true,
+        },
+    },
+    hooks: {
+        validateInput: async ({ resolvedData, existingItem, context }) => {
+            const newItem = { ...existingItem, ...resolvedData }
+
+            if (resolvedData['ticket']) {
+                const ticket = await getById('Ticket', resolvedData['ticket'])
+
+                if (ticket.organization !== newItem.organization) {
+                    throw new GQLError(CALL_RECORD_FRAGMENT_ERRORS.INVALID_TICKET_ORGANIZATION, context)
+                }
+            }
         },
     },
     kmigratorOptions: {

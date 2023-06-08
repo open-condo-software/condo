@@ -237,7 +237,7 @@ const UserFavoriteTicket = generateGqlQueries('UserFavoriteTicket', USER_FAVORIT
 const INCIDENT_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone __typename user { id } ${COMMON_FIELDS} }`
 const IncidentExportTask = generateGqlQueries('IncidentExportTask', INCIDENT_EXPORT_TASK_FIELDS)
 
-const CALL_RECORD_FIELDS = `{ organization { id } file { id originalFilename publicUrl mimetype } callerPhone destCallerPhone talkTime startedAt isIncomingCall callId ${COMMON_FIELDS} }`
+const CALL_RECORD_FIELDS = `{ organization { id } file { id originalFilename publicUrl mimetype } callerPhone destCallerPhone talkTime startedAt isIncomingCall importId ${COMMON_FIELDS} }`
 const CallRecord = generateGqlQueries('CallRecord', CALL_RECORD_FIELDS)
 
 const CALL_RECORD_FRAGMENT_FIELDS = `{ ticket { id } callRecord { id } organization { id } ${COMMON_FIELDS} }`

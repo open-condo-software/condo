@@ -14,6 +14,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
+const { PHONE_FIELD } = require('@condo/domains/common/schema/fields')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/organization/access/Organization')
@@ -100,17 +101,13 @@ const Organization = new GQLListSchema('Organization', {
             isRequired: false,
         },
         phone: {
+            ...PHONE_FIELD,
             schemaDoc: 'Normalized organization phone in E.164 format without spaces',
-            type: Text,
-            hooks: {
-                resolveInput: async ({ resolvedData }) => {
-                    const newValue = normalizePhone(resolvedData['phone'], true)
-                    return newValue || resolvedData['phone']
-                },
-            },
         },
         phoneNumberPrefix: {
-            schemaDoc: 'Additional number specified in the software for calling on behalf of another organization',
+            schemaDoc: `Numeric identifier assigned to a specific line in software for calling. 
+            Used when outgoing call before the number to be called. 
+            For example phoneNumberPrefix = 01, then the result phone number to be called = 01{phone number}.`,
             type: Text,
         },
         employees: {
@@ -160,15 +157,6 @@ const Organization = new GQLListSchema('Organization', {
             kmigratorOptions: { null: true, unique: false },
         },
         features: ORGANIZATION_FEATURES_FIELD,
-    },
-    hooks: {
-        validateInput: async ({ resolvedData }) => {
-            const normalizedPhone = normalizePhone(resolvedData['phone'], true)
-
-            if (resolvedData['phone'] && normalizedPhone !== resolvedData['phone']) {
-                throw new GQLError(ORGANIZATION_ERRORS.INVALID_PHONE_NUMBER_FORMAT)
-            }
-        },
     },
     kmigratorOptions: {
         constraints: [

@@ -1983,7 +1983,7 @@ export type B2BApp = {
   /**  Specifies set of service users, who can access app's contexts related as well as perform actions on behalf of the application  */
   accessRights: Array<B2BAppAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
-  /**  List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration, AttachRecordToTicket]  */
+  /**  List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration, AttachCallRecordToTicket]  */
   features?: Maybe<Array<B2BAppGlobalFeature>>;
   /**  The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1.  */
   displayPriority?: Maybe<Scalars['Int']>;
@@ -2742,7 +2742,7 @@ export type B2BAppCreateInput = {
 
 export enum B2BAppGlobalFeature {
   PropertyMapGeneration = 'PropertyMapGeneration',
-  AttachRecordToTicket = 'AttachRecordToTicket'
+  AttachCallRecordToTicket = 'AttachCallRecordToTicket'
 }
 
 /**  A keystone list  */
@@ -16390,7 +16390,7 @@ export type CallRecord = {
   /**  Incoming or outgoing call for operator  */
   isIncomingCall?: Maybe<Scalars['Boolean']>;
   /**  Call unique identifier  */
-  callId?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -16415,7 +16415,7 @@ export type CallRecordCreateInput = {
   talkTime?: Maybe<Scalars['Int']>;
   startedAt?: Maybe<Scalars['String']>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
-  callId?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -16438,7 +16438,9 @@ export type CallRecordFragment = {
    *  4. As an alias to the 'id' field on the CallRecordFragment List.
    */
   _label_?: Maybe<Scalars['String']>;
+  /**  Ticket to which this call fragment belongs  */
   ticket?: Maybe<Ticket>;
+  /**  Call record to which this call fragment belongs  */
   callRecord?: Maybe<CallRecord>;
   /**  Call fragment start date in UTC  */
   startedAt?: Maybe<Scalars['String']>;
@@ -16786,7 +16788,7 @@ export type CallRecordHistoryRecord = {
   talkTime?: Maybe<Scalars['Int']>;
   startedAt?: Maybe<Scalars['String']>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
-  callId?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -16810,7 +16812,7 @@ export type CallRecordHistoryRecordCreateInput = {
   talkTime?: Maybe<Scalars['Int']>;
   startedAt?: Maybe<Scalars['String']>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
-  callId?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -16839,7 +16841,7 @@ export type CallRecordHistoryRecordUpdateInput = {
   talkTime?: Maybe<Scalars['Int']>;
   startedAt?: Maybe<Scalars['String']>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
-  callId?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -16919,24 +16921,24 @@ export type CallRecordHistoryRecordWhereInput = {
   startedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
   isIncomingCall_not?: Maybe<Scalars['Boolean']>;
-  callId?: Maybe<Scalars['String']>;
-  callId_not?: Maybe<Scalars['String']>;
-  callId_contains?: Maybe<Scalars['String']>;
-  callId_not_contains?: Maybe<Scalars['String']>;
-  callId_starts_with?: Maybe<Scalars['String']>;
-  callId_not_starts_with?: Maybe<Scalars['String']>;
-  callId_ends_with?: Maybe<Scalars['String']>;
-  callId_not_ends_with?: Maybe<Scalars['String']>;
-  callId_i?: Maybe<Scalars['String']>;
-  callId_not_i?: Maybe<Scalars['String']>;
-  callId_contains_i?: Maybe<Scalars['String']>;
-  callId_not_contains_i?: Maybe<Scalars['String']>;
-  callId_starts_with_i?: Maybe<Scalars['String']>;
-  callId_not_starts_with_i?: Maybe<Scalars['String']>;
-  callId_ends_with_i?: Maybe<Scalars['String']>;
-  callId_not_ends_with_i?: Maybe<Scalars['String']>;
-  callId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  callId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -17043,7 +17045,7 @@ export type CallRecordUpdateInput = {
   talkTime?: Maybe<Scalars['Int']>;
   startedAt?: Maybe<Scalars['String']>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
-  callId?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -17118,24 +17120,24 @@ export type CallRecordWhereInput = {
   startedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isIncomingCall?: Maybe<Scalars['Boolean']>;
   isIncomingCall_not?: Maybe<Scalars['Boolean']>;
-  callId?: Maybe<Scalars['String']>;
-  callId_not?: Maybe<Scalars['String']>;
-  callId_contains?: Maybe<Scalars['String']>;
-  callId_not_contains?: Maybe<Scalars['String']>;
-  callId_starts_with?: Maybe<Scalars['String']>;
-  callId_not_starts_with?: Maybe<Scalars['String']>;
-  callId_ends_with?: Maybe<Scalars['String']>;
-  callId_not_ends_with?: Maybe<Scalars['String']>;
-  callId_i?: Maybe<Scalars['String']>;
-  callId_not_i?: Maybe<Scalars['String']>;
-  callId_contains_i?: Maybe<Scalars['String']>;
-  callId_not_contains_i?: Maybe<Scalars['String']>;
-  callId_starts_with_i?: Maybe<Scalars['String']>;
-  callId_not_starts_with_i?: Maybe<Scalars['String']>;
-  callId_ends_with_i?: Maybe<Scalars['String']>;
-  callId_not_ends_with_i?: Maybe<Scalars['String']>;
-  callId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  callId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -44427,7 +44429,11 @@ export type Organization = {
   meta?: Maybe<Scalars['JSON']>;
   /**  Normalized organization phone in E.164 format without spaces  */
   phone?: Maybe<Scalars['String']>;
-  /**  Additional number specified in the software for calling on behalf of another organization  */
+  /**
+   *  Numeric identifier assigned to a specific line in software for calling.
+   * Used when outgoing call before the number to be called.
+   * For example phoneNumberPrefix = 01, then the result phone number to be called = 01{phone number}.
+   */
   phoneNumberPrefix?: Maybe<Scalars['String']>;
   employees: Array<OrganizationEmployee>;
   _employeesMeta?: Maybe<_QueryMeta>;
@@ -63936,8 +63942,8 @@ export enum SortCallRecordHistoryRecordsBy {
   StartedAtDesc = 'startedAt_DESC',
   IsIncomingCallAsc = 'isIncomingCall_ASC',
   IsIncomingCallDesc = 'isIncomingCall_DESC',
-  CallIdAsc = 'callId_ASC',
-  CallIdDesc = 'callId_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -63969,8 +63975,8 @@ export enum SortCallRecordsBy {
   StartedAtDesc = 'startedAt_DESC',
   IsIncomingCallAsc = 'isIncomingCall_ASC',
   IsIncomingCallDesc = 'isIncomingCall_DESC',
-  CallIdAsc = 'callId_ASC',
-  CallIdDesc = 'callId_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
