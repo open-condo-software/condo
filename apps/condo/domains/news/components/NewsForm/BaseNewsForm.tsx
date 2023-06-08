@@ -780,11 +780,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                             </Row>
                                         </Col>
                                         <Col span={formInfoColSpan}>
-                                            <MemoizedNewsPreview
-                                                body={selectedBody}
-                                                title={selectedTitle}
-                                                validBefore={selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null}
-                                            />
+                                            {(!!selectedBody || !!selectedTitle) && (
+                                                <MemoizedNewsPreview
+                                                    body={selectedBody}
+                                                    title={selectedTitle}
+                                                    validBefore={selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null}
+                                                />
+                                            )}
                                         </Col>
                                     </Row>
                                 </Col>
