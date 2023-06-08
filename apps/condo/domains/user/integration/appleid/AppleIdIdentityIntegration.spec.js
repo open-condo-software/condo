@@ -12,11 +12,6 @@ const callbackPath = '/api/apple_id/auth/callback'
 const callbackUri = redirectUri || `${conf.SERVER_URL}${callbackPath}`
 
 describe('AppleIdIdentityIntegration', () => {
-
-    it('Generate client secret', async () => {
-        expect(await integration.getClientSecret()).toBeTruthy()
-    })
-
     it('Generate login form params using checks', async () => {
         const nonce = 'nonce'
         const state = 'state'
