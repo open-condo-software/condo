@@ -14,23 +14,6 @@ services:
       - ./.env:/app/.env
     networks:
       - app-network
-  loadtest:
-    image: loadtest
-    build:
-      context: .
-      dockerfile: Dockerfile
-    user: app
-    env_file:
-      - .env
-    volumes:
-      - ./apps/:/app/apps
-      - ./packages/:/app/packages
-      - ./bin/:/app/bin
-      - ./package.json:/app/package.json
-      - ./.env:/app/.env
-    command: yarn workspace@app/condo cypress:loadtest
-    networks:
-      - app-network
   postgresdb:
     image: postgres:13.2
     command: postgres -c 'max_connections=2000'
