@@ -152,19 +152,19 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 if (transaction.direction === 'DEBIT') {
                     [bankContractorAccount] = await BankContractorAccount.getAll(context, {
                         organization: { id: organizationId },
-                        tin: transaction.rurTransfer.payerInn,
-                        number: transaction.rurTransfer.payerAccount,
+                        tin: transaction.rurTransfer.payeeInn,
+                        number: transaction.rurTransfer.payeeAccount,
                         deletedAt: null,
                     }, { first: 1 })
 
                     if (!bankContractorAccount) {
                         bankContractorAccount = await BankContractorAccount.create(context, {
                             organization: { connect: { id: organizationId } },
-                            name: transaction.rurTransfer.payerName,
-                            tin: transaction.rurTransfer.payerInn,
+                            name: transaction.rurTransfer.payeeName,
+                            tin: transaction.rurTransfer.payeeInn,
                             country: RUSSIA_COUNTRY,
-                            routingNumber: transaction.rurTransfer.payerBankBic,
-                            number: transaction.rurTransfer.payerAccount,
+                            routingNumber: transaction.rurTransfer.payeeBankBic,
+                            number: transaction.rurTransfer.payeeAccount,
                             currencyCode: transaction.amount.currencyName,
                             ...dvSenderFields,
                         })
