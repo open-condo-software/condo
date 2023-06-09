@@ -2,6 +2,7 @@ import {
     Tabs as DefaultTabs,
     TabsProps as DefaultTabsProps,
 } from 'antd'
+import classNames from 'classnames'
 import React, { useCallback } from 'react'
 
 import { sendAnalyticsChangeEvent } from '../_utils/analytics'
@@ -16,6 +17,10 @@ export type TabItem = {
     children?: React.ReactNode
 }
 
+type CondoTabsTypeProp = {
+    type?: 'rounded'
+}
+
 export type TabsProps = Pick<DefaultTabsProps,
 'className' |
 'id' |
@@ -24,10 +29,14 @@ export type TabsProps = Pick<DefaultTabsProps,
 'destroyInactiveTabPane' |
 'onChange'> & {
     items?: Array<TabItem>
-}
+} & CondoTabsTypeProp
 
 export const Tabs: React.FC<TabsProps> = (props) => {
-    const { onChange, id, items = [], ...restProps } = props
+    const { onChange, id, items = [], type = null, ...restProps } = props
+
+    const className = classNames({
+        [`${TABS_CLASS_PREFIX}-${type}`]: type,
+    })
 
     const handleChange = useCallback((activeKey: string) => {
         sendAnalyticsChangeEvent('Tabs', { activeKey, id })
@@ -47,5 +56,5 @@ export const Tabs: React.FC<TabsProps> = (props) => {
         ),
     }))
 
-    return <DefaultTabs {...restProps} id={id} onChange={handleChange} items={itemsWithIcons} prefixCls={TABS_CLASS_PREFIX}/>
+    return <DefaultTabs {...restProps} id={id} onChange={handleChange} items={itemsWithIcons} prefixCls={TABS_CLASS_PREFIX} className={className}/>
 }

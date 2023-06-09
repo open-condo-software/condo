@@ -9,6 +9,12 @@ import type { ComponentStory, ComponentMeta } from '@storybook/react'
 export default {
     title: 'Components/Tabs',
     component: Tabs,
+    argTypes: {
+        type: {
+            control: { type: 'select' },
+            options: [undefined, 'rounded'],
+        },
+    },
 } as ComponentMeta<React.FC<TabsProps>>
 
 const simpleItems: Array<TabItem> = [
@@ -44,5 +50,11 @@ const Template: ComponentStory<React.FC<TabsProps>> = (args) => <Tabs {...args}/
 
 export const Simple = Template.bind({})
 Simple.args = {
+    items: simpleItems,
+}
+
+export const Rounded = Template.bind({})
+Rounded.args = {
+    type: 'rounded',
     items: simpleItems,
 }

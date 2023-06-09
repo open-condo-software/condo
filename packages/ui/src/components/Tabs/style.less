@@ -56,4 +56,35 @@
   &-nav-operations {
     display: none !important;
   }
+
+  &-rounded {
+    & > .condo-tabs-nav {
+      .condo-tabs-ink-bar {
+        visibility: hidden;
+      }
+
+      .condo-tabs-tab {
+        padding: @condo-global-spacing-12;
+        border: @condo-global-border-width-default solid @condo-global-color-gray-3;
+        border-radius: 1000px;
+
+        &.condo-tabs-tab-active {
+          background-color: @condo-global-color-gray-3;
+          transition: all 0.3s;
+        }
+
+        & + .condo-tabs-tab {
+          margin: 0 0 0 @condo-global-spacing-8;
+        }
+
+        & > .condo-tabs-tab-btn {
+          color: @condo-global-color-black;
+        }
+
+        & .condo-tabs-ink-bar {
+          visibility: hidden;
+        }
+      }
+    }
+  }
 }
