@@ -50,17 +50,17 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
 
                 console.info(`[INFO] Following meters will be deleted: [${meters.map(reading => `'${reading.id}'`).join(', ')}]`)
 
-                const deletedMeters = []
-                for (const meter of meters) {
-                    console.info(`Deleting Meter (id = "${meter.id}")`)
-                    const deletedMeter = await Meter.softDelete(context, meter.id, { dv, sender })
-                    const foundedMeter = await getById('Meter', deletedMeter.id) // hack for getting meter with all fields
-                    deletedMeters.push(foundedMeter)
+                const deletedMeters = await Meter.updateMany(context, meters, { dv, sender, deletedAt: 'true' })
+                let foundedMeters = []
+
+                for (const meter of deletedMeters) {
+                    const foundedMeter = await getById('Meter', meter.id) // hack for getting meter with all fields
+                    foundedMeters.push(foundedMeter)
                 }
+
                 console.info('[INFO] Deleted all Meter records with associated MeterReading')
 
-                return deletedMeters
-
+                return foundedMeters
             },
         },
     ],

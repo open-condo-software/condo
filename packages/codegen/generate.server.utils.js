@@ -233,6 +233,20 @@ function generateServerUtils (gql) {
         })
     }
 
+    async function updateMany (context, data, extraAttrs = {}, options = {}) {
+        if (!context) throw new Error('no context')
+        if (!data) throw new Error('no data')
+        _checkOptions(options)
+
+        return await execGqlWithoutAccess(context, {
+            query: gql.UPDATE_OBJS_MUTATION,
+            variables: { data: data.map( data => ({ id: data.id, data: { ...data.data, ...extraAttrs } })) },
+            errorMessage: `[error] Update ${gql.PLURAL_FORM} internal error`,
+            dataPath: 'objs',
+            ...options,
+        })
+    }
+
     async function delete_ (context, id, options = {}) {
         if (!context) throw new Error('no context')
         if (!id) throw new Error('no id')
@@ -283,6 +297,7 @@ function generateServerUtils (gql) {
         count,
         create,
         update,
+        updateMany,
         updateOrCreate,
         delete: delete_,
         softDelete,
