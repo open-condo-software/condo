@@ -57,12 +57,11 @@ type MetersTableRecord = {
     tariffNumber: string
 }
 
-function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings: MeterReadingType[] | PropertyMeterReadingType[]): MetersTableRecord[] {
+function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings): MetersTableRecord[] {
     const dataSource: MetersTableRecord[] = []
 
-    // @ts-ignore
-    const lastMeterReadings = uniqWith(meterReadings,
-        (meterReading1, meterReading2) =>
+    const lastMeterReadings = uniqWith(meterReadings.filter((meterReading) => meterReading.meter !== null ),
+        (meterReading1: any, meterReading2: any) =>
             meterReading1.meter.id === meterReading2.meter.id
     )
 
