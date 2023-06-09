@@ -11,7 +11,7 @@ COPY --from=node:16-buster /opt/ /opt/
 ENV LANG C.UTF-8
 # Add app user/group! Clean packages and fix links! Check version! And install some extra packages!
 RUN set -ex \
-    && apt-get update && apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+    && apt-get update && apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb \
 	&& groupadd -r app --gid=999 \
 	&& useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app \
 	&& ldconfig -v \
