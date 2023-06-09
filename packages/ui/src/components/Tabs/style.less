@@ -10,6 +10,9 @@
 @tabs-hover-color: @condo-global-color-black;
 @tabs-horizontal-padding: @condo-global-spacing-4 0 @condo-global-spacing-12;
 @tabs-bar-margin: 0 0 @condo-global-spacing-40 0;
+@tabs-rounded-line-height: @condo-global-typography-h4-line-height;
+@tabs-rounded-height: @tabs-rounded-line-height + (@condo-global-spacing-12 + @condo-global-border-width-default) * 2;
+@tabs-rounded-border-radius: (@tabs-rounded-height / 2);
 
 .condo-tabs {
   &-tab-btn {
@@ -66,7 +69,7 @@
       .condo-tabs-tab {
         padding: @condo-global-spacing-12;
         border: @condo-global-border-width-default solid @condo-global-color-gray-3;
-        border-radius: 1000px;
+        border-radius: @tabs-rounded-border-radius;
 
         &.condo-tabs-tab-active {
           background-color: @condo-global-color-gray-3;
