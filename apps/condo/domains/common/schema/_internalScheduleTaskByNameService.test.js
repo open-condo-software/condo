@@ -18,6 +18,15 @@ describe('_internalScheduleTaskByNameService', () => {
         expect(data.id).toBeDefined()
     })
 
+    test('admin can execute mutation 2', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const payload = {
+            taskName: 'garbageCollectorTask',
+        }
+        const [data] = await _internalScheduleTaskByNameByTestClient(admin, payload)
+        expect(data.id).toBeDefined()
+    })
+
     test('support can not execute mutation', async () => {
         const support = await makeClientWithSupportUser()
         const payload = {

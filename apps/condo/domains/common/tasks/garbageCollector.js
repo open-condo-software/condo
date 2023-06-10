@@ -5,14 +5,9 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
+
 const logger = getLogger('garbage-collector-task')
 
-// Runs yearly
-module.exportts = {
-    sampleTask: createCronTask('commonGarbageCollectorTask', '0 0 1 1 *', () => {
-
-    }),
-}
 
 /**
  > Books -> Authors
@@ -33,6 +28,18 @@ module.exportts = {
  *  3.2 Get
  *
  */
-const collectGarbage = () => {
-    console.log('stub')
+const collectGarbage = (schemasMeta) => {
+    console.log(schemasMeta)
+}
+
+// Runs yearly
+module.exports = {
+    garbageCollectorTask: createCronTask('garbageCollectorTask', '0 0 1 1 *', () => {
+        const schemasMeta = schemasMeta
+
+        console.log(schemasMeta)
+
+        collectGarbage(schemasMeta)
+    }),
+    collectGarbage,
 }
