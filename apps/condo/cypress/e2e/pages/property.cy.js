@@ -11,19 +11,16 @@ describe('Property', function () {
     describe('User', function () {
         it('can create properties and manipulate their maps', () => {
             const trace = new SimpleTracer('user.canCreatePropertyMap', 'property')
-            const spanPrepare = trace.startSpan('1.createUserWithOrganization')
+            const span = trace.startSpan('1.createAndManipulateWithPropertyMaps')
             cy.task('keystone:createUserWithOrganization').then(async (response) => {
                 authUserWithCookies(response)
-                spanPrepare.finish()
 
                 const organization = response.organization
 
                 const condo = new Condo()
                 condo.visit()
 
-                let activeSpan = trace.startSpan('2.propertyMapCreate')
                 cy.task('keystone:createProperty', organization).then(() => {
-                    activeSpan.finish()
                     condo.clickOnMenuItem('property')
 
                     const propertyMapCreate = new PropertyMapCreate()
@@ -40,10 +37,7 @@ describe('Property', function () {
                         .clickSavePropertyMap()
                 })
 
-
-                activeSpan = trace.startSpan('3.propertyMapCreate')
                 cy.task('keystone:createProperty', organization).then(() => {
-                    activeSpan.finish()
                     condo.clickOnMenuItem('property')
 
                     const propertyMapEdit = new PropertyMapEdit()
@@ -59,9 +53,7 @@ describe('Property', function () {
                         .clickSavePropertyMap()
                 })
 
-                activeSpan = trace.startSpan('4.propertyMapCreate')
                 cy.task('keystone:createProperty', organization).then(() => {
-                    activeSpan.finish()
                     condo.clickOnMenuItem('property')
 
                     const propertyMapUnitEdit = new PropertyMapUnitEdit()
@@ -83,6 +75,7 @@ describe('Property', function () {
                 })
 
             }).then(() => {
+                span.finish()
                 trace.finish()
             })
         })
