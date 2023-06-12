@@ -11,6 +11,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, expectToThrowAccessDeniedE
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { _internalDeleteMeterAndMeterReadingsByTestClient } = require('@condo/domains/meter/utils/testSchema')
 const { MeterResource, createTestMeter } = require('@condo/domains/meter/utils/testSchema')
+const { Meter } = require('@condo/domains/meter/utils/testSchema/index')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
@@ -40,10 +41,15 @@ describe('DeleteMeterAndMeterReadingsService', () => {
             const [meter] = await createTestMeter(adminClient, organization, firstProperty, resource, {})
             expect(meter.id).toMatch(UUID_RE)
             expect(meter.deletedAt).toBeNull()
-            const [deletedMeters] = await _internalDeleteMeterAndMeterReadingsByTestClient(adminClient,
+            const createdMeter = await Meter.getAll(adminClient, { id: meter.id })
+            expect(createdMeter).toHaveLength(1)
+
+            const [deleteResult] = await _internalDeleteMeterAndMeterReadingsByTestClient(adminClient,
                 { ...payload, propertyIds: [meter.property.id] }
             )
-            expect(deletedMeters[0].deletedAt).not.toBeNull()
+            expect(deleteResult.status).toBe('success')
+            const deletedMeters = await Meter.getAll(adminClient, { id: meter.id })
+            expect(deletedMeters).toHaveLength(0)
         })
 
         test('delete multiple', async () => {
@@ -53,12 +59,12 @@ describe('DeleteMeterAndMeterReadingsService', () => {
             expect(secondMeter.id).toMatch(UUID_RE)
             expect(firstMeter.deletedAt).toBeNull()
             expect(secondMeter.deletedAt).toBeNull()
-            const [deletedMeters] = await _internalDeleteMeterAndMeterReadingsByTestClient(adminClient,
+            const [deleteResult] = await _internalDeleteMeterAndMeterReadingsByTestClient(adminClient,
                 { ...payload, propertyIds: [firstMeter.property.id, secondMeter.property.id] }
             )
-            expect(deletedMeters).toHaveLength(2)
-            expect(deletedMeters[0].deletedAt).not.toBeNull()
-            expect(deletedMeters[1].deletedAt).not.toBeNull()
+            expect(deleteResult.status).toBe('success')
+            const deletedMeters = await Meter.getAll(adminClient, { id_in: [firstMeter.id, secondMeter.id] })
+            expect(deletedMeters).toHaveLength(0)
         })
     })
 
@@ -68,10 +74,12 @@ describe('DeleteMeterAndMeterReadingsService', () => {
             const [meter] = await createTestMeter(adminClient, organization, firstProperty, resource, {})
             expect(meter.id).toMatch(UUID_RE)
             expect(meter.deletedAt).toBeNull()
-            const [deletedMeters] = await _internalDeleteMeterAndMeterReadingsByTestClient(supportClient,
+            const [deleteResult] = await _internalDeleteMeterAndMeterReadingsByTestClient(supportClient,
                 { ...payload, propertyIds: [meter.property.id] }
             )
-            expect(deletedMeters[0].deletedAt).not.toBeNull()
+            expect(deleteResult.status).toBe('success')
+            const deletedMeters = await Meter.getAll(adminClient, { id: meter.id })
+            expect(deletedMeters).toHaveLength(0)
         })
 
         test('delete multiple', async () => {
@@ -81,12 +89,12 @@ describe('DeleteMeterAndMeterReadingsService', () => {
             expect(secondMeter.id).toMatch(UUID_RE)
             expect(firstMeter.deletedAt).toBeNull()
             expect(secondMeter.deletedAt).toBeNull()
-            const [deletedMeters] = await _internalDeleteMeterAndMeterReadingsByTestClient(supportClient,
+            const [deleteResult] = await _internalDeleteMeterAndMeterReadingsByTestClient(supportClient,
                 { ...payload, propertyIds: [firstMeter.property.id, secondMeter.property.id] }
             )
-            expect(deletedMeters).toHaveLength(2)
-            expect(deletedMeters[0].deletedAt).not.toBeNull()
-            expect(deletedMeters[1].deletedAt).not.toBeNull()
+            expect(deleteResult.status).toBe('success')
+            const deletedMeters = await Meter.getAll(adminClient, { id_in: [firstMeter.id, secondMeter.id ] })
+            expect(deletedMeters).toHaveLength(0)
         })
     })
  

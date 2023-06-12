@@ -4,11 +4,11 @@
 
 const { isEmpty } = require('lodash')
 
-const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/meter/access/_internalDeleteMeterAndMeterReadingsService')
-
-const { Meter } = require('../utils/serverSchema')
+const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -20,47 +20,41 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
     types: [
         {
             access: true,
-            // TODO(codegen): write DeleteMeterAndMeterReadingsService input !
-            type: 'input _internalDeleteMeterAndMeterReadingsInput { dv: Int!, sender: JSON!, propertyIds: [String]! }',
+            type: 'input _internalDeleteMeterAndMeterReadingsInput { dv: Int!, sender: SenderFieldInput!, propertyIds: [String]! }',
+        },
+        {
+            access: true,
+            type: 'type _internalDeleteMeterAndMeterReadingsOutput { status: String! }',
         },
     ],
     
     mutations: [
         {
             access: access.can_internalDeleteMeterAndMeterReadings,
-            schema: '_internalDeleteMeterAndMeterReadings(data: _internalDeleteMeterAndMeterReadingsInput!): [MeterReading]',
+            schema: '_internalDeleteMeterAndMeterReadings(data: _internalDeleteMeterAndMeterReadingsInput!): _internalDeleteMeterAndMeterReadingsOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { dv, sender, propertyIds } = data
+                const logger = getLogger('DeleteMeters')
 
-                const findMeters = async () => {
-                    return await find('Meter', {
-                        deletedAt: null,
-                        property: {
-                            id_in: propertyIds,
-                        },
-                    })
-                }
+                const meters = await find('Meter', {
+                    deletedAt: null,
+                    property: {
+                        id_in: propertyIds,
+                    },
+                })
 
-                const meters = await findMeters()
                 if (isEmpty(meters)) {
-                    console.info('[INFO] Could not found meters by specified property ids')
+                    logger.warn({ msg: 'Could not find meters by specified property ids', data: { propertyIds } })
                     return
                 }
-
-                console.info(`[INFO] Following meters will be deleted: [${meters.map(reading => `'${reading.id}'`).join(', ')}]`)
+                logger.info({ msg: `Following meters will be deleted: [${meters.map(reading => `'${reading.id}'`).join(', ')}]` })
 
                 const deletedMeters = await Meter.updateMany(context, meters, { dv, sender, deletedAt: 'true' })
-                let foundedMeters = []
+                let deletedSuccessfully = meters.length === deletedMeters.length ? 'success' : 'error'
+                logger.info({ msg: 'Deleted all Meter records with associated MeterReading' })
 
-                for (const meter of deletedMeters) {
-                    const foundedMeter = await getById('Meter', meter.id) // hack for getting meter with all fields
-                    foundedMeters.push(foundedMeter)
-                }
-
-                console.info('[INFO] Deleted all Meter records with associated MeterReading')
-
-                return foundedMeters
+                return { status: deletedSuccessfully }
             },
         },
     ],
