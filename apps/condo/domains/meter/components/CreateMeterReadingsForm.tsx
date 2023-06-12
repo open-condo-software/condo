@@ -401,7 +401,7 @@ export const PropertyMetersForm = ({
         where: {
             meter: { id_in: meterIds },
         },
-        sortBy: [SortPropertyMeterReadingsBy.CreatedAtAsc],
+        sortBy: [SortPropertyMeterReadingsBy.CreatedAtDesc],
     })
     const refetch = useCallback(() => {
         refetchMeters()
@@ -503,7 +503,7 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
 
             createMeterReadingAction({
                 meter: { connect: { id: meterId } },
-                date: new Date().toDateString(),
+                date: new Date().toISOString(),
                 value1,
                 value2,
                 value3,
