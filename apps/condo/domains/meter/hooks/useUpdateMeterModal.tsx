@@ -31,7 +31,7 @@ export const useUpdateMeterModal = (refetch, meterType: MeterTypes = METER_TYPES
     const DeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.DeleteMeterAndReadings' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' }).toUpperCase()
 
-    const [selectedMeter, setSelectedMeter] = useState<MeterType>()
+    const [selectedMeter, setSelectedMeter] = useState()
     const meterNumber = get(selectedMeter, 'number')
     const isAutomatic = get(selectedMeter, 'isAutomatic', false)
     const masterAppName = get(selectedMeter, ['b2bApp', 'name'], DeletedMessage)
