@@ -55,8 +55,9 @@ describe.skip('Auth scenarios', () => {
                 .visit()
                 .fillPhone(user.phone)
                 .startRegistrationClick()
-            cy.url().should('contain', 'step=validatePhone')
-            registrationSpan.finish()
+            cy.url().should('contain', 'step=validatePhone').then(() => {
+                registrationSpan.finish()
+            })
 
             const getConfirmPhoneActionSpan = trace.startSpan('2.completingRegistration')
             cy.task('keystone:getConfirmPhoneAction', user.phone).then(([{ smsCode }]) => {

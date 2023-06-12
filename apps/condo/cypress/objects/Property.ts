@@ -4,7 +4,7 @@ import { trackedVisit } from './helpers'
 const PROPERTY_URL = '/property'
 const PROPERTY_MAP_UPDATE_URL = '/map/update'
 
-class Property extends Condo{
+class Property extends Condo {
     visit (): this {
         trackedVisit(PROPERTY_URL)
         cy.wait('@getAllOnBoardings')

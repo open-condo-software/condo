@@ -10,13 +10,11 @@ describe('Ticket',  function () {
 
         it('can create ticket',  () => {
             const trace = new SimpleTracer('user.canCreateTicket', 'ticket')
-            const spanPrepare = trace.startSpan('1.createUserWithProperty')
-            
+            const span = trace.startSpan('1.createPropertyAndTicket')
+
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
-                spanPrepare.finish()
 
-                const span = trace.startSpan('2.createTicket')
                 const { address: propertyAddress, map: propertyMap } = response.property
                 const propertyUnits = propertyMap.sections
                     .map(section => section.floors.map(floor => floor.units.map(unit => unit.label))).flat(2)
@@ -31,26 +29,23 @@ describe('Ticket',  function () {
                     .clickAndInputDescription(faker.lorem.sentence(3))
                     .selectProblemWithCategoryClassifier()
                     .clickOnSubmitButton()
-                span.finish()
-                
+
+
             }).then(() => {
+                span.finish()
                 trace.finish()
             })
         })
 
         it('can view and filter tickets with table', () => {
             const trace = new SimpleTracer('user.canViewAndFilterTicketsWithTable', 'ticket')
-            const spanPrepare = trace.startSpan('1.createUserWithProperty')
+            const span = trace.startSpan('1.createAndManipulateWithTickets')
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
-                spanPrepare.finish()
 
-                const spanCreateTickets = trace.startSpan('2.createTickets')
                 cy.task('keystone:createTickets', { ticketAttrs: response, emergency: 10, regular: 10, paid: 10, warranty: 10 }).then(() => {
                     const { address: propertyAddress } = response.property
-                    spanCreateTickets.finish()
 
-                    const spanSearchTickets = trace.startSpan('3.viewTickets')
                     const ticketView = new TicketView()
                     ticketView
                         .visit()
@@ -59,20 +54,19 @@ describe('Ticket',  function () {
                         .clickIsEmergencyCheckbox()
                         .clickOnGlobalFiltersButton()
                         .typeAddressSearchInput(propertyAddress)
-                    spanSearchTickets.finish()
                 })
             }).then(() => {
+                span.finish()
                 trace.finish()
             })
         })
 
         it('can view and edit ticket', () => {
             const trace = new SimpleTracer('user.canViewAndEditTicket', 'ticket')
-            const spanPrepare = trace.startSpan('1.createUserWithProperty')
+            const span = trace.startSpan('1.createAndManipulateWithTicket')
 
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
-                spanPrepare.finish()
 
                 const spanCreateTickets = trace.startSpan('2.createTickets')
                 cy.task('keystone:createTickets', { ticketAttrs: response }).then((tickets) => {
@@ -90,6 +84,7 @@ describe('Ticket',  function () {
                     spanEditTickets.finish()
                 })
             }).then(() => {
+                span.finish()
                 trace.finish()
             })
         })
