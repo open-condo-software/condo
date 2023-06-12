@@ -30,7 +30,6 @@ describe('Ticket',  function () {
                     .selectProblemWithCategoryClassifier()
                     .clickOnSubmitButton()
 
-
             }).then(() => {
                 span.finish()
                 trace.finish()
@@ -55,6 +54,7 @@ describe('Ticket',  function () {
                         .clickOnGlobalFiltersButton()
                         .typeAddressSearchInput(propertyAddress)
                 })
+
             }).then(() => {
                 span.finish()
                 trace.finish()
@@ -83,6 +83,7 @@ describe('Ticket',  function () {
                         .clickApplyChanges()
                     spanEditTickets.finish()
                 })
+
             }).then(() => {
                 span.finish()
                 trace.finish()
