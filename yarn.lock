@@ -693,6 +693,7 @@ __metadata:
     jest-environment-jsdom: ^29.4.0
     jest-jasmine2: ^29.4.0
     jest-watch-typeahead: 0.6.5
+    jose: 2.0.5
     js-cookie: ^2.2.1
     jschardet: ^3.0.0
     jsonwebtoken: ^9.0.0
@@ -28108,7 +28109,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jose@npm:^2.0.5":
+"jose@npm:2.0.5, jose@npm:^2.0.5":
   version: 2.0.5
   resolution: "jose@npm:2.0.5"
   dependencies:

@@ -75862,6 +75862,7 @@ export type UserExternalIdentityHistoryRecordsUpdateInput = {
 };
 
 export enum UserExternalIdentityIdentityTypeType {
+  AppleId = 'apple_id',
   SberId = 'sber_id',
   Sbbol = 'sbbol'
 }

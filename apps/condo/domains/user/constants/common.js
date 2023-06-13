@@ -4,9 +4,10 @@ const STAFF = 'staff'
 const SERVICE = 'service'
 const USER_TYPES = [STAFF, RESIDENT, SERVICE]
 
+const APPLE_ID_IDP_TYPE = 'apple_id'
 const SBER_ID_IDP_TYPE = 'sber_id'
 const SBBOL_IDP_TYPE = 'sbbol'
-const IDP_TYPES = [SBER_ID_IDP_TYPE, SBBOL_IDP_TYPE]
+const IDP_TYPES = [APPLE_ID_IDP_TYPE, SBER_ID_IDP_TYPE, SBBOL_IDP_TYPE]
 
 const MIN_PASSWORD_LENGTH = 8
 const LOCK_TIMEOUT = 1
@@ -18,6 +19,7 @@ const MAX_SMS_FOR_IP_BY_DAY = 100
 const MAX_SMS_FOR_PHONE_BY_DAY = 20
 
 const SBER_ID_SESSION_KEY = 'sberid'
+const APPLE_ID_SESSION_KEY = 'appleid'
 
 const LOCALE_RU = 'ru'
 const LOCALE_EN = 'en'
@@ -36,9 +38,11 @@ module.exports = {
     STAFF,
     SERVICE,
     USER_TYPES,
+    APPLE_ID_IDP_TYPE,
     SBER_ID_IDP_TYPE,
     SBBOL_IDP_TYPE,
     IDP_TYPES,
     SBER_ID_SESSION_KEY,
+    APPLE_ID_SESSION_KEY,
     LOCALES,
 }
