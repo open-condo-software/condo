@@ -1,6 +1,6 @@
 import { MinusCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import { AutoComplete, Col, Form, Radio } from 'antd'
+import { AutoComplete, Col, Form, Radio, Row, RowProps } from 'antd'
 import { OptionProps } from 'antd/lib/mentions'
 import { get } from 'lodash'
 import debounce from 'lodash/debounce'
@@ -8,11 +8,11 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { OrganizationEmployee } from '@condo/domains/contact/schema'
-
 
 import { CONTACT_TYPE, ContactValue } from './index'
 
@@ -23,16 +23,13 @@ interface INotResidentFieldsFieldsProps {
     initialQuery?,
     initialValue?: OrganizationEmployee,
     onChange: (contact: ContactValue) => void,
-    onChecked?: () => void,
-    checked?: boolean,
     // Used for autocomplete
     employees: OrganizationEmployee[],
-    displayMinusButton?: boolean,
-    onClickMinusButton?: () => void,
     activeTab: CONTACT_TYPE,
 }
 
-const PHONE_FIELD_WRAPPER_COL = { span: 24 }
+const FIELD_ROW_GUTTER: RowProps['gutter'] = [16, 0]
+const FIELD_WRAPPER_COL = { span: 24 }
 
 const StyledAutoComplete = styled(AutoComplete)<{ disabled?: boolean }>`
   width: 100%;
@@ -49,15 +46,13 @@ const NotResidentFields: React.FC<INotResidentFieldsFieldsProps> = ({
     initialQuery,
     initialValue,
     onChange,
-    onChecked,
-    checked,
     employees,
-    displayMinusButton,
-    onClickMinusButton,
     activeTab,
 }) => {
     const intl = useIntl()
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
+    const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
+    const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
 
     const [value, setValue] = useState(initialValue)
 
@@ -118,10 +113,6 @@ const NotResidentFields: React.FC<INotResidentFieldsFieldsProps> = ({
         setValue(null)
     }
 
-    const handleChecked = () => {
-        onChecked && onChecked()
-    }
-
     const renderOptionsBy = useCallback((prop) =>
         employees.map(contact => ({
             value: contact[prop],
@@ -139,73 +130,56 @@ const NotResidentFields: React.FC<INotResidentFieldsFieldsProps> = ({
     const nameOptions = useMemo(() => renderOptionsBy('name'), [renderOptionsBy])
 
     return (
-        <>
-            <Col span={10}>
-                <Form.Item
-                    name={NOT_RESIDENT_PHONE_FORM_ITEM_NAME}
-                    rules={validations.phone}
-                    initialValue={get(value, 'phone')}
-                    wrapperCol={PHONE_FIELD_WRAPPER_COL}
-                >
-                    <StyledAutoComplete
-                        allowClear
-                        value={get(value, 'phone')}
-                        options={phoneOptions}
-                        onSelect={handleSelectContact}
-                        onSearch={searchEmployeeByPhone}
-                        onChange={handleChangeContact('phone')}
-                        onClear={handleClearContact}
+        <Col span={24}>
+            <Row gutter={FIELD_ROW_GUTTER}>
+                <Col xs={24} sm={24} md={10}>
+                    <Form.Item
+                        name={NOT_RESIDENT_PHONE_FORM_ITEM_NAME}
+                        rules={validations.phone}
+                        initialValue={get(value, 'phone')}
+                        wrapperCol={FIELD_WRAPPER_COL}
+                        label={PhoneLabel}
                     >
-                        <PhoneInput
-                            block
-                            compatibilityWithAntAutoComplete={true}
+                        <StyledAutoComplete
+                            allowClear
+                            value={get(value, 'phone')}
+                            options={phoneOptions}
+                            onSelect={handleSelectContact}
+                            onSearch={searchEmployeeByPhone}
+                            onChange={handleChangeContact('phone')}
+                            onClear={handleClearContact}
+                        >
+                            <PhoneInput
+                                block
+                                compatibilityWithAntAutoComplete={true}
+                            />
+                        </StyledAutoComplete>
+                    </Form.Item>
+                </Col>
+                <Col xs={24} sm={24} md={10}>
+                    <Form.Item
+                        wrapperCol={FIELD_WRAPPER_COL}
+                        label={FullNameLabel}
+                    >
+                        <StyledAutoComplete
+                            allowClear
+                            placeholder={NamePlaceholder}
+                            value={get(value, 'name')}
+                            options={nameOptions}
+                            onSelect={handleSelectContact}
+                            onSearch={searchEmployeeByName}
+                            onChange={handleChangeContact('name')}
+                            onClear={handleClearContact}
                         />
-                    </StyledAutoComplete>
-                </Form.Item>
-            </Col>
-            <Col span={10}>
-                <StyledAutoComplete
-                    allowClear
-                    placeholder={NamePlaceholder}
-                    value={get(value, 'name')}
-                    options={nameOptions}
-                    onSelect={handleSelectContact}
-                    onSearch={searchEmployeeByName}
-                    onChange={handleChangeContact('name')}
-                    onClear={handleClearContact}
-                />
-            </Col>
-            <Col span={2}>
-                {onChecked && (
-                    <Radio
-                        onClick={handleChecked}
-                        checked={checked}
-                        style={{ marginTop: '8px' }}
-                    />
-                )}
-            </Col>
-            <Col span={2}>
-                {displayMinusButton && (
-                    <MinusCircleOutlined
-                        style={{
-                            color: colors.black,
-                            fontSize: '21px',
-                            marginTop: '9px',
-                            marginLeft: '-4px',
-                        }}
-                        onClick={onClickMinusButton}
-                    />
-                )}
-            </Col>
-        </>
+                    </Form.Item>
+                </Col>
+            </Row>
+        </Col>
+
     )
 }
 
 NotResidentFields.defaultProps = {
-    displayMinusButton: false,
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    onClickMinusButton: () => {
-    },
     employees: [],
 }
 

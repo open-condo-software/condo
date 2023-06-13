@@ -1,4 +1,4 @@
-import { PlusCircleOutlined } from '@ant-design/icons'
+import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { BuildingUnitSubType, Contact as ContactType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, Row, Tabs } from 'antd'
@@ -21,7 +21,6 @@ import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 import { ContactOption } from './ContactOption'
-import { Labels } from './Labels'
 import { NEW_CONTACT_PHONE_FORM_ITEM_NAME, NewContactFields } from './NewContactFields'
 import { NotResidentFields } from './NotResidentFields'
 
@@ -79,7 +78,7 @@ const ContactsInfoFocusContainer = styled(FocusContainer)`
 `
 const { TabPane } = Tabs
 
-const TAB_PANE_ROW_GUTTERS: [Gutter, Gutter] = [15, 25]
+const TAB_PANE_ROW_GUTTERS: [Gutter, Gutter] = [0, 24]
 const TABS_STYLE: CSSProperties = { width: '100%' }
 const BUTTON_ICON_STYLE: CSSProperties = {
     color: colors.black,
@@ -99,12 +98,10 @@ export enum CONTACT_TYPE {
 
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const intl = useIntl()
-    const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
-    const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
     const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
-    const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
     const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
     const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
+    const CancelMessage = intl.formatMessage({ id: 'Cancel' })
 
     const {
         form,
@@ -112,7 +109,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         value: initialValue,
         onChange,
         organization,
-        role,
         property,
         unitName,
         unitType,
@@ -123,10 +119,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [selectedContact, setSelectedContact] = useState(null)
     const [value, setValue] = useState(initialValue)
     const [editableFieldsChecked, setEditableFieldsChecked] = useState(false)
-    // We need this to keep manually typed information preserved between rerenders
-    // with different set of prefetched contacts. For example, when a different unitName is selected,
-    // manually typed information should not be lost.
-    const [manuallyTypedContact, setManuallyTypedContact] = useState({ id: undefined, name: '', phone: '' })
     const [displayEditableContactFields, setDisplayEditableContactFields] = useState(false)
     const [isInitialContactsLoaded, setIsInitialContactsLoaded] = useState<boolean>()
     const [initialContacts, setInitialContacts] = useState<ContactType[]>([])
@@ -228,7 +220,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         form.setFieldsValue({
             [NEW_CONTACT_PHONE_FORM_ITEM_NAME]: null,
         })
-        setManuallyTypedContact(null)
         setSelectedContact(null)
         setDisplayEditableContactFields(true)
         setEditableFieldsChecked(true)
@@ -256,7 +247,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
         triggerOnChange(contactToSet, !fetchedContact)
 
-        setManuallyTypedContact(contact)
         setEditableFieldsChecked(true)
         setSelectedContact(null)
     }, DEBOUNCE_TIMEOUT)
@@ -271,7 +261,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
         triggerOnChange(employeeContact, false)
 
-        setManuallyTypedContact(employeeContact)
         setEditableFieldsChecked(true)
         setSelectedContact(null)
     }, DEBOUNCE_TIMEOUT)
@@ -295,12 +284,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }, [editableFieldsChecked, isContactSameAsInitial, selectedContact])
 
     const contactOptions = useMemo(() => initialContacts.map((contact) => (
-        <ContactOption
-            key={contact.id}
-            contact={contact}
-            onSelect={handleSelectContact}
-            selected={isContactSelected(contact)}
-        />
+        <Col span={24} key={contact.id}>
+            <ContactOption
+                contact={contact}
+                onSelect={handleSelectContact}
+                selected={isContactSelected(contact)}
+            />
+        </Col>
     )), [handleSelectContact, initialContacts, isContactSelected])
 
     const handleTabChange = useCallback((tab) => {
@@ -328,10 +318,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                 >
                     <TabPane tab={TicketFromResidentMessage} key={CONTACT_TYPE.RESIDENT} disabled={!unitName}>
                         <Row gutter={TAB_PANE_ROW_GUTTERS}>
-                            <Labels
-                                left={PhoneLabel}
-                                right={FullNameLabel}
-                            />
                             {isEmpty(initialContacts) || !unitName ? (
                                 <NewContactFields
                                     onChange={handleChangeContact}
@@ -346,9 +332,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                     <>
                                         {(displayEditableContactFields || (initialValue.id && !initialValueIsPresentedInFetchedContacts)) ? (
                                             <>
-                                                <Labels
-                                                    left={AnotherContactLabel}
-                                                />
                                                 <NewContactFields
                                                     onChange={handleChangeContact}
                                                     onChecked={handleSyncedFieldsChecked}
@@ -360,6 +343,16 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                     activeTab={activeTab}
                                                     contactsLoading={contactsLoading}
                                                 />
+                                                <Col span={24}>
+                                                    <Button
+                                                        type='link'
+                                                        style={BUTTON_STYLE}
+                                                        onClick={handleClickOnMinusButton}
+                                                        icon={<MinusCircleOutlined style={BUTTON_ICON_STYLE} />}
+                                                    >
+                                                        {CancelMessage}
+                                                    </Button>
+                                                </Col>
                                             </>
                                         ) : (
                                             <Col span={24}>
@@ -385,10 +378,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 key={CONTACT_TYPE.NOT_RESIDENT}
                             >
                                 <Row gutter={TAB_PANE_ROW_GUTTERS}>
-                                    <Labels
-                                        left={PhoneLabel}
-                                        right={FullNameLabel}
-                                    />
                                     <NotResidentFields
                                         initialQuery={initialEmployeesQuery}
                                         refetch={refetchEmployees}
