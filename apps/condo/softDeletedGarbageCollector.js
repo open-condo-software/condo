@@ -1,5 +1,7 @@
 const { get } = require('lodash')
 
+const { getSchemaDependenciesGraph } = require('@open-condo/keystone/schema')
+
 const { keystone, schemas } = require('./index')
 
 const b = 3
@@ -52,4 +54,6 @@ const collectGarbage = () => {
 
 }
 
-const parsedSchema = getSchemasMetaFromKeystone(keystone)
+const schema = getSchemaDependenciesGraph('BillingIntegrationOrganizationContext')
+
+const x = 15

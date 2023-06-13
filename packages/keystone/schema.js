@@ -5,6 +5,7 @@ const { pickBy, identity, isFunction, isArray } = require('lodash')
 const ow = require('ow')
 
 const { GQL_SCHEMA_PLUGIN } = require('./plugins/utils/typing')
+const get = require("lodash/get");
 
 let EVENTS = new Emittery()
 let SCHEMAS = new Map()
@@ -172,18 +173,59 @@ async function getSchemaCtx (schemaObjOrName) {
     }
 }
 
-function getSchemaDependenciesGraph (schemaName) {
+const getDepsGraphEdgeFromKeystoneField = (keystoneField) => {
+    const { path, listKey, refListKey, config } = keystoneField
+    const onDelete = get(config, ['kmigratorOptions', 'on_delete'])
+    return {
+        from: listKey,
+        to: refListKey,
+        path,
+        onDelete,
+    }
+}
+
+function getSchemaDependenciesGraph (schemaName, visited = new Set()) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
 
-    adapter = schemaList._keystone.lists[schemaName].adapter
-    return [
-        { from:'User', to: 'User', on_delete: 'CASCADE', path: 'friend' },
-        { from:'User', to: 'User', on_delete: 'CASCADE', path: 'friend2' },
-        { from:'A', to: 'B', on_delete: 'CASCADE', path: 'friend2' },
-        { from:'B', to: 'C', on_delete: 'CASCADE', path: 'friend2' },
-    ]
+    if (visited.has(schemaName)) {
+        return []
+    }
+    visited.add(schemaName)
+
+    // const visitedEdges = new Set()
+    // const visitedVertexes = new Set()
+    // const adapter = schemaList._keystone.lists[schemaName].adapter
+
+    const fields = schemaList._keystone.lists[schemaName].fields
+
+    let rels = []
+    fields.forEach(
+        field => {
+            if (field.isRelationship) {
+                const rel = getDepsGraphEdgeFromKeystoneField(field)
+                const relKey = `${rel.from}->${rel.to}:${rel.path}`
+                rels.push(rel)
+                const refRels = getSchemaDependenciesGraph(rel.to, visited)
+                rels = rels.concat(refRels)
+                // if (!visitedEdges.has(relKey)) {
+                //     rels.push(fieldRels)
+                //     rels += getSchemaDependenciesGraph(field.refListKey, visitedEdges)
+                //     visitedEdges.add(`${fieldRels.from}->${fieldRels.to}:${fieldRels.path}`)
+                // }
+            }
+        }
+    )
+
+    // return [
+    //     { from:'User', to: 'User', on_delete: 'CASCADE', path: 'friend' },
+    //     { from:'User', to: 'User', on_delete: 'CASCADE', path: 'friend2' },
+    //     { from:'A', to: 'B', on_delete: 'CASCADE', path: 'friend2' },
+    //     { from:'B', to: 'C', on_delete: 'CASCADE', path: 'friend2' },
+    // ]
+
+    return rels
 }
 
 module.exports = {
