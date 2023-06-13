@@ -112,7 +112,6 @@ describe('syncUser from AppleId', () => {
         })
 
         // assertions
-        // assert id of user
         expect(id).toEqual(existingUser.id)
 
         // assert count of external identities

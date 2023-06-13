@@ -23,9 +23,9 @@ const {
     teamId,
     secretKey,
 } = APPLE_ID_CONFIG
-const callbackPath = '/api/apple_id/auth/callback'
-const callbackUri = redirectUri || `${conf.SERVER_URL}${callbackPath}`
-const axiosTimeout = 10000
+const CALLBACK_PATH = '/api/apple_id/auth/callback'
+const CALLBACK_URL = redirectUri || `${conf.SERVER_URL}${CALLBACK_PATH}`
+const AXIOS_TIMEOUT = 10000
 const keystore = new jose.JWKS.KeyStore()
 
 class AppleIdIdentityIntegration {
@@ -60,7 +60,7 @@ class AppleIdIdentityIntegration {
 
         // set params to link
         link.searchParams.set('client_id', clientId)
-        link.searchParams.set('redirect_uri', callbackUri)
+        link.searchParams.set('redirect_uri', CALLBACK_URL)
         link.searchParams.set('response_type', 'code')
         link.searchParams.set('response_mode', 'form_post')
         link.searchParams.set('scope', scope)
@@ -77,13 +77,13 @@ class AppleIdIdentityIntegration {
             client_secret: await this.getClientSecret(),
             code,
             grant_type: 'authorization_code',
-            redirect_uri: callbackUri,
+            redirect_uri: CALLBACK_URL,
             scope,
         }
 
         // send a request
         const tokenResponse = await axios.create({
-            timeout: axiosTimeout,
+            timeout: AXIOS_TIMEOUT,
             validateStatus: () => true,
         }).post(tokenUrl, new URLSearchParams(request))
 
@@ -143,7 +143,7 @@ class AppleIdIdentityIntegration {
     async getAppleIdKeys () {
         // send a request
         return (await axios.create({
-            timeout: axiosTimeout,
+            timeout: AXIOS_TIMEOUT,
             validateStatus: () => true,
         }).get('https://appleid.apple.com/auth/keys')).data
     }
