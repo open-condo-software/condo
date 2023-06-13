@@ -1,18 +1,17 @@
 import {
-    NewsItem as INewsItem,
-    NewsItemScope as INewsItemScope,
-    NewsItemTemplate as INewsItemTemplate,
-    NewsItemCreateInput as INewsItemCreateInput,
-    NewsItemUpdateInput as INewsItemUpdateInput,
-    QueryAllNewsItemsArgs as IQueryAllNewsItemsArgs,
-    Property as IProperty,
-    BuildingSection as IBuildingSection,
     BuildingUnit as IBuildingUnit,
+    NewsItem as INewsItem,
+    NewsItemCreateInput as INewsItemCreateInput,
+    NewsItemScope as INewsItemScope,
     NewsItemScopeUnitTypeType,
+    NewsItemTemplate as INewsItemTemplate,
+    NewsItemUpdateInput as INewsItemUpdateInput,
+    Property as IProperty,
+    QueryAllNewsItemsArgs as IQueryAllNewsItemsArgs,
 } from '@app/condo/schema'
-import { Row, Col, Form, FormInstance, notification } from 'antd'
+import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { ArgsProps } from 'antd/lib/notification/index'
+import { ArgsProps } from 'antd/lib/notification'
 import dayjs from 'dayjs'
 import difference from 'lodash/difference'
 import flattenDeep from 'lodash/flattenDeep'
@@ -24,12 +23,12 @@ import isNull from 'lodash/isNull'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { ComponentProps, useMemo, useCallback, useState, useEffect } from 'react'
+import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { useIntl } from '@open-condo/next/intl'
-import { Space, Radio, RadioGroup, Alert, Typography, Tabs } from '@open-condo/ui'
+import { Alert, Radio, RadioGroup, Space, Tabs, Typography } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -43,13 +42,10 @@ import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import MemoizedNewsPreview from '@condo/domains/news/components/NewsPreview'
-import { RecipientCounter, detectTargetedSections } from '@condo/domains/news/components/RecipientCounter'
+import { detectTargetedSections, RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
-import {
-    NewsItemScope,
-    NewsItem,
-} from '@condo/domains/news/utils/clientSchema'
+import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
@@ -84,7 +80,15 @@ export type BaseNewsFormProps = {
     actionName: ActionNameProps,
 }
 
-const COUNTER_COL_STYLE: React.CSSProperties = { position: 'absolute', right: 0, bottom: 0, margin: '12px', padding: '2px 10px', backgroundColor: 'black', borderRadius: '100px' }
+const COUNTER_COL_STYLE: React.CSSProperties = {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    margin: '12px',
+    padding: '2px 10px',
+    backgroundColor: 'black',
+    borderRadius: '100px',
+}
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
 export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
@@ -93,13 +97,13 @@ const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
-const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX  = /\[[^\]]*?\]/g
+const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX = /\[[^\]]*?\]/g
 
 const getUnitNamesAndUnitTypes = (property, sectionIds) => {
     const selectedSections = get(property, ['map', 'sections'], []).filter(section => includes(sectionIds, section.id))
     const allSectionsUnits = getAllSectionsUnits(selectedSections)
     const unitNames = allSectionsUnits.map(unit => unit.label)
-    const unitTypes = allSectionsUnits.map(unit =>  get(unit, 'unitType', NewsItemScopeUnitTypeType.Flat) as NewsItemScopeUnitTypeType)
+    const unitTypes = allSectionsUnits.map(unit => get(unit, 'unitType', NewsItemScopeUnitTypeType.Flat) as NewsItemScopeUnitTypeType)
     return { unitNames, unitTypes }
 }
 
@@ -197,8 +201,7 @@ const getNewsItemCountAtSameDay = (value, allNews) => {
     const isSendNow = isNull(value)
 
     const sendDate = isSendNow ? dayjs() : value
-    const newsItemCountAtSameDay = allNews.filter(newsItem => sendDate.isSame(newsItem.sentAt, 'day') || sendDate.isSame(newsItem.sendAt, 'day')).length
-    return newsItemCountAtSameDay
+    return allNews.filter(newsItem => sendDate.isSame(newsItem.sentAt, 'day') || sendDate.isSame(newsItem.sendAt, 'day')).length
 }
 
 const INITIAL_VALUES = {}
@@ -246,6 +249,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const ValidBeforeErrorMessage = intl.formatMessage({ id: 'news.fields.validBefore.error' })
     const ToManyMessagesMessage = intl.formatMessage({ id: 'news.fields.toManyMessages.error' })
     const PastTimeErrorMessage = intl.formatMessage({ id: 'global.input.error.pastTime' })
+    const TimezoneMskTitle = intl.formatMessage({ id: 'timezone.msk' })
 
     const router = useRouter()
 
@@ -334,16 +338,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         where: { id_in: selectedPropertiesId },
     })
 
-    const isOnlyOnePropertySelected: boolean = useMemo(() => {
-        if (selectedPropertiesId.length === 1) return true
-        return false
-    }, [selectedPropertiesId.length])
+    const isOnlyOnePropertySelected: boolean = useMemo(() => (selectedPropertiesId.length === 1), [selectedPropertiesId.length])
 
     const softDeleteNewsItemScope = NewsItemScope.useSoftDelete()
     const createNewsItemScope = NewsItemScope.useCreate({})
     const updateNewsItem = NewsItem.useUpdate({})
 
-    const handleSetSendDate =  useCallback((value) => {
+    const handleSetSendDate = useCallback((value) => {
         const newsItemCountAtSameDay = getNewsItemCountAtSameDay(value, allNews)
         setNewsItemCountAtSameDay(newsItemCountAtSameDay)
     }, [allNews])
@@ -507,7 +508,20 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             await updateNewsItem({ isPublished: false }, currentNewsItem)
         }
 
-        const { properties, hasAllProperties, sendPeriod, template, type, sendAt, validBefore, unitNames, unitTypes, sectionIds, property, ...newsItemValues } = values
+        const {
+            properties,
+            hasAllProperties,
+            sendPeriod,
+            template,
+            type,
+            sendAt,
+            validBefore,
+            unitNames,
+            unitTypes,
+            sectionIds,
+            property,
+            ...newsItemValues
+        } = values
 
         const updatedNewsItemValues = {
             validBefore: type === NEWS_TYPE_EMERGENCY ? validBefore : null,
@@ -622,7 +636,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialSentAt, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitNames, createNewsItemScope, router])
 
-    const newsItemScopesNoInstance: TNewsItemScopeNoInstance[]  = useMemo(() => {
+    const newsItemScopesNoInstance: TNewsItemScopeNoInstance[] = useMemo(() => {
         if (isOnlyOnePropertySelected) {
             if (!isEmpty(selectedUnitNames)) {
                 return selectedUnitNames.map((unitName, i) => {
@@ -647,6 +661,23 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
         return []
     }, [isOnlyOnePropertySelected, selectedProperties, selectedSectionIds, selectedUnitNames, selectedUnitTypes])
+
+    const dayjsTz = dayjs().format('Z')
+    const tzInfo = useMemo<string>(() => {
+        const matches = /([+-])(\d{1,2}):(\d{1,2})/.exec(dayjsTz)
+        const sign = matches[1]
+        const hours = Number(matches[2]) - 2
+        const minutes = Number(matches[3])
+        let result = `${TimezoneMskTitle}`
+        if (hours !== 0) {
+            result = `${result}${sign}${hours}`
+        }
+        if (minutes !== 0) {
+            result = `${result}${hours === 0 ? `${sign}0` : ''}:${matches[3]}`
+        }
+
+        return result
+    }, [TimezoneMskTitle, dayjsTz])
 
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
@@ -675,7 +706,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 <Col span={24}>
                                                     <Row>
                                                         <Col span={24}>
-                                                            <Typography.Title level={2}>{MakeTextLabel}</Typography.Title>
+                                                            <Typography.Title level={2}>
+                                                                {MakeTextLabel}
+                                                            </Typography.Title>
                                                         </Col>
                                                         <Col span={12}>
                                                             <Form.Item
@@ -685,8 +718,12 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             >
                                                                 <RadioGroup onChange={handleTypeChange(form)}>
                                                                     <Space size={24} wrap>
-                                                                        <Radio value={NEWS_TYPE_COMMON}>{CommonTypeLabel}</Radio>
-                                                                        <Radio value={NEWS_TYPE_EMERGENCY}>{EmergencyTypeLabel}</Radio>
+                                                                        <Radio value={NEWS_TYPE_COMMON}>
+                                                                            {CommonTypeLabel}
+                                                                        </Radio>
+                                                                        <Radio value={NEWS_TYPE_EMERGENCY}>
+                                                                            {EmergencyTypeLabel}
+                                                                        </Radio>
                                                                     </Space>
                                                                 </RadioGroup>
                                                             </Form.Item>
@@ -694,7 +731,12 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         {selectedType === NEWS_TYPE_EMERGENCY &&
                                                             <Col span={12}>
                                                                 <Form.Item
-                                                                    label={<LabelWithInfo title={ValidBeforeTitle} message={ValidBeforeLabel}/>}
+                                                                    label={(
+                                                                        <LabelWithInfo
+                                                                            title={ValidBeforeTitle}
+                                                                            message={ValidBeforeLabel}
+                                                                        />
+                                                                    )}
                                                                     labelCol={FORM_FILED_COL_PROPS}
                                                                     name='validBefore'
                                                                     required
@@ -717,7 +759,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 {templates &&
                                                     <Row gutter={SMALL_VERTICAL_GUTTER}>
                                                         <Col span={24}>
-                                                            <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
+                                                            <Typography.Title level={4}>
+                                                                {SelectTextLabel}
+                                                            </Typography.Title>
                                                         </Col>
                                                         <Col span={24}>
                                                             <Form.Item
@@ -811,7 +855,14 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 <Col span={11}>
                                                     <Form.Item
                                                         name='unitNames'
-                                                        label={!isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedSectionIds) ? <LabelWithInfo title={UnitsMessage} message={UnitsLabel}/> : UnitsLabel}
+                                                        label={
+                                                            !isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedSectionIds)
+                                                                ? (<LabelWithInfo
+                                                                    title={UnitsMessage}
+                                                                    message={UnitsLabel}
+                                                                />)
+                                                                : UnitsLabel
+                                                        }
                                                     >
                                                         <UnitNameInput
                                                             multiple={true}
@@ -825,7 +876,12 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 <Col span={11} offset={2}>
                                                     <Form.Item
                                                         name='sectionIds'
-                                                        label={!isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedUnitNames) ? <LabelWithInfo title={SectionsMessage} message={SectionsLabel}/> : SectionsLabel}
+                                                        label={!isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedUnitNames)
+                                                            ? (<LabelWithInfo
+                                                                title={SectionsMessage}
+                                                                message={SectionsLabel}
+                                                            />)
+                                                            : SectionsLabel}
                                                     >
                                                         <SectionNameInput
                                                             disabled={!isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedUnitNames)}
@@ -849,7 +905,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                         <Col span={formFieldsColSpan}>
                                             <Row gutter={SMALL_VERTICAL_GUTTER}>
                                                 <Col span={24}>
-                                                    <Typography.Title level={2}>{SelectSendPeriodLabel}</Typography.Title>
+                                                    <Typography.Title level={2}>
+                                                        {SelectSendPeriodLabel} ({tzInfo})
+                                                    </Typography.Title>
                                                 </Col>
                                                 <Col span={24}>
                                                     <Form.Item
@@ -864,7 +922,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         </RadioGroup>
                                                     </Form.Item>
                                                 </Col>
-                                                { sendPeriod === 'later' &&
+                                                {sendPeriod === 'later' && (
                                                     <Col span={24}>
                                                         <Form.Item
                                                             label={SendAtLabel}
@@ -884,7 +942,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             />
                                                         </Form.Item>
                                                     </Col>
-                                                }
+                                                )}
                                                 {
                                                     !isValidBeforeAfterSendAt && (
                                                         <Alert
