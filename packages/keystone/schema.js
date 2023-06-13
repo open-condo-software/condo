@@ -172,6 +172,20 @@ async function getSchemaCtx (schemaObjOrName) {
     }
 }
 
+function getSchemaDependenciesGraph (schemaName) {
+    if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
+    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
+    const schemaList = SCHEMAS.get(schemaName)
+
+    adapter = schemaList._keystone.lists[schemaName].adapter
+    return [
+        { from:'User', to: 'User', on_delete: 'CASCADE', path: 'friend' },
+        { from:'User', to: 'User', on_delete: 'CASCADE', path: 'friend2' },
+        { from:'A', to: 'B', on_delete: 'CASCADE', path: 'friend2' },
+        { from:'B', to: 'C', on_delete: 'CASCADE', path: 'friend2' },
+    ]
+}
+
 module.exports = {
     GQLListSchema,
     GQLCustomSchema,
@@ -181,6 +195,7 @@ module.exports = {
     find,
     getById,
     getByCondition,
+    getSchemaDependenciesGraph,
     GQL_SCHEMA_TYPES,
     GQL_CUSTOM_SCHEMA_TYPE,
     GQL_LIST_SCHEMA_TYPE,
