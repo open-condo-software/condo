@@ -5,6 +5,42 @@ const { composeResolveInputHook, evaluateKeystoneAccessResult } = require('./uti
 const { plugin } = require('./utils/typing')
 
 const { queryHasField } = require('../queryHasField')
+const { find, getSchemaDependencies } = require('../schema')
+
+const PROTECT = 'models.PROTECT'
+const SET_NULL = 'models.SET_NULL'
+const CASCADE = 'models.CASCADE'
+
+const hasObjs = async (schemaName, path, objId) => {
+    // BillingReceipt { path: objId }
+    const where = { [path]: { id: objId }, deletedAt: null }
+
+    // If there are any objects that have this ID
+    return await find(schemaName, where)
+}
+
+const canDelete = async (listName, obj) => {
+    // BillingIntegration
+    const relations = getSchemaDependencies(listName)
+
+    for (const rel of relations) {
+        if (rel.onDelete === PROTECT) {
+            const existingDependants = await hasObjs(rel.from, rel.path, obj.id)
+            if (existingDependants.length > 0) {
+                throw new Error(`You can not delete ${rel.to}:${obj.id}, dependant: ${rel.from} exists: ${existingDependants.map(x => x.id).join(',')}, and on_delete rule on ${rel.from} set to ${rel.onDelete}`)
+            }
+        }
+        if (rel.onDelete === CASCADE) {
+            const existingDependants = await hasObjs(rel.from, rel.path, obj.id)
+            for (const dep of existingDependants) {
+                await canDelete(rel.from, dep.id)
+            }
+        }
+    }
+
+    return true
+}
+
 
 const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}) => plugin(({ fields = {}, hooks = {}, access, ...rest }, { schemaName }) => {
     // TODO(pahaz):
@@ -43,7 +79,7 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     fields[newIdField] = { ...newIdOptions }
 
     // NOTE: we can't change and restore already merged objects!
-    const newResolveInput = ({ existingItem, resolvedData }) => {
+    const newResolveInput = async ({ existingItem, resolvedData }) => {
         if (existingItem && existingItem[newIdField]) {
             throw new Error('Already merged')
         }
@@ -51,6 +87,7 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
             throw new Error('Already deleted')
         }
         if (resolvedData[deletedAtField]) {
+            await canDelete(schemaName, { ...existingItem, ...resolvedData })
             resolvedData[deletedAtField] = new Date().toISOString()
         }
         if (resolvedData[newIdField]) {
