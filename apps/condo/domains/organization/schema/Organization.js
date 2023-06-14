@@ -6,6 +6,7 @@ const { File, Text, Relationship, Select, Virtual } = require('@keystonejs/field
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const get = require('lodash/get')
 
+const userAccess = require('@open-condo/keystone/access')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -44,6 +45,11 @@ const Organization = new GQLListSchema('Organization', {
             defaultValue: MANAGING_COMPANY_TYPE,
             isRequired: true,
             kmigratorOptions: { null: false },
+            access: {
+                read: true,
+                create: true,
+                update: userAccess.userIsAdminOrIsSupport,
+            },
         },
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
         // This field have specific use case for mobile client.
