@@ -5,9 +5,10 @@
 const { Relationship } = require('@keystonejs/fields')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/organization/access/OrganizationLink')
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 /**
@@ -49,6 +50,16 @@ const OrganizationLink = new GQLListSchema('OrganizationLink', {
         update: access.canManageOrganizationLinks,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        validateInput: async ({ resolvedData, addValidationError }) => {
+            if (resolvedData['from']) {
+                const org = await getById('Organization', resolvedData['from'])
+                if (!org || org.type !== HOLDING_TYPE) {
+                    addValidationError(`Parent organization ("from") must have "${HOLDING_TYPE}" type`)
+                }
+            }
+        },
     },
 })
 
