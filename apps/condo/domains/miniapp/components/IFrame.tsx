@@ -122,8 +122,11 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
 
     const requestAuth = useCallback<RequestHandler<'CondoWebAppRequestAuth'>>(async ({ url }) => {
         const response = await fetch(url, { credentials: 'include' })
-        const text = await response.text()
-        return { response: { status: response.status, text } }
+        const body = await response.text()
+
+        return {
+            response: { status: response.status, body, url: response.url },
+        }
     }, [])
 
     useEffect(() => {

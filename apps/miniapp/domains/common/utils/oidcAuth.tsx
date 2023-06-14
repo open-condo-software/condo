@@ -24,7 +24,7 @@ interface IUseOidcAuthHookValue {
     isLoading?: boolean,
 }
 
-const OIDC_AUTH_URL = `${serverUrl}/oidc/auth`
+const OIDC_AUTH_URL = `${serverUrl || ''}/oidc/auth`
 
 const OidcAuthContext = React.createContext<IUseOidcAuthHookValue>({})
 
@@ -78,7 +78,7 @@ const OidcAuthProvider = ({ children }) => {
                     bridge.send('CondoWebAppRequestAuth', { url: OIDC_AUTH_URL }).then((data) => {
                         if (data.response.status === 200) {
                             // Process it in any way you like
-                            console.log(data.response.text)
+                            console.log(data.response)
                             setAuthError(false)
                         } else {
                             setAuthError(true)

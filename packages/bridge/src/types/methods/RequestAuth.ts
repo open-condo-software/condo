@@ -1,6 +1,7 @@
 type ClonableResponse = {
     status: number
-    text: string
+    body: string
+    url: string
 }
 
 export type RequestAuthParams = {
