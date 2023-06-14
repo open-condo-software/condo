@@ -26523,7 +26523,7 @@ export type MeterReportingPeriod = {
   start?: Maybe<Scalars['Int']>;
   /**  This is the field for client-side business logic and push notifications  */
   finish?: Maybe<Scalars['Int']>;
-  /**  Ref to the B2CApp which used to replace default integration with meter by resident's user in resident's app  */
+  /**  Ref to the B2CApp which used to replace default integration in resident's app  */
   b2cApp?: Maybe<B2CApp>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;

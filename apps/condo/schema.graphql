@@ -45051,7 +45051,7 @@ type MeterReportingPeriod {
   """
   finish: Int
 
-  """ Ref to the B2CApp which used to replace default integration with meter by resident's user in resident's app 
+  """ Ref to the B2CApp which used to replace default integration in resident's app 
   """
   b2cApp: B2CApp
   id: ID!
