@@ -3098,6 +3098,7 @@ type OrganizationHistoryRecord {
   _label_: String
   country: String
   name: String
+  type: String
   tin: String
   description: JSON
   avatar: JSON
@@ -3161,6 +3162,24 @@ input OrganizationHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
   tin: String
   tin_not: String
   tin_contains: String
@@ -3326,6 +3345,8 @@ enum SortOrganizationHistoryRecordsBy {
   country_DESC
   name_ASC
   name_DESC
+  type_ASC
+  type_DESC
   tin_ASC
   tin_DESC
   importRemoteSystem_ASC
@@ -3353,6 +3374,7 @@ enum SortOrganizationHistoryRecordsBy {
 input OrganizationHistoryRecordUpdateInput {
   country: String
   name: String
+  type: String
   tin: String
   description: JSON
   avatar: JSON
@@ -3384,6 +3406,7 @@ input OrganizationHistoryRecordsUpdateInput {
 input OrganizationHistoryRecordCreateInput {
   country: String
   name: String
+  type: String
   tin: String
   description: JSON
   avatar: JSON
@@ -3451,6 +3474,9 @@ type Organization {
 
   """ Customer-friendly name """
   name: String
+
+  """ Type of organization """
+  type: String
 
   """ Taxpayer identification number. Every country has its own identification. Examples: INN for Russia, IIN for Kazakhstan and so on 
   """
@@ -3536,6 +3562,10 @@ input OrganizationWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  type: String
+  type_not: String
+  type_in: [String]
+  type_not_in: [String]
   tin: String
   tin_not: String
   tin_contains: String
@@ -3705,6 +3735,8 @@ enum SortOrganizationsBy {
   country_DESC
   name_ASC
   name_DESC
+  type_ASC
+  type_DESC
   tin_ASC
   tin_DESC
   description_ASC
@@ -3738,6 +3770,7 @@ enum SortOrganizationsBy {
 input OrganizationUpdateInput {
   country: OrganizationCountryType
   name: String
+  type: String
   tin: String
   description: String
   avatar: Upload
@@ -3766,6 +3799,7 @@ input OrganizationsUpdateInput {
 input OrganizationCreateInput {
   country: OrganizationCountryType
   name: String
+  type: String
   tin: String
   description: String
   avatar: Upload
@@ -60867,6 +60901,12 @@ type GetAccessTokenByUserIdOutput {
   ttl: Int!
 }
 
+enum OrganizationType {
+  MANAGING_COMPANY
+  HOLDING
+  CONTRACTOR
+}
+
 input RegisterNewOrganizationInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -60876,6 +60916,7 @@ input RegisterNewOrganizationInput {
   description: String
   meta: JSON!
   avatar: Upload
+  type: OrganizationType
 }
 
 input InviteNewOrganizationEmployeeInput {

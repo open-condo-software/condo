@@ -43409,6 +43409,8 @@ export type Organization = {
   country?: Maybe<OrganizationCountryType>;
   /**  Customer-friendly name  */
   name?: Maybe<Scalars['String']>;
+  /**  Type of organization  */
+  type?: Maybe<Scalars['String']>;
   /**  Taxpayer identification number. Every country has its own identification. Examples: INN for Russia, IIN for Kazakhstan and so on  */
   tin?: Maybe<Scalars['String']>;
   /**  Customer-friendly description. Friendly text for employee and resident users  */
@@ -43499,6 +43501,7 @@ export enum OrganizationCountryType {
 export type OrganizationCreateInput = {
   country?: Maybe<OrganizationCountryType>;
   name?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   avatar?: Maybe<Scalars['Upload']>;
@@ -45094,6 +45097,7 @@ export type OrganizationHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   country?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['JSON']>;
   avatar?: Maybe<Scalars['JSON']>;
@@ -45121,6 +45125,7 @@ export type OrganizationHistoryRecord = {
 export type OrganizationHistoryRecordCreateInput = {
   country?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['JSON']>;
   avatar?: Maybe<Scalars['JSON']>;
@@ -45153,6 +45158,7 @@ export enum OrganizationHistoryRecordHistoryActionType {
 export type OrganizationHistoryRecordUpdateInput = {
   country?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['JSON']>;
   avatar?: Maybe<Scalars['JSON']>;
@@ -45215,6 +45221,24 @@ export type OrganizationHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   tin?: Maybe<Scalars['String']>;
   tin_not?: Maybe<Scalars['String']>;
   tin_contains?: Maybe<Scalars['String']>;
@@ -45705,9 +45729,16 @@ export type OrganizationRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+export enum OrganizationType {
+  ManagingCompany = 'MANAGING_COMPANY',
+  Holding = 'HOLDING',
+  Contractor = 'CONTRACTOR'
+}
+
 export type OrganizationUpdateInput = {
   country?: Maybe<OrganizationCountryType>;
   name?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   avatar?: Maybe<Scalars['Upload']>;
@@ -45753,6 +45784,10 @@ export type OrganizationWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   tin?: Maybe<Scalars['String']>;
   tin_not?: Maybe<Scalars['String']>;
   tin_contains?: Maybe<Scalars['String']>;
@@ -58099,6 +58134,7 @@ export type RegisterNewOrganizationInput = {
   description?: Maybe<Scalars['String']>;
   meta: Scalars['JSON'];
   avatar?: Maybe<Scalars['Upload']>;
+  type?: Maybe<OrganizationType>;
 };
 
 export type RegisterNewServiceUserInput = {
@@ -64858,6 +64894,8 @@ export enum SortOrganizationHistoryRecordsBy {
   CountryDesc = 'country_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   TinAsc = 'tin_ASC',
   TinDesc = 'tin_DESC',
   ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
@@ -64929,6 +64967,8 @@ export enum SortOrganizationsBy {
   CountryDesc = 'country_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   TinAsc = 'tin_ASC',
   TinDesc = 'tin_DESC',
   DescriptionAsc = 'description_ASC',
