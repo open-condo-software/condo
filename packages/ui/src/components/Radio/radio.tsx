@@ -10,7 +10,7 @@ import type { RadioProps as DefaultRadioProps, RadioChangeEvent } from 'antd'
 const RADIO_CLASS_PREFIX = 'condo-radio'
 
 type CondoRadioProps = {
-    label?: string
+    label?: React.ReactNode
     labelProps?: TypographyTextProps
     icon?: React.ReactNode
 }
@@ -26,7 +26,8 @@ const Radio: IRadio = (props) => {
     const { label, icon, labelProps, disabled, onChange, children, id, ...rest } = props
 
     const handleChange = useCallback((event: RadioChangeEvent) => {
-        const stringContent = label ? label : extractChildrenContent(children)
+        const stringContent = extractChildrenContent(label)
+
         if (stringContent) {
             sendAnalyticsCheckEvent('Radio', { value: stringContent, id })
         }
@@ -34,7 +35,7 @@ const Radio: IRadio = (props) => {
         if (onChange) {
             onChange(event)
         }
-    }, [label, children, onChange, id])
+    }, [label, onChange, id])
     const wrappedIcon = icon
         ? <span className={`${RADIO_CLASS_PREFIX}-icon`}>{icon}</span>
         : null
@@ -52,7 +53,9 @@ const Radio: IRadio = (props) => {
                     ? (
                         <div className={`${RADIO_CLASS_PREFIX}-label-container`}>
                             {wrappedIcon}
-                            <Typography.Text size='medium' disabled={disabled} {...labelProps}>{label}</Typography.Text>
+                            <Typography.Text size='medium' disabled={disabled} {...labelProps}>
+                                {label}
+                            </Typography.Text>
                         </div>
                     )
                     : children
