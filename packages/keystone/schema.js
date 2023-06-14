@@ -174,13 +174,14 @@ async function getSchemaCtx (schemaObjOrName) {
 }
 
 const getDepsGraphEdgeFromKeystoneField = (keystoneField) => {
-    const { path, listKey, refListKey, config } = keystoneField
+    const { path, listKey, refListKey, config, many = false } = keystoneField
     const onDelete = get(config, ['kmigratorOptions', 'on_delete'])
     return {
         from: listKey,
         to: refListKey,
         path,
         onDelete,
+        many,
     }
 }
 
@@ -189,41 +190,24 @@ function getSchemaDependenciesGraph (schemaName, visited = new Set()) {
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
 
-    if (visited.has(schemaName)) {
-        return []
-    }
     visited.add(schemaName)
-
-    // const visitedEdges = new Set()
-    // const visitedVertexes = new Set()
-    // const adapter = schemaList._keystone.lists[schemaName].adapter
 
     const fields = schemaList._keystone.lists[schemaName].fields
 
     let rels = []
     fields.forEach(
         field => {
-            if (field.isRelationship) {
+            if (field.isRelationship ) {
                 const rel = getDepsGraphEdgeFromKeystoneField(field)
-                const relKey = `${rel.from}->${rel.to}:${rel.path}`
                 rels.push(rel)
-                const refRels = getSchemaDependenciesGraph(rel.to, visited)
+                let refRels = []
+                if (!visited.has(rel.to)) {
+                    refRels = getSchemaDependenciesGraph(rel.to, visited)
+                }
                 rels = rels.concat(refRels)
-                // if (!visitedEdges.has(relKey)) {
-                //     rels.push(fieldRels)
-                //     rels += getSchemaDependenciesGraph(field.refListKey, visitedEdges)
-                //     visitedEdges.add(`${fieldRels.from}->${fieldRels.to}:${fieldRels.path}`)
-                // }
             }
         }
     )
-
-    // return [
-    //     { from:'User', to: 'User', on_delete: 'CASCADE', path: 'friend' },
-    //     { from:'User', to: 'User', on_delete: 'CASCADE', path: 'friend2' },
-    //     { from:'A', to: 'B', on_delete: 'CASCADE', path: 'friend2' },
-    //     { from:'B', to: 'C', on_delete: 'CASCADE', path: 'friend2' },
-    // ]
 
     return rels
 }

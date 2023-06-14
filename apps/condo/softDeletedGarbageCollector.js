@@ -7,13 +7,14 @@ const { keystone, schemas } = require('./index')
 const b = 3
 
 const getMetaFromKeystoneField = (keystoneField) => {
-    const { path, refListKey, config } = keystoneField
+    const { path, many = false, refListKey, config } = keystoneField
     const onDelete = get(config, ['kmigratorOptions', 'on_delete'])
     return {
         path,
         onDelete,
         refListKey,
         keystoneField,
+        many,
     }
 }
 
