@@ -33,7 +33,7 @@ export const useAudio = (): IUseAudio => {
         // When this function will be called from useEffect, following error occurs:
         // > NotAllowedError: The request is not allowed by the user agent or the platform in the current context, possibly because the user denied permission.
         if (isTabTouched.current) {
-            newItemsAudio.play()
+            newItemsAudio.play().catch(error => { console.log('Unable to play audio ', error) })
         }
     }
 

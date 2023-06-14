@@ -1,16 +1,19 @@
+import get from 'lodash/get'
 import isNull from 'lodash/isNull'
 import React, { useEffect, createContext, useContext, useState, useRef } from 'react'
 
 type WindowTitleChange = {
     label: string | null
     iconPath: string
+    count: number
 }
 interface IWindowTitleContext {
+    unreadCount: number
     setTitleConfig: React.Dispatch<React.SetStateAction<WindowTitleChange | null>>
 }
 const TITLE_BLINK_INTERVAL = 3000
 
-const WindowTitleContext = createContext<IWindowTitleContext>({ setTitleConfig: () => null })
+const WindowTitleContext = createContext<IWindowTitleContext>({ setTitleConfig: () => null, unreadCount: 0 })
 
 export const useWindowTitleContext = (): IWindowTitleContext => useContext(WindowTitleContext)
 
@@ -25,6 +28,13 @@ export const WindowTitleContextProvider: React.FC = ({ children }) => {
     const originalIconHref = useRef(null)
 
     useEffect(() => {
+        if (typeof window !== 'undefined') {
+            originalTitle.current = document.title
+            originalIconHref.current = getFaviconHref()
+        }
+    }, [])
+
+    useEffect(() => {
         const onFocus = () => {
             if (!isNull(titleConfig)) {
                 clearInterval(intervalRef.current)
@@ -36,10 +46,12 @@ export const WindowTitleContextProvider: React.FC = ({ children }) => {
             }
         }
 
-        if (typeof window !== 'undefined' && !isNull(titleConfig)) {
-            originalTitle.current = document.title
-            originalIconHref.current = getFaviconHref()
+        if (typeof window !== 'undefined' && isNull(titleConfig)) {
+            window.removeEventListener('focus', onFocus)
+            window.removeEventListener('mousemove', onFocus)
+        }
 
+        if (typeof window !== 'undefined' && !isNull(titleConfig)) {
             if (document.hasFocus()) {
                 changeFavicon(titleConfig.iconPath)
                 document.title = titleConfig.label
@@ -50,6 +62,10 @@ export const WindowTitleContextProvider: React.FC = ({ children }) => {
                     setTitleConfig(null)
                 }, TITLE_BLINK_INTERVAL)
             } else {
+                if (!isNull(intervalRef.current)) {
+                    clearInterval(intervalRef.current)
+                }
+
                 intervalRef.current = setInterval(() => {
                     if (document.title !== originalTitle.current) {
                         changeFavicon(originalIconHref.current)
@@ -60,17 +76,21 @@ export const WindowTitleContextProvider: React.FC = ({ children }) => {
                     }
                 }, TITLE_BLINK_INTERVAL)
 
+                window.removeEventListener('focus', onFocus)
+                window.removeEventListener('mousemove', onFocus)
                 window.addEventListener('focus', onFocus)
+                window.addEventListener('mousemove', onFocus)
             }
         }
 
         return () => {
             window.removeEventListener('focus', onFocus)
+            window.removeEventListener('mousemove', onFocus)
         }
     }, [titleConfig])
 
     return (
-        <WindowTitleContext.Provider value={{ setTitleConfig }}>
+        <WindowTitleContext.Provider value={{ setTitleConfig, unreadCount: get(titleConfig, 'count', 0) }}>
             {children}
         </WindowTitleContext.Provider>
     )
