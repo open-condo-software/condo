@@ -69,7 +69,7 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
         return getTableCellRenderer({ search, href: `tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}` })(phone)
     }, [search])
 
-    const renderEmail = useCallback((email, contact) => {
+    const renderEmail = useCallback((email) => {
         return getTableCellRenderer({ search, href: `mailto:${email}` })(email)
     }, [search])
 

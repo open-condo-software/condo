@@ -14,6 +14,7 @@ const RECORD_ROW_GUTTER: RowProps['gutter'] = [12, 0]
 const SPEED_ROW_GUTTER: RowProps['gutter'] = [8, 0]
 const PLAYER_ICON_WRAPPER_STYLE: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
 const WAVE_WRAPPER_STYLE: CSSProperties = { width: '100%', height: '28px' }
+const SPEED_OPTIONS: Array<number> = [0.5, 1, 1.5, 2]
 
 interface IAudioPlayerProps {
     src: string
@@ -33,44 +34,46 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
     const waveform = useRef<WaveSurfer>(null)
 
     useEffect(() => {
-        const track: HTMLMediaElement = document.querySelector(`#${trackId}`)
+        if (typeof document !== 'undefined' && waveform.current) {
+            const track: HTMLMediaElement = document.querySelector(`#${trackId}`)
 
-        waveform.current = WaveSurfer.create({
-            container: waveformRef.current,
-            height: 28,
-            progressColor: createGradient(),
-            waveColor: colors.gray[5],
-            responsive: true,
-            barGap: 1,
-            barWidth: 2,
-            barHeight: 28,
-            cursorWidth: 0,
-            hideScrollbar: true,
-        })
+            waveform.current = WaveSurfer.create({
+                container: waveformRef.current,
+                height: 28,
+                progressColor: createGradient(),
+                waveColor: colors.gray[5],
+                responsive: true,
+                barGap: 1,
+                barWidth: 2,
+                barHeight: 28,
+                cursorWidth: 0,
+                hideScrollbar: true,
+            })
 
-        waveform.current.on('ready', () => {
-            const duration = waveform.current.getDuration()
-            setTotalTime(formatTime(duration))
+            waveform.current.on('ready', () => {
+                const duration = waveform.current.getDuration()
+                setTotalTime(formatTime(duration))
 
-            if (autoPlay) {
-                waveform.current.play()
-                setPlaying(true)
-            }
-        })
+                if (autoPlay) {
+                    waveform.current.play()
+                    setPlaying(true)
+                }
+            })
 
-        waveform.current.on('audioprocess', () => {
-            setCurrentSeconds(Math.floor(waveform.current.getCurrentTime()))
-        })
+            waveform.current.on('audioprocess', () => {
+                setCurrentSeconds(Math.floor(waveform.current.getCurrentTime()))
+            })
 
-        waveform.current.on('finish', () => {
-            setPlaying(false)
-        })
+            waveform.current.on('finish', () => {
+                setPlaying(false)
+            })
 
-        waveform.current.load(track)
+            waveform.current.load(track)
 
-        return () => {
-            if (waveform.current) {
-                waveform.current.destroy()
+            return () => {
+                if (waveform.current) {
+                    waveform.current.destroy()
+                }
             }
         }
     }, [autoPlay, trackId])
@@ -140,10 +143,11 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
                     </Col>
                     <Col>
                         <Select value={speed} onChange={handleSpeedChange}>
-                            <Option value={0.5}>0.5x</Option>
-                            <Option value={1}>1x</Option>
-                            <Option value={1.5}>1.5x</Option>
-                            <Option value={2}>2x</Option>
+                            {
+                                SPEED_OPTIONS.map((value) => (
+                                    <Option key={value} value={value}>{value}x</Option>
+                                ))
+                            }
                         </Select>
                     </Col>
                 </Row>
