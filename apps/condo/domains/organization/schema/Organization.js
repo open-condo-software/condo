@@ -14,10 +14,10 @@ const { webHooked } = require('@open-condo/webhooks/plugins')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/organization/access/Organization')
+const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
-const userAccess = require('@condo/domains/user/access/User')
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
 
@@ -33,6 +33,15 @@ const Organization = new GQLListSchema('Organization', {
         name: {
             schemaDoc: 'Customer-friendly name',
             type: Text,
+            isRequired: true,
+            kmigratorOptions: { null: false },
+        },
+        type: {
+            schemaDoc: 'Type of organization',
+            type: Select,
+            options: ORGANIZATION_TYPES,
+            dataType: 'string',
+            defaultValue: MANAGING_COMPANY_TYPE,
             isRequired: true,
             kmigratorOptions: { null: false },
         },
