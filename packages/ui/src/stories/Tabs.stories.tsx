@@ -9,11 +9,8 @@ import type { ComponentStory, ComponentMeta } from '@storybook/react'
 export default {
     title: 'Components/Tabs',
     component: Tabs,
-    argTypes: {
-        type: {
-            control: { type: 'select' },
-            options: [undefined, 'rounded'],
-        },
+    args: {
+        rounded: true,
     },
 } as ComponentMeta<React.FC<TabsProps>>
 
