@@ -8,7 +8,10 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/meter/access/_internalDeleteMeterAndMeterReadingsService')
-const { Meter } = require('@condo/domains/meter/utils/serverSchema')
+const { METER_DELETE_STATUS } = require('@condo/domains/meter/constants')
+const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
+
+const logger = getLogger('_internalDeleteMeterAndMeterReadings')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -35,7 +38,6 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { dv, sender, propertyIds } = data
-                const logger = getLogger('DeleteMeters')
 
                 const meters = await find('Meter', {
                     deletedAt: null,
@@ -51,10 +53,23 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
                 logger.info({ msg: `Following meters will be deleted: [${meters.map(reading => `'${reading.id}'`).join(', ')}]` })
 
                 const deletedMeters = await Meter.updateMany(context, meters, { dv, sender, deletedAt: 'true' })
-                let deletedSuccessfully = meters.length === deletedMeters.length ? 'success' : 'error'
-                logger.info({ msg: 'Deleted all Meter records with associated MeterReading' })
 
-                return { status: deletedSuccessfully }
+                const meterReadings = await find('MeterReading', {
+                    deletedAt: null,
+                    meter: {
+                        id_in: meters.map(meter => meter.id),
+                    },
+                })
+
+                let deletedMeterReadings = []
+                if (!isEmpty(meterReadings)) {
+                    deletedMeterReadings = await MeterReading.updateMany(context, meterReadings, { dv, sender, deletedAt: 'true' })
+                }
+                const deleteStatus = meters.length === deletedMeters.length && meterReadings.length === deletedMeterReadings.length
+                    ? METER_DELETE_STATUS.SUCCESS : METER_DELETE_STATUS.ERROR
+                logger.info({ msg: 'Deleted all Meter records with associated MeterReadings' })
+
+                return { status: deleteStatus }
             },
         },
     ],

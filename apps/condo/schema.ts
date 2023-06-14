@@ -33055,7 +33055,7 @@ export type Mutation = {
    * }`
    */
   createOnBoardingByType?: Maybe<OnBoarding>;
-  _internalDeleteMeterAndMeterReadings?: Maybe<Array<Maybe<MeterReading>>>;
+  _internalDeleteMeterAndMeterReadings?: Maybe<_InternalDeleteMeterAndMeterReadingsOutput>;
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
@@ -78953,8 +78953,13 @@ export type _QueryMeta = {
 
 export type _InternalDeleteMeterAndMeterReadingsInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   propertyIds: Array<Maybe<Scalars['String']>>;
+};
+
+export type _InternalDeleteMeterAndMeterReadingsOutput = {
+  __typename?: '_internalDeleteMeterAndMeterReadingsOutput';
+  status: Scalars['String'];
 };
 
 export type _InternalScheduleTaskByNameInput = {
