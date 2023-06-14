@@ -55,6 +55,6 @@ Simple.args = {
 
 export const Rounded = Template.bind({})
 Rounded.args = {
-    type: 'rounded',
+    rounded: true,
     items: simpleItems,
 }

@@ -17,8 +17,8 @@ export type TabItem = {
     children?: React.ReactNode
 }
 
-type CondoTabsTypeProp = {
-    type?: 'rounded'
+type CondoTabsRoundedProp = {
+    rounded?: boolean
 }
 
 export type TabsProps = Pick<DefaultTabsProps,
@@ -29,13 +29,13 @@ export type TabsProps = Pick<DefaultTabsProps,
 'destroyInactiveTabPane' |
 'onChange'> & {
     items?: Array<TabItem>
-} & CondoTabsTypeProp
+} & CondoTabsRoundedProp
 
 export const Tabs: React.FC<TabsProps> = (props) => {
-    const { onChange, id, items = [], type = null, ...restProps } = props
+    const { onChange, id, items = [], rounded = false, ...restProps } = props
 
     const className = classNames({
-        [`${TABS_CLASS_PREFIX}-${type}`]: type,
+        [`${TABS_CLASS_PREFIX}-rounded`]: rounded,
     })
 
     const handleChange = useCallback((activeKey: string) => {
