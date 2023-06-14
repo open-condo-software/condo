@@ -58,8 +58,13 @@ const { queryHasField } = require('./queryHasField')
 const { getRedisClient } = require('./redis')
 
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
-const ADAPTER_CACHE_HITRATE_METRIC_NAME = 'adapterCache.hitrate'
-const ADAPTER_CACHE_KEYS_METRIC_NAME = 'adapterCache.keys'
+const METRIC_PREFIX = 'adapterCache'
+const ADAPTER_CACHE_HITRATE_METRIC_NAME = METRIC_PREFIX + '.hitrate'
+const ADAPTER_CACHE_TOTAL_METRIC_NAME = METRIC_PREFIX + '.total'
+const ADAPTER_CACHE_LRU_DROPS_METRIC_NAME = METRIC_PREFIX + '.drops.lru'
+const ADAPTER_CACHE_LIST_UPD_DROPS_METRIC_NAME = METRIC_PREFIX + '.drops.listupdate'
+const ADAPTER_CACHE_HITS_METRIC_NAME = METRIC_PREFIX + '.hits'
+const ADAPTER_CACHE_KEYS_METRIC_NAME = METRIC_PREFIX + '.keys'
 
 const logger = getLogger('adapterCache')
 
@@ -224,7 +229,11 @@ class AdapterCache {
 
     _logMetrics = () => {
         Metrics.gauge({ name: ADAPTER_CACHE_HITRATE_METRIC_NAME, value: this._getHitrate() })
+        Metrics.gauge({ name: ADAPTER_CACHE_TOTAL_METRIC_NAME, value: this.totalRequests })
+        Metrics.gauge({ name: ADAPTER_CACHE_HITS_METRIC_NAME, value: this.cacheHits })
         Metrics.gauge({ name: ADAPTER_CACHE_KEYS_METRIC_NAME, value: this.cache.size })
+        Metrics.gauge({ name: ADAPTER_CACHE_LRU_DROPS_METRIC_NAME, value: this.totalDropsOnLRU })
+        Metrics.gauge({ name: ADAPTER_CACHE_LIST_UPD_DROPS_METRIC_NAME, value: this.totalDropsOnListChange })
     }
 }
 

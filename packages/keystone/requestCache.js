@@ -32,7 +32,10 @@ const { get, set, floor } = require('lodash')
 const { getLogger } = require('./logging')
 const Metrics = require('./metrics')
 
-const REQUEST_CACHE_HITRATE_METRIC_NAME = 'requestCache.hitrate'
+const REQUEST_CACHE_METRIC_PREFIX = 'requestCache'
+const REQUEST_CACHE_HITRATE_METRIC_NAME = REQUEST_CACHE_METRIC_PREFIX + '.hitrate'
+const REQUEST_CACHE_TOTAL_METRIC_NAME = REQUEST_CACHE_METRIC_PREFIX + '.total'
+const REQUEST_CACHE_HITS_METRIC_NAME = REQUEST_CACHE_METRIC_PREFIX + '.hits'
 
 const logger = getLogger('request-cache')
 
@@ -103,6 +106,8 @@ class RequestCache {
     }
 
     _logMetrics = () => {
+        Metrics.gauge({ name: REQUEST_CACHE_HITS_METRIC_NAME, value: this.cacheHits })
+        Metrics.gauge({ name: REQUEST_CACHE_TOTAL_METRIC_NAME, value: this.totalRequests })
         Metrics.gauge({ name: REQUEST_CACHE_HITRATE_METRIC_NAME, value: this._getHitrate() })
     }
 
