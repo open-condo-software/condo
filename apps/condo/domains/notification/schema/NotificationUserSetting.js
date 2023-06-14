@@ -66,6 +66,7 @@ const NotificationUserSetting = new GQLListSchema('NotificationUserSetting', {
             {
                 type: 'models.UniqueConstraint',
                 fields: ['user', 'messageType', 'messageTransport'],
+                condition: 'Q(deletedAt__isnull=True)',
                 name: 'NotificationUserSetting_unique_user_messageType_messageTransport',
             },
             {
