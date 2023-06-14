@@ -374,7 +374,7 @@ const TicketsTableContainer = ({
 
     const [loadNewTicketCount] = useLazyQuery(TicketGQL.GET_COUNT_OBJS_QUERY, {
         onCompleted: ({ meta: { count } }) => {
-            if (!isNull(ticketsCountRef.current) && ticketsCountRef.current !== count) {
+            if (!isNull(ticketsCountRef.current) && ticketsCountRef.current < count) {
                 const totalNewTicketsCount = count - ticketsCountRef.current + unreadCount
 
                 const iconPath = totalNewTicketsCount > 9
@@ -410,6 +410,10 @@ const TicketsTableContainer = ({
         columns,
         loading: columnsLoading,
     } = useTableColumns(filterMetas, tickets, refetchTickets, isRefetching, setIsRefetching)
+
+    useEffect(() => {
+        loadNewTicketCount()
+    }, [loadNewTicketCount])
 
     const loading = (isTicketsFetching || columnsLoading || baseQueryLoading) && !isRefetching
 
@@ -1039,7 +1043,7 @@ const TicketsPage: ITicketIndexPage = () => {
                     <FavoriteTicketsContextProvider
                         extraTicketsQuery={{ ...ticketFilterQuery, organization: { id: userOrganizationId } }}
                     >
-                        <WindowTitleContextProvider>
+                        <WindowTitleContextProvider title={PageTitleMessage}>
                             <Row
                                 gutter={breakpoints.DESKTOP_LARGE && MEDIUM_VERTICAL_ROW_GUTTER}
                                 style={ticketsWithoutFiltersCount === 0 && EMPTY_TICKETS_ROW_STYLE}

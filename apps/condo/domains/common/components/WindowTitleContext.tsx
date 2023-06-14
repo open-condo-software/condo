@@ -21,17 +21,16 @@ const getFaviconHref = () => document.getElementById('favicon').getAttribute('hr
 
 const changeFavicon = (href: string) => document.getElementById('favicon').setAttribute('href', href)
 
-export const WindowTitleContextProvider: React.FC = ({ children }) => {
+export const WindowTitleContextProvider: React.FC<{ title: string }> = ({ children, title }) => {
     const [titleConfig, setTitleConfig] = useState<WindowTitleChange>(null)
     const intervalRef = useRef(null)
-    const originalTitle = useRef(null)
     const originalIconHref = useRef(null)
 
     useEffect(() => {
         const onFocus = () => {
             if (!isNull(titleConfig)) {
                 clearInterval(intervalRef.current)
-                document.title = originalTitle.current
+                document.title = title
                 changeFavicon(originalIconHref.current)
 
                 intervalRef.current = null
@@ -40,7 +39,6 @@ export const WindowTitleContextProvider: React.FC = ({ children }) => {
         }
 
         if (typeof window !== 'undefined' && isNull(titleConfig)) {
-            originalTitle.current = document.title
             originalIconHref.current = getFaviconHref()
 
             window.removeEventListener('focus', onFocus)
@@ -54,7 +52,7 @@ export const WindowTitleContextProvider: React.FC = ({ children }) => {
 
                 setTimeout(() => {
                     changeFavicon(originalIconHref.current)
-                    document.title = originalTitle.current
+                    document.title = title
                     setTitleConfig(null)
                 }, TITLE_BLINK_INTERVAL)
             } else {
@@ -63,9 +61,9 @@ export const WindowTitleContextProvider: React.FC = ({ children }) => {
                 }
 
                 intervalRef.current = setInterval(() => {
-                    if (document.title !== originalTitle.current) {
+                    if (document.title !== title) {
                         changeFavicon(originalIconHref.current)
-                        document.title = originalTitle.current
+                        document.title = title
                     } else {
                         changeFavicon(titleConfig.iconPath)
                         document.title = titleConfig.label
