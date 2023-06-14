@@ -64,14 +64,27 @@ const NotificationUserSetting = new GQLListSchema('NotificationUserSetting', {
     kmigratorOptions: {
         constraints: [
             {
-                type: 'models.UniqueConstraint',
-                fields: ['user', 'messageType', 'messageTransport'],
-                name: 'NotificationUserSetting_unique_user_messageType_messageTransport',
-            },
-            {
                 type: 'models.CheckConstraint',
                 check: 'Q(messageType__isnull=False) | Q(messageTransport__isnull=False)',
                 name: 'has_messageType_or_messageTransport',
+            },
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['user', 'messageType', 'messageTransport'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'NotificationUserSetting_unique_user_messageType_messageTransport',
+            },
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['user', 'messageType'],
+                condition: 'Q(deletedAt__isnull=True) & Q(messageTransport__isnull=True)',
+                name: 'NotificationUserSetting_unique_user_messageType',
+            },
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['user', 'messageTransport'],
+                condition: 'Q(deletedAt__isnull=True) & Q(messageType__isnull=True)',
+                name: 'NotificationUserSetting_unique_user_messageTransport',
             },
         ],
         indexes: [
@@ -83,21 +96,6 @@ const NotificationUserSetting = new GQLListSchema('NotificationUserSetting', {
         ],
     },
     hooks: {
-        resolveInput: async (args) => {
-            const { resolvedData, operation, existingItem } = args
-
-            if (operation === 'update') {
-                const isEnabled = get(resolvedData, 'isEnabled')
-                if (isEnabled) {
-                    // All notifications enabled by default
-                    // So, in the case the user enables some notification, we just delete this setting
-                    // !!! This behavior is actual as long we only control if the message enabled
-                    resolvedData['deletedAt'] = dayjs().toISOString()
-                }
-            }
-
-            return resolvedData
-        },
         validateInput: async (args) => {
             const { resolvedData, operation, existingItem, context } = args
 

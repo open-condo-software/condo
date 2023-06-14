@@ -19,6 +19,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { NEWS_ITEM_COMMON_MESSAGE_TYPE, PUSH_TRANSPORT } = require('@condo/domains/notification/constants/constants')
 const {
     NotificationUserSetting,
     createTestNotificationUserSetting,
@@ -247,7 +248,9 @@ describe('NotificationUserSetting', () => {
                 },
             )
         })
+    })
 
+    describe('Constraints tests', () => {
         test('must throw an error on trying to create setting without type and transport', async () => {
             await expectToThrowInternalError(
                 async () => await createTestNotificationUserSetting(adminClient, {
@@ -256,6 +259,50 @@ describe('NotificationUserSetting', () => {
                 }),
                 'violates check constraint "has_messageType_or_messageTransport"',
             )
+        })
+
+        test('can\'t create the model with the same user, messageType, messageTransport', async () => {
+            const otherAdminClient = await makeOtherLoggedInAdminClient()
+
+            const modelAttrs = { messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE, messageTransport: PUSH_TRANSPORT }
+            await createTestNotificationUserSetting(otherAdminClient, modelAttrs)
+            await expectToThrowInternalError(
+                async () => await createTestNotificationUserSetting(otherAdminClient, modelAttrs),
+                'violates unique constraint "NotificationUserSetting_unique_user_messageType_messageTranspor"',
+            )
+        })
+
+        test('can\'t create the model with the same user, messageType', async () => {
+            const otherAdminClient = await makeOtherLoggedInAdminClient()
+
+            const modelAttrs = { messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE, messageTransport: null }
+            await createTestNotificationUserSetting(otherAdminClient, modelAttrs)
+            await expectToThrowInternalError(
+                async () => await createTestNotificationUserSetting(otherAdminClient, modelAttrs),
+                'violates unique constraint "NotificationUserSetting_unique_user_messageType"',
+            )
+        })
+
+        test('can\'t create the model with the same user, messageTransport', async () => {
+            const otherAdminClient = await makeOtherLoggedInAdminClient()
+
+            const modelAttrs = { messageType: null, messageTransport: PUSH_TRANSPORT }
+            await createTestNotificationUserSetting(otherAdminClient, modelAttrs)
+            await expectToThrowInternalError(
+                async () => await createTestNotificationUserSetting(otherAdminClient, modelAttrs),
+                'violates unique constraint "NotificationUserSetting_unique_user_messageTransport"',
+            )
+        })
+
+        test('can create the model with the same settings after the previous one was soft-deleted', async () => {
+            const otherAdminClient = await makeOtherLoggedInAdminClient()
+
+            const modelAttrs = { messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE, messageTransport: PUSH_TRANSPORT }
+            const [obj] = await createTestNotificationUserSetting(otherAdminClient, modelAttrs)
+            const [deletedObj] = await updateTestNotificationUserSetting(otherAdminClient, obj.id, { deletedAt: 'true' })
+            const [obj2] = await createTestNotificationUserSetting(otherAdminClient, modelAttrs)
+
+            expect(obj2.id).not.toEqual(deletedObj.id)
         })
     })
 })
