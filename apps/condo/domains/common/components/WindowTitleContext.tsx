@@ -28,13 +28,6 @@ export const WindowTitleContextProvider: React.FC = ({ children }) => {
     const originalIconHref = useRef(null)
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            originalTitle.current = document.title
-            originalIconHref.current = getFaviconHref()
-        }
-    }, [])
-
-    useEffect(() => {
         const onFocus = () => {
             if (!isNull(titleConfig)) {
                 clearInterval(intervalRef.current)
@@ -47,6 +40,9 @@ export const WindowTitleContextProvider: React.FC = ({ children }) => {
         }
 
         if (typeof window !== 'undefined' && isNull(titleConfig)) {
+            originalTitle.current = document.title
+            originalIconHref.current = getFaviconHref()
+
             window.removeEventListener('focus', onFocus)
             window.removeEventListener('mousemove', onFocus)
         }
