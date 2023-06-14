@@ -184,6 +184,36 @@ describe('MeterReportingPeriod', () => {
                 expect(period.id).toEqual(obj.id)
             })
 
+            test('resident cannot read MeterReportingPeriods from another property', async () => {
+                const client = await makeClientWithResidentUser()
+                const client2 = await makeClientWithResidentUser()
+                const unitName = faker.random.alphaNumeric(8)
+                const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                const [property] = await createTestProperty(admin, organization)
+                const [property2] = await createTestProperty(admin, organization)
+                const [billingProperty] = await createTestBillingProperty(admin, context)
+                const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty)
+                const [resident] = await createTestResident(admin, client.user, property, {
+                    unitName,
+                })
+                await createTestServiceConsumer(admin, resident, organization, {
+                    accountNumber: billingAccount.number,
+                })
+                const [resident2] = await createTestResident(admin, client2.user, property2, {
+                    unitName,
+                })
+                await createTestServiceConsumer(admin, resident2, organization, {
+                    accountNumber: billingAccount.number,
+                })
+                await createTestMeterReportingPeriod(admin, organization, { property: { connect: { id: property.id } } })
+
+                const objs = await MeterReportingPeriod.getAll(client2, {
+                    property: { id: property.id },
+                }, { sortBy: ['updatedAt_DESC'] })
+
+                expect(objs).toHaveLength(0)
+            })
+
             test('resident can read default MeterReportingPeriod', async () => {
                 const client = await makeClientWithResidentUser()
                 const unitName = faker.random.alphaNumeric(8)

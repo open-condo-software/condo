@@ -94,9 +94,21 @@ const getAvailableResidentMeterReportPeriods = async (userId) => {
 
     const selectionsByOrganization = uniq(userConsumers.map(serviceConsumer => ({
         organization: { id: get(residentsByIds, [serviceConsumer.resident, 'organization']) },
+        property_is_null: true,
+    })))
+
+    const selectionsByProperty = uniq(userConsumers.map(serviceConsumer => ({
+        organization: { id: get(residentsByIds, [serviceConsumer.resident, 'organization']) },
+        property: { id: get(residentsByIds, [serviceConsumer.resident, 'property']) },
     })))
 
     const orStatement = selectionsByOrganization.map(selection => ({
+        AND: [
+            selection,
+        ],
+    }))
+
+    selectionsByProperty.map(selection => orStatement.push({
         AND: [
             selection,
         ],
