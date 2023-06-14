@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const get = require('lodash/get')
+const uniq = require('lodash/uniq')
 
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 const { find } = require('@open-condo/keystone/schema')
@@ -69,6 +70,49 @@ const getAvailableResidentMeters = async (userId) => {
     })
 }
 
+/**
+ * Get all meter report periods, which resident has access to,
+ * Mostly used in access, that's why used native keystone utils
+ * @param userId - id of user
+ * @returns {Promise<Array<unknown>>} list of meters ids which are available for resident
+ */
+const getAvailableResidentMeterReportPeriods = async (userId) => {
+    const userResidents = await find('Resident', {
+        user: { id: userId, deletedAt: null },
+        property: { deletedAt: null },
+        organization: { deletedAt: null },
+        deletedAt: null,
+    })
+    const residentIds = userResidents.map(resident => resident.id)
+    const residentsByIds = Object.assign({}, ...userResidents.map(obj => ({ [obj.id]: obj })))
+
+    const userConsumers = await find('ServiceConsumer', {
+        resident: { id_in: residentIds, deletedAt: null },
+        organization: { deletedAt: null },
+        deletedAt: null,
+    })
+
+    const selectionsByOrganization = uniq(userConsumers.map(serviceConsumer => ({
+        organization: { id: get(residentsByIds, [serviceConsumer.resident, 'organization']) },
+    })))
+
+    const orStatement = selectionsByOrganization.map(selection => ({
+        AND: [
+            selection,
+        ],
+    }))
+
+    return await find('MeterReportingPeriod', {
+        OR: [
+            ...orStatement,
+            {
+                organization_is_null: true,
+            },
+        ],
+        deletedAt: null,
+    })
+}
+
 const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const metersLoader = new GqlWithKnexLoadList({
         listKey: 'Meter',
@@ -106,6 +150,7 @@ module.exports = {
     Meter,
     MeterReading,
     getAvailableResidentMeters,
+    getAvailableResidentMeterReportPeriods,
     loadMetersForExcelExport,
     loadMeterReadingsForExcelExport,
     MeterReadingFilterTemplate,

@@ -295,21 +295,15 @@ async function updateTestPropertyMeterReading (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterReportingPeriod (client, organization, property, meter, extraAttrs = {}) {
+async function createTestMeterReportingPeriod (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
-    if (!property || !property.id) throw new Error('no property.id')
-    if (!meter || !meter.id) throw new Error('no meter.id')
+    if (!organization.id) throw new Error('organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestMeterReportingPeriod logic for generate fields
 
     const attrs = {
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
-        property: { connect: { id: property.id } },
-        meter: { connect: { id: meter.id } },
         ...extraAttrs,
     }
     const obj = await MeterReportingPeriod.create(client, attrs)
@@ -320,8 +314,6 @@ async function updateTestMeterReportingPeriod (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestMeterReportingPeriod logic for generate fields
 
     const attrs = {
         dv: 1,

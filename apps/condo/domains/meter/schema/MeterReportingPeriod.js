@@ -3,63 +3,158 @@
  */
 
 const { Text, Relationship, Integer, Select, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password, File, Url } = require('@keystonejs/fields')
-const { Json } = require('@open-condo/keystone/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/meter/access/MeterReportingPeriod')
+const { MeterReportingPeriod: MeterReportingPeriodAPI } = require('@condo/domains/meter/utils/serverSchema/index')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
+
+
+const ERRORS = {
+    INVALID_FINISH: {
+        code: BAD_USER_INPUT,
+        type: 'INVALID_FINISH',
+        message: 'The "finish" field can take values in the range from 1 to 31',
+        messageForUser: 'api.meter.MeterReportingPeriod.INVALID_FINISH',
+    },
+    INVALID_START: {
+        code: BAD_USER_INPUT,
+        type: 'INVALID_START',
+        message: 'The "start" field can take values in the range from 1 to 31',
+        messageForUser: 'api.meter.MeterReportingPeriod.INVALID_START',
+    },
+    ORGANIZATION_IS_REQUIRED: {
+        code: BAD_USER_INPUT,
+        type: 'ORGANIZATION_IS_REQUIRED',
+        message: 'The organization is required to create',
+        messageForUser: 'api.meter.MeterReportingPeriod.ORGANIZATION_IS_REQUIRED',
+    },
+}
 
 
 const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
-    // TODO(codegen): write doc for the MeterReportingPeriod domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Settings for the meter reading report period. ' +
+        'Readings can be transferred at any time. ' +
+        'The scheme is needed for notifications on the client side',
     fields: {
-
         organization: {
-            // TODO(codegen): write doc for MeterReportingPeriod.organization field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Ref to the organization',
             type: Relationship,
             ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            isRequired: false,
+            knexOptions: { isNotNullable: false }, // Relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
         },
 
         property: {
-            // TODO(codegen): write doc for MeterReportingPeriod.property field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Ref to the property',
             type: Relationship,
             ref: 'Property',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
-        meter: {
-            // TODO(codegen): write doc for MeterReportingPeriod.meter field!
-            schemaDoc: 'TODO DOC!',
+        start: {
+            schemaDoc: 'This is the field for client-side business logic and push notifications',
+            type: Integer,
+            defaultValue: 20,
+            isRequired: true,
+            hooks: {
+                validateInput: async ({ context, operation, resolvedData }) => {
+                    if (operation === 'create' || operation === 'update') {
+                        if (resolvedData.start > 31 || resolvedData.start < 1) {
+                            throw new GQLError(ERRORS.INVALID_START, context)
+                        }
+                    }
+                },
+            },
+        },
+
+        finish: {
+            schemaDoc: 'This is the field for client-side business logic and push notifications',
+            type: Integer,
+            defaultValue: 25,
+            isRequired: true,
+            hooks: {
+                validateInput: async ({ context, operation, resolvedData }) => {
+                    if (operation === 'create' || operation === 'update') {
+                        if (resolvedData.finish > 31 || resolvedData.finish < 1) {
+                            throw new GQLError(ERRORS.INVALID_FINISH, context)
+                        } 
+                    }
+                },
+            },
+        },
+
+        b2cApp: {
+            schemaDoc: 'Ref to the B2CApp which used to replace default integration in resident\'s app',
             type: Relationship,
-            ref: 'Meter',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            ref: 'B2CApp',
+            isRequired: false,
+            knexOptions: { isNotNullable: false }, // Relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
-
-        startingDate: {
-            // TODO(codegen): write doc for MeterReportingPeriod.startingDate field!
-            schemaDoc: 'TODO DOC!',
-            type: DateTimeUtc,
-            isRequired: true,
-        },
-
-        deadline: {
-            // TODO(codegen): write doc for MeterReportingPeriod.deadline field!
-            schemaDoc: 'TODO DOC!',
-            type: DateTimeUtc,
-            isRequired: true,
-        },
-
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['organization', 'property'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'meterreportingperiod_unique_organization_property',
+            },
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['organization'],
+                condition:
+                    'Q(deletedAt__isnull=True) &' +
+                    'Q(property__isnull=True)',
+                name: 'meterreportingperiod_unique_organization',
+            },
+        ],
+    },
+    hooks: {
+        resolveInput: async ({ context, operation, existingItem, resolvedData }) => {
+            if (operation === 'create') {
+                if (!resolvedData.organization && resolvedData.property) {
+                    const property = await Property.getOne(context, { id: resolvedData.property })
+
+                    resolvedData.organization = property.organization
+                }
+            }
+
+            return resolvedData
+        },
+        validateInput: async ({ operation, resolvedData, context }) => {
+            if (operation === 'create') {
+                const foundDefaultPeriod = await MeterReportingPeriodAPI.getAll(context, {
+                    organization_is_null: true,
+                    deletedAt: null,
+                })
+
+                if (!resolvedData.organization && foundDefaultPeriod.length > 0) {
+                    throw new GQLError(ERRORS.ORGANIZATION_IS_REQUIRED, context)
+                }
+            }
+        },
+    },
+    plugins: [
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        historical(),
+    ],
     access: {
         read: access.canReadMeterReportingPeriods,
         create: access.canManageMeterReportingPeriods,

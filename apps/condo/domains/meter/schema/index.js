@@ -8,10 +8,10 @@ const { Meter } = require('./Meter')
 const { MeterReading } = require('./MeterReading')
 const { MeterReadingFilterTemplate } = require('./MeterReadingFilterTemplate')
 const { MeterReadingSource } = require('./MeterReadingSource')
+const { MeterReportingPeriod } = require('./MeterReportingPeriod')
 const { MeterResource } = require('./MeterResource')
 const { PropertyMeter } = require('./PropertyMeter')
 const { PropertyMeterReading } = require('./PropertyMeterReading')
-const { MeterReportingPeriod } = require('./MeterReportingPeriod')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
