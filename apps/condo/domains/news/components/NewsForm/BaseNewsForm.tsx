@@ -666,7 +666,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const tzInfo = useMemo<string>(() => {
         const matches = /([+-])(\d{1,2}):(\d{1,2})/.exec(dayjsTz)
         const sign = matches[1]
-        const hours = Number(matches[2]) - 2
+        const hours = Number(matches[2]) - 3 // We show tz related to Moscow tz
         const minutes = Number(matches[3])
         let result = `${TimezoneMskTitle}`
         if (hours !== 0) {

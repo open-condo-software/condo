@@ -49,6 +49,8 @@ const DEFAULT_ROLES = {
         'canManageBankTransactions': true,
         'canManageBankAccountReports': true,
         'ticketVisibilityType': ORGANIZATION_TICKET_VISIBILITY,
+        'canManageNewsItems': true,
+        'canManageNewsItemTemplates': true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -81,6 +83,8 @@ const DEFAULT_ROLES = {
         'canManageBankTransactions': false,
         'canManageBankAccountReports': false,
         'ticketVisibilityType': PROPERTY_TICKET_VISIBILITY,
+        'canManageNewsItems': true,
+        'canManageNewsItemTemplates': true,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -113,6 +117,8 @@ const DEFAULT_ROLES = {
         'canManageBankTransactions': false,
         'canManageBankAccountReports': false,
         'ticketVisibilityType': PROPERTY_TICKET_VISIBILITY,
+        'canManageNewsItems': true,
+        'canManageNewsItemTemplates': true,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
