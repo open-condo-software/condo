@@ -114,6 +114,13 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         label: LABEL_FIELD,
         gallery: GALLERY_FIELD,
         price: PRICE_FIELD,
+        skipNoAccountNotifications: {
+            schemaDoc: 'If checked, then this integration\'s contests\' billing receipts will be skipped for BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE notifications handling logic',
+            type: Checkbox,
+            isRequired: false,
+            defaultValue: false,
+            knexOptions: { isNotNullable: false },
+        },
     },
     hooks: {
         afterChange: logoMetaAfterChange,

@@ -12217,6 +12217,8 @@ export type BillingIntegration = {
   gallery?: Maybe<Array<Scalars['String']>>;
   /**  String representing a base price of app. Usually it's something like "Free", "Individual", "$50 / year"  */
   price?: Maybe<Scalars['String']>;
+  /**  If checked, then this integration's contests' billing receipts will be skipped for BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE notifications handling logic  */
+  skipNoAccountNotifications?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12560,6 +12562,7 @@ export type BillingIntegrationCreateInput = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Array<Scalars['String']>>;
   price?: Maybe<Scalars['String']>;
+  skipNoAccountNotifications?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12613,6 +12616,7 @@ export type BillingIntegrationHistoryRecord = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Scalars['JSON']>;
   price?: Maybe<Scalars['String']>;
+  skipNoAccountNotifications?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12647,6 +12651,7 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Scalars['JSON']>;
   price?: Maybe<Scalars['String']>;
+  skipNoAccountNotifications?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12686,6 +12691,7 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Scalars['JSON']>;
   price?: Maybe<Scalars['String']>;
+  skipNoAccountNotifications?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12929,6 +12935,8 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   price_not_ends_with_i?: Maybe<Scalars['String']>;
   price_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   price_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  skipNoAccountNotifications?: Maybe<Scalars['Boolean']>;
+  skipNoAccountNotifications_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -13638,6 +13646,7 @@ export type BillingIntegrationUpdateInput = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Array<Scalars['String']>>;
   price?: Maybe<Scalars['String']>;
+  skipNoAccountNotifications?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -13856,6 +13865,8 @@ export type BillingIntegrationWhereInput = {
   price_not_ends_with_i?: Maybe<Scalars['String']>;
   price_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   price_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  skipNoAccountNotifications?: Maybe<Scalars['Boolean']>;
+  skipNoAccountNotifications_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -31196,7 +31207,7 @@ export type Mutation = {
    *   "mutation": "sendNewReceiptMessagesToResidentScopes",
    *   "variable": [
    *     "data",
-   *     "billingIntegrationContext"
+   *     "context"
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
@@ -31208,7 +31219,7 @@ export type Mutation = {
    *   "mutation": "sendNewReceiptMessagesToResidentScopes",
    *   "variable": [
    *     "data",
-   *     "context"
+   *     "category"
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
@@ -31236,8 +31247,8 @@ export type Mutation = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
-   *   "message": "All provided properties in scopes should be non-deleted & connected to organization of the billing context",
-   *   "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PROPERTY_PROVIDED"
+   *   "message": "All provided billing properties in scopes should be non-deleted & connected to organization of the billing context",
+   *   "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_PROPERTY_PROVIDED"
    * }`
    */
   sendNewReceiptMessagesToResidentScopes?: Maybe<SendNewReceiptMessagesToResidentScopesOutput>;
@@ -49030,9 +49041,11 @@ export type PropertyScopesCreateInput = {
 };
 
 export type PropertyScopesInput = {
-  property: PropertyWhereUniqueInput;
+  billingProperty: BillingPropertyWhereUniqueInput;
   units?: Maybe<Array<Maybe<PropertyUnitInput>>>;
-  accountNumbers?: Maybe<Array<Maybe<Scalars['String']>>>;
+  accountNumbers?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  skipUnits?: Maybe<Array<Maybe<PropertyUnitInput>>>;
+  skipAccountNumbers?: Maybe<Array<Maybe<Scalars['ID']>>>;
 };
 
 export type PropertyScopesUpdateInput = {
@@ -58727,7 +58740,9 @@ export type ResidentRelateToOneInput = {
 export type ResidentScopesInput = {
   property: PropertyWhereUniqueInput;
   units?: Maybe<Array<Maybe<PropertyUnitInput>>>;
-  billingAccountNumbers?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingAccountNumbers?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  skipUnits?: Maybe<Array<Maybe<PropertyUnitInput>>>;
+  skipBillingAccountNumbers?: Maybe<Array<Maybe<Scalars['ID']>>>;
 };
 
 export type ResidentUpdateInput = {
@@ -61632,6 +61647,8 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   LabelDesc = 'label_DESC',
   PriceAsc = 'price_ASC',
   PriceDesc = 'price_DESC',
+  SkipNoAccountNotificationsAsc = 'skipNoAccountNotifications_ASC',
+  SkipNoAccountNotificationsDesc = 'skipNoAccountNotifications_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -61756,6 +61773,8 @@ export enum SortBillingIntegrationsBy {
   LabelDesc = 'label_DESC',
   PriceAsc = 'price_ASC',
   PriceDesc = 'price_DESC',
+  SkipNoAccountNotificationsAsc = 'skipNoAccountNotifications_ASC',
+  SkipNoAccountNotificationsDesc = 'skipNoAccountNotifications_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

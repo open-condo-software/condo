@@ -5,6 +5,7 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const { isEmpty } = require('lodash')
 
+const conf = require('@open-condo/config')
 const {
     makeLoggedInAdminClient, makeClient,
     expectToThrowAccessDeniedErrorToResult,
@@ -15,9 +16,10 @@ const {
 const {
     createTestBillingIntegration,
     createTestBillingIntegrationOrganizationContext,
-    makeServiceUserForIntegration,
+    makeServiceUserForIntegration, createTestBillingProperty,
+    createTestBillingAccount, createTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
-const { sendNewReceiptMessagesToResidentScopesByTestClient } = require('@condo/domains/billing/utils/testSchema')
+const { BillingIntegration, sendNewReceiptMessagesToResidentScopesByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { SUCCESS_STATUS } = require('@condo/domains/common/constants')
 const { DATE_FORMAT, getStartDates } = require('@condo/domains/common/utils/date')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
@@ -27,8 +29,9 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { syncRemoteClientWithPushTokenByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { Resident, registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { createTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { Resident, registerResidentByTestClient, registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
@@ -48,7 +51,7 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
     let adminClient, supportClient, serviceClient, integrationServiceClient,
         anonymousClient, userClient, residentClient,
         sender, property, organization,
-        integration, integrationContext,
+        integration, integrationContext, billingProperty,
         dates
 
     beforeAll(async () => {
@@ -69,6 +72,8 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
         integrationServiceClient = await makeServiceUserForIntegration(integration)
         const contextData = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integration, { status: CONTEXT_FINISHED_STATUS })
         integrationContext = contextData[0]
+        const billingPropertyData = await createTestBillingProperty(adminClient, integrationContext, { address: property.address })
+        billingProperty = billingPropertyData[0]
     })
 
     describe('sendNewReceiptMessagesToResidentScopes tests', () => {
@@ -81,7 +86,7 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                     context: { id: integrationContext.id },
                     category: { id: CATEGORY_HOUSING_ID },
                     period: dates.thisMonthStart,
-                    scopes: [{ property: { id: property.id } }],
+                    scopes: [{ billingProperty: { id: billingProperty.id } }],
                     meta: {
                         data: {
                             urlTemplate: `payments/addaccount/?residentId={residentId}&categoryId=${CATEGORY_HOUSING_ID}&organizationTIN=${organization.tin}`,
@@ -142,7 +147,7 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                     context: { id: integrationContext.id },
                     category: { id: CATEGORY_HOUSING_ID },
                     period: dates.thisMonthStart,
-                    scopes: [{ property: { id: property.id } }],
+                    scopes: [{ billingProperty: { id: billingProperty.id } }],
                     meta: {
                         data: {
                             urlTemplate: `payments/addaccount/?residentId={residentId}&categoryId=${CATEGORY_HOUSING_ID}&organizationTIN=${organization.tin}`,
@@ -266,9 +271,9 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
             test('throws on missing property id', async () => {
                 const casePayload = {
                     ...payload,
-                    scopes: [{ property: { id: property.id } }, {}],
+                    scopes: [{ billingProperty: { id: billingProperty.id } }, {}],
                 }
-                const expectedErrorMessage = 'Variable "$data" got invalid value {} at "data.scopes[1]"; Field "property" of required type "PropertyWhereUniqueInput!" was not provided.'
+                const expectedErrorMessage = 'Variable "$data" got invalid value {} at "data.scopes[1]"; Field "billingProperty" of required type "BillingPropertyWhereUniqueInput!" was not provided.'
 
                 await catchErrorFrom(
                     async () => { await sendNewReceiptMessagesToResidentScopesByTestClient(adminClient, casePayload) },
@@ -282,12 +287,12 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
             test('throws on non context organization property id', async () => {
                 const casePayload = {
                     ...payload,
-                    scopes: [{ property: { id: property.id } }, { property: { id: faker.datatype.uuid() } }],
+                    scopes: [{ billingProperty: { id: billingProperty.id } }, { billingProperty: { id: faker.datatype.uuid() } }],
                 }
 
                 await expectToThrowGQLError(
                     async () => { await sendNewReceiptMessagesToResidentScopesByTestClient(adminClient, casePayload) },
-                    { ...ERRORS.INVALID_PROPERTY_PROVIDED },
+                    { ...ERRORS.INVALID_BILLING_PROPERTY_PROVIDED },
                     'result'
                 )
             })
@@ -316,7 +321,7 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                     context: { id: integrationContext.id },
                     category: { id: CATEGORY_HOUSING_ID },
                     period: dates.thisMonthStart,
-                    scopes: [{ property: { id: property.id } }],
+                    scopes: [{ billingProperty: { id: billingProperty.id } }],
                     meta: {
                         data: {
                             urlTemplate: `payments/addaccount/?residentId={residentId}&categoryId=${CATEGORY_HOUSING_ID}&organizationTIN=${organization.tin}`,
@@ -355,10 +360,10 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                     context: { id: integrationContext.id },
                     category: { id: CATEGORY_HOUSING_ID },
                     period: dates.thisMonthStart,
-                    scopes: [{ property: { id: property.id } }],
+                    scopes: [{ billingProperty: { id: billingProperty.id } }],
                     meta: {
                         data: {
-                            urlTemplate: `payments/addaccount/?residentId={residentId}&categoryId=${CATEGORY_HOUSING_ID}&organizationTIN=${organization.tin}`,
+                            urlTemplate: `payments/addaccount/?residentId={residentId}&categoryId={paymentCategoryId}&organizationTIN=${organization.tin}`,
                         },
                     },
                 }
@@ -367,7 +372,7 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                 expect(data.status).toEqual(SUCCESS_STATUS)
 
                 const messageWhere = { user: { id_in: [resident.user.id] }, type: BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE }
-                const url = `payments/addaccount/?residentId=${resident.id}&categoryId=${CATEGORY_HOUSING_ID}&organizationTIN=${organization.tin}`
+                const url = `payments/addaccount/?residentId=${resident.id}&categoryId=1&organizationTIN=${organization.tin}`
                 const uniqKey = [CATEGORY_HOUSING_ID, dates.thisMonthStart, resident.id ].join(':')
 
                 await waitFor(async () => {
@@ -402,7 +407,7 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                     context: { id: integrationContext.id },
                     category: { id: CATEGORY_HOUSING_ID },
                     period: dates.thisMonthStart,
-                    scopes: [{ property: { id: property.id } }],
+                    scopes: [{ billingProperty: { id: billingProperty.id } }],
                     meta: {
                         data: {
                             urlTemplate: `payments/addaccount/?residentId={residentId}&categoryId=${CATEGORY_HOUSING_ID}&organizationTIN=${organization.tin}`,
@@ -444,7 +449,7 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                     context: { id: integrationContext.id },
                     category: { id: CATEGORY_HOUSING_ID },
                     period: dates.thisMonthStart,
-                    scopes: [{ property: { id: property.id } }],
+                    scopes: [{ billingProperty: { id: billingProperty.id } }],
                     meta: {
                         data: {
                             urlTemplate: `payments/addaccount/?residentId={residentId}&categoryId=${CATEGORY_HOUSING_ID}&organizationTIN=${organization.tin}`,
@@ -467,6 +472,147 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                     expect(messages[0].status).toEqual(MESSAGE_SENT_STATUS)
                 })
             })
+
+
+            test('doesn\'t sent notifications to residents with skipped billing accounts', async () => {
+                // Create some residents and sync their users with remoteClients to be able to emulate sending push notifications
+                const residentPayload = { address: property.address, addressMeta: property.addressMeta }
+                const remoteClientPayload = { devicePlatform: DEVICE_PLATFORM_ANDROID, appId: APP_MASTER_ID_ANDROID }
+                const residentUser = await makeClientWithResidentUser()
+                const residentUser2 = await makeClientWithResidentUser()
+                const [resident] = await registerResidentByTestClient(residentUser, residentPayload)
+                const [resident2] = await registerResidentByTestClient(residentUser2, residentPayload)
+                const [billingAccount] = await createTestBillingAccount(adminClient, integrationContext, billingProperty)
+                const serviceConsumerPayload = {
+                    residentId: resident.id,
+                    accountNumber: billingAccount.number,
+                    organizationId: organization.id,
+                }
+
+                await createTestServiceConsumer(adminClient, resident2, organization, { billingAccount: { connect: { id: billingAccount.id } } })
+                await syncRemoteClientWithPushTokenByTestClient(residentUser, remoteClientPayload)
+                await syncRemoteClientWithPushTokenByTestClient(residentUser2, remoteClientPayload)
+
+                const payload = {
+                    context: { id: integrationContext.id },
+                    category: { id: CATEGORY_HOUSING_ID },
+                    period: dates.thisMonthStart,
+                    scopes: [{ billingProperty: { id: billingProperty.id }, skipAccountNumbers: [billingAccount.number] }],
+                    meta: {
+                        data: {
+                            urlTemplate: `payments/addaccount/?residentId={residentId}&categoryId=${CATEGORY_HOUSING_ID}&organizationTIN=${organization.tin}`,
+                        },
+                    },
+                }
+                const [data] = await sendNewReceiptMessagesToResidentScopesByTestClient(integrationServiceClient, payload)
+
+                await sendNewReceiptMessagesToResidentScopesByTestClient(adminClient, payload)
+
+                expect(data.status).toEqual(SUCCESS_STATUS)
+
+                const messageWhere = { user: { id_in: [resident.user.id, resident2.user.id] }, type: BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE }
+
+                await waitFor(async () => {
+                    const messages = await Message.getAll(adminClient, messageWhere)
+
+                    expect(isEmpty(messages)).toBeFalsy()
+                    expect(messages).toHaveLength(1)
+                    expect(messages[0].status).toEqual(MESSAGE_SENT_STATUS)
+                })
+            })
+
+        })
+    })
+
+    // NOT FOR CI
+    // This test should be executed ONLY LOCALLY with following .env entity added:
+    // EPS_INTEGRATION='{"endpoint":"http://localhost:3000/admin/api", "authRequisites":{"phone":"<phone>", "email": "<email>", "password":"<password>"}, "integration": "<integrationId>" }'
+    // All this data is generated within this tests pack above
+    // This workaround is needed to be able to semi-automatically test complex chain of interconnected processes of condo and integrated service (EPS) on LOCAL environment
+    // It needs condo and EPS worker tasks to be separated, so both workers should be running independently.
+    // To do so you need to add another Redis docker instance on different port and map it to EPS integration, in order to everything work properly.
+    // docker-compose.yml && apps/eps/.env should be patched (add instance of Redis to different port, map the port to apps/eps/.env)
+    // How to test:
+    //     1. run this test
+    //     2. wait till it creates all entities for all models and await is executed
+    //     3. execute script at apps/eps/bin/triggerEpsNewReceiptsNotifications.js, it should find new EPS receipts and trigger sendNewReceiptMessagesToResidentScopes mutation
+    //     4. test will detect new messages of proper type for resident users and succeed
+    // Algo:
+    //     - generate organization +
+    //     - connect organization to integration via context +
+    //     - generate property within organization +
+    //     - generate resident within property +
+    //     - generate billing account +
+    //     - connect billing account to resident via service consumer +
+    //     - generate billing property +
+    //     - generate billing receipt for billing account +
+    //     - wait for proper notification to be sent to resident's user +
+    describe.skip('Non CI complex manual testing for sendNewReceiptMessagesToResidentScopes', () => {
+        it('generates billing receipts and waits till mutation is triggered from integrated service manually', async () => {
+            const { integration: integrationId } = conf['EPS_INTEGRATION'] ? JSON.parse(conf['EPS_INTEGRATION']) : {}
+
+            if (!integrationId) throw new Error('Missing integration in EPS_INTEGRATION entity of .env')
+
+            const billingIntegration = await BillingIntegration.getOne(adminClient, { id: integrationId })
+
+            if (!billingIntegration) throw new Error('Provided integration id in EPS_INTEGRATION entity of .env is invalid')
+
+            const remoteClientPayload = { devicePlatform: DEVICE_PLATFORM_ANDROID, appId: APP_MASTER_ID_ANDROID }
+            const userClient = await makeClientWithProperty()
+            const userClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient3 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient4 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
+            const [billingProperty] = await createTestBillingProperty(adminClient, billingContext, { address: userClient.property.address })
+            const [billingAccount] = await createTestBillingAccount(adminClient, billingContext, billingProperty)
+            const [billingAccount1] = await createTestBillingAccount(adminClient, billingContext, billingProperty)
+            const [billingAccount2] = await createTestBillingAccount(adminClient, billingContext, billingProperty)
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
+            const [resident1] = await createTestResident(adminClient, userClient1.user, userClient.property)
+            const [resident2] = await createTestResident(adminClient, userClient2.user, userClient.property)
+            const [resident3] = await createTestResident(adminClient, userClient3.user, userClient.property)
+            const [resident4] = await createTestResident(adminClient, userClient4.user, userClient.property)
+            const [consumer] = await createTestServiceConsumer(adminClient, resident, userClient.organization, { billingAccount: { connect: { id: billingAccount.id } } })
+            const [consumer1] = await createTestServiceConsumer(adminClient, resident1, userClient.organization, { billingAccount: { connect: { id: billingAccount1.id } } })
+            const [consumer2] = await createTestServiceConsumer(adminClient, resident2, userClient.organization, { billingAccount: { connect: { id: billingAccount2.id } } })
+            const receiptExtraData = { period: dates.thisMonthStart, category: { connect: { id: CATEGORY_HOUSING_ID } } }
+            const [receipt] = await createTestBillingReceipt(adminClient, billingContext, billingProperty, billingAccount, receiptExtraData)
+            const [receipt1] = await createTestBillingReceipt(adminClient, billingContext, billingProperty, billingAccount1, receiptExtraData)
+            const [receipt2] = await createTestBillingReceipt(adminClient, billingContext, billingProperty, billingAccount2, receiptExtraData)
+
+            await syncRemoteClientWithPushTokenByTestClient(userClient3, remoteClientPayload)
+            await syncRemoteClientWithPushTokenByTestClient(userClient4, remoteClientPayload)
+
+            /**
+             * to trigger new receipts notifications run manually at this point
+             * yarn workspace @app/eps node ./bin/triggerEpsNewReceiptsNotifications.js
+             */
+
+            /** only users of resident3 & resident4 should receive notifications */
+
+            const messageWhere = {
+                user: {
+                    id_in: [resident.user.id, resident1.user.id, resident2.user.id, resident3.user.id, resident4.user.id],
+                },
+                type: BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE,
+            }
+
+            await waitFor(async () => {
+                const messages = await Message.getAll(adminClient, messageWhere)
+
+                console.log('messages[0].user:', messages[0].user)
+                console.log('messages[1].user:', messages[1].user)
+
+                expect(isEmpty(messages)).toBeFalsy()
+                expect(messages).toHaveLength(2)
+                expect(messages[0].status).toEqual(MESSAGE_SENT_STATUS)
+
+                const userIds = [messages[0].user.id, messages[1].user.id]
+
+                expect(userIds.includes(resident3.user.id)).toBeTruthy()
+                expect(userIds.includes(resident4.user.id)).toBeTruthy()
+            }, { interval: 1000, delay: 3000, timeout: 1000 * 60 * 5 })
 
         })
     })

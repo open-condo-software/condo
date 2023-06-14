@@ -1691,7 +1691,7 @@
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CONTEXT_PROVIDED": "Необходимо передать id существующей биллинговой интеграции для организации",
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CATEGORY_PROVIDED": "Необходимо передать id существующей биллинговой категории",
   "api.billing.sendNewReceiptMessagesToResidentScopes.SCOPES_IS_EMPTY": "Необходимо передать хотя бы один элемент в scopes",
-  "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PROPERTY_PROVIDED": "Все переданные id домов в скоупах должны принадлежать организации из переданного биллингового контекста",
+  "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_PROPERTY_PROVIDED": "Все переданные id домов (billingProperty) в скоупах должны принадлежать организации из переданного биллингового контекста",
   "api.resident.sendMessageToResidentScopes.SCOPES_IS_EMPTY": "Необходимо передать хотя бы один элемент в scopes",
   "api.miniapp.sendB2CAppPushMessage.USER_NOT_FOUND": "Не удалось найти пользователя по переданному id",
   "api.miniapp.sendB2CAppPushMessage.RESIDENT_NOT_FOUND": "Не удалось найти жителя по переданному id",
