@@ -1,6 +1,7 @@
 const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/organization/access/RegisterNewOrganizationService')
+const { ORGANIZATION_TYPES } = require('@condo/domains/organization/constants/common')
 const { createConfirmedEmployee, createOrganization, createDefaultRoles, pushOrganizationToSalesCRM } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { createDefaultPropertyScopeForNewOrganization } = require('@condo/domains/scope/utils/serverSchema')
 const { createTrialSubscription } = require('@condo/domains/subscription/utils/serverSchema/ServiceSubscription')
@@ -10,7 +11,11 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
     types: [
         {
             access: true,
-            type: 'input RegisterNewOrganizationInput { dv: Int!, sender: SenderFieldInput!, country: String!, name: String!, tin: String!, description: String, meta: JSON!, avatar: Upload }',
+            type: `enum OrganizationType { ${ORGANIZATION_TYPES.join(' ')} }`,
+        },
+        {
+            access: true,
+            type: 'input RegisterNewOrganizationInput { dv: Int!, sender: SenderFieldInput!, country: String!, name: String!, tin: String!, description: String, meta: JSON!, avatar: Upload, type: OrganizationType }',
         },
     ],
     mutations: [
