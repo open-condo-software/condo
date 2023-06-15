@@ -115,7 +115,8 @@ const MenuItems: React.FC = () => {
     const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } })
     const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
     const hasAccessToBilling = (get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)) && !isAssignedVisibilityType
-    const canManageNewsItems = get<boolean>(role, 'canManageNewsItems', false)
+    // The menu item is hidden until release
+    const canManageNewsItems = false && get<boolean>(role, 'canManageNewsItems', false)
 
     useDeepCompareEffect(() => {
         updateContext({ orgFeatures })
