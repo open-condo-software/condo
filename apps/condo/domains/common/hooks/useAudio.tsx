@@ -42,8 +42,10 @@ export const useAudio = (): IUseAudio => {
 
     useEffect(() => {
         const onPageFocusChange = () => {
-            isTabTouched.current = true
-            newItemsAudio.muted = false
+            if (newItemsAudio) {
+                isTabTouched.current = true
+                newItemsAudio.muted = false
+            }
         }
 
         if (typeof window !== 'undefined') {
