@@ -20,7 +20,7 @@ async function main () {
     // 1) add local admin users!
     const appName = 'condo'
     await prepareAppEnvLocalAdminUsers(appName)
-    await prepareAppEnvCypressConfig(appName)
+    //await prepareAppEnvCypressConfig(appName)
     await updateAppEnvAddressSuggestionConfig(appName)
     console.log('done')
 }
