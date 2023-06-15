@@ -29,7 +29,7 @@ export const useAudio = (): IUseAudio => {
     const isTabTouched = useRef(false)
 
     const playNewItemsFetchedSound = () => {
-        // TODO(antonal): Find what permissions are not allowing to play audio in script without user action
+        // TODO(DOMA-6405): Find what permissions are not allowing to play audio in script without user action
         // When this function will be called on button click, audio will be played
         // When this function will be called from useEffect, following error occurs:
         // > NotAllowedError: The request is not allowed by the user agent or the platform in the current context, possibly because the user denied permission.
