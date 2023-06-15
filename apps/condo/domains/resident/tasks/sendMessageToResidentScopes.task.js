@@ -13,7 +13,7 @@ const {
     fillDataByMessageTypeMeta,
     renderTemplateString, hydrateItems,
 } = require('@condo/domains/resident/tasks/helpers/messageTools')
-const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 const CHUNK_SIZE = 20
 const logger = getLogger('sendMessageToResidentScopes.task')
@@ -47,12 +47,57 @@ const sendMessageToResidentScopes = async (json) => {
         residentsWhere.property = { 'id_in': residentPropertyIds, deletedAt: null }
     }
 
-    // no properties or billingProperties found, can not continue
+    // no properties found, can not continue
     if (isEmpty(residentsWhere.property.id_in)) {
         logger.error({ msg: 'no properties found for', scopes, taskId })
 
         return { successCount: 0, attemptsCount: 0, error: new Error('No properties found'), json }
     }
+
+    const skipResidentIds = new Set()
+
+    /** check if we have some items to skip from residents and map them to skipResidentIds scope by scope */
+    for (const scope of scopes) {
+        /** scope has nothing to skip */
+        if (!scope.skipBillingAccountNumbers && !scope.skipUnits) continue
+
+        const serviceConsumersWhere = { deletedAt: null, OR: [] }
+
+        if (isArray(scope.skipBillingAccountNumbers)) {
+            const baWhere = {
+                resident: { property: { id: scope.property.id } },
+                accountNumber_in: scope.skipBillingAccountNumbers,
+            }
+
+            serviceConsumersWhere.OR.push(baWhere)
+        }
+        if (isArray(scope.skipUnits)) {
+            const unitsWhere = { resident: { AND: [{ property: { id: scope.property.id } }] } }
+            const skipUnitsWhere = scope.skipUnits.map(( unitType, unitName ) => ({ unitType, unitName_i: unitName }))
+
+            unitsWhere.resident.AND.push({ OR: skipUnitsWhere })
+            serviceConsumersWhere.OR.push(unitsWhere)
+        }
+
+        /** read resident ids to skip page by page */
+        if (!isEmpty(serviceConsumersWhere.OR)) {
+            let serviceConsumersCount = 0
+            const serviceConsumersTotal = await ServiceConsumer.count(context, serviceConsumersWhere)
+
+            while (serviceConsumersCount < serviceConsumersTotal) {
+                const serviceConsumers = await ServiceConsumer.getAll(context, serviceConsumersWhere, { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip: serviceConsumersCount })
+
+                if (isEmpty(serviceConsumers)) break
+
+                for (const serviceConsumer of serviceConsumers) skipResidentIds.add(serviceConsumer.resident.id)
+
+                serviceConsumersCount += serviceConsumers.length
+            }
+        }
+    }
+
+    /** we've mapped some scope.skipBillingAccountNumbers and/or scope.skipUnits to skipResidentIds */
+    if (skipResidentIds.size > 0) residentsWhere.id_not_in = uniq([...skipResidentIds])
 
     const residentsCount = await Resident.count(context, residentsWhere)
     let skip = 0, successCount = 0, skippedDuplicates = 0

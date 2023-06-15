@@ -92,7 +92,7 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
  * @param onLastDtChange
  * @returns {Promise<void>}
  */
-const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onLastDtChange ) => {
+const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onLastDtChange) => {
     const { keystone: context } = await getSchemaCtx('Resident')
     const receiptsCount = await BillingReceipt.count(context, receiptsWhere)
     let skip = 0, successCount = 0

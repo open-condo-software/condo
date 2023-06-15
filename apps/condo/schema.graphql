@@ -7081,6 +7081,7 @@ type BillingIntegrationHistoryRecord {
   label: String
   gallery: JSON
   price: String
+  skipNoAccountNotifications: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -7325,6 +7326,8 @@ input BillingIntegrationHistoryRecordWhereInput {
   price_not_ends_with_i: String
   price_in: [String]
   price_not_in: [String]
+  skipNoAccountNotifications: Boolean
+  skipNoAccountNotifications_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -7436,6 +7439,8 @@ enum SortBillingIntegrationHistoryRecordsBy {
   label_DESC
   price_ASC
   price_DESC
+  skipNoAccountNotifications_ASC
+  skipNoAccountNotifications_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -7473,6 +7478,7 @@ input BillingIntegrationHistoryRecordUpdateInput {
   label: String
   gallery: JSON
   price: String
+  skipNoAccountNotifications: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -7511,6 +7517,7 @@ input BillingIntegrationHistoryRecordCreateInput {
   label: String
   gallery: JSON
   price: String
+  skipNoAccountNotifications: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -7629,6 +7636,10 @@ type BillingIntegration {
   """ String representing a base price of app. Usually it's something like "Free", "Individual", "$50 / year" 
   """
   price: String
+
+  """ If checked, then this integration's contests' billing receipts will be skipped for BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE notifications handling logic 
+  """
+  skipNoAccountNotifications: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -7862,6 +7873,8 @@ input BillingIntegrationWhereInput {
   price_not_ends_with_i: String
   price_in: [String]
   price_not_in: [String]
+  skipNoAccountNotifications: Boolean
+  skipNoAccountNotifications_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -7957,6 +7970,8 @@ enum SortBillingIntegrationsBy {
   label_DESC
   price_ASC
   price_DESC
+  skipNoAccountNotifications_ASC
+  skipNoAccountNotifications_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -7995,6 +8010,7 @@ input BillingIntegrationUpdateInput {
   label: String
   gallery: [String!]
   price: String
+  skipNoAccountNotifications: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -8031,6 +8047,7 @@ input BillingIntegrationCreateInput {
   label: String
   gallery: [String!]
   price: String
+  skipNoAccountNotifications: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -60593,9 +60610,11 @@ input PropertyUnitInput {
 }
 
 input PropertyScopesInput {
-  property: PropertyWhereUniqueInput!
+  billingProperty: BillingPropertyWhereUniqueInput!
   units: [PropertyUnitInput]
-  accountNumbers: [String]
+  accountNumbers: [ID]
+  skipUnits: [PropertyUnitInput]
+  skipAccountNumbers: [ID]
 }
 
 input SendNewReceiptMessagesToResidentScopesInput {
@@ -60833,7 +60852,9 @@ input RegisterServiceConsumerInput {
 input ResidentScopesInput {
   property: PropertyWhereUniqueInput!
   units: [PropertyUnitInput]
-  billingAccountNumbers: [String]
+  billingAccountNumbers: [ID]
+  skipUnits: [PropertyUnitInput]
+  skipBillingAccountNumbers: [ID]
 }
 
 input SendMessageToResidentScopesServiceInput {
@@ -68953,7 +68974,7 @@ type Mutation {
     "mutation": "sendNewReceiptMessagesToResidentScopes",
     "variable": [
       "data",
-      "billingIntegrationContext"
+      "context"
     ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
@@ -68965,7 +68986,7 @@ type Mutation {
     "mutation": "sendNewReceiptMessagesToResidentScopes",
     "variable": [
       "data",
-      "context"
+      "category"
     ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
@@ -68993,8 +69014,8 @@ type Mutation {
     ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "message": "All provided properties in scopes should be non-deleted & connected to organization of the billing context",
-    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PROPERTY_PROVIDED"
+    "message": "All provided billing properties in scopes should be non-deleted & connected to organization of the billing context",
+    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_PROPERTY_PROVIDED"
   }`
   """
   sendNewReceiptMessagesToResidentScopes(data: SendNewReceiptMessagesToResidentScopesInput!): SendNewReceiptMessagesToResidentScopesOutput

@@ -13,12 +13,11 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { PAYMENT_CATEGORIES_META } = require('@condo/domains/resident/constants')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 const CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629' // billing.category.housing.name
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_RESIDENTS_NO_ACCOUNT_NOTIFICATION_CREATED_AT'
-// TODO(DOMA-5825): add some special flag inside the billing integration context like notifyNoNewBillingReceipt and set it to false for ЕПС
-// const SKIPPED_INTEGRATION_NAMES = ['ЕПС']
 const INVALID_CONTEXT_PROVIDED_ERROR = 'Provided context is not in finished status, invalid or skipped.'
 
 const logger = getLogger('sendResidentsNoAccountNotifications')
@@ -42,7 +41,10 @@ const prepareAndSendNotification = async (context, resident, period) => {
     const locale = get(COUNTRIES, country).locale
     const notificationKey = makeMessageKey(period, resident.property.id, resident.id)
     const organizationId = get(resident, 'residentOrganization.id')
-    const url = `${conf.SERVER_URL}/payments/addaccount/?residentId=${resident.id}&categoryId=${CATEGORY_ID}&organizationTIN=${tin}`
+    // TODO(DOMA-5729): Get rid of PAYMENT_CATEGORIES_META
+    const paymentCategoryData = PAYMENT_CATEGORIES_META.find(item => item.uuid === CATEGORY_ID)
+    const paymentCategoryId = get(paymentCategoryData, 'id', null)
+    const url = `${conf.SERVER_URL}/payments/addaccount/?residentId=${resident.id}&categoryId=${paymentCategoryId}&organizationTIN=${tin}`
 
     const data = {
         residentId: resident.id,
@@ -186,10 +188,6 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
     const contextWhere = {
         status: CONTEXT_FINISHED_STATUS,
         deletedAt: null,
-        // TODO(DOMA-5825): reenable this when EPS-receipts trigger is done
-        // integration: {
-        //     name_not_in: SKIPPED_INTEGRATION_NAMES,
-        // },
     }
     const billingContexts = billingContextId
         ? [ await BillingIntegrationOrganizationContext.getOne(context, { id: billingContextId, ...contextWhere }) ]
@@ -202,6 +200,16 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
     let totalSuccessCount = 0, totalAttemptsCount = 0, totalProcessedCount = 0
 
     for (const billingContext of billingContexts) {
+        if (billingContext.integration.skipNoAccountNotifications) {
+            logger.info({
+                msg: 'Skipping billing context due to enabled integration skipNoAccountNotifications flag',
+                integrationId: billingContext.integration.id,
+                contextId: billingContext.id,
+            })
+
+            continue
+        }
+
         const redisVarName = `${REDIS_LAST_DATE_KEY}-${requestPeriod}-${billingContext.id}`
 
         /**

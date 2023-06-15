@@ -48,7 +48,7 @@ const SendMessageToResidentScopesService = new GQLCustomSchema('SendMessageToRes
         },
         {
             access: true,
-            type: 'input ResidentScopesInput { property: PropertyWhereUniqueInput!, units: [PropertyUnitInput], billingAccountNumbers: [String] }',
+            type: 'input ResidentScopesInput { property: PropertyWhereUniqueInput!, units: [PropertyUnitInput], billingAccountNumbers: [ID], skipUnits: [PropertyUnitInput], skipBillingAccountNumbers: [ID] }',
         },
         {
             access: true,

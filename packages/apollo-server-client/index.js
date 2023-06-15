@@ -77,10 +77,13 @@ class ApolloServerClient {
     }
 
     async singInByEmailAndPassword () {
-        const { identity, secret } = this.authRequisites
+        const { identity, email, password, secret } = this.authRequisites
         const { data: { auth: { user, token } } } = await this.client.mutate({
             mutation: SIGNIN_BY_EMAIL_MUTATION,
-            variables: { identity, secret },
+            variables: {
+                identity: identity || email,
+                secret: secret || password,
+            },
         })
         this.userId = user.id
         this.authToken = token
@@ -110,6 +113,29 @@ class ApolloServerClient {
     }
 
     /**
+     * Counts objs for request
+     * @param modelGql
+     * @param where
+     * @param first
+     * @param skip
+     * @param sortBy
+     * @returns {Promise<*>}
+     */
+    async getCount ({ modelGql, where, first, skip, sortBy }) {
+        const { data: { meta: { count } } } = await this.client.query({
+            query: modelGql.GET_COUNT_OBJS_QUERY,
+            variables: {
+                where,
+                first,
+                skip,
+                sortBy,
+            },
+        })
+
+        return count
+    }
+
+    /**
      * Default limit is 100 (on condo side). To load all models - use loadByChunks
      */
     async getModels ({ modelGql, where, first, skip, sortBy }) {
@@ -125,18 +151,17 @@ class ApolloServerClient {
         return objs
     }
 
-    async updateModel ({ modelGql, id, updateInput }) {
-        const { data: { obj: updatedObj } } = await this.client.mutate({
+    async updateModel ({ modelGql, id = null, updateInput }) {
+        const variables = { data: { ...this.dvSender(), ...updateInput } }
+
+        if (id) variables.id = id
+
+        const { data: { obj: updatedObj, result: updatedResult } } = await this.client.mutate({
             mutation: modelGql.UPDATE_OBJ_MUTATION,
-            variables: {
-                id,
-                data: {
-                    ...this.dvSender(),
-                    ...updateInput,
-                },
-            },
+            variables,
         })
-        return updatedObj
+
+        return updatedObj || updatedResult
     }
 
     async updateModels ({ modelGql, updateInputs = [], isBatch = false, onProgress = () => null }) {
