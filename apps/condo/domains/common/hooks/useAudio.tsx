@@ -15,6 +15,7 @@ let newItemsAudio
 if (typeof window !== 'undefined') {
     if (audioConfig.newItemsAudioPath) {
         newItemsAudio = new Audio(audioConfig.newItemsAudioPath)
+        newItemsAudio.muted = true
     } else {
         console.warn('Missing or incorrect AUDIO_CONFIG. Notification sounds will not be available')
     }
@@ -33,19 +34,26 @@ export const useAudio = (): IUseAudio => {
         // When this function will be called from useEffect, following error occurs:
         // > NotAllowedError: The request is not allowed by the user agent or the platform in the current context, possibly because the user denied permission.
         if (isTabTouched.current) {
-            newItemsAudio.play().catch(error => { console.log('Unable to play audio ', error) })
+            newItemsAudio.play().catch(error => {
+                console.info('Unable to play audio ', error)
+            })
         }
     }
 
     useEffect(() => {
-        const onPageFocusChange = () => { isTabTouched.current = true }
+        const onPageFocusChange = () => {
+            isTabTouched.current = true
+            newItemsAudio.muted = false
+        }
 
         if (typeof window !== 'undefined') {
             window.addEventListener('focus', onPageFocusChange)
+            document.addEventListener('click', onPageFocusChange)
         }
 
         return () => {
             window.removeEventListener('focus', onPageFocusChange)
+            document.removeEventListener('click', onPageFocusChange)
         }
     }, [])
 
