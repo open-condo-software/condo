@@ -110,7 +110,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
         },
 
         type: {
-            schemaDoc: 'The news item type',
+            schemaDoc: 'The news item type. The `common` type generates push messages no more than 1 per hour per single user. Also, the resident may disable push messages for this type. The `emergency` type will always be accompanied by a push message and shown at the top of the news list. Also, this type always has a news item validity date.',
             type: 'Select',
             options: NEWS_TYPES,
             isRequired: true,
@@ -164,9 +164,11 @@ const NewsItem = new GQLListSchema('NewsItem', {
             const { resolvedData, existingItem, context, operation } = args
             const resultItemData = { ...existingItem, ...resolvedData }
 
-            const sendAt = get(resultItemData, 'sendAt')
+            const sendAt = get(resolvedData, 'sendAt')
             const sentAt = get(existingItem, 'sentAt')
-            const validBefore = get(resultItemData, 'validBefore')
+            const validBefore = get(resolvedData, 'validBefore')
+            const resultSendAt = get(resultItemData, 'sendAt')
+            const resultValidBefore = get(resultItemData, 'validBefore')
             const isPublished = get(existingItem, 'isPublished')
             const type = get(resultItemData, 'type')
 
@@ -191,7 +193,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
                 throw new GQLError(ERRORS.WRONG_SEND_DATE, context)
             }
 
-            if (!!sendAt && !!validBefore && Date.parse(validBefore) < Date.parse(sendAt)) {
+            if (!!resultSendAt && !!resultValidBefore && Date.parse(resultValidBefore) < Date.parse(resultSendAt)) {
                 throw new GQLError(ERRORS.VALIDITY_DATE_LESS_THAN_SEND_DATE, context)
             }
 

@@ -59,7 +59,6 @@ const FieldPairRow: React.FC<IFieldPairRowProps> = (props) => {
 
 const NewsItemCard: React.FC = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.news.newsItemCard.title' }, { number: 1 })
     const Regular = intl.formatMessage({ id: 'Regular' })
     const Emergency = intl.formatMessage({ id: 'Emergency' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
@@ -90,6 +89,8 @@ const NewsItemCard: React.FC = () => {
             id: newsItemId,
         },
     })
+
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.news.newsItemCard.title' }, { number: get(newsItem, 'number', '...') })
 
     const {
         objs: newsItemScopes,

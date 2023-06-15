@@ -1,12 +1,9 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import { useMutation } from '@apollo/client'
-import { BuildingSection, NewsItemScope, Property as PropertyType, Resident as ResidentType } from '@app/condo/schema'
-import styled from '@emotion/styled'
+import { BuildingSection, NewsItemScope, NewsItemScopeUnitTypeType, Property as PropertyType } from '@app/condo/schema'
 import { Button, ButtonProps, Col, Row } from 'antd'
 import compact from 'lodash/compact'
-import difference from 'lodash/difference'
 import every from 'lodash/every'
-import filter from 'lodash/filter'
 import get from 'lodash/get'
 import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
@@ -15,7 +12,7 @@ import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
 import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState, CSSProperties } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -71,16 +68,16 @@ const isTargetedToUnitName = ({ property, unitType, unitName }: TNewsItemScopeNo
     !!property && !!unitType && !!unitName
 )
 
-const getUnitsFromProperty = ({ map }: PropertyType) => (
+const getUnitsFromProperty = ({ map }: PropertyType): string[] => (
     map?.sections?.reduce((acc, section) => ([
         ...acc,
         ...getUnitsFromSection(section),
     ]), []) || []
 )
 
-const getUnitsFromSection = (section: BuildingSection) => section.floors.flatMap(floor => floor.units.map(unit => unit.label))
+const getUnitsFromSection = (section: BuildingSection): string[] => section.floors.flatMap(floor => floor.units.map(unit => unit.label))
 
-const detectTargetedSections = (newsItemScopes: NewsItemScope[], property: PropertyType): BuildingSection[] => (
+export const detectTargetedSections = (newsItemScopes: NewsItemScope[], property: PropertyType): BuildingSection[] => (
     property.map?.sections?.filter(section => {
         const sectionUnits = getUnitsFromSection(section)
         const newsItemScopesUnits = map(newsItemScopes, 'unitName')
@@ -88,9 +85,9 @@ const detectTargetedSections = (newsItemScopes: NewsItemScope[], property: Prope
     }) || []
 )
 
-const areTargetedToOneProperty = (newsItemScopes) => uniq(map(newsItemScopes, ['property', 'id'])).length === 1
+const areTargetedToOneProperty = (newsItemScopes): boolean => uniq(map(newsItemScopes, ['property', 'id'])).length === 1
 
-const buildMessageFromNewsItemScopes = (newsItemScopes, intl) => {
+const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
     if (newsItemScopes.length === 0) {
         return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInAllProperties' })
     } else if (newsItemScopes.length === 1 && isTargetedToEntireProperty(newsItemScopes[0])) {
@@ -121,28 +118,14 @@ const buildMessageFromNewsItemScopes = (newsItemScopes, intl) => {
             })
         } else {
             return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertyUnits' }, {
-                unitNames: map(newsItemScopes, 'unitName').join(', '),
+                unitNames: map(newsItemScopes, 'unitName').sort().join(', '),
                 address: newsItemScopes[0].property.address,
             })
         }
     }
 }
 
-/**
- * Will subtract units, covered by "residents" from units covered by "properties"
- * @param residents - Residents, that will receive NewsItem, scoped by NewsItemScope records
- * @param properties - Properties, covered by NewsItemScope records
- */
-const calculateWillNotReceiveCount = (residents: ResidentType[], properties: PropertyType[]) => {
-    return properties.reduce((acc, property) => {
-        const propertyResidents = filter(residents, { property: { id: property.id } })
-        const propertyUnits = getUnitsFromProperty(property)
-        const residentUnits = uniq(map(propertyResidents, 'unitName'))
-        return acc + difference(propertyUnits, residentUnits).length
-    }, 0)
-}
-
-const downloaderButtonStyle = {
+const downloaderButtonStyle: CSSProperties = {
     background: 'transparent',
     border: 0,
     padding: 0,
@@ -152,6 +135,12 @@ const downloaderButtonStyle = {
 
 interface RecipientCounterProps {
     newsItemScopes: TNewsItemScopeNoInstance[]
+}
+
+interface IAffectedUnit {
+    propertyId: string,
+    type: NewsItemScopeUnitTypeType,
+    name: string,
 }
 
 export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScopes }) => {
@@ -182,7 +171,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
         where: queryFindResidentsByOrganizationAndScopes(organization.id, newsItemScopes),
     })
 
-    const processedNewsItemScope = newsItemScopes.reduce((acc, scope: any) => {
+    const processedNewsItemScope = newsItemScopes.reduce<TNewsItemScopeNoInstance[]>((acc, scope) => {
         const partialScope: TNewsItemScopeNoInstance = {}
         if (get(scope, 'property')) partialScope.property = scope.property
         if (get(scope, 'unitType')) partialScope.unitType = scope.unitType
@@ -190,6 +179,40 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
         if (!isEmpty(partialScope)) acc.push(partialScope)
         return [...acc]
     }, [])
+
+    const unitsAffected = useMemo<IAffectedUnit[]>((): IAffectedUnit[] => {
+        if (loadingProperties || !properties || loadingResidents || !residents) {
+            return []
+        }
+
+        if (processedNewsItemScope.length === 0) {
+            return properties.reduce<IAffectedUnit[]>((result, property) => {
+                return [
+                    ...result,
+                    ...getUnitsFromProperty(property).map<IAffectedUnit>((unit) => ({
+                        propertyId: property.id,
+                        type: NewsItemScopeUnitTypeType.Flat,
+                        name: unit,
+                    })),
+                ]
+            }, [])
+        } else {
+            return processedNewsItemScope.reduce<IAffectedUnit[]>((result, scope) => {
+                if (scope.unitType && scope.unitName) {
+                    return [...result, { propertyId: scope.property.id, type: scope.unitType, name: scope.unitName }]
+                } else {
+                    const unitNames = getUnitsFromProperty(properties.find((property) => property.id === scope.property.id))
+                    return [
+                        ...result,
+                        ...unitNames.map<IAffectedUnit>((unitName) => ({
+                            propertyId: scope.property.id,
+                            type: NewsItemScopeUnitTypeType.Flat,
+                            name: unitName,
+                        }))]
+                }
+            }, [])
+        }
+    }, [processedNewsItemScope, properties, residents, loadingProperties, loadingResidents])
 
     const [newsRecipientsMutation] = useMutation(EXPORT_NEWS_RECIPIENTS_MUTATION)
     const runExportNewsRecipients = useCallback(() => {
@@ -210,7 +233,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
             .then(() => {
                 setIsXlsLoading(false)
             })
-    }, [newsItemScopes, organization])
+    }, [intl, newsRecipientsMutation, organization.id, processedNewsItemScope, push])
 
     if (loadingProperties || loadingResidents) {
         return null
@@ -229,7 +252,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
 
     const unitsWillReceive = uniqBy(residents, ({ property, unitName }) => [property.id, unitName].join('-'))
 
-    const willNotReceiveUnitsCount = calculateWillNotReceiveCount(residents, propertiesWillReceive)
+    const willNotReceiveUnitsCount = unitsAffected.length - residents.length
 
     return (
         <div style={styleMaxWidth}>

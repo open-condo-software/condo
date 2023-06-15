@@ -24,6 +24,7 @@ import {
     Settings,
     OnOff,
     Sber,
+    Newspaper,
 } from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { withApollo } from '@open-condo/next/apollo'
@@ -114,6 +115,8 @@ const MenuItems: React.FC = () => {
     const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } })
     const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
     const hasAccessToBilling = (get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)) && !isAssignedVisibilityType
+    // The menu item is hidden until release
+    const canManageNewsItems = false && get<boolean>(role, 'canManageNewsItems', false)
 
     useDeepCompareEffect(() => {
         updateContext({ orgFeatures })
@@ -137,6 +140,12 @@ const MenuItems: React.FC = () => {
             icon: OnOff,
             label: 'global.section.incidents',
             access: () => !isAssignedVisibilityType,
+        }, {
+            id: 'menuitem-news',
+            path: 'news',
+            icon: Newspaper,
+            label: 'global.section.newsItems',
+            access: () => canManageNewsItems,
         }, {
             id: 'menuitem-property',
             path: 'property',

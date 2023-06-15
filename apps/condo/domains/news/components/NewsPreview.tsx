@@ -37,6 +37,7 @@ const APP_CONTENT_STYLE: React.CSSProperties = { padding: '0 12px' }
 const RADIO_GROUP_CONTAINER_STYLE: React.CSSProperties = { maxWidth: '360px' }
 const PUSH_PARAGRAPH_ELLIPSIS_CONFIG = { rows: 2 }
 const PREVIEW_CONTENT_WIDTH = 360
+const STYLE_WIDTH_100P: React.CSSProperties = { width: '100%' }
 
 // TODO(DOMA-6153): rewrite to css-modules after migrating from custom style loader plugins
 const NewsPreviewContainer = styled.div`
@@ -122,7 +123,7 @@ const NewsAppPreview: INewsPreview = ({ title, body, validBefore }) => {
 
     return (
         <AppPreviewContainer>
-            <Row>
+            <Row style={STYLE_WIDTH_100P}>
                 <Col span={24} style={APP_TOP_COLUMN_STYLE}>
                     <Typography.Text size='small' type='secondary'>
                         {NotificationFromOrganizationTitle}
@@ -137,7 +138,12 @@ const NewsAppPreview: INewsPreview = ({ title, body, validBefore }) => {
                                 {title}
                             </Typography.Title>
                             <Typography.Text size='small' type='secondary'>
-                                {ReceivedAtTitle} (<Typography.Text size='small' type='danger'>{ValidUntilTitle}</Typography.Text>)
+                                {ReceivedAtTitle}
+                                {!!validBefore && (
+                                    <>
+                                        &nbsp;(<Typography.Text size='small' type='danger'>{ValidUntilTitle}</Typography.Text>)
+                                    </>
+                                )}
                             </Typography.Text>
                         </Space>
                         <Typography.Paragraph>

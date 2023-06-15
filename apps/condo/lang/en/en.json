@@ -191,6 +191,7 @@
   "global.section.settings": "Settings",
   "global.section.meters": "Meters log",
   "global.section.miniapps": "Services",
+  "global.section.newsItems": "News",
   "global.section.SPP": "Payments from individuals",
   "global.available": "Available",
   "global.notAvailable": "Not available",
@@ -2055,5 +2056,6 @@
   "incident.changeHistory.workStart": "work start",
   "incident.changeHistory.workFinish": "work finish",
   "incident.changeHistory.workType": "work type",
-  "incident.hints.more.label": "More details"
+  "incident.hints.more.label": "More details",
+  "timezone.msk": "MSK"
 }

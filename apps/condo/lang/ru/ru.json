@@ -191,6 +191,7 @@
   "global.section.settings": "Настройки",
   "global.section.meters": "Приборы учета",
   "global.section.miniapps": "Сервисы",
+  "global.section.newsItems": "Новости",
   "global.section.SPP": "Платежи от физлиц",
   "global.available": "Есть",
   "global.notAvailable": "Отсутствует",
@@ -2055,5 +2056,6 @@
   "incident.changeHistory.workStart": "дату начала работ",
   "incident.changeHistory.workFinish": "дату завершения работ",
   "incident.changeHistory.workType": "тип работ",
-  "incident.hints.more.label": "Подробнее"
+  "incident.hints.more.label": "Подробнее",
+  "timezone.msk": "МСК"
 }
