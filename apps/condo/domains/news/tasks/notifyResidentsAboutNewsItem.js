@@ -55,6 +55,14 @@ async function sendNotifications (context, newsItem) {
     const scopes = await NewsItemScope.getAll(context, { newsItem: { id: newsItem.id } })
     const residents = await Resident.getAll(context, queryFindResidentsByOrganizationAndScopes(newsItem.organization.id, scopes))
 
+    const residentsIdsByUser = residents.reduce((result, resident) => ({
+        ...result,
+        [resident.user.id]: [
+            ...get(result, resident.user.id, []),
+            resident.id,
+        ],
+    }), {})
+
     const { keystone: contextMessage } = await getSchemaCtx('Message')
     for (const resident of residents) {
         await sendMessage(contextMessage, {
@@ -71,6 +79,7 @@ async function sendNotifications (context, newsItem) {
                     organizationId: newsItem.organization.id,
                     userId: resident.user.id,
                     residentId: resident.id,
+                    userRelatedResidentsIds: get(residentsIdsByUser, resident.user.id, []),
                     url: `${conf.SERVER_URL}/newsItem`,
                     validBefore: get(newsItem, 'validBefore', null),
                     // The first truthy value will be returned, or null if no values are found.
