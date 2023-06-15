@@ -185,7 +185,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
                 }
             }
 
-            if (type === NEWS_TYPE_EMERGENCY && !validBefore) {
+            if (type === NEWS_TYPE_EMERGENCY && !resultValidBefore) {
                 throw new GQLError(ERRORS.EMPTY_VALID_BEFORE_DATE, context)
             }
 
