@@ -678,6 +678,8 @@
   "pages.condo.ticket.index.ResetFilters": "Сбросить",
   "pages.condo.ticket.index.CancelSelectedTicket": "Отменить выделение",
   "pages.condo.ticket.index.CountSelectedTicket": "Выбрано элементов",
+  "pages.condo.ticket.index.fewNewTicketsTitle": "Новая заявка: {count}",
+  "pages.condo.ticket.index.manyNewTicketsTitle": "Много новых заявок",
   "pages.condo.ticket.exportBlank.title": "Добавить в бланк для печати",
   "pages.condo.ticket.exportBlank.SaveToPDF.label": "Распечатать",
   "pages.condo.ticket.exportBlank.SaveToPDF.tooltip": "За один раз можно распечатать не более 50 заявок",
