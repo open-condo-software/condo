@@ -5,12 +5,12 @@
 const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById } = require('@open-condo/keystone/schema')
+const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const { getAvailableResidentMeterReportPeriods } = require('@condo/domains/meter/utils/serverSchema')
+const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization } = require('../../organization/utils/accessSchema')
 
 async function canReadMeterReportingPeriods ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -21,7 +21,6 @@ async function canReadMeterReportingPeriods ({ authentication: { item: user } })
     if (user.type === RESIDENT) {
         const availableMeterPeriods = await getAvailableResidentMeterReportPeriods(user.id)
         const availableMeterPeriodIds = availableMeterPeriods.map(period => period.id)
-
 
         return {
             id_in: availableMeterPeriodIds,
@@ -37,11 +36,9 @@ async function canReadMeterReportingPeriods ({ authentication: { item: user } })
                     queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
                 ],
             },
-        },
-        {
+        }, {
             organization_is_null: true,
-        },
-        ],
+        }],
     }
 }
 
@@ -54,18 +51,29 @@ async function canManageMeterReportingPeriods ({ authentication: { item: user },
         const orgId = get(originalInput, ['organization', 'connect', 'id'], null)
         const propertyId = get(originalInput, ['property', 'connect', 'id'], null)
         let propertyOrganization
+
         if (propertyId) {
-            const property = await getById('Property', propertyId)
+            const property = await getByCondition('Property', {
+                id: propertyId,
+                deletedAt: null,
+            })
+
+            if (!property) return false
+
             propertyOrganization = get(property, 'organization', null)
         }
 
-
-
         const organizationId = orgId ?? propertyOrganization
+
         return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMeters')
     }
+
     if (operation === 'update') {
-        const item = await getById('MeterReportingPeriod', itemId)
+        const item = await getByCondition('MeterReportingPeriod', {
+            id: itemId,
+            deletedAt: null,
+        })
+        if (!item) return false
         const itemOrganization = get(item, 'organization', null)
 
         return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, itemOrganization, 'canManageMeters')

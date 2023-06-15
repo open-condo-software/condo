@@ -45037,17 +45037,19 @@ type MeterReportingPeriod {
   """
   _label_: String
 
-  """ Ref to the organization """
+  """ Ref to the organization. Will be null if the instance is the default installation for all users 
+  """
   organization: Organization
 
-  """ Ref to the property """
+  """ Ref to the property. Will be null if the instance is an installation for all users in the organization 
+  """
   property: Property
 
-  """ This is the field for client-side business logic and push notifications 
+  """ Starting day of the month for sending a push about the need to submit meter readings 
   """
   start: Int
 
-  """ This is the field for client-side business logic and push notifications 
+  """ Finish day of the month for sending a push about the need to submit meter readings 
   """
   finish: Int
 

@@ -26515,13 +26515,13 @@ export type MeterReportingPeriod = {
    *  4. As an alias to the 'id' field on the MeterReportingPeriod List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Ref to the organization  */
+  /**  Ref to the organization. Will be null if the instance is the default installation for all users  */
   organization?: Maybe<Organization>;
-  /**  Ref to the property  */
+  /**  Ref to the property. Will be null if the instance is an installation for all users in the organization  */
   property?: Maybe<Property>;
-  /**  This is the field for client-side business logic and push notifications  */
+  /**  Starting day of the month for sending a push about the need to submit meter readings  */
   start?: Maybe<Scalars['Int']>;
-  /**  This is the field for client-side business logic and push notifications  */
+  /**  Finish day of the month for sending a push about the need to submit meter readings  */
   finish?: Maybe<Scalars['Int']>;
   /**  Ref to the B2CApp which used to replace default integration in resident's app  */
   b2cApp?: Maybe<B2CApp>;

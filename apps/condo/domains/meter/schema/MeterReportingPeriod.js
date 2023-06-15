@@ -16,18 +16,21 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const ERRORS = {
     INVALID_FINISH: {
         code: BAD_USER_INPUT,
+        variable: ['data', 'finish'],
         type: 'INVALID_FINISH',
         message: 'The "finish" field can take values in the range from 1 to 31',
         messageForUser: 'api.meter.MeterReportingPeriod.INVALID_FINISH',
     },
     INVALID_START: {
         code: BAD_USER_INPUT,
+        variable: ['data', 'start'],
         type: 'INVALID_START',
         message: 'The "start" field can take values in the range from 1 to 31',
         messageForUser: 'api.meter.MeterReportingPeriod.INVALID_START',
     },
     ORGANIZATION_IS_REQUIRED: {
         code: BAD_USER_INPUT,
+        variable: ['data', 'organization'],
         type: 'ORGANIZATION_IS_REQUIRED',
         message: 'The organization is required to create',
         messageForUser: 'api.meter.MeterReportingPeriod.ORGANIZATION_IS_REQUIRED',
@@ -41,7 +44,7 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
         'The scheme is needed for notifications on the client side',
     fields: {
         organization: {
-            schemaDoc: 'Ref to the organization',
+            schemaDoc: 'Ref to the organization. Will be null if the instance is the default installation for all users',
             type: Relationship,
             ref: 'Organization',
             isRequired: false,
@@ -55,7 +58,7 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
         },
 
         property: {
-            schemaDoc: 'Ref to the property',
+            schemaDoc: 'Ref to the property. Will be null if the instance is an installation for all users in the organization',
             type: Relationship,
             ref: 'Property',
             isRequired: false,
@@ -64,7 +67,7 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
         },
 
         start: {
-            schemaDoc: 'This is the field for client-side business logic and push notifications',
+            schemaDoc: 'Starting day of the month for sending a push about the need to submit meter readings',
             type: Integer,
             defaultValue: 20,
             isRequired: true,
@@ -80,7 +83,7 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
         },
 
         finish: {
-            schemaDoc: 'This is the field for client-side business logic and push notifications',
+            schemaDoc: 'Finish day of the month for sending a push about the need to submit meter readings',
             type: Integer,
             defaultValue: 25,
             isRequired: true,
