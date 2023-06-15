@@ -3,6 +3,7 @@ import isUndefined from 'lodash/isUndefined'
 import { createContext, useContext, useEffect, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
 
@@ -22,6 +23,7 @@ const ActiveCallContextProvider = ({ children = {} }) => {
     const inlt = useIntl()
     const SavedNotificationMessage = inlt.formatMessage({ id: 'callRecord.savedNotification.message' })
     const SavedNotificationDescription = inlt.formatMessage({ id: 'callRecord.savedNotification.description' })
+    const SavedNotificationDescriptionLink = inlt.formatMessage({ id: 'callRecord.savedNotification.descriptionLink' })
     const SaveErrorNotificationMessage = inlt.formatMessage({ id: 'callRecord.saveErrorNotification.message' })
     const SaveErrorNotificationDescription = inlt.formatMessage({ id: 'callRecord.saveErrorNotification.description' })
 
@@ -31,29 +33,36 @@ const ActiveCallContextProvider = ({ children = {} }) => {
     const [connectedTickets, setConnectedTickets] = useState([])
 
     useEffect(() => {
-        if (!isUndefined(window)) {
-            addEventHandler('CondoWebSetActiveCall', '*', ({
-                isCallActive: newCallState, connectedTickets, error,
-            }) => {
-                setIsCallActive(newCallState)
-                setConnectedTickets(connectedTickets)
-
-                if (isCallActive && !newCallState) {
-                    error ?
-                        notification.warning({
-                            message: SaveErrorNotificationMessage,
-                            description: SaveErrorNotificationDescription,
-                        }) :
-                        notification.info({
-                            message: SavedNotificationMessage,
-                            description: SavedNotificationDescription,
-                        })
-                }
-
-                return { sent: !!error }
-            })
+        if (isUndefined(window)) {
+            return
         }
-    }, [SaveErrorNotificationDescription, SaveErrorNotificationMessage, SavedNotificationDescription, SavedNotificationMessage, addEventHandler, isCallActive])
+        
+        addEventHandler('CondoWebSetActiveCall', '*', ({
+            isCallActive: newCallState, connectedTickets, error,
+        }) => {
+            setIsCallActive(newCallState)
+            setConnectedTickets(connectedTickets)
+
+            if (isCallActive && !newCallState) {
+                error ?
+                    notification.warning({
+                        message: SaveErrorNotificationMessage,
+                        description: SaveErrorNotificationDescription,
+                    }) :
+                    notification.info({
+                        message: SavedNotificationMessage,
+                        description: (
+                            <Typography.Text>
+                                {SavedNotificationDescription}&nbsp;
+                                <Typography.Link href='/callRecord'>{SavedNotificationDescriptionLink}</Typography.Link>
+                            </Typography.Text>
+                        ),
+                    })
+            }
+
+            return { sent: !!error }
+        })
+    }, [SaveErrorNotificationDescription, SaveErrorNotificationMessage, SavedNotificationDescription, SavedNotificationDescriptionLink, SavedNotificationMessage, addEventHandler, isCallActive])
 
     return (
         <ActiveCallContext.Provider

@@ -1,25 +1,21 @@
 import { CallRecord } from '@app/condo/schema'
 import { Row, Col, RowProps } from 'antd'
-import dynamic from 'next/dynamic'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography } from '@open-condo/ui'
 
+import { AudioPlayer } from '@condo/domains/common/components/AudioPlayer'
 import { getDateRender } from '@condo/domains/common/components/Table/Renders'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 
-const DynamicAudioPlayer = dynamic(
-    () => import('@condo/domains/common/components/AudioPlayer').then((module) => module.AudioPlayer),
-    { ssr: false }
-)
 
 interface ICallRecordCardProps {
     callRecord: CallRecord
     autoPlay?: boolean
 }
 
-const MAIN_ROW_GUTTER: RowProps['gutter'] = [0, 24]
+const MAIN_ROW_GUTTER: RowProps['gutter'] = [0, 20]
 
 export const CallRecordCard: React.FC<ICallRecordCardProps> = ({ callRecord, autoPlay }) => {
     const intl = useIntl()
@@ -48,7 +44,7 @@ export const CallRecordCard: React.FC<ICallRecordCardProps> = ({ callRecord, aut
                     </Row>
                 </Col>
                 <Col span={24}>
-                    <DynamicAudioPlayer
+                    <AudioPlayer
                         src={file.publicUrl}
                         trackId={file.id}
                         autoPlay={autoPlay}

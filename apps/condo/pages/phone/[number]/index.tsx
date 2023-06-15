@@ -4,7 +4,7 @@ import {
     Organization as OrganizationType,
     Property,
     SortTicketsBy,
-    Ticket as TicketType, TicketStatusTypeType as TicketStatusType,
+    Ticket as TicketType,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, ColProps, Row } from 'antd'
@@ -20,10 +20,10 @@ import qs from 'qs'
 import React, { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { History } from '@open-condo/icons'
+import { History, Mail } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Carousel, Space, Typography, Typography as UITypography } from '@open-condo/ui'
+import { ActionBar, Button, Carousel, Space, Typography } from '@open-condo/ui'
 
 import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
@@ -91,7 +91,7 @@ const StyledCarouselWrapper = styled(Col)`
       & .slick-track {
         & .slick-slide {
           padding: 0 12px;
-          
+
           & > div {
             margin: 0;
             overflow: initial;
@@ -172,14 +172,6 @@ const PlusIconWrapper = styled.div`
   justify-content: center;
   align-items: center;
 `
-const StyledCol = styled(Col)`
-  font-size: ${fontSizes.content};
-  
-  & > a > .ant-row > .ant-col:first-child {
-    padding-right: 3px !important;
-    padding-top: 3px;
-  }
-`
 //#endregion
 
 //#region AddAddress and Client Address cards
@@ -218,7 +210,7 @@ const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType
 
     useLayoutEffect(() => {
         const addressStreetTextHeight = addressStreetRef.current.clientHeight
-        const addressPostfixTextHeight =  addressPostfixRef.current.clientHeight
+        const addressPostfixTextHeight = addressPostfixRef.current.clientHeight
 
         if (addressStreetTextHeight > ADDRESS_STREET_ONE_ROW_HEIGHT) {
             setAddressStreetEllipsis({ rows: 2 })
@@ -326,7 +318,10 @@ const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, sho
                             {
                                 email && (
                                     <Typography.Link size='large' href={`mailto:${email}`}>
-                                        {email}
+                                        <Space size={8}>
+                                            <Mail size='medium'/>
+                                            {email}
+                                        </Space>
                                     </Typography.Link>
                                 )
                             }
@@ -337,7 +332,7 @@ const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, sho
                                         onClick={handleCallRecordLinkClick}
                                     >
                                         <Space size={8} align='center'>
-                                            <History />
+                                            <History size='medium'/>
                                             {CallRecordsLogMessage}
                                         </Space>
                                     </Typography.Link>
@@ -411,7 +406,8 @@ const ClientCardTabContent = ({
                 if (typeof window !== 'undefined') {
                     logEvent({
                         eventName: 'ClientCardTicketIndexClick',
-                        eventProperties: { ticketId: record.id } }
+                        eventProperties: { ticketId: record.id },
+                    }
                     )
                     window.open(`/ticket/${record.id}/`, '_blank')
                 }
@@ -433,20 +429,12 @@ const ClientCardTabContent = ({
                         <Col span={24}>
                             <Row gutter={ROW_BIG_GUTTER}>
                                 <Col span={24}>
-                                    <Row>
-                                        <StyledCol>
-                                            <UITypography.Link onClick={handleShowAllPropertyTicketsMessage}>
-                                                <Row gutter={[12, 0]}>
-                                                    <Col>
-                                                        <BuildingIcon/>
-                                                    </Col>
-                                                    <Col>
-                                                        {ShowAllPropertyTicketsMessage}
-                                                    </Col>
-                                                </Row>
-                                            </UITypography.Link>
-                                        </StyledCol>
-                                    </Row>
+                                    <Typography.Link size='large' onClick={handleShowAllPropertyTicketsMessage}>
+                                        <Space size={12}>
+                                            <BuildingIcon/>
+                                            {ShowAllPropertyTicketsMessage}
+                                        </Space>
+                                    </Typography.Link>
                                 </Col>
                                 <Col span={24}>
                                     <ClientContent
@@ -590,7 +578,14 @@ const ContactClientTabContent = ({
     )
 }
 
-const NotResidentClientTabContent = ({ property, unitName, unitType, phone, organization, showOrganizationMessage = false }) => {
+const NotResidentClientTabContent = ({
+    property,
+    unitName,
+    unitType,
+    phone,
+    organization,
+    showOrganizationMessage = false,
+}) => {
     const router = useRouter()
 
     const searchTicketsQuery = useMemo(() => ({
@@ -852,7 +847,12 @@ const ClientCardPageContent = ({
     )
 }
 
-export const ClientCardPageContentWrapper = ({ organizationQuery, ticketsQuery, canManageContacts, showOrganizationMessage = false }) => {
+export const ClientCardPageContentWrapper = ({
+    organizationQuery,
+    ticketsQuery,
+    canManageContacts,
+    showOrganizationMessage = false,
+}) => {
     const router = useRouter()
     const phoneNumber = get(router, ['query', 'number']) as string
 

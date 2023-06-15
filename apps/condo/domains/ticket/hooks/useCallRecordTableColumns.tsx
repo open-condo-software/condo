@@ -1,3 +1,5 @@
+import { css } from '@emotion/react'
+import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -5,12 +7,13 @@ import { useCallback, useMemo } from 'react'
 
 import { Download, Play } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Tag, Tooltip } from '@open-condo/ui'
+import { Space, Tag, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { IFilters } from '@app/callcenter/domains/contact/utils/helpers'
 import { getAddressRender, getDateRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
+import { transitions } from '@condo/domains/common/constants/style'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { formatPhone, getFilteredValue } from '@condo/domains/common/utils/helpers'
@@ -27,9 +30,7 @@ const COLUMNS_WIDTH = {
     callRecord: '12%',
 }
 
-const CALL_RECORD_ACTIONS_ROW_GUTTER: RowProps['gutter'] = [20, 0]
-
-export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFragment })  => {
+export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFragment, setAutoPlay })  => {
     const intl = useIntl()
     const DateTimeMessage = intl.formatMessage({ id: 'callRecord.table.column.startedAt' })
     const PhoneMessage = intl.formatMessage({ id: 'callRecord.table.column.phone' })
@@ -53,11 +54,12 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
     const render = useMemo(() => getTableCellRenderer({ search }), [search])
 
     const phoneRender = useCallback(({ callRecord }) => {
+        const phonePrefix = get(callRecord, 'organization.phoneNumberPrefix')
         const phone = callRecord.isIncomingCall ? callRecord.callerPhone : callRecord.destCallerPhone
 
-        return render(formatPhone(phone))
+        return getTableCellRenderer({ search, href: `tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}` })(formatPhone(phone))
     },
-    [render])
+    [search])
 
     const callTypeRender = useCallback(({ callRecord }) => {
         const isIncomingCall = callRecord.isIncomingCall
@@ -107,7 +109,10 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
     const { downloadFile } = useDownloadFileFromServer()
 
     const callRecordRender = useCallback((callRecordFragment) => {
-        const handlePlay = () => {
+        const handlePlay = (e) => {
+            e.stopPropagation()
+
+            setAutoPlay(true)
             setSelectedCallRecordFragment(callRecordFragment)
         }
 
@@ -118,30 +123,20 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
         }
 
         return (
-            <>
-                <Row gutter={CALL_RECORD_ACTIONS_ROW_GUTTER}>
-                    <Tooltip title={PlayMessage}>
-                        <Col>
-                            <Play
-                                size='medium'
-                                color={colors.gray[7]}
-                                onClick={handlePlay}
-                            />
-                        </Col>
-                    </Tooltip>
-                    <Tooltip title={DownloadMessage}>
-                        <Col>
-                            <Download
-                                size='medium'
-                                color={colors.gray[7]}
-                                onClick={handleDownloadFile}
-                            />
-                        </Col>
-                    </Tooltip>
-                </Row>
-            </>
+            <Space size={20}>
+                <Tooltip title={PlayMessage}>
+                    <Play
+                        onClick={handlePlay}
+                    />
+                </Tooltip>
+                <Tooltip title={DownloadMessage}>
+                    <Download
+                        onClick={handleDownloadFile}
+                    />
+                </Tooltip>
+            </Space>
         )
-    }, [DownloadMessage, PlayMessage, downloadFile, setSelectedCallRecordFragment])
+    }, [DownloadMessage, PlayMessage, downloadFile, setAutoPlay, setSelectedCallRecordFragment])
 
     return useMemo(() => ([
         {

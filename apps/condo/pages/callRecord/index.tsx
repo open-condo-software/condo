@@ -45,9 +45,7 @@ export interface ICallRecordIndexPage extends React.FC {
 export type BaseQueryType = { organization: OrganizationWhereInput }
 
 const ROW_GUTTER: RowProps['gutter'] = [0, 40]
-const FILTER_ROW_GUTTER: RowProps['gutter'] = [24, 20]
-const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [16, 16]
-const SEARCH_WRAPPER_GUTTERS: RowProps['gutter'] = [20, 20]
+const FILTER_ROW_GUTTER: RowProps['gutter'] = [16, 16]
 
 const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
 
@@ -95,21 +93,17 @@ const FilterContainer = () => {
             <TableFiltersContainer>
                 <Row gutter={FILTER_ROW_GUTTER} align='middle'>
                     <Col xs={24} md={15}>
-                        <Row gutter={SEARCH_WRAPPER_GUTTERS}>
-                            <Col span={24}>
-                                <Input
-                                    placeholder={SearchPlaceholderMessage}
-                                    onChange={handleSearchChange}
-                                    value={search}
-                                    allowClear
-                                    id='searchCallRecords'
-                                    suffix={<Search size='medium' color={colors.gray[7]} />}
-                                />
-                            </Col>
-                        </Row>
+                        <Input
+                            placeholder={SearchPlaceholderMessage}
+                            onChange={handleSearchChange}
+                            value={search}
+                            allowClear
+                            id='searchCallRecords'
+                            suffix={<Search size='medium' color={colors.gray[7]} />}
+                        />
                     </Col>
                     <Col xs={24} sm={24} md={9}>
-                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS} align='middle' justify='space-between'>
+                        <Row gutter={FILTER_ROW_GUTTER} align='middle' justify='space-between'>
                             <Col md={12}>
                                 <StartedAtFilter
                                     placeholder={StartDateMessage}
@@ -139,8 +133,9 @@ const TableContainer = (props) => {
     const router = useRouter()
 
     const [selectedCallRecordFragment, setSelectedCallRecordFragment] = useState<ICallRecordFragment>()
+    const [autoPlay, setAutoPlay] = useState<boolean>(false)
 
-    const columns = useTableColumns({ filterMetas, setSelectedCallRecordFragment })
+    const columns = useTableColumns({ filterMetas, setSelectedCallRecordFragment, setAutoPlay })
 
     const { filters, sorters, offset } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
@@ -163,6 +158,15 @@ const TableContainer = (props) => {
 
     const loading = isCallRecordsLoading
 
+    const handleRowAction = (record) => {
+        return {
+            onClick: () => {
+                setAutoPlay(false)
+                setSelectedCallRecordFragment(record)
+            },
+        }
+    }
+
     return (
         <>
             <Col span={24}>
@@ -171,9 +175,11 @@ const TableContainer = (props) => {
                     dataSource={loading ? [] : callRecordFragments}
                     columns={columns}
                     loading={loading}
+                    onRow={handleRowAction}
                 />
             </Col>
             <CallRecordModal
+                autoPlay={autoPlay}
                 selectedCallRecordFragment={selectedCallRecordFragment}
                 setSelectedCallRecordFragment={setSelectedCallRecordFragment}
                 refetchFragments={refetch}

@@ -7,7 +7,7 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Modal, Button, Typography } from '@open-condo/ui'
+import { Modal, Button, Typography, Space } from '@open-condo/ui'
 
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
@@ -15,6 +15,9 @@ import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
 import { getOrganizationTickets } from '@condo/domains/ticket/utils/clientSchema/search'
 
 import { CallRecordCard } from './CallRecordCard'
+
+import { getAddressRender } from '../../common/components/Table/Renders'
+
 
 
 const DROPDOWN_POPUP_CONTAINER_ID = 'attach-tickets-to-call-record'
@@ -26,14 +29,13 @@ function getPopupContainer (): HTMLElement {
 
 const MAIN_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const RECORD_INFO_ROW_GUTTER: RowProps['gutter'] = [0, 24]
-const CLIENT_INFO_ROW_GUTTER: RowProps['gutter'] = [0, 10]
+const CLIENT_INFO_ROW_GUTTER: RowProps['gutter'] = [0, 12]
 const CALL_RECORD_ROW_GUTTER: RowProps['gutter'] = [0, 16]
-const DOWNLOAD_RECORD_ROW_GUTTER: RowProps['gutter'] = [10, 0]
 const ATTACH_TICKETS_ROW_GUTTER: RowProps['gutter'] = [0, 20]
 
 const TICKETS_SELECT_STYLE: CSSProperties = { width: '100%' }
 
-export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRecordFragment, refetchFragments }) => {
+export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRecordFragment, refetchFragments, autoPlay }) => {
     const intl = useIntl()
     const IncomingCallMessage = intl.formatMessage({ id: 'callRecord.callType.incoming' })
     const OutgoingCallMessage = intl.formatMessage({ id: 'callRecord.callType.outgoing' })
@@ -145,8 +147,10 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
     const { callRecord, ticket } = selectedCallRecordFragment
     const organizationId = get(callRecord, 'organization.id')
     const Title = `${callRecord.isIncomingCall ? IncomingCallMessage : OutgoingCallMessage} ${CallMessage}`
-    const clientName = get(ticket, 'clientName', EmptyClientMessage)
-    const address = get(ticket, 'property.address', EmptyAddressMessage)
+    const clientName = get(ticket, 'clientName') || EmptyClientMessage
+    const property = get(ticket, 'property') || EmptyAddressMessage
+
+    console.log('clientName', clientName)
 
     return (
         <Modal
@@ -169,33 +173,27 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
                 <Col span={24}>
                     <Row gutter={RECORD_INFO_ROW_GUTTER}>
                         <Col span={24}>
-                            <Row gutter={CLIENT_INFO_ROW_GUTTER}>
-                                <Col span={24}>
-                                    <Typography.Title level={4}>{clientName}</Typography.Title>
-                                </Col>
-                                <Col>
-                                    <Typography.Paragraph>{address}</Typography.Paragraph>
-                                </Col>
-                            </Row>
+                            <Space size={12} direction='vertical'>
+                                <Typography.Title level={4}>{clientName}</Typography.Title>
+                                <Typography.Paragraph size='medium'>
+                                    {getAddressRender(property, null, null, true)}
+                                </Typography.Paragraph>
+                            </Space>
                         </Col>
                         <Col span={24}>
                             <Row gutter={CALL_RECORD_ROW_GUTTER}>
                                 <Col span={24}>
                                     <CallRecordCard
                                         callRecord={callRecord}
-                                        autoPlay
+                                        autoPlay={autoPlay}
                                     />
                                 </Col>
                                 <Col span={24}>
                                     <Typography.Link size='large' onClick={handleDownloadFile}>
-                                        <Row align='middle' gutter={DOWNLOAD_RECORD_ROW_GUTTER}>
-                                            <Col>
-                                                <Download size='medium' />
-                                            </Col>
-                                            <Col>
-                                                {DownloadCallRecordMessage}
-                                            </Col>
-                                        </Row>
+                                        <Space size={8}>
+                                            <Download size='medium' />
+                                            {DownloadCallRecordMessage}
+                                        </Space>
                                     </Typography.Link>
                                 </Col>
                             </Row>

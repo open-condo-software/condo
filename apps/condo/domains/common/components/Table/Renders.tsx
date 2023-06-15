@@ -146,6 +146,7 @@ type GetTableCellRendererType = (props?: {
     extraPostfixProps?: TextProps,
     extraTitle?: string,
     href?: string,
+    underline?: boolean,
     Icon?: React.FC<IconProps>
 }) => (text?: string) => React.ReactElement
 
@@ -159,6 +160,7 @@ type GetTableCellRendererType = (props?: {
  * @param extraPostfixProps
  * @param extraTitle
  * @param href
+ * @param underline
  * @param Icon
  * @return cell contents renderer fn
  */
@@ -170,6 +172,7 @@ export const getTableCellRenderer: GetTableCellRendererType = ({
     extraPostfixProps,
     extraTitle,
     href,
+    underline,
     Icon,
 } = {}) =>
     (text) => {
@@ -202,7 +205,7 @@ export const getTableCellRenderer: GetTableCellRendererType = ({
                 <span>
                     {
                         href
-                            ? renderLink(cellContent, href)
+                            ? renderLink(cellContent, href, underline)
                             : cellContent
                     }
                 </span>
@@ -211,9 +214,11 @@ export const getTableCellRenderer: GetTableCellRendererType = ({
     }
 
 
-const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
+const POSTFIX_PROPS: TextProps = { type: 'secondary' }
+const NEW_LINE_POSTFIX_STYLE: TextProps = { style: { whiteSpace: 'pre-line' } }
+const ONE_LINE_POSTFIX_STYLE: TextProps =  { style: { whiteSpace: 'nowrap' } }
 
-export const getAddressRender = (property: Property, DeletedMessage?: string, search?: FilterValue | string) => {
+export const getAddressRender = (property: Property, DeletedMessage?: string, search?: FilterValue | string, oneLinePostfix?: boolean) => {
     const isDeleted = !!get(property, 'deletedAt')
     const { streetPart, renderPostfix } = getAddressDetails(property)
     const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
@@ -224,7 +229,8 @@ export const getAddressRender = (property: Property, DeletedMessage?: string, se
         search,
         postfix,
         extraHighlighterProps: extraProps,
-        extraPostfixProps: POSTFIX_PROPS,
+        extraPostfixProps: oneLinePostfix ?
+            { ...POSTFIX_PROPS, ...ONE_LINE_POSTFIX_STYLE } : { ...POSTFIX_PROPS, ...NEW_LINE_POSTFIX_STYLE },
     })(streetPart)
 }
 

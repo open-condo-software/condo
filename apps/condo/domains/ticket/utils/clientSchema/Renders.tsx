@@ -176,7 +176,7 @@ export const getTicketNumberRender = (intl, search: FilterValue) => {
             }
         }
 
-        return getTableCellRenderer({ search, extraHighlighterProps, extraTitle, href })(number)
+        return getTableCellRenderer({ search, extraHighlighterProps, extraTitle, href, underline: false })(number)
     }
 }
 
