@@ -1645,6 +1645,7 @@
   "api.meter.METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE": "Лицевой счет не может быть пустым",
   "api.meter.MeterReportingPeriod.INVALID_FINISH": "Конец периода может принимать значение только от 1 до 31",
   "api.meter.MeterReportingPeriod.INVALID_START": "Начало периода может принимать значение только от 1 до 31",
+  "api.meter.MeterReportingPeriod.ORGANIZATION_IS_REQUIRED": "Необходима организация для создания периода сдачи показаний",
   "api.contact.exportContactsToExcel.NOTHING_TO_EXPORT": "Не найдено контактов для экспорта",
   "api.propertyScope.MAX_NAME_LENGTH_ERROR": "Превышено максимальное количество символов в названии ({max} символов)",
   "api.propertyScope.exportPropertyScopesToExcel.NOTHING_TO_EXPORT": "Не найдено областей видимости для экспорта",
