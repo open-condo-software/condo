@@ -56,7 +56,7 @@ jobs:
           yarn workspace @app/condo build
 
       - name: start server in production mode
-        run:
+        run: |
           set -x
           cp .env.example .env
           echo 'NODE_ENV=test' >> .env
@@ -67,7 +67,7 @@ jobs:
           export WORKER_CONCURRENCY=50
 
           yarn workspace @app/condo migrate
-          
+          yarn workspace @app/condo prepare
           yarn workspace @app/condo node ./bin/generate-initial-data.js
 
           echo 'ADDRESS_SERVICE_CLIENT_MODE=fake' >> .env
