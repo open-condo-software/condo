@@ -129,6 +129,8 @@ const Property = new GQLListSchema('Property', {
                     if (map) {
                         return normalizePropertyMap(map)
                     }
+
+                    return map
                 },
                 validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
                     if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if on value

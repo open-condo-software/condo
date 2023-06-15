@@ -8,10 +8,8 @@ const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common.
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
 const { TicketOrganizationSetting } = require('@condo/domains/ticket/utils/testSchema')
-const { createTestUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('../../user/utils/testSchema')
 const { OrganizationEmployee, OrganizationEmployeeRole } = require('../utils/testSchema')
 
 
