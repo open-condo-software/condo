@@ -56,7 +56,7 @@ jobs:
           yarn workspace @app/condo build
 
       - name: start server in production mode
-        run: gi
+        run:
           set -x
           cp .env.example .env
           echo 'NODE_ENV=test' >> .env
