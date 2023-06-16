@@ -7,10 +7,11 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-
 import { BillingRecipient, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { colors } from '@condo/domains/common/constants/style'
+import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import { Recipient } from '@condo/domains/organization/components/Recipient'
+
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
@@ -39,7 +40,10 @@ export const RecipientSettingsContent = () => {
     const {
         obj: context,
     } = BillingIntegrationOrganizationContext.useObject({
-        where: { organization: { id: userOrganizationId } },
+        where: {
+            organization: { id: userOrganizationId },
+            status: CONTEXT_FINISHED_STATUS,
+        },
     })
 
     const contextId = get(context, ['id'], null)
