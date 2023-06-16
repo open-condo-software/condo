@@ -16,6 +16,7 @@ import { useIntl } from '@open-condo/next/intl'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors } from '@condo/domains/common/constants/style'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -68,6 +69,7 @@ export interface IContactEditorProps {
     disabled?: boolean
     initialQuery
     hasNotResidentTab?: boolean
+    residentTitle?: string
 }
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`
@@ -114,6 +116,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         unitType,
         hasNotResidentTab = true,
         initialQuery,
+        residentTitle,
     } = props
 
     const [selectedContact, setSelectedContact] = useState(null)
@@ -123,6 +126,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [isInitialContactsLoaded, setIsInitialContactsLoaded] = useState<boolean>()
     const [initialContacts, setInitialContacts] = useState<ContactType[]>([])
     const [activeTab, setActiveTab] = useState<CONTACT_TYPE>()
+
+    const { breakpoints } = useLayoutContext()
 
     const initialContactsQuery = useMemo(() => ({
         ...initialQuery,
@@ -316,7 +321,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                     style={TABS_STYLE}
                     onChange={handleTabChange}
                 >
-                    <TabPane tab={TicketFromResidentMessage} key={CONTACT_TYPE.RESIDENT} disabled={!unitName}>
+                    <TabPane tab={residentTitle || TicketFromResidentMessage} key={CONTACT_TYPE.RESIDENT} disabled={!unitName}>
                         <Row gutter={TAB_PANE_ROW_GUTTERS}>
                             {isEmpty(initialContacts) || !unitName ? (
                                 <NewContactFields
@@ -325,6 +330,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                     fields={fields}
                                     activeTab={activeTab}
                                     contactsLoading={contactsLoading}
+                                    unitName={unitName}
                                 />
                             ) : (
                                 <>
@@ -342,17 +348,22 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                     fields={fields}
                                                     activeTab={activeTab}
                                                     contactsLoading={contactsLoading}
+                                                    unitName={unitName}
                                                 />
-                                                <Col span={24}>
-                                                    <Button
-                                                        type='link'
-                                                        style={BUTTON_STYLE}
-                                                        onClick={handleClickOnMinusButton}
-                                                        icon={<MinusCircleOutlined style={BUTTON_ICON_STYLE} />}
-                                                    >
-                                                        {CancelMessage}
-                                                    </Button>
-                                                </Col>
+                                                {
+                                                    !breakpoints.TABLET_LARGE && (
+                                                        <Col span={24}>
+                                                            <Button
+                                                                type='link'
+                                                                style={BUTTON_STYLE}
+                                                                onClick={handleClickOnMinusButton}
+                                                                icon={<MinusCircleOutlined style={BUTTON_ICON_STYLE} />}
+                                                            >
+                                                                {CancelMessage}
+                                                            </Button>
+                                                        </Col>
+                                                    )
+                                                }
                                             </>
                                         ) : (
                                             <Col span={24}>

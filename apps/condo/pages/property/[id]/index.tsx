@@ -57,7 +57,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     const { push } = useRouter()
     const { breakpoints } = useLayoutContext()
 
-    const softDeleteAction = Property.useSoftDelete( () => push('/property/'))
+    const softDeleteAction = Property.useSoftDelete( async () => await push('/property'))
 
     const yearOfConstructionCardLabel = property.yearOfConstruction
         ? dayjs(property.yearOfConstruction).format('YYYY')

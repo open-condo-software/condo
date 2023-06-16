@@ -1,13 +1,13 @@
-import { MinusCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import { AutoComplete, Col, Form, Radio, Row, RowProps } from 'antd'
+import { AutoComplete, Col, Form, InputProps, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
+import { MinusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Space } from '@open-condo/ui'
+import { Radio, Space } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
@@ -15,7 +15,6 @@ import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { Contact as TContact } from '@condo/domains/contact/schema'
-
 
 import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
 
@@ -31,19 +30,13 @@ interface INewContactFieldsFieldsProps {
     fields: FieldsType
     activeTab: CONTACT_TYPE
     contactsLoading?: boolean
+    unitName?: string
 }
 
-const MINUS_ICON_STYLE = {
-    color: colors.black,
-    fontSize: '21px',
-    marginTop: '9px',
-    marginLeft: '-4px',
-}
-const RADIO_STYLE = { marginTop: '8px' }
 const FIELD_WRAPPER_COL = { span: 24 }
 const FIELD_ROW_GUTTER: RowProps['gutter'] = [16, 0]
-const RADIO_COL_SMALL_SCREENS_STYLE: CSSProperties = { position: 'relative', top: '56px' }
-const RADIO_COL_LARGE_SCREENS_STYLE: CSSProperties = { height: '46px' }
+const RADIO_COL_SMALL_SCREENS_STYLE: CSSProperties = { position: 'relative', top: '62px' }
+const RADIO_COL_LARGE_SCREENS_STYLE: CSSProperties = { height: '48px' }
 const AUTO_COMPLETE_STYLE: CSSProperties = { width: '100%' }
 
 const StyledPhoneInput = styled(PhoneInput)<{ error: boolean }>`
@@ -63,6 +56,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     contacts,
     activeTab,
     contactsLoading,
+    unitName,
 }) => {
     const intl = useIntl()
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
@@ -121,7 +115,10 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
         phone: activeTab === CONTACT_TYPE.RESIDENT ? [phoneValidator, contactExistValidator] : [],
     }), [activeTab, contactExistValidator, phoneValidator])
 
+    const isPhoneDisabled = !unitName
     const isNameDisabled = !isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked)
+
+    const inputProps: InputProps = useMemo(() => ({ disabled: isPhoneDisabled }), [isPhoneDisabled])
 
     return (
         <Col span={24}>
@@ -149,6 +146,8 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                                         error={contactWithSamePhoneExistError}
                                         block
                                         compatibilityWithAntAutoComplete
+                                        disabled={isPhoneDisabled}
+                                        inputProps={inputProps}
                                     />
                                 </AutoComplete>
                             </Form.Item>
@@ -171,17 +170,15 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                     </Row>
                 </Col>
                 <Col span={4} style={breakpoints.TABLET_LARGE ? RADIO_COL_LARGE_SCREENS_STYLE : RADIO_COL_SMALL_SCREENS_STYLE}>
-                    <Space size={8}>
+                    <Space size={8} align='center' height='100%'>
                         {onChecked && (
                             <Radio
-                                onClick={handleChecked}
+                                onChange={handleChecked}
                                 checked={checked}
-                                style={RADIO_STYLE}
                             />
                         )}
                         {displayMinusButton && breakpoints.TABLET_LARGE && (
-                            <MinusCircleOutlined
-                                style={MINUS_ICON_STYLE}
+                            <MinusCircle
                                 onClick={onClickMinusButton}
                             />
                         )}

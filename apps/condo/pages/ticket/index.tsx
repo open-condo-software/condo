@@ -960,7 +960,7 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
             }
         }
         const newParameters = getFiltersQueryData(newFilters)
-        await updateQuery(router, { newParameters })
+        await updateQuery(router, { newParameters }, { routerAction: 'replace' })
     }, [filters, router])
 
     return (

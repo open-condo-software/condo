@@ -2,9 +2,9 @@ import { Col, Row, Form, RowProps } from 'antd'
 import React, { CSSProperties, useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Radio, Space } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import Radio from '@condo/domains/common/components/antd/Radio'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { Contact as TContact } from '@condo/domains/contact/schema'
@@ -17,9 +17,8 @@ interface IContactFieldsDisplayProps {
 
 const FIELD_WRAPPER_COL = { span: 24 }
 const FIELD_ROW_GUTTER: RowProps['gutter'] = [16, 0]
-const RADIO_COL_SMALL_SCREENS_STYLE: CSSProperties = { position: 'relative', top: '56px' }
-const RADIO_COL_LARGE_SCREENS_STYLE: CSSProperties = { height: '46px' }
-const RADIO_STYLE: CSSProperties = { marginTop: '8px' }
+const RADIO_COL_SMALL_SCREENS_STYLE: CSSProperties = { position: 'relative', top: '62px' }
+const RADIO_COL_LARGE_SCREENS_STYLE: CSSProperties = { height: '48px' }
 
 export const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect, selected }) => {
     const intl = useIntl()
@@ -66,11 +65,12 @@ export const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, o
                 </Row>
             </Col>
             <Col span={4} style={breakpoints.TABLET_LARGE ? RADIO_COL_LARGE_SCREENS_STYLE : RADIO_COL_SMALL_SCREENS_STYLE}>
-                <Radio
-                    onClick={handleSelect}
-                    checked={selected}
-                    style={RADIO_STYLE}
-                />
+                <Space size={8} align='center' height='100%'>
+                    <Radio
+                        onChange={handleSelect}
+                        checked={selected}
+                    />
+                </Space>
             </Col>
         </Row>
     )

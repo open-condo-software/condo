@@ -28,7 +28,7 @@ export const CreatePropertyForm: React.FC = () => {
     const action = Property.useCreate({
         organization: { connect: { id: organization.id } },
         type: DEFAULT_PROPERTY_TYPE,
-    }, (property) => { router.push(`/property/${property.id}`) })
+    }, async (property) => { await router.push(`/property/${property.id}`) })
 
     const initialValues = {
         name: '',

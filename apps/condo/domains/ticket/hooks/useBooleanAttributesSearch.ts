@@ -20,7 +20,7 @@ export const useBooleanAttributesSearch = <F> (attributeNames: string[]): UseBoo
     const changeQuery = useMemo(() => debounce(async (newAttributes: { [key: string]: boolean }) => {
         const includedAttributes = Object.entries(newAttributes).filter(([_, isChecked]) => isChecked).map(([attributeName]) => attributeName)
         const newParameters = getFiltersQueryData({ ...filtersFromQuery, attributes: includedAttributes })
-        await updateQuery(router, { newParameters })
+        await updateQuery(router, { newParameters }, { routerAction: 'replace' })
     }, 400), [filtersFromQuery, router])
 
     const handleChangeAttribute = useCallback(async (isChecked: boolean, attributeName: string) => {
