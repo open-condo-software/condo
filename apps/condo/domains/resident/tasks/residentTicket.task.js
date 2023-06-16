@@ -27,7 +27,7 @@ async function manageResidentToPropertyAndOrganizationConnections (address, dv, 
         deletedAt: null,
         organization: { type: MANAGING_COMPANY_TYPE },
     }, {
-        sortBy: ['isApproved_ASC', 'createdAt_ASC'], // sorting order is essential here
+        sortBy: ['isApproved_DESC', 'createdAt_ASC'], // sorting order is essential here
         first: 1,
     })
 

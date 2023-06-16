@@ -13,6 +13,7 @@ const { addBillingIntegrationAndContext } = require('@condo/domains/billing/util
 const { createTestBillingProperty, createTestBillingAccount, createTestBillingIntegration, createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { MeterResource, createTestMeter, Meter } = require('@condo/domains/meter/utils/testSchema')
+const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerServiceConsumerByTestClient, updateTestServiceConsumer, createTestResident } = require('@condo/domains/resident/utils/testSchema')
@@ -72,7 +73,7 @@ describe('RegisterServiceConsumerService', () => {
 
         // Org 2 = just some other org, which provides some services for this resident (like intercom service)
 
-        const [organization2] = await createTestOrganization(adminClient)
+        const [organization2] = await createTestOrganization(adminClient, { type: SERVICE_PROVIDER_TYPE })
 
         const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, organization2, integration)
         const [billingProperty] = await createTestBillingProperty(adminClient, context)
