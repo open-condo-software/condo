@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, expectToThrowUniqueConstraintViolationError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, expectToThrowUniqueConstraintViolationError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -253,6 +253,73 @@ describe('MeterReportingPeriod', () => {
                     await createTestMeterReportingPeriod(admin, commonOrganization)
                 }, 'meterreportingperiod_unique_organization')
 
+            })
+
+            test('The uniqueness of the period for property', async () => {
+                const [property] = await createTestProperty(admin, commonOrganization, { map: buildingMapJson })
+
+                await createTestMeterReportingPeriod(admin, commonOrganization, { property: { connect: { id: property.id } } })
+
+                await expectToThrowUniqueConstraintViolationError(async () => {
+                    await createTestMeterReportingPeriod(admin, commonOrganization, { property: { connect: { id: property.id } } })
+                }, 'meterreportingperiod_unique_organization_property')
+            })
+        })
+        describe('Hooks', () => {
+            test('Organization is required', async () => {
+                const defaultMeterReportingPeriod = await MeterReportingPeriod.create(admin, {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'initDefaultPeriod' },
+                })
+
+                await catchErrorFrom(async () => {
+                    await MeterReportingPeriod.create(admin, {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'initDefaultPeriod' },
+                    })
+                }, ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('The organization is required to create')
+                    expect(data).toEqual({ 'obj': null })
+                })
+                await MeterReportingPeriod.softDelete(admin, defaultMeterReportingPeriod.id)
+            })
+
+            test('start field validation', async () => {
+                await catchErrorFrom(async () => {
+                    await createTestMeterReportingPeriod(admin, commonOrganization, {
+                        start: 0,
+                    })
+                }, ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('The "start" field can take values in the range from 1 to 31')
+                    expect(data).toEqual({ 'obj': null })
+                })
+                await catchErrorFrom(async () => {
+                    await createTestMeterReportingPeriod(admin, commonOrganization, {
+                        start: 32,
+                    })
+                }, ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('The "start" field can take values in the range from 1 to 31')
+                    expect(data).toEqual({ 'obj': null })
+                })
+            })
+
+            test('finish field validation', async () => {
+                await catchErrorFrom(async () => {
+                    await createTestMeterReportingPeriod(admin, commonOrganization, {
+                        finish: 0,
+                    })
+                }, ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('The "finish" field can take values in the range from 1 to 31')
+                    expect(data).toEqual({ 'obj': null })
+                })
+                await catchErrorFrom(async () => {
+                    await createTestMeterReportingPeriod(admin, commonOrganization, {
+                        finish: 32,
+                    })
+                }, ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('The "finish" field can take values in the range from 1 to 31')
+                    expect(data).toEqual({ 'obj': null })
+                })
             })
 
             test('The uniqueness of the period for property', async () => {
