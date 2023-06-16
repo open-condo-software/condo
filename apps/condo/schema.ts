@@ -16397,16 +16397,6 @@ export type CheckPasswordRecoveryTokenOutput = {
   status: Scalars['String'];
 };
 
-export type CheckPropertyWithAddressExistInput = {
-  address: Scalars['String'];
-  addressMeta: AddressMetaFieldInput;
-};
-
-export type CheckPropertyWithAddressExistOutput = {
-  __typename?: 'CheckPropertyWithAddressExistOutput';
-  isFound: Scalars['Boolean'];
-};
-
 export type CompleteConfirmPhoneActionInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -45732,7 +45722,7 @@ export type OrganizationRelateToOneInput = {
 export enum OrganizationType {
   ManagingCompany = 'MANAGING_COMPANY',
   Holding = 'HOLDING',
-  Contractor = 'CONTRACTOR'
+  ServiceProvider = 'SERVICE_PROVIDER'
 }
 
 export type OrganizationUpdateInput = {
@@ -51624,40 +51614,6 @@ export type Query = {
    */
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   getAccessTokenByUserId?: Maybe<GetAccessTokenByUserIdOutput>;
-  /**
-   * Tells, whether a Property with given address exists in condo database
-   *
-   * In specified address string a part up to building will be taken into account. So, it will make no sense when something more precise, like apartment number, will be specified.
-   *
-   * **Errors**
-   *
-   * Following objects will be presented in `extensions` property of thrown error
-   *
-   * `{
-   *   "query": "checkPropertyWithAddressExist",
-   *   "variable": [
-   *     "data",
-   *     "addressMeta",
-   *     "dv"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "DV_VERSION_MISMATCH",
-   *   "message": "Version number value {dv} is incorrect"
-   * }`
-   *
-   * `{
-   *   "query": "checkPropertyWithAddressExist",
-   *   "variable": [
-   *     "data",
-   *     "addressMeta",
-   *     "flatType"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "FLAT_WITHOUT_FLAT_TYPE",
-   *   "message": "Flat type is not specified"
-   * }`
-   */
-  checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   /**
@@ -57111,11 +57067,6 @@ export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
 
 export type QueryGetAccessTokenByUserIdArgs = {
   data: GetAccessTokenByUserIdInput;
-};
-
-
-export type QueryCheckPropertyWithAddressExistArgs = {
-  data: CheckPropertyWithAddressExistInput;
 };
 
 

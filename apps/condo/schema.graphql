@@ -60904,7 +60904,7 @@ type GetAccessTokenByUserIdOutput {
 enum OrganizationType {
   MANAGING_COMPANY
   HOLDING
-  CONTRACTOR
+  SERVICE_PROVIDER
 }
 
 input RegisterNewOrganizationInput {
@@ -60955,15 +60955,6 @@ input ResetOrganizationInput {
 
 type ResetOrganizationOutput {
   status: String!
-}
-
-input CheckPropertyWithAddressExistInput {
-  address: String!
-  addressMeta: AddressMetaFieldInput!
-}
-
-type CheckPropertyWithAddressExistOutput {
-  isFound: Boolean!
 }
 
 input ExportPropertiesToExcelInput {
@@ -64823,41 +64814,6 @@ type Query {
   """
   getPhoneByConfirmPhoneActionToken(data: GetPhoneByConfirmPhoneActionTokenInput!): GetPhoneByConfirmPhoneActionTokenOutput
   getAccessTokenByUserId(data: GetAccessTokenByUserIdInput!): GetAccessTokenByUserIdOutput
-
-  """
-  Tells, whether a Property with given address exists in condo database
-  
-  In specified address string a part up to building will be taken into account. So, it will make no sense when something more precise, like apartment number, will be specified.
-  
-  **Errors**
-  
-  Following objects will be presented in `extensions` property of thrown error
-  
-  `{
-    "query": "checkPropertyWithAddressExist",
-    "variable": [
-      "data",
-      "addressMeta",
-      "dv"
-    ],
-    "code": "BAD_USER_INPUT",
-    "type": "DV_VERSION_MISMATCH",
-    "message": "Version number value {dv} is incorrect"
-  }`
-  
-  `{
-    "query": "checkPropertyWithAddressExist",
-    "variable": [
-      "data",
-      "addressMeta",
-      "flatType"
-    ],
-    "code": "BAD_USER_INPUT",
-    "type": "FLAT_WITHOUT_FLAT_TYPE",
-    "message": "Flat type is not specified"
-  }`
-  """
-  checkPropertyWithAddressExist(data: CheckPropertyWithAddressExistInput!): CheckPropertyWithAddressExistOutput
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
 

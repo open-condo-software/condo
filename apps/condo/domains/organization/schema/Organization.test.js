@@ -15,7 +15,7 @@ const {
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationAccessRight, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, makeClientWithIntegrationAccess, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { MANAGING_COMPANY_TYPE, CONTRACTOR_TYPE } = require('@condo/domains/organization/constants/common')
+const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { SERVICE_PROVIDER_PROFILE_FEATURE } = require('@condo/domains/organization/constants/features')
 const { registerNewOrganization, createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
@@ -195,9 +195,9 @@ describe('Organization', () => {
         test('Support can change organization type', async () => {
             const [org] = await createTestOrganization(support)
             const [updatedOrg] = await updateTestOrganization(support, org.id, {
-                type: CONTRACTOR_TYPE,
+                type: SERVICE_PROVIDER_TYPE,
             })
-            expect(updatedOrg).toHaveProperty('type', CONTRACTOR_TYPE)
+            expect(updatedOrg).toHaveProperty('type', SERVICE_PROVIDER_TYPE)
         })
         test('Employee cannot change organization type', async () => {
             const userClient = await makeEmployeeUserClientWithAbilities({
@@ -205,7 +205,7 @@ describe('Organization', () => {
             })
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestOrganization(userClient, userClient.organization.id, {
-                    type: CONTRACTOR_TYPE,
+                    type: SERVICE_PROVIDER_TYPE,
                 })
             })
         })
