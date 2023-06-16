@@ -663,8 +663,9 @@ async function makeOrganizationIntegrationManager(context = null) {
         canReadPayments: true,
     })
     const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
-    await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
-    return { organization, integration, managerUserClient }
+    const [managerEmployee] = await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
+
+    return { organization, integration, managerUserClient, managerEmployee }
 }
 
 async function createReceiptsReader(organization) {
