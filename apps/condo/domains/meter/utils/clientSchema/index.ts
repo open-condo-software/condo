@@ -21,6 +21,7 @@ export * as Meter from './Meter'
 export * as MeterReadingFilterTemplate from './MeterReadingFilterTemplate'
 export * as PropertyMeter from './PropertyMeter'
 export * as PropertyMeterReading from './PropertyMeterReading'
+export * as MeterReportingPeriod from './MeterReportingPeriod'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
 
 

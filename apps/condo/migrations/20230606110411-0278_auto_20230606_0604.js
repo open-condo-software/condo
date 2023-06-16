@@ -13,7 +13,8 @@ exports.up = async (knex) => {
             --
             -- Alter field type on meterreadingsource
             --
-            INSERT INTO "MeterReadingSource" (dv, sender, type, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'crm', 'meterReadingSource.crm.name', 'b09fec04-5bc2-4c58-a364-04b1ea505503', 1, '2023-06-05 00:00:00.000000', '2023-06-05 00:00:00.000000', null, null, null, null);
+            INSERT INTO "MeterReadingSource" (dv, sender, type, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'crm', 'meterReadingSource.crm.name', 'b09fec04-5bc2-4c58-a364-04b1ea505503', 1, '2023-06-05 00:00:00.000000', '2023-06-05 00:00:00.000000', null, null, null, null)
+            ON CONFLICT (id) DO NOTHING;;
             
             --
             -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
