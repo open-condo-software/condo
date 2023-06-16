@@ -1,18 +1,17 @@
 /** @jsx jsx */
 import { SortMeterReadingsBy } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
-import { Col, Row, Tabs, Typography } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
+import { Col, Row, RowProps, Tabs, Typography } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { FileDown, Filter } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button } from '@open-condo/ui'
+import { Button, Space } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import {
@@ -52,7 +51,9 @@ import {
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 
-const METERS_PAGE_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
+const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
+const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [0, 20]
+const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 
 export const MetersPageContent = ({
     searchMeterReadingsQuery,
@@ -164,7 +165,7 @@ export const MetersPageContent = ({
                 >
                     <Col span={24}>
                         <TableFiltersContainer>
-                            <Row justify='space-between' gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
+                            <Row justify='space-between' gutter={FILTERS_CONTAINER_GUTTER}>
                                 <Col xs={24} lg={7}>
                                     <Input
                                         placeholder={SearchPlaceholder}
@@ -174,28 +175,29 @@ export const MetersPageContent = ({
                                     />
                                 </Col>
                                 <Col>
-                                    <Row gutter={[10, 0]} align='middle' justify='center'>
+                                    <Space size={12} direction={breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical'}>
                                         {
-                                            appliedFiltersCount > 0 ? (
-                                                <Col>
-                                                    <ResetFiltersModalButton />
-                                                </Col>
-                                            ) : null
+                                            breakpoints.TABLET_LARGE && appliedFiltersCount > 0 && (
+                                                <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
+                                            )
                                         }
-                                        <Col>
-                                            <Button
-                                                type='secondary'
-                                                onClick={handleMultipleFiltersButtonClick}
-                                                icon={<Filter size='medium'/>}
-                                            >
-                                                {
-                                                    appliedFiltersCount > 0 ?
-                                                        `${FiltersButtonLabel} (${appliedFiltersCount})`
-                                                        : FiltersButtonLabel
-                                                }
-                                            </Button>
-                                        </Col>
-                                    </Row>
+                                        <Button
+                                            type='secondary'
+                                            onClick={handleMultipleFiltersButtonClick}
+                                            icon={<Filter size='medium'/>}
+                                        >
+                                            {
+                                                appliedFiltersCount > 0 ?
+                                                    `${FiltersButtonLabel} (${appliedFiltersCount})`
+                                                    : FiltersButtonLabel
+                                            }
+                                        </Button>
+                                        {
+                                            !breakpoints.TABLET_LARGE && appliedFiltersCount > 0 && (
+                                                <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE}/>
+                                            )
+                                        }
+                                    </Space>
                                 </Col>
                             </Row>
                         </TableFiltersContainer>
