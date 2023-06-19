@@ -11,6 +11,7 @@ import PaymentsTable from '@condo/domains/acquiring/components/payments/Payments
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 
 function renderError (error: ApolloError | string) {
     if (isString(error)) {
@@ -51,6 +52,7 @@ const PaymentsPageContent = (): JSX.Element => {
             organization: {
                 id: organizationId,
             },
+            status: CONTEXT_FINISHED_STATUS,
         },
     }, {
         fetchPolicy: 'network-only',
@@ -65,6 +67,7 @@ const PaymentsPageContent = (): JSX.Element => {
             organization: {
                 id: organizationId,
             },
+            status: CONTEXT_FINISHED_STATUS,
         },
     }, {
         fetchPolicy: 'network-only',
