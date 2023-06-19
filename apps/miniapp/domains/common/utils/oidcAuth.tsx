@@ -78,7 +78,7 @@ const OidcAuthProvider = ({ children }) => {
                     bridge.send('CondoWebAppRequestAuth', { url: OIDC_AUTH_URL }).then((data) => {
                         if (data.response.status === 200) {
                             // Process it in any way you like
-                            console.log(data.response)
+                            console.debug(data.response)
                             setAuthError(false)
                         } else {
                             setAuthError(true)
