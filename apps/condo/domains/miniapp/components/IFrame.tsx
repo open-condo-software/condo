@@ -62,6 +62,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         innerRef.current = el
     }, [ref])
 
+    const [frameId, setFrameId] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isError, setIsError] = useState(false)
     const [frameHeight, setFrameHeight] = useState(DEFAULT_FRAME_HEIGHT)
@@ -119,24 +120,45 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         return { height }
     }, [])
 
+    const requestAuth = useCallback<RequestHandler<'CondoWebAppRequestAuth'>>(async ({ url }) => {
+        const response = await fetch(url, { credentials: 'include' })
+        const body = await response.text()
+
+        return {
+            response: { status: response.status, body, url: response.url },
+        }
+    }, [])
+
     useEffect(() => {
         if (withPrefetch) {
             preFetch()
         }
     }, [withPrefetch, preFetch])
-    
+
     useEffect(() => {
         const srcOrigin = extractOrigin(src)
         if (srcOrigin) {
-            const frameId = addFrame(innerRef)
+            const newFrameId = addFrame(innerRef)
+            setFrameId(newFrameId)
 
-            if (withResize) {
-                addEventHandler('CondoWebAppResizeWindow', frameId, resizeFrame)
+            return () => {
+                removeFrame(newFrameId)
+                setFrameId(null)
             }
-
-            return () => removeFrame(frameId)
         }
-    }, [src, withResize, addEventHandler, resizeFrame, ref, addFrame, removeFrame])
+    }, [src, addFrame, removeFrame])
+
+    useEffect(() => {
+        if (frameId && withResize) {
+            addEventHandler('CondoWebAppResizeWindow', frameId, resizeFrame)
+        }
+    }, [frameId, withResize, addEventHandler, resizeFrame])
+
+    useEffect(() => {
+        if (frameId) {
+            addEventHandler('CondoWebAppRequestAuth', frameId, requestAuth)
+        }
+    }, [frameId, addEventHandler, requestAuth])
 
     return (
         <>

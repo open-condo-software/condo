@@ -183,7 +183,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
         setRegisteredHandlers((prev) => omit(prev, frameId))
     }, [])
 
-    const handleMessage = useCallback((event: MessageEvent) => {
+    const handleMessage = useCallback(async (event: MessageEvent) => {
         if (!event.isTrusted ||
             !event.source ||
             !('self' in event.source)) {
@@ -237,7 +237,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
             const validator = validators[method]
             if (validator(params)) {
                 try {
-                    const result = handler(params, origin)
+                    const result = await handler(params, origin)
                     return event.source.postMessage({
                         type: `${method}Result`,
                         data: {

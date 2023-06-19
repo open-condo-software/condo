@@ -1,12 +1,18 @@
 import get from 'lodash/get'
 import isObject from 'lodash/isObject'
+import getConfig from 'next/config'
 import Router from 'next/router'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 
+import bridge from '@open-condo/bridge'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
 import { useLaunchParams } from '@condo/domains/miniapp/hooks/useLaunchParams'
+
+const {
+    publicRuntimeConfig: { serverUrl },
+} = getConfig()
 
 interface IUseOidcAuthHookValue {
     user?: {
@@ -18,7 +24,7 @@ interface IUseOidcAuthHookValue {
     isLoading?: boolean,
 }
 
-const OIDC_AUTH_URL = '/oidc/auth'
+const OIDC_AUTH_URL = `${serverUrl || ''}/oidc/auth`
 
 const OidcAuthContext = React.createContext<IUseOidcAuthHookValue>({})
 
@@ -40,6 +46,8 @@ const OidcAuthProvider = ({ children }) => {
     const errorReason = get(error, 'errorReason')
     const errorData = isObject(error) ? JSON.stringify(error) : '<NonObject>'
     const { user, isLoading: isUserLoading, isAuthenticated } = useAuth()
+    const [authInProgress, setAuthInProgress] = useState(false)
+    const [, setAuthError] = useState(false)
 
     /**
      * In the case of Safari we have to ask browser to grant access to condo's session cookie using Storage Access API
@@ -64,14 +72,37 @@ const OidcAuthProvider = ({ children }) => {
                     OIDC_AUTH_URL,
                     organizationId: context.condoContextEntityId,
                 })
-                if (!hasNoRedirect) Router.push({
-                    pathname: OIDC_AUTH_URL,
-                    query: { organizationId: context.condoContextEntityId, condoUserId: context.condoUserId },
-                })
+                if (!hasNoRedirect) {
+                    setAuthInProgress(true)
+                    setAuthError(false)
+                    bridge.send('CondoWebAppRequestAuth', { url: OIDC_AUTH_URL }).then((data) => {
+                        if (data.response.status === 200) {
+                            // Process it in any way you like
+                            console.debug(data.response)
+                            setAuthError(false)
+                        } else {
+                            setAuthError(true)
+                        }
+                    })
+                        .catch((err) => {
+                            console.debug(err)
+                            setAuthError(true)
+                        })
+                        .finally(() => setAuthInProgress(false))
+                }
             }
         }
 
-    }, [isAllLoaded, user, isAuthenticated, hasStorageAccess, context.condoUserId, context.condoContextEntityId, error])
+    }, [
+        isAllLoaded,
+        user,
+        isAuthenticated,
+        hasStorageAccess,
+        context.condoUserId, 
+        context.condoContextEntityId,
+        error,
+        errorReason,
+    ])
 
     useEffect(() => {
         if (!hasStorageAccess && typeof document !== 'undefined' && document.hasStorageAccess) {
@@ -121,9 +152,9 @@ const OidcAuthProvider = ({ children }) => {
     }
 
     return (
-        <OidcAuthContext.Provider value={{ user, isLoading: (isUserLoading || loading) }}>
+        <OidcAuthContext.Provider value={{ user, isLoading: (isUserLoading || loading || authInProgress) }}>
             {
-                (isAllLoaded && isAuthenticated && user.id === context.condoUserId && user.organizationId === context.condoContextEntityId)
+                (isAllLoaded && isAuthenticated && user.id === context.condoUserId)
                     ? children
                     : (errorReason === 'TIMEOUT_REACHED' && isAuthenticated)
                         ? <div><b>user={user.id}</b> <br/>Condo Bridge ERROR. Are you inside an iFrame? <br/><br/><small>{errorData}</small></div>
