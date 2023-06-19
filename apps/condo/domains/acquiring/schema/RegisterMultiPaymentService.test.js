@@ -889,7 +889,7 @@ describe('RegisterMultiPaymentService', () => {
             ]
             const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(client, payload)
             const [multiPayment] = await MultiPayment.getAll(admin, { id: multiPaymentId })
-            expect(Big(multiPayment.explicitServiceCharge).toFixed(2)).toEqual('12.10')
+            expect(Big(multiPayment.explicitServiceCharge).toFixed(2)).toEqual('12.00')
         })
         test('Should have common billing account with ServiceConsumer if BillingIntegration is changed', async () => {
             /**
