@@ -8,6 +8,7 @@ const { makeLoggedInAdminClient, UUID_RE } = require('@open-condo/keystone/test.
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowInternalError } = require('@open-condo/keystone/test.utils')
 
 const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, updateTestOrganizationEmployee, createTestOrganizationLink,
 } = require('@condo/domains/organization/utils/testSchema')
@@ -31,7 +32,7 @@ describe('UserTicketCommentReadTime', () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization1] = await createTestOrganization(admin)
                 const [property] = await createTestProperty(admin, organization1)
-                const [organization2] = await createTestOrganization(admin)
+                const [organization2] = await createTestOrganization(admin, { type: HOLDING_TYPE })
 
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization2, {

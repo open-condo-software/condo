@@ -11,7 +11,7 @@ const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { createTestBankIntegrationAccountContext, createTestBankIntegrationOrganizationContext, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { createTestB2BAppContext, B2BAppContext, createTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
-const { DELETED_ORGANIZATION_NAME } = require('@condo/domains/organization/constants/common')
+const { DELETED_ORGANIZATION_NAME, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { resetOrganizationByTestClient, createTestOrganization, Organization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, createTestOrganizationLink, OrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty, Property } = require('@condo/domains/property/utils/testSchema')
@@ -105,8 +105,8 @@ describe('ResetOrganizationService', () => {
         const client = await makeClientWithStaffUser()
         const client2 = await makeClientWithStaffUser()
 
-        const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role)
-        const [employee2] = await createTestOrganizationEmployee(admin, organization, client2.user, role)
+        await createTestOrganizationEmployee(admin, organization, client.user, role)
+        await createTestOrganizationEmployee(admin, organization, client2.user, role)
 
         await resetOrganizationByTestClient(support, { organizationId: organization.id })
 
@@ -120,15 +120,15 @@ describe('ResetOrganizationService', () => {
     test('soft delete all entities related to reseted organization', async () => {
         const [createdOrganization] = await createTestOrganization(admin)
 
+
         const [role] = await createTestOrganizationEmployeeRole(admin, createdOrganization)
         const client = await makeClientWithStaffUser()
-        const [employee] = await createTestOrganizationEmployee(admin, createdOrganization, client.user, role)
+        await createTestOrganizationEmployee(admin, createdOrganization, client.user, role)
 
         const [createdProperty] = await createTestProperty(admin, createdOrganization)
 
-        const [createdOrganization2] = await createTestOrganization(admin)
-        const [createdLinkFrom] = await createTestOrganizationLink(admin, createdOrganization2, createdOrganization)
-        const [createdLinkTo] = await createTestOrganizationLink(admin, createdOrganization, createdOrganization2)
+        const [parentOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
+        const [createdLink] = await createTestOrganizationLink(admin, parentOrganization, createdOrganization)
 
         const [billingIntegration] = await createTestBillingIntegration(admin)
         const [createdBillingIntegrationOrgCtx] = await createTestBillingIntegrationOrganizationContext(admin, createdOrganization, billingIntegration)
@@ -139,7 +139,7 @@ describe('ResetOrganizationService', () => {
         const [b2BApp] = await createTestB2BApp(admin)
         const [createdB2BAppCtx] = await createTestB2BAppContext(admin, b2BApp, createdOrganization)
 
-        const [createdBankAccountContext] = await createTestBankIntegrationAccountContext(admin, { id: BANK_INTEGRATION_IDS.SBBOL }, createdOrganization)
+        await createTestBankIntegrationAccountContext(admin, { id: BANK_INTEGRATION_IDS.SBBOL }, createdOrganization)
 
         const [createdBankIntegrationOrganizationContext] = await createTestBankIntegrationOrganizationContext(admin, { id: BANK_INTEGRATION_IDS.SBBOL }, createdOrganization)
 
@@ -153,10 +153,7 @@ describe('ResetOrganizationService', () => {
         const property = await Property.getAll(admin, { id: createdProperty.id })
         expect(property).toHaveLength(0)
 
-        const linkFrom = await OrganizationLink.getAll(admin, { id: createdLinkFrom.id })
-        expect(linkFrom).toHaveLength(0)
-
-        const linkTo = await OrganizationLink.getAll(admin, { id: createdLinkTo.id })
+        const linkTo = await OrganizationLink.getAll(admin, { id: createdLink.id })
         expect(linkTo).toHaveLength(0)
 
         const billingIntegrationOrgCtx = await BillingIntegrationOrganizationContext.getAll(admin, { id: createdBillingIntegrationOrgCtx.id })
@@ -175,7 +172,7 @@ describe('ResetOrganizationService', () => {
         expect(organization.name).toEqual(DELETED_ORGANIZATION_NAME)
         expect(organization.deletedAt).toBeNull()
 
-        const [organization2] = await Organization.getAll(admin, { id: createdOrganization2.id })
+        const [organization2] = await Organization.getAll(admin, { id: parentOrganization.id })
         expect(organization2.name).toEqual(organization2.name)
         expect(organization2.deletedAt).toBeNull()
 

@@ -27,6 +27,7 @@ const {
     updateTestBankIntegrationOrganizationContext, updateTestBankIntegrationAccountContext,
 } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBankIntegrationAccountContext, createTestBankAccount, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
@@ -150,7 +151,7 @@ describe('BankSyncTask', () => {
             })
 
             test('user can if it is an employee of linked organization with "canManageBankAccounts" permission', async () => {
-                const [parentOrganization] = await createTestOrganization(adminClient)
+                const [parentOrganization] = await createTestOrganization(adminClient, { type: HOLDING_TYPE })
                 const [childOrganization] = await createTestOrganization(adminClient)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(adminClient, parentOrganization, childOrganization)
@@ -173,7 +174,7 @@ describe('BankSyncTask', () => {
             })
 
             test('user cannot if it is an employee of linked organization without "canManageBankAccounts" permission', async () => {
-                const [parentOrganization] = await createTestOrganization(adminClient)
+                const [parentOrganization] = await createTestOrganization(adminClient, { type: HOLDING_TYPE })
                 const [childOrganization] = await createTestOrganization(adminClient)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(adminClient, parentOrganization, childOrganization)
@@ -530,7 +531,7 @@ describe('BankSyncTask', () => {
             const [property] = await createTestProperty(adminClient, organization)
             const [integrationContext] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
             const [integrationContext2] = await createTestBankIntegrationAccountContext(adminClient, bankIntegration, organization)
-            const [account] = await createTestBankAccount(adminClient, organization, {
+            await createTestBankAccount(adminClient, organization, {
                 integrationContext: { connect: { id: integrationContext.id } },
                 property: { connect: { id: property.id } },
             })
