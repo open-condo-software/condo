@@ -10,7 +10,7 @@ export default {
     title: 'Components/Tabs',
     component: Tabs,
     args: {
-        rounded: true,
+        rounded: false,
     },
 } as ComponentMeta<React.FC<TabsProps>>
 
