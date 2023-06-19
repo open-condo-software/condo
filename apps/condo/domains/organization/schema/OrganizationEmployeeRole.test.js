@@ -7,7 +7,7 @@ const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErro
 const { getTranslations, getAvailableLocales } = require('@open-condo/locales/loader')
 
 const { ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
-const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { OrganizationEmployeeRole, createTestOrganizationEmployeeRole, updateTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
@@ -87,6 +87,22 @@ describe('OrganizationEmployeeRole', () => {
             })
             const notManagerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
             await createTestOrganizationEmployee(admin, organization, notManagerUserClient.user, role)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestOrganizationEmployeeRole(notManagerUserClient, organization)
+            })
+        })
+
+        it('cannot if employee is deleted', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canManageRoles: true,
+            })
+            const notManagerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [employee] = await createTestOrganizationEmployee(admin, organization, notManagerUserClient.user, role)
+
+            await updateTestOrganizationEmployee(admin, employee.id, { deletedAt: new Date().toISOString() })
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestOrganizationEmployeeRole(notManagerUserClient, organization)

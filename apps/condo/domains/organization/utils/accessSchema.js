@@ -75,6 +75,7 @@ async function checkPermissionInUserOrganizationOrRelatedOrganization (userId, o
     if (!userId || !organizationId) return false
     const hasPermissionInRelatedOrganization = await checkRelatedOrganizationPermission(userId, organizationId, permission)
     const hasPermissionInUserOrganization = await checkOrganizationPermission(userId, organizationId, permission)
+
     return Boolean(hasPermissionInRelatedOrganization || hasPermissionInUserOrganization)
 }
 

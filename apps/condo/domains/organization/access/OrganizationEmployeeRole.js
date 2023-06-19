@@ -4,10 +4,11 @@
 const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getByCondition, getById } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
 
 async function canReadOrganizationEmployeeRoles ({ authentication: { item: user } }) {
@@ -26,37 +27,24 @@ async function canReadOrganizationEmployeeRoles ({ authentication: { item: user 
     }
 }
 
-async function canManageOrganizationEmployeeRoles ({ authentication: { item: user }, operation, originalInput }) {
+async function canManageOrganizationEmployeeRoles ({ authentication: { item: user }, operation, originalInput, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
+    let organizationId
+
     if (operation === 'create') {
-        const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-
-        // `GraphQLWhere` type cannot be used in case of `create` operation,
-        // because we will get an error:
-        // > Expected a Boolean for OrganizationEmployeeRole.access.create(), but got Object
-        // In https://www.keystonejs.com/api/access-control#list-level-access-control it states:
-        // > For `create` operations, an `AccessDeniedError` is returned if the operation is set to / returns `false`
-        // Actually, here we repeating the same logic, as declared for another operations
-        const userEmployee = await getByCondition('OrganizationEmployee', {
-            organization: { id: organizationId },
-            user: { id: user.id },
-            deletedAt: null,
-            isBlocked: false,
-        })
-        if (!userEmployee) return false
-
-        const employeeRole = await getById('OrganizationEmployeeRole', userEmployee.role)
-        if (!employeeRole) return false
-
-        return employeeRole.canManageRoles
+        organizationId = get(originalInput, ['organization', 'connect', 'id'])
+    } else if (operation === 'update') {
+        if (!itemId) return false
+        const role = await getById('OrganizationEmployeeRole', itemId)
+        organizationId = get(role, 'organization', null)
     }
 
-    return {
-        organization: { employees_some: { user: { id: user.id }, role: { canManageRoles: true }, isBlocked: false } },
-    }
+    if (!organizationId) return false
+
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageRoles')
 }
 
 /*

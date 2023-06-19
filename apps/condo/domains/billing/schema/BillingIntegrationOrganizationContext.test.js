@@ -18,7 +18,7 @@ const {
     updateTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_STATUSES, CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
-const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganization, updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
@@ -109,6 +109,17 @@ describe('BillingIntegrationOrganizationContext', () => {
             const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
             expect(context).toHaveProperty(['integration', 'id'], integration.id)
             expect(context).toHaveProperty(['organization', 'id'], organization.id)
+        })
+
+        test('deleted organization integration manager: create BillingIntegrationOrganizationContext', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { managerUserClient, managerEmployee, integration, organization } = await makeOrganizationIntegrationManager()
+
+            await updateTestOrganizationEmployee(admin, managerEmployee.id, { deletedAt: new Date().toISOString() })
+
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+            )
         })
 
         test('admin: update BillingIntegrationOrganizationContext', async () => {

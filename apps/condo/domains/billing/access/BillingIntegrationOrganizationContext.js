@@ -25,7 +25,7 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
 
     return {
         OR: [
-            { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, isBlocked: false } } },
+            { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, isBlocked: false, deletedAt: null } } },
             { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
         ],
     }
