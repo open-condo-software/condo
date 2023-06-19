@@ -63594,6 +63594,10 @@ type GetExternalReportIframeUrlOutput {
   iframeUrl: String
 }
 
+input OverviewDashboardGroupByInput {
+  aggregatePeriod: String!
+}
+
 input OverviewDashboardWhereInput {
   organization: String!
   dateFrom: String!
@@ -63604,6 +63608,7 @@ input OverviewDashboardInput {
   dv: Int!
   sender: JSON!
   where: OverviewDashboardWhereInput!
+  groupBy: OverviewDashboardGroupByInput!
 }
 
 type OverviewDashboardOutput {

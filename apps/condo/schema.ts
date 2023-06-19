@@ -47915,10 +47915,15 @@ export type OrganizationsUpdateInput = {
   data?: Maybe<OrganizationUpdateInput>;
 };
 
+export type OverviewDashboardGroupByInput = {
+  aggregatePeriod: Scalars['String'];
+};
+
 export type OverviewDashboardInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
   where: OverviewDashboardWhereInput;
+  groupBy: OverviewDashboardGroupByInput;
 };
 
 export type OverviewDashboardOutput = {

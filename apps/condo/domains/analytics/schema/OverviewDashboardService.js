@@ -30,11 +30,15 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
     types: [
         {
             access: true,
+            type: 'input OverviewDashboardGroupByInput { aggregatePeriod: String! }',
+        },
+        {
+            access: true,
             type: 'input OverviewDashboardWhereInput { organization: String!, dateFrom: String!, dateTo: String! }',
         },
         {
             access: true,
-            type: 'input OverviewDashboardInput { dv: Int!, sender: JSON!, where: OverviewDashboardWhereInput!,  }',
+            type: 'input OverviewDashboardInput { dv: Int!, sender: JSON!, where: OverviewDashboardWhereInput!, groupBy: OverviewDashboardGroupByInput! }',
         },
         {
             access: true,
@@ -48,7 +52,7 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
             access: access.canOverviewDashboard,
             schema: 'overviewDashboard(data: OverviewDashboardInput!): OverviewDashboardOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { where } } = args
+                const { data: { where, groupBy } } = args
 
                 const ticketNullReplaces = {
                     categoryClassifier: i18n('pages.condo.analytics.TicketAnalyticsPage.NullReplaces.CategoryClassifier'),
@@ -78,7 +82,7 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                             provider: new TicketDataLoader({ context }),
                             queryOptions: {
                                 where: ticketWhereFilter,
-                                groupBy: ['day', 'status'],
+                                groupBy: [groupBy.aggregatePeriod, 'status'],
                                 nullReplaces: ticketNullReplaces,
                             },
                         },
@@ -89,8 +93,8 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                                     organization: { id: where.organization },
                                     status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
                                     AND: [
-                                        { createdAt_gte: dayjs().startOf('month').toISOString() },
-                                        { createdAt_lte: dayjs().endOf('month').toISOString() },
+                                        { period_gte: dayjs(where.dateFrom).startOf('month').format('YYYY-MM-DD') },
+                                        { period_lte: dayjs(where.dateTo).endOf('month').format('YYYY-MM-DD') },
                                     ],
                                 },
                             },

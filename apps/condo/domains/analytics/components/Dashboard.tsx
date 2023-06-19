@@ -3,18 +3,19 @@ import { Row, Col, Skeleton } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import groupBy from 'lodash/groupBy'
-import React, { useEffect, useMemo, useState } from 'react'
-
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
 
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { Card, Typography, Space } from '@open-condo/ui'
+import { Card, Typography, Space, Select } from '@open-condo/ui'
 
-import TicketChart from '@condo/domains/analytics/components/TicketChart'
+import TicketChart, { EchartsSeries } from '@condo/domains/analytics/components/TicketChart'
 import { OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
+import PaymentChart from './PaymentChart'
+import { PaymentChartView } from './PaymentChartView'
 import TicketChartView from './TicketChartView'
 
 import { getAggregatedData } from '../utils/helpers'
@@ -145,17 +146,80 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
     )
 }
 
+const PaymentChartContainer = ({ data, title, dateFilter }) => {
+    const mapperInstance = new PaymentChart({
+        barSummary: {
+            chart: (viewMode, payments) => {
+                const entries = Object.entries(groupBy(payments, 'period'))
+
+                const series: Array<EchartsSeries> = [
+                    {
+                        name: 'Сумма',
+                        data: entries
+                            .map(([date, values]) => [date, values.reduce((prev, curr) => prev + Number(curr.amount), 0)]),
+                        type: 'bar',
+                        label: { show: true, position: 'top' },
+                    },
+                    {
+                        name: 'Количество оплат',
+                        data: entries.map(([date, values]) => [date, values.length]),
+                        type: 'line',
+                        yAxisIndex: 1,
+                    },
+                ]
+
+                return {
+                    legend: ['Сумма', 'Количество оплат'],
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
+                    axisData: {
+                        yAxis: [
+                            { type: 'value', data: null },
+                            { type: 'value', data: null },
+                        ],
+                        xAxis: {
+                            type: 'category',
+                            data: null,
+                            axisLabel: {
+                                formatter: (value) => {
+                                    return dayjs(value).format('MMM, YYYY')
+                                },
+                            },
+                        },
+                    },
+                    series,
+                }
+            },
+        },
+    })
+    return (
+        <Row gutter={[0, 16]}>
+            <Col span={24}>
+                <Typography.Title level={3}>{title}</Typography.Title>
+            </Col>
+            <Col span={24}>
+                <PaymentChartView
+                    data={data}
+                    viewMode='barSummary'
+                    mapperInstance={mapperInstance}
+                    loading={false}
+                    chartConfig={{ chartOptions: { height: 300 }, animationEnabled: true }}
+                />
+            </Col>
+        </Row>
+    )
+}
+
 export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId }) => {
     const intl = useIntl()
 
     const [overview, setOverview] = useState(null)
-    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'week'), dayjs()])
+    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
+    const [aggregatePeriod, setAggregatePeriod] = useState<'day' | 'week' | 'month'>('day')
 
     const [loadDashboardData, { loading }] = useLazyQuery(OVERVIEW_DASHBOARD_MUTATION, {
         onCompleted: (response) => {
             const { result } = response
             setOverview(result.overview)
-            console.log(result.overview)
         },
         onError: error => {console.log(error)},
     })
@@ -168,9 +232,22 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     dateFrom: dateRange[0].toISOString(),
                     dateTo: dateRange[1].toISOString(),
                 },
+                groupBy: {
+                    aggregatePeriod,
+                },
             },
         } })
-    }, [organizationId, loadDashboardData, dateRange])
+    }, [organizationId, loadDashboardData, dateRange, aggregatePeriod])
+
+    const onAggregatePeriodChange = useCallback((aggregatePeriod) => {
+        setAggregatePeriod(aggregatePeriod)
+    }, [])
+
+    const aggregateOptions = useMemo(() => [
+        { label: 'День', value: 'day' },
+        { label: 'Неделя', value: 'week' },
+        { label: 'Месяц', value: 'month' },
+    ], [])
 
     if (loading || overview === null) {
         return (
@@ -183,14 +260,22 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
             .find(e => e.type === TicketStatusTypeType.NewOrReopened).label)
 
     const propertyTickets = get(overview, 'ticketByProperty.ticketCounts')
+    const paymentsData = get(overview, 'payment.payments')
 
     return (
         <Row gutter={DASHBOARD_ROW_GUTTER}>
-            <Col span={24}>
-                <DateRangePicker value={dateRange} onChange={setDateRange} />
-            </Col>
             <Col lg={12} md={24}>
                 <PerformanceCard tickets={get(overview, 'ticketByProperty')} />
+            </Col>
+            <Col span={24}>
+                <Space direction='horizontal' size={16}>
+                    <DateRangePicker value={dateRange} onChange={setDateRange} />
+                    <Select
+                        value={aggregatePeriod}
+                        onChange={onAggregatePeriodChange}
+                        options={aggregateOptions}
+                    />
+                </Space>
             </Col>
             <Col span={24}>
                 <Row gutter={DASHBOARD_ROW_GUTTER}>
@@ -209,6 +294,9 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                             isStacked
                             isYValue
                         />
+                    </Col>
+                    <Col span={12}>
+                        <PaymentChartContainer title='Оплата квитанций' data={paymentsData} dateFilter={dateRange} />
                     </Col>
                 </Row>
             </Col>

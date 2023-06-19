@@ -11,6 +11,7 @@ export type EchartsSeries = {
     type: ViewModeTypes
     name?: string
     stack?: string
+    smooth?: boolean
     data: unknown[]
     label?: {
         show?: boolean
@@ -18,6 +19,8 @@ export type EchartsSeries = {
         padding?: number | number[]
         width?: number
         height?: number
+        formatter?: unknown
+        normal?: Record<string, unknown>
     }
     emphasis?: {
         focus: string
@@ -29,14 +32,21 @@ export type EchartsSeries = {
     bottom?: number | string
     right?: number | string
     labelLayout?: unknown
+    yAxisIndex?: number
+}
+
+export type AxisData = {
+    type: string,
+    data: null | string[],
+    axisLabel?: Record<string, unknown>
 }
 
 export type ChartConfigResult = {
     legend: string[],
     series: EchartsSeries[],
     axisData?: {
-        xAxis: { type: string, data: null | string[] },
-        yAxis: { type: string, data: null | string[] }
+        xAxis: Array<AxisData> | AxisData,
+        yAxis: Array<AxisData> | AxisData
     },
     tooltip?: {
         trigger: string,
@@ -51,8 +61,8 @@ interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, TicketGroup
         legend,
         series,
         axisData?: {
-            xAxis: { type, data },
-            yAxis: { type, data }
+            xAxis: Array<AxisData> | AxisData,
+            yAxis: Array<AxisData> | AxisData
         },
         tooltip?: {
             trigger,
