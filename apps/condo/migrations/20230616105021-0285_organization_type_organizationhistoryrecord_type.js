@@ -13,6 +13,9 @@ ALTER TABLE "Organization" ALTER COLUMN "type" DROP DEFAULT;
 -- Add field type to organizationhistoryrecord
 --
 ALTER TABLE "OrganizationHistoryRecord" ADD COLUMN "type" text NULL;
+
+-- [MANUAL PART] SET type holding to each non-deleted parent organization of non-deleted organization link
+UPDATE "Organization" AS O SET "type" = 'HOLDING' FROM (SELECT "from" FROM "OrganizationLink" where "deletedAt" is null) AS OL WHERE OL.from = O.id AND O."deletedAt" is null;
 COMMIT;
 
     `)
