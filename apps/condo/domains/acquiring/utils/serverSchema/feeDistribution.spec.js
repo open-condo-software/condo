@@ -156,7 +156,7 @@ describe('FeeDistribution calculation cases', () => {
                 const { check: { payDifference, commissionDifference }, summa } = calculator.calculate(Big(100000000))
                 expect(payDifference).toEqual(0)
                 expect(commissionDifference).toEqual(0)
-                expect(summa).toEqual(101209677.42)
+                expect(summa).toEqual(101200000)
             })
         })
 
@@ -177,7 +177,7 @@ describe('FeeDistribution calculation cases', () => {
                 const { check: { payDifference, commissionDifference }, summa } = calculator.calculate(Big(100000000))
                 expect(payDifference).toEqual(0)
                 expect(commissionDifference).toEqual(0)
-                expect(summa).toEqual(101209677.42)
+                expect(summa).toEqual(101200000)
             })
         })
 
