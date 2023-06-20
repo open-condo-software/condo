@@ -16,6 +16,13 @@ function queryFindNewsItemsScopesByResidents (residents) {
                     OR: [
                         {
                             AND: [
+                                { property_is_null: true },
+                                { unitType: null },
+                                { unitName: null },
+                            ],
+                        },
+                        {
+                            AND: [
                                 { property: { id: propertyId } },
                                 { unitType: null },
                                 { unitName: null },
@@ -47,41 +54,34 @@ function queryFindNewsItemsScopesByResidents (residents) {
  * @param {NewsItemScope[]} newsItemScopes
  */
 function queryFindResidentsByOrganizationAndScopes (organizationId, newsItemScopes) {
-    const whereConditions = {
-        AND: [],
+    return {
+        AND: [
+            { organization: { id: organizationId } },
+            {
+                OR: newsItemScopes.map((scope) => {
+                    const propertyId = get(scope, ['property', 'id'])
+                    const unitType = get(scope, 'unitType')
+                    const unitName = get(scope, 'unitName')
+
+                    const AND = []
+
+                    if (propertyId) {
+                        AND.push({ property: { id: propertyId } })
+                    }
+
+                    if (unitType) {
+                        AND.push({ unitType })
+                    }
+
+                    if (unitName) {
+                        AND.push({ unitName })
+                    }
+
+                    return { AND }
+                }),
+            },
+        ],
     }
-    if (organizationId) {
-        whereConditions.AND.push({
-            organization: { id: organizationId },
-            deletedAt: null,
-        })
-    }
-    if (newsItemScopes.length > 0) {
-        whereConditions.AND.push({
-            OR: newsItemScopes.map((scope) => {
-                const unitType = get(scope, 'unitType')
-                const unitName = get(scope, 'unitName')
-                const propertyId = get(scope, ['property', 'id'])
-
-                const AND = []
-
-                if (propertyId) {
-                    AND.push({ property: { id: propertyId } })
-                }
-
-                if (unitType) {
-                    AND.push({ unitType })
-                }
-
-                if (unitName) {
-                    AND.push({ unitName })
-                }
-
-                return { AND }
-            }),
-        })
-    }
-    return whereConditions
 }
 
 module.exports = {

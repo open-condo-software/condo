@@ -1715,8 +1715,6 @@
   "api.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE": "Дата актуальности меньше чем дата отправки",
   "api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER": "Обнаружена ненормативная лексика",
   "api.newsItem.WRONG_SEND_DATE": "Неверная дата отправки",
-  "api.newsItem.EMPTY_NEWS_ITEM_SCOPE": "Не указаны получатели",
-  "api.newsItem.UNIT_NAME_WITHOUT_UNIT_TYPE": "Не задан unitName без unitType",
   "api.ticket.QUALITY_CONTROL_ADDITIONAL_OPTION_DOES_NOT_MATCH_QUALITY_CONTROL_VALUE": "Дополнительные параметры контроля качества должны соответсоввать указанной оценке",
   "api.ticket.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED": "При указании комментария или дополнительных параметров оценки нужно указать саму оценку",
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PERIOD_PROVIDED": "Необходимо передать период не ранее начала прошлого месяца и не позднее начала текущего месяца, валидный формат - YYYY-MM-DD",
