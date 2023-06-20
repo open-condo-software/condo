@@ -146,23 +146,20 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
     )
 }
 
-const PaymentChartContainer = ({ data, title, dateFilter }) => {
+const PaymentChartContainer = ({ data, title }) => {
     const mapperInstance = new PaymentChart({
         barSummary: {
             chart: (viewMode, payments) => {
-                const entries = Object.entries(groupBy(payments, 'period'))
-
                 const series: Array<EchartsSeries> = [
                     {
                         name: 'Сумма',
-                        data: entries
-                            .map(([date, values]) => [date, values.reduce((prev, curr) => prev + Number(curr.amount), 0)]),
+                        data: payments.map(payment => [payment.dayGroup, Number(payment.sum).toFixed(2)]),
                         type: 'bar',
                         label: { show: true, position: 'top' },
                     },
                     {
                         name: 'Количество оплат',
-                        data: entries.map(([date, values]) => [date, values.length]),
+                        data: payments.map(payment => [payment.dayGroup, Number(payment.count)]),
                         type: 'line',
                         yAxisIndex: 1,
                     },
@@ -260,7 +257,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
             .find(e => e.type === TicketStatusTypeType.NewOrReopened).label)
 
     const propertyTickets = get(overview, 'ticketByProperty.ticketCounts')
-    const paymentsData = get(overview, 'payment.payments')
+    const paymentsData = get(overview, 'payment.aggregatedPayments')
 
     return (
         <Row gutter={DASHBOARD_ROW_GUTTER}>
@@ -296,7 +293,10 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                         />
                     </Col>
                     <Col span={12}>
-                        <PaymentChartContainer title='Оплата квитанций' data={paymentsData} dateFilter={dateRange} />
+                        <PaymentChartContainer
+                            title='Оплата квитанций'
+                            data={paymentsData}
+                        />
                     </Col>
                 </Row>
             </Col>

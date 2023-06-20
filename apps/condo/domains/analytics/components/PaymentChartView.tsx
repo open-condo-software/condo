@@ -23,7 +23,6 @@ interface IPaymentChartViewProps {
 
 export const PaymentChartView: React.FC<IPaymentChartViewProps> = (props) => {
     const { viewMode, data, mapperInstance, loading, chartConfig } = props
-    console.log(viewMode)
 
     const intl = useIntl()
     const NoData = intl.formatMessage({ id: 'NoData' })
@@ -37,7 +36,6 @@ export const PaymentChartView: React.FC<IPaymentChartViewProps> = (props) => {
     const mapperResult = mapperInstance.getChartConfig(viewMode, data)
     legend = mapperResult.legend
     tooltip = mapperResult.tooltip
-    console.log(mapperResult)
 
     const { opts, option } = getChartOptions({
         legend,
