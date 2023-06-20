@@ -109,6 +109,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         const adminContext = await context.createContext({ skipAccessControl: true })
         const accountByProperty = await BankAccount.getAll(adminContext, {
             organization: { id: organization.id },
+            number_not: bankAccountData.number,
             property: { id: property.id },
             deletedAt: null,
         })
