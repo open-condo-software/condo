@@ -314,7 +314,7 @@ describe('NewsItemScope', () => {
             )
         })
 
-        test('must throw an error on trying to create scope with unitName and without unitType', async () => {
+        test('must throw an when type value is not detected', async () => {
             const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
             await expectToThrowValidationFailureError(
                 async () => await createTestNewsItemScope(adminClient, newsItem, { unitName: '1' }),
