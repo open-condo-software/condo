@@ -40341,7 +40341,7 @@ export type NewsItemScope = {
    *  4. As an alias to the 'id' field on the NewsItemScope List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  The scope type. Used to find news items by scopes filled with some set of attributes.  */
+  /**  The scope type. This is an auto-calculated field. Used to find news items by scopes filled with some set of attributes.  */
   type?: Maybe<NewsItemScopeTypeType>;
   /**  The news item to control access for  */
   newsItem?: Maybe<NewsItem>;

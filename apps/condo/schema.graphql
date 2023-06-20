@@ -58362,7 +58362,7 @@ type NewsItemScope {
   """
   _label_: String
 
-  """ The scope type. Used to find news items by scopes filled with some set of attributes. 
+  """ The scope type. This is an auto-calculated field. Used to find news items by scopes filled with some set of attributes. 
   """
   type: NewsItemScopeTypeType
 
