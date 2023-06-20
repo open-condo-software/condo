@@ -48,7 +48,7 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
                 update: false,
             },
             hooks: {
-                resolveInput: async ({ operation, resolvedData }) => {
+                resolveInput: async ({ operation, resolvedData, fieldPath }) => {
                     if (operation === 'create') {
                         let type
                         const { property, unitType, unitName } = resolvedData
@@ -66,9 +66,11 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
                         if (type) {
                             return type
                         }
+
+                        return null
                     }
 
-                    return null
+                    return resolvedData[fieldPath]
                 },
             },
         },
