@@ -13,8 +13,15 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
 
+const {
+    NEWS_ITEM_SCOPE_TYPE_ORGANIZATION,
+    NEWS_ITEM_SCOPE_TYPE_PROPERTY,
+    NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE,
+    NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
+} = require('@condo/domains/news/constants/scopesTypes')
 const {
     NewsItemScope,
     createTestNewsItemScope,
@@ -26,6 +33,7 @@ const {
     createTestOrganizationEmployee,
     createTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -121,6 +129,25 @@ describe('NewsItemScope', () => {
                     await createTestNewsItemScope(anonymousClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
                 })
             })
+
+            test('The scope type calculates correctly', async () => {
+                const [scope1] = await createTestNewsItemScope(adminClient, dummyNewsItem)
+                const [scope2] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
+                const [scope3] = await createTestNewsItemScope(adminClient, dummyNewsItem, {
+                    property: { connect: { id: dummyProperty.id } },
+                    unitType: FLAT_UNIT_TYPE,
+                })
+                const [scope4] = await createTestNewsItemScope(adminClient, dummyNewsItem, {
+                    property: { connect: { id: dummyProperty.id } },
+                    unitType: FLAT_UNIT_TYPE,
+                    unitName: '1',
+                })
+
+                expect(scope1.type).toEqual(NEWS_ITEM_SCOPE_TYPE_ORGANIZATION)
+                expect(scope2.type).toEqual(NEWS_ITEM_SCOPE_TYPE_PROPERTY)
+                expect(scope3.type).toEqual(NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE)
+                expect(scope4.type).toEqual(NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME)
+            })
         })
 
         describe('update', () => {
@@ -143,15 +170,10 @@ describe('NewsItemScope', () => {
                 })
             })
 
-            test('stuff with permission can', async () => {
-                const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
-                const [obj, attrs] = await updateTestNewsItemScope(staffClient, objCreated.id)
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: staffClient.user.id }))
+            test('stuff with permission can\'t', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestNewsItemScope(staffClient, dummyNewsItem.id)
+                })
             })
 
             test('stuff without permission can\'t', async () => {
@@ -292,29 +314,11 @@ describe('NewsItemScope', () => {
             )
         })
 
-        test('must throw an error on trying to create empty scope', async () => {
+        test('must throw an when type value is not detected', async () => {
             const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-            await expectToThrowGQLError(
-                async () => await createTestNewsItemScope(adminClient, newsItem, { newsItem: null }),
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'EMPTY_NEWS_ITEM_SCOPE',
-                    message: 'News item scope is empty',
-                    messageForUser: 'api.newsItem.EMPTY_NEWS_ITEM_SCOPE',
-                },
-            )
-        })
-
-        test('must throw an error on trying to create scope with unitName and without unitType', async () => {
-            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
-            await expectToThrowGQLError(
+            await expectToThrowValidationFailureError(
                 async () => await createTestNewsItemScope(adminClient, newsItem, { unitName: '1' }),
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'UNIT_NAME_WITHOUT_UNIT_TYPE',
-                    message: 'You set unitName without unitType',
-                    messageForUser: 'api.newsItem.UNIT_NAME_WITHOUT_UNIT_TYPE',
-                },
+                'Required field "type" is null or undefined.',
             )
         })
     })

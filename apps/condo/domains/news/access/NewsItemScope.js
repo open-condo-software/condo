@@ -41,17 +41,14 @@ async function canManageNewsItemScopes ({ authentication: { item: user }, origin
     if (user.isAdmin) return true
 
     if (user.type === STAFF) {
-        let newsItemId = get(originalInput, ['newsItem', 'connect', 'id'])
         if (operation === 'update') {
-            if (!itemId) return false
-
-            if (!newsItemId) {
-                const newsItemScope = await getById('NewsItemScope', itemId)
-                newsItemId = newsItemScope.newsItem
-            }
+            return false
         }
 
-        if (!newsItemId) return false
+        let newsItemId = get(originalInput, ['newsItem', 'connect', 'id'])
+        if (!newsItemId) {
+            return false
+        }
 
         const newsItem = await getById('NewsItem', newsItemId)
         return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, newsItem.organization, 'canManageNewsItems')

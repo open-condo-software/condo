@@ -58087,6 +58087,7 @@ type NewsItemScopeHistoryRecord {
    4. As an alias to the 'id' field on the NewsItemScopeHistoryRecord List.
   """
   _label_: String
+  type: String
   newsItem: String
   property: String
   unitType: String
@@ -58109,6 +58110,24 @@ type NewsItemScopeHistoryRecord {
 input NewsItemScopeHistoryRecordWhereInput {
   AND: [NewsItemScopeHistoryRecordWhereInput]
   OR: [NewsItemScopeHistoryRecordWhereInput]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
   newsItem: String
   newsItem_not: String
   newsItem_in: [String]
@@ -58236,6 +58255,8 @@ input NewsItemScopeHistoryRecordWhereUniqueInput {
 }
 
 enum SortNewsItemScopeHistoryRecordsBy {
+  type_ASC
+  type_DESC
   unitType_ASC
   unitType_DESC
   unitName_ASC
@@ -58259,6 +58280,7 @@ enum SortNewsItemScopeHistoryRecordsBy {
 }
 
 input NewsItemScopeHistoryRecordUpdateInput {
+  type: String
   newsItem: String
   property: String
   unitType: String
@@ -58283,6 +58305,7 @@ input NewsItemScopeHistoryRecordsUpdateInput {
 }
 
 input NewsItemScopeHistoryRecordCreateInput {
+  type: String
   newsItem: String
   property: String
   unitType: String
@@ -58303,6 +58326,14 @@ input NewsItemScopeHistoryRecordCreateInput {
 
 input NewsItemScopeHistoryRecordsCreateInput {
   data: NewsItemScopeHistoryRecordCreateInput
+}
+
+enum NewsItemScopeTypeType {
+  unknown
+  organization
+  property
+  property_unitType
+  property_unitType_unitName
 }
 
 input NewsItemRelateToOneInput {
@@ -58330,6 +58361,10 @@ type NewsItemScope {
    4. As an alias to the 'id' field on the NewsItemScope List.
   """
   _label_: String
+
+  """ The scope type. This is an auto-calculated field. Used to find news items by scopes filled with some set of attributes. 
+  """
+  type: NewsItemScopeTypeType
 
   """ The news item to control access for """
   newsItem: NewsItem
@@ -58369,6 +58404,10 @@ type NewsItemScope {
 input NewsItemScopeWhereInput {
   AND: [NewsItemScopeWhereInput]
   OR: [NewsItemScopeWhereInput]
+  type: NewsItemScopeTypeType
+  type_not: NewsItemScopeTypeType
+  type_in: [NewsItemScopeTypeType]
+  type_not_in: [NewsItemScopeTypeType]
   newsItem: NewsItemWhereInput
   newsItem_is_null: Boolean
   property: PropertyWhereInput
@@ -58458,6 +58497,8 @@ input NewsItemScopeWhereUniqueInput {
 }
 
 enum SortNewsItemScopesBy {
+  type_ASC
+  type_DESC
   newsItem_ASC
   newsItem_DESC
   property_ASC
@@ -58485,6 +58526,7 @@ enum SortNewsItemScopesBy {
 }
 
 input NewsItemScopeUpdateInput {
+  type: NewsItemScopeTypeType
   newsItem: NewsItemRelateToOneInput
   property: PropertyRelateToOneInput
   unitType: NewsItemScopeUnitTypeType
@@ -58506,6 +58548,7 @@ input NewsItemScopesUpdateInput {
 }
 
 input NewsItemScopeCreateInput {
+  type: NewsItemScopeTypeType
   newsItem: NewsItemRelateToOneInput
   property: PropertyRelateToOneInput
   unitType: NewsItemScopeUnitTypeType

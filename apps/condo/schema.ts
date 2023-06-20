@@ -40341,6 +40341,8 @@ export type NewsItemScope = {
    *  4. As an alias to the 'id' field on the NewsItemScope List.
    */
   _label_?: Maybe<Scalars['String']>;
+  /**  The scope type. This is an auto-calculated field. Used to find news items by scopes filled with some set of attributes.  */
+  type?: Maybe<NewsItemScopeTypeType>;
   /**  The news item to control access for  */
   newsItem?: Maybe<NewsItem>;
   /**  Filter on Resident by property, who can read news  */
@@ -40366,6 +40368,7 @@ export type NewsItemScope = {
 };
 
 export type NewsItemScopeCreateInput = {
+  type?: Maybe<NewsItemScopeTypeType>;
   newsItem?: Maybe<NewsItemRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   unitType?: Maybe<NewsItemScopeUnitTypeType>;
@@ -40392,6 +40395,7 @@ export type NewsItemScopeHistoryRecord = {
    *  4. As an alias to the 'id' field on the NewsItemScopeHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   newsItem?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
@@ -40412,6 +40416,7 @@ export type NewsItemScopeHistoryRecord = {
 };
 
 export type NewsItemScopeHistoryRecordCreateInput = {
+  type?: Maybe<Scalars['String']>;
   newsItem?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
@@ -40437,6 +40442,7 @@ export enum NewsItemScopeHistoryRecordHistoryActionType {
 }
 
 export type NewsItemScopeHistoryRecordUpdateInput = {
+  type?: Maybe<Scalars['String']>;
   newsItem?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
@@ -40458,6 +40464,24 @@ export type NewsItemScopeHistoryRecordUpdateInput = {
 export type NewsItemScopeHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<NewsItemScopeHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<NewsItemScopeHistoryRecordWhereInput>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   newsItem?: Maybe<Scalars['String']>;
   newsItem_not?: Maybe<Scalars['String']>;
   newsItem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -40600,6 +40624,14 @@ export type NewsItemScopeRelateToManyInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+export enum NewsItemScopeTypeType {
+  Unknown = 'unknown',
+  Organization = 'organization',
+  Property = 'property',
+  PropertyUnitType = 'property_unitType',
+  PropertyUnitTypeUnitName = 'property_unitType_unitName'
+}
+
 export enum NewsItemScopeUnitTypeType {
   Parking = 'parking',
   Flat = 'flat',
@@ -40609,6 +40641,7 @@ export enum NewsItemScopeUnitTypeType {
 }
 
 export type NewsItemScopeUpdateInput = {
+  type?: Maybe<NewsItemScopeTypeType>;
   newsItem?: Maybe<NewsItemRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   unitType?: Maybe<NewsItemScopeUnitTypeType>;
@@ -40627,6 +40660,10 @@ export type NewsItemScopeUpdateInput = {
 export type NewsItemScopeWhereInput = {
   AND?: Maybe<Array<Maybe<NewsItemScopeWhereInput>>>;
   OR?: Maybe<Array<Maybe<NewsItemScopeWhereInput>>>;
+  type?: Maybe<NewsItemScopeTypeType>;
+  type_not?: Maybe<NewsItemScopeTypeType>;
+  type_in?: Maybe<Array<Maybe<NewsItemScopeTypeType>>>;
+  type_not_in?: Maybe<Array<Maybe<NewsItemScopeTypeType>>>;
   newsItem?: Maybe<NewsItemWhereInput>;
   newsItem_is_null?: Maybe<Scalars['Boolean']>;
   property?: Maybe<PropertyWhereInput>;
@@ -64121,6 +64158,8 @@ export enum SortNewsItemHistoryRecordsBy {
 }
 
 export enum SortNewsItemScopeHistoryRecordsBy {
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   UnitTypeAsc = 'unitType_ASC',
   UnitTypeDesc = 'unitType_DESC',
   UnitNameAsc = 'unitName_ASC',
@@ -64144,6 +64183,8 @@ export enum SortNewsItemScopeHistoryRecordsBy {
 }
 
 export enum SortNewsItemScopesBy {
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   NewsItemAsc = 'newsItem_ASC',
   NewsItemDesc = 'newsItem_DESC',
   PropertyAsc = 'property_ASC',

@@ -8,12 +8,14 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemScope')
+const { EDIT_DENIED_ALREADY_SENT, EDIT_DENIED_PUBLISHED } = require('@condo/domains/news/constants/errors')
 const {
-    EDIT_DENIED_ALREADY_SENT,
-    EDIT_DENIED_PUBLISHED,
-    EMPTY_NEWS_ITEM_SCOPE,
-    UNIT_NAME_WITHOUT_UNIT_TYPE,
-} = require('@condo/domains/news/constants/errors')
+    NEWS_ITEMS_SCOPES_TYPES,
+    NEWS_ITEM_SCOPE_TYPE_ORGANIZATION,
+    NEWS_ITEM_SCOPE_TYPE_PROPERTY,
+    NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE,
+    NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME,
+} = require('@condo/domains/news/constants/scopesTypes')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
 const ERRORS = {
@@ -29,23 +31,49 @@ const ERRORS = {
         message: 'The sent news item is restricted from editing',
         messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
     },
-    EMPTY_NEWS_ITEM_SCOPE: {
-        code: BAD_USER_INPUT,
-        type: EMPTY_NEWS_ITEM_SCOPE,
-        message: 'News item scope is empty',
-        messageForUser: 'api.newsItem.EMPTY_NEWS_ITEM_SCOPE',
-    },
-    UNIT_NAME_WITHOUT_UNIT_TYPE: {
-        code: BAD_USER_INPUT,
-        type: UNIT_NAME_WITHOUT_UNIT_TYPE,
-        message: 'You set unitName without unitType',
-        messageForUser: 'api.newsItem.UNIT_NAME_WITHOUT_UNIT_TYPE',
-    },
 }
 
 const NewsItemScope = new GQLListSchema('NewsItemScope', {
     schemaDoc: 'Which residents can see the particular news item',
     fields: {
+
+        type: {
+            schemaDoc: 'The scope type. This is an auto-calculated field. Used to find news items by scopes filled with some set of attributes.',
+            type: 'Select',
+            options: NEWS_ITEMS_SCOPES_TYPES,
+            isRequired: true,
+            access: {
+                read: true,
+                create: false,
+                update: false,
+            },
+            hooks: {
+                resolveInput: async ({ operation, resolvedData, fieldPath }) => {
+                    if (operation === 'create') {
+                        let type
+                        const { property, unitType, unitName } = resolvedData
+
+                        if (!property && !unitType && !unitName) {
+                            type = NEWS_ITEM_SCOPE_TYPE_ORGANIZATION
+                        } else if (!!property && !unitType && !unitName) {
+                            type = NEWS_ITEM_SCOPE_TYPE_PROPERTY
+                        } else if (!!property && !!unitType && !unitName) {
+                            type = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE
+                        } else if (!!property && !!unitType && !!unitName) {
+                            type = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME
+                        }
+
+                        if (type) {
+                            return type
+                        }
+
+                        return null
+                    }
+
+                    return resolvedData[fieldPath]
+                },
+            },
+        },
 
         newsItem: {
             schemaDoc: 'The news item to control access for',
@@ -80,15 +108,6 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
     hooks: {
         validateInput: async (args) => {
             const { resolvedData, existingItem, context, operation } = args
-            const possibleItemData = { ...existingItem, ...resolvedData }
-
-            if (!get(possibleItemData, 'property') && !get(possibleItemData, 'unitType') && !get(possibleItemData, 'unitName')) {
-                throw new GQLError(ERRORS.EMPTY_NEWS_ITEM_SCOPE, context)
-            }
-
-            if (get(possibleItemData, 'unitName') && !get(possibleItemData, 'unitType')) {
-                throw new GQLError(ERRORS.UNIT_NAME_WITHOUT_UNIT_TYPE, context)
-            }
 
             let newsItemId
             if (operation === 'create') {

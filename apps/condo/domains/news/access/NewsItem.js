@@ -34,12 +34,7 @@ async function canReadNewsItems ({ authentication: { item: user } }) {
             isPublished: true,
             organization: { id_in: organizationsIds },
             AND: [
-                {
-                    OR: [
-                        { scopes_none: true },
-                        { scopes_some: scopesCondition },
-                    ],
-                },
+                { scopes_some: scopesCondition },
                 {
                     OR: [
                         // We should show delayed news items on time
