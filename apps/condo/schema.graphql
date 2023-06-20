@@ -68815,30 +68815,76 @@ type Mutation {
   }`
   
   `{
-    "mutation": "registerNewUser",
     "variable": [
       "data",
       "password"
     ],
     "code": "BAD_USER_INPUT",
-    "type": "WRONG_FORMAT",
-    "message": "Password length is less then {min} characters",
-    "messageForUser": "api.user.PASSWORD_IS_TOO_SHORT",
+    "type": "INVALID_PASSWORD_LENGTH",
+    "message": "Password length must be between 8 and 128 characters",
+    "messageForUser": "api.user.INVALID_PASSWORD_LENGTH",
     "messageInterpolation": {
-      "min": 8
+      "min": 8,
+      "max": 128
     }
   }`
   
   `{
-    "mutation": "registerNewUser",
     "variable": [
       "data",
       "password"
     ],
     "code": "BAD_USER_INPUT",
-    "type": "WRONG_VALUE",
+    "type": "PASSWORD_CONTAINS_EMAIL",
+    "message": "Password must not contain email",
+    "messageForUser": "api.user.PASSWORD_CONTAINS_EMAIL"
+  }`
+  
+  `{
+    "variable": [
+      "data",
+      "password"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONTAINS_PHONE",
+    "message": "Password must not contain phone",
+    "messageForUser": "api.user.PASSWORD_CONTAINS_PHONE"
+  }`
+  
+  `{
+    "variable": [
+      "data",
+      "password"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONTAINS_NAME",
+    "message": "Password must not contain mane",
+    "messageForUser": "api.user.PASSWORD_CONTAINS_NAME"
+  }`
+  
+  `{
+    "variable": [
+      "data",
+      "password"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_IS_FREQUENTLY_USED",
     "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
     "messageForUser": "api.user.PASSWORD_IS_FREQUENTLY_USED"
+  }`
+  
+  `{
+    "variable": [
+      "data",
+      "password"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+    "message": "Password must contain at least 4 different characters",
+    "messageForUser": "api.user.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+    "messageInterpolation": {
+      "min": 4
+    }
   }`
   
   `{
@@ -68933,30 +68979,76 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "changePasswordWithToken",
     "variable": [
       "data",
       "password"
     ],
     "code": "BAD_USER_INPUT",
-    "type": "PASSWORD_IS_TOO_SHORT",
-    "message": "Password length is less then {min} characters",
-    "messageForUser": "api.user.PASSWORD_IS_TOO_SHORT",
+    "type": "INVALID_PASSWORD_LENGTH",
+    "message": "Password length must be between 8 and 128 characters",
+    "messageForUser": "api.user.INVALID_PASSWORD_LENGTH",
     "messageInterpolation": {
-      "min": 8
+      "min": 8,
+      "max": 128
     }
   }`
   
   `{
-    "mutation": "changePasswordWithToken",
     "variable": [
       "data",
       "password"
     ],
     "code": "BAD_USER_INPUT",
-    "type": "WRONG_VALUE",
+    "type": "PASSWORD_CONTAINS_EMAIL",
+    "message": "Password must not contain email",
+    "messageForUser": "api.user.PASSWORD_CONTAINS_EMAIL"
+  }`
+  
+  `{
+    "variable": [
+      "data",
+      "password"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONTAINS_PHONE",
+    "message": "Password must not contain phone",
+    "messageForUser": "api.user.PASSWORD_CONTAINS_PHONE"
+  }`
+  
+  `{
+    "variable": [
+      "data",
+      "password"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONTAINS_NAME",
+    "message": "Password must not contain mane",
+    "messageForUser": "api.user.PASSWORD_CONTAINS_NAME"
+  }`
+  
+  `{
+    "variable": [
+      "data",
+      "password"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_IS_FREQUENTLY_USED",
     "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
     "messageForUser": "api.user.PASSWORD_IS_FREQUENTLY_USED"
+  }`
+  
+  `{
+    "variable": [
+      "data",
+      "password"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+    "message": "Password must contain at least 4 different characters",
+    "messageForUser": "api.user.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+    "messageInterpolation": {
+      "min": 4
+    }
   }`
   
   `{

@@ -14,10 +14,22 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/User')
-const { STAFF, USER_TYPES, MIN_PASSWORD_LENGTH, LOCALES } = require('@condo/domains/user/constants/common')
-const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR, EMAIL_WRONG_FORMAT_ERROR, PHONE_WRONG_FORMAT_ERROR, PHONE_IS_REQUIRED_ERROR } = require('@condo/domains/user/constants/errors')
+const {
+    STAFF,
+    USER_TYPES,
+    MIN_PASSWORD_LENGTH,
+    LOCALES,
+} = require('@condo/domains/user/constants/common')
+const {
+    EMAIL_ALREADY_REGISTERED_ERROR,
+    PHONE_ALREADY_REGISTERED_ERROR,
+    EMAIL_WRONG_FORMAT_ERROR,
+    PHONE_WRONG_FORMAT_ERROR,
+    PHONE_IS_REQUIRED_ERROR,
+} = require('@condo/domains/user/constants/errors')
 const { USER_CUSTOM_ACCESS_GRAPHQL_TYPES, USER_CUSTOM_ACCESS_FIELDS } = require('@condo/domains/user/gql')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
+const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
 
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
@@ -41,6 +53,23 @@ const User = new GQLListSchema('User', {
             rejectCommon: true,
             minLength: MIN_PASSWORD_LENGTH,
             access: access.canAccessToPasswordField,
+            hooks: {
+                resolveInput: async ({ resolvedData, fieldPath }) => {
+                    const pass = resolvedData[fieldPath]
+
+                    if (pass === '') return null
+                    return pass
+                },
+                validateInput: async ({ context, resolvedData, existingItem, fieldPath }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const pass = newItem[fieldPath]
+
+                    // NOTE: it should be possible to reset the password
+                    if (!isNull(pass)) {
+                        await passwordValidations(context, pass, newItem.email, newItem.phone, newItem.name)
+                    }
+                },
+            },
         },
         type: {
             schemaDoc: 'Field that allows you to distinguish CRM users from mobile app users',
@@ -88,9 +117,17 @@ const User = new GQLListSchema('User', {
                         let existedUsers = []
                         const userType = resolvedData.type || STAFF
                         if (operation === 'create') {
-                            existedUsers = await UserAPI.getAll(context, { email: resolvedData['email'], type: userType, deletedAt: null })
+                            existedUsers = await UserAPI.getAll(context, {
+                                email: resolvedData['email'],
+                                type: userType,
+                                deletedAt: null,
+                            })
                         } else if (operation === 'update' && resolvedData.email !== existingItem.email) {
-                            existedUsers = await UserAPI.getAll(context, { email: resolvedData['email'], type: userType, deletedAt: null })
+                            existedUsers = await UserAPI.getAll(context, {
+                                email: resolvedData['email'],
+                                type: userType,
+                                deletedAt: null,
+                            })
                         }
                         if (existedUsers && existedUsers.length > 0) {
                             addFieldValidationError(`${EMAIL_ALREADY_REGISTERED_ERROR}] user already exists`)
@@ -133,9 +170,17 @@ const User = new GQLListSchema('User', {
                         let existedUsers = []
                         const userType = resolvedData.type || STAFF
                         if (operation === 'create') {
-                            existedUsers = await UserAPI.getAll(context, { phone: resolvedData['phone'], type: userType, deletedAt: null })
+                            existedUsers = await UserAPI.getAll(context, {
+                                phone: resolvedData['phone'],
+                                type: userType,
+                                deletedAt: null,
+                            })
                         } else if (operation === 'update' && resolvedData.phone !== existingItem.phone) {
-                            existedUsers = await UserAPI.getAll(context, { phone: resolvedData['phone'], type: userType, deletedAt: null })
+                            existedUsers = await UserAPI.getAll(context, {
+                                phone: resolvedData['phone'],
+                                type: userType,
+                                deletedAt: null,
+                            })
                         }
                         if (existedUsers && existedUsers.length > 0) {
                             addFieldValidationError(`${PHONE_ALREADY_REGISTERED_ERROR}] user already exists`)

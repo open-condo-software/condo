@@ -1,20 +1,19 @@
-const isEmpty = require('lodash/isEmpty')
+const { pick, isEmpty } = require('lodash')
 const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
-const { WRONG_PHONE_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
+const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/common')
+const { STAFF } = require('@condo/domains/user/constants/common')
+const { GQL_ERRORS: USER_ERRORS, TOKEN_NOT_FOUND, USER_NOT_FOUND } = require('@condo/domains/user/constants/errors')
 const { ForgotPasswordAction, User } = require('@condo/domains/user/utils/serverSchema')
+const { findTokenAndRelatedUser, markTokenAsUsed } = require('@condo/domains/user/utils/serverSchema')
 
-
-const { TOKEN_NOT_FOUND, PASSWORD_IS_TOO_SHORT, USER_NOT_FOUND } = require('../constants/errors')
-const { findTokenAndRelatedUser, markTokenAsUsed } = require('../utils/serverSchema')
 
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 
@@ -61,25 +60,14 @@ const ERRORS = {
         },
     },
     changePasswordWithToken: {
-        PASSWORD_IS_TOO_SHORT: {
-            mutation: 'changePasswordWithToken',
-            variable: ['data', 'password'],
-            code: BAD_USER_INPUT,
-            type: PASSWORD_IS_TOO_SHORT,
-            message: 'Password length is less then {min} characters',
-            messageForUser: 'api.user.PASSWORD_IS_TOO_SHORT',
-            messageInterpolation: {
-                min: MIN_PASSWORD_LENGTH,
-            },
-        },
-        PASSWORD_IS_FREQUENTLY_USED: {
-            mutation: 'changePasswordWithToken',
-            variable: ['data', 'password'],
-            code: BAD_USER_INPUT,
-            type: WRONG_VALUE,
-            message: 'The password is too simple. We found it in the list of stolen passwords. You need to use something more secure',
-            messageForUser: 'api.user.PASSWORD_IS_FREQUENTLY_USED',
-        },
+        ...pick(USER_ERRORS, [
+            'INVALID_PASSWORD_LENGTH',
+            'PASSWORD_CONTAINS_EMAIL',
+            'PASSWORD_CONTAINS_PHONE',
+            'PASSWORD_CONTAINS_NAME',
+            'PASSWORD_IS_FREQUENTLY_USED',
+            'PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS',
+        ]),
         TOKEN_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'token'],
@@ -234,10 +222,6 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 // TODO(DOMA-3209): check the dv, sender value
                 const { data: { token, password, sender, dv } } = args
 
-                if (password.length < MIN_PASSWORD_LENGTH) {
-                    throw new GQLError(ERRORS.changePasswordWithToken.PASSWORD_IS_TOO_SHORT, context)
-                }
-
                 const [tokenType, tokenAction, user] = await findTokenAndRelatedUser(context, token)
 
                 if (!tokenType || !tokenAction) {
@@ -247,10 +231,19 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     throw new GQLError(ERRORS.changePasswordWithToken.USER_NOT_FOUND, context)
                 }
 
+                if (!password) {
+                    throw new GQLError(ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH, context)
+                }
+
                 await User.update(context, user.id, { dv: 1, sender, password }, {
                     errorMapping: {
-                        '[password:minLength:User:password]': ERRORS.changePasswordWithToken.PASSWORD_IS_TOO_SHORT,
+                        '[password:minLength:User:password]': ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                         '[password:rejectCommon:User:password]': ERRORS.changePasswordWithToken.PASSWORD_IS_FREQUENTLY_USED,
+                        [ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH.message]: ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message]: ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_EMAIL,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_PHONE.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_PHONE,
+                        [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_NAME.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_NAME,
                     },
                 })
 
@@ -264,4 +257,5 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
 
 module.exports = {
     ForgotPasswordService,
+    ERRORS,
 }
