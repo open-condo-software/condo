@@ -7,6 +7,7 @@
     "cypress": "cypress run -b chrome -C ./cypress/cypress.config.ts",
     "cypress:loadtest": "node ./bin/runCypressLoadTests.js",
     "prepare": "node ./bin/prepare.js",
+    "prepare:cypress": "node ./bin/prepareCypress.js",
     "dev": "yarn build:deps && node --trace-warnings ./../../bin/keystone-dev.js",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build:static": "yarn workspace @open-condo/ui build:sb -o ../../apps/condo/public/ui && mv -f public/ui/ui/* public/ui",

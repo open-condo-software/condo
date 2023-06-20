@@ -67,10 +67,10 @@ jobs:
           export WORKER_CONCURRENCY=50
 
           yarn workspace @app/condo migrate
-          yarn workspace @app/condo prepare
+          yarn workspace @app/condo prepare:cypress
           yarn workspace @app/condo node ./bin/generate-initial-data.js
 
-          echo 'ADDRESS_SERVICE_CLIENT_MODE=fake' >> .env
+          echo 'ADDRESS_SERVICE_CLIENT_MODE=fake' >> .envcypress
   
           yarn workspace @app/condo start &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
