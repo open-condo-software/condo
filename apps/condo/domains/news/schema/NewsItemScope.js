@@ -47,6 +47,30 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
                 create: false,
                 update: false,
             },
+            hooks: {
+                resolveInput: async ({ operation, resolvedData }) => {
+                    if (operation === 'create') {
+                        let type
+                        const { property, unitType, unitName } = resolvedData
+
+                        if (!property && !unitType && !unitName) {
+                            type = NEWS_ITEM_SCOPE_TYPE_ORGANIZATION
+                        } else if (!!property && !unitType && !unitName) {
+                            type = NEWS_ITEM_SCOPE_TYPE_PROPERTY
+                        } else if (!!property && !!unitType && !unitName) {
+                            type = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE
+                        } else if (!!property && !!unitType && !!unitName) {
+                            type = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME
+                        }
+
+                        if (type) {
+                            return type
+                        }
+                    }
+
+                    return null
+                },
+            },
         },
 
         newsItem: {
@@ -80,28 +104,6 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
 
     },
     hooks: {
-        resolveInput: async ({ operation, existingItem, resolvedData }) => {
-            if (operation === 'create') {
-                let type
-                const { property, unitType, unitName } = resolvedData
-
-                if (!property && !unitType && !unitName) {
-                    type = NEWS_ITEM_SCOPE_TYPE_ORGANIZATION
-                } else if (!!property && !unitType && !unitName) {
-                    type = NEWS_ITEM_SCOPE_TYPE_PROPERTY
-                } else if (!!property && !!unitType && !unitName) {
-                    type = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE
-                } else if (!!property && !!unitType && !!unitName) {
-                    type = NEWS_ITEM_SCOPE_TYPE_PROPERTY_UNIT_TYPE_UNIT_NAME
-                }
-
-                if (type) {
-                    resolvedData['type'] = type
-                }
-            }
-
-            return resolvedData
-        },
         validateInput: async (args) => {
             const { resolvedData, existingItem, context, operation } = args
 
