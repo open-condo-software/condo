@@ -43,6 +43,7 @@ export const BillingPageContent: React.FC = () => {
     const handleUploadClick = useCallback(() => {
         if (uploadUrl) {
             spawnModal({
+                width: 'big',
                 children: <IFrame src={uploadUrl} reloadScope='organization' withResize withPrefetch withLoader/>,
             })
         }
