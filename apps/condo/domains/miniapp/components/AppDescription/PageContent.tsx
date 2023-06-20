@@ -1,7 +1,8 @@
 import { MiniAppOutput } from '@app/condo/schema'
 import { Row, Col } from 'antd'
 import get from 'lodash/get'
-import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
@@ -77,6 +78,7 @@ const PageContent: React.FC<PageContentProps> = ({
     connectAction,
 }) => {
     const intl = useIntl()
+    const router = useRouter()
     const MoreAppsMessage = intl.formatMessage({ id: 'miniapps.appDescription.moreAppsInThisCategory' })
 
     const userOrganization = useOrganization()
@@ -109,6 +111,16 @@ const PageContent: React.FC<PageContentProps> = ({
             setMoreApps([])
         }
     }, [userOrganizationId, fetchMiniapps, id, category])
+
+    const handleCardClick = useCallback((id: string, type: string, connected: boolean) => {
+        // TODO(DOMA-4830): Think about type query param (remove it or leave it), for now using only in SPP
+        return function redirect () {
+            const url = connected
+                ? `/miniapps/${id}?type=${type}`
+                : `/miniapps/${id}/about?type=${type}`
+            router.push(url)
+        }
+    }, [router])
 
     const [{ width }, setRef] = useContainerSize<HTMLDivElement>()
     const carouselSlides = getCardsAmount(width)
@@ -170,13 +182,12 @@ const PageContent: React.FC<PageContentProps> = ({
                                 {moreApps.map(app => (
                                     <AppCard
                                         key={`${app.type}:${app.id}`}
-                                        id={app.id}
-                                        type={app.type}
                                         connected={app.connected}
                                         name={app.name}
                                         description={app.shortDescription}
                                         logoUrl={app.logo}
                                         label={app.label}
+                                        onClick={handleCardClick(app.id, app.type, app.connected)}
                                     />
                                 ))}
                             </Carousel>

@@ -4,6 +4,7 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback } from 'react'
 
+import { Star, List, House, SmartHome, Rocket, CircleEllipsis, CheckSquare } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
@@ -14,7 +15,6 @@ import {
     ALL_APPS_CATEGORY,
     CONNECTED_APPS_CATEGORY,
     DISPATCHING_CATEGORY,
-    ACCRUALS_AND_PAYMENTS_CATEGORY,
     GIS_CATEGORY,
     SMART_HOME_CATEGORY,
     BUSINESS_DEVELOPMENT_CATEGORY,
@@ -22,7 +22,6 @@ import {
 } from '@condo/domains/miniapp/constants'
 
 import { AppCard, MIN_CARD_WIDTH } from '../AppCard'
-import { Star, List, Wallet, House, SmartHome, Rocket, CircleEllipsis, CheckSquare } from '../icons'
 
 import type { MiniAppOutput } from '@app/condo/schema'
 
@@ -36,7 +35,6 @@ const TAB_ICONS = {
     [ALL_APPS_CATEGORY]: <Star/>,
     [CONNECTED_APPS_CATEGORY]: <CheckSquare/>,
     [DISPATCHING_CATEGORY]: <List/>,
-    [ACCRUALS_AND_PAYMENTS_CATEGORY]: <Wallet/>,
     [GIS_CATEGORY]: <House/>,
     [SMART_HOME_CATEGORY]: <SmartHome/>,
     [BUSINESS_DEVELOPMENT_CATEGORY]: <Rocket/>,
@@ -81,8 +79,19 @@ const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab, fallback }) => {
     const intl = useIntl()
     const NoAppsMessage = intl.formatMessage({ id: 'miniapps.catalog.noServicesInCategory' })
 
+    const router = useRouter()
+
     const [{ width }, refCallback] = useContainerSize<HTMLDivElement>()
     const cardsPerRow = getCardsAmount(width)
+
+    const handleCardClick = useCallback((id: string, type: string, connected: boolean) => {
+        return function redirect () {
+            const url = connected
+                ? `/miniapps/${id}`
+                : `/miniapps/${id}/about`
+            router.push(url)
+        }
+    }, [router])
 
     if (!tab.apps.length) {
         return fallback ? (
@@ -105,13 +114,12 @@ const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab, fallback }) => {
             {tab.apps.map(app => (
                 <Col span={24 / cardsPerRow} key={`${cardsPerRow}:${app.id}`}>
                     <AppCard
-                        id={app.id}
-                        type={app.type}
                         connected={app.connected}
                         name={app.name}
                         description={app.shortDescription}
                         logoUrl={app.logo}
                         label={app.label}
+                        onClick={handleCardClick(app.id, app.type, app.connected)}
                     />
                 </Col>
             ))}

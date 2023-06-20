@@ -296,6 +296,8 @@ class ReceiptsGenerator {
             }
         }
         await BillingIntegrationOrganizationContext.update(this.context, this.billingContextId, {
+            dv: DV,
+            sender: SENDER,
             lastReport: {
                 period: this.periods[0],
                 finishTime: dayjs().toISOString(),

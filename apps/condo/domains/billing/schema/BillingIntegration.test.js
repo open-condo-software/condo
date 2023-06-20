@@ -16,7 +16,11 @@ const {
     expectToThrowAuthenticationErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { BILLING_INTEGRATION_WRONG_GROUP_FORMAT_ERROR } = require('@condo/domains/billing/constants/errors')
+const {
+    BILLING_INTEGRATION_WRONG_GROUP_FORMAT_ERROR,
+    BILLING_INTEGRATION_EXTENDS_NO_APP_URL_ERROR,
+    BILLING_INTEGRATION_SINGLE_CONNECT_WAY_ERROR,
+} = require('@condo/domains/billing/constants/errors')
 const { BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -53,7 +57,7 @@ describe('BillingIntegration', () => {
                 'commOn',
             ]
 
-            test.each(wrongGroupCases)('group = %p should fail because it is not latin sequnce',
+            test.each(wrongGroupCases)('group = %p should fail because it is not latin sequence',
                 async (group) => {
                     await expectToThrowValidationFailureError(async () => {
                         await updateTestBillingIntegration(admin, billingIntegrationId, {
@@ -63,7 +67,7 @@ describe('BillingIntegration', () => {
                 })
         })
 
-        describe('Format', () => {
+        describe('Format',  () => {
 
             test('update format with wrong payload', async () => {
                 const [billingIntegration] = await createTestBillingIntegration(admin)
@@ -102,6 +106,69 @@ describe('BillingIntegration', () => {
 
                 expect(updatedIntegration.id).toEqual(billingIntegrationId)
                 expect(updatedIntegration.dataFormat.hasToPayDetails).toEqual(true)
+            })
+        })
+
+        describe('extendsBillingPage', () => {
+            test('must be followed by appUrl', async () => {
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestBillingIntegration(admin, {
+                        extendsBillingPage: true,
+                    })
+                }, BILLING_INTEGRATION_EXTENDS_NO_APP_URL_ERROR)
+                const [billing] = await createTestBillingIntegration(admin,  {
+                    extendsBillingPage: true,
+                    appUrl: faker.internet.url(),
+                })
+                expect(billing).toBeDefined()
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestBillingIntegration(admin, billing.id, {
+                        appUrl: null,
+                    })
+                }, BILLING_INTEGRATION_EXTENDS_NO_APP_URL_ERROR)
+            })
+        })
+        describe('setupUrl and instruction', () => {
+            test('only one of them must be specified', async () => {
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestBillingIntegration(admin, {
+                        instruction: null,
+                        setupUrl: null,
+                    })
+                }, BILLING_INTEGRATION_SINGLE_CONNECT_WAY_ERROR)
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestBillingIntegration(admin, {
+                        instruction: 'TEST',
+                        setupUrl: 'https://github.com',
+                    })
+                }, BILLING_INTEGRATION_SINGLE_CONNECT_WAY_ERROR)
+                const [billing] = await createTestBillingIntegration(admin)
+                expect(billing).toHaveProperty('instruction')
+                expect(billing).toHaveProperty('setupUrl')
+                expect(billing.instruction).not.toBeNull()
+                expect(billing.setupUrl).toBeNull()
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestBillingIntegration(admin, billing.id, {
+                        setupUrl: 'https://github.com',
+                    })
+                }, BILLING_INTEGRATION_SINGLE_CONNECT_WAY_ERROR)
+                const [updatedBilling] = await updateTestBillingIntegration(admin, billing.id, {
+                    setupUrl: 'https://github.com',
+                    instruction: null,
+                })
+                expect(updatedBilling.instruction).toBeNull()
+                expect(updatedBilling.setupUrl).not.toBeNull()
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestBillingIntegration(admin, billing.id, {
+                        instruction: 'TEST',
+                    })
+                }, BILLING_INTEGRATION_SINGLE_CONNECT_WAY_ERROR)
+                const [updatedAgainBilling] = await updateTestBillingIntegration(admin, billing.id, {
+                    setupUrl: null,
+                    instruction: 'TEST',
+                })
+                expect(updatedAgainBilling.instruction).not.toBeNull()
+                expect(updatedAgainBilling.setupUrl).toBeNull()
             })
         })
     })
