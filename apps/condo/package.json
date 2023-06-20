@@ -107,7 +107,7 @@
     "html2canvas": "^1.0.0-rc.7",
     "http-proxy-middleware": "^2.0.6",
     "iconv-lite": "^0.6.3",
-    "immer": "9.0.13",
+    "immer": "9.0.21",
     "isomorphic-fetch": "^3.0.0",
     "jose": "2.0.5",
     "js-cookie": "^2.2.1",
