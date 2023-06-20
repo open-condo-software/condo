@@ -792,6 +792,7 @@ __metadata:
     "@open-condo/locales": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
+    "@pdf-lib/fontkit": ^1.1.1
     "@testing-library/react": ^11.2.5
     "@types/echarts": ^4.9.9
     "@types/jest": ^29.4.0
@@ -846,6 +847,7 @@ __metadata:
     node-fetch: ^2.6.7
     numeral: 2.0.6
     nunjucks: ^3.2.2
+    pdf-lib: ^1.17.1
     qs: ^6.9.4
     raw-loader: ^4.0.2
     rc-queue-anim: ^1.8.5
@@ -9760,6 +9762,15 @@ __metadata:
   version: 1.0.0
   resolution: "@panva/asn1.js@npm:1.0.0"
   checksum: cb6bcc1918a7f08e81e7d7f5bde83c20a66b30248ddc3ef10b1612e0e0b9f722c2b07ca6b586a089a49c1b6cfb29d63fdd23d4bc00c8cc40538b5595bec66d7d
+  languageName: node
+  linkType: hard
+
+"@pdf-lib/fontkit@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@pdf-lib/fontkit@npm:1.1.1"
+  dependencies:
+    pako: ^1.0.6
+  checksum: e37b818ef20b9737d27bd08a54827fd7a54f7796f16b9a39a8fc77ed8a3f0fe9156a72ffefc4bc82856b3fedc141017be75cf49fc21f6a077494cabff347f179
   languageName: node
   linkType: hard
 
