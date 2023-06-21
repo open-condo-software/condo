@@ -857,7 +857,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         <Form.Item
                                                             name='unitNames'
                                                             label={
-                                                                !isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedSectionIds)
+                                                                selectedPropertiesLoading || !isEmpty(selectedSectionIds)
                                                                     ? (<LabelWithInfo
                                                                         title={UnitsMessage}
                                                                         message={UnitsLabel}
@@ -879,7 +879,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     <Col span={11} offset={2}>
                                                         <Form.Item
                                                             name='sectionIds'
-                                                            label={!isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedUnitNames)
+                                                            label={selectedPropertiesLoading || !isEmpty(selectedUnitNames)
                                                                 ? (<LabelWithInfo
                                                                     title={SectionsMessage}
                                                                     message={SectionsLabel}
@@ -887,7 +887,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 : SectionsLabel}
                                                         >
                                                             <SectionNameInput
-                                                                disabled={!isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedUnitNames)}
+                                                                disabled={selectedPropertiesLoading || !isEmpty(selectedUnitNames)}
                                                                 property={selectedProperties[0]}
                                                                 onChange={handleChangeSectionNameInput(selectedProperties[0])}
                                                                 mode='multiple'
