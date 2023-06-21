@@ -20,7 +20,7 @@ describe('Validate helpers', () => {
     describe('Password validations', () => {
         describe('valid cases', () => {
             const validCases = [
-                ['4 different characters', faker.internet.password(12, false, /[1234]/)],
+                ['4 different characters', '1234432112334'],
                 ['with space', '123  qwe'],
                 ['non-standard password 1', '😀😃😄😁😆😅😂🤣🙃🤯'],
                 ['non-standard password 2', '漢字史籀漢字史籀'],
@@ -54,7 +54,7 @@ describe('Validate helpers', () => {
                     ['very short', faker.internet.password(MIN_PASSWORD_LENGTH - 1), GQL_ERRORS.INVALID_PASSWORD_LENGTH],
                     ['very long', faker.internet.password(MAX_PASSWORD_LENGTH + 1), GQL_ERRORS.INVALID_PASSWORD_LENGTH],
                     ['only spaces', '1111111111', GQL_ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS],
-                    ['few different characters', faker.internet.password(12, false, /[123]/), GQL_ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS],
+                    ['few different characters', '12331212312123', GQL_ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS],
                     ['non-standard very short', '😀😃😄😁😆😅😂', GQL_ERRORS.INVALID_PASSWORD_LENGTH],
                 ]
 

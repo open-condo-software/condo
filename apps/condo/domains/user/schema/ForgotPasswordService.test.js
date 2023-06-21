@@ -426,7 +426,7 @@ describe('ForgotPasswordAction Service', () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [{ token }] = await createTestForgotPasswordAction(admin, client.user)
-                const password = '  ' + faker.internet.password(12) + '  '
+                const password = '  ' + faker.internet.password() + '  '
 
                 const [result] = await changePasswordWithTokenByTestClient(client, { token, password })
                 expect(result.status).toBe('ok')
@@ -451,7 +451,7 @@ describe('ForgotPasswordAction Service', () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [{ token }] = await createTestForgotPasswordAction(admin, client.user)
-                const password = faker.internet.password(12, false, /[123]/)
+                const password = '12331212312123'
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
@@ -465,7 +465,7 @@ describe('ForgotPasswordAction Service', () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [{ token }] = await createTestForgotPasswordAction(admin, client.user)
-                const password = client.userAttrs.email + faker.internet.password(12)
+                const password = client.userAttrs.email + faker.internet.password()
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
@@ -479,7 +479,7 @@ describe('ForgotPasswordAction Service', () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [{ token }] = await createTestForgotPasswordAction(admin, client.user)
-                const password = client.userAttrs.phone + faker.internet.password(12)
+                const password = client.userAttrs.phone + faker.internet.password()
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
@@ -493,7 +493,7 @@ describe('ForgotPasswordAction Service', () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [{ token }] = await createTestForgotPasswordAction(admin, client.user)
-                const password = client.userAttrs.name + faker.internet.password(12)
+                const password = client.userAttrs.name + faker.internet.password()
 
                 await expectToThrowGQLError(
                     async () => await changePasswordWithTokenByTestClient(client, { token, password }),
