@@ -34,6 +34,7 @@ async function getUserSettingsForMessage (context, message) {
     /** @type {NotificationUserSetting[]} */
     const notificationUserSettings = await NotificationUserSetting.getAll(context, {
         user: { id: message.user.id },
+        deletedAt: null,
         OR: [
             { messageType: null }, // possible settings for all messages
             { messageType: message.type }, // settings for specific message type

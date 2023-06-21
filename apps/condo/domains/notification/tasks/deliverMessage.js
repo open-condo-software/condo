@@ -174,23 +174,21 @@ async function deliverMessage (messageId) {
             const isAllowed = get(userTransportSettings, transport)
             if (isAllowed === false) {
                 transportMeta.status = MESSAGE_DISABLED_BY_USER_STATUS
-                continue
+            } else {
+                const adapter = TRANSPORT_ADAPTERS[transport]
+                // NOTE: Renderer will throw here, if it doesn't have template/support for required transport type.
+                const messageContext = await adapter.prepareMessageToSend(message)
+
+                processingMeta.messageContext = messageContext
+                transportMeta.messageContext = messageContext
+                processingMeta.transports.push(transport)
+
+                const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
+                transportMeta.deliveryMetadata = deliveryMetadata
+                transportMeta.status = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
+                processingMeta.step = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
+                successCnt += isOk ? 1 : 0
             }
-
-            const adapter = TRANSPORT_ADAPTERS[transport]
-            // NOTE: Renderer will throw here, if it doesn't have template/support for required transport type.
-            const messageContext = await adapter.prepareMessageToSend(message)
-
-            processingMeta.messageContext = messageContext
-            transportMeta.messageContext = messageContext
-            processingMeta.transports.push(transport)
-
-            const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
-            transportMeta.deliveryMetadata = deliveryMetadata
-            transportMeta.status = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
-            processingMeta.step = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
-            successCnt += isOk ? 1 : 0
-
         } catch (error) {
             transportMeta.status = MESSAGE_ERROR_STATUS
             transportMeta.exception = safeFormatError(error, false)
