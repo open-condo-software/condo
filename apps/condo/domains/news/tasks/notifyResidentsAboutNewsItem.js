@@ -1,5 +1,6 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
+const truncate = require('lodash/truncate')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -18,6 +19,8 @@ const { generateUniqueMessageKey } = require('./notifyResidentsAboutNewsItem.hel
 const logger = getLogger('notifyResidentsAboutNewsItem')
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'notifyResidentsAboutNewsItem' } }
+const TITLE_MAX_LEN = 50
+const BODY_MAX_LEN = 150
 
 /**
  * @param {NewsItem} newsItem
@@ -72,8 +75,8 @@ async function sendNotifications (context, newsItem) {
             type: defineMessageType(newsItem),
             meta: {
                 dv: 1,
-                title: newsItem.title,
-                body: newsItem.body,
+                title: truncate(newsItem.title, { length: TITLE_MAX_LEN, separator: ' ', omission: '...' }),
+                body: truncate(newsItem.body, { length: BODY_MAX_LEN, separator: ' ', omission: '...' }),
                 data: {
                     newsItemId: newsItem.id,
                     organizationId: newsItem.organization.id,

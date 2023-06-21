@@ -870,7 +870,7 @@ describe('NewsItems', () => {
     })
 
     describe('Delayed news items', () => {
-        test('eligible resident can not see the delayed news item', async () => {
+        test('eligible resident can see the delayed news item in time', async () => {
             const residentClient1 = await makeClientWithResidentUser()
             const [o10n1] = await createTestOrganization(adminClient)
             const [property1] = await createTestProperty(adminClient, o10n1)
@@ -922,7 +922,13 @@ describe('NewsItems', () => {
             })
 
             // News item for particular unit
-            const [newsItem1, newsItem1Attrs] = await createTestNewsItem(adminClient, o10n)
+            const [newsItem1, newsItem1Attrs] = await createTestNewsItem(
+                adminClient,
+                o10n,
+                {
+                    title: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                    body: 'Commodo viverra maecenas accumsan lacus vel facilisis volutpat est velit. Et malesuada fames ac turpis egestas sed tempus urna et. At augue eget arcu dictum varius duis at. Tempus quam pellentesque nec nam aliquam sem et tortor consequat. Enim sit amet venenatis urna cursus eget nunc scelerisque viverra. Urna cursus eget nunc scelerisque viverra. Ornare aenean euismod elementum nisi quis eleifend quam. Quis hendrerit dolor magna eget est. Gravida cum sociis natoque penatibus et.',
+                })
             await createTestNewsItemScope(adminClient, newsItem1, {
                 property: { connect: { id: property.id } },
                 unitType: unitType1,
@@ -965,7 +971,8 @@ describe('NewsItems', () => {
                         })],
                     }),
                     meta: expect.objectContaining({
-                        title: newsItem1Attrs['title'],
+                        title: 'Lorem ipsum dolor sit amet, consectetur...',
+                        body: 'Commodo viverra maecenas accumsan lacus vel facilisis volutpat est velit. Et malesuada fames ac turpis egestas sed tempus urna et. At augue eget...',
                         data: expect.objectContaining({
                             newsItemId: newsItem1.id,
                             residentId: resident.id,
