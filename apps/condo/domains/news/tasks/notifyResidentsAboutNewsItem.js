@@ -79,7 +79,7 @@ async function sendNotifications (context, newsItem) {
                     organizationId: newsItem.organization.id,
                     userId: resident.user.id,
                     residentId: resident.id,
-                    userRelatedResidentsIds: get(residentsIdsByUser, resident.user.id, []),
+                    userRelatedResidentsIds: get(residentsIdsByUser, resident.user.id, []).join(','),
                     url: `${conf.SERVER_URL}/newsItem`,
                     validBefore: get(newsItem, 'validBefore', null),
                     // The first truthy value will be returned, or null if no values are found.
