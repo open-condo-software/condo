@@ -728,7 +728,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 </RadioGroup>
                                                             </Form.Item>
                                                         </Col>
-                                                        {selectedType === NEWS_TYPE_EMERGENCY &&
+                                                        {selectedType === NEWS_TYPE_EMERGENCY && (
                                                             <Col span={12}>
                                                                 <Form.Item
                                                                     label={(
@@ -741,6 +741,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                     name='validBefore'
                                                                     required
                                                                     rules={[finishWorkRule, commonRule, dateRule]}
+                                                                    validateFirst={true}
                                                                 >
                                                                     <DatePicker
                                                                         style={FULL_WIDTH_STYLE}
@@ -753,10 +754,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                     />
                                                                 </Form.Item>
                                                             </Col>
-                                                        }
+                                                        )}
                                                     </Row>
                                                 </Col>
-                                                {templates &&
+                                                {templates && (
                                                     <Row gutter={SMALL_VERTICAL_GUTTER}>
                                                         <Col span={24}>
                                                             <Typography.Title level={4}>
@@ -779,7 +780,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             </Form.Item>
                                                         </Col>
                                                     </Row>
-                                                }
+                                                )}
                                                 <Col span={24}>
                                                     <Col span={24}>
                                                         <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
@@ -809,6 +810,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             name='body'
                                                             required
                                                             rules={[bodyRule, bodyTemplateChanged]}
+                                                            validateFirst={true}
                                                         >
                                                             <Body.InputWithCounter
                                                                 rows={7}
@@ -971,17 +973,15 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                         </Col>
                                     </Row>
                                 </Col>
-                                {
-                                    isFunction(ActionBar) && (
-                                        <Col span={24}>
-                                            <ActionBar
-                                                handleSave={handleSave}
-                                                isLoading={isLoading}
-                                                form={form}
-                                            />
-                                        </Col>
-                                    )
-                                }
+                                {isFunction(ActionBar) && (
+                                    <Col span={24}>
+                                        <ActionBar
+                                            handleSave={handleSave}
+                                            isLoading={isLoading}
+                                            form={form}
+                                        />
+                                    </Col>
+                                )}
                             </Row>
                         </>
                     )}
