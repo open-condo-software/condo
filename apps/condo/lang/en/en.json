@@ -312,6 +312,7 @@
   "global.noPageViewPermission": "You have no permission to view this page",
   "NumberIsNotValid": "Please enter the correct number",
   "CompanyName": "Domá",
+  "MobileAppName": "Doma",
   "ContactSupportToCancelIntegration": "To cancel integration contact support of «{company}».",
   "ClickToSeeMore": "Click to see more information",
   "ClearAllFilters": "Clear all filters",

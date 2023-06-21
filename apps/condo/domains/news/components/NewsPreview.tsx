@@ -81,7 +81,7 @@ const NewsPushPreviewContainer = styled.div`
 
 const NewsPushPreview: INewsPushPreview = ({ title, body }) => {
     const intl = useIntl()
-    const CompanyNameTitle = intl.formatMessage({ id: 'CompanyName' })
+    const CompanyNameTitle = intl.formatMessage({ id: 'MobileAppName' })
     const NowTitle = intl.formatMessage({ id: 'Now' })
 
     return (
