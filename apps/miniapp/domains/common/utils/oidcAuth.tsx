@@ -45,7 +45,7 @@ const OidcAuthProvider = ({ children }) => {
     const { context, loading, error } = useLaunchParams()
     const errorReason = get(error, 'errorReason')
     const errorData = isObject(error) ? JSON.stringify(error) : '<NonObject>'
-    const { user, isLoading: isUserLoading, isAuthenticated } = useAuth()
+    const { user, isLoading: isUserLoading, isAuthenticated, refetch } = useAuth()
     const [authInProgress, setAuthInProgress] = useState(false)
     const [, setAuthError] = useState(false)
 
@@ -79,6 +79,7 @@ const OidcAuthProvider = ({ children }) => {
                         if (data.response.status === 200) {
                             // Process it in any way you like
                             console.debug(data.response)
+                            refetch()
                             setAuthError(false)
                         } else {
                             setAuthError(true)

@@ -18,6 +18,7 @@ import { AppFrameWrapper } from '@condo/domains/miniapp/components/AppFrameWrapp
 import { BaseLayout, LayoutContextProvider } from '@miniapp/domains/common/components/BaseLayout'
 import { withOidcAuth } from '@miniapp/domains/common/utils/oidcAuth'
 import '@condo/domains/common/components/wdyr'
+import '@open-condo/ui/dist/styles.min.css'
 
 const ANT_LOCALES = {
     ru: ruRU,
