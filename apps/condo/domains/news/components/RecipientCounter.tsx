@@ -149,8 +149,10 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     const PropertiesLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.label.properties' })
     const WillReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.label' })
     const WillNotReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.label' })
-    const WillNotReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.hint' })
+    const formatWillNotReceiveHintMessage = (count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.hint' }, { count })
+    const WillZeroNotReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.hintZero' })
     const formatWillReceiveHintMessage = (count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hint' }, { count })
+    const WillZeroReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hintZero' })
 
     const [isXlsLoading, setIsXlsLoading] = useState(false)
 
@@ -272,7 +274,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                                 <Counter
                                     label={WillReceiveLabelMessage}
                                     value={unitsWillReceive.length}
-                                    hint={formatWillReceiveHintMessage(unitsWillReceive.length)}
+                                    hint={unitsWillReceive.length === 0 ? WillZeroReceiveHintMessage : formatWillReceiveHintMessage(unitsWillReceive.length)}
                                 />
                             </Col>
                             <Col>
@@ -280,7 +282,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                                     label={WillNotReceiveLabelMessage}
                                     value={willNotReceiveUnitsCount}
                                     type='danger'
-                                    hint={WillNotReceiveHintMessage}
+                                    hint={willNotReceiveUnitsCount === 0 ? WillZeroNotReceiveHintMessage : formatWillNotReceiveHintMessage(willNotReceiveUnitsCount)}
                                     downloadButton={<Button
                                         size='small'
                                         onClick={runExportNewsRecipients}
