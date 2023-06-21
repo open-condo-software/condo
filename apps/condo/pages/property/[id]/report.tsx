@@ -245,6 +245,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
 
     // Hooks
     const { user } = useAuth()
+    const router = useRouter()
     const { selectedItem } = useBankCostItemContext()
     const {
         Component: BankTransactionsTable,
@@ -296,10 +297,16 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
             clearBankContractorSelection()
         }
     }, [selectedContractorAccounts, selectedBankTransactions, clearBankTransactionSelection, clearBankContractorSelection])
-    const handleTabChange = useCallback((tab: PropertyReportTypes) => {
+    const handleTabChange = useCallback(async (tab: PropertyReportTypes) => {
         handleClearSelection()
+        if (router.query.offset) {
+            await router.push({
+                pathname: router.pathname,
+                query: { ...router.query, offset: 0 },
+            })
+        }
         setTab(tab)
-    }, [handleClearSelection])
+    }, [handleClearSelection, router])
     const handleEditSelectedRows = useCallback(() => {
         setOpen(true)
     }, [setOpen])

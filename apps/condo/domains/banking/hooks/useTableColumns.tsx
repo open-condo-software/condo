@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
 import { useRouter } from 'next/router'
@@ -8,10 +9,10 @@ import { Typography } from '@open-condo/ui'
 
 import {
     getTextRender,
-    getDateRender,
     getMoneyRender,
     getTableCellRenderer,
 } from '@condo/domains/common/components/Table/Renders'
+import { LOCALES } from '@condo/domains/common/constants/locale'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
@@ -33,6 +34,18 @@ const renderCategory = (intl, search: FilterValue | string, nullReplace: string)
         )
 
         return getTableCellRenderer({ search, ellipsis: true, postfix })(costItem)
+    }
+}
+
+const renderDate = (intl, search?: FilterValue | string) => {
+    return function render (stringDate: string): RenderReturnType {
+        if (!stringDate) return '—'
+
+        const locale = get(LOCALES, intl.locale)
+        const date = locale ? dayjs(stringDate).locale(locale) : dayjs(stringDate)
+        const text = `${date.format('DD.MM.YYYY')}`
+
+        return getTableCellRenderer({ search, ellipsis: true })(text)
     }
 }
 
@@ -68,7 +81,7 @@ export function useTableColumns () {
                 key: 'date',
                 width: '10%',
                 dataIndex: 'date',
-                render: getDateRender(intl, search),
+                render: renderDate(intl, search),
             },
             {
                 title: ReceiverTitle,

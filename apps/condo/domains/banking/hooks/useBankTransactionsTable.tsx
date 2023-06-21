@@ -72,7 +72,7 @@ const useBankTransactionsTable: IUseBankContractorAccountTable = (props) => {
         },
         first: BANKING_TABLE_PAGE_SIZE,
         skip: (pageIndex - 1) * BANKING_TABLE_PAGE_SIZE,
-        sortBy: [SortBankTransactionsBy.NumberDesc, SortBankTransactionsBy.CreatedAtDesc],
+        sortBy: [SortBankTransactionsBy.DateDesc],
     })
     const {
         count: emptyCostItemsCount,
