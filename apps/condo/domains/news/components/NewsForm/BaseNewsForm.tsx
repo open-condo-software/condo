@@ -751,6 +751,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                         placeholder={SelectPlaceholder}
                                                                         disabledDate={isDateDisabled}
                                                                         disabledTime={isTimeDisabled}
+                                                                        showNow={false}
                                                                     />
                                                                 </Form.Item>
                                                             </Col>
@@ -945,6 +946,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 placeholder={SelectPlaceholder}
                                                                 disabledDate={isDateDisabled}
                                                                 disabledTime={isTimeDisabled}
+                                                                showNow={false}
                                                             />
                                                         </Form.Item>
                                                     </Col>
