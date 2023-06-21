@@ -4,15 +4,13 @@ const get = require('lodash/get')
 const conf = require('@open-condo/config')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { CUSTOMER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { REGISTER_NEW_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
+const { dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require('@condo/domains/organization/utils/serverSchema')
 const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
-
-
-
-const { dvSenderFields } = require('../constants')
 
 
 const CUSTOMER_EMAIL = conf.NOTIFY_ABOUT_NEW_ORGANIZATION_EMAIL
@@ -78,10 +76,17 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
         importRemoteSystem: organizationInfo.importRemoteSystem,
     }
 
-    const employees = await OrganizationEmployee.getAll(adminContext, {
-        user: { id: user.id },
-        deletedAt: null,
-    }, { sortBy: ['updatedAt_DESC'], first: 100 })
+    const employees = await loadListByChunks({
+        context: adminContext,
+        list: OrganizationEmployee,
+        chunkSize: 30,
+        limit: 10000,
+        where: {
+            user: { id: user.id },
+            deletedAt: null,
+        },
+        sortBy: ['updatedAt_DESC'],
+    })
 
     const [importedOrganization] = await Organization.getAll(adminContext, {
         ...importInfo,
