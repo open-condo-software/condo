@@ -605,7 +605,7 @@ describe('Validations', () => {
 
         test('set to password starting or ending with a space', async () => {
             const admin = await makeLoggedInAdminClient()
-            const password = '  ' + faker.internet.password(12) + '  '
+            const password = '  ' + faker.internet.password() + '  '
 
             const [user] = await createTestUser(admin, { password })
             expect(user.id).toBeDefined()
@@ -629,7 +629,7 @@ describe('Validations', () => {
         test('set to password containing email', async () => {
             const admin = await makeLoggedInAdminClient()
             const [user, userAttrs] = await createTestUser(admin)
-            const password = userAttrs.email + faker.internet.password(12)
+            const password = userAttrs.email + faker.internet.password()
 
             await catchErrorFrom(
                 async () => await updateTestUser(admin, user.id, { password }),
@@ -645,7 +645,7 @@ describe('Validations', () => {
         test('set to password containing phone', async () => {
             const admin = await makeLoggedInAdminClient()
             const [user, userAttrs] = await createTestUser(admin)
-            const password = userAttrs.phone + faker.internet.password(12)
+            const password = userAttrs.phone + faker.internet.password()
 
             await catchErrorFrom(
                 async () => await updateTestUser(admin, user.id, { password }),
@@ -661,7 +661,7 @@ describe('Validations', () => {
         test('set to password containing name', async () => {
             const admin = await makeLoggedInAdminClient()
             const [user, userAttrs] = await createTestUser(admin)
-            const password = userAttrs.name + faker.internet.password(12)
+            const password = userAttrs.name + faker.internet.password()
 
             await catchErrorFrom(
                 async () => await updateTestUser(admin, user.id, { password }),
@@ -686,7 +686,7 @@ describe('Validations', () => {
 
         test('set to password that does not containing at least 4 different characters', async () => {
             const admin = await makeLoggedInAdminClient()
-            const password = faker.internet.password(12, false, /[123]/)
+            const password = '12331212312123'
 
             await catchErrorFrom(
                 async () => await createTestUser(admin, { password }),

@@ -126,7 +126,7 @@ describe('RegisterNewUserService', () => {
     test('register user with password starting or ending with a space', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
-        const password = '  ' + faker.internet.password(12) + '  '
+        const password = '  ' + faker.internet.password() + '  '
 
         const [user] = await registerNewUser(client, { name, password })
         expect(user.name).toBe(name)
@@ -147,7 +147,7 @@ describe('RegisterNewUserService', () => {
     test('register user with password that does not containing at least 4 different characters', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
-        const password = faker.internet.password(12, false, /[123]/)
+        const password = '12331212312123'
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password }),
@@ -160,7 +160,7 @@ describe('RegisterNewUserService', () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
         const email = faker.internet.exampleEmail()
-        const password = email + faker.internet.password(12)
+        const password = email + faker.internet.password()
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password, email }),
@@ -173,7 +173,7 @@ describe('RegisterNewUserService', () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
         const phone = createTestPhone()
-        const password = phone + faker.internet.password(12)
+        const password = phone + faker.internet.password()
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password, phone }),
@@ -185,7 +185,7 @@ describe('RegisterNewUserService', () => {
     test('register user with password containing name', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
-        const password = name + faker.internet.password(12)
+        const password = name + faker.internet.password()
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { name, password }),
