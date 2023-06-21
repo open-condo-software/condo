@@ -970,7 +970,7 @@ describe('NewsItems', () => {
                             newsItemId: newsItem1.id,
                             residentId: resident.id,
                             userId: residentClient1.user.id,
-                            userRelatedResidentsIds: [resident.id],
+                            userRelatedResidentsIds: resident.id,
                             organizationId: o10n.id,
                             validBefore: null,
                             dateCreated: updatedItem1.updatedAt,
