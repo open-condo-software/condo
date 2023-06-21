@@ -17,7 +17,7 @@ const { ERROR_PASSED_DATE_IN_THE_FUTURE } = require('../constants')
 
 
 const logger = getLogger('sbbol/SbbolSyncTransactions')
-const isResponceProcessing = (response) => (get(response, 'error.cause', '') !== 'STATEMENT_RESPONSE_PROCESSING')
+const isResponseProcessing = (response) => (get(response, 'error.cause', '') === 'STATEMENT_RESPONSE_PROCESSING')
 const dvSenderFieldsBankSyncTask = {
     dv: 1,
     sender: { dv: 1, fingerprint: 'BankSyncTask' },
@@ -48,23 +48,29 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             doNextRequest = true,
             timeout = 1000,
             failedReq = 0,
-            summary
+            summary,
+            response
 
         do {
-            let response = await fintechApi.getStatementTransactions(bankAccount.number, statementDate, page)
-            summary = await fintechApi.getStatementSummary(
-                bankAccount.number,
-                statementDate,
-            )
+            if (isResponseProcessing(response) || !response) {
+                response = await fintechApi.getStatementTransactions(bankAccount.number, statementDate, page)
+            }
+
+            if (isResponseProcessing(summary) || !summary) {
+                summary = await fintechApi.getStatementSummary(
+                    bankAccount.number,
+                    statementDate,
+                )
+            }
 
             //At the first request, the statement is just starting to form, so you need to repeat requests in a cycle until a successful response or throw an error
-            while (!isResponceProcessing(response) || !isResponceProcessing(summary)) {
+            while (isResponseProcessing(response) || isResponseProcessing(summary)) {
                 if (failedReq > 5) {
                     break
                 }
                 await new Promise( (resolve) => {
                     setTimeout(async () => {
-                        if (!isResponceProcessing(response)) {
+                        if (isResponseProcessing(response)) {
                             response = await fintechApi.getStatementTransactions(
                                 bankAccount.number,
                                 statementDate,
@@ -72,7 +78,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                             )
                         }
 
-                        if (!isResponceProcessing(summary)) {
+                        if (isResponseProcessing(summary)) {
                             summary = await fintechApi.getStatementSummary(
                                 bankAccount.number,
                                 statementDate,
@@ -86,13 +92,13 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             }
 
             const receivedTransactions = get(response, 'data.transactions')
-            const receivedSummary = get(summary, 'data.closingBalance')
+            const receivedSummary = get(summary, 'data.closingBalance.amount')
             if (!receivedTransactions || !receivedSummary) {
-                logger.error(`Unsuccessful response to transaction request by state: ${{
+                logger.error({ msg: 'Unsuccessful response to transaction request by state:', state: {
                     bankAccount: bankAccount.number,
                     statementDate,
                     page,
-                }}`)
+                } })
             } else {
                 receivedTransactions.map( transaction => transactions.push(transaction))
             }
