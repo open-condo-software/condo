@@ -1,7 +1,8 @@
 import type { ShowModalWindowParams } from './ShowModalWindow'
 
-export type UpdateModalWindowParams = Pick<ShowModalWindowParams, 'size' | 'title'> & {
+export type UpdateModalWindowParams = {
     modalId: string
+    data: Partial<Pick<ShowModalWindowParams, 'size' | 'title'>>
 }
 
 export type UpdateModalWindowData = {
