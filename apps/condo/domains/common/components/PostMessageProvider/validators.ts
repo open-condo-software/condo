@@ -94,6 +94,25 @@ const CondoWebAppShowProgressBarParamsSchema = {
     additionalProperties: false,
 }
 
+const CondoWebAppUpdateModalWindowParamsSchema = {
+    type: 'object',
+    properties: {
+        modalId: { type: 'string' },
+        data: {
+            type: 'object',
+            properties: {
+                title: { type: 'string' },
+                size: { type: 'string', enum: ['small', 'big'] },
+            },
+            additionalProperties: false,
+            required: [],
+            minProperties: 1,
+        },
+    },
+    additionalProperties: false,
+    required: ['modalId', 'data'],
+}
+
 const CondoWebAppUpdateProgressBarParamsSchema = {
     type: 'object',
     properties: {
@@ -128,5 +147,6 @@ export const validators: ValidatorsType = {
     CondoWebAppShowModalWindow: ajv.compile(CondoWebAppShowModalWindowParamsSchema),
     CondoWebAppShowNotification: ajv.compile(CondoWebAppShowNotificationParamsSchema),
     CondoWebAppShowProgressBar: ajv.compile(CondoWebAppShowProgressBarParamsSchema),
+    CondoWebAppUpdateModalWindow: ajv.compile(CondoWebAppUpdateModalWindowParamsSchema),
     CondoWebAppUpdateProgressBar: ajv.compile(CondoWebAppUpdateProgressBarParamsSchema),
 }
