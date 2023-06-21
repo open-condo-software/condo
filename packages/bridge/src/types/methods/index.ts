@@ -8,6 +8,7 @@ import type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
 import type { ShowModalWindowParams, ShowModalWindowData } from './ShowModalWindow'
 import type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
 import type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
+import type { UpdateModalWindowParams, UpdateModalWindowData } from './UpdateModalWindow'
 import type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdateProgressBar'
 // Reexports for accessibility from outside
 export type { CloseModalWindowParams, CloseModalWindowData } from './CloseModalWindow'
@@ -19,6 +20,7 @@ export type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
 export type { ShowModalWindowParams, ShowModalWindowData } from './ShowModalWindow'
 export type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
 export type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
+export type { UpdateModalWindowParams, UpdateModalWindowData } from './UpdateModalWindow'
 export type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdateProgressBar'
 
 /**
@@ -34,6 +36,7 @@ export type RequestMethodsParamsMap = {
     CondoWebAppShowModalWindow: ShowModalWindowParams
     CondoWebAppShowNotification: ShowNotificationParams
     CondoWebAppShowProgressBar: ShowProgressBarParams
+    CondoWebAppUpdateModalWindow: UpdateModalWindowParams
     CondoWebAppUpdateProgressBar: UpdateProgressBarParams
 }
 
@@ -50,6 +53,7 @@ export type ResultResponseDataMap = {
     CondoWebAppShowModalWindow: ShowModalWindowData
     CondoWebAppShowNotification: ShowNotificationData
     CondoWebAppShowProgressBar: ShowProgressBarData
+    CondoWebAppUpdateModalWindow: UpdateModalWindowData
     CondoWebAppUpdateProgressBar: UpdateProgressBarData
 }
 

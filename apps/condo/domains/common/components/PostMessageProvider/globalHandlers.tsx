@@ -11,6 +11,7 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Modal } from '@open-condo/ui'
+import type { ModalProps } from '@open-condo/ui'
 
 import { TASK_STATUS, TasksContext } from '@condo/domains/common/components/tasks'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
@@ -21,23 +22,34 @@ import { STAFF } from '@condo/domains/user/constants/common'
 
 import type { RequestHandler } from './types'
 
+type OpenModalRecord = {
+    destroy: () => void
+    update: (opts: ModalProps) => void
+}
+
 export const handleNotification: RequestHandler<'CondoWebAppShowNotification'> = (params) => {
     const { type, ...restParams } = params
     notification[type](restParams)
     return { success: true }
 }
 
+
 export const useModalHandler: () => [
     RequestHandler<'CondoWebAppShowModalWindow'>,
+    RequestHandler<'CondoWebAppUpdateModalWindow'>,
     RequestHandler<'CondoWebAppCloseModalWindow'>,
     React.ReactElement,
 ] = () => {
-    const [openModals, setOpenModals] = useState<{ [id: string]: { destroy: () => void } }>({})
+    const [openModals, setOpenModals] = useState<{ [id: string]: OpenModalRecord }>({})
     const [show, ContextHandler] = Modal.useModal()
 
     const handleShowModal = useCallback<RequestHandler<'CondoWebAppShowModalWindow'>>((params, origin) => {
         const { title, url, size = 'small' } = params
-        if (extractOrigin(url) !== origin) {
+
+        // Throw error if:
+        // 1. Origin does not match with event origin AND
+        // 2. (its SSR OR sender is not condo itself)
+        if (extractOrigin(url) !== origin && (typeof window === 'undefined' || window.origin !== origin)) {
             throw new Error('Forbidden url. Url must have same origin as sender')
         }
         if (!isSafeUrl(url)) {
@@ -50,7 +62,7 @@ export const useModalHandler: () => [
         const urlWithMeta = new URL(url)
         urlWithMeta.searchParams.set('modalId', modalId)
 
-        const { destroy } = show({
+        const { destroy, update } = show({
             title,
             width: size,
             children: (
@@ -63,7 +75,7 @@ export const useModalHandler: () => [
             ),
         })
 
-        setOpenModals(prev => ({ ...prev, [modalId]: { destroy } }))
+        setOpenModals(prev => ({ ...prev, [modalId]: { destroy, update } }))
 
         return { modalId }
     }, [show])
@@ -78,7 +90,24 @@ export const useModalHandler: () => [
         throw new Error('Non-existent modalId')
     }, [openModals])
 
-    return [handleShowModal, handleCloseModal, ContextHandler]
+    const handleUpdateModal = useCallback<RequestHandler<'CondoWebAppUpdateModalWindow'>>(({ modalId, data }) => {
+        if (modalId in openModals) {
+            const newConfig: ModalProps = { open: true }
+            if (data.title) {
+                newConfig.title = data.title
+            }
+            if (data.size) {
+                newConfig.width = data.size
+            }
+
+            openModals[modalId].update(newConfig)
+            return { updated: true }
+        }
+
+        throw new Error('Non-existent modalId')
+    }, [openModals])
+
+    return [handleShowModal, handleUpdateModal, handleCloseModal, ContextHandler]
 }
 
 export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchParams'> = () => {

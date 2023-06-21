@@ -141,7 +141,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     const getActiveProgressBarsHandler = useGetActiveProgressBarsHandler()
     const updateProgressBarHandler = useUpdateProgressBarHandler()
     const redirectHandler = useRedirectHandler()
-    const [showModalHandler, closeModalHandler, ModalContainer] = useModalHandler()
+    const [showModalHandler, updateModalHandler, closeModalHandler, ModalContainer] = useModalHandler()
 
     useEffect(() => {
         addEventHandler('CondoWebAppCloseModalWindow', '*', closeModalHandler)
@@ -166,6 +166,10 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     useEffect(() => {
         addEventHandler('CondoWebAppShowProgressBar', '*', showProgressBarHandler)
     }, [addEventHandler, showProgressBarHandler])
+
+    useEffect(() => {
+        addEventHandler('CondoWebAppUpdateModalWindow', '*', updateModalHandler)
+    }, [addEventHandler, updateModalHandler])
 
     useEffect(() => {
         addEventHandler('CondoWebAppUpdateProgressBar', '*', updateProgressBarHandler)
