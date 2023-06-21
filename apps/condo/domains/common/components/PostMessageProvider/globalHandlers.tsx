@@ -45,7 +45,11 @@ export const useModalHandler: () => [
 
     const handleShowModal = useCallback<RequestHandler<'CondoWebAppShowModalWindow'>>((params, origin) => {
         const { title, url, size = 'small' } = params
-        if (extractOrigin(url) !== origin) {
+
+        // Throw error if:
+        // 1. Origin does not match with event origin AND
+        // 2. (its SSR OR sender is not condo itself)
+        if (extractOrigin(url) !== origin && (typeof window === 'undefined' || window.origin !== origin)) {
             throw new Error('Forbidden url. Url must have same origin as sender')
         }
         if (!isSafeUrl(url)) {

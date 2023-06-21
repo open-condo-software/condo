@@ -2,14 +2,14 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import React, { useCallback, useMemo } from 'react'
 
+import bridge from '@open-condo/bridge'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Tag, Modal, Button } from '@open-condo/ui'
+import { Typography, Tag, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { PageWrapper, PageHeader, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { EmptyContent } from './EmptyContent'
@@ -35,19 +35,17 @@ export const BillingPageContent: React.FC = () => {
     const uploadMessage = get(billingContext, ['integration', 'uploadMessage'])
     const lastReport = get(billingContext, 'lastReport')
 
-    const [spawnModal, ModalContextHandler] = Modal.useModal()
-
     const tagBg = currentProblem ? colors.red['5'] : colors.green['5']
     const tagMessage = currentProblem ? ErrorStatusMessage : ConnectedStatusMessage
 
     const handleUploadClick = useCallback(() => {
         if (uploadUrl) {
-            spawnModal({
-                width: 'big',
-                children: <IFrame src={uploadUrl} reloadScope='organization' withResize withPrefetch withLoader/>,
-            })
+            // NOTE: Open bridge modal since it will register handlers and modalId automatically
+            bridge
+                .send('CondoWebAppShowModalWindow', { url: uploadUrl, size: 'big', title: '' })
+                .catch(console.error)
         }
-    }, [uploadUrl, spawnModal])
+    }, [uploadUrl])
 
     const UploadAction = useMemo(() => {
         if (!uploadUrl) {
@@ -82,7 +80,6 @@ export const BillingPageContent: React.FC = () => {
                             )
                     }
                 </TablePageContent>
-                {ModalContextHandler}
             </PageWrapper>
         </>
     )
