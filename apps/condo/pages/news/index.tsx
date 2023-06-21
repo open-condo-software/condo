@@ -8,20 +8,18 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { Search, PlusCircle } from '@open-condo/icons'
+import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Typography, Button } from '@open-condo/ui'
+import { ActionBar, Button, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import {
-    PageWrapper,
-} from '@condo/domains/common/components/containers/BaseLayout'
+import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
@@ -31,6 +29,8 @@ import { useTableFilters } from '@condo/domains/news/hooks/useTableFilters'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
+
 
 interface INewsIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -51,7 +51,7 @@ const NewsTableContainer = ({
     const CreateNewsLabel = intl.formatMessage({ id: 'news.createNews' })
     const router = useRouter()
     const { offset } = useMemo(() => parseQuery(router.query), [router.query])
-    
+
     const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE), [offset])
 
     const {
@@ -63,7 +63,7 @@ const NewsTableContainer = ({
         where: searchNewsQuery,
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    })
+    }, { fetchPolicy: 'network-only' })
 
     const newsIds = useMemo(() => {
         return news.map(obj => obj.id)
@@ -74,7 +74,7 @@ const NewsTableContainer = ({
         objs: newsItemScope,
     } = NewsItemScope.useAllObjects({
         where: {
-            newsItem: { 
+            newsItem: {
                 id_in: newsIds,
             },
         },
@@ -145,11 +145,11 @@ const NewsTableContainer = ({
             <Col span={24}>
                 <ActionBar
                     actions={[
-                        <Button 
-                            key='addNews' 
+                        <Button
+                            key='addNews'
                             type='primary'
                             children={CreateNewsLabel}
-                            icon={<PlusCircle size='medium' />}
+                            icon={<PlusCircle size='medium'/>}
                             onClick={handleAddNews}
                         />,
                     ]}
@@ -159,9 +159,9 @@ const NewsTableContainer = ({
     )
 }
 
-const NewsPageContent = ({ 
-    baseNewsQuery, 
-    filterMetas, 
+const NewsPageContent = ({
+    baseNewsQuery,
+    filterMetas,
     sortableProperties,
 }) => {
     const intl = useIntl()
@@ -179,7 +179,7 @@ const NewsPageContent = ({
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
-    const sortBy = sortersToSortBy(sorters, NEWS_DEFAULT_SORT_BY) 
+    const sortBy = sortersToSortBy(sorters, NEWS_DEFAULT_SORT_BY)
     const searchNewsQuery = useMemo(() => ({ ...baseNewsQuery, ...filtersToWhere(filters) }),
         [baseNewsQuery, filters, filtersToWhere])
 
@@ -215,7 +215,7 @@ const NewsPageContent = ({
                         onChange={handleSearchChange}
                         value={search}
                         allowClear
-                        suffix={<Search size='medium' color={colors.gray[7]} />}
+                        suffix={<Search size='medium' color={colors.gray[7]}/>}
                     />
                 </TableFiltersContainer>
             </Col>
