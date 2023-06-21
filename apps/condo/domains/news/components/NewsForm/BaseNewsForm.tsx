@@ -852,45 +852,49 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         form={form}
                                                     />
                                                 </Col>
-                                                <Col span={11}>
-                                                    <Form.Item
-                                                        name='unitNames'
-                                                        label={
-                                                            !isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedSectionIds)
+                                                {isOnlyOnePropertySelected && (
+                                                    <Col span={11}>
+                                                        <Form.Item
+                                                            name='unitNames'
+                                                            label={
+                                                                selectedPropertiesLoading || !isEmpty(selectedSectionIds)
+                                                                    ? (<LabelWithInfo
+                                                                        title={UnitsMessage}
+                                                                        message={UnitsLabel}
+                                                                    />)
+                                                                    : UnitsLabel
+                                                            }
+                                                        >
+                                                            <UnitNameInput
+                                                                multiple={true}
+                                                                property={selectedProperties[0]}
+                                                                allowClear={false}
+                                                                loading={selectedPropertiesLoading || !isEmpty(selectedSectionIds)}
+                                                                onChange={handleChangeUnitNameInput}
+                                                            />
+                                                        </Form.Item>
+                                                    </Col>
+                                                )}
+                                                {isOnlyOnePropertySelected && (
+                                                    <Col span={11} offset={2}>
+                                                        <Form.Item
+                                                            name='sectionIds'
+                                                            label={selectedPropertiesLoading || !isEmpty(selectedUnitNames)
                                                                 ? (<LabelWithInfo
-                                                                    title={UnitsMessage}
-                                                                    message={UnitsLabel}
+                                                                    title={SectionsMessage}
+                                                                    message={SectionsLabel}
                                                                 />)
-                                                                : UnitsLabel
-                                                        }
-                                                    >
-                                                        <UnitNameInput
-                                                            multiple={true}
-                                                            property={selectedProperties[0]}
-                                                            allowClear={false}
-                                                            loading={selectedPropertiesLoading || !isEmpty(selectedSectionIds)}
-                                                            onChange={handleChangeUnitNameInput}
-                                                        />
-                                                    </Form.Item>
-                                                </Col>
-                                                <Col span={11} offset={2}>
-                                                    <Form.Item
-                                                        name='sectionIds'
-                                                        label={!isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedUnitNames)
-                                                            ? (<LabelWithInfo
-                                                                title={SectionsMessage}
-                                                                message={SectionsLabel}
-                                                            />)
-                                                            : SectionsLabel}
-                                                    >
-                                                        <SectionNameInput
-                                                            disabled={!isOnlyOnePropertySelected || selectedPropertiesLoading || !isEmpty(selectedUnitNames)}
-                                                            property={selectedProperties[0]}
-                                                            onChange={handleChangeSectionNameInput(selectedProperties[0])}
-                                                            mode='multiple'
-                                                        />
-                                                    </Form.Item>
-                                                </Col>
+                                                                : SectionsLabel}
+                                                        >
+                                                            <SectionNameInput
+                                                                disabled={selectedPropertiesLoading || !isEmpty(selectedUnitNames)}
+                                                                property={selectedProperties[0]}
+                                                                onChange={handleChangeSectionNameInput(selectedProperties[0])}
+                                                                mode='multiple'
+                                                            />
+                                                        </Form.Item>
+                                                    </Col>
+                                                )}
                                             </Row>
                                         </Col>
                                         <Col span={formInfoColSpan}>
