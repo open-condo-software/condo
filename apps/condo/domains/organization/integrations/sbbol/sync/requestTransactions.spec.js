@@ -57,7 +57,18 @@ jest.mock('@condo/domains/organization/integrations/sbbol/SbbolFintechApi',  () 
         initSbbolFintechApi: jest.fn().mockImplementation( () => {
             return new SbbolFintechApi()
         }),
+        initSbbolClientWithToken: jest.fn().mockImplementation( () => {
+            return new SbbolFintechApi()
+        }),
         SbbolFintechApi,
+    }
+})
+
+jest.mock('@condo/domains/organization/integrations/sbbol/utils/getAccessTokenForUser',  () => {
+    return {
+        getAllAccessTokensByOrganization: jest.fn().mockImplementation( () => {
+            return []
+        }),
     }
 })
 
