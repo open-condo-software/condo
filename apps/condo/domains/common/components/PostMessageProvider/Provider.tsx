@@ -241,7 +241,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
             const validator = validators[method]
             if (validator(params)) {
                 try {
-                    const result = await handler(params, origin)
+                    const result = await handler(params, origin, event.source)
                     return event.source.postMessage({
                         type: `${method}Result`,
                         data: {
