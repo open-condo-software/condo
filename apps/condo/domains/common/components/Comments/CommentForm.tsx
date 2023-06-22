@@ -159,7 +159,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             <UploadComponent
                 initialFileList={editableCommentFiles}
                 UploadButton={
-                    <Button type='text' eventProperties={{ components: { id: 'comment-file-upload' } }}>
+                    <Button type='text'>
                         <ClipIcon/>
                     </Button>
                 }
