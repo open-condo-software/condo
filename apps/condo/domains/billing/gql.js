@@ -47,6 +47,8 @@ const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESI
 const BILLING_RECEIPT_FILE_FIELDS = `{ file { id originalFilename publicUrl mimetype } context { id } receipt { id } controlSum ${COMMON_FIELDS} }`
 const BillingReceiptFile = generateGqlQueries('BillingReceiptFile', BILLING_RECEIPT_FILE_FIELDS)
 
+const SERVICE_CONSUMER_FIELDS = `{ residentBillingAccount { id } residentAcquiringIntegrationContext { id integration { id hostUrl } } paymentCategory resident { id user { id locale } organization { id } unitType unitName deletedAt address property { id } } billingAccount { id number } accountNumber ${COMMON_FIELDS} organization { id name tin country } }`
+
 const REGISTER_BILLING_RECEIPTS_MUTATION = gql`
     mutation registerBillingReceipts ($data: RegisterBillingReceiptsInput!) {
         result: registerBillingReceipts(data: $data) ${BILLING_RECEIPT_FIELDS}
@@ -61,6 +63,12 @@ const SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION = gql`
     }
 `
 
+
+const DISCOVER_CONSUMERS_SERVICE_MUTATION = gql`
+    mutation discoverConsumersService ($data: DiscoverConsumersServiceInput!) {
+        result: discoverConsumersService(data: $data) ${SERVICE_CONSUMER_FIELDS}
+    }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -80,5 +88,6 @@ module.exports = {
 
     SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION,
     BillingReceiptFile,
+    DISCOVER_CONSUMERS_SERVICE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

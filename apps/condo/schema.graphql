@@ -60632,6 +60632,16 @@ type SendNewReceiptMessagesToResidentScopesOutput {
   status: String!
 }
 
+input DiscoverConsumersServiceInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  address: String!
+  unitName: String!
+  unitType: String!
+  billingAccountId: ID
+  residentId: ID
+}
+
 input CreateBankAccountRequestInput {
   dv: Int!
   sender: JSON!
@@ -69019,6 +69029,7 @@ type Mutation {
   }`
   """
   sendNewReceiptMessagesToResidentScopes(data: SendNewReceiptMessagesToResidentScopesInput!): SendNewReceiptMessagesToResidentScopesOutput
+  discoverConsumersService(data: DiscoverConsumersServiceInput!): [ServiceConsumer]
   createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
 

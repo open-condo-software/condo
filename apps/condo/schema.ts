@@ -18434,6 +18434,16 @@ export type DisconnectUserFromRemoteClientOutput = {
   status: Scalars['String'];
 };
 
+export type DiscoverConsumersServiceInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  address: Scalars['String'];
+  unitName: Scalars['String'];
+  unitType: Scalars['String'];
+  billingAccountId?: Maybe<Scalars['ID']>;
+  residentId?: Maybe<Scalars['ID']>;
+};
+
 export type ExportMeterReadingsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -31252,6 +31262,7 @@ export type Mutation = {
    * }`
    */
   sendNewReceiptMessagesToResidentScopes?: Maybe<SendNewReceiptMessagesToResidentScopesOutput>;
+  discoverConsumersService?: Maybe<Array<Maybe<ServiceConsumer>>>;
   createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
   /**
@@ -39368,6 +39379,11 @@ export type MutationRegisterBillingReceiptsArgs = {
 
 export type MutationSendNewReceiptMessagesToResidentScopesArgs = {
   data: SendNewReceiptMessagesToResidentScopesInput;
+};
+
+
+export type MutationDiscoverConsumersServiceArgs = {
+  data: DiscoverConsumersServiceInput;
 };
 
 
