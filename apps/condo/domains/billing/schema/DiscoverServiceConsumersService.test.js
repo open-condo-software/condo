@@ -14,9 +14,9 @@ const {
     createTestBillingAccount,
 } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { createTestResident, updateTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
- 
+
 describe('DiscoverServiceConsumersService', () => {
     let admin
     let support
@@ -57,11 +57,14 @@ describe('DiscoverServiceConsumersService', () => {
                 unitType: resident.unitType,
             }
             
-            const [serviceConsumers] = await discoverConsumersServiceByTestClient(admin, payload)
-            expect(serviceConsumers).toHaveLength(1)
-            expect(serviceConsumers[0].resident.id).toEqual(resident.id)
-            expect(serviceConsumers[0].organization.id).toEqual(user.organization.id)
-            expect(serviceConsumers[0].accountNumber).toEqual(billingAccount.number)
+            const [{ createdServiceConsumersTotal }] = await discoverConsumersServiceByTestClient(admin, payload)
+            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                resident: { id: resident.id },
+                deletedAt: null,
+            })
+            expect(createdServiceConsumersTotal).toBe(1)
+            expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
+            expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
         })
 
         test('discover multiple service consumers (case without accountNumber or resident passed)', async () => {
@@ -91,15 +94,20 @@ describe('DiscoverServiceConsumersService', () => {
                 unitType: resident1.unitType,
             }
 
-            const [serviceConsumers] = await discoverConsumersServiceByTestClient(admin, payload)
-            expect(serviceConsumers).toHaveLength(4)
-            expect(serviceConsumers[0].resident.id).toEqual(resident1.id)
-            expect(serviceConsumers[1].resident.id).toEqual(resident1.id)
-            expect(serviceConsumers[2].resident.id).toEqual(resident2.id)
-            expect(serviceConsumers[3].resident.id).toEqual(resident2.id)
-            expect(serviceConsumers[0].organization.id).toEqual(user.organization.id)
-            expect(serviceConsumers[0].accountNumber).toEqual(billingAccount1.number)
-            expect(serviceConsumers[1].accountNumber).toEqual(billingAccount2.number)
+            const [{ createdServiceConsumersTotal }] = await discoverConsumersServiceByTestClient(admin, payload)
+            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                OR: [
+                    { resident: { id: resident1.id } },
+                    { resident: { id: resident2.id } },
+                ],
+                deletedAt: null,
+            })
+            const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
+            const accountNumbers = createdServiceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
+
+            expect(createdServiceConsumersTotal).toBe(4)
+            expect(residentIds).toContain(resident1.id, resident2.id)
+            expect(accountNumbers).toContain(billingAccount1.number, billingAccount2.number)
         })
 
         test('discover one service consumer for specific resident', async () => {
@@ -122,11 +130,14 @@ describe('DiscoverServiceConsumersService', () => {
                 residentId: resident.id,
             }
 
-            const [serviceConsumers] = await discoverConsumersServiceByTestClient(admin, payload)
-            expect(serviceConsumers).toHaveLength(1)
-            expect(serviceConsumers[0].resident.id).toEqual(resident.id)
-            expect(serviceConsumers[0].organization.id).toEqual(user.organization.id)
-            expect(serviceConsumers[0].accountNumber).toEqual(billingAccount.number)
+            const [{ createdServiceConsumersTotal }] = await discoverConsumersServiceByTestClient(admin, payload)
+            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                resident: { id: resident.id },
+                deletedAt: null,
+            })
+            expect(createdServiceConsumersTotal).toBe(1)
+            expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
+            expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
         })
 
         test('discover multiple service consumers for specific resident', async () => {
@@ -153,12 +164,18 @@ describe('DiscoverServiceConsumersService', () => {
                 residentId: resident.id,
             }
 
-            const [serviceConsumers] = await discoverConsumersServiceByTestClient(admin, payload)
-            expect(serviceConsumers).toHaveLength(2)
-            expect(serviceConsumers[0].resident.id).toEqual(resident.id)
-            expect(serviceConsumers[0].organization.id).toEqual(user.organization.id)
-            expect(serviceConsumers[0].accountNumber).toEqual(billingAccount1.number)
-            expect(serviceConsumers[1].accountNumber).toEqual(billingAccount2.number)
+            const [{ createdServiceConsumersTotal }] = await discoverConsumersServiceByTestClient(admin, payload)
+            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                OR: [
+                    { accountNumber: billingAccount1.number },
+                    { accountNumber: billingAccount2.number },
+                ],
+                deletedAt: null,
+            })
+            const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
+
+            expect(createdServiceConsumersTotal).toBe(2)
+            expect(residentIds).toContain(resident.id)
         })
 
         test('discover one service consumer for specific accountNumber', async () => {
@@ -184,11 +201,15 @@ describe('DiscoverServiceConsumersService', () => {
                 billingAccountId: billingAccount.id,
             }
 
-            const [serviceConsumers] = await discoverConsumersServiceByTestClient(admin, payload)
-            expect(serviceConsumers).toHaveLength(1)
-            expect(serviceConsumers[0].resident.id).toEqual(resident.id)
-            expect(serviceConsumers[0].organization.id).toEqual(user.organization.id)
-            expect(serviceConsumers[0].accountNumber).toEqual(billingAccount.number)
+            const [{ createdServiceConsumersTotal }] = await discoverConsumersServiceByTestClient(admin, payload)
+            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                resident: { id: resident.id },
+                deletedAt: null,
+            })
+            expect(createdServiceConsumersTotal).toBe(1)
+            expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
+            expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
+            expect(createdServiceConsumers[0].resident.id).toEqual(resident.id)
         })
 
         test('discover multiple service consumers for specific accountNumber', async () => {
@@ -214,17 +235,25 @@ describe('DiscoverServiceConsumersService', () => {
                 billingAccountId: billingAccount.id,
             }
 
-            const [serviceConsumers] = await discoverConsumersServiceByTestClient(admin, payload)
-            expect(serviceConsumers).toHaveLength(2)
-            expect(serviceConsumers[0].resident.id).toEqual(resident.id)
-            expect(serviceConsumers[1].resident.id).toEqual(resident2.id)
-            expect(serviceConsumers[0].organization.id).toEqual(user.organization.id)
-            expect(serviceConsumers[0].accountNumber).toEqual(billingAccount.number)
+            const [{ createdServiceConsumersTotal }] = await discoverConsumersServiceByTestClient(admin, payload)
+            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                OR: [
+                    { resident: { id: resident.id } },
+                    { resident: { id: resident2.id } },
+                ],
+                deletedAt: null,
+            })
+            const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
+            const accountNumbers = createdServiceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
+
+            expect(createdServiceConsumersTotal).toBe(2)
+            expect(residentIds).toContain(resident.id, resident2.id)
+            expect(accountNumbers).toContain(billingAccount.number)
         })
 
         test('discover no service consumers if there are none', async () => {
-            const [serviceConsumers] = await discoverConsumersServiceByTestClient(admin, randomPayload)
-            expect(serviceConsumers).toHaveLength(0)
+            const [{ createdServiceConsumersTotal }] = await discoverConsumersServiceByTestClient(admin, randomPayload)
+            expect(createdServiceConsumersTotal).toBe(0)
         })
     })
 

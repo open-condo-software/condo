@@ -18444,6 +18444,12 @@ export type DiscoverConsumersServiceInput = {
   residentId?: Maybe<Scalars['ID']>;
 };
 
+export type DiscoverConsumersServiceOutput = {
+  __typename?: 'DiscoverConsumersServiceOutput';
+  status: Scalars['String'];
+  createdServiceConsumersTotal: Scalars['Int'];
+};
+
 export type ExportMeterReadingsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -31262,7 +31268,7 @@ export type Mutation = {
    * }`
    */
   sendNewReceiptMessagesToResidentScopes?: Maybe<SendNewReceiptMessagesToResidentScopesOutput>;
-  discoverConsumersService?: Maybe<Array<Maybe<ServiceConsumer>>>;
+  discoverConsumersService?: Maybe<DiscoverConsumersServiceOutput>;
   createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
   /**
