@@ -9,7 +9,7 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/meter/access/_internalDeleteMeterAndMeterReadingsService')
 const { METER_DELETE_STATUS } = require('@condo/domains/meter/constants')
-const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
+const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 
 const logger = getLogger('_internalDeleteMeterAndMeterReadings')
 
@@ -54,18 +54,7 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
 
                 const deletedMeters = await Meter.updateMany(context, meters, { dv, sender, deletedAt: 'true' })
 
-                const meterReadings = await find('MeterReading', {
-                    deletedAt: null,
-                    meter: {
-                        id_in: meters.map(meter => meter.id),
-                    },
-                })
-
-                let deletedMeterReadings = []
-                if (!isEmpty(meterReadings)) {
-                    deletedMeterReadings = await MeterReading.updateMany(context, meterReadings, { dv, sender, deletedAt: 'true' })
-                }
-                const deleteStatus = meters.length === deletedMeters.length && meterReadings.length === deletedMeterReadings.length
+                const deleteStatus = meters.length === deletedMeters.length
                     ? METER_DELETE_STATUS.SUCCESS : METER_DELETE_STATUS.ERROR
                 logger.info({ msg: 'Deleted all Meter records with associated MeterReadings' })
 
