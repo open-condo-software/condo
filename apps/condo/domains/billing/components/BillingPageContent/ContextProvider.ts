@@ -5,11 +5,13 @@ import type { BillingIntegrationOrganizationContext, AcquiringIntegrationContext
 type IBillingAndAcquiringContexts = {
     billingContext: BillingIntegrationOrganizationContext
     acquiringContext: AcquiringIntegrationContext
+    refetchBilling: () => void
 }
 
 export const BillingAndAcquiringContext = createContext<IBillingAndAcquiringContexts>({
     billingContext: null,
     acquiringContext: null,
+    refetchBilling: () => ({}),
 })
 
 export function useBillingAndAcquiringContexts (): IBillingAndAcquiringContexts {

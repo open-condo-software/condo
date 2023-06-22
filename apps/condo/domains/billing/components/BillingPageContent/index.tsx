@@ -1,8 +1,9 @@
 import get from 'lodash/get'
 import Head from 'next/head'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import bridge from '@open-condo/bridge'
+import type { CondoBridgeSubscriptionListener } from '@open-condo/bridge'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Tag, Button } from '@open-condo/ui'
@@ -15,8 +16,9 @@ import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { EmptyContent } from './EmptyContent'
 import { MainContent } from './MainContent'
 
+
 export const BillingPageContent: React.FC = () => {
-    const { billingContext } = useBillingAndAcquiringContexts()
+    const { billingContext, refetchBilling } = useBillingAndAcquiringContexts()
     const billingName = get(billingContext, ['integration', 'name'], '')
 
     const intl = useIntl()
@@ -38,14 +40,36 @@ export const BillingPageContent: React.FC = () => {
     const tagBg = currentProblem ? colors.red['5'] : colors.green['5']
     const tagMessage = currentProblem ? ErrorStatusMessage : ConnectedStatusMessage
 
+    const [uploadModalId, setUploadModalId] = useState<string | null>(null)
+
     const handleUploadClick = useCallback(() => {
         if (uploadUrl) {
             // NOTE: Open bridge modal since it will register handlers and modalId automatically
+            // Then update state to start monitoring that modal from condo side
             bridge
                 .send('CondoWebAppShowModalWindow', { url: uploadUrl, size: 'big', title: '' })
+                .then(data => setUploadModalId(data.modalId))
                 .catch(console.error)
         }
     }, [uploadUrl])
+
+    useEffect(() => {
+        if (uploadModalId) {
+            const handleClose: CondoBridgeSubscriptionListener = (event) => {
+                if (event.type !== 'CondoWebAppCloseModalWindowResult' ||
+                    event.data.requestId ||
+                    !('modalId' in event.data) ||
+                    event.data.modalId !== uploadModalId) {
+                    return
+                }
+                setUploadModalId(null)
+                refetchBilling()
+            }
+            bridge.subscribe(handleClose)
+
+            return () => bridge.unsubscribe(handleClose)
+        }
+    }, [uploadModalId, refetchBilling])
 
     const UploadAction = useMemo(() => {
         if (!uploadUrl) {
