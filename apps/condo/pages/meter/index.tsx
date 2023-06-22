@@ -213,7 +213,6 @@ export const MetersPageContent = ({
                     </Col>
                     <Col span={24}>
                         <ExportToExcelActionBar
-                            hidden={!breakpoints.TABLET_LARGE}
                             searchObjectsQuery={searchMeterReadingsQuery}
                             exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
                             sortBy={sortBy}
