@@ -15,7 +15,7 @@ ALTER TABLE "NewsItem" ADD COLUMN "publishedAt" timestamp with time zone NULL;
 update "NewsItem" set "publishedAt"="NewsItem"."updatedAt" where "isPublished"=true and "publishedAt" is null;
 
 UPDATE "OrganizationEmployeeRole"
-SET "canManageOrganizationNews" = false
+SET "canManageNewsItems" = false
 WHERE "name" in ('employee.role.Dispatcher.name');
 
 UPDATE "OrganizationEmployeeRole"
