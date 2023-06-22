@@ -57,7 +57,18 @@ jest.mock('@condo/domains/organization/integrations/sbbol/SbbolFintechApi',  () 
         initSbbolFintechApi: jest.fn().mockImplementation( () => {
             return new SbbolFintechApi()
         }),
+        initSbbolClientWithToken: jest.fn().mockImplementation( () => {
+            return new SbbolFintechApi()
+        }),
         SbbolFintechApi,
+    }
+})
+
+jest.mock('@condo/domains/organization/integrations/sbbol/utils/getAccessTokenForUser',  () => {
+    return {
+        getAllAccessTokensByOrganization: jest.fn().mockImplementation( () => {
+            return []
+        }),
     }
 })
 
@@ -90,6 +101,11 @@ describe('syncBankTransaction from SBBOL', () => {
             routingNumber: '044525225',
             organization: { connect: { id: commonOrganization.id } },
             integrationContext: { connect: { id: bankIntegrationAccountContext.id } },
+            meta: {
+                sbbol: {
+                    type: 'test',
+                },
+            },
             ...dvSenderFields,
         })
 
@@ -106,6 +122,7 @@ describe('syncBankTransaction from SBBOL', () => {
             const bankAccountBalance = await BankAccount.getOne(adminClient, { id: commonBankAccount.id })
             expect(get(bankAccountBalance, 'meta.amount')).toBeDefined()
             expect(get(bankAccountBalance, 'meta.amountAt')).toBeDefined()
+            expect(get(bankAccountBalance, 'meta.sbbol.type')).toEqual('test')
             expect(transactions[0]).toHaveLength(5)
         })
 

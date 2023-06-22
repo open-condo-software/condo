@@ -260,7 +260,18 @@ const initSbbolFintechApi = async (userId) => {
     return fintechApi
 }
 
+const initSbbolClientWithToken = (accessToken) => {
+    return new SbbolFintechApi({
+        accessToken,
+        host: SBBOL_FINTECH_CONFIG.host,
+        port: SBBOL_FINTECH_CONFIG.port,
+        certificate: SBBOL_PFX.certificate,
+        passphrase: SBBOL_PFX.passphrase,
+    })
+}
+
 module.exports = {
     SbbolFintechApi,
     initSbbolFintechApi,
+    initSbbolClientWithToken,
 }
