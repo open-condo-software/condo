@@ -39988,10 +39988,12 @@ export type NewsItem = {
   sendAt?: Maybe<Scalars['String']>;
   scopes: Array<NewsItemScope>;
   _scopesMeta?: Maybe<_QueryMeta>;
-  /**  The date when newsItem was sent to residents  */
+  /**  The date when newsItem was sent to residents. This is an internal field used to detect was the message has already been sent or not.  */
   sentAt?: Maybe<Scalars['String']>;
   /**  Shows if the news item is ready to be shown and send to residents  */
   isPublished?: Maybe<Scalars['Boolean']>;
+  /**  The date when the news item was published. It is an auto-Calculated field.  */
+  publishedAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -40041,6 +40043,7 @@ export type NewsItemCreateInput = {
   scopes?: Maybe<NewsItemScopeRelateToManyInput>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
+  publishedAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -40072,6 +40075,7 @@ export type NewsItemHistoryRecord = {
   sendAt?: Maybe<Scalars['String']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
+  publishedAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -40097,6 +40101,7 @@ export type NewsItemHistoryRecordCreateInput = {
   sendAt?: Maybe<Scalars['String']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
+  publishedAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -40127,6 +40132,7 @@ export type NewsItemHistoryRecordUpdateInput = {
   sendAt?: Maybe<Scalars['String']>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
+  publishedAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -40232,6 +40238,14 @@ export type NewsItemHistoryRecordWhereInput = {
   sentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isPublished?: Maybe<Scalars['Boolean']>;
   isPublished_not?: Maybe<Scalars['Boolean']>;
+  publishedAt?: Maybe<Scalars['String']>;
+  publishedAt_not?: Maybe<Scalars['String']>;
+  publishedAt_lt?: Maybe<Scalars['String']>;
+  publishedAt_lte?: Maybe<Scalars['String']>;
+  publishedAt_gt?: Maybe<Scalars['String']>;
+  publishedAt_gte?: Maybe<Scalars['String']>;
+  publishedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  publishedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -41157,6 +41171,7 @@ export type NewsItemUpdateInput = {
   scopes?: Maybe<NewsItemScopeRelateToManyInput>;
   sentAt?: Maybe<Scalars['String']>;
   isPublished?: Maybe<Scalars['Boolean']>;
+  publishedAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -41560,6 +41575,14 @@ export type NewsItemWhereInput = {
   sentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isPublished?: Maybe<Scalars['Boolean']>;
   isPublished_not?: Maybe<Scalars['Boolean']>;
+  publishedAt?: Maybe<Scalars['String']>;
+  publishedAt_not?: Maybe<Scalars['String']>;
+  publishedAt_lt?: Maybe<Scalars['String']>;
+  publishedAt_lte?: Maybe<Scalars['String']>;
+  publishedAt_gt?: Maybe<Scalars['String']>;
+  publishedAt_gte?: Maybe<Scalars['String']>;
+  publishedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  publishedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -64139,6 +64162,8 @@ export enum SortNewsItemHistoryRecordsBy {
   SentAtDesc = 'sentAt_DESC',
   IsPublishedAsc = 'isPublished_ASC',
   IsPublishedDesc = 'isPublished_DESC',
+  PublishedAtAsc = 'publishedAt_ASC',
+  PublishedAtDesc = 'publishedAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -64322,6 +64347,8 @@ export enum SortNewsItemsBy {
   SentAtDesc = 'sentAt_DESC',
   IsPublishedAsc = 'isPublished_ASC',
   IsPublishedDesc = 'isPublished_DESC',
+  PublishedAtAsc = 'publishedAt_ASC',
+  PublishedAtDesc = 'publishedAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

@@ -57475,6 +57475,7 @@ type NewsItemHistoryRecord {
   sendAt: String
   sentAt: String
   isPublished: Boolean
+  publishedAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -57581,6 +57582,14 @@ input NewsItemHistoryRecordWhereInput {
   sentAt_not_in: [String]
   isPublished: Boolean
   isPublished_not: Boolean
+  publishedAt: String
+  publishedAt_not: String
+  publishedAt_lt: String
+  publishedAt_lte: String
+  publishedAt_gt: String
+  publishedAt_gte: String
+  publishedAt_in: [String]
+  publishedAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57678,6 +57687,8 @@ enum SortNewsItemHistoryRecordsBy {
   sentAt_DESC
   isPublished_ASC
   isPublished_DESC
+  publishedAt_ASC
+  publishedAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -57706,6 +57717,7 @@ input NewsItemHistoryRecordUpdateInput {
   sendAt: String
   sentAt: String
   isPublished: Boolean
+  publishedAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -57735,6 +57747,7 @@ input NewsItemHistoryRecordCreateInput {
   sendAt: String
   sentAt: String
   isPublished: Boolean
+  publishedAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -57801,11 +57814,16 @@ type NewsItem {
   scopes(where: NewsItemScopeWhereInput, search: String, sortBy: [SortNewsItemScopesBy!], orderBy: String, first: Int, skip: Int): [NewsItemScope!]!
   _scopesMeta(where: NewsItemScopeWhereInput, search: String, sortBy: [SortNewsItemScopesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ The date when newsItem was sent to residents """
+  """ The date when newsItem was sent to residents. This is an internal field used to detect was the message has already been sent or not. 
+  """
   sentAt: String
 
   """ Shows if the news item is ready to be shown and send to residents """
   isPublished: Boolean
+
+  """ The date when the news item was published. It is an auto-Calculated field. 
+  """
+  publishedAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -57917,6 +57935,14 @@ input NewsItemWhereInput {
   sentAt_not_in: [String]
   isPublished: Boolean
   isPublished_not: Boolean
+  publishedAt: String
+  publishedAt_not: String
+  publishedAt_lt: String
+  publishedAt_lte: String
+  publishedAt_gt: String
+  publishedAt_gte: String
+  publishedAt_in: [String]
+  publishedAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -58000,6 +58026,8 @@ enum SortNewsItemsBy {
   sentAt_DESC
   isPublished_ASC
   isPublished_DESC
+  publishedAt_ASC
+  publishedAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -58029,6 +58057,7 @@ input NewsItemUpdateInput {
   scopes: NewsItemScopeRelateToManyInput
   sentAt: String
   isPublished: Boolean
+  publishedAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -58056,6 +58085,7 @@ input NewsItemCreateInput {
   scopes: NewsItemScopeRelateToManyInput
   sentAt: String
   isPublished: Boolean
+  publishedAt: String
   v: Int
   createdAt: String
   updatedAt: String
