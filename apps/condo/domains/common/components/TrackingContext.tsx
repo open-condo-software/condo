@@ -64,6 +64,7 @@ export enum TrackingEventType {
     FollowExternalLink = 'FollowExternalLink',
     ImportComplete = 'ImportComplete',
     OnBoardingStepsCompleted = 'OnBoardingStepsCompleted',
+    FileUpload = 'FileUpload',
 }
 
 const getEventNameFromRoute = (route: string, eventType: TrackingEventType): string => {

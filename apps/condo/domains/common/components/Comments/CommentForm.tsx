@@ -9,6 +9,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ClipIcon } from '@condo/domains/common/components/icons/ClipIcon'
 import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { colors } from '@condo/domains/common/constants/style'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -92,6 +93,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const HelperMessage = intl.formatMessage({ id: 'Comments.form.helper' })
 
     const { InputWithCounter, Counter, setTextLength: setCommentLength, textLength: commentLength } = useInputWithCounter(Input.TextArea, MAX_COMMENT_LENGTH)
+    const { getEventName, logEvent } = useTracking()
     const [form, setForm] = useState<FormInstance>()
 
     const editableCommentFiles = get(editableComment, 'files')
@@ -118,10 +120,15 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             if (content && content.trim().length > 0 || filesCount > 0) {
                 setSending(true)
                 form.submit()
+                const eventName = getEventName(TrackingEventType.Input)
+                logEvent({
+                    eventName,
+                    eventProperties: { components: { value: content, id: 'comment-input' } },
+                })
                 setCommentLength(0)
             }
         }
-    }, [fieldName, filesCount, setCommentLength, setSending])
+    }, [fieldName, filesCount, getEventName, logEvent, setCommentLength, setSending])
 
     const handleKeyDown = useCallback((event) => {
         if (event.keyCode === ENTER_KEY_CODE) {
