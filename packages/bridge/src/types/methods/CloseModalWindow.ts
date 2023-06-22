@@ -3,5 +3,6 @@ export type CloseModalWindowParams = {
 }
 
 export type CloseModalWindowData = {
+    modalId: string
     success: boolean
 }
