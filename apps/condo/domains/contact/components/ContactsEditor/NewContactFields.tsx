@@ -1,13 +1,15 @@
-import { MinusCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import { AutoComplete, Col, Form, Radio } from 'antd'
+import { AutoComplete, Col, Form, InputProps, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
+import { MinusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { Radio, Space } from '@open-condo/ui'
 
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -28,16 +30,14 @@ interface INewContactFieldsFieldsProps {
     fields: FieldsType
     activeTab: CONTACT_TYPE
     contactsLoading?: boolean
+    unitName?: string
 }
 
-const MINUS_ICON_STYLE = {
-    color: colors.black,
-    fontSize: '21px',
-    marginTop: '9px',
-    marginLeft: '-4px',
-}
-const RADIO_STYLE = { marginTop: '8px' }
-const PHONE_FIELD_WRAPPER_COL = { span: 24 }
+const FIELD_WRAPPER_COL = { span: 24 }
+const FIELD_ROW_GUTTER: RowProps['gutter'] = [16, 0]
+const RADIO_COL_SMALL_SCREENS_STYLE: CSSProperties = { position: 'relative', top: '62px' }
+const RADIO_COL_LARGE_SCREENS_STYLE: CSSProperties = { height: '48px' }
+const AUTO_COMPLETE_STYLE: CSSProperties = { width: '100%' }
 
 const StyledPhoneInput = styled(PhoneInput)<{ error: boolean }>`
   .form-control {
@@ -56,15 +56,19 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     contacts,
     activeTab,
     contactsLoading,
+    unitName,
 }) => {
     const intl = useIntl()
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
     const ContactWithSamePhoneExistMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone.contactWithSamePhoneExists' })
+    const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
+    const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
 
     const [value, setValue] = useState({})
     const [contactWithSamePhoneExistError, setContactWithSamePhoneExistError] = useState<boolean>(false)
 
     const { phoneValidator } = useValidations({ allowLandLine: true })
+    const { breakpoints } = useLayoutContext()
 
     const handleChangeContact = (field) => (fieldValue) => {
         const newValue = {
@@ -111,58 +115,77 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
         phone: activeTab === CONTACT_TYPE.RESIDENT ? [phoneValidator, contactExistValidator] : [],
     }), [activeTab, contactExistValidator, phoneValidator])
 
+    const isPhoneDisabled = !unitName
     const isNameDisabled = !isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked)
 
+    const inputProps: InputProps = useMemo(() => ({ disabled: isPhoneDisabled }), [isPhoneDisabled])
+
     return (
-        <>
-            <Col span={10}>
-                <Form.Item
-                    name={NEW_CONTACT_PHONE_FORM_ITEM_NAME}
-                    rules={validations.phone}
-                    initialValue={get(value, 'phone')}
-                    wrapperCol={PHONE_FIELD_WRAPPER_COL}
-                >
-                    <AutoComplete
-                        allowClear
-                        value={get(value, 'phone')}
-                        onChange={handleChangeContact('phone')}
-                    >
-                        <StyledPhoneInput
-                            error={contactWithSamePhoneExistError}
-                            block
-                            compatibilityWithAntAutoComplete
-                        />
-                    </AutoComplete>
-                </Form.Item>
-            </Col>
-            <Col span={10}>
-                <AutoComplete
-                    style={{ width: '100%' }}
-                    value={get(value, 'name')}
-                    allowClear
-                    placeholder={NamePlaceholder}
-                    onChange={handleNameInput}
-                    disabled={contactsLoading || isNameDisabled}
-                />
-            </Col>
-            <Col span={2}>
-                {onChecked && (
-                    <Radio
-                        onClick={handleChecked}
-                        checked={checked}
-                        style={RADIO_STYLE}
-                    />
-                )}
-            </Col>
-            <Col span={2}>
-                {displayMinusButton && (
-                    <MinusCircleOutlined
-                        style={MINUS_ICON_STYLE}
-                        onClick={onClickMinusButton}
-                    />
-                )}
-            </Col>
-        </>
+        <Col span={24}>
+            <Row
+                align={breakpoints.TABLET_LARGE ? 'bottom' : 'top'}
+                justify={breakpoints.TABLET_LARGE ? 'start' : 'space-between'}
+                gutter={FIELD_ROW_GUTTER}
+            >
+                <Col span={20}>
+                    <Row gutter={FIELD_ROW_GUTTER}>
+                        <Col xs={24} sm={24} md={12}>
+                            <Form.Item
+                                name={NEW_CONTACT_PHONE_FORM_ITEM_NAME}
+                                rules={validations.phone}
+                                initialValue={get(value, 'phone')}
+                                wrapperCol={FIELD_WRAPPER_COL}
+                                label={PhoneLabel}
+                            >
+                                <AutoComplete
+                                    allowClear
+                                    value={get(value, 'phone')}
+                                    onChange={handleChangeContact('phone')}
+                                >
+                                    <StyledPhoneInput
+                                        error={contactWithSamePhoneExistError}
+                                        block
+                                        compatibilityWithAntAutoComplete
+                                        disabled={isPhoneDisabled}
+                                        inputProps={inputProps}
+                                    />
+                                </AutoComplete>
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={24} md={12}>
+                            <Form.Item
+                                wrapperCol={FIELD_WRAPPER_COL}
+                                label={FullNameLabel}
+                            >
+                                <AutoComplete
+                                    style={AUTO_COMPLETE_STYLE}
+                                    value={get(value, 'name')}
+                                    allowClear
+                                    placeholder={NamePlaceholder}
+                                    onChange={handleNameInput}
+                                    disabled={contactsLoading || isNameDisabled}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col span={4} style={breakpoints.TABLET_LARGE ? RADIO_COL_LARGE_SCREENS_STYLE : RADIO_COL_SMALL_SCREENS_STYLE}>
+                    <Space size={8} align='center' height='100%'>
+                        {onChecked && (
+                            <Radio
+                                onChange={handleChecked}
+                                checked={checked}
+                            />
+                        )}
+                        {displayMinusButton && breakpoints.TABLET_LARGE && (
+                            <MinusCircle
+                                onClick={onClickMinusButton}
+                            />
+                        )}
+                    </Space>
+                </Col>
+            </Row>
+        </Col>
     )
 }
 

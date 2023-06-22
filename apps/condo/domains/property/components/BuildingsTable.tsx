@@ -70,8 +70,8 @@ export default function BuildingsTable (props: BuildingTableProps) {
 
     const handleRowAction = (record) => {
         return {
-            onClick: () => {
-                router.push(`/property/${record.id}/`)
+            onClick: async () => {
+                await router.push(`/property/${record.id}/`)
             },
         }
     }
@@ -170,7 +170,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                             <>
                                 <Button
                                     type='primary'
-                                    onClick={() => router.push('/property/create')}
+                                    onClick={async () => await router.push('/property/create')}
                                     icon={<PlusCircle size='medium'/>}
                                 >
                                     {CreateLabel}

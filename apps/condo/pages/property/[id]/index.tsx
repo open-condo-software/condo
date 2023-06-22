@@ -29,7 +29,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 const PROPERTY_PAGE_CONTENT_ROW_GUTTER: RowProps['gutter'] = [12, 40]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER: RowProps['gutter'] = [52, 24]
-const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE: React.CSSProperties = { marginTop: '80px' }
+const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE: React.CSSProperties = { marginTop: '80px', marginRight: '-20px' }
 const PROPERTY_PAGE_CONTENT_ROW_STYLE: React.CSSProperties = { marginTop: '60px' }
 const PROPERTY_PAGE_SPACE_STYLE: React.CSSProperties = { width: '100%' }
 
@@ -57,7 +57,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     const { push } = useRouter()
     const { breakpoints } = useLayoutContext()
 
-    const softDeleteAction = Property.useSoftDelete( () => push('/property/'))
+    const softDeleteAction = Property.useSoftDelete( async () => await push('/property'))
 
     const yearOfConstructionCardLabel = property.yearOfConstruction
         ? dayjs(property.yearOfConstruction).format('YYYY')

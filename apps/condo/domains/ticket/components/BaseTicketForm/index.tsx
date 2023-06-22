@@ -80,7 +80,7 @@ export const IncidentHintsBlock = ({ organizationId, propertyId }) => {
     )
 }
 
-export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues = {}, hasNotResidentTab = true }) => {
+export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues = {}, hasNotResidentTab = true, residentTitle = null }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
 
     const value = useMemo(() => ({
@@ -109,9 +109,13 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                 unitName={unitName}
                 unitType={unitType}
                 hasNotResidentTab={hasNotResidentTab}
+                residentTitle={residentTitle}
             />
         )
-    }, [ContactsEditorComponent, contactEditorComponentFields, form, hasNotResidentTab, selectedPropertyId, value])
+    }, [
+        ContactsEditorComponent, contactEditorComponentFields, form, hasNotResidentTab, residentTitle,
+        selectedPropertyId, value,
+    ])
 
     return (
         <Col span={24}>

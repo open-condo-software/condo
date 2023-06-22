@@ -202,6 +202,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
+    const MeterReadingsFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.MeterReadingsFromResident' })
 
     const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_TYPES.meter)
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
@@ -352,6 +353,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                     form={form}
                                                     selectedPropertyId={selectedPropertyId}
                                                     hasNotResidentTab={false}
+                                                    residentTitle={MeterReadingsFromResidentMessage}
                                                 />
                                             </Col>
                                         </Row>

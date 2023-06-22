@@ -134,7 +134,7 @@ export const TicketStatusFilter = ({ count, title, type }) => {
         } else {
             const newStatusFilter = Array.isArray(filters.status) ? [...filters.status, type] : [type]
             const newParameters = getFiltersQueryData({ ...filters, status: newStatusFilter })
-            await updateQuery(router, { newParameters })
+            await updateQuery(router, { newParameters }, { routerAction: 'replace' })
         }
     }, [filters, router, ticketStatusTagType, type])
 
