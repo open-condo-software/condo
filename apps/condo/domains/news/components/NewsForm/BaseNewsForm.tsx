@@ -568,6 +568,14 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         const newsItem = await createOrUpdateNewsItem(updatedNewsItemValues)
         const newsItemId = get(newsItem, 'id')
 
+        if (actionName === 'update' && properties.length !== 0 && initialHasAllProperties) {
+            await softDeleteNewsItemScope(initialNewsItemScopes[0])
+        }
+        if (actionName === 'update' && properties.length === 0 && !initialHasAllProperties && hasAllProperties) {
+            await createNewsItemScope({
+                newsItem: { connect: { id: newsItemId } },
+            })
+        }
         if (actionName === 'update' && !initialHasAllProperties) {
             const deletedPropertyIds = difference(initialPropertyIds, properties)
             const newsItemScopesToDelete = initialNewsItemScopes
@@ -599,7 +607,12 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
 
         const addedPropertyIds = actionName === 'create' ? properties : difference(properties, initialPropertyIds)
-        if (addedPropertyIds.length === 1 && unitNames.length > 0) {
+        if (actionName === 'create' && addedPropertyIds.length === 0 && hasAllProperties) {
+            await createNewsItemScope({
+                newsItem: { connect: { id: newsItemId } },
+            })
+        }
+        if (addedPropertyIds.length === 1 && properties.length === 1 && unitNames.length > 0) {
             const propertyId = addedPropertyIds[0]
 
             await Promise.all(unitNames.map((unitKey) => {
@@ -612,7 +625,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 })
             }))
         }
-        if (addedPropertyIds.length === 1 && sectionIds.length > 0) {
+        if (addedPropertyIds.length === 1 && properties.length === 1 && sectionIds.length > 0) {
             const propertyId = addedPropertyIds[0]
             const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
 
@@ -818,7 +831,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                             label: templates[id].title,
                                                                         }))
                                                                     }
-                                                                    // prefixCls={TABS_CLASS_PREFIX}
                                                                 />
                                                             </Form.Item>
                                                         </Col>
