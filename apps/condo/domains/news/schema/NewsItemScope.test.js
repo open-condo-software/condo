@@ -27,6 +27,8 @@ const {
     createTestNewsItemScope,
     updateTestNewsItemScope,
     createTestNewsItem,
+    publishTestNewsItem,
+    updateTestNewsItem,
 } = require('@condo/domains/news/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,
@@ -284,7 +286,9 @@ describe('NewsItemScope', () => {
         })
 
         test('must throw an error on trying to create/edit scope for published news item', async () => {
-            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n, { isPublished: true })
+            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+            await createTestNewsItemScope(adminClient, newsItem)
+            await publishTestNewsItem(adminClient, newsItem.id)
 
             await expectToThrowGQLError(
                 async () => await createTestNewsItemScope(adminClient, newsItem, { property: { connect: { id: dummyProperty.id } } }),
@@ -298,10 +302,12 @@ describe('NewsItemScope', () => {
         })
 
         test('must throw an error on trying to create/edit scope for sent news item', async () => {
-            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n, {
-                isPublished: true,
-                sentAt: dayjs().toISOString(),
-            })
+            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+            await createTestNewsItemScope(adminClient, newsItem)
+            await publishTestNewsItem(adminClient, newsItem.id)
+
+            // Emulate sending
+            await updateTestNewsItem(adminClient, newsItem.id, { sentAt: dayjs().toISOString() })
 
             await expectToThrowGQLError(
                 async () => await createTestNewsItemScope(adminClient, newsItem, { property: { connect: { id: dummyProperty.id } } }),

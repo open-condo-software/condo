@@ -18,6 +18,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedToFieldError,
+    catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
 const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
@@ -153,6 +154,16 @@ describe('NewsItems', () => {
                 expect(obj13.number).toEqual(3)
                 expect(obj21.number).toEqual(1)
             })
+
+            test('The publishedAt field must be not empty after publishing', async () => {
+                const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+                await createTestNewsItemScope(adminClient, newsItem)
+
+                const [newsItemPublished] = await publishTestNewsItem(adminClient, newsItem.id)
+
+                expect(newsItem.publishedAt).toBeNull()
+                expect(newsItemPublished.publishedAt).not.toBeNull()
+            })
         })
 
         describe('update', () => {
@@ -238,6 +249,7 @@ describe('NewsItems', () => {
 
             test('user can successfully un-publish news item', async () => {
                 const [objCreated] = await createTestNewsItem(adminClient, dummyO10n)
+                await createTestNewsItemScope(adminClient, objCreated)
                 await publishTestNewsItem(adminClient, objCreated.id)
                 const [objUnpublished] = await updateTestNewsItem(adminClient, objCreated.id, { isPublished: false })
 
@@ -811,7 +823,9 @@ describe('NewsItems', () => {
         })
 
         test('must throw an error on trying to edit the published news item', async () => {
-            const [sentNewsItem] = await createTestNewsItem(adminClient, dummyO10n, { isPublished: true })
+            const [sentNewsItem] = await createTestNewsItem(adminClient, dummyO10n)
+            await createTestNewsItemScope(adminClient, sentNewsItem)
+            await publishTestNewsItem(adminClient, sentNewsItem.id)
             await expectToThrowGQLError(
                 async () => await updateTestNewsItem(adminClient, sentNewsItem.id, { title: faker.lorem.words(3) }),
                 {
@@ -865,6 +879,26 @@ describe('NewsItems', () => {
                     message: 'Wrong send date',
                     messageForUser: 'api.newsItem.WRONG_SEND_DATE',
                 },
+            )
+        })
+
+        test('must throw an error on trying to publish news item without scopes', async () => {
+            const errorFieldsToCheck = {
+                code: 'BAD_USER_INPUT',
+                type: 'NO_NEWS_ITEM_SCOPES',
+                message: 'The news item without scopes publishing is forbidden',
+                messageForUser: 'api.newsItem.NO_NEWS_ITEM_SCOPES',
+            }
+
+            await expectToThrowGQLError(
+                async () => await createTestNewsItem(adminClient, dummyO10n, { isPublished: true }),
+                errorFieldsToCheck,
+            )
+
+            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+            await expectToThrowGQLError(
+                async () => await publishTestNewsItem(adminClient, newsItem.id),
+                errorFieldsToCheck,
             )
         })
     })
@@ -1011,6 +1045,29 @@ describe('NewsItems', () => {
                     }),
                 ]))
             }, { delay: (SENDING_DELAY_SEC + 3) * 1000 })
+        })
+    })
+
+    describe('access', () => {
+        test('error on trying to edit publishedAt field', async () => {
+            const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+            await createTestNewsItemScope(adminClient, newsItem)
+            await catchErrorFrom(
+                async () => await updateTestNewsItem(adminClient, newsItem.id, { publishedAt: dayjs().toISOString() }),
+                (caught) => {
+                    expect(caught).toMatchObject({
+                        name: 'TestClientResponseError',
+                        message: expect.stringContaining('Test client caught GraphQL response with not empty errors body!'),
+                        errors: expect.arrayContaining([
+                            expect.objectContaining({
+                                name: 'UserInputError',
+                                message: expect.stringContaining('Field "publishedAt" is not defined by type "NewsItemUpdateInput"'),
+                                extensions: expect.objectContaining({ code: 'BAD_USER_INPUT' }),
+                            }),
+                        ]),
+                    })
+                },
+            )
         })
     })
 })

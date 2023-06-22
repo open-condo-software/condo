@@ -22,9 +22,11 @@ const {
     EDIT_DENIED_PUBLISHED,
     PROFANITY_DETECTED_MOT_ERF_KER,
     WRONG_SEND_DATE,
+    NO_NEWS_ITEM_SCOPES,
 } = require('@condo/domains/news/constants/errors')
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks')
+const { NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
 
 const badWords = new BadWordsNext()
 badWords.add(badWordsRu)
@@ -71,6 +73,12 @@ const ERRORS = {
         type: WRONG_SEND_DATE,
         message: 'Wrong send date',
         messageForUser: 'api.newsItem.WRONG_SEND_DATE',
+    },
+    NO_NEWS_ITEM_SCOPES: {
+        code: BAD_USER_INPUT,
+        type: NO_NEWS_ITEM_SCOPES,
+        message: 'The news item without scopes publishing is forbidden',
+        messageForUser: 'api.newsItem.NO_NEWS_ITEM_SCOPES',
     },
 }
 
@@ -138,7 +146,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
         },
 
         sentAt: {
-            schemaDoc: 'The date when newsItem was sent to residents',
+            schemaDoc: 'The date when newsItem was sent to residents. This is an internal field used to detect was the message has already been sent or not.',
             type: 'DateTimeUtc',
         },
 
@@ -146,6 +154,21 @@ const NewsItem = new GQLListSchema('NewsItem', {
             schemaDoc: 'Shows if the news item is ready to be shown and send to residents',
             type: 'Checkbox',
             defaultValue: false,
+        },
+
+        publishedAt: {
+            schemaDoc: 'The date when the news item was published. It is an auto-Calculated field.',
+            type: 'DateTimeUtc',
+            hooks: {
+                resolveInput: ({ resolvedData, fieldPath }) => (
+                    resolvedData['isPublished'] ? dayjs().toISOString() : resolvedData[fieldPath]
+                ),
+            },
+            access: {
+                read: true,
+                create: false,
+                update: false,
+            },
         },
 
     },
@@ -166,11 +189,18 @@ const NewsItem = new GQLListSchema('NewsItem', {
 
             const sendAt = get(resolvedData, 'sendAt')
             const sentAt = get(existingItem, 'sentAt')
-            const validBefore = get(resolvedData, 'validBefore')
             const resultSendAt = get(resultItemData, 'sendAt')
             const resultValidBefore = get(resultItemData, 'validBefore')
             const isPublished = get(existingItem, 'isPublished')
             const type = get(resultItemData, 'type')
+            const resolvedIsPublished = get(resolvedData, 'isPublished')
+
+            if (resolvedIsPublished) {
+                const scopesCount = existingItem ? await NewsItemScope.count(context, { newsItem: { id: existingItem.id } }) : 0
+                if (scopesCount === 0) {
+                    throw new GQLError(ERRORS.NO_NEWS_ITEM_SCOPES, context)
+                }
+            }
 
             if (operation === 'update') {
                 if (sentAt) {
