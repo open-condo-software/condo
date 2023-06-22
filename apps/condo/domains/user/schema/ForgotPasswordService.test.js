@@ -488,20 +488,6 @@ describe('ForgotPasswordAction Service', () => {
                 )
             })
 
-            test('change to password containing name', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-
-                const [{ token }] = await createTestForgotPasswordAction(admin, client.user)
-                const password = client.userAttrs.name + faker.internet.password()
-
-                await expectToThrowGQLError(
-                    async () => await changePasswordWithTokenByTestClient(client, { token, password }),
-                    ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_NAME,
-                    'result'
-                )
-            })
-
             test('change to wrong format password', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()

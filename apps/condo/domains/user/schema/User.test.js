@@ -658,22 +658,6 @@ describe('Validations', () => {
             )
         })
 
-        test('set to password containing name', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [user, userAttrs] = await createTestUser(admin)
-            const password = userAttrs.name + faker.internet.password()
-
-            await catchErrorFrom(
-                async () => await updateTestUser(admin, user.id, { password }),
-                ({ errors }) => {
-                    expect(errors).toHaveLength(1)
-                    expect(errors[0]).toEqual(expect.objectContaining({
-                        message: ERRORS.PASSWORD_CONTAINS_NAME.message,
-                    }))
-                }
-            )
-        })
-
         test('set to wrong format password', async () => {
             const admin = await makeLoggedInAdminClient()
             const password = faker.datatype.number()

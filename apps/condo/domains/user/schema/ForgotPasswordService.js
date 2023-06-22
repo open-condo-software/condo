@@ -64,7 +64,6 @@ const ERRORS = {
             'INVALID_PASSWORD_LENGTH',
             'PASSWORD_CONTAINS_EMAIL',
             'PASSWORD_CONTAINS_PHONE',
-            'PASSWORD_CONTAINS_NAME',
             'PASSWORD_IS_FREQUENTLY_USED',
             'PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS',
         ]),
@@ -243,7 +242,6 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                         [ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message]: ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
                         [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_EMAIL,
                         [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_PHONE.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_PHONE,
-                        [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_NAME.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_NAME,
                     },
                 })
 

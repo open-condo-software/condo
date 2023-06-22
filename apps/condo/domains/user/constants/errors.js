@@ -55,7 +55,6 @@ const WRONG_PASSWORD_FORMAT = 'WRONG_PASSWORD_FORMAT'
 const INVALID_PASSWORD_LENGTH = 'INVALID_PASSWORD_LENGTH'
 const PASSWORD_CONTAINS_EMAIL = 'PASSWORD_CONTAINS_EMAIL'
 const PASSWORD_CONTAINS_PHONE = 'PASSWORD_CONTAINS_PHONE'
-const PASSWORD_CONTAINS_NAME = 'PASSWORD_CONTAINS_NAME'
 const PASSWORD_IS_FREQUENTLY_USED = 'PASSWORD_IS_FREQUENTLY_USED'
 const PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS = 'PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS'
 
@@ -107,13 +106,6 @@ const GQL_ERRORS = {
         type: PASSWORD_CONTAINS_PHONE,
         message: 'Password must not contain phone',
         messageForUser: 'api.user.PASSWORD_CONTAINS_PHONE',
-    },
-    PASSWORD_CONTAINS_NAME: {
-        variable: ['data', 'password'],
-        code: 'BAD_USER_INPUT',
-        type: PASSWORD_CONTAINS_NAME,
-        message: 'Password must not contain mane',
-        messageForUser: 'api.user.PASSWORD_CONTAINS_NAME',
     },
     PASSWORD_IS_FREQUENTLY_USED: {
         variable: ['data', 'password'],
@@ -177,5 +169,4 @@ module.exports = {
     INVALID_PASSWORD_LENGTH,
     PASSWORD_CONTAINS_EMAIL,
     PASSWORD_CONTAINS_PHONE,
-    PASSWORD_CONTAINS_NAME,
 }
