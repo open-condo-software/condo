@@ -13,6 +13,14 @@ ALTER TABLE "NewsItem" ADD COLUMN "publishedAt" timestamp with time zone NULL;
 
 ----- MANUAL
 update "NewsItem" set "publishedAt"="NewsItem"."updatedAt" where "isPublished"=true and "publishedAt" is null;
+
+UPDATE "OrganizationEmployeeRole"
+SET "canManageOrganizationNews" = false
+WHERE "name" in ('employee.role.Dispatcher.name');
+
+UPDATE "OrganizationEmployeeRole"
+SET "canManageNewsItemTemplates" = false
+WHERE "name" in ('employee.role.Dispatcher.name');
 -----
 
 

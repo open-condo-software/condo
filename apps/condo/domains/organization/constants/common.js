@@ -83,8 +83,6 @@ const DEFAULT_ROLES = {
         'canManageBankTransactions': false,
         'canManageBankAccountReports': false,
         'ticketVisibilityType': PROPERTY_TICKET_VISIBILITY,
-        'canManageNewsItems': true,
-        'canManageNewsItemTemplates': true,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
