@@ -21,33 +21,18 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
     const [isModalVisible, setIsModalVisible] = useState(false)
     const isIgnoringPrompt = useRef(false)
     const initialFormState = useRef({})
-    const isBackButtonClicked = useRef(false)
     const router = useRouter()
-
     const showModal = () => setIsModalVisible(true)
     const hideModal = () => setIsModalVisible(false)
-    const handleCancel = async () => {
+    const handleCancel = () => {
         isIgnoringPrompt.current = true
         hideModal()
-
-        if (isBackButtonClicked.current) {
-            router.back()
-        }
-
-        await router.push(next)
+        router.push(next)
     }
-    const handleSave = async () => {
+    const handleSave = () => {
+        isIgnoringPrompt.current = true
         hideModal()
-        const isValid = await form.validateFields()
-
-        if (isValid) {
-            isIgnoringPrompt.current = true
-            formSubmit()
-
-            if (isBackButtonClicked.current) {
-                router.back()
-            }
-        }
+        formSubmit()
     }
     // TODO(zuch): find a solution to watch for file changes and contact changes
     // as they are using custom hooks and their fields do not present on initial form state
@@ -55,62 +40,39 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
         const newFormFields = pick(form.getFieldsValue(), Object.keys(initialFormState.current))
         return !isEqual(initialFormState.current, newFormFields)
     }
-
     useEffect(() => {
-        if (typeof window === 'undefined') {
-            return
-        }
+        if (typeof window !== 'undefined') {
+            const isWebview = document.querySelector('body.webview')
+            if (isWebview) {
+                return
+            }
 
-        // Todo(zuch): find a better way to turn off Prompt on form submit
-        const oldFormSubmit = form.submit
-        initialFormState.current = form.getFieldsValue()
-
-        form.submit = async () => {
-            const isValid = await form.validateFields()
-
-            if (isValid) {
+            initialFormState.current = form.getFieldsValue()
+            // Todo(zuch): find a better way to turn off Prompt on form submit
+            const oldFormSubmit = form.submit
+            form.submit = () => {
                 isIgnoringPrompt.current = true
                 oldFormSubmit.call(form)
             }
-        }
-
-        const onRouteChange = url => {
-            if (!isIgnoringPrompt.current && isFormChanged()) {
-                setNext(url)
-                showModal()
-
-                // Todo(zuch): wait for next.js implement router abort method and remove custom error
-                // https://github.com/vercel/next.js/issues/2476
-                throw 'Preventing form from close (ignore this error)'
+            const onRouteChange = url => {
+                if (!isIgnoringPrompt.current) {
+                    if (isFormChanged()) {
+                        setNext(url)
+                        showModal()
+                        // Todo(zuch): wait for next.js implement router abort method and remove custom error
+                        // https://github.com/vercel/next.js/issues/2476
+                        throw 'Preventing form from close (ignore this error)'
+                    }
+                }
             }
-        }
-
-        const handleBeforePopState = ({ as }) => {
-            isBackButtonClicked.current = true
-
-            if (!isIgnoringPrompt.current && isFormChanged()) {
-                setNext(as)
-                showModal()
-
-                window.history.pushState(null, '', router.asPath)
-
-                return false
+            router.events.on('routeChangeStart', onRouteChange)
+            return () => {
+                router.events.off('routeChangeStart', onRouteChange)
+                form.submit = oldFormSubmit
             }
-            return true
-        }
-
-        router.beforePopState(handleBeforePopState)
-        router.events.on('routeChangeStart', onRouteChange)
-
-        return () => {
-            router.events.off('routeChangeStart', onRouteChange)
-            router.beforePopState(null)
-
-            form.submit = oldFormSubmit
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
     return (
         <Modal
             open={isModalVisible}
@@ -127,6 +89,7 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
         >
             {children}
         </Modal>
+
     )
 }
 
