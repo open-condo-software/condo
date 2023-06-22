@@ -67,7 +67,7 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
     })
 
     const selectedPropertiesId = useMemo(() => {
-        return uniq(newsItemScopes.filter(item =>  has(item, ['property', 'id'])).map(item => item.property.id))
+        return uniq(newsItemScopes.filter(item => has(item, ['property', 'id'])).map(item => item.property.id))
     }, [newsItemScopes]) 
     const { loading: propertiesLoading, objs: properties } = Property.useAllObjects({
         where: { id_in: selectedPropertiesId },

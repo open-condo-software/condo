@@ -1222,7 +1222,7 @@
   "news.component.RecipientCounter.label.properties": "дома",
   "news.component.RecipientCounter.willReceive.label": "получат",
   "news.component.RecipientCounter.willReceive.hint": "В {count, plural, one {# помещении} other {# помещениях}} есть \u2028пользователи мобильного \u2028приложения Doma — они получат \u2028новость.",
-  "news.component.RecipientCounter.willReceive.hintZero": "Нет помещений, где есть пользователи мобильного приложения Doma. Добавьте их в разделе Дома.",
+  "news.component.RecipientCounter.willReceive.hintZero": "Нет помещений, где есть пользователи мобильного приложения Doma.",
   "news.component.RecipientCounter.willNotReceive.label": "не получат",
   "news.component.RecipientCounter.willNotReceive.hint": "В {count, plural, one {# помещении} other {# помещениях}} помещениях нет пользователей \u2028мобильного приложения Doma. Скачайте \u2028список, чтобы узнать, в каких помещениях есть пользователи.",
   "news.component.RecipientCounter.willNotReceive.hintZero": "В помещениях нет пользователей мобильного приложения Doma. Скачайте список, чтобы узнать, в каких помещениях есть пользователи.",

@@ -1222,7 +1222,7 @@
   "news.component.RecipientCounter.label.properties": "houses",
   "news.component.RecipientCounter.willReceive.label": "will receive",
   "news.component.RecipientCounter.willReceive.hint": "In {count} units found users of mobile app Doma — they will receive letter.",
-  "news.component.RecipientCounter.willReceive.hintZero": "There are no units with Doma mobile app users. Add them under «Property» section.",
+  "news.component.RecipientCounter.willReceive.hintZero": "There are no units with Doma mobile app users.",
   "news.component.RecipientCounter.willNotReceive.label": "will not receive",
   "news.component.RecipientCounter.willNotReceive.hint": "In {count} units is no users of mobile app Doma. Download the list to find out which units have users.",
   "news.component.RecipientCounter.willNotReceive.hintZero": "There are no Doma mobile app users in these units. Download the list to find out which units have users.",
