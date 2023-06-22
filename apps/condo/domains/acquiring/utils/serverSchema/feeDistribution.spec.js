@@ -74,8 +74,8 @@ const TEST_CASES = [
         ],
         cases: [
             { amount: 1, expected: { type: 'service', summa: 1.01, recipientSum: 1, explicitFee: 0.01 } },
-            { amount: 5125812.99, expected: { type: 'service', summa: 5187818.79, recipientSum: 5125812.99, explicitFee: 62005.8 } },
-            { amount: 1746.12, category: null, expected: { type: 'service', summa: 1767.24, recipientSum: 1746.12, explicitFee: 21.12 } },
+            { amount: 5125812.99, expected: { type: 'service', summa: 5187322.75, recipientSum: 5125812.99, explicitFee: 61509.76 } },
+            { amount: 1746.12, category: null, expected: { type: 'service', summa: 1767.07, recipientSum: 1746.12, explicitFee: 20.95 } },
         ],
     },
     {
@@ -101,7 +101,9 @@ describe('Commission and serviceFee calculation', () => {
                 const calculator = new FeeDistribution(formula, category)
                 const result = calculator.calculate(amount)
                 for (const checkKey in expected) {
-                    expect(expected[checkKey]).toEqual(result[checkKey])
+                    expect(result[checkKey]).toEqual(expected[checkKey])
+                    expect(result.check.payDifference).toEqual(0)
+                    expect(result.check.commissionDifference).toEqual(0)
                 }
             }
         })
@@ -154,7 +156,7 @@ describe('FeeDistribution calculation cases', () => {
                 const { check: { payDifference, commissionDifference }, summa } = calculator.calculate(Big(100000000))
                 expect(payDifference).toEqual(0)
                 expect(commissionDifference).toEqual(0)
-                expect(summa).toEqual(101209677.42)
+                expect(summa).toEqual(101200000)
             })
         })
 
@@ -175,7 +177,7 @@ describe('FeeDistribution calculation cases', () => {
                 const { check: { payDifference, commissionDifference }, summa } = calculator.calculate(Big(100000000))
                 expect(payDifference).toEqual(0)
                 expect(commissionDifference).toEqual(0)
-                expect(summa).toEqual(101209677.42)
+                expect(summa).toEqual(101200000)
             })
         })
 
