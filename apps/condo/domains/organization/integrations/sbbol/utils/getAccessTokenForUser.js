@@ -1,6 +1,7 @@
-const { getSbbolSecretStorage } = require('./getSbbolSecretStorage')
-
-const { SbbolOauth2Api } = require('../oauth2')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { SbbolOauth2Api } = require('@condo/domains/organization/integrations/sbbol/oauth2')
+const { getSbbolSecretStorage } = require('@condo/domains/organization/integrations/sbbol/utils/getSbbolSecretStorage')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 
 /**
  * Each route handler here in each application instance needs an instance of `SbbolOauth2Api` with actual
@@ -42,7 +43,52 @@ async function getAccessTokenForUser (userId) {
     return await sbbolSecretStorage.getAccessToken(userId)
 }
 
+const getAllAccessTokensByOrganization = async (context, organizationId) => {
+    const employees = await loadListByChunks({
+        context,
+        list: OrganizationEmployee,
+        chunkSize: 50,
+        limit: 10000,
+        where: {
+            organization: { id: organizationId },
+            deletedAt: null,
+        },
+    })
+
+    let accessTokens = []
+    const sbbolSecretStorage = getSbbolSecretStorage()
+    const clientSecret = await sbbolSecretStorage.getClientSecret()
+    const oauth2 = new SbbolOauth2Api({ clientSecret })
+
+    for (let employee of employees) {
+        const userId = employee.user.id
+        let accessToken
+        try {
+            if (await sbbolSecretStorage.isRefreshTokenExpired(userId)) {
+                continue
+            }
+
+            if (await sbbolSecretStorage.isAccessTokenExpired(userId)) {
+                const currentRefreshToken = await sbbolSecretStorage.getRefreshToken(userId)
+                const { access_token, expires_at: expiresAt, refresh_token } = await oauth2.refreshToken(currentRefreshToken)
+                await sbbolSecretStorage.setAccessToken(access_token, userId, { expiresAt })
+                await sbbolSecretStorage.setRefreshToken(refresh_token, userId)
+                accessToken = access_token
+            } else {
+                accessToken = await sbbolSecretStorage.getAccessToken(userId)
+            }
+
+            accessTokens.push(accessToken)
+        } catch (e) {
+            // continue finding accessTokens
+        }
+    }
+
+    return accessTokens
+}
+
 module.exports = {
     initializeSbbolAuthApi,
     getAccessTokenForUser,
+    getAllAccessTokensByOrganization,
 }

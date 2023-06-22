@@ -11,9 +11,9 @@ const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
-const { initSbbolFintechApi } = require('@condo/domains/organization/integrations/sbbol/SbbolFintechApi')
-
-const { ERROR_PASSED_DATE_IN_THE_FUTURE } = require('../constants')
+const { ERROR_PASSED_DATE_IN_THE_FUTURE } = require('@condo/domains/organization/integrations/sbbol/constants')
+const { initSbbolFintechApi, initSbbolClientWithToken } = require('@condo/domains/organization/integrations/sbbol/SbbolFintechApi')
+const { getAllAccessTokensByOrganization } = require('@condo/domains/organization/integrations/sbbol/utils/getAccessTokenForUser')
 
 
 const logger = getLogger('sbbol/SbbolSyncTransactions')
@@ -37,27 +37,38 @@ async function isTaskCancelled (context, taskId) {
  *  @param {String} organizationId
  */
 async function requestTransactionsForDate ({ userId, bankAccounts, context, statementDate, organizationId }) {
-    const fintechApi = await initSbbolFintechApi(userId)
+    let sbbolFintechClient, accessTokens, accessTokenIndex = 0
 
-    if (!fintechApi) return
+    sbbolFintechClient = await initSbbolFintechApi(userId)
+
+    accessTokens = await getAllAccessTokensByOrganization(context, organizationId)
+
+    if (!sbbolFintechClient) {
+        sbbolFintechClient = initSbbolClientWithToken(accessTokens[accessTokenIndex])
+    }
 
     const transactions = []
 
     for (const bankAccount of bankAccounts) {
         let page = 1,
-            doNextRequest = true,
             timeout = 1000,
             failedReq = 0,
             summary,
-            response
+            response,
+            allDataReceived = false,
+            reqErrored = false
 
-        do {
+        // Request data until the response contains no errors,
+        // has received the status "statement in progress",
+        // there is no error when requesting using the client for the passed userId,
+        // or there are unused access tokens
+        while (!reqErrored && !allDataReceived && accessTokenIndex <= accessTokens.length) {
             if (isResponseProcessing(response) || !response) {
-                response = await fintechApi.getStatementTransactions(bankAccount.number, statementDate, page)
+                response = await sbbolFintechClient.getStatementTransactions(bankAccount.number, statementDate, page)
             }
 
             if (isResponseProcessing(summary) || !summary) {
-                summary = await fintechApi.getStatementSummary(
+                summary = await sbbolFintechClient.getStatementSummary(
                     bankAccount.number,
                     statementDate,
                 )
@@ -71,7 +82,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 await new Promise( (resolve) => {
                     setTimeout(async () => {
                         if (isResponseProcessing(response)) {
-                            response = await fintechApi.getStatementTransactions(
+                            response = await sbbolFintechClient.getStatementTransactions(
                                 bankAccount.number,
                                 statementDate,
                                 page
@@ -79,7 +90,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                         }
 
                         if (isResponseProcessing(summary)) {
-                            summary = await fintechApi.getStatementSummary(
+                            summary = await sbbolFintechClient.getStatementSummary(
                                 bankAccount.number,
                                 statementDate,
                             )
@@ -107,15 +118,28 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
 
             // Checking that the response contains a link to the next page, if it is not there, then all transactions have been received
             if (isEmpty(get(response, 'data._links', []).filter(link => link.rel === 'next'))) {
-                doNextRequest = false
+                allDataReceived = true
             }
 
             // WORKFLOW_FAULT means invalid request parameters, that can occur in cases:
             // when report is requested for date in future
             // when report page does not exist, for example number is out of range of available pages
-            if (get(transactions, 'error.cause') === 'WORKFLOW_FAULT') doNextRequest = false
-            if (get(summary, 'error.cause') === 'WORKFLOW_FAULT') doNextRequest = false
-        } while ( doNextRequest )
+            if (get(transactions, 'error.cause') === 'WORKFLOW_FAULT') reqErrored = true
+            if (get(summary, 'error.cause') === 'WORKFLOW_FAULT') reqErrored = true
+            if (get(summary, 'error.cause') === 'DATA_NOT_FOUND_EXCEPTION') reqErrored = true
+            if (get(transactions, 'error.cause') === 'UNAUTHORIZED') {
+                allDataReceived = false
+                reqErrored = false
+                accessTokenIndex++
+                if (accessTokenIndex < accessTokens.length) {
+                    sbbolFintechClient = initSbbolClientWithToken(accessTokens[accessTokenIndex])
+                } else {
+                    reqErrored = true
+                }
+            }
+        }
+
+        accessTokenIndex = 0
 
         if (summary) {
             await BankAccount.update(context, bankAccount.id, {
