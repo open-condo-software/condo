@@ -66,7 +66,7 @@ const User = new GQLListSchema('User', {
 
                     // NOTE: it should be possible to reset the password
                     if (!isNull(pass)) {
-                        await passwordValidations(context, pass, newItem.email, newItem.phone, newItem.name)
+                        await passwordValidations(context, pass, newItem.email, newItem.phone)
                     }
                 },
             },

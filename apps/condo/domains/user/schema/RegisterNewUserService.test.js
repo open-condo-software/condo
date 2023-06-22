@@ -182,18 +182,6 @@ describe('RegisterNewUserService', () => {
         )
     })
 
-    test('register user with password containing name', async () => {
-        const client = await makeClientWithNewRegisteredAndLoggedInUser()
-        const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
-        const password = name + faker.internet.password()
-
-        await expectToThrowGQLError(
-            async () => await registerNewUser(client, { name, password }),
-            errors.PASSWORD_CONTAINS_NAME,
-            'user',
-        )
-    })
-
     test('register with wrong token', async () => {
         const client = await makeClient()
         const confirmPhoneActionToken = faker.datatype.uuid()

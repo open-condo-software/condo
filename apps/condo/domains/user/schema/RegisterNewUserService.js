@@ -40,7 +40,6 @@ const ERRORS = {
         'INVALID_PASSWORD_LENGTH',
         'PASSWORD_CONTAINS_EMAIL',
         'PASSWORD_CONTAINS_PHONE',
-        'PASSWORD_CONTAINS_NAME',
         'PASSWORD_IS_FREQUENTLY_USED',
         'PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS',
     ]),
@@ -143,7 +142,6 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                         [ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message]: ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
                         [ERRORS.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.PASSWORD_CONTAINS_EMAIL,
                         [ERRORS.PASSWORD_CONTAINS_PHONE.message]: ERRORS.PASSWORD_CONTAINS_PHONE,
-                        [ERRORS.PASSWORD_CONTAINS_NAME.message]: ERRORS.PASSWORD_CONTAINS_NAME,
                     },
                 })
                 if (action) {

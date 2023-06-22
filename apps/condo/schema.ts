@@ -30944,17 +30944,6 @@ export type Mutation = {
    *     "password"
    *   ],
    *   "code": "BAD_USER_INPUT",
-   *   "type": "PASSWORD_CONTAINS_NAME",
-   *   "message": "Password must not contain mane",
-   *   "messageForUser": "api.user.PASSWORD_CONTAINS_NAME"
-   * }`
-   *
-   * `{
-   *   "variable": [
-   *     "data",
-   *     "password"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
    *   "type": "PASSWORD_IS_FREQUENTLY_USED",
    *   "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
    *   "messageForUser": "api.user.PASSWORD_IS_FREQUENTLY_USED"
@@ -31098,17 +31087,6 @@ export type Mutation = {
    *   "type": "PASSWORD_CONTAINS_PHONE",
    *   "message": "Password must not contain phone",
    *   "messageForUser": "api.user.PASSWORD_CONTAINS_PHONE"
-   * }`
-   *
-   * `{
-   *   "variable": [
-   *     "data",
-   *     "password"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "PASSWORD_CONTAINS_NAME",
-   *   "message": "Password must not contain mane",
-   *   "messageForUser": "api.user.PASSWORD_CONTAINS_NAME"
    * }`
    *
    * `{

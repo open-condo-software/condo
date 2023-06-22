@@ -1658,7 +1658,6 @@
   "api.user.INVALID_PASSWORD_LENGTH": "Длина пароля должна быть от {min} до {max} символов",
   "api.user.PASSWORD_CONTAINS_EMAIL": "Пароль не может быть похож на email",
   "api.user.PASSWORD_CONTAINS_PHONE": "Пароль не может быть похож на телефон",
-  "api.user.PASSWORD_CONTAINS_NAME": "Пароль не может быть похож на имя",
   "api.user.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS": "Пароль должен содержать не менее {min} разных символов",
   "api.user.changePasswordWithToken.TOKEN_NOT_FOUND": "Не найден действительный токен на изменение пароля",
   "api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT": "Неверный формат адреса электронной почты",

@@ -68,7 +68,7 @@ const getStringLength = (str) => {
 }
 
 
-const passwordValidations = async (context, pass, email, phone, name) => {
+const passwordValidations = async (context, pass, email, phone) => {
     // Password must be in string format
     if (!isString(pass)) {
         throw new GQLError(ERRORS.WRONG_PASSWORD_FORMAT, context)
@@ -93,11 +93,6 @@ const passwordValidations = async (context, pass, email, phone, name) => {
     // Password must not contain phone
     if (hasCaseInsensitiveSubstring(pass, phone)) {
         throw new GQLError(ERRORS.PASSWORD_CONTAINS_PHONE, context)
-    }
-
-    // Password must not contain name
-    if (hasCaseInsensitiveSubstring(pass, name)) {
-        throw new GQLError(ERRORS.PASSWORD_CONTAINS_NAME, context)
     }
 }
 

@@ -81,22 +81,6 @@ describe('Validate helpers', () => {
                 })
             })
 
-            describe('cases with name', () => {
-                const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
-                const invalidCases = [
-                    ['password is name', name, GQL_ERRORS.PASSWORD_CONTAINS_NAME],
-                    ['name + password', name + faker.internet.password(), GQL_ERRORS.PASSWORD_CONTAINS_NAME],
-                    ['password + name', faker.internet.password() + name, GQL_ERRORS.PASSWORD_CONTAINS_NAME],
-                    ['uppercase password = name', (faker.internet.password() + name).toUpperCase(), GQL_ERRORS.PASSWORD_CONTAINS_NAME],
-                ]
-
-                test.each(invalidCases)('%s', async (caseName, password, error) => {
-                    await expectToThrowError(async () => {
-                        await passwordValidations({}, password, null, null, name)
-                    }, error)
-                })
-            })
-
             describe('cases with phone', () => {
                 const phone = createTestPhone()
                 const invalidCases = [
