@@ -52,7 +52,7 @@ const AccrualsAndPaymentsPage: PageType = () => {
 
     if (billingCtx && acquiringCtx) {
         return (
-            <BillingAndAcquiringContext.Provider value={{ billingContext: billingCtx, acquiringContext: acquiringCtx }}>
+            <BillingAndAcquiringContext.Provider value={{ billingContext: billingCtx, acquiringContext: acquiringCtx, refetchBilling }}>
                 <BillingPageContent/>
             </BillingAndAcquiringContext.Provider>
         )
