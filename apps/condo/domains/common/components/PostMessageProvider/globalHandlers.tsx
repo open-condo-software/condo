@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useContext, useState } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
+import type { CondoBridgeResultResponseEvent } from '@open-condo/bridge'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -43,7 +44,7 @@ export const useModalHandler: () => [
     const [openModals, setOpenModals] = useState<{ [id: string]: OpenModalRecord }>({})
     const [show, ContextHandler] = Modal.useModal()
 
-    const handleShowModal = useCallback<RequestHandler<'CondoWebAppShowModalWindow'>>((params, origin) => {
+    const handleShowModal = useCallback<RequestHandler<'CondoWebAppShowModalWindow'>>((params, origin, source) => {
         const { title, url, size = 'small' } = params
 
         // Throw error if:
@@ -56,11 +57,25 @@ export const useModalHandler: () => [
             throw new Error('Forbidden url. Your url is probably injected')
         }
 
-        // TODO(DOMA-5563): Pass this to onCancel to notify about modal closing
         const modalId = uuidV4()
         // NOTE: Patch url with modalId, so it can be closed by itself as well as by sender window
         const urlWithMeta = new URL(url)
         urlWithMeta.searchParams.set('modalId', modalId)
+
+        // NOTE: If user close modal - CondoWebAppCloseModalWindowResult will be sent to opener,
+        // but there will be no requestId, since it's not a response, but side-effect
+        // TODO(DOMA-5563): Think about separated namespace for side-effects
+        const data: CondoBridgeResultResponseEvent<'CondoWebAppCloseModalWindow'> = {
+            type: 'CondoWebAppCloseModalWindowResult',
+            data: {
+                success: true,
+                modalId,
+            },
+        }
+
+        const handleClose = () => {
+            source.postMessage(data, origin)
+        }
 
         const { destroy, update } = show({
             title,
@@ -73,6 +88,7 @@ export const useModalHandler: () => [
                     withResize
                 />
             ),
+            onCancel: handleClose,
         })
 
         setOpenModals(prev => ({ ...prev, [modalId]: { destroy, update } }))
@@ -84,7 +100,7 @@ export const useModalHandler: () => [
         if (modalId in openModals) {
             openModals[modalId].destroy()
             setOpenModals(omit(openModals, modalId))
-            return { success: true }
+            return { success: true, modalId }
         }
 
         throw new Error('Non-existent modalId')
