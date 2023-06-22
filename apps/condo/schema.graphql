@@ -61320,8 +61320,13 @@ input _internalDeleteMeterAndMeterReadingsInput {
   propertyIds: [String]!
 }
 
+enum Status {
+  success
+  error
+}
+
 type _internalDeleteMeterAndMeterReadingsOutput {
-  status: String!
+  status: Status
 }
 
 input RegisterMultiPaymentServiceConsumerInput {

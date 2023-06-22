@@ -5,7 +5,7 @@ const { GQLError } = require('@open-condo/keystone/errors')
 const { getById } = require('@open-condo/keystone/schema')
 
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
-const MAX_CHUNK_SIZE = 50
+const MAX_CHUNK_SIZE_FOR_UPDATE = 100
 
 const isNotUndefined = (x) => typeof x !== 'undefined'
 const ALLOWED_OPTIONS = ['errorMapping', 'doesNotExistError', 'multipleObjectsError']
@@ -239,7 +239,7 @@ function generateServerUtils (gql) {
         if (!data) throw new Error('no data')
         _checkOptions(options)
 
-        const chunks = splitArray(data, MAX_CHUNK_SIZE)
+        const chunks = splitArray(data, MAX_CHUNK_SIZE_FOR_UPDATE)
         let result = []
 
         for (const chunk of chunks) {

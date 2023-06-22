@@ -67305,6 +67305,11 @@ export type StartPasswordRecoveryOutput = {
   status: Scalars['String'];
 };
 
+export enum Status {
+  Success = 'success',
+  Error = 'error'
+}
+
 export type SyncRemoteClientInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -78959,7 +78964,7 @@ export type _InternalDeleteMeterAndMeterReadingsInput = {
 
 export type _InternalDeleteMeterAndMeterReadingsOutput = {
   __typename?: '_internalDeleteMeterAndMeterReadingsOutput';
-  status: Scalars['String'];
+  status?: Maybe<Status>;
 };
 
 export type _InternalScheduleTaskByNameInput = {
