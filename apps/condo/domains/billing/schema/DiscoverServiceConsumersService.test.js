@@ -8,15 +8,14 @@ const { makeLoggedInAdminClient, makeClient, expectToThrowAccessDeniedErrorToRes
 } = require('@open-condo/keystone/test.utils')
 
 const { discoverConsumersServiceByTestClient } = require('@condo/domains/billing/utils/testSchema')
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
 const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
     createTestBillingProperty,
     createTestBillingAccount,
-} = require('../utils/testSchema')
+} = require('@condo/domains/billing/utils/testSchema')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
  
 describe('DiscoverServiceConsumersService', () => {
     let admin
@@ -221,6 +220,11 @@ describe('DiscoverServiceConsumersService', () => {
             expect(serviceConsumers[1].resident.id).toEqual(resident2.id)
             expect(serviceConsumers[0].organization.id).toEqual(user.organization.id)
             expect(serviceConsumers[0].accountNumber).toEqual(billingAccount.number)
+        })
+
+        test('discover no service consumers if there are none', async () => {
+            const [serviceConsumers] = await discoverConsumersServiceByTestClient(admin, randomPayload)
+            expect(serviceConsumers).toHaveLength(0)
         })
     })
 
