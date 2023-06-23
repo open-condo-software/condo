@@ -43,20 +43,30 @@ module.exports = function createConfiguration (context, conf) {
         async loadExistingGrant (ctx) {
             // This is modified version of default function
             // https://github.com/panva/node-oidc-provider/blob/HEAD/docs/README.md#loadexistinggrant
+
+            // NOTE: OIDC Session lives separately from keystone one,
+            // so below is a quick fix to properly validate existing grant
+            // If existing grant is returned -> user will be redirected directly to callback section
+            // If no grant found (undefined return) -> user will be redirected to interaction page
+
             const grantId = (ctx.oidc.result
                 && ctx.oidc.result.consent
                 && ctx.oidc.result.consent.grantId) || ctx.oidc.session.grantIdFor(ctx.oidc.client.clientId)
+
             if (grantId) {
                 const grant = await ctx.oidc.provider.Grant.find(grantId)
 
-                const condoUserId = get(ctx, 'req.query.condoUserId', null)
+                const userId = get(ctx, ['req', 'user', 'id'], null)
                 const accountId = get(grant, 'accountId', null)
-                if (!!condoUserId && !!accountId && accountId !== condoUserId) {
-                    return undefined
+
+                // If grant exists and its accountId is equal to current keystone user id = return existing grant
+                if (userId && accountId && accountId === userId) {
+                    return grant
                 }
 
-                return grant
+                return undefined
             }
+
             return undefined
         },
         interactions: {
