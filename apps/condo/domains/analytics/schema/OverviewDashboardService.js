@@ -86,6 +86,14 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                                 nullReplaces: ticketNullReplaces,
                             },
                         },
+                        ticketByCategory: {
+                            provider: new TicketDataLoader({ context }),
+                            queryOptions: {
+                                where: ticketWhereFilter,
+                                groupBy: ['categoryClassifier', 'status'],
+                                nullReplaces: ticketNullReplaces,
+                            },
+                        },
                         payment: {
                             provider: new PaymentDataLoader({ context }),
                             queryOptions: {
