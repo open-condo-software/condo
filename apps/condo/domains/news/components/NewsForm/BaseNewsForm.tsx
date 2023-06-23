@@ -9,6 +9,7 @@ import {
     Property as IProperty,
     QueryAllNewsItemsArgs as IQueryAllNewsItemsArgs,
 } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ArgsProps } from 'antd/lib/notification'
@@ -29,6 +30,7 @@ import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Radio, RadioGroup, Space, Tabs, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -80,6 +82,29 @@ export type BaseNewsFormProps = {
     actionName: ActionNameProps,
 }
 
+export const StyledTabs = styled(Tabs)`
+    color: red;
+    > .condo-tabs-nav {
+        .condo-tabs-ink-bar {
+          display: none;
+        }
+  
+        .condo-tabs-tab {
+          padding: 12px;
+          border: 1px solid ${colors.gray[3]};
+          border-radius: 1000px;
+  
+          &.condo-tabs-tab-active {
+            background-color: ${colors.gray[3]};
+            transition: background-color 0.3s ease-out;
+          }
+  
+          & + .condo-tabs-tab {
+            margin-left: 8px;
+          }
+        }
+    }
+`
 const COUNTER_COL_STYLE: React.CSSProperties = {
     position: 'absolute',
     right: 0,
@@ -98,9 +123,19 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX = /\[[^\]]*?\]/g
+const ADDITIONAL_DISABLED_MINUTES_COUNT = 5
 
-const getUnitNamesAndUnitTypes = (property, sectionIds) => {
-    const selectedSections = get(property, ['map', 'sections'], []).filter(section => includes(sectionIds, section.id))
+const getTypeAndNameByKey = (unitKey) => {
+    const indexOfFirst = unitKey.indexOf('-')
+    
+    const type = unitKey.substring(0, indexOfFirst)
+    const name = unitKey.substring(indexOfFirst + 1)
+    
+    return { type, name }
+}
+
+const getUnitNamesAndUnitTypes = (property, sectionKeys) => {
+    const selectedSections = get(property, ['map', 'sections'], []).filter(section => includes(sectionKeys, `${section.type}-${section.name}`))
     const allSectionsUnits = getAllSectionsUnits(selectedSections)
     const unitNames = allSectionsUnits.map(unit => unit.label)
     const unitTypes = allSectionsUnits.map(unit => get(unit, 'unitType', NewsItemScopeUnitTypeType.Flat) as NewsItemScopeUnitTypeType)
@@ -135,7 +170,7 @@ const isDateDisabled = date => {
     return date.startOf('day').isBefore(dayjs().startOf('day'))
 }
 const isTimeDisabled = date => {
-    // NOTE: doesnt guarantee that user can not select time that has already come, he can select the current time and wait until the minute has passed
+    // NOTE: doesnt guarantee that user can not select time that has already come, he can select the current time and wait until the ADDITIONAL_DISABLED_MINUTES_COUNT has passed
     if (date && !date.isSame(dayjs(), 'day')) {
         return {
             disabledHours: () => [],
@@ -143,7 +178,14 @@ const isTimeDisabled = date => {
         }
     }
     const hour = dayjs().hour()
-    const minute = dayjs().minute()
+    if (date && dayjs(date).hour() > dayjs().hour()) {
+        return {
+            disabledHours: () => Array.from({ length: hour }, (_, i) => i),
+            disabledMinutes: () => [],
+        }
+    }
+    const minute = dayjs().minute() + ADDITIONAL_DISABLED_MINUTES_COUNT
+    if (minute > 59) hour + 1
     return {
         disabledHours: () => Array.from({ length: hour }, (_, i) => i),
         disabledMinutes: () => Array.from({ length: minute }, (_, i) => i),
@@ -292,14 +334,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const initialUnitKeys = useMemo(() => {
         if (initialHasAllProperties) return []
         if (initialProperties.length !== 1) return []
-        if (!isEmpty(initialSectionKeys)) return []
 
         return initialNewsItemScopes.map(item => {
             const unitType = item.unitType
             const unitName = item.unitName
             if (unitType && unitName) return `${unitType}-${unitName}`
         }).filter(Boolean)
-    }, [initialHasAllProperties, initialNewsItemScopes, initialProperties.length, initialSectionKeys])
+    }, [initialHasAllProperties, initialNewsItemScopes, initialProperties.length])
     const initialUnitNames: string[] = useMemo(() => {
         if (initialHasAllProperties) return []
         if (initialProperties.length !== 1) return []
@@ -328,11 +369,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
     const [isValidBeforeAfterSendAt, setIsValidBeforeAfterSendAt] = useState<boolean>(true)
     const [newsItemCountAtSameDay, setNewsItemCountAtSameDay] = useState(getNewsItemCountAtSameDay(null, allNews))
-    const [selectedUnitNames, setSelectedUnitNames] = useState(isEmpty(initialSectionKeys) ? initialUnitNames : [])
-    const [selectedUnitTypes, setSelectedUnitTypes] = useState(initialUnitTypes)
+    const [selectedUnitNameKeys, setSelectedUnitNameKeys] = useState(initialUnitTypes)
     const [selectedPropertiesId, setSelectedPropertiesId] = useState(initialPropertyIds)
     const [isAllPropertiesChecked, setIsAllPropertiesChecked] = useState(false)
-    const [selectedSectionIds, setSelectedSectionIds] = useState(initialSectionIds)
+    const [selectedSectionKeys, setSelectedSectionKeys] = useState(initialSectionIds)
 
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
         where: { id_in: selectedPropertiesId },
@@ -391,23 +431,21 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const handleChangeSectionNameInput = useCallback((property) => {
         return (sections, options) => {
             if (!isEmpty(sections)) {
-                const sectionIds = options.map(option => get(option, 'data-sectionId'))
-                setSelectedSectionIds(sectionIds)
+                const sectionKeys = options.map(option => get(option, 'key'))
+                setSelectedSectionKeys(sectionKeys)
             } else {
-                setSelectedSectionIds([])
+                setSelectedSectionKeys([])
             }
         }
     }, [])
 
     const handleChangeUnitNameInput = useCallback((_, options: UnitNameInputOption[]) => {
         if (!options) {
-            setSelectedUnitNames(null)
-            setSelectedUnitTypes(null)
+            setSelectedUnitNameKeys(null)
         } else {
-            const unitNames = options.map(option => get(option, 'data-unitName'))
-            setSelectedUnitNames(unitNames)
-            const unitTypes = options.map(option => get(option, 'data-unitType', NewsItemScopeUnitTypeType.Flat))
-            setSelectedUnitTypes(unitTypes)
+            const unitNamesKeys = options.map(option => get(option, 'key'))
+            setSelectedUnitNameKeys(unitNamesKeys)
+
         }
     }, [])
 
@@ -440,9 +478,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             setIsAllPropertiesChecked(value)
             form.setFieldsValue({ 'unitNames': [] })
             form.setFieldsValue({ 'sectionIds': [] })
-            setSelectedUnitNames([])
-            setSelectedUnitTypes([])
-            setSelectedSectionIds([])
+            setSelectedUnitNameKeys([])
+            setSelectedSectionKeys([])
         }
     }
     const propertySelectProps = (form) => {
@@ -458,9 +495,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 form.setFieldsValue({ 'unitNames': [] })
                 form.setFieldsValue({ 'sectionIds': [] })
                 setSelectedPropertiesId(propIds)
-                setSelectedUnitNames([])
-                setSelectedUnitTypes([])
-                setSelectedSectionIds([])
+                setSelectedUnitNameKeys([])
+                setSelectedSectionKeys([])
             },
         }
     }
@@ -492,7 +528,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             ...initialValues,
             sendPeriod: sendPeriod,
             template: 1,
-            unitNames: initialUnitKeys,
+            unitNames: isEmpty(initialSectionKeys) ? initialUnitKeys : [],
             sectionIds: initialSectionKeys,
             type: selectedType,
             title: selectedTitle,
@@ -517,7 +553,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             sendAt,
             validBefore,
             unitNames,
-            unitTypes,
             sectionIds,
             property,
             ...newsItemValues
@@ -533,6 +568,14 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         const newsItem = await createOrUpdateNewsItem(updatedNewsItemValues)
         const newsItemId = get(newsItem, 'id')
 
+        if (actionName === 'update' && properties.length !== 0 && initialHasAllProperties) {
+            await softDeleteNewsItemScope(initialNewsItemScopes[0])
+        }
+        if (actionName === 'update' && properties.length === 0 && !initialHasAllProperties && hasAllProperties) {
+            await createNewsItemScope({
+                newsItem: { connect: { id: newsItemId } },
+            })
+        }
         if (actionName === 'update' && !initialHasAllProperties) {
             const deletedPropertyIds = difference(initialPropertyIds, properties)
             const newsItemScopesToDelete = initialNewsItemScopes
@@ -543,15 +586,18 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             }))
 
             if (isEmpty(deletedPropertyIds)) {
-                const deletedNames = difference(initialUnitNames, unitNames)
+                const deletedKeys = difference(initialUnitKeys, unitNames)
                 const newsItemScopesToDelete = initialNewsItemScopes
-                    .filter(newsItemScope => deletedNames.includes(newsItemScope.unitName))
+                    .filter(newsItemScope => {
+                        const key = `${newsItemScope.unitType}-${newsItemScope.unitName}`
+                        return deletedKeys.includes(key)
+                    })
 
                 await Promise.all(newsItemScopesToDelete.map(newsItemScope => {
                     softDeleteNewsItemScope(newsItemScope)
                 }))
 
-                if (!isEmpty(initialUnitNames) && deletedNames.length === initialUnitNames.length) {
+                if (!isEmpty(initialUnitKeys) && isEmpty(unitNames) && isEmpty(sectionIds) && deletedKeys.length === initialUnitKeys.length) {
                     await createNewsItemScope({
                         newsItem: { connect: { id: newsItemId } },
                         property: { connect: { id: initialPropertyIds[0] } },
@@ -561,19 +607,25 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
 
         const addedPropertyIds = actionName === 'create' ? properties : difference(properties, initialPropertyIds)
-        if (addedPropertyIds.length === 1 && unitNames.length === unitTypes.length && unitNames.length > 0) {
+        if (actionName === 'create' && addedPropertyIds.length === 0 && hasAllProperties) {
+            await createNewsItemScope({
+                newsItem: { connect: { id: newsItemId } },
+            })
+        }
+        if (addedPropertyIds.length === 1 && properties.length === 1 && unitNames.length > 0) {
             const propertyId = addedPropertyIds[0]
 
-            await Promise.all(unitNames.map((unitName, i) => {
+            await Promise.all(unitNames.map((unitKey) => {
+                const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
                 createNewsItemScope({
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
-                    unitType: unitTypes[i],
+                    unitType: unitType,
                 })
             }))
         }
-        if (addedPropertyIds.length === 1 && sectionIds.length > 0) {
+        if (addedPropertyIds.length === 1 && properties.length === 1 && sectionIds.length > 0) {
             const propertyId = addedPropertyIds[0]
             const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
 
@@ -586,7 +638,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 })
             }))
         }
-        if (isEmpty(sectionIds) && isEmpty(unitNames) && isEmpty(unitTypes) && !isEmpty(addedPropertyIds)) {
+        if (isEmpty(sectionIds) && isEmpty(unitNames) && !isEmpty(addedPropertyIds)) {
             await Promise.all(addedPropertyIds.map(propertyId => {
                 createNewsItemScope({
                     newsItem: { connect: { id: newsItemId } },
@@ -597,6 +649,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
         if (actionName === 'update' && !hasAllProperties && isEmpty(addedPropertyIds) && sectionIds.length > 0) {
             const propertyId = initialPropertyIds[0]
+            if (isEmpty(initialUnitKeys) && initialNewsItemScopes.length === 1) {
+                softDeleteNewsItemScope(initialNewsItemScopes[0])
+            }
             const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
 
             await Promise.all(unitNames.map((unitName, i) => {
@@ -610,17 +665,18 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
         if (actionName === 'update' && !hasAllProperties && isEmpty(addedPropertyIds) && unitNames.length > 0) {
             const propertyId = initialPropertyIds[0]
-            if (isEmpty(initialUnitNames) && initialNewsItemScopes.length === 1) {
-                softDeleteNewsItemScope(initialNewsItemScopes[0])
+            if (isEmpty(initialUnitKeys) && initialNewsItemScopes.length === 1) {
+                await softDeleteNewsItemScope(initialNewsItemScopes[0])
             }
-            const addedNames = difference(unitNames, initialUnitNames)
+            const addedKeys = difference(unitNames, initialUnitKeys)
 
-            await Promise.all(addedNames.map((unitName, i) => {
+            await Promise.all(addedKeys.map((unitKey) => {
+                const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
                 createNewsItemScope({
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
-                    unitType: NewsItemScopeUnitTypeType.Flat,
+                    unitType: unitType,
                 })
             }))
         }
@@ -634,22 +690,23 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         } else {
             await router.push('/news')
         }
-    }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialSentAt, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitNames, createNewsItemScope, router])
+    }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
 
     const newsItemScopesNoInstance: TNewsItemScopeNoInstance[] = useMemo(() => {
         if (isOnlyOnePropertySelected) {
-            if (!isEmpty(selectedUnitNames)) {
-                return selectedUnitNames.map((unitName, i) => {
-                    return { property: selectedProperties[0], unitType: selectedUnitTypes[i], unitName: unitName }
+            if (!isEmpty(selectedUnitNameKeys)) {
+                return selectedUnitNameKeys.map((unitKey) => {
+                    const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
+                    return { property: selectedProperties[0], unitType: unitType, unitName: unitName }
                 })
             }
-            if (!isEmpty(selectedSectionIds)) {
-                const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(selectedProperties[0], selectedSectionIds)
+            if (!isEmpty(selectedSectionKeys)) {
+                const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(selectedProperties[0], selectedSectionKeys)
                 return unitNames.map((unitName, i) => {
                     return { property: selectedProperties[0], unitType: unitTypes[i], unitName: unitName }
                 })
             }
-            if (isEmpty(selectedUnitNames) && isEmpty(selectedSectionIds)) {
+            if (isEmpty(selectedUnitNameKeys) && isEmpty(selectedSectionKeys)) {
                 return [{ property: selectedProperties[0] }]
             }
             return []
@@ -660,7 +717,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
 
         return []
-    }, [isOnlyOnePropertySelected, selectedProperties, selectedSectionIds, selectedUnitNames, selectedUnitTypes])
+    }, [isOnlyOnePropertySelected, selectedProperties, selectedSectionKeys, selectedUnitNameKeys])
 
     const dayjsTz = dayjs().format('Z')
     const tzInfo = useMemo<string>(() => {
@@ -689,9 +746,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                     OnCompletedMsg={isNull(OnCompletedMsg) ? undefined : null}
                     scrollToFirstError={SCROLL_TO_FIRST_ERROR_CONFIG}
                     formValuesToMutationDataPreprocessor={(values) => {
-                        values.unitNames = selectedUnitNames
-                        values.unitTypes = selectedUnitTypes
-                        values.sectionIds = selectedSectionIds
                         values.property = selectedProperties[0]
 
                         return values
@@ -769,7 +823,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             <Form.Item
                                                                 name='template'
                                                             >
-                                                                <Tabs
+                                                                <StyledTabs
                                                                     onChange={handleTemplateChange(form, 'template')}
                                                                     items={
                                                                         Object.keys(templates).map(id => ({
@@ -860,7 +914,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         <Form.Item
                                                             name='unitNames'
                                                             label={
-                                                                selectedPropertiesLoading || !isEmpty(selectedSectionIds)
+                                                                selectedPropertiesLoading || !isEmpty(selectedSectionKeys)
                                                                     ? (<LabelWithInfo
                                                                         title={UnitsMessage}
                                                                         message={UnitsLabel}
@@ -872,7 +926,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 multiple={true}
                                                                 property={selectedProperties[0]}
                                                                 allowClear={false}
-                                                                loading={selectedPropertiesLoading || !isEmpty(selectedSectionIds)}
+                                                                loading={selectedPropertiesLoading || !isEmpty(selectedSectionKeys)}
                                                                 onChange={handleChangeUnitNameInput}
                                                             />
                                                         </Form.Item>
@@ -882,7 +936,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     <Col span={11} offset={2}>
                                                         <Form.Item
                                                             name='sectionIds'
-                                                            label={selectedPropertiesLoading || !isEmpty(selectedUnitNames)
+                                                            label={selectedPropertiesLoading || !isEmpty(selectedUnitNameKeys)
                                                                 ? (<LabelWithInfo
                                                                     title={SectionsMessage}
                                                                     message={SectionsLabel}
@@ -890,7 +944,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 : SectionsLabel}
                                                         >
                                                             <SectionNameInput
-                                                                disabled={selectedPropertiesLoading || !isEmpty(selectedUnitNames)}
+                                                                disabled={selectedPropertiesLoading || !isEmpty(selectedUnitNameKeys)}
                                                                 property={selectedProperties[0]}
                                                                 onChange={handleChangeSectionNameInput(selectedProperties[0])}
                                                                 mode='multiple'

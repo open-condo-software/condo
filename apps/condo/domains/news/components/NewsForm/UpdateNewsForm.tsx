@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
+import has from 'lodash/has'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
@@ -67,7 +67,7 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
     })
 
     const selectedPropertiesId = useMemo(() => {
-        return uniq(newsItemScopes.map(item => item.property.id))
+        return uniq(newsItemScopes.filter(item => has(item, ['property', 'id'])).map(item => item.property.id))
     }, [newsItemScopes]) 
     const { loading: propertiesLoading, objs: properties } = Property.useAllObjects({
         where: { id_in: selectedPropertiesId },
@@ -86,7 +86,7 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
         return get(newsItem, 'sendAt', null) ? 'later' : 'now'
     }, [newsItem])
     const hasAllProperties = useMemo(() => {
-        return isEmpty(newsItemScopes)
+        return newsItemScopes.length === 1 && !has(newsItemScopes[0], ['property', 'id'])
     }, [newsItemScopes])
     const sendAt = useMemo(() => get(newsItem, 'sendAt', null), [newsItem])
     const validBefore = useMemo(() => get(newsItem, 'validBefore', null), [newsItem])

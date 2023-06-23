@@ -2,6 +2,7 @@
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
+import has from 'lodash/has'
 import isArray from 'lodash/isArray'
 import isUndefined from 'lodash/isUndefined'
 import Head from 'next/head'
@@ -90,19 +91,27 @@ const NewsTableContainer = ({
             const unitType = get(item, ['unitType'], null)
             const unitName = get(item, ['unitName'], null)
             const newsItemId = get(item, ['newsItem', 'id'])
-            if (propertyAddress) {
+            if (propertyAddress && addresses[newsItemId] !== 'hasAllProperties') {
                 if (isArray(addresses[newsItemId])) {
                     addresses[newsItemId] = [...addresses[newsItemId], propertyAddress]
                 } else {
                     addresses[newsItemId] = [propertyAddress]
                 }
+            } else {
+                addresses[newsItemId] = 'hasAllProperties'
             }
         })
 
         const newsWithAddresses = news
+            .filter(newsItem => {
+                const newsItemId = get(newsItem, 'id')
+                const hasScope = has(addresses, [newsItemId])
+
+                return hasScope
+            })
             .map(newsItem => {
                 const newsItemId = get(newsItem, 'id')
-                const hasAllProperties = isUndefined(addresses[newsItemId])
+                const hasAllProperties = addresses[newsItemId] === 'hasAllProperties'
                 return {
                     newsItemAddresses: addresses[newsItemId] || [],
                     hasAllProperties: hasAllProperties,

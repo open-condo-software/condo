@@ -32,7 +32,8 @@ import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const HORIZONTAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
-const fieldPairRowStyle = { width: '100%' }
+const fieldPairRowStyle: React.CSSProperties = { width: '100%' }
+const HEADER_STYLES: React.CSSProperties = { paddingBottom: '20px' }
 
 interface IFieldPairRowProps {
     fieldTitle: string,
@@ -148,7 +149,7 @@ const NewsItemCard: React.FC = () => {
                     gutter={PAGE_ROW_GUTTER}
                 >
                     <Col span={24}>
-                        <PageHeader title={<Typography.Title>{PageTitleMsg}</Typography.Title>} />
+                        <PageHeader title={<Typography.Title>{PageTitleMsg}</Typography.Title>} style={HEADER_STYLES}/>
                         <Typography.Text type='secondary'>
                             {CreatedByLabel}
                         </Typography.Text>
@@ -164,10 +165,14 @@ const NewsItemCard: React.FC = () => {
                                     fieldTitle={TypeLabel}
                                     fieldValue={newsItemType}
                                 />
-                                <FieldPairRow
-                                    fieldTitle={ValidBeforeLabel}
-                                    fieldValue={newsItem.validBefore ?? '-'}
-                                />
+                                {
+                                    newsItem.validBefore && (
+                                        <FieldPairRow
+                                            fieldTitle={ValidBeforeLabel}
+                                            fieldValue={dayjs(newsItem.validBefore).format('YYYY.MM.DD HH:mm')}
+                                        />
+                                    )
+                                }
                                 <FieldPairRow
                                     fieldTitle={TitleLabel}
                                     fieldValue={newsItem.title}
