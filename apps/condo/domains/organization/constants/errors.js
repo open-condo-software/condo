@@ -4,6 +4,7 @@ const EMPTY_NAME_ERROR = '[name.is.too.short'
 const TIN_TOO_SHORT_ERROR = '[tin.is.too.short'
 const TIN_VALUE_INVALID = '[tin.value.is.invalid'
 const UNABLE_TO_REGISTER_USER = 'UNABLE_TO_REGISTER_USER'
+const PARENT_NOT_HOLDING = 'PARENT_NOT_HOLDING'
 
 module.exports = {
     ALREADY_ACCEPTED_INVITATION,
@@ -12,4 +13,5 @@ module.exports = {
     TIN_TOO_SHORT_ERROR,
     TIN_VALUE_INVALID,
     UNABLE_TO_REGISTER_USER,
+    PARENT_NOT_HOLDING,
 }

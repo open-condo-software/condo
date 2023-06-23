@@ -15,7 +15,7 @@ const { webHooked } = require('@open-condo/webhooks/plugins')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/organization/access/Organization')
-const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -38,7 +38,10 @@ const Organization = new GQLListSchema('Organization', {
             kmigratorOptions: { null: false },
         },
         type: {
-            schemaDoc: 'Type of organization',
+            schemaDoc: 'Type of organization. Organizations with different types see slightly different interfaces. ' +
+                'In addition, some of the logic depends on this field: ' +
+                `1. Residents can be connected to only "${MANAGING_COMPANY_TYPE}" organization` +
+                `2. OrganizationLink cannot be created if parent organization is not "${HOLDING_TYPE}"`,
             type: Select,
             options: ORGANIZATION_TYPES,
             dataType: 'string',

@@ -43399,7 +43399,7 @@ export type Organization = {
   country?: Maybe<OrganizationCountryType>;
   /**  Customer-friendly name  */
   name?: Maybe<Scalars['String']>;
-  /**  Type of organization  */
+  /**  Type of organization. Organizations with different types see slightly different interfaces. In addition, some of the logic depends on this field: 1. Residents can be connected to only "MANAGING_COMPANY" organization2. OrganizationLink cannot be created if parent organization is not "HOLDING"  */
   type?: Maybe<Scalars['String']>;
   /**  Taxpayer identification number. Every country has its own identification. Examples: INN for Russia, IIN for Kazakhstan and so on  */
   tin?: Maybe<Scalars['String']>;

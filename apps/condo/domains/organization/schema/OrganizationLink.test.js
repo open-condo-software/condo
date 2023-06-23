@@ -9,7 +9,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-    expectToThrowValidationFailureError,
+    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const { HOLDING_TYPE, ORGANIZATION_TYPES  } = require('@condo/domains/organization/constants/common')
@@ -17,6 +17,8 @@ const { registerNewOrganization, createTestOrganizationEmployeeRole, createTestO
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { Ticket, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
+const { ERRORS } = require('./OrganizationLink')
 
 const {
     createTestOrganizationEmployee,
@@ -182,9 +184,9 @@ describe('OrganizationLink', () => {
             test.each(ORGANIZATION_TYPES.filter(type => type !== HOLDING_TYPE))('Fail with "%p" type', async (type) => {
                 const [orgFrom] = await registerNewOrganization(admin, { type })
                 const [orgTo] = await registerNewOrganization(admin)
-                await expectToThrowValidationFailureError(async () => {
+                await expectToThrowGQLError(async () => {
                     await createTestOrganizationLink(support, orgFrom, orgTo)
-                }, `Parent organization ("from") must have "${HOLDING_TYPE}" type`)
+                }, ERRORS.PARENT_NOT_HOLDING)
             })
         })
     })
