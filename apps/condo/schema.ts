@@ -16397,16 +16397,6 @@ export type CheckPasswordRecoveryTokenOutput = {
   status: Scalars['String'];
 };
 
-export type CheckPropertyWithAddressExistInput = {
-  address: Scalars['String'];
-  addressMeta: AddressMetaFieldInput;
-};
-
-export type CheckPropertyWithAddressExistOutput = {
-  __typename?: 'CheckPropertyWithAddressExistOutput';
-  isFound: Scalars['Boolean'];
-};
-
 export type CompleteConfirmPhoneActionInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -43409,6 +43399,8 @@ export type Organization = {
   country?: Maybe<OrganizationCountryType>;
   /**  Customer-friendly name  */
   name?: Maybe<Scalars['String']>;
+  /**  Type of organization. Organizations with different types see slightly different interfaces. In addition, some of the logic depends on this field: 1. Residents can be connected to only "MANAGING_COMPANY" organization2. OrganizationLink cannot be created if parent organization is not "HOLDING"  */
+  type?: Maybe<Scalars['String']>;
   /**  Taxpayer identification number. Every country has its own identification. Examples: INN for Russia, IIN for Kazakhstan and so on  */
   tin?: Maybe<Scalars['String']>;
   /**  Customer-friendly description. Friendly text for employee and resident users  */
@@ -43499,6 +43491,7 @@ export enum OrganizationCountryType {
 export type OrganizationCreateInput = {
   country?: Maybe<OrganizationCountryType>;
   name?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   avatar?: Maybe<Scalars['Upload']>;
@@ -45094,6 +45087,7 @@ export type OrganizationHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   country?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['JSON']>;
   avatar?: Maybe<Scalars['JSON']>;
@@ -45121,6 +45115,7 @@ export type OrganizationHistoryRecord = {
 export type OrganizationHistoryRecordCreateInput = {
   country?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['JSON']>;
   avatar?: Maybe<Scalars['JSON']>;
@@ -45153,6 +45148,7 @@ export enum OrganizationHistoryRecordHistoryActionType {
 export type OrganizationHistoryRecordUpdateInput = {
   country?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['JSON']>;
   avatar?: Maybe<Scalars['JSON']>;
@@ -45215,6 +45211,24 @@ export type OrganizationHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   tin?: Maybe<Scalars['String']>;
   tin_not?: Maybe<Scalars['String']>;
   tin_contains?: Maybe<Scalars['String']>;
@@ -45705,9 +45719,16 @@ export type OrganizationRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+export enum OrganizationType {
+  ManagingCompany = 'MANAGING_COMPANY',
+  Holding = 'HOLDING',
+  ServiceProvider = 'SERVICE_PROVIDER'
+}
+
 export type OrganizationUpdateInput = {
   country?: Maybe<OrganizationCountryType>;
   name?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   avatar?: Maybe<Scalars['Upload']>;
@@ -45753,6 +45774,10 @@ export type OrganizationWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   tin?: Maybe<Scalars['String']>;
   tin_not?: Maybe<Scalars['String']>;
   tin_contains?: Maybe<Scalars['String']>;
@@ -51589,40 +51614,6 @@ export type Query = {
    */
   getPhoneByConfirmPhoneActionToken?: Maybe<GetPhoneByConfirmPhoneActionTokenOutput>;
   getAccessTokenByUserId?: Maybe<GetAccessTokenByUserIdOutput>;
-  /**
-   * Tells, whether a Property with given address exists in condo database
-   *
-   * In specified address string a part up to building will be taken into account. So, it will make no sense when something more precise, like apartment number, will be specified.
-   *
-   * **Errors**
-   *
-   * Following objects will be presented in `extensions` property of thrown error
-   *
-   * `{
-   *   "query": "checkPropertyWithAddressExist",
-   *   "variable": [
-   *     "data",
-   *     "addressMeta",
-   *     "dv"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "DV_VERSION_MISMATCH",
-   *   "message": "Version number value {dv} is incorrect"
-   * }`
-   *
-   * `{
-   *   "query": "checkPropertyWithAddressExist",
-   *   "variable": [
-   *     "data",
-   *     "addressMeta",
-   *     "flatType"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "FLAT_WITHOUT_FLAT_TYPE",
-   *   "message": "Flat type is not specified"
-   * }`
-   */
-  checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   /**
@@ -57079,11 +57070,6 @@ export type QueryGetAccessTokenByUserIdArgs = {
 };
 
 
-export type QueryCheckPropertyWithAddressExistArgs = {
-  data: CheckPropertyWithAddressExistInput;
-};
-
-
 export type QueryExportPropertiesToExcelArgs = {
   data: ExportPropertiesToExcelInput;
 };
@@ -58099,6 +58085,7 @@ export type RegisterNewOrganizationInput = {
   description?: Maybe<Scalars['String']>;
   meta: Scalars['JSON'];
   avatar?: Maybe<Scalars['Upload']>;
+  type?: Maybe<OrganizationType>;
 };
 
 export type RegisterNewServiceUserInput = {
@@ -64858,6 +64845,8 @@ export enum SortOrganizationHistoryRecordsBy {
   CountryDesc = 'country_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   TinAsc = 'tin_ASC',
   TinDesc = 'tin_DESC',
   ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
@@ -64929,6 +64918,8 @@ export enum SortOrganizationsBy {
   CountryDesc = 'country_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   TinAsc = 'tin_ASC',
   TinDesc = 'tin_DESC',
   DescriptionAsc = 'description_ASC',

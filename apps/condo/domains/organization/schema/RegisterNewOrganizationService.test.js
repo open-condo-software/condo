@@ -3,15 +3,14 @@ const { faker } = require('@faker-js/faker')
 const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
 
+const { MANAGING_COMPANY_TYPE, ORGANIZATION_TYPES } = require('@condo/domains/organization/constants/common')
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common.js')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
 const { TicketOrganizationSetting } = require('@condo/domains/ticket/utils/testSchema')
-const { createTestUser } = require('@condo/domains/user/utils/testSchema')
-
+const { createTestUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { OrganizationEmployee, OrganizationEmployeeRole } = require('../utils/testSchema')
-
 
 
 
@@ -156,6 +155,22 @@ describe('RegisterNewOrganizationService', () => {
 
             await expectToThrowAuthenticationErrorToObj(async () => {
                 await registerNewOrganization(anonymousClient, { name })
+            })
+        })
+    })
+    describe('Organization types', () => {
+        let user
+        beforeAll(async () => {
+            user = await makeClientWithNewRegisteredAndLoggedInUser()
+        })
+        test(`Register organization with "${MANAGING_COMPANY_TYPE}" by default`, async () => {
+            const [org] = await registerNewOrganization(user)
+            expect(org).toHaveProperty('type', MANAGING_COMPANY_TYPE)
+        })
+        describe('Can specify organization type explicitly', () => {
+            test.each(ORGANIZATION_TYPES)('%p', async (type) => {
+                const [org] = await registerNewOrganization(user, { type })
+                expect(org).toHaveProperty('type', type)
             })
         })
     })

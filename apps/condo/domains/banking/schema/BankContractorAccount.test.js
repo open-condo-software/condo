@@ -10,6 +10,7 @@ const {
 
 
 const { BankContractorAccount, createTestBankContractorAccount, updateTestBankContractorAccount } = require('@condo/domains/banking/utils/testSchema')
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,
@@ -250,7 +251,7 @@ describe('BankContractorAccount', () => {
             })
 
             test('user can if it is an employee from linked parent organization', async () => {
-                const [parentOrganization] = await createTestOrganization(admin)
+                const [parentOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                 const [childOrganization] = await createTestOrganization(admin)
 
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()

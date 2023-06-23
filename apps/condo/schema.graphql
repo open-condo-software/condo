@@ -3098,6 +3098,7 @@ type OrganizationHistoryRecord {
   _label_: String
   country: String
   name: String
+  type: String
   tin: String
   description: JSON
   avatar: JSON
@@ -3161,6 +3162,24 @@ input OrganizationHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
   tin: String
   tin_not: String
   tin_contains: String
@@ -3326,6 +3345,8 @@ enum SortOrganizationHistoryRecordsBy {
   country_DESC
   name_ASC
   name_DESC
+  type_ASC
+  type_DESC
   tin_ASC
   tin_DESC
   importRemoteSystem_ASC
@@ -3353,6 +3374,7 @@ enum SortOrganizationHistoryRecordsBy {
 input OrganizationHistoryRecordUpdateInput {
   country: String
   name: String
+  type: String
   tin: String
   description: JSON
   avatar: JSON
@@ -3384,6 +3406,7 @@ input OrganizationHistoryRecordsUpdateInput {
 input OrganizationHistoryRecordCreateInput {
   country: String
   name: String
+  type: String
   tin: String
   description: JSON
   avatar: JSON
@@ -3451,6 +3474,10 @@ type Organization {
 
   """ Customer-friendly name """
   name: String
+
+  """ Type of organization. Organizations with different types see slightly different interfaces. In addition, some of the logic depends on this field: 1. Residents can be connected to only "MANAGING_COMPANY" organization2. OrganizationLink cannot be created if parent organization is not "HOLDING" 
+  """
+  type: String
 
   """ Taxpayer identification number. Every country has its own identification. Examples: INN for Russia, IIN for Kazakhstan and so on 
   """
@@ -3536,6 +3563,10 @@ input OrganizationWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  type: String
+  type_not: String
+  type_in: [String]
+  type_not_in: [String]
   tin: String
   tin_not: String
   tin_contains: String
@@ -3705,6 +3736,8 @@ enum SortOrganizationsBy {
   country_DESC
   name_ASC
   name_DESC
+  type_ASC
+  type_DESC
   tin_ASC
   tin_DESC
   description_ASC
@@ -3738,6 +3771,7 @@ enum SortOrganizationsBy {
 input OrganizationUpdateInput {
   country: OrganizationCountryType
   name: String
+  type: String
   tin: String
   description: String
   avatar: Upload
@@ -3766,6 +3800,7 @@ input OrganizationsUpdateInput {
 input OrganizationCreateInput {
   country: OrganizationCountryType
   name: String
+  type: String
   tin: String
   description: String
   avatar: Upload
@@ -60867,6 +60902,12 @@ type GetAccessTokenByUserIdOutput {
   ttl: Int!
 }
 
+enum OrganizationType {
+  MANAGING_COMPANY
+  HOLDING
+  SERVICE_PROVIDER
+}
+
 input RegisterNewOrganizationInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -60876,6 +60917,7 @@ input RegisterNewOrganizationInput {
   description: String
   meta: JSON!
   avatar: Upload
+  type: OrganizationType
 }
 
 input InviteNewOrganizationEmployeeInput {
@@ -60914,15 +60956,6 @@ input ResetOrganizationInput {
 
 type ResetOrganizationOutput {
   status: String!
-}
-
-input CheckPropertyWithAddressExistInput {
-  address: String!
-  addressMeta: AddressMetaFieldInput!
-}
-
-type CheckPropertyWithAddressExistOutput {
-  isFound: Boolean!
 }
 
 input ExportPropertiesToExcelInput {
@@ -64782,41 +64815,6 @@ type Query {
   """
   getPhoneByConfirmPhoneActionToken(data: GetPhoneByConfirmPhoneActionTokenInput!): GetPhoneByConfirmPhoneActionTokenOutput
   getAccessTokenByUserId(data: GetAccessTokenByUserIdInput!): GetAccessTokenByUserIdOutput
-
-  """
-  Tells, whether a Property with given address exists in condo database
-  
-  In specified address string a part up to building will be taken into account. So, it will make no sense when something more precise, like apartment number, will be specified.
-  
-  **Errors**
-  
-  Following objects will be presented in `extensions` property of thrown error
-  
-  `{
-    "query": "checkPropertyWithAddressExist",
-    "variable": [
-      "data",
-      "addressMeta",
-      "dv"
-    ],
-    "code": "BAD_USER_INPUT",
-    "type": "DV_VERSION_MISMATCH",
-    "message": "Version number value {dv} is incorrect"
-  }`
-  
-  `{
-    "query": "checkPropertyWithAddressExist",
-    "variable": [
-      "data",
-      "addressMeta",
-      "flatType"
-    ],
-    "code": "BAD_USER_INPUT",
-    "type": "FLAT_WITHOUT_FLAT_TYPE",
-    "message": "Flat type is not specified"
-  }`
-  """
-  checkPropertyWithAddressExist(data: CheckPropertyWithAddressExistInput!): CheckPropertyWithAddressExistOutput
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
 

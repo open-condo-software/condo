@@ -6,6 +6,7 @@ const { File, Text, Relationship, Select, Virtual } = require('@keystonejs/field
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const get = require('lodash/get')
 
+const userAccess = require('@open-condo/keystone/access')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -14,10 +15,10 @@ const { webHooked } = require('@open-condo/webhooks/plugins')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/organization/access/Organization')
+const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
-const userAccess = require('@condo/domains/user/access/User')
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
 
@@ -35,6 +36,23 @@ const Organization = new GQLListSchema('Organization', {
             type: Text,
             isRequired: true,
             kmigratorOptions: { null: false },
+        },
+        type: {
+            schemaDoc: 'Type of organization. Organizations with different types see slightly different interfaces. ' +
+                'In addition, some of the logic depends on this field: ' +
+                `1. Residents can be connected to only "${MANAGING_COMPANY_TYPE}" organization` +
+                `2. OrganizationLink cannot be created if parent organization is not "${HOLDING_TYPE}"`,
+            type: Select,
+            options: ORGANIZATION_TYPES,
+            dataType: 'string',
+            defaultValue: MANAGING_COMPANY_TYPE,
+            isRequired: true,
+            kmigratorOptions: { null: false },
+            access: {
+                read: true,
+                create: true,
+                update: userAccess.userIsAdminOrIsSupport,
+            },
         },
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
         // This field have specific use case for mobile client.

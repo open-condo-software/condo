@@ -16,10 +16,11 @@ const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@open-cond
 const { i18n } = require('@open-condo/locales/loader')
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganizationWithAccessToAnotherOrganization, createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, updateTestOrganizationEmployee, createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketChange, TicketStatus, TicketSource, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, updateTestUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
 const { createTestTicket } = require('../utils/testSchema')
@@ -437,7 +438,7 @@ describe('TicketChange', () => {
         test('ticket changed by user with deleted organization employee and existing related from organization employee', async () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
-            const [organizationFrom] = await createTestOrganization(admin)
+            const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
             const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, { canManageTickets: true })
             await createTestOrganizationEmployee(admin, organizationFrom, client.user, role)
 

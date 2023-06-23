@@ -5,8 +5,6 @@
  */
 const { faker } = require('@faker-js/faker')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
-const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('../../gql')
 const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
@@ -74,17 +72,6 @@ async function makeClientWithResidentAccessAndProperty () {
     return client
 }
 
-async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-
-    const attrs = {
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.query(CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
-
 async function exportPropertiesToExcelByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
@@ -102,7 +89,6 @@ module.exports = {
     createTestProperty,
     updateTestProperty,
     makeClientWithProperty,
-    checkPropertyWithAddressExistByTestClient,
     makeClientWithResidentAccessAndProperty,
     exportPropertiesToExcelByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */

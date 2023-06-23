@@ -6,6 +6,7 @@ const { faker } = require('@faker-js/faker')
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@open-condo/keystone/test.utils')
 
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { TicketPropertyHint, createTestTicketPropertyHint, updateTestTicketPropertyHint } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
@@ -57,7 +58,7 @@ describe('TicketPropertyHint', () => {
                     const admin = await makeLoggedInAdminClient()
 
                     const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organizationFrom] = await createTestOrganization(admin)
+                    const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                     const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                         canManageTicketPropertyHints: true,
                     })
@@ -100,7 +101,7 @@ describe('TicketPropertyHint', () => {
                     const admin = await makeLoggedInAdminClient()
 
                     const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organizationFrom] = await createTestOrganization(admin)
+                    const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                     const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom)
                     await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)
 
@@ -116,7 +117,7 @@ describe('TicketPropertyHint', () => {
                 it('cannot create TicketPropertyHint in the related "from" organization', async () => {
                     const admin = await makeLoggedInAdminClient()
 
-                    const [organizationFrom] = await createTestOrganization(admin)
+                    const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
 
                     const clientTo = await makeClientWithNewRegisteredAndLoggedInUser()
                     const [organizationTo] = await createTestOrganization(admin)
@@ -182,7 +183,7 @@ describe('TicketPropertyHint', () => {
                     const admin = await makeLoggedInAdminClient()
 
                     const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organizationFrom] = await createTestOrganization(admin)
+                    const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                     const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom)
                     await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)
 
@@ -213,7 +214,7 @@ describe('TicketPropertyHint', () => {
                 it('cannot read TicketPropertyHints from the related "from" organization', async () => {
                     const admin = await makeLoggedInAdminClient()
 
-                    const [organizationFrom] = await createTestOrganization(admin)
+                    const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
 
                     const clientTo = await makeClientWithNewRegisteredAndLoggedInUser()
                     const [organizationTo] = await createTestOrganization(admin)
@@ -292,7 +293,7 @@ describe('TicketPropertyHint', () => {
                     const admin = await makeLoggedInAdminClient()
 
                     const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organizationFrom] = await createTestOrganization(admin)
+                    const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                     const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                         canManageTicketPropertyHints: true,
                     })
@@ -352,7 +353,7 @@ describe('TicketPropertyHint', () => {
                     const admin = await makeLoggedInAdminClient()
 
                     const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organizationFrom] = await createTestOrganization(admin)
+                    const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                     const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom)
                     await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)
 
@@ -373,7 +374,7 @@ describe('TicketPropertyHint', () => {
                 it('cannot update TicketPropertyHint in the related "from" organization', async () => {
                     const admin = await makeLoggedInAdminClient()
 
-                    const [organizationFrom] = await createTestOrganization(admin)
+                    const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                     const newContent = faker.random.alphaNumeric(8)
                     const clientTo = await makeClientWithNewRegisteredAndLoggedInUser()
                     const [organizationTo] = await createTestOrganization(admin)

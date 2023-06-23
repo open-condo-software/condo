@@ -27,6 +27,7 @@ const {
     updateTestBankTransaction,
     createTestBankIntegrationAccountContext,
 } = require('@condo/domains/banking/utils/testSchema')
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
@@ -167,7 +168,7 @@ describe('BankTransaction', () => {
             })
 
             test('user can if it is an employee of linked organization with "canManageBankTransactions" permission', async () => {
-                const [parentOrganization] = await createTestOrganization(admin)
+                const [parentOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                 const [childOrganization] = await createTestOrganization(admin)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(admin, parentOrganization, childOrganization)
@@ -187,7 +188,7 @@ describe('BankTransaction', () => {
             })
 
             test('user cannot if it is an employee of linked organization without "canManageBankTransactions" permission', async () => {
-                const [parentOrganization] = await createTestOrganization(admin)
+                const [parentOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                 const [childOrganization] = await createTestOrganization(admin)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(admin, parentOrganization, childOrganization)
@@ -315,7 +316,7 @@ describe('BankTransaction', () => {
             })
 
             test('user can if it is an employee of linked organization with "canManageBankTransactions" permission', async () => {
-                const [parentOrganization] = await createTestOrganization(admin)
+                const [parentOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                 const [childOrganization] = await createTestOrganization(admin)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(admin, parentOrganization, childOrganization)
@@ -338,7 +339,7 @@ describe('BankTransaction', () => {
             })
 
             test('user cannot if it is an employee of linked organization without "canManageBankTransactions" permission', async () => {
-                const [parentOrganization] = await createTestOrganization(admin)
+                const [parentOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                 const [childOrganization] = await createTestOrganization(admin)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(admin, parentOrganization, childOrganization)
@@ -485,7 +486,7 @@ describe('BankTransaction', () => {
             })
 
             test('user can if it is an employee of linked organization', async () => {
-                const [parentOrganization] = await createTestOrganization(admin)
+                const [parentOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                 const [childOrganization] = await createTestOrganization(admin)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(admin, parentOrganization, childOrganization)

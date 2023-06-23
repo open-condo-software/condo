@@ -129,6 +129,8 @@ const Property = new GQLListSchema('Property', {
                     if (map) {
                         return normalizePropertyMap(map)
                     }
+
+                    return map
                 },
                 validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
                     if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if on value
@@ -343,10 +345,11 @@ const Property = new GQLListSchema('Property', {
             const isRestoredProperty = operation === 'update' && Boolean(existingItem.deletedAt) && !updatedItem.deletedAt
             // TODO(DOMA-1779): detect property.address locale
             const isAddressUpdated = operation === 'update' && !compareStrI(existingItem.address, updatedItem.address)
+            const isApprovedStatusChanged = operation === 'update' && existingItem.isApproved !== updatedItem.isApproved
             const affectedAddress = isSoftDeleteOperation || isAddressUpdated ? existingItem.address : updatedItem.address
 
             // We handle resident reconnections only for these operation types
-            if (isCreatedProperty || isRestoredProperty || isSoftDeleteOperation || isAddressUpdated) {
+            if (isCreatedProperty || isRestoredProperty || isSoftDeleteOperation || isAddressUpdated || isApprovedStatusChanged) {
                 if (isAddressUpdated) {
                     // Change linked tickets "propertyAddress"
                     const userInfo = { dv: updatedItem.dv, sender: updatedItem.sender }

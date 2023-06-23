@@ -28,7 +28,7 @@ const {
     acceptOrRejectOrganizationInviteByCode,
     makeClientWithRegisteredOrganization,
 } = require('./Organization')
-const { ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
+const { ORGANIZATION_TICKET_VISIBILITY, HOLDING_TYPE} = require('@condo/domains/organization/constants/common')
 const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
 const { RESET_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -223,7 +223,7 @@ async function createTestOrganizationWithAccessToAnotherOrganization ({ roleExtr
     const admin = await makeLoggedInAdminClient()
     // createClientWithProperty creates an employee inside himself, this behavior is not needed here
     const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
-    const [organizationFrom] = await createTestOrganization(admin)
+    const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
     const [propertyFrom] = await createTestProperty(admin, organizationFrom)
     const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, roleExtraAttrs)
     const [employeeFrom] = await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)

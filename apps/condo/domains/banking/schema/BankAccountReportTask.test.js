@@ -15,6 +15,7 @@ const { BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { BankAccountReportTask, createTestBankAccountReportTask, updateTestBankAccountReportTask, createTestBankAccount, BankAccountReport, createTestBankTransaction, updateTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBankIntegrationAccountContext, createTestBankContractorAccount, BankIntegration, createTestBankCategory, createTestBankCostItem } = require('@condo/domains/banking/utils/testSchema')
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
@@ -96,7 +97,7 @@ describe('BankAccountReportTask', () => {
             })
 
             test('user can if it is an employee of linked organization with "canManageBankAccountReportTasks" permission', async () => {
-                const [parentOrganization] = await createTestOrganization(admin)
+                const [parentOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                 const [childOrganization] = await createTestOrganization(admin)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(admin, parentOrganization, childOrganization)
@@ -113,7 +114,7 @@ describe('BankAccountReportTask', () => {
             })
 
             test('user cannot if it is an employee of linked organization without "canManageBankAccountReportTasks" permission', async () => {
-                const [parentOrganization] = await createTestOrganization(admin)
+                const [parentOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
                 const [childOrganization] = await createTestOrganization(admin)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationLink(admin, parentOrganization, childOrganization)
@@ -151,7 +152,7 @@ describe('BankAccountReportTask', () => {
                     expect(task.status).toEqual(BANK_SYNC_TASK_STATUS.COMPLETED)
                 }, { interval: 1000 })
 
-                const [obj, attrs] = await updateTestBankAccountReportTask(admin, objCreated.id)
+                const [obj] = await updateTestBankAccountReportTask(admin, objCreated.id)
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
@@ -198,7 +199,7 @@ describe('BankAccountReportTask', () => {
                     })
                     expect(task.status).toEqual(BANK_SYNC_TASK_STATUS.COMPLETED)
                 }, { interval: 1000 })
-                const [obj, attrs] = await updateTestBankAccountReportTask(client, objCreated.id, {
+                const [obj] = await updateTestBankAccountReportTask(client, objCreated.id, {
                     status: BANK_SYNC_TASK_STATUS.CANCELLED,
                 })
 

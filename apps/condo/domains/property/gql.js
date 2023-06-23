@@ -104,12 +104,6 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
     union PropertyMap = BuildingMap | VillageMap
 `
 
-const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
-    query checkPropertyWithAddressExist ($data: CheckPropertyWithAddressExistInput!) {
-        result: checkPropertyWithAddressExist(data: $data) { isFound }
-    }
-`
-
 const EXPORT_PROPERTIES_TO_EXCEL =  gql`
     query exportPropertiesToExcel ($data: ExportPropertiesToExcelInput!) {
         result: exportPropertiesToExcel(data: $data) { status, linkToFile }
@@ -122,7 +116,6 @@ module.exports = {
     Property,
     PropertyTable,
     PROPERTY_MAP_GRAPHQL_TYPES,
-    CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY,
     EXPORT_PROPERTIES_TO_EXCEL,
     PROPERTY_MAP_JSON_FIELDS,
 /* AUTOGENERATE MARKER <EXPORTS> */
