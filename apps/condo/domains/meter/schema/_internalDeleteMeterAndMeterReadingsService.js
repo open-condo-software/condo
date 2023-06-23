@@ -56,7 +56,7 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
                 }
                 logger.info({ msg: `Following meters will be deleted: [${meters.map(reading => `'${reading.id}'`).join(', ')}]` })
 
-                const deletedMeters = await Meter.updateMany(context, meters, 600, { dv, sender, deletedAt: 'true' })
+                const deletedMeters = await Meter.updateMany(context, meters, { dv, sender, deletedAt: 'true' })
 
                 const deleteStatus = meters.length === deletedMeters.length
                     ? METER_DELETE_STATUS.SUCCESS : METER_DELETE_STATUS.ERROR
