@@ -1045,6 +1045,7 @@
   "news.fields.emptyTemplate.title": "Without template",
   "news.fields.validBefore.error": "Time for sending news does not match the validBefore. Change the validBefore to send the news.",
   "news.fields.toManyMessages.error": "We recommend sending no more than five news per day so as not to bore residents. It is better to postpone sending it until tomorrow.",
+  "news.fields.templates": "Templates",
   "news.type.common": "Common",
   "news.type.emergency": "Еmergency",
   "news.createNews": "Add news",
