@@ -104,6 +104,7 @@ const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
             andMore,
         })
     } else if (areTargetedToOneProperty(newsItemScopes) && every(newsItemScopes, isTargetedToUnitName)) {
+        const displayCount = 4
         const property: PropertyType = newsItemScopes[0].property
         const targetedSections = detectTargetedSections(newsItemScopes, property)
         if (targetedSections.length === 1) {
@@ -112,13 +113,21 @@ const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
                 address: newsItemScopes[0].property.address,
             })
         } else if (targetedSections.length > 1) {
+            const targetedSectionsList = slice(map(targetedSections, 'name'), 0, displayCount).join(', ')
+            const andMoreCount = targetedSections.length <= displayCount ? null : targetedSections.length - displayCount
+            const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertySections.andMore' }, { count: andMoreCount })
             return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertySections' }, {
-                sections: map(targetedSections, 'name').join(', '),
+                sections: targetedSectionsList,
+                andMore: andMore,
                 address: newsItemScopes[0].property.address,
             })
         } else {
+            const unitNamesList = slice(map(newsItemScopes, 'unitName').sort(), 0, displayCount).join(', ')
+            const andMoreCount = newsItemScopes.length <= displayCount ? null : newsItemScopes.length - displayCount
+            const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertyUnits.andMore' }, { count: andMoreCount })
             return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertyUnits' }, {
-                unitNames: map(newsItemScopes, 'unitName').sort().join(', '),
+                unitNames: unitNamesList,
+                andMore: andMore,
                 address: newsItemScopes[0].property.address,
             })
         }
