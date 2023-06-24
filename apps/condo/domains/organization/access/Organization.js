@@ -90,7 +90,7 @@ async function canManageOrganizations ({ authentication: { item: user }, operati
 const canAccessToImportField = {
     read: access.userIsNotResidentUser,
     create: access.userIsAdmin,
-    update: access.userIsAdmin,
+    update: access.userIsAdminOrIsSupport,
 }
 
 const canAccessOnlyAdminField = {
