@@ -63021,6 +63021,19 @@ type ExportNewsRecipientsOutput {
   linkToFile: String!
 }
 
+input GetNewsItemsRecipientsCountersInput {
+  dv: Int!
+  sender: JSON!
+  organizationId: ID!
+  newsItemScopes: [NewsItemScopeWhereInput!]!
+}
+
+type GetNewsItemsRecipientsCountersOutput {
+  propertiesCount: Int!
+  unitsCount: Int!
+  receiversCount: Int!
+}
+
 type unauthenticateUserOutput {
   """
   `true` when unauthentication succeeds.
@@ -72504,6 +72517,7 @@ type Mutation {
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
   exportNewsRecipients(data: ExportNewsRecipientsInput!): ExportNewsRecipientsOutput
+  getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

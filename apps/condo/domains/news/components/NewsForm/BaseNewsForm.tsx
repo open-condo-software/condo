@@ -128,10 +128,10 @@ const ADDITIONAL_DISABLED_MINUTES_COUNT = 5
 
 const getTypeAndNameByKey = (unitKey) => {
     const indexOfFirst = unitKey.indexOf('-')
-    
+
     const type = unitKey.substring(0, indexOfFirst)
     const name = unitKey.substring(indexOfFirst + 1)
-    
+
     return { type, name }
 }
 
@@ -497,7 +497,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             disabled: !organizationId,
             required: true,
             placeholder: SelectAddressPlaceholder,
-            onChange: (propIds: any[]) => {
+            onChange: (propIds: string[]) => {
                 form.setFieldsValue({ 'unitNames': [] })
                 form.setFieldsValue({ 'sectionIds': [] })
                 setSelectedPropertiesId(propIds)
@@ -698,7 +698,15 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
 
-    const newsItemScopesNoInstance: TNewsItemScopeNoInstance[] = useMemo(() => {
+    const newsItemScopesNoInstance = useMemo<TNewsItemScopeNoInstance[]>(() => {
+        if (isAllPropertiesChecked) {
+            return [{ property: null, unitType: null, unitName: null }]
+        }
+
+        if (selectedPropertiesLoading || selectedPropertiesId.length === 0) {
+            return []
+        }
+
         if (isOnlyOnePropertySelected) {
             if (!isEmpty(selectedUnitNameKeys)) {
                 return selectedUnitNameKeys.map((unitKey) => {
@@ -713,17 +721,18 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 })
             }
             if (isEmpty(selectedUnitNameKeys) && isEmpty(selectedSectionKeys)) {
-                return [{ property: selectedProperties[0] }]
+                return [{ property: selectedProperties[0], unitType: null, unitName: null }]
             }
+
             return []
         } else if (!isEmpty(selectedProperties)) {
             return selectedProperties.map(property => {
-                return { property: property }
+                return { property: property, unitType: null, unitName: null }
             })
         }
 
         return []
-    }, [isOnlyOnePropertySelected, selectedProperties, selectedSectionKeys, selectedUnitNameKeys])
+    }, [isAllPropertiesChecked, isOnlyOnePropertySelected, selectedProperties, selectedPropertiesId.length, selectedPropertiesLoading, selectedSectionKeys, selectedUnitNameKeys])
 
     const dayjsTz = dayjs().format('Z')
     const tzInfo = useMemo<string>(() => {
@@ -971,10 +980,54 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         </>
                                                     )
                                                 }
+                                                {isOnlyOnePropertySelected && (
+                                                    <>
+                                                        <Col span={11}>
+                                                            <Form.Item
+                                                                name='unitNames'
+                                                                label={
+                                                                    selectedPropertiesLoading || !isEmpty(selectedSectionKeys)
+                                                                        ? (<LabelWithInfo
+                                                                            title={UnitsMessage}
+                                                                            message={UnitsLabel}
+                                                                        />)
+                                                                        : UnitsLabel
+                                                                }
+                                                            >
+                                                                <UnitNameInput
+                                                                    multiple={true}
+                                                                    property={selectedProperties[0]}
+                                                                    allowClear={false}
+                                                                    loading={selectedPropertiesLoading || !isEmpty(selectedSectionKeys)}
+                                                                    onChange={handleChangeUnitNameInput}
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
+
+                                                        <Col span={11} offset={2}>
+                                                            <Form.Item
+                                                                name='sectionIds'
+                                                                label={selectedPropertiesLoading || !isEmpty(selectedUnitNameKeys)
+                                                                    ? (<LabelWithInfo
+                                                                        title={SectionsMessage}
+                                                                        message={SectionsLabel}
+                                                                    />)
+                                                                    : SectionsLabel}
+                                                            >
+                                                                <SectionNameInput
+                                                                    disabled={selectedPropertiesLoading || !isEmpty(selectedUnitNameKeys)}
+                                                                    property={selectedProperties[0]}
+                                                                    onChange={handleChangeSectionNameInput(selectedProperties[0])}
+                                                                    mode='multiple'
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
+                                                    </>
+                                                )}
                                             </Row>
                                         </Col>
                                         <Col span={formInfoColSpan}>
-                                            {(newsItemScopesNoInstance.length > 0 || isAllPropertiesChecked) && (
+                                            {(newsItemScopesNoInstance.length > 0) && (
                                                 <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
                                             )}
                                         </Col>

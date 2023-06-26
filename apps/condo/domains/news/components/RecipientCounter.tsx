@@ -1,18 +1,15 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import { useMutation } from '@apollo/client'
-import { BuildingSection, NewsItemScope, NewsItemScopeUnitTypeType, Property as PropertyType } from '@app/condo/schema'
+import { BuildingSection, NewsItemScope, Property as PropertyType } from '@app/condo/schema'
 import { Button, ButtonProps, Col, Row } from 'antd'
-import compact from 'lodash/compact'
 import every from 'lodash/every'
 import get from 'lodash/get'
 import intersection from 'lodash/intersection'
-import isEmpty from 'lodash/isEmpty'
 import map from 'lodash/map'
 import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
-import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -23,10 +20,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { EXPORT_NEWS_RECIPIENTS_MUTATION } from '@condo/domains/news/gql'
-import { queryFindResidentsByOrganizationAndScopes } from '@condo/domains/news/utils/accessSchema'
-import { Property } from '@condo/domains/property/utils/clientSchema'
-import { Resident } from '@condo/domains/resident/utils/clientSchema'
+import { EXPORT_NEWS_RECIPIENTS_MUTATION, GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION } from '@condo/domains/news/gql'
 
 import { TNewsItemScopeNoInstance } from './types'
 
@@ -66,13 +60,6 @@ const isTargetedToEntireProperty = ({ property, unitType, unitName }: TNewsItemS
 
 const isTargetedToUnitName = ({ property, unitType, unitName }: TNewsItemScopeNoInstance) => (
     !!property && !!unitType && !!unitName
-)
-
-const getUnitsFromProperty = ({ map }: PropertyType): string[] => (
-    map?.sections?.reduce((acc, section) => ([
-        ...acc,
-        ...getUnitsFromSection(section),
-    ]), []) || []
 )
 
 const getUnitsFromSection = (section: BuildingSection): string[] => section.floors.flatMap(floor => floor.units.map(unit => unit.label))
@@ -145,12 +132,6 @@ interface RecipientCounterProps {
     newsItemScopes: TNewsItemScopeNoInstance[]
 }
 
-interface IAffectedUnit {
-    propertyId: string,
-    type: NewsItemScopeUnitTypeType,
-    name: string,
-}
-
 export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScopes }) => {
     const intl = useIntl()
     const MailingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.mailing' })
@@ -163,72 +144,62 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     const WillZeroReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hintZero' })
 
     const [isXlsLoading, setIsXlsLoading] = useState(false)
+    const [isCountersLoading, setIsCountersLoading] = useState<boolean>(false)
+    const [counters, setCounters] = useState<{
+        propertiesCount: number,
+        unitsCount: number,
+        receiversCount: number
+    }>(null)
 
     const { organization } = useOrganization()
     const { push } = useRouter()
 
-    const propertyIdsFromNewsItemScopes = compact(uniq(map(newsItemScopes, 'property.id')))
+    const processedNewsItemScope = useMemo(() => {
+        return newsItemScopes.reduce<TNewsItemScopeNoInstance[]>((acc, scope) => {
+            const property = get(scope, 'property')
 
-    const { objs: properties, loading: loadingProperties } = Property.useAllObjects({
-        where: {
-            organization: { id: organization.id },
-            ...(propertyIdsFromNewsItemScopes.length > 1 ? { id_in: propertyIdsFromNewsItemScopes } : {}),
-            deletedAt: null,
-        },
-    })
+            return [
+                ...acc,
+                {
+                    property: property ? { id: property.id } : null,
+                    unitType: get(scope, 'unitType'),
+                    unitName: get(scope, 'unitName'),
+                },
+            ]
+        }, [])
+    }, [newsItemScopes])
 
-    const { objs: residents, loading: loadingResidents } = Resident.useAllObjects({
-        where: queryFindResidentsByOrganizationAndScopes(organization.id, newsItemScopes),
-    })
+    const [getCountersMutation] = useMutation(GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION)
+    useEffect(() => {
+        setIsCountersLoading(true)
+        const sender = getClientSideSenderInfo()
+        const meta = { dv: 1, sender }
 
-    const processedNewsItemScope = newsItemScopes.reduce<TNewsItemScopeNoInstance[]>((acc, scope) => {
-        const partialScope: TNewsItemScopeNoInstance = {}
-        if (get(scope, 'property')) partialScope.property = scope.property
-        if (get(scope, 'unitType')) partialScope.unitType = scope.unitType
-        if (get(scope, 'unitName')) partialScope.unitName = scope.unitName
-        if (!isEmpty(partialScope)) acc.push(partialScope)
-        return [...acc]
-    }, [])
-
-    const unitsAffected = useMemo<IAffectedUnit[]>((): IAffectedUnit[] => {
-        if (loadingProperties || !properties || loadingResidents || !residents) {
-            return []
-        }
-
-        if (processedNewsItemScope.length === 0) {
-            return properties.reduce<IAffectedUnit[]>((result, property) => {
-                return [
-                    ...result,
-                    ...getUnitsFromProperty(property).map<IAffectedUnit>((unit) => ({
-                        propertyId: property.id,
-                        type: NewsItemScopeUnitTypeType.Flat,
-                        name: unit,
-                    })),
-                ]
-            }, [])
-        } else {
-            return processedNewsItemScope.reduce<IAffectedUnit[]>((result, scope) => {
-                if (scope.unitType && scope.unitName) {
-                    return [...result, { propertyId: scope.property.id, type: scope.unitType, name: scope.unitName }]
-                } else {
-                    const unitNames = getUnitsFromProperty(properties.find((property) => property.id === scope.property.id))
-                    return [
-                        ...result,
-                        ...unitNames.map<IAffectedUnit>((unitName) => ({
-                            propertyId: scope.property.id,
-                            type: NewsItemScopeUnitTypeType.Flat,
-                            name: unitName,
-                        }))]
-                }
-            }, [])
-        }
-    }, [processedNewsItemScope, properties, residents, loadingProperties, loadingResidents])
+        runMutation({
+            mutation: getCountersMutation,
+            variables: {
+                data: {
+                    newsItemScopes: processedNewsItemScope,
+                    organizationId: organization.id,
+                    ...meta,
+                },
+            },
+            intl,
+            OnCompletedMsg: null,
+            onFinally: () => {
+                setIsCountersLoading(false)
+            },
+        }).then((res) => {
+            setCounters(res.data.result)
+        })
+    }, [getCountersMutation, intl, newsItemScopes, organization.id])
 
     const [newsRecipientsMutation] = useMutation(EXPORT_NEWS_RECIPIENTS_MUTATION)
     const runExportNewsRecipients = useCallback(() => {
         const sender = getClientSideSenderInfo()
         const meta = { dv: 1, sender }
         setIsXlsLoading(true)
+
         return runMutation({
             mutation: newsRecipientsMutation,
             variables: {
@@ -243,9 +214,9 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
             .then(() => {
                 setIsXlsLoading(false)
             })
-    }, [intl, newsRecipientsMutation, organization.id, processedNewsItemScope, push])
+    }, [intl, newsRecipientsMutation, organization.id, newsItemScopes, push])
 
-    if (loadingProperties || loadingResidents) {
+    if (isCountersLoading || !counters) {
         return null
     }
 
@@ -256,13 +227,8 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     // - When some records of NewsItemScope have unitName, that does not exist in connected Property
     // - When some Resident's unitName is out of units range of a property, that can happen if Property.map was changed after Resident was registered
 
-    const propertiesWillReceive = newsItemScopes.length === 0
-        ? properties
-        : properties.filter(p => propertyIdsFromNewsItemScopes.includes(p.id)) // Take Property objects with full set of fields, obtained using Property client utils
-
-    const unitsWillReceive = uniqBy(residents, ({ property, unitName }) => [property.id, unitName].join('-'))
-
-    const willNotReceiveUnitsCount = unitsAffected.length - residents.length
+    const { propertiesCount, unitsCount, receiversCount } = counters
+    const willNotReceiveUnitsCount = unitsCount - receiversCount
 
     return (
         <div style={styleMaxWidth}>
@@ -275,20 +241,20 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                             <Col>
                                 <Counter
                                     label={PropertiesLabelMessage}
-                                    value={propertiesWillReceive.length}
+                                    value={propertiesCount}
                                 />
                             </Col>
                             <Col>
                                 <Counter
                                     label={WillReceiveLabelMessage}
-                                    value={unitsWillReceive.length}
-                                    hint={unitsWillReceive.length === 0 ? WillZeroReceiveHintMessage : formatWillReceiveHintMessage(unitsWillReceive.length)}
+                                    value={receiversCount}
+                                    hint={receiversCount === 0 ? WillZeroReceiveHintMessage : formatWillReceiveHintMessage(receiversCount)}
                                 />
                             </Col>
                             <Col>
                                 <Counter
                                     label={WillNotReceiveLabelMessage}
-                                    value={willNotReceiveUnitsCount}
+                                    value={unitsCount - receiversCount}
                                     type='danger'
                                     hint={willNotReceiveUnitsCount === 0 ? WillZeroNotReceiveHintMessage : formatWillNotReceiveHintMessage(willNotReceiveUnitsCount)}
                                     downloadButton={<Button

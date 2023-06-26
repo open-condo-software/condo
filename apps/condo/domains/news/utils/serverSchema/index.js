@@ -11,6 +11,7 @@ const { NewsItemScope: NewsItemScopeGQL } = require('@condo/domains/news/gql')
 const { NewsItemTemplate: NewsItemTemplateGQL } = require('@condo/domains/news/gql')
 const { NewsItemUserRead: NewsItemUserReadGQL } = require('@condo/domains/news/gql')
 const { EXPORT_NEWS_RECIPIENTS_MUTATION } = require('@condo/domains/news/gql')
+const { GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateServerUtils(NewsItemGQL)
@@ -30,6 +31,19 @@ async function exportNewsRecipients (context, data) {
     })
 }
 
+async function getNewsItemsRecipientsCounters (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to getNewsItemsRecipientsCounters',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -38,5 +52,6 @@ module.exports = {
     NewsItemTemplate,
     NewsItemUserRead,
     exportNewsRecipients,
+    getNewsItemsRecipientsCounters,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

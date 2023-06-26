@@ -4,14 +4,6 @@
 const { createHash } = require('crypto')
 
 const dayjs = require('dayjs')
-const compact = require('lodash/compact')
-const filter = require('lodash/filter')
-const find = require('lodash/find')
-const get = require('lodash/get')
-const identity = require('lodash/identity')
-const isEmpty = require('lodash/isEmpty')
-const pick = require('lodash/pick')
-const pickBy = require('lodash/pickBy')
 
 const conf = require('@open-condo/config')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
@@ -20,24 +12,8 @@ const { i18n } = require('@open-condo/locales/loader')
 
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { getHeadersTranslations, EXPORT_TYPE_NEWS_RECIPIENTS } = require('@condo/domains/common/utils/exportToExcel')
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const access = require('@condo/domains/news/access/ExportNewsRecipientsService')
-const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
-const { Resident } = require('@condo/domains/resident/utils/serverSchema')
-
-
-const getUnitsFromProperty = (property) => (
-    property?.map?.sections?.reduce((acc, section) => ([
-        ...acc,
-        ...getUnitsFromSection(section),
-    ]), []) || []
-)
-
-const getUnitsFromSection = (section) => section.floors.flatMap(floor => floor.units.map(unit => ({
-    unitName: unit.label,
-    unitType: unit.unitType,
-})))
+const { getUnitsData } = require('@condo/domains/news/utils/serverSchema/recipientsCounterUtils')
 
 const buildExportFile = async ({ rows, locale }) => {
     const YesMessage = i18n('Yes', { locale })
@@ -88,76 +64,11 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
                 const { data: { newsItemScopes, organizationId } } = args
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
-                const compactedNewsItemScopes = compact(newsItemScopes)
+                const { unitsData } = await getUnitsData(context, organizationId, newsItemScopes)
 
-                const residents = await loadListByChunks({
-                    context,
-                    list: Resident,
-                    chunkSize: 50,
-                    where: {
-                        ...queryFindResidentsByOrganizationAndScopes(organizationId, newsItemScopes),
-                        deletedAt: null,
-                    },
-                })
+                const linkToFile = await buildExportFile({ rows: unitsData, locale })
 
-                const recipientsByNewsItemsScope = []
-                const recipientsByOrganization = []
-                if (isEmpty(compactedNewsItemScopes)) {
-                    const propertiesByOrganization = await loadListByChunks({
-                        context,
-                        list: Property,
-                        chunkSize: 50,
-                        where: {
-                            organization: {
-                                id: organizationId,
-                            },
-                            deletedAt: null,
-                        },
-                    })
-
-                    for (let property of propertiesByOrganization) {
-                        const units = getUnitsFromProperty(property)
-
-                        const recipientsData = units.map(({ unitName, unitType }) => ({
-                            address: property.address,
-                            unitName,
-                            hasResident: !!find(residents, { unitName, unitType }),
-                        }))
-                        recipientsByOrganization.push(...recipientsData)
-                    }
-                } else {
-                    for (let newsItemScope of compactedNewsItemScopes) {
-                        if (get(newsItemScope, 'property.id')) {
-                            const property = await Property.getOne(context, {
-                                id: newsItemScope.property.id,
-                                deletedAt: null,
-                            })
-
-                            const units = getUnitsFromProperty(property)
-
-                            const unitsFilter = pickBy(pick(newsItemScope, ['unitName', 'unitType']), identity)
-
-                            const filteredUnits = filter(units, unitsFilter)
-                            const filteredResidents = filter(residents, unitsFilter)
-                            const recipientsData = filteredUnits.map(({ unitName, unitType }) => ({
-                                address: property.address,
-                                unitName,
-                                hasResident: !!find(filteredResidents, { unitName, unitType }),
-                            }))
-                            recipientsByNewsItemsScope.push(...recipientsData)
-                        }
-                    }
-                }
-
-                const linkToFile = await buildExportFile({
-                    rows: [...recipientsByNewsItemsScope, ...recipientsByOrganization],
-                    locale,
-                })
-
-                return {
-                    linkToFile,
-                    status: 'OK',
-                }
+                return { linkToFile, status: 'OK' }
             },
         },
     ],

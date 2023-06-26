@@ -20761,6 +20761,20 @@ export type GetExternalReportIframeUrlOutput = {
   iframeUrl?: Maybe<Scalars['String']>;
 };
 
+export type GetNewsItemsRecipientsCountersInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  organizationId: Scalars['ID'];
+  newsItemScopes: Array<NewsItemScopeWhereInput>;
+};
+
+export type GetNewsItemsRecipientsCountersOutput = {
+  __typename?: 'GetNewsItemsRecipientsCountersOutput';
+  propertiesCount: Scalars['Int'];
+  unitsCount: Scalars['Int'];
+  receiversCount: Scalars['Int'];
+};
+
 export type GetPhoneByConfirmPhoneActionTokenInput = {
   token: Scalars['String'];
   captcha: Scalars['String'];
@@ -34168,6 +34182,7 @@ export type Mutation = {
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   sendB2CAppPushMessage?: Maybe<SendB2CAppPushMessageOutput>;
   exportNewsRecipients?: Maybe<ExportNewsRecipientsOutput>;
+  getNewsItemsRecipientsCounters?: Maybe<GetNewsItemsRecipientsCountersOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -41168,6 +41183,11 @@ export type MutationSendB2CAppPushMessageArgs = {
 
 export type MutationExportNewsRecipientsArgs = {
   data: ExportNewsRecipientsInput;
+};
+
+
+export type MutationGetNewsItemsRecipientsCountersArgs = {
+  data: GetNewsItemsRecipientsCountersInput;
 };
 
 

@@ -30,6 +30,12 @@ const EXPORT_NEWS_RECIPIENTS_MUTATION = gql`
     }
 `
 
+const GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION = gql`
+    mutation getNewsItemsRecipientsCounters ($data: GetNewsItemsRecipientsCountersInput!) {
+        result: getNewsItemsRecipientsCounters(data: $data) { propertiesCount, unitsCount, receiversCount }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -38,5 +44,6 @@ module.exports = {
     NewsItemTemplate,
     NewsItemUserRead,
     EXPORT_NEWS_RECIPIENTS_MUTATION,
+    GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
