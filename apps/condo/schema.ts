@@ -18434,18 +18434,18 @@ export type DisconnectUserFromRemoteClientOutput = {
   status: Scalars['String'];
 };
 
-export type DiscoverConsumersServiceInput = {
+export type DiscoverServiceConsumersInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   address: Scalars['String'];
   unitName: Scalars['String'];
   unitType: Scalars['String'];
-  billingAccountId?: Maybe<Scalars['ID']>;
-  residentId?: Maybe<Scalars['ID']>;
+  billingAccount?: Maybe<BillingAccountWhereUniqueInput>;
+  resident?: Maybe<ResidentWhereUniqueInput>;
 };
 
-export type DiscoverConsumersServiceOutput = {
-  __typename?: 'DiscoverConsumersServiceOutput';
+export type DiscoverServiceConsumersOutput = {
+  __typename?: 'DiscoverServiceConsumersOutput';
   status: Scalars['String'];
   createdServiceConsumersTotal: Scalars['Int'];
 };
@@ -31268,7 +31268,6 @@ export type Mutation = {
    * }`
    */
   sendNewReceiptMessagesToResidentScopes?: Maybe<SendNewReceiptMessagesToResidentScopesOutput>;
-  discoverConsumersService?: Maybe<DiscoverConsumersServiceOutput>;
   createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
   /**
@@ -32629,6 +32628,7 @@ export type Mutation = {
    * }`
    */
   sendMessageToResidentScopes?: Maybe<SendMessageToResidentScopesServiceOutput>;
+  discoverServiceConsumers?: Maybe<DiscoverServiceConsumersOutput>;
   /**
    * Creates OnBoarding and set of OnBoardingStep records for specified role and user
    *
@@ -39388,11 +39388,6 @@ export type MutationSendNewReceiptMessagesToResidentScopesArgs = {
 };
 
 
-export type MutationDiscoverConsumersServiceArgs = {
-  data: DiscoverConsumersServiceInput;
-};
-
-
 export type MutationCreateBankAccountRequestArgs = {
   data: CreateBankAccountRequestInput;
 };
@@ -39445,6 +39440,11 @@ export type MutationRegisterServiceConsumerArgs = {
 
 export type MutationSendMessageToResidentScopesArgs = {
   data: SendMessageToResidentScopesServiceInput;
+};
+
+
+export type MutationDiscoverServiceConsumersArgs = {
+  data: DiscoverServiceConsumersInput;
 };
 
 

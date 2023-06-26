@@ -32,7 +32,6 @@ const { registerServiceConsumerByTestClient } = require('@condo/domains/resident
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { REGISTER_BILLING_RECEIPTS_MUTATION, SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/billing/gql')
-const { DISCOVER_CONSUMERS_SERVICE_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -609,25 +608,6 @@ function createRegisterBillingReceiptsPayload(extraAttrs) {
     }
 }
 
-async function discoverConsumersServiceByTestClient(client, args, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!args) throw new Error('no data')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...args,
-    }
-    const { data, errors } = await client.mutate(DISCOVER_CONSUMERS_SERVICE_MUTATION, { data: attrs })
-
-    if (!extraAttrs.raw) {
-        throwIfError(data, errors)
-    }
-
-    return [data.result, errors, attrs]
-}
-
 /**
  * Simplifies creating series of instances
  */
@@ -854,7 +834,6 @@ module.exports = {
     generateServicesData,
     sendNewReceiptMessagesToResidentScopesByTestClient,
     BillingReceiptFile, createTestBillingReceiptFile, updateTestBillingReceiptFile,
-    discoverConsumersServiceByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

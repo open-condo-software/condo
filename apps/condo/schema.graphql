@@ -60632,21 +60632,6 @@ type SendNewReceiptMessagesToResidentScopesOutput {
   status: String!
 }
 
-input DiscoverConsumersServiceInput {
-  dv: Int!
-  sender: SenderFieldInput!
-  address: String!
-  unitName: String!
-  unitType: String!
-  billingAccountId: ID
-  residentId: ID
-}
-
-type DiscoverConsumersServiceOutput {
-  status: String!
-  createdServiceConsumersTotal: Int!
-}
-
 input CreateBankAccountRequestInput {
   dv: Int!
   sender: JSON!
@@ -60884,6 +60869,21 @@ input SendMessageToResidentScopesServiceInput {
 
 type SendMessageToResidentScopesServiceOutput {
   status: String!
+}
+
+input DiscoverServiceConsumersInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  address: String!
+  unitName: String!
+  unitType: String!
+  billingAccount: BillingAccountWhereUniqueInput
+  resident: ResidentWhereUniqueInput
+}
+
+type DiscoverServiceConsumersOutput {
+  status: String!
+  createdServiceConsumersTotal: Int!
 }
 
 enum OnBoardingType {
@@ -69034,7 +69034,6 @@ type Mutation {
   }`
   """
   sendNewReceiptMessagesToResidentScopes(data: SendNewReceiptMessagesToResidentScopesInput!): SendNewReceiptMessagesToResidentScopesOutput
-  discoverConsumersService(data: DiscoverConsumersServiceInput!): DiscoverConsumersServiceOutput
   createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
 
@@ -70398,6 +70397,7 @@ type Mutation {
   }`
   """
   sendMessageToResidentScopes(data: SendMessageToResidentScopesServiceInput!): SendMessageToResidentScopesServiceOutput
+  discoverServiceConsumers(data: DiscoverServiceConsumersInput!): DiscoverServiceConsumersOutput
 
   """
   Creates OnBoarding and set of OnBoardingStep records for specified role and user

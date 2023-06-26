@@ -23,7 +23,6 @@ const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billin
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
 const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
 const { BillingReceiptFile: BillingReceiptFileGQL } = require('@condo/domains/billing/gql')
-const { DISCOVER_CONSUMERS_SERVICE_MUTATION } = require('@condo/domains/billing/gql')
 const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -94,20 +93,6 @@ async function sendNewReceiptMessagesToResidentScopes (context, data) {
     })
 }
 
-
-async function discoverConsumersService (context, data) {
-    if (!context) throw new Error('no context')
-    if (!data) throw new Error('no data')
-    if (!data.sender) throw new Error('no data.sender')
-
-    return await execGqlWithoutAccess(context, {
-        query: DISCOVER_CONSUMERS_SERVICE_MUTATION,
-        variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to discoverConsumersService',
-        dataPath: 'obj',
-    })
-}
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -125,6 +110,5 @@ module.exports = {
     getPaymentsSum,
     sendNewReceiptMessagesToResidentScopes,
     BillingReceiptFile,
-    discoverConsumersService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

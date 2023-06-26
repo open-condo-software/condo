@@ -61,13 +61,6 @@ const SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION = gql`
     }
 `
 
-
-const DISCOVER_CONSUMERS_SERVICE_MUTATION = gql`
-    mutation discoverConsumersService ($data: DiscoverConsumersServiceInput!) {
-        result: discoverConsumersService(data: $data) { status createdServiceConsumersTotal }
-    }
-`
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -86,6 +79,5 @@ module.exports = {
 
     SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION,
     BillingReceiptFile,
-    DISCOVER_CONSUMERS_SERVICE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

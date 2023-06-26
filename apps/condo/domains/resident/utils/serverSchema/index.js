@@ -14,6 +14,7 @@ const { Resident: ResidentGQL } = require('@condo/domains/resident/gql')
 const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_CONSUMER_SERVICE_MUTATION } = require('@condo/domains/resident/gql')
 const { SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/resident/gql')
+const { DISCOVER_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const logger = getLogger('resident/serverSchema')
@@ -65,6 +66,24 @@ async function sendMessageToResidentScopes (context, data) {
     return result
 }
 
+/**
+ *
+ * @param context
+ * @param data
+ * @returns {Promise<*>}
+ */
+async function discoverServiceConsumers (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: DISCOVER_SERVICE_CONSUMERS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to discoverServiceConsumer',
+        dataPath: 'obj',
+    })
+}
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -73,5 +92,6 @@ module.exports = {
     ServiceConsumer,
     registerConsumerService,
     sendMessageToResidentScopes,
+    discoverServiceConsumers,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
