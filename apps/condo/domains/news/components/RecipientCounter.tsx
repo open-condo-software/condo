@@ -1,7 +1,7 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
-import { useMutation } from '@apollo/client'
+import { useLazyQuery, useMutation } from '@apollo/client'
 import { BuildingSection, NewsItemScope, Property as PropertyType } from '@app/condo/schema'
-import { Button, ButtonProps, Col, Row } from 'antd'
+import { Button, ButtonProps, Col, notification, Row } from 'antd'
 import every from 'lodash/every'
 import get from 'lodash/get'
 import intersection from 'lodash/intersection'
@@ -144,7 +144,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     const WillZeroReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hintZero' })
 
     const [isXlsLoading, setIsXlsLoading] = useState(false)
-    const [isCountersLoading, setIsCountersLoading] = useState<boolean>(false)
+
     const [counters, setCounters] = useState<{
         propertiesCount: number,
         unitsCount: number,
@@ -162,21 +162,31 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                 ...acc,
                 {
                     property: property ? { id: property.id } : null,
-                    unitType: get(scope, 'unitType'),
-                    unitName: get(scope, 'unitName'),
+                    unitType: get(scope, 'unitType', null),
+                    unitName: get(scope, 'unitName', null),
                 },
             ]
         }, [])
     }, [newsItemScopes])
 
-    const [getCountersMutation] = useMutation(GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION)
+    const [getCounters, { loading: isCountersLoading }] = useLazyQuery(
+        GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION,
+        {
+            onCompleted: (data) => {
+                setCounters(data.result)
+            },
+            onError: (error) => {
+                const message = get(error, ['graphQLErrors', 0, 'extensions', 'messageForUser'], error.message)
+                notification.error({ message })
+            },
+        },
+    )
+
     useEffect(() => {
-        setIsCountersLoading(true)
         const sender = getClientSideSenderInfo()
         const meta = { dv: 1, sender }
 
-        runMutation({
-            mutation: getCountersMutation,
+        getCounters({
             variables: {
                 data: {
                     newsItemScopes: processedNewsItemScope,
@@ -184,15 +194,8 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                     ...meta,
                 },
             },
-            intl,
-            OnCompletedMsg: null,
-            onFinally: () => {
-                setIsCountersLoading(false)
-            },
-        }).then((res) => {
-            setCounters(res.data.result)
         })
-    }, [getCountersMutation, intl, newsItemScopes, organization.id, processedNewsItemScope])
+    }, [getCounters, organization.id, processedNewsItemScope])
 
     const [newsRecipientsMutation] = useMutation(EXPORT_NEWS_RECIPIENTS_MUTATION)
     const runExportNewsRecipients = useCallback(() => {
@@ -214,7 +217,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
             .then(() => {
                 setIsXlsLoading(false)
             })
-    }, [intl, newsRecipientsMutation, organization.id, newsItemScopes, push])
+    }, [newsRecipientsMutation, processedNewsItemScope, organization.id, intl, push])
 
     if (isCountersLoading || !counters) {
         return null

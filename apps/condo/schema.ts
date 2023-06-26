@@ -19435,7 +19435,7 @@ export type ExportMeterReadingsOutput = {
 export type ExportNewsRecipientsInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
-  organizationId: Scalars['ID'];
+  organization: OrganizationWhereUniqueInput;
   newsItemScopes?: Maybe<Array<Maybe<NewsItemScopeWhereInput>>>;
 };
 
@@ -20764,7 +20764,7 @@ export type GetExternalReportIframeUrlOutput = {
 export type GetNewsItemsRecipientsCountersInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
-  organizationId: OrganizationWhereUniqueInput;
+  organization: OrganizationWhereUniqueInput;
   newsItemScopes: Array<NewsItemScopeWhereInput>;
 };
 
@@ -34182,7 +34182,6 @@ export type Mutation = {
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   sendB2CAppPushMessage?: Maybe<SendB2CAppPushMessageOutput>;
   exportNewsRecipients?: Maybe<ExportNewsRecipientsOutput>;
-  getNewsItemsRecipientsCounters?: Maybe<GetNewsItemsRecipientsCountersOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -41183,11 +41182,6 @@ export type MutationSendB2CAppPushMessageArgs = {
 
 export type MutationExportNewsRecipientsArgs = {
   data: ExportNewsRecipientsInput;
-};
-
-
-export type MutationGetNewsItemsRecipientsCountersArgs = {
-  data: GetNewsItemsRecipientsCountersInput;
 };
 
 
@@ -53074,6 +53068,7 @@ export type Query = {
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
   getExternalReportIframeUrl?: Maybe<GetExternalReportIframeUrlOutput>;
   exportPropertyScopesToExcel?: Maybe<ExportPropertyScopeToExcelOutput>;
+  getNewsItemsRecipientsCounters?: Maybe<GetNewsItemsRecipientsCountersOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -58645,6 +58640,11 @@ export type QueryGetExternalReportIframeUrlArgs = {
 
 export type QueryExportPropertyScopesToExcelArgs = {
   data: ExportPropertyScopeToExcelInput;
+};
+
+
+export type QueryGetNewsItemsRecipientsCountersArgs = {
+  data: GetNewsItemsRecipientsCountersInput;
 };
 
 export type ReInviteOrganizationEmployeeInput = {

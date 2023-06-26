@@ -63012,7 +63012,7 @@ type ExportPropertyScopeToExcelOutput {
 input ExportNewsRecipientsInput {
   dv: Int!
   sender: JSON!
-  organizationId: ID!
+  organization: OrganizationWhereUniqueInput!
   newsItemScopes: [NewsItemScopeWhereInput]
 }
 
@@ -63024,7 +63024,7 @@ type ExportNewsRecipientsOutput {
 input GetNewsItemsRecipientsCountersInput {
   dv: Int!
   sender: JSON!
-  organizationId: OrganizationWhereUniqueInput!
+  organization: OrganizationWhereUniqueInput!
   newsItemScopes: [NewsItemScopeWhereInput!]!
 }
 
@@ -66289,6 +66289,7 @@ type Query {
   exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput
   getExternalReportIframeUrl(data: GetExternalReportIframeUrlInput!): GetExternalReportIframeUrlOutput
   exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
+  getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
 
   """The version of the Keystone application serving this API."""
   appVersion: String
@@ -72517,7 +72518,6 @@ type Mutation {
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
   exportNewsRecipients(data: ExportNewsRecipientsInput!): ExportNewsRecipientsOutput
-  getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

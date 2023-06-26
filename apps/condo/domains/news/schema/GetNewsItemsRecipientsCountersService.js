@@ -18,7 +18,7 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
         },
     ],
 
-    mutations: [
+    queries: [
         {
             access: access.canGetNewsItemsRecipientsCounters,
             schema: 'getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput',
