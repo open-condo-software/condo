@@ -61326,7 +61326,7 @@ enum Status {
 }
 
 type _internalDeleteMeterAndMeterReadingsOutput {
-  status: Status
+  status: Status!
 }
 
 input RegisterMultiPaymentServiceConsumerInput {

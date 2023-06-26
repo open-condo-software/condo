@@ -78964,7 +78964,7 @@ export type _InternalDeleteMeterAndMeterReadingsInput = {
 
 export type _InternalDeleteMeterAndMeterReadingsOutput = {
   __typename?: '_internalDeleteMeterAndMeterReadingsOutput';
-  status?: Maybe<Status>;
+  status: Status;
 };
 
 export type _InternalScheduleTaskByNameInput = {
