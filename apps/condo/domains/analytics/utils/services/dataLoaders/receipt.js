@@ -1,24 +1,26 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get, pick } = require('lodash')
+const { get, omit } = require('lodash')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { AbstractDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/AbstractDataLoader')
+const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { GqlToKnexBaseAdapter } = require('@condo/domains/common/utils/serverSchema/GqlToKnexBaseAdapter')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
-const PERIOD_DATE_FORMAT = 'YYYY-MM-DD'
 
-class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
+class ReceiptGqlKnexLoader extends GqlToKnexBaseAdapter {
     aggregateBy = []
     constructor (where, groupBy) {
-        super('Payment', where, groupBy)
+        super('BillingReceipt', where, groupBy)
         this.aggregateBy = ['dayGroup', ...this.groups]
     }
 
     async loadData () {
         this.result = null
+
         const { keystone } = await getSchemaCtx(this.domainName)
         const knex = keystone.adapter.knex
 
@@ -45,40 +47,39 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
             filterValues.push(...groupIdArray.map(id => [id]))
         }, [[], []])
 
-        const query = knex(this.domainName).count('id').sum('amount').select(this.groups)
-        query.select(knex.raw(`date_trunc('${this.dayGroup}', "updatedAt") as "dayGroup"`))
+        const query = knex(this.domainName).count('id').sum('toPay').select(this.groups)
+        query.select(knex.raw(`date_trunc('${this.dayGroup}', "createdAt") as "dayGroup"`))
         const knexWhere = where.reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
         this.result = await query.groupBy(this.aggregateBy)
             .where(knexWhere)
-            .whereBetween('period', [this.dateRange.from, this.dateRange.to])
+            .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
             .orderBy('dayGroup', 'asc')
     }
 }
 
-class PaymentDataLoader extends AbstractDataLoader {
+class ReceiptDataLoader extends AbstractDataLoader {
     async get ({ where, groupBy }) {
-        // explicitFee explicitServiceCharge amount status
-        const paymentMonthSumLoader = new GqlWithKnexLoadList({
-            listKey: 'Payment',
-            fields: 'id',
-            where: {
-                ...pick(where, ['organization', 'status_in']),
-                AND: [{ period_gte: dayjs().startOf('month').format(PERIOD_DATE_FORMAT) }, { period_lte: dayjs().endOf('month').format(PERIOD_DATE_FORMAT) }],
-            },
+        const billingIntegrationOrganizationContexts = await BillingIntegrationOrganizationContext.getAll(this.context, {
+            organization: where.organization,
+            status: CONTEXT_FINISHED_STATUS,
+            deletedAt: null,
         })
 
-        const paymentIds = await paymentMonthSumLoader.load()
-        const sumAggregate = await paymentMonthSumLoader.loadAggregate('SUM(amount) as "amountSum"', paymentIds.map(({ id })=> id))
+        const receiptsLoader = new ReceiptGqlKnexLoader({
+            ...omit(where, ['organization']),
+            context: { id_in: billingIntegrationOrganizationContexts.map(({ id }) => id) },
+        }, groupBy)
 
-        const sum = Big(sumAggregate.amountSum || 0).toFixed(2)
+        await receiptsLoader.loadData()
+        const receipts = receiptsLoader.getResult()
 
-        const paymentGqlKnexLoader = new PaymentGqlKnexLoader(where, groupBy)
-        await paymentGqlKnexLoader.loadData()
-        const aggregatedPayments = paymentGqlKnexLoader.getResult()
+        // for (const billingIntegrationContext of billingIntegrationOrganizationContexts) {
+        //
+        // }
 
-        return { sum, aggregatedPayments }
+        return { receipts }
     }
 }
 
-module.exports = { PaymentDataLoader }
+module.exports = { ReceiptDataLoader }

@@ -12,6 +12,7 @@ const { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } = require('@condo/domain
 const access = require('@condo/domains/analytics/access/OverviewDashboardService')
 const { AnalyticsDataProvider } = require('@condo/domains/analytics/utils/services/AnalyticsDataProvider')
 const { PaymentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/payment')
+const { ReceiptDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/receipt')
 const { TicketDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/ticket')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 
@@ -101,8 +102,8 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                                     organization: { id: where.organization },
                                     // status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
                                     AND: [
-                                        { createdAt_gte: where.dateFrom },
-                                        { createdAt_lte: where.dateTo },
+                                        { period_gte: where.dateFrom },
+                                        { period_lte: where.dateTo },
                                         { status: PAYMENT_DONE_STATUS },
                                         // { period_gte: dayjs(where.dateFrom).startOf('month').format('YYYY-MM-DD') },
                                         // { period_lte: dayjs(where.dateTo).endOf('month').format('YYYY-MM-DD') },
@@ -112,6 +113,19 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                                     //     { status: PAYMENT_DONE_STATUS },
                                     //     { status: PAYMENT_WITHDRAWN_STATUS },
                                     // ],
+                                },
+                                groupBy: [groupBy.aggregatePeriod],
+                            },
+                        },
+                        receipt: {
+                            provider: new ReceiptDataLoader({ context }),
+                            queryOptions: {
+                                where: {
+                                    organization: { id: where.organization },
+                                    AND: [
+                                        { period_gte: where.dateFrom },
+                                        { period_lte: where.dateTo },
+                                    ],
                                 },
                                 groupBy: [groupBy.aggregatePeriod],
                             },

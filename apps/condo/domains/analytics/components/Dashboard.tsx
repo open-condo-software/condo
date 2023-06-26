@@ -1,26 +1,35 @@
-import { TicketStatusTypeType, TicketAnalyticsGroupBy } from '@app/condo/schema'
-import { Row, Col, Skeleton } from 'antd'
+import {
+    TicketStatusTypeType,
+    TicketAnalyticsGroupBy,
+    IncidentStatusType,
+    TicketQualityControlValueType,
+} from '@app/condo/schema'
+import { Row, Col, Skeleton, Result } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
+import ReactECharts from 'echarts-for-react'
 import get from 'lodash/get'
+import isNull from 'lodash/isNull'
+import { useRouter } from 'next/router'
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 
+import { Wallet, LayoutList } from '@open-condo/icons'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography, Space, Select } from '@open-condo/ui'
-
+import { colors } from '@open-condo/ui/dist/colors'
 
 import TicketChart, { EchartsSeries } from '@condo/domains/analytics/components/TicketChart'
 import { OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
+import { getAggregatedData } from '@condo/domains/analytics/utils/helpers'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { Resident } from '@condo/domains/resident/utils/clientSchema'
+import { Incident, Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 
 import PaymentChart from './PaymentChart'
 import { PaymentChartView } from './PaymentChartView'
 import TicketChartView from './TicketChartView'
-
-import { getAggregatedData } from '../utils/helpers'
 
 import type { RowProps } from 'antd'
 
@@ -39,12 +48,13 @@ const DataCard: React.FC<{ label: string, value: string | number }> = ({ label, 
     </Col>
 )
 
-const PerformanceCard = ({ organizationId }) => {
+const PerformanceCard = ({ organizationId, paymentSum, paymentLoading }) => {
     const intl = useIntl()
     const DoneLabel = intl.formatMessage({ id: 'Done' })
     const InWorkLabel = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
-
-    const [loading, setLoading] = useState(true)
+    const PaymentsAmountPercent = intl.formatMessage({ id: 'pages.reports.paymentsAmountPercent' })
+    const PaymentsAmount = intl.formatMessage({ id: 'pages.reports.paymentsAmount' })
+    const ResidentsInApp = intl.formatMessage({ id: 'pages.reports.residentsWithApp' })
 
     const completionPercent = useRef('0%')
     const ticketCounts = useRef(null)
@@ -52,51 +62,246 @@ const PerformanceCard = ({ organizationId }) => {
     const { count: residentsCount, loading: residentsLoading } = Resident.useCount({
         where: { organization: { id: organizationId } },
     })
-    const [loadTicketCounts] = useLazyQuery(GET_TICKETS_COUNT_QUERY, {
+    const [loadTicketCounts, { loading: ticketCountLoading }] = useLazyQuery(GET_TICKETS_COUNT_QUERY, {
         onCompleted: (result) => {
-            completionPercent.current = (result.completed.count / result.all.count * 100).toFixed(0) + ' %'
             ticketCounts.current = result
-            setLoading(false)
         },
+        fetchPolicy: 'cache-first',
+    })
+    const [loadMonthTicketCounts, { loading: monthTicketLoading }] = useLazyQuery(GET_TICKETS_COUNT_QUERY, {
+        onCompleted: (result) => {
+            completionPercent.current = (result.completed.count / result.all.count * 100).toFixed(0) + '%'
+        },
+        fetchPolicy: 'cache-first',
     })
 
     useEffect(() => {
-        loadTicketCounts({
-            variables: {
-                where: { organization: { id: organizationId } },
-                whereWithoutStatuses: { organization: { id: organizationId } },
-            },
-        })
-    }, [organizationId, loadTicketCounts])
+        const ticketWhere = {
+            organization: { id: organizationId },
+            createdAt_gte: dayjs().startOf('day').toISOString(),
+            createdAt_lte: dayjs().endOf('day').toISOString(),
+        }
+        const ticketMonthWhere = {
+            ...ticketWhere,
+            createdAt_gte: dayjs().startOf('month'),
+            createdAt_lte: dayjs().endOf('month'),
+        }
 
-    if (loading || residentsLoading) {
-        return <Skeleton loading paragraph={{ rows: 3 }} />
-    }
+        loadTicketCounts({ variables: { where: ticketWhere, whereWithoutStatuses: ticketWhere } })
+        loadMonthTicketCounts({ variables: { where: ticketMonthWhere, whereWithoutStatuses: ticketMonthWhere } })
+    }, [organizationId, loadTicketCounts, loadMonthTicketCounts])
+
+    const loading = monthTicketLoading || ticketCountLoading || isNull(ticketCounts.current)
 
     return (
-        <Card title={<Typography.Title level={3}>Сводка сегодня</Typography.Title>} bodyPadding={12}>
-            <Row gutter={DASHBOARD_ROW_GUTTER}>
-                <Col span={24}>
-                    <Row align='top' justify='space-evenly'>
-                        <DataCard label={DoneLabel} value={completionPercent.current} />
-                        <DataCard label='Новые' value={ticketCounts.current.new_or_reopened.count} />
-                        <DataCard label={InWorkLabel} value={ticketCounts.current.processing.count} />
-                        <DataCard label='Закрытые' value={ticketCounts.current.closed.count} />
-                    </Row>
-                </Col>
-                <Col span={24}>
-                    <Row align='top' justify='space-evenly'>
-                        <DataCard label='Сбор' value='98%' />
-                        <DataCard label='Сумма оплат' value='300kk' />
-                        <DataCard label='Жителей в приложении' value={residentsCount} />
-                    </Row>
-                </Col>
-            </Row>
+        <Card title={<Typography.Title level={3}>Сводка сегодня</Typography.Title>}>
+            {loading || residentsLoading || paymentLoading ? (
+                <Skeleton loading paragraph={{ rows: 3 }} />
+            ) : (
+                <Row gutter={DASHBOARD_ROW_GUTTER}>
+                    <Col span={24}>
+                        <Row align='middle' justify='space-between'>
+                            <LayoutList />
+                            <DataCard label={DoneLabel} value={completionPercent.current} />
+                            <DataCard label='Новые' value={ticketCounts.current.new_or_reopened.count} />
+                            <DataCard label={InWorkLabel} value={ticketCounts.current.processing.count} />
+                            <DataCard label='Закрытые' value={ticketCounts.current.closed.count} />
+                        </Row>
+                    </Col>
+                    <Col span={24}>
+                        <Row align='middle' justify='space-between'>
+                            <Wallet />
+                            <DataCard
+                                label={PaymentsAmountPercent}
+                                value='98%'
+                            />
+                            <DataCard
+                                label={PaymentsAmount}
+                                value={intl.formatNumber(paymentSum, { style: 'currency', currency: 'Rub' })}
+                            />
+                            <DataCard
+                                label={ResidentsInApp}
+                                value={residentsCount}
+                            />
+                        </Row>
+                    </Col>
+                </Row>
+            )}
         </Card>
     )
 }
 
-const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = false, title, topValues = 0 }) => {
+const IncidentDashboard = ({ organizationId }) => {
+    const intl = useIntl()
+    const IncidentsTitle = intl.formatMessage({ id: 'pages.reports.incidentsTitle' })
+
+    const { push } = useRouter()
+
+    const { loading, count } = Incident.useCount({
+        where: { organization: { id: organizationId }, status: IncidentStatusType.Actual },
+    })
+
+    const onCardClick = useCallback(async () => {
+        await push('/incidents')
+    }, [push])
+
+    const incidentCardContent = useMemo(() => (
+        <Row style={{ minHeight: '158px' }}>
+            <Col span={24}>
+                <Result
+                    style={{ padding: '26px 32px' }}
+                    status={count > 0 ? 'error' : 'success'}
+                    title={<Typography.Text>
+                        {intl.formatMessage({ id: 'pages.reports.activeIncidents' }, { count })}
+                    </Typography.Text>}
+                />
+            </Col>
+        </Row>
+    ), [count, intl])
+
+    return (
+        <Card
+            title={<Typography.Title level={3}>{IncidentsTitle}</Typography.Title>}
+            onClick={onCardClick}
+            hoverable
+            bodyPadding={8}
+        >
+            {loading ? <Skeleton active paragraph={{ rows: 3 }} /> : incidentCardContent}
+        </Card>
+    )
+}
+
+const TicketQualityControlDashboard = ({ organizationId }) => {
+    const intl = useIntl()
+    const QualityControlTitle = intl.formatMessage({ id: 'ticket.qualityControl' })
+
+    const { count: goodCount, loading: goodLoading } = Ticket.useCount({
+        where: {
+            organization: { id: organizationId },
+            status: { type: TicketStatusTypeType.Completed },
+            qualityControlValue: TicketQualityControlValueType.Good,
+            AND: [
+                { createdAt_gte: dayjs().startOf('month').toISOString() },
+                { createdAt_lte: dayjs().endOf('month').toISOString() },
+            ],
+        },
+    })
+    const { count: badCount, loading: badLoading } = Ticket.useCount({
+        where: {
+            organization: { id: organizationId },
+            status: { type: TicketStatusTypeType.Completed },
+            qualityControlValue: TicketQualityControlValueType.Bad,
+            AND: [
+                { createdAt_gte: dayjs().startOf('month').toISOString() },
+                { createdAt_lte: dayjs().endOf('month').toISOString() },
+            ],
+        },
+    })
+
+    const ticketCardContent = useMemo(() => {
+        const option = {
+            series: [
+                {
+                    type: 'gauge',
+                    startAngle: 180,
+                    endAngle: 0,
+                    center: ['50%', '75%'],
+                    radius: '100%',
+                    min: 0,
+                    max: 1,
+                    splitNumber: 8,
+                    axisLine: {
+                        lineStyle: {
+                            width: 6,
+                            color: [
+                                [0.5, colors.red['5']],
+                                [1, colors.green['5']],
+                            ],
+                        },
+                    },
+                    pointer: {
+                        icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+                        length: '12%',
+                        width: 20,
+                        offsetCenter: [0, '-60%'],
+                        itemStyle: {
+                            color: '#222',
+                        },
+                    },
+                    axisTick: {
+                        length: 12,
+                        lineStyle: {
+                            color: 'inherit',
+                            width: 2,
+                        },
+                    },
+                    splitLine: { show: false },
+                    axisLabel: {
+                        show: false,
+                        color: '#222',
+                        fontSize: 20,
+                        distance: -60,
+                        rotate: 'tangential',
+                        formatter: function (value) {
+                            if (value === 0.875) {
+                                return 'Grade A'
+                            } else if (value === 0.625) {
+                                return 'Grade B'
+                            } else if (value === 0.375) {
+                                return 'Grade C'
+                            } else if (value === 0.125) {
+                                return 'Grade D'
+                            }
+                            return ''
+                        },
+                    },
+                    title: {
+                        offsetCenter: [0, '25%'],
+                        fontSize: 16,
+                    },
+                    detail: {
+                        fontSize: 28,
+                        valueAnimation: true,
+                        offsetCenter: [0, '-10%'],
+
+                        formatter: function (value) {
+                            return Math.round(value * 100) + ' %'
+                        },
+                        color: 'inherit',
+                    },
+                    data: [
+                        {
+                            value: goodCount / (badCount + goodCount),
+                            name: intl.formatMessage({ id: 'pages.reports.ticketFeedbackCount' }, { count: goodCount + badCount }),
+                        },
+                    ],
+                },
+            ],
+        }
+        return (
+            <Row style={{ height: '182px' }}>
+                <Col span={24}>
+                    <ReactECharts
+                        opts={{ renderer: 'svg' }}
+                        option={option}
+                        style={{ height: '100%', width: '100%' }}
+                    />
+                </Col>
+            </Row>
+        )
+    }, [goodCount, badCount, intl])
+
+    return (
+        <Card
+            title={<Typography.Title level={3}>{QualityControlTitle}</Typography.Title>}
+            bodyPadding={12}
+        >
+            {goodLoading || badLoading ? <Skeleton active paragraph={{ rows: 3 }} /> : ticketCardContent}
+        </Card>
+    )
+}
+
+const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = false, title, topValues = 0, sliceWords = false }) => {
 
     const mapperInstance = new TicketChart({
         bar: {
@@ -155,7 +360,7 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                 const valueData = { type: 'value', data: null }
                 const categoryData = { type: 'category', data: axisLabels, axisLabel: {
                     formatter: (val) => {
-                        return val.length > 12 ? val.slice(0, 12) + '\n' + val.slice(12, val.length) : val
+                        return val.length > 12 && sliceWords ? val.slice(0, 12) + '\n' + val.slice(12, val.length) : val
                     },
                 } }
 
@@ -264,7 +469,8 @@ const PaymentChartContainer = ({ data, title }) => {
 export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId }) => {
     const intl = useIntl()
     const NewTicketsTitle = intl.formatMessage({ id: 'pages.reports.newTicketsTitle' })
-    const TicketsByPropertyTitle = intl.formatMessage({ id: 'pages.reports.ticketsByProperty' })
+    const TicketsByPropertyTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })
+    const TicketsByCategory = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
     const PaymentsTotalTitle = intl.formatMessage({ id: 'pages.reports.paymentsTotal' })
 
     const [overview, setOverview] = useState(null)
@@ -313,15 +519,23 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
         .filter(e => e.status === get(overview, 'ticketByDay.translates.status', [])
             .find(e => e.type === TicketStatusTypeType.NewOrReopened).label)
     const paymentsData = get(overview, 'payment.aggregatedPayments')
+    const paymentSum = get(overview, 'payment.sum', null)
+    console.log(overview)
 
     return (
         <Row gutter={DASHBOARD_ROW_GUTTER}>
             <Col lg={12} md={24}>
-                <PerformanceCard organizationId={organizationId} />
+                <PerformanceCard organizationId={organizationId} paymentSum={paymentSum} paymentLoading={false} />
+            </Col>
+            <Col lg={6} md={24}>
+                <IncidentDashboard organizationId={organizationId} />
+            </Col>
+            <Col lg={6} md={24}>
+                <TicketQualityControlDashboard organizationId={organizationId} />
             </Col>
             <Col span={24}>
                 <Space direction='horizontal' size={16}>
-                    <DateRangePicker value={dateRange} onChange={setDateRange} />
+                    <DateRangePicker value={dateRange} onChange={setDateRange} allowClear={false} />
                     <Select
                         value={aggregatePeriod}
                         onChange={onAggregatePeriodChange}
@@ -334,32 +548,30 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
             ) : (
                 <Col span={24}>
                     <Row gutter={DASHBOARD_ROW_GUTTER}>
-                        <Col span={12}>
+                        <Col lg={12} md={24}>
                             <TicketChartContainer
                                 title={NewTicketsTitle}
                                 data={newTickets}
                                 groupBy={[TicketAnalyticsGroupBy.Status, TicketAnalyticsGroupBy.Day]}
                             />
                         </Col>
-                        <Col span={12}>
+                        <Col lg={12} md={24}>
                             <TicketChartContainer
-                                title='Заявки по категориям'
+                                title={TicketsByCategory}
                                 data={categoryTickets}
                                 groupBy={[TicketAnalyticsGroupBy.Status, TicketAnalyticsGroupBy.CategoryClassifier]}
                                 isStacked
                                 topValues={5}
+                                sliceWords
                             />
                         </Col>
-                        <Col span={12}>
+                        <Col lg={12} md={24}>
                             <PaymentChartContainer
                                 title={PaymentsTotalTitle}
                                 data={paymentsData}
                             />
                         </Col>
-                        <Col span={12}>
-                            tut sbor
-                        </Col>
-                        <Col span={12}>
+                        <Col lg={12} md={24}>
                             <TicketChartContainer
                                 title={TicketsByPropertyTitle}
                                 data={propertyTickets}
