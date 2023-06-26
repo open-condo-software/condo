@@ -197,14 +197,14 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
         })
     }, [getCounters, organization.id, processedNewsItemScope])
 
-    const [newsRecipientsMutation] = useMutation(EXPORT_NEWS_RECIPIENTS_MUTATION)
+    const [exportNewsRecipientsMutation] = useMutation(EXPORT_NEWS_RECIPIENTS_MUTATION)
     const runExportNewsRecipients = useCallback(() => {
         const sender = getClientSideSenderInfo()
         const meta = { dv: 1, sender }
         setIsXlsLoading(true)
 
         return runMutation({
-            mutation: newsRecipientsMutation,
+            mutation: exportNewsRecipientsMutation,
             variables: {
                 data: {
                     newsItemScopes: processedNewsItemScope,
@@ -217,7 +217,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
             .then(() => {
                 setIsXlsLoading(false)
             })
-    }, [newsRecipientsMutation, processedNewsItemScope, organization.id, intl, push])
+    }, [exportNewsRecipientsMutation, processedNewsItemScope, organization.id, intl, push])
 
     if (isCountersLoading || !counters) {
         return null
