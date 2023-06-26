@@ -72,7 +72,11 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         if (isFunction(onChange)) {
             onChange(data)
         }
-    }, [allDataLength, selectProps])
+
+        if (selectedDataLength === allDataLength && isFunction(onCheckBoxChange)) {
+            onCheckBoxChange(true)
+        }
+    }, [allDataLength, onCheckBoxChange, selectProps])
 
     const formItemName = String(selectFormItemProps.name)
     useEffect(() => {
