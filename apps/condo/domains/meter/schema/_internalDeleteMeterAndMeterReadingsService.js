@@ -31,7 +31,7 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
         },
         {
             access: true,
-            type: 'type _internalDeleteMeterAndMeterReadingsOutput { status: Status }',
+            type: 'type _internalDeleteMeterAndMeterReadingsOutput { status: Status! }',
         },
     ],
     
