@@ -22,50 +22,45 @@ async function canReadBankAccounts ({ authentication: { item: user } }) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    const conditions = {
-        OR: [],
-    }
-
     if (user.type === STAFF) {
-        conditions.OR.push({
-            organization: queryOrganizationEmployeeFor(user.id),
-        })
-        conditions.OR.push({
-            organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-        })
-    }
-
-    if (user.type === SERVICE) {
-        conditions.OR.push({
-            integrationContext: {
-                deletedAt: null,
-                integration: {
-                    deletedAt: null,
-                    accessRights_some: {
-                        user: { id: user.id },
+        return {
+            OR: [
+                { organization: queryOrganizationEmployeeFor(user.id) },
+                { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
+            ],
+        }
+    } else if (user.type === SERVICE) {
+        return {
+            OR: [
+                {
+                    integrationContext: {
                         deletedAt: null,
+                        integration: {
+                            deletedAt: null,
+                            accessRights_some: {
+                                user: { id: user.id },
+                                deletedAt: null,
+                            },
+                        },
                     },
                 },
-            },
-        })
-        conditions.OR.push({
-            integrationContext_is_null: true,
-        })
-    }
-
-    if (user.type === RESIDENT) {
+                { integrationContext_is_null: true },
+            ],
+        }
+    } else if (user.type === RESIDENT) {
         const residents = await find('Resident', { user: { id: user.id } })
         if (residents.length > 0) {
             const propertyIds = uniq(map(residents, 'property'))
-            conditions.OR.push({
+            return {
                 property: {
                     id_in: propertyIds,
                 },
-            })
+            }
         }
+        return false
     }
 
-    return conditions
+    return false
 }
 
 /**
