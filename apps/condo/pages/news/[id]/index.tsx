@@ -74,6 +74,7 @@ const NewsItemCard: React.FC = () => {
     const ResendTitle = intl.formatMessage({ id: 'pages.news.newsItemCard.resendButton' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'news.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'news.ConfirmDeleteMessage' })
+    const CancelMessage = intl.formatMessage({ id: 'news.CancelMessage' })
 
     const { user } = useAuth()
     const { query, push } = useRouter()
@@ -211,6 +212,9 @@ const NewsItemCard: React.FC = () => {
                                 okButtonLabel={DeleteTitle}
                                 action={handleDeleteButtonClick}
                                 buttonContent={DeleteTitle}
+                                showCancelButton={true}
+                                cancelMessage={CancelMessage}
+                                messageType='secondary'
                             />,
                         ]}/>)
                         }

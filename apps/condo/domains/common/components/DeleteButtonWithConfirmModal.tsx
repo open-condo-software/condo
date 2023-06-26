@@ -1,9 +1,8 @@
-import { Typography } from 'antd'
 import React, { useState } from 'react'
 
 import { Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, ButtonProps, Modal } from '@open-condo/ui'
+import { Button, ButtonProps, Modal, Typography, TypographyTextProps } from '@open-condo/ui'
 
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 
@@ -16,6 +15,8 @@ export interface IDeleteActionButtonWithConfirmModal {
     action: () => Promise<any>
     showCancelButton?: boolean
     showButtonIcon?: boolean
+    cancelMessage?: string
+    messageType?: TypographyTextProps['type']
 }
 
 /**
@@ -31,9 +32,11 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
     action,
     showCancelButton,
     showButtonIcon = false,
+    cancelMessage,
+    messageType = 'primary',
 }) => {
     const intl = useIntl()
-    const CancelMessage = intl.formatMessage({ id: 'Cancel' })
+    const CancelMessage = cancelMessage || intl.formatMessage({ id: 'Cancel' })
 
     const [isConfirmVisible, setIsConfirmVisible] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
@@ -92,7 +95,7 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
                     ),
                 ]}
             >
-                <Typography.Text>
+                <Typography.Text type={messageType}>
                     {message}
                 </Typography.Text>
             </Modal>
