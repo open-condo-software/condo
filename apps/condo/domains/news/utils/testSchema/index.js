@@ -169,7 +169,7 @@ async function exportNewsRecipientsByTestClient(client, organization, extraAttrs
     const attrs = {
         dv: 1,
         sender,
-        organizationId: organization.id,
+        organization: { id: organization.id },
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(EXPORT_NEWS_RECIPIENTS_MUTATION, { data: attrs })
