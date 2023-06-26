@@ -86,7 +86,7 @@ async function sendNotifications (context, newsItem) {
                     url: `${conf.SERVER_URL}/newsItem`,
                     validBefore: get(newsItem, 'validBefore', null),
                     // The first truthy value will be returned, or null if no values are found.
-                    dateCreated: ['sendAt', 'updatedAt', 'createdAt'].reduce((result, field) => (result || get(newsItem, field)), null),
+                    dateCreated: ['sendAt', 'publishedAt', 'updatedAt', 'createdAt'].reduce((result, field) => (result || get(newsItem, field)), null),
                 },
             },
             uniqKey: generateUniqueMessageKey(resident.user.id, newsItem.id),
@@ -141,9 +141,9 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
             const actualNewsItem = await NewsItem.getOne(context, { id: newsItemId })
             // Checking if the timeout was expired to send the news item
             const now = dayjs().unix()
-            if (now - dayjs(actualNewsItem.updatedAt).unix() < SENDING_DELAY_SEC) {
+            if (now - dayjs(actualNewsItem.publishedAt).unix() < SENDING_DELAY_SEC) {
                 logger.warn({
-                    message: 'NewsItem was updated before sending timeout passed. Do nothing',
+                    message: 'NewsItem was re-published before sending timeout passed. Do nothing',
                     actualNewsItem,
                     SENDING_DELAY_SEC,
                     now,
