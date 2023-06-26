@@ -1001,6 +1001,8 @@
   "pages.banking.report.sbbolSyncModalHint.title": "What will happen to previously uploaded transactions?",
   "pages.banking.report.sbbolSyncModalHint.description": "They will remain untouched. There will be no duplicates",
   "pages.news.newsItemCard.title": "News №{number}",
+  "pages.news.newsItemCard.type.common": "Common",
+  "pages.news.newsItemCard.type.emergency": "Еmergency",
   "pages.news.newsItemCard.field.sentAt": "Sent date",
   "pages.news.newsItemCard.field.type": "Type",
   "pages.news.newsItemCard.field.validBefore": "Actual until",
