@@ -59,8 +59,9 @@ const ButtonWithCountdown = ({ notificationKey, action, intl, initialCountdown }
     useEffect(() => {
         if (countdown <= 0 && interval) {
             clearInterval(interval)
+            notification.close(notificationKey)
         }
-    }, [countdown, interval])
+    }, [countdown, interval, notificationKey])
 
     return (
         <Button
