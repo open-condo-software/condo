@@ -36,12 +36,13 @@ async function canReadNewsItems ({ authentication: { item: user } }) {
             AND: [
                 { scopes_some: scopesCondition },
                 {
+                    // TODO(AleX83Xpert) Think about removing dynamic conditions from here to make the index works
                     OR: [
                         // We should show delayed news items on time
                         { AND: [{ sendAt_not: null }, { sendAt_lte: dayjs().toISOString() }] },
 
                         // We should show not delayed news items that have expired publication delay
-                        { AND: [{ sendAt: null }, { updatedAt_lte: dayjs().subtract(SENDING_DELAY_SEC, 'second').toISOString() }] },
+                        { AND: [{ sendAt: null }, { publishedAt_lte: dayjs().subtract(SENDING_DELAY_SEC, 'second').toISOString() }] },
                     ],
                 },
             ],
