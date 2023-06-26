@@ -71,27 +71,31 @@ export const TicketCallRecordHistory: React.FC<ITicketCallRecordHistoryProps> = 
                 <Col span={24}>
                     <Typography.Title level={3}>{TicketCallRecordHistoryTitle}</Typography.Title>
                 </Col>
-                <Col span={24}>
-                    <Alert
-                        type='info'
-                        message={
-                            <Typography.Title level={4}>{AttachCallToTicketMessage}</Typography.Title>
-                        }
-                        showIcon
-                        description={
-                            <div style={ALERT_DESCRIPTION_WRAPPER_STYLE}>
-                                <Button
-                                    id='TicketIndexAttachCallRecord'
-                                    icon={<Link size='medium'/>}
-                                    type='primary'
-                                    onClick={handleAttachCallRecordClick}
-                                >
-                                    {AttachMessage}
-                                </Button>
-                            </div>
-                        }
-                    />
-                </Col>
+                {
+                    showAttachCallToTicketAlert && (
+                        <Col span={24}>
+                            <Alert
+                                type='info'
+                                message={
+                                    <Typography.Title level={4}>{AttachCallToTicketMessage}</Typography.Title>
+                                }
+                                showIcon
+                                description={
+                                    <div style={ALERT_DESCRIPTION_WRAPPER_STYLE}>
+                                        <Button
+                                            id='TicketIndexAttachCallRecord'
+                                            icon={<Link size='medium'/>}
+                                            type='primary'
+                                            onClick={handleAttachCallRecordClick}
+                                        >
+                                            {AttachMessage}
+                                        </Button>
+                                    </div>
+                                }
+                            />
+                        </Col>
+                    )
+                }
                 {
                     ticketCalls.length > 0 && (
                         <Col span={24}>

@@ -15,8 +15,8 @@ const {
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationAccessRight, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, makeClientWithIntegrationAccess, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
+const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { SERVICE_PROVIDER_PROFILE_FEATURE } = require('@condo/domains/organization/constants/features')
 const { registerNewOrganization, createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
@@ -354,10 +354,11 @@ describe('Organization', () => {
             it('throw error when phone has invalid format', async () => {
                 const admin = await makeLoggedInAdminClient()
 
-            await expectToThrowGQLError(
-                async () => await createTestOrganization(admin, { phone: '42' }),
-                { ...COMMON_ERRORS.WRONG_PHONE_FORMAT, variable: ['data', 'phone'] }
-            )
+                await expectToThrowGQLError(
+                    async () => await createTestOrganization(admin, { phone: '42' }),
+                    { ...COMMON_ERRORS.WRONG_PHONE_FORMAT, variable: ['data', 'phone'] }
+                )
+            })
         })
     })
 })
