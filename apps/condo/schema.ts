@@ -20764,7 +20764,7 @@ export type GetExternalReportIframeUrlOutput = {
 export type GetNewsItemsRecipientsCountersInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
-  organizationId: Scalars['ID'];
+  organizationId: OrganizationWhereUniqueInput;
   newsItemScopes: Array<NewsItemScopeWhereInput>;
 };
 

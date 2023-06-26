@@ -48,7 +48,7 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
     types: [
         {
             access: true,
-            type: 'input ExportNewsRecipientsInput { dv: Int!, sender: JSON!, organizationId: ID!, newsItemScopes: [NewsItemScopeWhereInput] }',
+            type: 'input ExportNewsRecipientsInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput!, newsItemScopes: [NewsItemScopeWhereInput] }',
         },
         {
             access: true,
@@ -61,7 +61,7 @@ const ExportNewsRecipientsService = new GQLCustomSchema('ExportNewsRecipientsSer
             access: access.canExportNewsRecipients,
             schema: 'exportNewsRecipients(data: ExportNewsRecipientsInput!): ExportNewsRecipientsOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { newsItemScopes, organizationId } } = args
+                const { data: { newsItemScopes, organization: { id: organizationId } } } = args
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
                 const { unitsData } = await getUnitsData(context, organizationId, newsItemScopes)

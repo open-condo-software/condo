@@ -180,7 +180,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
             variables: {
                 data: {
                     newsItemScopes: processedNewsItemScope,
-                    organizationId: organization.id,
+                    organization: { id: organization.id },
                     ...meta,
                 },
             },
@@ -192,7 +192,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
         }).then((res) => {
             setCounters(res.data.result)
         })
-    }, [getCountersMutation, intl, newsItemScopes, organization.id])
+    }, [getCountersMutation, intl, newsItemScopes, organization.id, processedNewsItemScope])
 
     const [newsRecipientsMutation] = useMutation(EXPORT_NEWS_RECIPIENTS_MUTATION)
     const runExportNewsRecipients = useCallback(() => {
@@ -205,7 +205,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
             variables: {
                 data: {
                     newsItemScopes: processedNewsItemScope,
-                    organizationId: organization.id,
+                    organization: { id: organization.id },
                     ...meta,
                 },
             },

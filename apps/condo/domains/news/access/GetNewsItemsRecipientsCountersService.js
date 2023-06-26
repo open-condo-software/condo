@@ -5,7 +5,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canGetNewsItemsRecipientsCounters ({ authentication: { item: user }, args: { data: { organizationId } } }) {
+async function canGetNewsItemsRecipientsCounters ({ authentication: { item: user }, args: { data: { organization: { id: organizationId } } } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true

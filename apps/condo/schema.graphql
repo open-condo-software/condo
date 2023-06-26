@@ -63024,7 +63024,7 @@ type ExportNewsRecipientsOutput {
 input GetNewsItemsRecipientsCountersInput {
   dv: Int!
   sender: JSON!
-  organizationId: ID!
+  organizationId: OrganizationWhereUniqueInput!
   newsItemScopes: [NewsItemScopeWhereInput!]!
 }
 

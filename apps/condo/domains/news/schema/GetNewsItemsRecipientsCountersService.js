@@ -10,7 +10,7 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
     types: [
         {
             access: true,
-            type: 'input GetNewsItemsRecipientsCountersInput { dv: Int!, sender: JSON!, organizationId: ID!, newsItemScopes: [NewsItemScopeWhereInput!]! }',
+            type: 'input GetNewsItemsRecipientsCountersInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput!, newsItemScopes: [NewsItemScopeWhereInput!]! }',
         },
         {
             access: true,
@@ -23,7 +23,7 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
             access: access.canGetNewsItemsRecipientsCounters,
             schema: 'getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { newsItemScopes, organizationId } } = args
+                const { data: { newsItemScopes, organization: { id: organizationId } } } = args
                 const { propertiesCount, unitsData } = await getUnitsData(context, organizationId, newsItemScopes)
 
                 const unitsCount = unitsData.length
