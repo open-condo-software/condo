@@ -109,7 +109,7 @@ const NewsItemCard: React.FC = () => {
 
     // NOTE: load only 1 property because if there are more, the map information is not needed
     const { loading: propertyLoading, obj: property } = Property.useObject({
-        where: { id: get(newsItemScopes[0], ['property', 'id'], null) },
+        where: { id: get(newsItemScopes, [0, 'property', 'id'], null) },
     })
 
     const newsItemScopesNoInstance: TNewsItemScopeNoInstance[] = useMemo(() => {
