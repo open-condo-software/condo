@@ -845,9 +845,9 @@ describe('NewsItems', () => {
                 }),
                 {
                     code: 'BAD_USER_INPUT',
-                    type: 'PROFANITY_DETECTED_MOT_ERF_KER',
-                    message: 'Profanity detected',
-                    messageForUser: 'api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER',
+                    type: 'PROFANITY_TITLE_DETECTED_MOT_ERF_KER',
+                    message: 'Profanity in title detected',
+                    messageForUser: 'api.newsItem.PROFANITY_TITLE_DETECTED_MOT_ERF_KER',
                     badWords: expect.any(String),
                 },
             )
@@ -860,9 +860,9 @@ describe('NewsItems', () => {
                 }),
                 {
                     code: 'BAD_USER_INPUT',
-                    type: 'PROFANITY_DETECTED_MOT_ERF_KER',
-                    message: 'Profanity detected',
-                    messageForUser: 'api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER',
+                    type: 'PROFANITY_BODY_DETECTED_MOT_ERF_KER',
+                    message: 'Profanity in body detected',
+                    messageForUser: 'api.newsItem.PROFANITY_BODY_DETECTED_MOT_ERF_KER',
                     badWords: expect.any(String),
                 },
             )
