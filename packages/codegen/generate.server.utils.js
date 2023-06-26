@@ -234,12 +234,12 @@ function generateServerUtils (gql) {
         })
     }
 
-    async function updateMany (context, data, extraAttrs = {}, options = {}) {
+    async function updateMany (context, data, chunkSize, extraAttrs = {}, options = {}) {
         if (!context) throw new Error('no context')
         if (!data) throw new Error('no data')
         _checkOptions(options)
 
-        const chunks = splitArray(data, MAX_CHUNK_SIZE_FOR_UPDATE)
+        const chunks = splitArray(data, chunkSize || MAX_CHUNK_SIZE_FOR_UPDATE)
         let result = []
 
         for (const chunk of chunks) {
