@@ -88,7 +88,7 @@ export const detectTargetedSections = (newsItemScopes: NewsItemScope[], property
 const areTargetedToOneProperty = (newsItemScopes): boolean => uniq(map(newsItemScopes, ['property', 'id'])).length === 1
 
 const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
-    if (newsItemScopes.length === 0) {
+    if (newsItemScopes.length === 1 && get(newsItemScopes[0], 'property') === null) {
         return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInAllProperties' })
     } else if (newsItemScopes.length === 1 && isTargetedToEntireProperty(newsItemScopes[0])) {
         return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperty' }, {
