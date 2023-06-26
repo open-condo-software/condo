@@ -225,7 +225,7 @@
   "accrualsAndPayments.setup.title": "Accruals and payments setup",
   "accrualsAndPayments.setup.chooseBillingStep.title": "Selecting a billing",
   "accrualsAndPayments.setup.setupBillingStep.title": "Integration setup",
-  "accrualsAndPayments.setup.setupAcquiringStep.title": "Signing the offer",
+  "accrualsAndPayments.setup.setupAcquiringStep.title": "Acceptance of the offer",
   "accrualsAndPayments.setup.noReturn": "At this point it is impossible to go back to this step",
   "accrualsAndPayments.setup.verificationNeeded.title": "Authorize via SberBusiness ID",
   "accrualsAndPayments.setup.verificationNeeded.message.certs": "To complete the integration setup, authorize via Sber. Authorization will only work with security certificates installed. Learn more about them {link}.",

@@ -225,7 +225,7 @@
   "accrualsAndPayments.setup.title": "Настройка начислений и оплат",
   "accrualsAndPayments.setup.chooseBillingStep.title": "Выбор биллинга",
   "accrualsAndPayments.setup.setupBillingStep.title": "Настройка интеграции",
-  "accrualsAndPayments.setup.setupAcquiringStep.title": "Подписание офферты",
+  "accrualsAndPayments.setup.setupAcquiringStep.title": "Акцепт оферты",
   "accrualsAndPayments.setup.noReturn": "На данном этапе вернуться к этому шагу невозможно",
   "accrualsAndPayments.setup.verificationNeeded.title": "Авторизуйтесь через СберБизнес ID",
   "accrualsAndPayments.setup.verificationNeeded.message.certs": "Чтобы завершить настройку интеграции, авторизуйтесь через Сбер. Авторизация будет работать только с установленными сертификатами безопасности. Узнать подробнее о них можно {link}.",
