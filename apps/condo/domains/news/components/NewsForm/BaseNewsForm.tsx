@@ -167,7 +167,9 @@ const getBodyTemplateChanged = (form) => {
 }
 
 const isDateDisabled = date => {
-    return date.startOf('day').isBefore(dayjs().startOf('day'))
+    const isDateInPast = date.startOf('day').isBefore(dayjs().startOf('day'))
+    const isDateInFutureAfterOneYear = date.startOf('day').isAfter(dayjs().add(1, 'year').startOf('day'))
+    return isDateInPast || isDateInFutureAfterOneYear
 }
 const isTimeDisabled = date => {
     // NOTE: doesnt guarantee that user can not select time that has already come, he can select the current time and wait until the ADDITIONAL_DISABLED_MINUTES_COUNT has passed
