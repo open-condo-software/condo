@@ -1,11 +1,12 @@
 /** @jsx jsx */
+import { MeterReportingPeriod as MeterReportingPeriodType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Col, Form, Row } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -14,6 +15,7 @@ import { ActionBar, Select } from '@open-condo/ui'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -44,27 +46,41 @@ const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.
 
 const ADDRESS_SEARCH_WRAPPER_COL = { span: 14 }
 
-export const CreateMeterReportingPeriodForm: React.FC = () => {
+interface IMeterReportingPeriodForm {
+    mode: 'create' | 'update',
+    action: (data: any) => Promise<MeterReportingPeriodType> | Promise<void>,
+    reportingPeriodRecord?: MeterReportingPeriodType,
+}
+
+export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ mode, reportingPeriodRecord, action }) => {
     const intl = useIntl()
 
-    const AddressPlaceholderMessage = intl.formatMessage({ id: 'placeholder.Address' })
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const OrMessage = intl.formatMessage({ id: 'Or' })
+    const DeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
+    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
+    const SubmitButtonLabel = intl.formatMessage({ id: 'ApplyChanges' })
+    const AddressPlaceholderMessage = intl.formatMessage({ id: 'placeholder.Address' })
+    const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const StartLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.start' })
     const FinishLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.finish' })
+    const IncorrectPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.IncorrectPeriod' })
     const OrganizationLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.organizationPeriod' })
-    const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
-    const SubmitButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.EmptyList.create' })
-    const IncorrectPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.incorrectPeriod' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.update.ConfirmDeleteTitle' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.update.ConfirmDeleteMessage' })
 
     const { organization } = useOrganization()
     const router = useRouter()
-    const [selectedPropertyId, setSelectedPropertyId] = useState(null)
+    const [selectedPropertyId, setSelectedPropertyId] = useState()
+    const selectedPropertyIdRef = useRef(selectedPropertyId)
+    useEffect(() => {
+        selectedPropertyIdRef.current = selectedPropertyId
+    }, [selectedPropertyId])
     const [isOrganizationPeriod, setIsOrganizationPeriod] = useState(false)
     const [startNumber, setStartNumber] = useState<number>()
     const [finishNumber, setFinishNumber] = useState<number>()
     const [incorrectPeriodError, setIncorrectPeriodError] = useState(false)
 
+    const isCreateMode = mode === 'create'
     const organizationId = get(organization, 'id', null)
 
     const { requiredValidator } = useValidations()
@@ -92,14 +108,12 @@ export const CreateMeterReportingPeriodForm: React.FC = () => {
     const handleStartChange = useCallback((value) => {
         handleDayChange()
         setStartNumber(value)
-    }, [startNumber])
+    }, [startNumber, handleDayChange])
 
     const handleFinishChange = useCallback((value) => {
         handleDayChange()
         setFinishNumber(value)
-    }, [finishNumber])
-
-    const action = MeterReportingPeriod.useCreate({}, () => router.push('/meter'))
+    }, [finishNumber, handleDayChange])
 
     const {
         loading: isPeriodsLoading,
@@ -110,13 +124,33 @@ export const CreateMeterReportingPeriodForm: React.FC = () => {
             property_is_null: false,
             organization: { id: organizationId },
         },
+    },
+    {
+        fetchPolicy: 'network-only',
     })
 
     const search = useMemo(() => searchOrganizationPropertyWithoutPropertyHint(organizationId, reportingPeriods.map(period => period.property.id)),
         [organization, isPeriodsLoading])
 
-    const handelGQLInputChange = useCallback( (form) => {
+    const handelGQLInputChange = (form) => {
         setSelectedPropertyId(form.getFieldValue('property'))
+    }
+
+    const deleteAction = MeterReportingPeriod.useSoftDelete()
+    const handleDeleteButtonClick = useCallback(async () => {
+        await deleteAction(reportingPeriodRecord)
+        await router.push('/meter')
+    }, [deleteAction, reportingPeriodRecord])
+
+    const formInitialValues = useMemo(() => ({
+        start: get(reportingPeriodRecord, 'start'),
+        finish: get(reportingPeriodRecord, 'finish'),
+        property: get(reportingPeriodRecord, 'property.address'),
+        isOrganizationPeriod: get(reportingPeriodRecord, 'property') === null && get(reportingPeriodRecord, 'organization'),
+    }), [reportingPeriodRecord])
+
+    useEffect(() => {
+        if (!isCreateMode) setSelectedPropertyId(get(reportingPeriodRecord, 'property.id'))
     }, [])
 
     return (
@@ -125,16 +159,23 @@ export const CreateMeterReportingPeriodForm: React.FC = () => {
             layout='horizontal'
             validateTrigger={['onBlur', 'onSubmit']}
             colon={false}
+            initialValues={isCreateMode ? undefined : formInitialValues}
             formValuesToMutationDataPreprocessor={(values) => {
                 if (values.isOrganizationPeriod) {
                     values.property = undefined
                 } else {
-                    values.property = { connect: { id: selectedPropertyId } }
+                    values.property = { connect: { id: selectedPropertyIdRef.current } }
                 }
                 values.isOrganizationPeriod = undefined
                 values.start = parseInt(values.start)
                 values.finish = parseInt(values.finish)
-                values.organization = { connect: { id: organizationId } }
+
+                if (isCreateMode) {
+                    values.organization = { connect: { id: organizationId } }
+                } else {
+                    values.organization = undefined
+                }
+
                 return values
             }}
         >
@@ -160,6 +201,7 @@ export const CreateMeterReportingPeriodForm: React.FC = () => {
                                                     showArrow={false}
                                                     disabled={isOrganizationPeriod}
                                                     onChange={() => handelGQLInputChange(form)}
+                                                    initialValue={isCreateMode ? undefined : selectedPropertyId}
                                                     search={search}
                                                     searchMoreFirst={300}
                                                 />
@@ -232,6 +274,14 @@ export const CreateMeterReportingPeriodForm: React.FC = () => {
                                                                 >
                                                                     {SubmitButtonLabel}
                                                                 </ButtonWithDisabledTooltip>,
+                                                                isCreateMode ? <></> : <DeleteButtonWithConfirmModal
+                                                                    key='delete'
+                                                                    title={ConfirmDeleteTitle}
+                                                                    message={ConfirmDeleteMessage}
+                                                                    okButtonLabel={DeleteButtonLabel}
+                                                                    action={handleDeleteButtonClick}
+                                                                    buttonContent={DeleteButtonLabel}
+                                                                />,
                                                             ]}
                                                         />
                                                     )

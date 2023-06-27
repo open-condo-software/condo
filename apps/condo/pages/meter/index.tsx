@@ -1,6 +1,5 @@
 /** @jsx jsx */
 import { SortMeterReadingsBy } from '@app/condo/schema'
-import { ButtonWithDisabledTooltip } from "@condo/domains/common/components/ButtonWithDisabledTooltip";
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps, Tabs, Typography } from 'antd'
 import get from 'lodash/get'

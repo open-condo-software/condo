@@ -360,7 +360,6 @@ export const getMeterReportingPeriodRender = (search: FilterValue) => {
     return function render (periodRecord: MeterReportingPeriod) {
         const start = get(periodRecord, 'start')
         const finish = get(periodRecord, 'finish')
-        console.log('periodRecord', periodRecord)
         return getTableCellRenderer({ search })(`${start} - ${finish}`)
     }
 }

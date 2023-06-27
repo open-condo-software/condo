@@ -1,10 +1,12 @@
 import { Col, Row, RowProps, Typography } from 'antd'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import React from 'React'
 import { useIntl } from 'react-intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { CreateMeterReportingPeriodForm } from '@condo/domains/meter/components/CreateMeterReportingPeriodForm'
+import { MeterReportingPeriodForm } from '@condo/domains/meter/components/MeterReportingPeriodForm'
+import { MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
 
 const CREATE_REPORTING_PERIOD_PAGE_GUTTER: RowProps['gutter'] = [0, 40]
 const TITLE_MARGIN = { marginBottom: '20px' }
@@ -13,6 +15,10 @@ const MeterReportingPeriodCreatePage = () => {
     const intl = useIntl()
     
     const PageTitle = intl.formatMessage({ id: 'meter.reportingPeriod.AddMeterReportingPeriod' })
+
+    const router = useRouter()
+    
+    const action = MeterReportingPeriod.useCreate({}, () => router.push('/meter'))
 
     return <>
         <Head>
@@ -27,7 +33,10 @@ const MeterReportingPeriodCreatePage = () => {
                         </Col>
                         <Col span={24}>
                             <Row gutter={CREATE_REPORTING_PERIOD_PAGE_GUTTER}>
-                                <CreateMeterReportingPeriodForm/>
+                                <MeterReportingPeriodForm
+                                    mode='create'
+                                    action={action}
+                                />
                             </Row>
                         </Col>
                     </Col>
