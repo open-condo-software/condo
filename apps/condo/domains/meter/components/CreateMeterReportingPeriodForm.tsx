@@ -14,13 +14,13 @@ import { ActionBar, Select } from '@open-condo/ui'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { DAY_SELECT_OPTIONS } from '@condo/domains/meter/constants/constants'
 import { MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
-import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
+import { searchOrganizationPropertyWithoutPropertyHint } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
 const INPUT_LAYOUT_PROPS = {
@@ -59,7 +59,6 @@ export const CreateMeterReportingPeriodForm: React.FC = () => {
 
     const { organization } = useOrganization()
     const router = useRouter()
-    const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const [selectedPropertyId, setSelectedPropertyId] = useState(null)
     const [isOrganizationPeriod, setIsOrganizationPeriod] = useState(false)
     const [startNumber, setStartNumber] = useState<number>()
@@ -72,7 +71,7 @@ export const CreateMeterReportingPeriodForm: React.FC = () => {
     const { addressValidator } = usePropertyValidations()
 
     const validations: { [key: string]: Rule[] } = {
-        property: [addressValidator(selectedPropertyId, isMatchSelectedProperty)],
+        property: [addressValidator(selectedPropertyId, true)],
         start: [requiredValidator],
         finish: [requiredValidator],
     }
@@ -101,6 +100,24 @@ export const CreateMeterReportingPeriodForm: React.FC = () => {
     }, [finishNumber])
 
     const action = MeterReportingPeriod.useCreate({}, () => router.push('/meter'))
+
+    const {
+        loading: isPeriodsLoading,
+        objs: reportingPeriods,
+        error: periodsLoadingError,
+    } = MeterReportingPeriod.useObjects({
+        where: {
+            property_is_null: false,
+            organization: { id: organizationId },
+        },
+    })
+
+    const search = useMemo(() => searchOrganizationPropertyWithoutPropertyHint(organizationId, reportingPeriods.map(period => period.property.id)),
+        [organization, isPeriodsLoading])
+
+    const handelGQLInputChange = useCallback( (form) => {
+        setSelectedPropertyId(form.getFieldValue('property'))
+    }, [])
 
     return (
         <FormWithAction
@@ -136,17 +153,17 @@ export const CreateMeterReportingPeriodForm: React.FC = () => {
                                             rules={validations.property}
                                             {...ADDRESS_LAYOUT_PROPS}
                                             wrapperCol={ADDRESS_SEARCH_WRAPPER_COL}>
-                                            <PropertyAddressSearchInput
-                                                organization={organization}
-                                                setIsMatchSelectedProperty={setIsMatchSelectedProperty}
-                                                onSelect={(_, option) => {
-                                                    setSelectedPropertyId(option.key)
-                                                }}
-                                                onChange={() => {
-                                                    setSelectedPropertyId(null)
-                                                }}
-                                                placeholder={AddressPlaceholderMessage}
-                                            />
+                                            {
+                                                !isPeriodsLoading &&
+                                                <GraphQlSearchInput
+                                                    label={AddressPlaceholderMessage}
+                                                    showArrow={false}
+                                                    disabled={isOrganizationPeriod}
+                                                    onChange={() => handelGQLInputChange(form)}
+                                                    search={search}
+                                                    searchMoreFirst={300}
+                                                />
+                                            }
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
