@@ -1001,6 +1001,8 @@
   "pages.banking.report.sbbolSyncModalHint.title": "Что будет с ранее загруженными транзакциями?",
   "pages.banking.report.sbbolSyncModalHint.description": "Они останутся нетронутыми. Дублей не будет.",
   "pages.news.newsItemCard.title": "Новость №{number}",
+  "pages.news.newsItemCard.type.common": "Плановое",
+  "pages.news.newsItemCard.type.emergency": "Аварийное",
   "pages.news.newsItemCard.field.sentAt": "Дата отправки",
   "pages.news.newsItemCard.field.type": "Тип",
   "pages.news.newsItemCard.field.validBefore": "Актуально до",

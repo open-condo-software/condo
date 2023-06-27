@@ -60,8 +60,8 @@ const FieldPairRow: React.FC<IFieldPairRowProps> = (props) => {
 
 const NewsItemCard: React.FC = () => {
     const intl = useIntl()
-    const Regular = intl.formatMessage({ id: 'Regular' })
-    const Emergency = intl.formatMessage({ id: 'Emergency' })
+    const Regular = intl.formatMessage({ id: 'pages.news.newsItemCard.type.common' })
+    const Emergency = intl.formatMessage({ id: 'pages.news.newsItemCard.type.emergency' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const NotFoundMsg = intl.formatMessage({ id: 'NotFound' })
     const SentAtLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.sentAt' })
