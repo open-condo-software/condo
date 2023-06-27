@@ -13,6 +13,10 @@ const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/ser
 const logger = getLogger('DiscoverServiceConsumersMutation')
 
 const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceConsumersService', {
+    schemaDoc: 'Mutation to create Service Consumers for all residents for address, unitType, unitName, and BillingAccounts for said address' +
+        'If a new Resident is created this mutation is called for specific Resident (optional field Resident is provided)' +
+        'If a new BillingAccount is created this mutation is called for specific BillingAccount (optional field BillingAccount is provided)',
+
     types: [
         {
             access: true,
@@ -31,6 +35,10 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { address, unitName, unitType, billingAccount, resident, dv, sender } = data
+
+                logger.info({  msg: 'Input arguments: address, unitName, unitType, billingAccount?, resident?', payload: {
+                    address, unitName, unitType, billingAccount, resident,
+                } })
 
                 const residents = await Resident.getAll(context,
                     resident ? { id: resident.id, deletedAt: null } : {
@@ -61,9 +69,12 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 const combinations = _.flatMap(residents, (resident) =>  billingAccounts.map((account) => [resident, account]))
                 const createdServiceConsumers = await Promise.all(combinations.map(([resident, account]) => ServiceConsumer.create(context, getPayload(account.number, resident))))
 
-                logger.info({ msg: `discoverServiceConsumersMutation: created ${createdServiceConsumers.length} service consumers` })
-                logger.info({ msg: `discoverServiceConsumersMutation: created service consumers for residentIds: ${residents.map(resident => resident.id).join(', ')}` })
-                logger.info({ msg: `discoverServiceConsumersMutation: created service consumers for billingAccountIds: ${billingAccounts.map(account => account.id).join(', ')}` })
+                logger.info({  msg: 'Created ServiceConsumers: ', payload: {
+                    created: createdServiceConsumers.length,
+                    residentsFound: residents.length,
+                    billingAccountsFound: billingAccounts.length,
+                } })
+
                 return { status: 'success', createdServiceConsumersTotal: createdServiceConsumers.length }
             },
         },
