@@ -106,7 +106,17 @@ class GqlWithKnexLoadList {
     }
 }
 
-// Simple way to load all models
+/**
+ * Simple way to load all models
+ * @param context
+ * @param list
+ * @param {Object} where
+ * @param {String[]} sortBy
+ * @param {Number} chunkSize
+ * @param {Number} limit
+ * @param {function(Array): Array} chunkProcessor A place to use or/and modify just loaded chunk
+ * @returns {Promise<*[]>}
+ */
 const loadListByChunks = async ({
     context,
     list,
@@ -114,6 +124,7 @@ const loadListByChunks = async ({
     sortBy = ['createdAt_ASC'],
     chunkSize = 100,
     limit = 100000,
+    chunkProcessor = (chunk) => chunk,
 }) => {
     if (chunkSize < 1 || limit < 1) throw new Error('Both chunkSize and limit should be > 0')
     if (chunkSize > 100) throw new Error('chunkSize is too large, max 100 allowed')
@@ -123,7 +134,7 @@ const loadListByChunks = async ({
     let all = []
     do {
         newchunk = await list.getAll(context, where, { sortBy, first: chunkSize, skip: skip })
-        all = all.concat(newchunk)
+        all = all.concat(chunkProcessor(newchunk) || [])
         skip += newchunk.length
     } while (--maxiterationsCount > 0 && newchunk.length)
     return all

@@ -24,13 +24,30 @@ const getUnitsFromSection = (section) => section.floors.flatMap(floor => floor.u
 })))
 
 async function getUnitsData (context, organizationId, newsItemScopes) {
-    const residents = await loadListByChunks({
+    /**
+     * @type {{ property: PropertyWhereUniqueInput, unitType: String, unitName: String }[]}
+     */
+    const residentsData = []
+    await loadListByChunks({
         context,
         list: Resident,
         chunkSize: 50,
         where: {
             ...queryFindResidentsByOrganizationAndScopes(organizationId, newsItemScopes),
             deletedAt: null,
+        },
+        /**
+         * @param {Resident[]} chunk
+         * @returns {Resident[]}
+         */
+        chunkProcessor: (chunk) => {
+            residentsData.push(...chunk.map((resident) => ({
+                property: { id: resident.property.id },
+                unitType: resident.unitType,
+                unitName: resident.unitName,
+            })))
+
+            return []
         },
     })
 
@@ -40,7 +57,7 @@ async function getUnitsData (context, organizationId, newsItemScopes) {
     const isAllOrganization = filter(newsItemScopes, { property: null, unitType: null, unitName: null }).length > 0
 
     if (isAllOrganization) {
-        const propertiesByOrganization = await loadListByChunks({
+        await loadListByChunks({
             context,
             list: Property,
             chunkSize: 50,
@@ -50,19 +67,26 @@ async function getUnitsData (context, organizationId, newsItemScopes) {
                 },
                 deletedAt: null,
             },
+            /**
+             * @param {Property[]} chunk
+             * @returns {Property[]}
+             */
+            chunkProcessor: (chunk) => {
+                propertiesCount += chunk.length
+                for (const property of chunk) {
+                    const units = getUnitsFromProperty(property)
+
+                    const recipientsData = units.map(({ unitName, unitType }) => ({
+                        address: property.address,
+                        unitName,
+                        hasResident: !!find(residentsData, { unitName, unitType, property: { id: property.id } }),
+                    }))
+                    recipientsByOrganization.push(...recipientsData)
+                }
+
+                return []
+            },
         })
-
-        propertiesCount += propertiesByOrganization.length
-        for (let property of propertiesByOrganization) {
-            const units = getUnitsFromProperty(property)
-
-            const recipientsData = units.map(({ unitName, unitType }) => ({
-                address: property.address,
-                unitName,
-                hasResident: !!find(residents, { unitName, unitType, property: { id: property.id } }),
-            }))
-            recipientsByOrganization.push(...recipientsData)
-        }
     } else {
         const compactedNewsItemScopes = compact(newsItemScopes)
         const propertiesIds = new Set()
@@ -80,7 +104,7 @@ async function getUnitsData (context, organizationId, newsItemScopes) {
                 const unitsFilter = pickBy(pick(newsItemScope, ['unitName', 'unitType']), identity)
 
                 const filteredUnits = filter(units, unitsFilter)
-                const filteredResidents = filter(residents, unitsFilter)
+                const filteredResidents = filter(residentsData, unitsFilter)
                 const recipientsData = filteredUnits.map(({ unitName, unitType }) => ({
                     address: property.address,
                     unitName,
