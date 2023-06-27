@@ -2,10 +2,12 @@
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps } from 'antd'
 import dayjs from 'dayjs'
+import every from 'lodash/every'
 import get from 'lodash/get'
+import has from 'lodash/has'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 
 import { useAuth } from '@open-condo/next/auth'
@@ -23,10 +25,12 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
+import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 
 
@@ -102,6 +106,31 @@ const NewsItemCard: React.FC = () => {
             newsItem: { id: newsItemId },
         },
     })
+
+    // NOTE: load only 1 property because if there are more, the map information is not needed
+    const { loading: propertyLoading, obj: property } = Property.useObject({
+        where: { id: get(newsItemScopes, [0, 'property', 'id'], null) },
+    })
+
+    const newsItemScopesNoInstance: TNewsItemScopeNoInstance[] = useMemo(() => {
+        const isAllScopesHaveSameProperty = every(newsItemScopes, newsItemScope => {
+            return has(newsItemScope, ['property', 'id']) && newsItemScope.property.id === newsItemScopes[0].property.id
+        })
+
+        if (isAllScopesHaveSameProperty) {
+            return newsItemScopes.map(newsItemScope => {
+                return {
+                    property: property,
+                    unitName: newsItemScope.unitName,
+                    unitType: newsItemScope.unitType,
+                }
+            })
+        } else {
+            return newsItemScopes.map(newsItemScope => {
+                return { property: newsItemScope.property }
+            })
+        }
+    }, [newsItemScopes, property])
 
     const typesNamesMapping = {
         [NEWS_TYPE_COMMON]: Regular,
@@ -185,7 +214,7 @@ const NewsItemCard: React.FC = () => {
                         </FrontLayerContainer>
                     </Col>
                     <Col span={8}>
-                        <RecipientCounter newsItemScopes={newsItemScopes}/>
+                        <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
                     </Col>
                     <Row>
                         {get(newsItem, 'sentAt') ? (
