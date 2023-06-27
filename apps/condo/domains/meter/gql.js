@@ -43,6 +43,12 @@ const PropertyMeterReading = generateGqlQueries('PropertyMeterReading', PROPERTY
 const METER_REPORTING_PERIOD_FIELDS = `{ organization { id } property { id } start finish ${COMMON_FIELDS} }`
 const MeterReportingPeriod = generateGqlQueries('MeterReportingPeriod', METER_REPORTING_PERIOD_FIELDS)
 
+const DELETE_METER_AND_METER_READINGS_MUTATION = gql`
+    mutation _internalDeleteMeterAndMeterReadings ($data: _internalDeleteMeterAndMeterReadingsInput!) {
+        result: _internalDeleteMeterAndMeterReadings(data: $data) { status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -55,6 +61,7 @@ module.exports = {
     PropertyMeter,
     PropertyMeterReading,
     MeterReportingPeriod,
+    DELETE_METER_AND_METER_READINGS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

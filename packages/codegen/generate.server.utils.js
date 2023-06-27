@@ -1,10 +1,11 @@
-const { pickBy, get, isEmpty, isObject } = require('lodash')
+const { pickBy, get, isEmpty, isObject, chunk: splitArray } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { GQLError } = require('@open-condo/keystone/errors')
 const { getById } = require('@open-condo/keystone/schema')
 
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+const MAX_CHUNK_SIZE_FOR_UPDATE = 100
 
 const isNotUndefined = (x) => typeof x !== 'undefined'
 const ALLOWED_OPTIONS = ['errorMapping', 'doesNotExistError', 'multipleObjectsError']
@@ -233,6 +234,27 @@ function generateServerUtils (gql) {
         })
     }
 
+    async function updateMany (context, data, chunkSize, extraAttrs = {}, options = {}) {
+        if (!context) throw new Error('no context')
+        if (!data) throw new Error('no data')
+        _checkOptions(options)
+
+        const chunks = splitArray(data, chunkSize || MAX_CHUNK_SIZE_FOR_UPDATE)
+        let result = []
+
+        for (const chunk of chunks) {
+            const data = await execGqlWithoutAccess(context, {
+                query: gql.UPDATE_OBJS_MUTATION,
+                variables: { data: chunk.map( chunkData => ({ id: chunkData.id, data: { ...chunkData.data, ...extraAttrs } })) },
+                errorMessage: `[error] Update ${gql.PLURAL_FORM} internal error`,
+                dataPath: 'objs',
+                ...options,
+            })
+            result = result.concat(data)
+        }
+        return result
+    }
+
     async function delete_ (context, id, options = {}) {
         if (!context) throw new Error('no context')
         if (!id) throw new Error('no id')
@@ -283,6 +305,7 @@ function generateServerUtils (gql) {
         count,
         create,
         update,
+        updateMany,
         updateOrCreate,
         delete: delete_,
         softDelete,

@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { _internalDeleteMeterAndMeterReadingsService } = require('./_internalDeleteMeterAndMeterReadingsService')
 const { ExportMeterReadingsService } = require('./ExportMeterReadingsService')
 const { Meter } = require('./Meter')
 const { MeterReading } = require('./MeterReading')
@@ -24,5 +25,6 @@ module.exports = {
     PropertyMeter,
     PropertyMeterReading,
     MeterReportingPeriod,
+    _internalDeleteMeterAndMeterReadingsService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -15,6 +15,7 @@ const { EXPORT_METER_READINGS_QUERY } = require('@condo/domains/meter/gql')
 const { MeterReadingFilterTemplate: MeterReadingFilterTemplateGQL } = require('@condo/domains/meter/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { DELETE_METER_AND_METER_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 const { PropertyMeter: PropertyMeterGQL } = require('@condo/domains/meter/gql')
 const { PropertyMeterReading: PropertyMeterReadingGQL } = require('@condo/domains/meter/gql')
 const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domains/meter/gql')
@@ -227,6 +228,20 @@ async function updateTestMeterReadingFilterTemplate (client, id, extraAttrs = {}
     return [obj, attrs]
 }
 
+
+async function _internalDeleteMeterAndMeterReadingsByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(DELETE_METER_AND_METER_READINGS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 async function createTestPropertyMeter (client, organization, property, resource, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
@@ -334,6 +349,7 @@ module.exports = {
     exportMeterReadingsByTestClient,
     MeterReadingFilterTemplate, createTestMeterReadingFilterTemplate, updateTestMeterReadingFilterTemplate,
     makeClientWithResidentAndMeter,
+    _internalDeleteMeterAndMeterReadingsByTestClient,
         PropertyMeter, createTestPropertyMeter, updateTestPropertyMeter,
     PropertyMeterReading, createTestPropertyMeterReading, updateTestPropertyMeterReading,
     MeterReportingPeriod, createTestMeterReportingPeriod, updateTestMeterReportingPeriod,
