@@ -16,6 +16,7 @@ const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/resident/gql')
 const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/gql')
 const { SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/resident/gql')
+const { DISCOVER_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
@@ -148,6 +149,25 @@ async function sendMessageToResidentScopesByTestClient(client, extraAttrs = {}) 
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function discoverServiceConsumersByTestClient(client, args, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!args) throw new Error('no data')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...args,
+    }
+    const { data, errors } = await client.mutate(DISCOVER_SERVICE_CONSUMERS_MUTATION, { data: attrs })
+
+    if (!extraAttrs.raw) {
+        throwIfError(data, errors)
+    }
+
+    return [data.result, errors, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithServiceConsumer () {
@@ -184,5 +204,6 @@ module.exports = {
     makeClientWithServiceConsumer,
     registerServiceConsumerByTestClient,
     sendMessageToResidentScopesByTestClient,
+    discoverServiceConsumersByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { DiscoverServiceConsumersService } = require('./DiscoverServiceConsumersService')
 const { RegisterResidentService } = require('./RegisterResidentService')
 const { RegisterServiceConsumerService } = require('./RegisterServiceConsumerService')
 const { Resident } = require('./Resident')
@@ -16,5 +17,6 @@ module.exports = {
     ServiceConsumer,
     RegisterServiceConsumerService,
     SendMessageToResidentScopesService,
+    DiscoverServiceConsumersService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

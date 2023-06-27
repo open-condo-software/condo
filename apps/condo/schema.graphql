@@ -62448,6 +62448,21 @@ type SendMessageToResidentScopesServiceOutput {
   status: String!
 }
 
+input DiscoverServiceConsumersInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  address: String!
+  unitName: String!
+  unitType: String!
+  billingAccount: BillingAccountWhereUniqueInput
+  resident: ResidentWhereUniqueInput
+}
+
+type DiscoverServiceConsumersOutput {
+  status: String!
+  createdServiceConsumersTotal: Int!
+}
+
 enum OnBoardingType {
   ADMINISTRATOR
 }
@@ -72200,6 +72215,7 @@ type Mutation {
   }`
   """
   sendMessageToResidentScopes(data: SendMessageToResidentScopesServiceInput!): SendMessageToResidentScopesServiceOutput
+  discoverServiceConsumers(data: DiscoverServiceConsumersInput!): DiscoverServiceConsumersOutput
 
   """
   Creates OnBoarding and set of OnBoardingStep records for specified role and user

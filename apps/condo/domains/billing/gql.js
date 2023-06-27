@@ -61,7 +61,6 @@ const SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION = gql`
     }
 `
 
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {

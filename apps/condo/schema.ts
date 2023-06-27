@@ -19221,6 +19221,22 @@ export type DisconnectUserFromRemoteClientOutput = {
   status: Scalars['String'];
 };
 
+export type DiscoverServiceConsumersInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  address: Scalars['String'];
+  unitName: Scalars['String'];
+  unitType: Scalars['String'];
+  billingAccount?: Maybe<BillingAccountWhereUniqueInput>;
+  resident?: Maybe<ResidentWhereUniqueInput>;
+};
+
+export type DiscoverServiceConsumersOutput = {
+  __typename?: 'DiscoverServiceConsumersOutput';
+  status: Scalars['String'];
+  createdServiceConsumersTotal: Scalars['Int'];
+};
+
 export type ExportMeterReadingsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -33907,6 +33923,7 @@ export type Mutation = {
    * }`
    */
   sendMessageToResidentScopes?: Maybe<SendMessageToResidentScopesServiceOutput>;
+  discoverServiceConsumers?: Maybe<DiscoverServiceConsumersOutput>;
   /**
    * Creates OnBoarding and set of OnBoardingStep records for specified role and user
    *
@@ -40905,6 +40922,11 @@ export type MutationRegisterServiceConsumerArgs = {
 
 export type MutationSendMessageToResidentScopesArgs = {
   data: SendMessageToResidentScopesServiceInput;
+};
+
+
+export type MutationDiscoverServiceConsumersArgs = {
+  data: DiscoverServiceConsumersInput;
 };
 
 

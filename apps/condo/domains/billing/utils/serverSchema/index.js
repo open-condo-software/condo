@@ -93,7 +93,6 @@ async function sendNewReceiptMessagesToResidentScopes (context, data) {
     })
 }
 
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {

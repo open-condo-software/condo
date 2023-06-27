@@ -40,6 +40,11 @@ const SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION = gql`
     }
 `
 
+const DISCOVER_SERVICE_CONSUMERS_MUTATION = gql`
+    mutation discoverServiceConsumers ($data: DiscoverServiceConsumersInput!) {
+        result: discoverServiceConsumers(data: $data) { status createdServiceConsumersTotal }
+    }
+`
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -52,5 +57,6 @@ module.exports = {
     ORGANIZATION_FEATURES_FIELDS,
     PAYMENT_CATEGORIES_FIELDS,
     SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION,
+    DISCOVER_SERVICE_CONSUMERS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
