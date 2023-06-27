@@ -36,10 +36,6 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 const { data } = args
                 const { address, unitName, unitType, billingAccount, resident, dv, sender } = data
 
-                logger.info({  msg: 'Input arguments: address, unitName, unitType, billingAccount?, resident?', payload: {
-                    address, unitName, unitType, billingAccount, resident,
-                } })
-
                 const residents = await Resident.getAll(context,
                     resident ? { id: resident.id, deletedAt: null } : {
                         address: address,
@@ -69,10 +65,11 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 const combinations = _.flatMap(residents, (resident) =>  billingAccounts.map((account) => [resident, account]))
                 const createdServiceConsumers = await Promise.all(combinations.map(([resident, account]) => ServiceConsumer.create(context, getPayload(account.number, resident))))
 
-                logger.info({  msg: 'Created ServiceConsumers: ', payload: {
+                logger.info({  msg: 'Created ServiceConsumers for input data: ', payload: {
                     created: createdServiceConsumers.length,
                     residentsFound: residents.length,
                     billingAccountsFound: billingAccounts.length,
+                    address, unitName, unitType, billingAccount, resident,
                 } })
 
                 return { status: 'success', createdServiceConsumersTotal: createdServiceConsumers.length }
