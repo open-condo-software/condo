@@ -76,7 +76,7 @@ const messageSchema = {
     properties: {
         handler: { type: 'string' },
         params: { type: 'object' },
-        type: { type: 'string', enum: ['condo-bridge', 'condo-ui'] },
+        type: { type: 'string', enum: ['condo-bridge', 'condo-ui', 'telephony'] },
         version: { type: 'string', pattern: '^\\d+.\\d+.\\d+(?:-\\w+){0,1}$' },
     },
     required: ['handler', 'type', 'version', 'params'],

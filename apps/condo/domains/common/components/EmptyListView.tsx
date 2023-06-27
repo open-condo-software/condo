@@ -12,8 +12,8 @@ export interface IEmptyListProps {
     label: string | React.ReactElement
     message?: string | React.ReactElement
     button?: React.ReactElement
-    createRoute: string
-    createLabel: string
+    createRoute?: string
+    createLabel?: string
     containerStyle?: CSSProperties
     accessCheck?: boolean
 }
@@ -91,14 +91,18 @@ export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
                                 </Col>
                             ) : ''
                         }
-                        <Col>
-                            <Button
-                                type='primary'
-                                onClick={() => router.push(createRoute)}
-                            >
-                                {createLabel}
-                            </Button>
-                        </Col>
+                        {
+                            createRoute && (
+                                <Col>
+                                    <Button
+                                        type='primary'
+                                        onClick={() => router.push(createRoute)}
+                                    >
+                                        {createLabel}
+                                    </Button>
+                                </Col>
+                            )
+                        }
                     </Row>
                 </>
             }

@@ -28,4 +28,6 @@ export * as IncidentClassifier from './IncidentClassifier'
 export * as IncidentClassifierIncident from './IncidentClassifierIncident'
 export * as UserFavoriteTicket from './UserFavoriteTicket'
 export * as IncidentExportTask from './IncidentExportTask'
+export * as CallRecord from './CallRecord'
+export * as CallRecordFragment from './CallRecordFragment'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

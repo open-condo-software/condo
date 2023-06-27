@@ -33,6 +33,7 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 import { TicketAssigneeField } from '@condo/domains/ticket/components/TicketId/TicketAssigneeField'
+import { TicketCallRecordHistory } from '@condo/domains/ticket/components/TicketId/TicketCallRecordHistory'
 import { TicketClassifierField } from '@condo/domains/ticket/components/TicketId/TicketClassifierField'
 import { TicketClientField } from '@condo/domains/ticket/components/TicketId/TicketClientField'
 import { TicketDeadlineField } from '@condo/domains/ticket/components/TicketId/TicketDeadlineField'
@@ -104,7 +105,6 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
     const statusUpdatedAt = useMemo(() => get(ticket, 'statusUpdatedAt'), [ticket])
 
     const { breakpoints } = useLayoutContext()
-
     const handleTicketStatusChanged = () => {
         refetchTicket()
         ticketChangesResult.refetch()
@@ -464,7 +464,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         refetchCommentFiles()
     })
     const deleteComment = TicketComment.useSoftDelete(() => refetchComments())
-
     const createCommentAction = TicketComment.useCreate({
         ticket: { connect: { id: id } },
         user: { connect: { id: auth.user && auth.user.id } },
@@ -567,6 +566,10 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                         propertyId={ticketPropertyId}
                         classifier={ticket.classifier}
                         colProps={HINTS_COL_PROPS}
+                    />
+                    <TicketCallRecordHistory
+                        ticketId={id}
+                        ticketOrganizationId={organization.id}
                     />
                     <ChangeHistory
                         items={get(ticketChangesResult, 'objs')}

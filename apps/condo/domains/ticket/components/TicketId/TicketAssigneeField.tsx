@@ -40,13 +40,14 @@ export const TicketAssigneeField = ({ ticket }) => {
         <PageFieldRow title={AssigneeMessage} ellipsis>
             {
                 assignee
-                    ? <Link href={`/employee/${get(assignee, 'id')}`}>
-                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                            <Typography.Text strong>
-                                <TicketUserInfoField user={assigneeUser}/>
-                            </Typography.Text>
-                        </Typography.Link>
-                    </Link>
+                    ?
+                    <Typography.Text strong>
+                        <TicketUserInfoField
+                            user={assigneeUser}
+                            nameLink={`/employee/${get(assignee, 'id')}`}
+                            ticket={ticket}
+                        />
+                    </Typography.Text>
                     : <Typography.Text type='secondary'>
                         {EmployeeIsNullOrWasDeletedMessage}
                     </Typography.Text>

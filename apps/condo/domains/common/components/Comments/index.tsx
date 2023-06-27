@@ -5,6 +5,7 @@ import get from 'lodash/get'
 import React, { CSSProperties, UIEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Radio, RadioGroup } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -14,11 +15,8 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
 
-
 import { Comment } from './Comment'
 import { CommentForm } from './CommentForm'
-
-import { CardTabs } from '../CardTabs'
 
 
 interface IContainerProps {
@@ -197,7 +195,7 @@ const CommentsTabPaneLabel = ({ label, commentsCount, newCommentsIndicator }) =>
 )
 
 const SwitchCommentsTypeWrapper = styled.div`
-  padding: 24px 0 0 0;
+  padding: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -323,16 +321,18 @@ const Comments: React.FC<ICommentsListProps> = ({
         }
     }, [createOrUpdateUserTicketCommentReadTime, isInitialUserTicketCommentReadTimeSet, loadingUserTicketCommentReadTime])
 
-    const handleTabChange = useCallback((tab) => {
-        setCommentType(tab)
+    const handleTabChange = useCallback((event) => {
+        const value = event.target.value
+
+        setCommentType(value)
         const now = new Date()
 
-        if (tab === RESIDENT_COMMENT_TYPE) {
+        if (value === RESIDENT_COMMENT_TYPE) {
             createOrUpdateUserTicketCommentReadTime({
                 readResidentCommentAt: now,
                 readCommentAt: now,
             })
-        } else if (tab === ORGANIZATION_COMMENT_TYPE) {
+        } else if (value === ORGANIZATION_COMMENT_TYPE) {
             createOrUpdateUserTicketCommentReadTime({
                 readCommentAt: now,
             })
@@ -365,31 +365,33 @@ const Comments: React.FC<ICommentsListProps> = ({
         <Container isSmall={!breakpoints.TABLET_LARGE}>
             <Head isTitleHidden={isTitleHidden}>{TitleMessage}</Head>
             <SwitchCommentsTypeWrapper>
-                <CardTabs
-                    defaultActiveKey={commentType}
-                    onChange={handleTabChange}
-                    items={[
-                        {
-                            key: ORGANIZATION_COMMENT_TYPE,
-                            //@ts-ignore
-                            label:
-                                <CommentsTabPaneLabel
-                                    newCommentsIndicator={false}
-                                    label={InternalCommentsMessage}
-                                    commentsCount={commentsWithOrganization.length}
-                                />,
-                        },
-                        {
-                            key: RESIDENT_COMMENT_TYPE,
-                            //@ts-ignore
-                            label: <CommentsTabPaneLabel
-                                label={ResidentCommentsMessage}
-                                commentsCount={commentsWithResident.length}
-                                newCommentsIndicator={showIndicator}
-                            />,
-                        },
-                    ]}
-                />
+                <RadioGroup optionType='button' value={commentType} onChange={handleTabChange}>
+                    <Radio
+                        key={ORGANIZATION_COMMENT_TYPE}
+                        value={ORGANIZATION_COMMENT_TYPE}
+                        label={
+                            <>
+                                {InternalCommentsMessage}
+                                <sup>
+                                    {commentsWithOrganization.length}
+                                </sup>
+                            </>
+                        }
+                    />
+                    <Radio
+                        key={RESIDENT_COMMENT_TYPE}
+                        value={RESIDENT_COMMENT_TYPE}
+                        label={
+                            <>
+                                {ResidentCommentsMessage}
+                                <sup>
+                                    {commentsWithResident.length}
+                                    {showIndicator && <NewCommentIndicator title=''/>}
+                                </sup>
+                            </>
+                        }
+                    />
+                </RadioGroup>
             </SwitchCommentsTypeWrapper>
             <CommentsTabsContainer isTitleHidden={isTitleHidden} className='card-container'>
                 <CommentsTabContent

@@ -39,6 +39,7 @@ import { useContactsEditorHook } from '@condo/domains/contact/components/Contact
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
+import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import {
     TicketFormContextProvider,
@@ -46,6 +47,7 @@ import {
 } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM } from '@condo/domains/ticket/constants/common'
+import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSchema'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
@@ -55,8 +57,6 @@ import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 import { useTicketValidations } from './useTicketValidations'
-
-import { IncidentHints } from '../IncidentHints'
 
 
 const HINTS_COL_PROPS: ColProps = { span: 24 }
@@ -383,8 +383,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
     const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
     const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident' })
+    const AttachCallRecordMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.AttachCallRecord' })
 
     const { breakpoints } = useLayoutContext()
+    const { isCallActive } = useActiveCall()
 
     const router = useRouter()
 
@@ -712,6 +714,20 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                                         eventName='TicketCreateCheckboxCanReadByResident'
                                                                                                     >
                                                                                                         {CanReadByResidentMessage}
+                                                                                                    </Checkbox>
+                                                                                                </Form.Item>
+                                                                                            </Col>
+                                                                                        )
+                                                                                    }
+                                                                                    {
+                                                                                        isCallActive && (
+                                                                                            <Col span={24}>
+                                                                                                <Form.Item name='attachCallRecord' valuePropName='checked' initialValue={true}>
+                                                                                                    <Checkbox
+                                                                                                        disabled={disableUserInteraction}
+                                                                                                        eventName='TicketCreateCheckboxAttachCallRecord'
+                                                                                                    >
+                                                                                                        {AttachCallRecordMessage}
                                                                                                     </Checkbox>
                                                                                                 </Form.Item>
                                                                                             </Col>

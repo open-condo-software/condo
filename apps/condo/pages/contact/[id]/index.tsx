@@ -1,5 +1,5 @@
 import { BuildingUnitSubType } from '@app/condo/schema'
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -9,40 +9,33 @@ import React, { CSSProperties, useCallback } from 'react'
 import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar, Button, Typography } from '@open-condo/ui'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import  { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
-const FieldPairRow = (props) => {
-    const {
-        fieldTitle,
-        fieldValue,
-    } = props
-    return (
-        <>
-            <Col span={8}>
-                <Typography.Text type='secondary'>
-                    {fieldTitle}
-                </Typography.Text>
-            </Col>
-            <Col span={16} style={{ width: '100%' }}>
-                <NotDefinedField value={fieldValue}/>
-            </Col>
-        </>
-    )
+const VALUE_FIELD_WRAPPER_STYLE = { width: '100%' }
+const CONTACT_FIELD_PAIR_PROPS: Partial<FieldPairRowProps> = {
+    titleColProps: { span: 8 },
+    valueColProps: { span: 16, style: VALUE_FIELD_WRAPPER_STYLE },
 }
 
-const TITLE_STYLE: CSSProperties = { margin: '8px 0 0', fontWeight: 400 }
+const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
+    <BaseFieldPairRow
+        {...CONTACT_FIELD_PAIR_PROPS}
+        {...props}
+    />
+)
+
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 
 export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction }) => {
@@ -63,6 +56,8 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const contactId = get(contact, 'id', null)
     const contactName = get(contact, 'name')
     const contactEmail = get(contact, 'email', '')
+    const contactPhone = get(contact, 'phone', '')
+    const phonePrefix = get(contact, 'organization.phoneNumberPrefix', '')
     const contactUnitName = get(contact, 'unitName')
     const contactUnitType = get(contact, 'unitType', BuildingUnitSubType.Flat)
     const unitSuffix = contactUnitName
@@ -100,7 +95,6 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                         </Typography.Title>
                                         <Typography.Title
                                             level={2}
-                                            style={TITLE_STYLE}
                                         >
                                             {ContactLabel}
                                         </Typography.Title>
@@ -114,12 +108,15 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                 />
                                                 <FieldPairRow
                                                     fieldTitle={PhoneLabel}
-                                                    fieldValue={get(contact, ['phone'])}
+                                                    fieldValue={contactPhone}
+                                                    href={`tel:${phonePrefix ? 
+                                                        `${phonePrefix}${contactPhone}` : contactPhone}`}
                                                 />
                                                 {
                                                     contactEmail && <FieldPairRow
                                                         fieldTitle={EmailLabel}
-                                                        fieldValue={get(contact, ['email'])}
+                                                        fieldValue={contactEmail}
+                                                        href={`mailto:${contactEmail}`}
                                                     />
                                                 }
                                                 <FieldPairRow

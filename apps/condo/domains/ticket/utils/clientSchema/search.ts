@@ -82,6 +82,15 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY_WITH_EMAIL = gql`
     }
 `
 
+const GET_ALL_TICKETS_QUERY = gql`
+    query selectTickets ($where: TicketWhereInput, $first: Int, $skip: Int) {
+        objs: allTickets(where: $where, first: $first, skip: $skip) {
+            id
+            number
+        }
+    }
+`
+
 const GET_ALL_CONTACTS_QUERY = gql`
     query selectContact ($organizationId: ID, $propertyId: ID, $unitName: String, $unitType: String) {
         objs: allContacts(where: {organization: { id: $organizationId }, property: { id: $propertyId }, unitName: $unitName, unitType: $unitType}) {
@@ -256,6 +265,35 @@ export function getEmployeeWithEmail (organizationId) {
         return result
     }
 }
+
+export function getOrganizationTickets (organizationId) {
+    if (!organizationId) return
+
+    return async function (client, value, query, first = 10, skip = 0) {
+        const organizationQuery = { organization: { id: organizationId } }
+        const where = (value && !isNaN(Number(value))) ?
+            { number: Number(value), ...organizationQuery } : organizationQuery
+
+        const { data, error } = await _search(client, GET_ALL_TICKETS_QUERY, {
+            where: { ...where, ...query },
+            first,
+            skip,
+        })
+
+        if (error) console.warn(error)
+
+        const result = data.objs.map(object => {
+            return ({
+                text: object.number,
+                id: object.id,
+                value: object.id,
+            })
+        }).filter(Boolean)
+
+        return result
+    }
+}
+
 
 export function searchContacts (client, { organizationId, propertyId, unitName, unitType }) {
     return _search(client, GET_ALL_CONTACTS_QUERY, { organizationId, propertyId, unitName, unitType })

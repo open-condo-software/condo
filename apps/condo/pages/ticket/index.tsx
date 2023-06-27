@@ -3,9 +3,8 @@ import { useApolloClient } from '@apollo/client'
 import { SortTicketsBy, Ticket as ITicket, TicketStatusTypeType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Col, Row } from 'antd'
+import { Col, Row, RowProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
-import { Gutter } from 'antd/lib/grid/row'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
@@ -22,20 +21,19 @@ import React, { CSSProperties, Key, useCallback, useEffect, useMemo, useRef, use
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { FileUp, Filter, Search, Close } from '@open-condo/icons'
+import { FileUp, Filter, Search, Close, Phone } from '@open-condo/icons'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Typography, Button } from '@open-condo/ui'
+import { ActionBar, Typography, Button, RadioGroup, Radio, Space } from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button as CommonButton } from '@condo/domains/common/components/Button'
-import { CardTabs } from '@condo/domains/common/components/CardTabs'
-import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -86,7 +84,7 @@ import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useTicketExportToExcelTask } from '@condo/domains/ticket/hooks/useTicketExportToExcelTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
-import { Ticket, TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
+import { CallRecordFragment, Ticket, TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
@@ -97,11 +95,16 @@ interface ITicketIndexPage extends React.FC {
 
 type TicketType = 'all' | 'own' | 'favorite'
 
-const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
-const MEDIUM_VERTICAL_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
+const ROW_GUTTER: RowProps['gutter'] = [0, 40]
+const MEDIUM_VERTICAL_ROW_GUTTER: RowProps['gutter'] = [0, 20]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.label }
 const DEBOUNCE_TIMEOUT = 400
-const FILTERS_BUTTON_STYLES: CSSProperties = { position: 'relative', display: 'flex', alignItems: 'center', gap: '10px' }
+const FILTERS_BUTTON_STYLES: CSSProperties = {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+}
 
 const StyledTable = styled(Table)`
   .ant-checkbox-input {
@@ -115,7 +118,7 @@ const StyledTable = styled(Table)`
   .ant-table-scroll-horizontal .ant-checkbox-input {
     width: 40px;
   }
-  
+
   .comments-column {
     padding: 0;
     padding-top: 14px;
@@ -129,7 +132,7 @@ const StyledTable = styled(Table)`
   .favorite-column {
     padding: 16px 16px 16px 8px;
   }
-  
+
   .ant-table-selection-column {
     padding-top: 12px;
   }
@@ -318,14 +321,14 @@ const TicketTable = ({
                                     />
                                 ),
                                 selectedTicketKeys.length < 1 && TicketImportButton && TicketImportButton,
-                                selectedTicketKeys.length < 1 && <TicketsExportToXlsxButton key='exportToXlsx' />,
+                                selectedTicketKeys.length < 1 && <TicketsExportToXlsxButton key='exportToXlsx'/>,
                                 selectedTicketKeys.length > 0 && (
                                     <Button
                                         key='cancelSelectedTicket'
                                         type='secondary'
                                         children={CancelSelectedTicketLabel}
                                         onClick={handleResetSelectedTickets}
-                                        icon={<Close size='medium' />}
+                                        icon={<Close size='medium'/>}
                                     />
                                 ),
                             ]}
@@ -394,9 +397,11 @@ const TicketsTableContainer = ({
         },
         fetchPolicy: 'network-only',
         variables: {
-            where: { AND: [
-                pick(searchTicketsQuery, 'organization'), { status: { type: TicketStatusTypeType.NewOrReopened } },
-            ] },
+            where: {
+                AND: [
+                    pick(searchTicketsQuery, 'organization'), { status: { type: TicketStatusTypeType.NewOrReopened } },
+                ],
+            },
             first: DEFAULT_PAGE_SIZE,
         },
     })
@@ -435,13 +440,21 @@ const TicketsTableContainer = ({
 const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
 const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
 const ATTRIBUTE_NAMES_To_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPaid']
-const CHECKBOX_WRAPPER_GUTTERS: [Gutter, Gutter] = [8, 16]
+const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [8, 16]
 // todo(doma-5776): update amplitude
 const DETAILED_LOGGING = ['status', 'source', 'attributes', 'feedbackValue', 'qualityControlValue', 'unitType', 'contactIsNull']
 
-const SMALL_HORIZONTAL_GUTTER: [Gutter, Gutter] = [10, 0]
-const TICKET_STATUS_FILTER_CONTAINER_ROW_STYLES: CSSProperties = { flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: '20px' }
-const ALL_TICKETS_COUNT_CONTAINER_STYLES: CSSProperties = { display: 'flex', whiteSpace: 'nowrap', alignItems: 'center' }
+const SMALL_HORIZONTAL_GUTTER: RowProps['gutter'] = [10, 0]
+const TICKET_STATUS_FILTER_CONTAINER_ROW_STYLES: CSSProperties = {
+    flexWrap: 'nowrap',
+    overflowX: 'auto',
+    paddingBottom: '20px',
+}
+const ALL_TICKETS_COUNT_CONTAINER_STYLES: CSSProperties = {
+    display: 'flex',
+    whiteSpace: 'nowrap',
+    alignItems: 'center',
+}
 const LOADER_STYLES = { display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: '20px' }
 
 const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutStatusQuery }) => {
@@ -480,7 +493,7 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
 
     const loading = count === undefined
 
-    return loading ? <Loader style={LOADER_STYLES} /> : (
+    return loading ? <Loader style={LOADER_STYLES}/> : (
         <Row gutter={SMALL_HORIZONTAL_GUTTER} style={TICKET_STATUS_FILTER_CONTAINER_ROW_STYLES}>
             <Col style={ALL_TICKETS_COUNT_CONTAINER_STYLES}>
                 <Typography.Text size='large' strong>
@@ -582,9 +595,9 @@ const FiltersButton = ({ appliedFiltersCount, setIsMultipleFiltersModalVisible }
     )
 }
 
-const FILTERS_CONTAINER_ROW_GUTTER: [Gutter, Gutter] = [20, 20]
+const FILTERS_CONTAINER_ROW_GUTTER: RowProps['gutter'] = [20, 20]
 const CHECKBOX_WRAPPER_STYLES: CSSProperties = { flexWrap: 'nowrap', overflowX: 'auto', overflowY: 'hidden' }
-const FILTERS_BUTTON_ROW_GUTTER: [Gutter, Gutter] = [16, 10]
+const FILTERS_BUTTON_ROW_GUTTER: RowProps['gutter'] = [16, 10]
 const FILTERS_BUTTON_ROW_STYLES: CSSProperties = { flexWrap: 'nowrap' }
 const RESET_FILTERS_BUTTON_STYLES: CSSProperties = { padding: 0 }
 
@@ -660,7 +673,7 @@ const FiltersContainer = ({ filterMetas }) => {
                             onChange={handleSearchChange}
                             value={search}
                             allowClear
-                            suffix={<Search size='medium' color={colors.gray[7]} />}
+                            suffix={<Search size='medium' color={colors.gray[7]}/>}
                         />
                     </Col>
                     <Col span={checkboxColSpan}>
@@ -725,7 +738,8 @@ const FiltersContainer = ({ filterMetas }) => {
                     <Col span={filterButtonColSpan}>
                         {
                             isXlContainerSize ? (
-                                <Row justify='end' align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER} style={FILTERS_BUTTON_ROW_STYLES}>
+                                <Row justify='end' align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER}
+                                    style={FILTERS_BUTTON_ROW_STYLES}>
                                     {
                                         appliedFiltersCount > 0 ? (
                                             <Col>
@@ -941,19 +955,21 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
 
     const { logEvent } = useTracking()
 
-    const handleTabChange = useCallback(async (tab) => {
-        setValue(tab)
-        logEvent({ eventName: 'TicketTypeFilterTabChange', denyDuplicates: true, eventProperties: { tab } })
+    const handleRadioChange = useCallback(async (event) => {
+        const value = event.target.value
+
+        setValue(value)
+        logEvent({ eventName: 'TicketTypeFilterTabChange', denyDuplicates: true, eventProperties: { tab: value } })
 
         let newFilters
-        if (tab === 'all') {
+        if (value === 'all') {
             newFilters = omit(filters, ['type'])
-        } else if (tab === 'own') {
+        } else if (value === 'own') {
             newFilters = {
                 ...omit(filters, ['type']),
                 type: 'own',
             }
-        } else if (tab === 'favorite') {
+        } else if (value === 'favorite') {
             newFilters = {
                 ...omit(filters, ['type']),
                 type: 'favorite',
@@ -961,51 +977,41 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
         }
         const newParameters = getFiltersQueryData(newFilters)
         await updateQuery(router, { newParameters }, { routerAction: 'replace' })
-    }, [filters, router])
+    }, [filters, logEvent, router])
 
     return (
-        <CardTabs
-            activeKey={value}
-            onChange={handleTabChange}
-            items={[
-                {
-                    key: 'all',
-                    //@ts-ignore
-                    label: (
-                        <>
-                            <Typography.Text strong size='medium'>
-                                {AllTicketsMessage}
-                            </Typography.Text>
-                            {isNumber(allTicketsCount) && <sup>{allTicketsCount}</sup>}
-                        </>
-                    ),
-                },
-                {
-                    key: 'own',
-                    //@ts-ignore
-                    label: (
-                        <>
-                            <Typography.Text strong size='medium'>
-                                {OwnTicketsMessage}
-                            </Typography.Text>
-                            {isNumber(ownTicketsCount) && <sup>{ownTicketsCount}</sup>}
-                        </>
-                    ),
-                },
-                {
-                    key: 'favorite',
-                    //@ts-ignore
-                    label: (
-                        <>
-                            <Typography.Text strong size='medium'>
-                                {FavoriteTicketsMessage}
-                            </Typography.Text>
-                            {isNumber(userFavoriteTicketsCount) && <sup>{userFavoriteTicketsCount}</sup>}
-                        </>
-                    ),
-                },
-            ]}
-        />
+        <RadioGroup optionType='button' value={value} onChange={handleRadioChange}>
+            <Radio
+                key='all'
+                value='all'
+                label={
+                    <>
+                        {AllTicketsMessage}
+                        {isNumber(allTicketsCount) && <sup>{allTicketsCount}</sup>}
+                    </>
+                }
+            />
+            <Radio
+                key='own'
+                value='own'
+                label={
+                    <>
+                        {OwnTicketsMessage}
+                        {isNumber(ownTicketsCount) && <sup>{ownTicketsCount}</sup>}
+                    </>
+                }
+            />
+            <Radio
+                key='favorite'
+                value='favorite'
+                label={
+                    <>
+                        {FavoriteTicketsMessage}
+                        {isNumber(userFavoriteTicketsCount) && <sup>{userFavoriteTicketsCount}</sup>}
+                    </>
+                }
+            />
+        </RadioGroup>
     )
 }
 
@@ -1015,6 +1021,7 @@ const EMPTY_TICKETS_ROW_STYLE: CSSProperties = { height: '100%' }
 const TicketsPage: ITicketIndexPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
+    const CallRecordsLogMessage = intl.formatMessage({ id: 'callRecord.index.title' })
 
     const { ticketFilterQuery, ticketFilterQueryLoading } = useTicketVisibility()
 
@@ -1023,7 +1030,6 @@ const TicketsPage: ITicketIndexPage = () => {
 
     const filterMetas = useTicketTableFilters()
 
-    const { breakpoints } = useLayoutContext()
     const { GlobalHints } = useGlobalHints()
 
     const {
@@ -1031,6 +1037,14 @@ const TicketsPage: ITicketIndexPage = () => {
         loading: ticketsWithoutFiltersCountLoading,
         error,
     } = Ticket.useCount({ where: ticketFilterQuery })
+
+    const {
+        count: callRecordsCount,
+    } = CallRecordFragment.useCount({
+        where: {
+            organization: { id: userOrganizationId },
+        },
+    })
 
     return (
         <>
@@ -1045,7 +1059,7 @@ const TicketsPage: ITicketIndexPage = () => {
                     >
                         <WindowTitleContextProvider title={PageTitleMessage}>
                             <Row
-                                gutter={breakpoints.DESKTOP_LARGE && MEDIUM_VERTICAL_ROW_GUTTER}
+                                gutter={MEDIUM_VERTICAL_ROW_GUTTER}
                                 style={ticketsWithoutFiltersCount === 0 && EMPTY_TICKETS_ROW_STYLE}
                             >
                                 <Col span={24}>
@@ -1060,15 +1074,27 @@ const TicketsPage: ITicketIndexPage = () => {
                                                 }
                                             />
                                         </Col>
-                                        {
-                                            !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount > 0 && (
-                                                <Col>
-                                                    <TicketTypeFilterSwitch
-                                                        ticketFilterQuery={ticketFilterQuery}
-                                                    />
-                                                </Col>
-                                            )
-                                        }
+                                        <Col>
+                                            <Space size={40}>
+                                                {
+                                                    callRecordsCount > 0 && (
+                                                        <Typography.Link size='large' href='/callRecord'>
+                                                            <Space size={8}>
+                                                                <Phone size='medium'/>
+                                                                {CallRecordsLogMessage}
+                                                            </Space>
+                                                        </Typography.Link>
+                                                    )
+                                                }
+                                                {
+                                                    !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount > 0 && (
+                                                        <TicketTypeFilterSwitch
+                                                            ticketFilterQuery={ticketFilterQuery}
+                                                        />
+                                                    )
+                                                }
+                                            </Space>
+                                        </Col>
                                     </Row>
                                 </Col>
                                 <Col span={24}>

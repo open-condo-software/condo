@@ -197,6 +197,26 @@ export const getDayLteFilter: (dataIndex: DataIndexType) => FilterType = (dataIn
     }
 }
 
+export const getDateTimeGteFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
+    const filter = getFilter(dataIndex, 'single', 'dateTime', 'gte')
+    return function searchDayGte (search) {
+        if (!search || Array.isArray(search)) return
+        const date = dayjs(search)
+        if (!date.isValid()) return
+        return filter(date.toISOString())
+    }
+}
+
+export const getDateTimeLteFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
+    const filter = getFilter(dataIndex, 'single', 'dateTime', 'lte')
+    return function searchDayLte (search) {
+        if (!search || Array.isArray(search)) return
+        const date = dayjs(search)
+        if (!date.isValid()) return
+        return filter(date.toISOString())
+    }
+}
+
 const datesFromTextQuery = (text) => {
     const possibleDates = text.match(/[0-9.]+/g) || []
     const [currentYear, currentMonth] = dayjs().format('YYYY-MM').split('-')

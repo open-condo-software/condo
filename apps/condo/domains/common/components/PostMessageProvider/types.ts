@@ -15,13 +15,15 @@ export const COMMON_ERROR_PREFIX = 'CondoWebAppCommonError' as const
 export type RequestParamsMap = {
     [Method in BridgeRequestMethodsName]: BridgeRequestParams<Method>
 } & {
-    CondoWebSendAnalyticsEvent: AnalyticsParams
+    CondoWebSendAnalyticsEvent: AnalyticsParams,
+    CondoWebSetActiveCall: { isCallActive: boolean, connectedTickets: Array<string>, error?: string }
 }
 
 export type HandlerResultsMap = {
     [Method in BridgeResponseMethodsName]: BridgeResponseData<Method>
 } & {
-    CondoWebSendAnalyticsEvent: { sent: boolean }
+    CondoWebSendAnalyticsEvent: { sent: boolean },
+    CondoWebSetActiveCall: { sent: boolean }
 }
 
 export type AllRequestMethods = keyof RequestParamsMap
@@ -36,7 +38,8 @@ type ResponseEventNames<Method extends AllRequestMethods> = Record<Method, {
     error: `${Method}Error`
 }>
 export type ResponseEventNamesMap = BridgeEventNamesMap &
-ResponseEventNames<'CondoWebSendAnalyticsEvent'>
+ResponseEventNames<'CondoWebSendAnalyticsEvent'> &
+ResponseEventNames<'CondoWebSetActiveCall'>
 
 export type ClientErrorResponse<Method extends AllRequestMethods, Reason extends ErrorReason> = {
     type: ResponseEventNamesMap[Method]['error'] | typeof COMMON_ERROR_PREFIX

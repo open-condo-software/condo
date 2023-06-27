@@ -20,6 +20,7 @@ import {
 } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -52,6 +53,18 @@ const ReInviteActionAlert = ({ employee }) => {
     )
 }
 
+const EMPLOYEE_FIELD_PAIR_PROPS: Partial<FieldPairRowProps> = {
+    titleColProps: { lg: 4, xs: 10 },
+    valueColProps: { lg: 18, xs: 13, offset: 1 },
+}
+
+const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
+    <BaseFieldPairRow
+        {...EMPLOYEE_FIELD_PAIR_PROPS}
+        {...props}
+    />
+)
+
 export const EmployeePageContent = ({
     employee,
     isEmployeeEditable,
@@ -83,6 +96,8 @@ export const EmployeePageContent = ({
     const isEmployeeBlocked = get(employee, 'isBlocked')
 
     const name = get(employee, 'name')
+    const phone = get(employee, 'phone')
+    const phonePrefix = get(employee, 'organization.phoneNumberPrefix')
     const email = get(employee, 'email')
     const hasAllSpecializations = get(employee, 'hasAllSpecializations')
 
@@ -163,15 +178,11 @@ export const EmployeePageContent = ({
                                         <Col span={24}>
                                             <FrontLayerContainer showLayer={isEmployeeBlocked}>
                                                 <Row gutter={[0, 24]}>
-                                                    <Col lg={4} xs={10}>
-                                                        <Typography.Text type='secondary'>
-                                                            {PhoneMessage}
-                                                        </Typography.Text>
-                                                    </Col>
-                                                    <Col lg={18} xs={13} offset={1}>
-                                                        <NotDefinedField value={get(employee, 'phone')}/>
-                                                    </Col>
-
+                                                    <FieldPairRow
+                                                        fieldTitle={PhoneMessage}
+                                                        fieldValue={phone}
+                                                        href={`tel:${phonePrefix ? `${phonePrefix}${phone}` : phone}`}
+                                                    />
                                                     <Col lg={4} xs={10}>
                                                         <Typography.Text type='secondary'>
                                                             {RoleMessage}
@@ -203,6 +214,7 @@ export const EmployeePageContent = ({
                                                             }
                                                         />
                                                     </Col>
+
                                                     <Col lg={4} xs={10}>
                                                         <Typography.Text type='secondary'>
                                                             {SpecializationsMessage}
@@ -218,17 +230,13 @@ export const EmployeePageContent = ({
                                                             )
                                                         }
                                                     </Col>
+
                                                     {
-                                                        email && <>
-                                                            <Col lg={4} xs={10}>
-                                                                <Typography.Text type='secondary'>
-                                                                    {EmailMessage}
-                                                                </Typography.Text>
-                                                            </Col>
-                                                            <Col lg={18} xs={13} offset={1}>
-                                                                <NotDefinedField value={email}/>
-                                                            </Col>
-                                                        </>
+                                                        email && <FieldPairRow
+                                                            fieldTitle={EmailMessage}
+                                                            fieldValue={email}
+                                                            href={`mailto:${email}`}
+                                                        />
                                                     }
                                                 </Row>
                                             </FrontLayerContainer>

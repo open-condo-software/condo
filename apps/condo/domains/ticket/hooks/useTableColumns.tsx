@@ -32,7 +32,6 @@ import {
     getTicketUserNameRender,
     getUnitRender,
 } from '@condo/domains/ticket/utils/clientSchema/Renders'
-import { convertGQLItemToFormSelectState } from '@condo/domains/ticket/utils/clientSchema/TicketStatus'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 

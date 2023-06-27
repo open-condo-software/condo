@@ -4,6 +4,8 @@
  */
 
 
+const { CallRecord } = require('./CallRecord')
+const { CallRecordFragment } = require('./CallRecordFragment')
 const { Incident } = require('./Incident')
 const { IncidentChange } = require('./IncidentChange')
 const { IncidentClassifier } = require('./IncidentClassifier')
@@ -61,5 +63,7 @@ module.exports = {
     IncidentClassifierIncident,
     UserFavoriteTicket,
     IncidentExportTask,
+    CallRecord,
+    CallRecordFragment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

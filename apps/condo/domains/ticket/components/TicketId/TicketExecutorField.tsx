@@ -1,7 +1,6 @@
 import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
 import { get } from 'lodash'
-import Link from 'next/link'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -46,13 +45,13 @@ export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket
         <PageFieldRow title={ExecutorMessage} ellipsis>
             {
                 executor
-                    ? <Link href={`/employee/${get(executor, 'id')}`}>
-                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                            <Typography.Text strong>
-                                <TicketUserInfoField user={executorUser} />
-                            </Typography.Text>
-                        </Typography.Link>
-                    </Link>
+                    ? <Typography.Text strong>
+                        <TicketUserInfoField
+                            user={executorUser}
+                            nameLink={`/employee/${get(executor, 'id')}`}
+                            ticket={ticket}
+                        />
+                    </Typography.Text>
                     : <Typography.Text type='secondary'>
                         {EmployeeIsNullOrWasDeletedMessage}
                     </Typography.Text>

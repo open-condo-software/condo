@@ -1,13 +1,33 @@
-import { User } from '@app/condo/schema'
-import { Typography } from 'antd'
+import { Ticket, User } from '@app/condo/schema'
 import { get } from 'lodash'
 import React, { useMemo } from 'react'
+
+import { Typography } from '@open-condo/ui'
 
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 
+interface IUserInfoLink {
+    href?: string
+    children: React.ReactNode
+}
+
+const UserInfoLink: React.FC<IUserInfoLink> = ({ href, children }) => {
+    if (!href) {
+        return <Typography.Text>{children}</Typography.Text>
+    }
+
+    return (
+        <Typography.Link href={href}>
+            {children}
+        </Typography.Link>
+    )
+}
+
 interface ITicketUserInfoFieldProps {
     user?: Partial<User>
+    nameLink?: string
+    ticket?: Ticket
 }
 
 export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
@@ -20,24 +40,36 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
     if (name) {
         userInfo.push(
             <UserNameField user={{ name, id }}>
-                {({ name, postfix }) => (
-                    <>
-                        {name}
-                        {postfix && (
-                            <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
-                        )}
-                    </>
+                {({ name: userName, postfix }) => (
+                    <UserInfoLink href={props.nameLink}>
+                        <>
+                            {userName}
+                            {postfix && (
+                                <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
+                            )}
+                        </>
+                    </UserInfoLink>
                 )}
             </UserNameField>
         )
     }
 
     if (phone) {
-        userInfo.push(formatPhone(phone))
+        const phonePrefix = get(props, 'ticket.organization.phoneNumberPrefix')
+
+        userInfo.push(
+            <UserInfoLink href={`tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}`}>
+                {formatPhone(phone)}
+            </UserInfoLink>
+        )
     }
 
     if (email) {
-        userInfo.push(email)
+        userInfo.push(
+            <UserInfoLink href={`mailto:${email}`}>
+                {email}
+            </UserInfoLink>
+        )
     }
 
     const renderUserInfo = useMemo(() => {
@@ -45,7 +77,7 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
             <div key={i}>
                 {item}
                 {i !== userInfo.length - 1 && (
-                    <br/>
+                    <br />
                 )}
             </div>
         ))

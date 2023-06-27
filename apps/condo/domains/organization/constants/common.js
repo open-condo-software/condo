@@ -58,6 +58,7 @@ const DEFAULT_ROLES = {
         'canManageBankContractorAccounts': true,
         'canManageBankTransactions': true,
         'canManageBankAccountReports': true,
+        'canManageCallRecords': true,
         'ticketVisibilityType': ORGANIZATION_TICKET_VISIBILITY,
         'canManageNewsItems': true,
         'canManageNewsItemTemplates': true,
@@ -92,6 +93,7 @@ const DEFAULT_ROLES = {
         'canManageBankContractorAccounts': false,
         'canManageBankTransactions': false,
         'canManageBankAccountReports': false,
+        'canManageCallRecords': true,
         'ticketVisibilityType': PROPERTY_TICKET_VISIBILITY,
     },
     'Manager': {
@@ -124,6 +126,7 @@ const DEFAULT_ROLES = {
         'canManageBankContractorAccounts': false,
         'canManageBankTransactions': false,
         'canManageBankAccountReports': false,
+        'canManageCallRecords': true,
         'ticketVisibilityType': PROPERTY_TICKET_VISIBILITY,
         'canManageNewsItems': true,
         'canManageNewsItemTemplates': true,
@@ -158,6 +161,7 @@ const DEFAULT_ROLES = {
         'canManageBankContractorAccounts': false,
         'canManageBankTransactions': false,
         'canManageBankAccountReports': false,
+        'canManageCallRecords': true,
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
     },
     'Technician': {
@@ -190,6 +194,7 @@ const DEFAULT_ROLES = {
         'canManageBankContractorAccounts': false,
         'canManageBankTransactions': false,
         'canManageBankAccountReports': false,
+        'canManageCallRecords': true,
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
     },
     'Contractor': {
@@ -221,6 +226,7 @@ const DEFAULT_ROLES = {
         'canManageBankContractorAccounts': false,
         'canManageBankTransactions': false,
         'canManageBankAccountReports': false,
+        'canManageCallRecords': false,
         'ticketVisibilityType': ASSIGNED_TICKET_VISIBILITY,
     },
 }

@@ -63,6 +63,16 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
 
     const render = useMemo(() => getTableCellRenderer({ search }), [search])
 
+    const renderPhone = useCallback((phone, contact) => {
+        const phonePrefix = get(contact, 'organization.phoneNumberPrefix')
+
+        return getTableCellRenderer({ search, href: `tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}` })(phone)
+    }, [search])
+
+    const renderEmail = useCallback((email) => {
+        return getTableCellRenderer({ search, href: `mailto:${email}` })(email)
+    }, [search])
+
     return useMemo(() => {
         return [
             {
@@ -125,7 +135,7 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
                 width: '15%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'phone'),
                 filterIcon: getFilterIcon,
-                render,
+                render: renderPhone,
             },
             {
                 title: EmailMessage,
@@ -138,8 +148,8 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
                 width: '20%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'email'),
                 filterIcon: getFilterIcon,
-                render,
+                render: renderEmail,
             },
         ]
-    }, [NameMessage, sorterMap, filters, filterMetas, render, AddressMessage, renderAddress, RoleMessage, renderRolesFilterDropdown, UnitMessage, renderUnitName, PhoneMessage, EmailMessage])
+    }, [NameMessage, sorterMap, filters, filterMetas, render, AddressMessage, renderAddress, RoleMessage, renderRolesFilterDropdown, UnitMessage, renderUnitName, PhoneMessage, renderPhone, EmailMessage, renderEmail])
 }

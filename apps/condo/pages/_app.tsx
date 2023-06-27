@@ -72,6 +72,7 @@ import {
 import {
     useEndTrialSubscriptionReminderPopup,
 } from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
+import { ActiveCallContextProvider } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useIncidentExportTaskUIInterface } from '@condo/domains/ticket/hooks/useIncidentExportTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
@@ -342,16 +343,18 @@ const MyApp = ({ Component, pageProps }) => {
                                                     <GlobalAppsContainer/>
                                                     <LayoutContextProvider>
                                                         <TicketVisibilityContextProvider>
-                                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                <RequiredAccess>
-                                                                    <Component {...pageProps} />
-                                                                    {
-                                                                        isEndTrialSubscriptionReminderPopupVisible && (
-                                                                            <EndTrialSubscriptionReminderPopup/>
-                                                                        )
-                                                                    }
-                                                                </RequiredAccess>
-                                                            </LayoutComponent>
+                                                            <ActiveCallContextProvider>
+                                                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                    <RequiredAccess>
+                                                                        <Component {...pageProps} />
+                                                                        {
+                                                                            isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                <EndTrialSubscriptionReminderPopup/>
+                                                                            )
+                                                                        }
+                                                                    </RequiredAccess>
+                                                                </LayoutComponent>
+                                                            </ActiveCallContextProvider>
                                                         </TicketVisibilityContextProvider>
                                                     </LayoutContextProvider>
                                                 </GlobalAppsFeaturesProvider>

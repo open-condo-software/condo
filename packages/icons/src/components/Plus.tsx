@@ -18,7 +18,7 @@ export const Plus: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => 
                     <path
                         fillRule='evenodd'
                         clipRule='evenodd'
-                        d='M13 5a1 1 0 1 0-2 0v6H5a1 1 0 1 0 0 2h6v6a1 1 0 1 0 2 0v-6h6a1 1 0 1 0 0-2h-6V5Z'
+                        d='M12 4a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2h-6v6a1 1 0 1 1-2 0v-6H5a1 1 0 1 1 0-2h6V5a1 1 0 0 1 1-1Z'
                         fill='currentColor'
                     />
                 </svg>

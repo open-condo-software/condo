@@ -1,3 +1,4 @@
+import { B2BAppGlobalFeature } from '@app/condo/schema'
 import { Form, Typography } from 'antd'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
@@ -14,6 +15,7 @@ import { ActionBar } from '@open-condo/ui'
 import { colors } from '@condo/domains/common/constants/style'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
+import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
 import { TicketSubmitButton } from '@condo/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
@@ -21,6 +23,7 @@ import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+
 
 dayjs.extend(isToday)
 
@@ -89,6 +92,7 @@ export const CreateTicketForm: React.FC = () => {
     const auth = useAuth() as { user: { id: string } }
     const client = useApolloClient()
     const { addTicketToQueryCacheForTicketCardList } = useCacheUtils(client.cache)
+    const { requestFeature } = useGlobalAppsFeaturesContext()
 
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
@@ -116,16 +120,26 @@ export const CreateTicketForm: React.FC = () => {
             }
         })
 
-    const createAction = useCallback((variables) => {
+    const createAction = useCallback(async ({ attachCallRecord, ...variables }) => {
         let deadline = get(variables, 'deadline')
         if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
         }
-        return action({
+        const ticket = await action({
             ...Ticket.formValuesProcessor({ ...variables, deadline }),
             organization: { connect: { id: organization.id } },
         })
-    }, [organization, action])
+
+        if (attachCallRecord) {
+            requestFeature({
+                feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
+                ticketId: ticket.id,
+                ticketOrganizationId: organization.id,
+            })
+        }
+
+        return ticket
+    }, [action, organization.id, requestFeature])
 
     const initialValues = useMemo(() => ({
         ...initialValuesFromQuery,

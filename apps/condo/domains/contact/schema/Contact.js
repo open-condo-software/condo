@@ -35,8 +35,8 @@ const ERRORS = {
         message: 'Cannot update contact, because another contact with the same provided set of "property", "unitName", "phone"',
         messageForUser: 'api.contact.CONTACT_DUPLICATE_ERROR',
     },
-
 }
+
 const Contact = new GQLListSchema('Contact', {
     schemaDoc: 'Contact information of a person. Currently it will be related to a ticket, but in the future, it will be associated with more things',
     fields: {

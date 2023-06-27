@@ -36,6 +36,8 @@ const { IncidentClassifier: IncidentClassifierGQL } = require('@condo/domains/ti
 const { IncidentClassifierIncident: IncidentClassifierIncidentGQL } = require('@condo/domains/ticket/gql')
 const { UserFavoriteTicket: UserFavoriteTicketGQL } = require('@condo/domains/ticket/gql')
 const { IncidentExportTask: IncidentExportTaskGQL } = require('@condo/domains/ticket/gql')
+const { CallRecord: CallRecordGQL } = require('@condo/domains/ticket/gql')
+const { CallRecordFragment: CallRecordFragmentGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -83,6 +85,8 @@ const IncidentClassifier = generateServerUtils(IncidentClassifierGQL)
 const IncidentClassifierIncident = generateServerUtils(IncidentClassifierIncidentGQL)
 const UserFavoriteTicket = generateServerUtils(UserFavoriteTicketGQL)
 const IncidentExportTask = generateServerUtils(IncidentExportTaskGQL)
+const CallRecord = generateServerUtils(CallRecordGQL)
+const CallRecordFragment = generateServerUtils(CallRecordFragmentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -307,5 +311,7 @@ module.exports = {
     IncidentClassifierIncident,
     UserFavoriteTicket,
     IncidentExportTask,
+    CallRecord,
+    CallRecordFragment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
