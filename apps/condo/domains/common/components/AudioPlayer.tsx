@@ -103,6 +103,12 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
             barHeight: 28,
             cursorWidth: 0,
             hideScrollbar: true,
+            xhr: {
+                cache: 'default',
+                mode: 'cors',
+                method: 'GET',
+                credentials: 'include',
+            },
         })
 
         waveform.current.on('ready', () => {

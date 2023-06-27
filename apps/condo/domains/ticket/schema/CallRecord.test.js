@@ -8,14 +8,18 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
-const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
+const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { CALL_RECORD_ERRORS } = require('@condo/domains/ticket/constants/errors')
 const { CallRecord, createTestCallRecord, updateTestCallRecord } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('CallRecord', () => {
-    let admin, support, employeeWithCanManageCallRecordsUser, employeeWithoutCanManageCallRecordsUser,
+    let admin, support, employeeWithCanManageCallRecordsUser,
+        relatedFromOrgEmployeeWithCanManageUser,
+        relatedFromOrgEmployeeWithoutCanManageUser,
+        employeeWithoutCanManageCallRecordsUser,
         notEmployeeUser, anonymous, organization, testCallRecord
 
     beforeAll(async () => {
@@ -23,10 +27,12 @@ describe('CallRecord', () => {
         support = await makeClientWithSupportUser()
         employeeWithCanManageCallRecordsUser = await makeClientWithNewRegisteredAndLoggedInUser()
         employeeWithoutCanManageCallRecordsUser = await makeClientWithNewRegisteredAndLoggedInUser()
+        relatedFromOrgEmployeeWithCanManageUser = await makeClientWithNewRegisteredAndLoggedInUser()
+        relatedFromOrgEmployeeWithoutCanManageUser = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymous = await makeClient()
 
-        const [testOrganization] = await createTestOrganization(admin)
-        organization = testOrganization
+        const [toOrganization] = await createTestOrganization(admin)
+        organization = toOrganization
 
         const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
             canManageCallRecords: true,
@@ -36,6 +42,18 @@ describe('CallRecord', () => {
         })
         await createTestOrganizationEmployee(admin, organization, employeeWithCanManageCallRecordsUser.user, role)
         await createTestOrganizationEmployee(admin, organization, employeeWithoutCanManageCallRecordsUser.user, role1)
+
+        const [fromOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
+        await createTestOrganizationLink(admin, fromOrganization, toOrganization)
+
+        const [role3] = await createTestOrganizationEmployeeRole(admin, fromOrganization, {
+            canManageCallRecords: true,
+        })
+        const [role4] = await createTestOrganizationEmployeeRole(admin, fromOrganization, {
+            canManageCallRecords: false,
+        })
+        await createTestOrganizationEmployee(admin, fromOrganization, relatedFromOrgEmployeeWithCanManageUser.user, role3)
+        await createTestOrganizationEmployee(admin, fromOrganization, relatedFromOrgEmployeeWithoutCanManageUser.user, role4)
 
         notEmployeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
     })
@@ -94,54 +112,110 @@ describe('CallRecord', () => {
         })
 
         describe('Employee', () => {
-            describe('with canManageCallRecords access', function () {
-                test('can create', async () => {
-                    const [callRecord] = await createTestCallRecord(employeeWithCanManageCallRecordsUser, organization)
-                    expect(callRecord).toBeDefined()
-                    expect(callRecord).toHaveProperty('organization.id', organization.id)
-                    expect(callRecord.callerPhone).toBeDefined()
-                    expect(callRecord.destCallerPhone).toBeDefined()
-                    expect(callRecord.talkTime).toBeDefined()
-                    expect(callRecord.startedAt).toBeDefined()
-                    expect(callRecord.isIncomingCall).toBeDefined()
-                    expect(callRecord.importId).toBeDefined()
+            describe('Organization employee', () => {
+                describe('with canManageCallRecords access', function () {
+                    test('can create', async () => {
+                        const [callRecord] = await createTestCallRecord(employeeWithCanManageCallRecordsUser, organization)
+                        expect(callRecord).toBeDefined()
+                        expect(callRecord).toHaveProperty('organization.id', organization.id)
+                        expect(callRecord.callerPhone).toBeDefined()
+                        expect(callRecord.destCallerPhone).toBeDefined()
+                        expect(callRecord.talkTime).toBeDefined()
+                        expect(callRecord.startedAt).toBeDefined()
+                        expect(callRecord.isIncomingCall).toBeDefined()
+                        expect(callRecord.importId).toBeDefined()
+                    })
+                    test('can read', async () => {
+                        const callRecord = await CallRecord.getOne(employeeWithCanManageCallRecordsUser, { id: testCallRecord.id })
+                        expect(callRecord).toBeDefined()
+                        expect(callRecord).toHaveProperty('id', callRecord.id)
+                    })
+                    test('can update', async () => {
+                        const [callRecord] = await updateTestCallRecord(employeeWithCanManageCallRecordsUser, testCallRecord.id, { isIncomingCall: false })
+                        expect(callRecord).toBeDefined()
+                        expect(callRecord).toHaveProperty('isIncomingCall', false)
+                    })
+                    test('can\'t delete', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await CallRecord.delete(employeeWithCanManageCallRecordsUser, testCallRecord.id)
+                        })
+                    })
                 })
-                test('can read', async () => {
-                    const callRecord = await CallRecord.getOne(employeeWithCanManageCallRecordsUser, { id: testCallRecord.id })
-                    expect(callRecord).toBeDefined()
-                    expect(callRecord).toHaveProperty('id', callRecord.id)
-                })
-                test('can update', async () => {
-                    const [callRecord] = await updateTestCallRecord(employeeWithCanManageCallRecordsUser, testCallRecord.id, { isIncomingCall: false })
-                    expect(callRecord).toBeDefined()
-                    expect(callRecord).toHaveProperty('isIncomingCall', false)
-                })
-                test('can\'t delete', async () => {
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await CallRecord.delete(employeeWithCanManageCallRecordsUser, testCallRecord.id)
+                describe('without canManageCallRecords access', function () {
+                    test('can\'t create', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(
+                            async () => await createTestCallRecord(employeeWithoutCanManageCallRecordsUser, organization)
+                        )
+                    })
+                    test('can read', async () => {
+                        const callRecord = await CallRecord.getOne(employeeWithoutCanManageCallRecordsUser, { id: testCallRecord.id })
+
+                        expect(callRecord).toBeDefined()
+                        expect(callRecord).toHaveProperty('id', callRecord.id)
+                    })
+                    test('can\'t update', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(
+                            async () => await updateTestCallRecord(employeeWithoutCanManageCallRecordsUser, testCallRecord.id, { isIncomingCall: false })
+                        )
+                    })
+                    test('can\'t delete', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await CallRecord.delete(employeeWithCanManageCallRecordsUser, testCallRecord.id)
+                        })
                     })
                 })
             })
-            describe('without canManageCallRecords access', function () {
-                test('can\'t create', async () => {
-                    await expectToThrowAccessDeniedErrorToObj(
-                        async () => await createTestCallRecord(employeeWithoutCanManageCallRecordsUser, organization)
-                    )
-                })
-                test('can read', async () => {
-                    const callRecord = await CallRecord.getOne(employeeWithoutCanManageCallRecordsUser, { id: testCallRecord.id })
 
-                    expect(callRecord).toBeDefined()
-                    expect(callRecord).toHaveProperty('id', callRecord.id)
+            describe('Related from organization employee', () => {
+                describe('with canManageCallRecords access', function () {
+                    test('can create', async () => {
+                        const [callRecord] = await createTestCallRecord(relatedFromOrgEmployeeWithCanManageUser, organization)
+                        expect(callRecord).toBeDefined()
+                        expect(callRecord).toHaveProperty('organization.id', organization.id)
+                        expect(callRecord.callerPhone).toBeDefined()
+                        expect(callRecord.destCallerPhone).toBeDefined()
+                        expect(callRecord.talkTime).toBeDefined()
+                        expect(callRecord.startedAt).toBeDefined()
+                        expect(callRecord.isIncomingCall).toBeDefined()
+                        expect(callRecord.importId).toBeDefined()
+                    })
+                    test('can read', async () => {
+                        const callRecord = await CallRecord.getOne(relatedFromOrgEmployeeWithCanManageUser, { id: testCallRecord.id })
+                        expect(callRecord).toBeDefined()
+                        expect(callRecord).toHaveProperty('id', callRecord.id)
+                    })
+                    test('can update', async () => {
+                        const [callRecord] = await updateTestCallRecord(relatedFromOrgEmployeeWithCanManageUser, testCallRecord.id, { isIncomingCall: false })
+                        expect(callRecord).toBeDefined()
+                        expect(callRecord).toHaveProperty('isIncomingCall', false)
+                    })
+                    test('can\'t delete', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await CallRecord.delete(relatedFromOrgEmployeeWithCanManageUser, testCallRecord.id)
+                        })
+                    })
                 })
-                test('can\'t update', async () => {
-                    await expectToThrowAccessDeniedErrorToObj(
-                        async () => await updateTestCallRecord(employeeWithoutCanManageCallRecordsUser, testCallRecord.id, { isIncomingCall: false })
-                    )
-                })
-                test('can\'t delete', async () => {
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await CallRecord.delete(employeeWithCanManageCallRecordsUser, testCallRecord.id)
+                describe('without canManageCallRecords access', function () {
+                    test('can\'t create', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(
+                            async () => await createTestCallRecord(relatedFromOrgEmployeeWithoutCanManageUser, organization)
+                        )
+                    })
+                    test('can read', async () => {
+                        const callRecord = await CallRecord.getOne(relatedFromOrgEmployeeWithoutCanManageUser, { id: testCallRecord.id })
+
+                        expect(callRecord).toBeDefined()
+                        expect(callRecord).toHaveProperty('id', callRecord.id)
+                    })
+                    test('can\'t update', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(
+                            async () => await updateTestCallRecord(relatedFromOrgEmployeeWithoutCanManageUser, testCallRecord.id, { isIncomingCall: false })
+                        )
+                    })
+                    test('can\'t delete', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await CallRecord.delete(relatedFromOrgEmployeeWithoutCanManageUser, testCallRecord.id)
+                        })
                     })
                 })
             })
