@@ -11,7 +11,7 @@ const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
-const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
+const { MONEY_AMOUNT_FIELD, POSITIVE_MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 
 const { RECIPIENT_FIELD } = require('./fields/BillingReceipt/Recipient')
 const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
@@ -90,6 +90,76 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             isRequired: true,
         },
 
+        formula: {
+            schemaDoc: 'Calculation formula. Example: balance + charge + recalculation + privilege + penalty',
+            type: Text,
+            access: {
+                create: false,
+                read: true,
+                update: false,
+            },
+        },
+
+        charge: {
+            ...POSITIVE_MONEY_AMOUNT_FIELD,
+            schemaDoc: 'Amount of money that charged by paid period',
+            access: {
+                create: false,
+                read: true,
+                update: false,
+            },
+        },
+
+        balance: {
+            ...MONEY_AMOUNT_FIELD,
+            schemaDoc: 'Recipient balance on the receipt creation moment',
+            access: {
+                create: false,
+                read: true,
+                update: false,
+            },
+        },
+
+        recalculation: {
+            ...POSITIVE_MONEY_AMOUNT_FIELD,
+            schemaDoc: 'Recipient balance recalculation in case of overpaid or etc',
+            access: {
+                create: false,
+                read: true,
+                update: false,
+            },
+        },
+
+        privilege: {
+            ...POSITIVE_MONEY_AMOUNT_FIELD,
+            schemaDoc: 'Special privileges for recipient',
+            access: {
+                create: false,
+                read: true,
+                update: false,
+            },
+        },
+
+        penalty: {
+            ...POSITIVE_MONEY_AMOUNT_FIELD,
+            schemaDoc: 'Amount of money that recipient doesn\'t pay for previous receipt',
+            access: {
+                create: false,
+                read: true,
+                update: false,
+            },
+        },
+
+        paid: {
+            ...POSITIVE_MONEY_AMOUNT_FIELD,
+            schemaDoc: 'Amount of money that recipient already paid by current receipt',
+            access: {
+                create: false,
+                read: true,
+                update: false,
+            },
+        },
+
         toPayDetails: TO_PAY_DETAILS_FIELD,
 
         services: SERVICES_FIELD,
@@ -153,6 +223,15 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             }
 
         },
+        resolveInput: ({ resolvedData }) => {
+            // Update toPayDetails explicit fields directly from passed value
+            if ('toPayDetails' in resolvedData) {
+                resolvedData = { ...resolvedData, ...resolvedData.toPayDetails }
+            }
+
+            return resolvedData
+        },
+
         beforeChange: async ({
             existingItem,
             resolvedData,
