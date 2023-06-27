@@ -83,7 +83,7 @@ async function sendNotifications (context, newsItem) {
                     userId: resident.user.id,
                     residentId: resident.id,
                     userRelatedResidentsIds: get(residentsIdsByUser, resident.user.id, []).join(','),
-                    url: `${conf.SERVER_URL}/newsItem`,
+                    url: `${conf.SERVER_URL}/newsItem/${newsItem.id}`,
                     validBefore: get(newsItem, 'validBefore', null),
                     // The first truthy value will be returned, or null if no values are found.
                     dateCreated: ['sendAt', 'publishedAt', 'updatedAt', 'createdAt'].reduce((result, field) => (result || get(newsItem, field)), null),
