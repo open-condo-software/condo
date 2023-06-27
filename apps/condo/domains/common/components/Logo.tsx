@@ -9,7 +9,7 @@ import React from 'react'
 const LogoWrapper = styled.span`
   display: inline-flex;
   align-items: center;
-  height: 40px;
+  height: 32px;
 `
 
 const SunKeyFrames = keyframes`

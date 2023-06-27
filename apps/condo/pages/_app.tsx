@@ -80,6 +80,8 @@ import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 import { USER_QUERY } from '@condo/domains/user/gql'
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
+import '@open-condo/ui/dist/style-vars/variables.css'
+import '@condo/domains/common/components/containers/global-styles.css'
 
 const ANT_LOCALES = {
     ru: ruRU,

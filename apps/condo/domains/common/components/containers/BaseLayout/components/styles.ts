@@ -2,8 +2,7 @@ import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Layout, Menu } from 'antd'
 
-import { colors, shadows, zIndex, MAX_CONTENT_WIDTH } from '@condo/domains/common/constants/style'
-import { gradients } from '@condo/domains/common/constants/style'
+import { colors, MAX_CONTENT_WIDTH } from '@condo/domains/common/constants/style'
 
 const { red } = require('@ant-design/colors')
 
@@ -51,26 +50,6 @@ export const FROM_INPUT_CSS = css`
   }
 `
 
-export const MOBILE_SIDE_NAV_STYLES = css`
-  position: fixed;
-  padding: 16px 0 60px;
-  box-sizing: border-box;
-  overflow-y: scroll;
-  height: 100vh;
-  z-index: ${zIndex.mobileSidenav};
-`
-
-export const SIDE_NAV_STYLES = css`
-  position: fixed;
-  padding: 40px 0 60px;
-  box-sizing: border-box;
-  height: 100vh;
-  z-index: 10;
-  border-width: 0 1px 0 0;
-  border-color: ${colors.lightGrey[5]};
-  border-style: solid;
-`
-
 export const MobileSideNavHeader = styled.div`
   display: flex;
   flex-direction: row;
@@ -87,44 +66,8 @@ export const OrganizationSelectWrapper = styled.div`
   justify-content: end;
 `
 
-export const MenuItemsContainer = styled.div`
-  overflow-x: hidden;
-  height: 100%;
-  padding: 0 34px 100px;
-`
-
 export const MobileMenuItemsContainer = styled.div`
   padding: 0 22px 100px;
-`
-
-export const LogoContainer = styled.div`
-  margin: 0 auto;
-  padding: 0 34px 40px;
-`
-
-export const ActionsContainer = styled.div<{ minified: boolean }>`
-  position: relative;
-  display: flex;
-  justify-content: center;
-  padding: 0 34px 38px;
-
-  &:after {
-    bottom: -18px;
-    content: '';
-    width: 100%;
-    position: absolute;
-    height: 24px;
-    background: ${gradients.fadeOutGradient};
-  }
-`
-
-export const LayoutTriggerWrapper = styled.div`
-  position: absolute;
-  border-radius: 50%;
-  box-shadow: ${shadows.elevated};
-  font-size: 10px;
-  top: 38px;
-  right: -12px;
 `
 
 export const TopMenuItem = styled.div`

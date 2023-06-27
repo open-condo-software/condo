@@ -28,7 +28,7 @@ interface IMenuItemWrapperProps {
 
 const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
   cursor: pointer;
-  padding: ${props => props.padding ? props.padding : '18px 0'};
+  padding: ${props => props.padding ? props.padding : '12px 0'};
   display: flex;
   border-radius: 8px;
   flex-direction: row;
@@ -55,12 +55,6 @@ const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
   &.side:not(.width-full) {
     .condo-typography {
       width: 155px;
-    }
-  }
-
-  &.active {
-    .condo-typography {
-      font-weight: 700;
     }
   }
 
@@ -151,11 +145,11 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         ? (
             <ClientRenderedIcon icon={icon} iconProps={MenuItemIconProps}/>
         ) : (
-            <Space size={12} align='center' direction='horizontal'>
+            <Space size={12} align='center' direction='horizontal' className='menu-item'>
                 <ClientRenderedIcon icon={icon} iconProps={MenuItemIconProps}/>
-                <Typography.Paragraph ellipsis={{ rows: 2 }}>
+                <Typography.Title ellipsis={{ rows: 2 }} level={5}>
                     {Message}
-                </Typography.Paragraph>
+                </Typography.Title>
             </Space>
         )
 
