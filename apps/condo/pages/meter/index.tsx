@@ -1,5 +1,6 @@
 /** @jsx jsx */
 import { SortMeterReadingsBy } from '@app/condo/schema'
+import { ButtonWithDisabledTooltip } from "@condo/domains/common/components/ButtonWithDisabledTooltip";
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps, Tabs, Typography } from 'antd'
 import get from 'lodash/get'
@@ -11,7 +12,7 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { FileDown, Filter } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Space } from '@open-condo/ui'
+import { ActionBar, Button, Space } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import {
@@ -45,8 +46,9 @@ import {
     MeterReading,
     PropertyMeterReading,
     MeterReadingFilterTemplate,
-    MeterTypes,
-    METER_TYPES,
+    MeterPageTypes,
+    MeterReportingPeriod,
+    METER_PAGE_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
@@ -153,7 +155,7 @@ export const MetersPageContent = ({
                             />
                         </ImportWrapper>
                     )}
-                    createRoute={`/meter/create?meterType=${METER_TYPES.meter}`}
+                    createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.meter}`}
                     createLabel={CreateMeter}
                     containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
                 />
@@ -289,7 +291,7 @@ export const PropertyMetersPageContent = ({
 
     const { breakpoints } = useLayoutContext()
     const [search, handleSearchChange, handleSearchReset] = useSearch()
-    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch, METER_TYPES.propertyMeter)
+    const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch, METER_PAGE_TYPES.propertyMeter)
     const isNoMeterData = isEmpty(PropertyMeterReadings) && isEmpty(filters) && !metersLoading && !loading
 
     const handleRowAction = useCallback((record) => {
@@ -308,7 +310,7 @@ export const PropertyMetersPageContent = ({
                 <EmptyListView
                     label={EmptyListLabel}
                     message=''
-                    createRoute={`/meter/create?meterType=${METER_TYPES.propertyMeter}`}
+                    createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.propertyMeter}`}
                     createLabel={CreateMeter}
                     containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
                 />
@@ -348,6 +350,110 @@ export const PropertyMetersPageContent = ({
     )
 }
 
+export const MeterReportingPeriodPageContent = ({
+    searchMeterReportingPeriodsQuery,
+    tableColumns,
+    sortBy,
+    filterMetas,
+    role,
+    loading,
+}) => {
+    const intl = useIntl()
+    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
+    const CreateReportingPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.EmptyList.create' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+
+    const router = useRouter()
+    const { filters, offset } = parseQuery(router.query)
+    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+
+    const {
+        loading: periodLoading,
+        count: total,
+        objs: reportingPeriods,
+    } = MeterReportingPeriod.useObjects({
+        sortBy,
+        where: searchMeterReportingPeriodsQuery,
+        first: DEFAULT_PAGE_SIZE,
+        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+    }, {
+        fetchPolicy: 'network-only',
+    })
+
+    const { breakpoints } = useLayoutContext()
+    const [search, handleSearchChange, handleSearchReset] = useSearch()
+    const isNoMeterData = isEmpty(reportingPeriods) && isEmpty(filters) && !periodLoading && !loading
+
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: () => {
+                router.push(`/meter/reportingPeriod/${record.id}/update`)
+            },
+        }
+    }, [reportingPeriods])
+    const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
+
+    const handleCreateButtonClick = () => router.push('/meter/reportingPeriod/create')
+
+    return (
+        <>
+            <TablePageContent>
+                <EmptyListView
+                    label={EmptyListLabel}
+                    message=''
+                    createRoute='/meter/reportingPeriod/create'
+                    createLabel={CreateReportingPeriodLabel}
+                    containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
+                />
+                <Row
+                    gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
+                    align='middle'
+                    justify='center'
+                    hidden={isNoMeterData}
+                >
+                    <Col span={24}>
+                        <TableFiltersContainer>
+                            <Row justify='space-between' gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
+                                <Col xs={24} lg={7}>
+                                    <Input
+                                        placeholder={SearchPlaceholder}
+                                        onChange={handleSearch}
+                                        value={search}
+                                        allowClear
+                                    />
+                                </Col>
+                            </Row>
+                        </TableFiltersContainer>
+                    </Col>
+                    <Col span={24}>
+                        <Table
+                            totalRows={total}
+                            loading={periodLoading || loading}
+                            dataSource={reportingPeriods}
+                            columns={tableColumns}
+                            onRow={handleRowAction}
+                        />
+                    </Col>
+                </Row>
+                {
+                    isNoMeterData ? '' :
+                        <ActionBar
+                            actions={[
+                                <Button
+                                    key='createPeriod'
+                                    type='primary'
+                                    onClick={handleCreateButtonClick}
+                                >
+                                    {CreateReportingPeriodLabel}
+                                </Button>,
+                            ]}
+                        />
+                }
+            </TablePageContent>
+        </>
+    )
+}
+
 interface IMeterIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
@@ -360,6 +466,7 @@ const MetersPage: IMeterIndexPage = () => {
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
     const MeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.meterTab' })
     const PropertyMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.propertyMeterTab' })
+    const ReportingPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriodTab' })
 
     const { organization, link, isLoading } = useOrganization()
     const userOrganizationId = get(organization, 'id')
@@ -367,7 +474,7 @@ const MetersPage: IMeterIndexPage = () => {
 
     const { GlobalHints } = useGlobalHints()
 
-    const [tab, setTab] = useState<MeterTypes>(METER_TYPES.meter)
+    const [tab, setTab] = useState<MeterPageTypes>(METER_PAGE_TYPES.meter)
 
     const filterMetas = useFilters(tab)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
@@ -379,10 +486,14 @@ const MetersPage: IMeterIndexPage = () => {
         meter: { deletedAt: null },
         organization: { id: userOrganizationId } }),
     [filters, filtersToWhere, userOrganizationId])
+    const searchMeterReportingPeriodsQuery = useMemo(() => ({
+        ...filtersToWhere(filters),
+        organization: { id: userOrganizationId } }),
+    [filters, filtersToWhere, userOrganizationId])
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
 
 
-    const handleTabChange = useCallback((tab: MeterTypes) => {
+    const handleTabChange = useCallback((tab: MeterPageTypes) => {
         setTab(tab)
     }, [])
 
@@ -395,11 +506,12 @@ const MetersPage: IMeterIndexPage = () => {
                 {GlobalHints}
                 <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
                 <Tabs activeKey={tab} onChange={handleTabChange}>
-                    <Tabs.TabPane tab={MeterMessage} key={METER_TYPES.meter} />
-                    <Tabs.TabPane tab={PropertyMeterMessage} key={METER_TYPES.propertyMeter} />
+                    <Tabs.TabPane tab={MeterMessage} key={METER_PAGE_TYPES.meter} />
+                    <Tabs.TabPane tab={PropertyMeterMessage} key={METER_PAGE_TYPES.propertyMeter} />
+                    <Tabs.TabPane tab={ReportingPeriodMessage} key={METER_PAGE_TYPES.reportingPeriod} />
                 </Tabs>
                 {
-                    tab === METER_TYPES.meter && (
+                    tab === METER_PAGE_TYPES.meter && (
                         <MetersPageContent
                             tableColumns={tableColumns}
                             searchMeterReadingsQuery={searchMeterReadingsQuery}
@@ -411,10 +523,22 @@ const MetersPage: IMeterIndexPage = () => {
                     )
                 }
                 {
-                    tab === METER_TYPES.propertyMeter && (
+                    tab === METER_PAGE_TYPES.propertyMeter && (
                         <PropertyMetersPageContent
                             tableColumns={tableColumns}
                             searchMeterReadingsQuery={searchMeterReadingsQuery}
+                            sortBy={sortBy}
+                            filterMetas={filterMetas}
+                            role={role}
+                            loading={isLoading}
+                        />
+                    )
+                }
+                {
+                    tab === METER_PAGE_TYPES.reportingPeriod && (
+                        <MeterReportingPeriodPageContent
+                            tableColumns={tableColumns}
+                            searchMeterReportingPeriodsQuery={searchMeterReportingPeriodsQuery}
                             sortBy={sortBy}
                             filterMetas={filterMetas}
                             role={role}
