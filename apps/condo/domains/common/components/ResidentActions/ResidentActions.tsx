@@ -1,14 +1,13 @@
-import { PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Divider, Dropdown, DropDownProps, Menu } from 'antd'
 import get from 'lodash/get'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
-import { Readings, NewAppeal, Smartphone } from '@open-condo/icons'
+import { Readings, NewAppeal, Smartphone, Plus } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Button } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { fontSizes } from '@condo/domains/common/constants/style'
@@ -20,12 +19,6 @@ import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibi
 export const StyledMenu = styled(Menu)`
   box-sizing: border-box;
   border-radius: 8px;
-`
-
-const StyledButton = styled(Button)`
-  &:hover {
-    cursor: initial;
-  }
 `
 
 export const ResidentAppealDropDownMenuItemWrapperProps = {
@@ -138,18 +131,15 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
                 getPopupContainer={getPopupContainer}
                 trigger={trigger}
                 visible={dropdownVisible}
+                overlayClassName='appeals-dropdown-menu'
                 onVisibleChange={setDropdownVisible}
             >
-                {/* NOTE: you need to use `dev` wrapper because of warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef() */}
-                <div>{
-                    minified
-                        ? (<StyledButton type='sberGradient' icon={<PlusOutlined />} shape='circle'/>)
-                        : (
-                            <StyledButton type='sberGradient' icon={<PlusOutlined />}>
-                                {ResidentAppealMessage}
-                            </StyledButton>
-                        )
-                }</div>
+                {/* NOTE: you need to use `div` wrapper because of warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef() */}
+                <div>
+                    <Button type='secondary' block icon={<Plus size='small'/>} className='appeals-button'>
+                        {!minified && ResidentAppealMessage}
+                    </Button>
+                </div>
             </Dropdown>
             {SearchByPhoneModal}
         </div>
