@@ -12,20 +12,7 @@ import React, { useMemo } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { FeatureFlagsProvider, useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import {
-    BarChartVertical,
-    LayoutList,
-    Building,
-    Contacts,
-    Employee,
-    Wallet,
-    Meters,
-    Services,
-    Settings,
-    OnOff,
-    Sber,
-    Newspaper,
-} from '@open-condo/icons'
+import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { withApollo } from '@open-condo/next/apollo'
 import { useAuth, withAuth } from '@open-condo/next/auth'
@@ -57,6 +44,7 @@ import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
+import { ConnectedAppsWithIconsContextProvider, useConnectedAppsWithIconsContext } from '@condo/domains/miniapp/components/ConnectedAppsWithIconsProvider'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import {
@@ -97,7 +85,7 @@ interface IMenuItemData {
     icon: React.FC,
     label: string,
     access?: () => boolean,
-    excludePaths?: Array<string>
+    excludePaths?: Array<RegExp>
 }
 
 const ANT_DEFAULT_LOCALE = enUS
@@ -124,6 +112,8 @@ const MenuItems: React.FC = () => {
     // The menu item is hidden until release
     const canManageNewsItems = false && get<boolean>(role, 'canManageNewsItems', false)
 
+    const { contexts } = useConnectedAppsWithIconsContext()
+
     useDeepCompareEffect(() => {
         updateContext({ orgFeatures })
     }, [updateContext, orgFeatures])
@@ -132,48 +122,48 @@ const MenuItems: React.FC = () => {
         const itemsConfigs = [{
             id: 'menuitem-reports',
             path: 'reports',
-            icon: BarChartVertical,
+            icon: AllIcons['BarChartVertical'],
             label: 'global.section.analytics',
             access: () => !isAssignedVisibilityType,
         }, {
             id: 'menuitem-ticket',
             path: 'ticket',
-            icon: LayoutList,
+            icon: AllIcons['LayoutList'],
             label: 'global.section.controlRoom',
         }, {
             id: 'menuitem-incident',
             path: 'incident',
-            icon: OnOff,
+            icon: AllIcons['OnOff'],
             label: 'global.section.incidents',
             access: () => !isAssignedVisibilityType,
         }, {
             id: 'menuitem-news',
             path: 'news',
-            icon: Newspaper,
+            icon: AllIcons['Newspaper'],
             label: 'global.section.newsItems',
             access: () => canManageNewsItems,
         }, {
             id: 'menuitem-property',
             path: 'property',
-            icon: Building,
+            icon: AllIcons['Building'],
             label: 'global.section.properties',
             access: () => !isAssignedVisibilityType,
         }, {
             id: 'menuitem-contact',
             path: 'contact',
-            icon: Contacts,
+            icon: AllIcons['Contacts'],
             label: 'global.section.contacts',
             access: () => !isAssignedVisibilityType,
         }, {
             id: 'menuitem-emloyee',
             path: 'employee',
-            icon: Employee,
+            icon: AllIcons['Employee'],
             label: 'global.section.employees',
             access: () => !isAssignedVisibilityType,
         }, {
             id: 'menuitem-billing',
             path: 'billing',
-            icon: Wallet,
+            icon: AllIcons['Wallet'],
             label: 'global.section.accrualsAndPayments',
             // NOTE: For SPP users billing is available after first receipts-load finished
             access: () => isSPPOrg
@@ -182,30 +172,39 @@ const MenuItems: React.FC = () => {
         }, {
             id: 'menuitem-meter',
             path: 'meter',
-            icon: Meters,
+            icon: AllIcons['Meters'],
             label: 'global.section.meters',
             access: () => !isAssignedVisibilityType,
         }, {
             id: 'menuitem-miniapps',
             path: 'miniapps',
-            icon: Services,
+            icon: AllIcons['Services'],
             label: 'global.section.miniapps',
             access: () => !isAssignedVisibilityType,
+            excludePaths: contexts.map((ctx) => new RegExp(`/miniapps/${ctx.app.id}$`)),
         }, {
             id: 'menuitem-service-provider-profile',
             path: 'service-provider-profile',
-            icon: Sber,
+            icon: AllIcons['Sber'],
             label: 'global.section.SPP',
             access: () => sppBillingId && isSPPOrg,
         }, {
             id: 'menuitem-settings',
             path: 'settings',
-            icon: Settings,
+            icon: AllIcons['Settings'],
             label: 'global.section.settings',
             access: () => !isAssignedVisibilityType,
         }]
         return itemsConfigs.filter((item) => get(item, 'access', () => true)())
-    }, [isAssignedVisibilityType, hasAccessToBilling, anyReceiptsLoaded, isSPPOrg, sppBillingId])
+    }, [
+        isAssignedVisibilityType,
+        hasAccessToBilling,
+        anyReceiptsLoaded,
+        isSPPOrg,
+        sppBillingId,
+        canManageNewsItems,
+        contexts,
+    ])
 
     return (
         <>
@@ -236,6 +235,19 @@ const MenuItems: React.FC = () => {
                         isCollapsed={isCollapsed}
                         toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
                         excludePaths={menuItemData.excludePaths}
+                    />
+                ))}
+                {contexts.map((ctx) => (
+                    <MenuItem
+                        id={`menu-item-${ctx.app.id}`}
+                        key={`menu-item-${ctx.app.id}`}
+                        path={`/miniapps/${ctx.app.id}`}
+                        icon={get(AllIcons, ctx.app.icon, null)}
+                        label={ctx.app.name}
+                        disabled={disabled}
+                        isCollapsed={isCollapsed}
+                        toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
+                        excludePaths={[new RegExp(`/miniapps/${ctx.app.id}/.+`)]}
                     />
                 ))}
             </div>
@@ -354,16 +366,18 @@ const MyApp = ({ Component, pageProps }) => {
                                                     <LayoutContextProvider>
                                                         <TicketVisibilityContextProvider>
                                                             <ActiveCallContextProvider>
-                                                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                    <RequiredAccess>
-                                                                        <Component {...pageProps} />
-                                                                        {
-                                                                            isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                <EndTrialSubscriptionReminderPopup/>
-                                                                            )
-                                                                        }
-                                                                    </RequiredAccess>
-                                                                </LayoutComponent>
+                                                                <ConnectedAppsWithIconsContextProvider>
+                                                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                        <RequiredAccess>
+                                                                            <Component {...pageProps} />
+                                                                            {
+                                                                                isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                    <EndTrialSubscriptionReminderPopup/>
+                                                                                )
+                                                                            }
+                                                                        </RequiredAccess>
+                                                                    </LayoutComponent>
+                                                                </ConnectedAppsWithIconsContextProvider>
                                                             </ActiveCallContextProvider>
                                                         </TicketVisibilityContextProvider>
                                                     </LayoutContextProvider>

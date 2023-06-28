@@ -1,6 +1,9 @@
 const { Text, File, Checkbox, Select, Integer, Url } = require('@keystonejs/fields')
 const { Markdown } = require('@keystonejs/fields-markdown')
 
+const AllIcons = require('@open-condo/icons')
+const userAccess = require('@open-condo/keystone/access')
+
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS, B2B_APPS_LABELS } = require('@condo/domains/miniapp/constants')
 
@@ -17,6 +20,18 @@ const LOGO_FIELD = {
     type: File,
     isRequired: false,
     adapter: APPS_FILE_ADAPTER,
+}
+
+const ICON_FIELD = {
+    schemaDoc: 'App icon. The presence of this field means that this app will be pinned to the CRM menu after the connection.',
+    type: Select,
+    dataType: 'string',
+    options: Object.keys(AllIcons),
+    access: {
+        read: true,
+        create: userAccess.userIsAdminOrIsSupport,
+        update: userAccess.userIsAdminOrIsSupport,
+    },
 }
 
 const PARTNER_URL_FIELD = {
@@ -104,5 +119,6 @@ module.exports = {
     DISPLAY_PRIORITY_FIELD,
     LABEL_FIELD,
     PRICE_FIELD,
+    ICON_FIELD,
 }
 

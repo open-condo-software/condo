@@ -74,7 +74,7 @@ interface IMenuItemProps {
     isCollapsed?: boolean
     onClick?: () => void
     eventName?: string
-    excludePaths?: Array<string>
+    excludePaths?: Array<RegExp>
 
     toolTipDecorator? (params: INoOrganizationToolTipWrapper): JSX.Element
 }
@@ -109,7 +109,8 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         excludePaths = [],
     } = props
     const { breakpoints } = useLayoutContext()
-    const { asPath } = useRouter()
+    const router = useRouter()
+    const asPath = router.asPath
     const intl = useIntl()
     const { getTrackingWrappedCallback } = useTracking()
     const { className: wrapperClassName, ...restWrapperProps } = menuItemWrapperProps
@@ -121,7 +122,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         const regex = new RegExp(`^${escapedPath}`)
         setIsActive(path === '/'
             ? asPath === path
-            : regex.test(asPath) && excludePaths.every(exPath => !asPath.includes(exPath)))
+            : regex.test(asPath) && excludePaths.every(exPath => !exPath.test(asPath)))
     }, [path, asPath, excludePaths])
 
     const handleClick = useMemo(

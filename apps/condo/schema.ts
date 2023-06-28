@@ -1976,6 +1976,8 @@ export type B2BApp = {
   isHidden?: Maybe<Scalars['Boolean']>;
   /**  Indicates whether the app is global or not. If so, then the application will be opened in hidden mode and receive various notifications from the condo. It's also possible to trigger some condo IFrame methods via global app outside of miniapps CRM section  */
   isGlobal?: Maybe<Scalars['Boolean']>;
+  /**  App icon. The presence of this field means that this app will be pinned to the CRM menu after the connection.  */
+  icon?: Maybe<Scalars['String']>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
   contextDefaultStatus?: Maybe<Scalars['String']>;
   /**  Category of app. Can be one of the following: ["DISPATCHING", "GIS", "SMART_HOME", "BUSINESS_DEVELOPMENT", "OTHER"] By default set to "OTHER"  */
@@ -2721,6 +2723,7 @@ export type B2BAppCreateInput = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
+  icon?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   accessRights?: Maybe<B2BAppAccessRightRelateToManyInput>;
@@ -2765,6 +2768,7 @@ export type B2BAppHistoryRecord = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
+  icon?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
@@ -2797,6 +2801,7 @@ export type B2BAppHistoryRecordCreateInput = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
+  icon?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
@@ -2834,6 +2839,7 @@ export type B2BAppHistoryRecordUpdateInput = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
+  icon?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
@@ -2960,6 +2966,24 @@ export type B2BAppHistoryRecordWhereInput = {
   isHidden_not?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
   isGlobal_not?: Maybe<Scalars['Boolean']>;
+  icon?: Maybe<Scalars['String']>;
+  icon_not?: Maybe<Scalars['String']>;
+  icon_contains?: Maybe<Scalars['String']>;
+  icon_not_contains?: Maybe<Scalars['String']>;
+  icon_starts_with?: Maybe<Scalars['String']>;
+  icon_not_starts_with?: Maybe<Scalars['String']>;
+  icon_ends_with?: Maybe<Scalars['String']>;
+  icon_not_ends_with?: Maybe<Scalars['String']>;
+  icon_i?: Maybe<Scalars['String']>;
+  icon_not_i?: Maybe<Scalars['String']>;
+  icon_contains_i?: Maybe<Scalars['String']>;
+  icon_not_contains_i?: Maybe<Scalars['String']>;
+  icon_starts_with_i?: Maybe<Scalars['String']>;
+  icon_not_starts_with_i?: Maybe<Scalars['String']>;
+  icon_ends_with_i?: Maybe<Scalars['String']>;
+  icon_not_ends_with_i?: Maybe<Scalars['String']>;
+  icon_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  icon_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_contains?: Maybe<Scalars['String']>;
@@ -3692,6 +3716,7 @@ export type B2BAppUpdateInput = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
+  icon?: Maybe<Scalars['String']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   accessRights?: Maybe<B2BAppAccessRightRelateToManyInput>;
@@ -3830,6 +3855,10 @@ export type B2BAppWhereInput = {
   isHidden_not?: Maybe<Scalars['Boolean']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
   isGlobal_not?: Maybe<Scalars['Boolean']>;
+  icon?: Maybe<Scalars['String']>;
+  icon_not?: Maybe<Scalars['String']>;
+  icon_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  icon_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   contextDefaultStatus_not?: Maybe<Scalars['String']>;
   contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -63017,6 +63046,8 @@ export enum SortB2BAppHistoryRecordsBy {
   IsHiddenDesc = 'isHidden_DESC',
   IsGlobalAsc = 'isGlobal_ASC',
   IsGlobalDesc = 'isGlobal_DESC',
+  IconAsc = 'icon_ASC',
+  IconDesc = 'icon_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CategoryAsc = 'category_ASC',
@@ -63128,6 +63159,8 @@ export enum SortB2BAppsBy {
   IsHiddenDesc = 'isHidden_DESC',
   IsGlobalAsc = 'isGlobal_ASC',
   IsGlobalDesc = 'isGlobal_DESC',
+  IconAsc = 'icon_ASC',
+  IconDesc = 'icon_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CategoryAsc = 'category_ASC',
