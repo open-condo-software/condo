@@ -14506,19 +14506,19 @@ export type BillingReceipt = {
   toPay?: Maybe<Scalars['String']>;
   /**  Calculation formula. Example: balance + charge + recalculation + privilege + penalty  */
   formula?: Maybe<Scalars['String']>;
-  /**  Amount of money that charged by paid period  */
+  /**  Amount of money charged by paid period. Example: "50.00", "-50.00"  */
   charge?: Maybe<Scalars['String']>;
-  /**  Recipient balance on the receipt creation moment  */
+  /**  Recipient balance on the receipt creation moment. Example: "50.00", "-50.00"  */
   balance?: Maybe<Scalars['String']>;
-  /**  Recipient balance recalculation in case of overpaid or etc  */
+  /**  Recipient balance recalculation in case of overpaid or etc. Example: "50.00", "-50.00"  */
   recalculation?: Maybe<Scalars['String']>;
-  /**  Special privileges for recipient  */
+  /**  Special privileges for recipient. Example: "50.00", "-50.00"  */
   privilege?: Maybe<Scalars['String']>;
-  /**  Amount of money that recipient doesn't pay for previous receipt  */
+  /**  Amount of money that recipient doesn't pay for previous receipt. Example: "50.00", "-50.00"  */
   penalty?: Maybe<Scalars['String']>;
-  /**  Amount of money that recipient already paid by current receipt  */
+  /**  Amount of money that recipient already paid by current receipt. Example: "50.00", "-50.00"  */
   paid?: Maybe<Scalars['String']>;
-  /**  Sum to pay details. Detail level 2. This field will be removed in the future. All data is saved in the corresponding fields of the BillingReceipt  */
+  /**  @deprecated Sum to pay details. Detail level 2. This field will be removed in the future. All data is saved in the corresponding fields of the BillingReceipt (charge formula balance recalculation privilege penalty paid). After toPayDetails field removal you should update it content explicitly  */
   toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   /**  Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4  */
   services?: Maybe<Array<BillingReceiptServiceField>>;

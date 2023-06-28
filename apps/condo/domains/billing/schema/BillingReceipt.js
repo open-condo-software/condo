@@ -92,45 +92,53 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         formula: {
             schemaDoc: 'Calculation formula. Example: balance + charge + recalculation + privilege + penalty',
             type: Text,
+            // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
             access: access.readOnlyAccess,
         },
 
         charge: {
             ...MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Amount of money that charged by paid period',
+            schemaDoc: 'Amount of money charged by paid period. Example: "50.00", "-50.00"',
+            // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
             access: access.readOnlyAccess,
         },
 
         balance: {
             ...MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Recipient balance on the receipt creation moment',
+            schemaDoc: 'Recipient balance on the receipt creation moment. Example: "50.00", "-50.00"',
+            // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
             access: access.readOnlyAccess,
         },
 
         recalculation: {
             ...MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Recipient balance recalculation in case of overpaid or etc',
+            schemaDoc: 'Recipient balance recalculation in case of overpaid or etc. Example: "50.00", "-50.00"',
+            // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
             access: access.readOnlyAccess,
         },
 
         privilege: {
             ...MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Special privileges for recipient',
+            schemaDoc: 'Special privileges for recipient. Example: "50.00", "-50.00"',
+            // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
             access: access.readOnlyAccess,
         },
 
         penalty: {
             ...MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Amount of money that recipient doesn\'t pay for previous receipt',
+            schemaDoc: 'Amount of money that recipient doesn\'t pay for previous receipt. Example: "50.00", "-50.00"',
+            // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
             access: access.readOnlyAccess,
         },
 
         paid: {
             ...MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Amount of money that recipient already paid by current receipt',
+            schemaDoc: 'Amount of money that recipient already paid by current receipt. Example: "50.00", "-50.00"',
+            // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
             access: access.readOnlyAccess,
         },
 
+        // TODO(DOMA-6519): remove field and provide backward compatibility options for API
         toPayDetails: TO_PAY_DETAILS_FIELD,
 
         services: SERVICES_FIELD,
@@ -195,6 +203,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         },
         resolveInput: ({ resolvedData }) => {
+            // TODO(DOMA-6519): remove hook after toPayDetails field removal
             // Update toPayDetails explicit fields directly from passed value
             if ('toPayDetails' in resolvedData) {
                 resolvedData = { ...resolvedData, ...resolvedData.toPayDetails }

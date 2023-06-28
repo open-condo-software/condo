@@ -11406,25 +11406,29 @@ type BillingReceipt {
   """
   formula: String
 
-  """ Amount of money that charged by paid period """
+  """ Amount of money charged by paid period. Example: "50.00", "-50.00" """
   charge: String
 
-  """ Recipient balance on the receipt creation moment """
+  """ Recipient balance on the receipt creation moment. Example: "50.00", "-50.00" 
+  """
   balance: String
 
-  """ Recipient balance recalculation in case of overpaid or etc """
+  """ Recipient balance recalculation in case of overpaid or etc. Example: "50.00", "-50.00" 
+  """
   recalculation: String
 
-  """ Special privileges for recipient """
+  """ Special privileges for recipient. Example: "50.00", "-50.00" """
   privilege: String
 
-  """ Amount of money that recipient doesn't pay for previous receipt """
+  """ Amount of money that recipient doesn't pay for previous receipt. Example: "50.00", "-50.00" 
+  """
   penalty: String
 
-  """ Amount of money that recipient already paid by current receipt """
+  """ Amount of money that recipient already paid by current receipt. Example: "50.00", "-50.00" 
+  """
   paid: String
 
-  """ Sum to pay details. Detail level 2. This field will be removed in the future. All data is saved in the corresponding fields of the BillingReceipt 
+  """ @deprecated Sum to pay details. Detail level 2. This field will be removed in the future. All data is saved in the corresponding fields of the BillingReceipt (charge formula balance recalculation privilege penalty paid). After toPayDetails field removal you should update it content explicitly 
   """
   toPayDetails: BillingReceiptToPayDetailsField
 
