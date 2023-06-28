@@ -38,7 +38,7 @@ interface CounterProps {
     downloadButton?: ButtonProps
 }
 
-const styleGrayColor: CSSProperties = { color: colors.gray['5'] }
+const styleQuestionCircle: CSSProperties = { color: colors.gray['5'], cursor: 'help' }
 const styleMaxWidth: CSSProperties = { maxWidth: '500px' }
 
 const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint, downloadButton }) => (
@@ -49,7 +49,7 @@ const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint,
                 <Tooltip
                     title={hint}
                     placement='bottom'
-                    children={<QuestionCircleOutlined style={styleGrayColor}/>}
+                    children={<QuestionCircleOutlined style={styleQuestionCircle}/>}
                 />
             )}
         </Space>
