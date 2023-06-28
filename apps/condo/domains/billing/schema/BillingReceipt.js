@@ -10,16 +10,15 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingReceipt')
+const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
-const { MONEY_AMOUNT_FIELD, POSITIVE_MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
+const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 
 const { RECIPIENT_FIELD } = require('./fields/BillingReceipt/Recipient')
 const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
 const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsField')
 const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
-
-const { BillingRecipient } = require('../utils/serverSchema')
 
 
 const DEFAULT_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
@@ -93,71 +92,43 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         formula: {
             schemaDoc: 'Calculation formula. Example: balance + charge + recalculation + privilege + penalty',
             type: Text,
-            access: {
-                create: false,
-                read: true,
-                update: false,
-            },
+            access: access.readOnlyAccess,
         },
 
         charge: {
-            ...POSITIVE_MONEY_AMOUNT_FIELD,
+            ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Amount of money that charged by paid period',
-            access: {
-                create: false,
-                read: true,
-                update: false,
-            },
+            access: access.readOnlyAccess,
         },
 
         balance: {
             ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Recipient balance on the receipt creation moment',
-            access: {
-                create: false,
-                read: true,
-                update: false,
-            },
+            access: access.readOnlyAccess,
         },
 
         recalculation: {
-            ...POSITIVE_MONEY_AMOUNT_FIELD,
+            ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Recipient balance recalculation in case of overpaid or etc',
-            access: {
-                create: false,
-                read: true,
-                update: false,
-            },
+            access: access.readOnlyAccess,
         },
 
         privilege: {
-            ...POSITIVE_MONEY_AMOUNT_FIELD,
+            ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Special privileges for recipient',
-            access: {
-                create: false,
-                read: true,
-                update: false,
-            },
+            access: access.readOnlyAccess,
         },
 
         penalty: {
-            ...POSITIVE_MONEY_AMOUNT_FIELD,
+            ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Amount of money that recipient doesn\'t pay for previous receipt',
-            access: {
-                create: false,
-                read: true,
-                update: false,
-            },
+            access: access.readOnlyAccess,
         },
 
         paid: {
-            ...POSITIVE_MONEY_AMOUNT_FIELD,
+            ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Amount of money that recipient already paid by current receipt',
-            access: {
-                create: false,
-                read: true,
-                update: false,
-            },
+            access: access.readOnlyAccess,
         },
 
         toPayDetails: TO_PAY_DETAILS_FIELD,
@@ -210,7 +181,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const { context: contextId, property: propertyId, account: accountId } = newItem
-            
+
             const account = await getById('BillingAccount', accountId)
             const { context: accountContextId } = account
             const property = await getById('BillingProperty', propertyId)

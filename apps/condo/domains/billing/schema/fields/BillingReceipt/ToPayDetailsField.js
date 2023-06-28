@@ -43,7 +43,7 @@ const TO_PAY_DETAILS_QUERY_LIST = Object.keys(ToPayDetailsFields).join(' ')
 const validatePaymentDetails = getValidator(ToPayDetailsSchemaValidator)
 
 const TO_PAY_DETAILS_FIELD = {
-    schemaDoc: 'Sum to pay details. Detail level 2',
+    schemaDoc: 'Sum to pay details. Detail level 2. This field will be removed in the future. All data is saved in the corresponding fields of the BillingReceipt',
     type: Json,
     extendGraphQLTypes: [TO_PAY_DETAILS_GRAPHQL_TYPES],
     graphQLInputType: BILLING_RECEIPT_TO_PAY_DETAILS_INPUT_NAME,

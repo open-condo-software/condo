@@ -14518,7 +14518,7 @@ export type BillingReceipt = {
   penalty?: Maybe<Scalars['String']>;
   /**  Amount of money that recipient already paid by current receipt  */
   paid?: Maybe<Scalars['String']>;
-  /**  Sum to pay details. Detail level 2  */
+  /**  Sum to pay details. Detail level 2. This field will be removed in the future. All data is saved in the corresponding fields of the BillingReceipt  */
   toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   /**  Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4  */
   services?: Maybe<Array<BillingReceiptServiceField>>;
