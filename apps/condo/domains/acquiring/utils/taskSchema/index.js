@@ -32,6 +32,7 @@ const {
     registerMultiPayment: registerMultiPaymentMutation,
     MultiPayment,
 } = require('@condo/domains/acquiring/utils/serverSchema')
+const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const {
     BillingReceipt,
 } = require('@condo/domains/billing/utils/serverSchema')
@@ -48,6 +49,7 @@ const {
     RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const {
@@ -242,6 +244,34 @@ async function filterPaidBillingReceipts (context, billingReceipts) {
     }).map(receipt => receipt.id)
 
     return await BillingReceipt.getAll(context, { id_in: notPaidBillsIds, deletedAt: null })
+}
+
+async function isLimitExceedForBillingReceipts (context, recurrentPaymentContext, billingReceipts) {
+    if (isNil(recurrentPaymentContext) || isNil(get(recurrentPaymentContext, 'id')) || isNil(get(recurrentPaymentContext, 'serviceConsumer.id'))) throw new Error('invalid recurrentPaymentContext argument')
+    if (isNil(billingReceipts)) throw new Error('invalid billingReceipts argument')
+
+    // no limit case: limit can not be exceeded since it is omitted
+    if (!recurrentPaymentContext.limit) {
+        return { isExceed: false }
+    }
+
+    // get fee distribution formula
+    const serviceConsumer = await getServiceConsumer(context, recurrentPaymentContext.serviceConsumer.id)
+    const formula = await getAcquiringIntegrationContextFormula(context, serviceConsumer.residentAcquiringIntegrationContext.id)
+
+    // calc final amount for each billing receipt and accumulate it to total
+    let totalAmount = Big(0)
+    billingReceipts.forEach(receipt => {
+        const billingCategoryId = get(receipt, 'category.id')
+        const feeCalculator = new FeeDistribution(formula, billingCategoryId)
+        const { summa } = feeCalculator.calculate(Big(receipt.toPay))
+        totalAmount = totalAmount.plus(summa)
+    })
+
+    return {
+        isExceed: totalAmount.gt(Big(recurrentPaymentContext.limit)),
+        totalAmount: totalAmount,
+    }
 }
 
 async function getReadyForProcessingPaymentsPage (context, pageSize, offset, extraArgs) {
@@ -506,6 +536,42 @@ async function sendTomorrowPaymentNoReceiptsNotificationSafely (context, recurre
     }
 }
 
+async function sendTomorrowPaymentLimitExceedNotificationSafely (context, recurrentPaymentContext, toPayAmount) {
+    if (isNil(recurrentPaymentContext) || isNil(get(recurrentPaymentContext, 'id'))) throw new Error('invalid recurrentPaymentContext argument')
+    if (isNil(toPayAmount)) throw new Error('invalid toPayAmount argument')
+
+    try {
+        const {
+            serviceConsumer: {
+                id: serviceConsumerId,
+                resident: { id: residentId, user: { id: userId } },
+            },
+        } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id })
+
+        // create unique key and send message
+        const uniqKey = `rp_tple_${recurrentPaymentContext.id}_${dayjs().format('YYYY-MM-DD')}`
+        await sendMessage(context, {
+            ...dvAndSender,
+            to: { user: { id: userId } },
+            type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
+            uniqKey,
+            meta: {
+                dv: 1,
+                data: {
+                    recurrentPaymentContextId: recurrentPaymentContext.id,
+                    serviceConsumerId,
+                    residentId,
+                    userId,
+                    url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}/`,
+                    toPayAmount: String(toPayAmount),
+                },
+            },
+        })
+    } catch (error) {
+        logger.error({ msg: 'sendMessage error', error })
+    }
+}
+
 async function sendNoReceiptsToProceedNotificationSafely (context, recurrentPaymentContext) {
     if (isNil(recurrentPaymentContext) || isNil(get(recurrentPaymentContext, 'id'))) throw new Error('invalid recurrentPaymentContext argument')
 
@@ -608,5 +674,7 @@ module.exports = {
     sendTomorrowPaymentNotificationSafely,
     sendTomorrowPaymentNoReceiptsNotificationSafely,
     sendNoReceiptsToProceedNotificationSafely,
+    sendTomorrowPaymentLimitExceedNotificationSafely,
     getNotificationMetaByErrorCode,
+    isLimitExceedForBillingReceipts,
 }

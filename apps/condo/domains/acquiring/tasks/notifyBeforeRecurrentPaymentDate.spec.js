@@ -5,6 +5,7 @@ const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const conf = require('@open-condo/config')
 const {
     setFakeClientMode,
     makeLoggedInAdminClient,
@@ -27,6 +28,7 @@ const {
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const {
     Message,
@@ -51,7 +53,7 @@ describe('notify-before-recurrent-payment-date', () => {
 
         getContextRequest = (batch) => ({
             enabled: false,
-            limit: '10000',
+            limit: '100000000',
             autoPayReceipts: false,
             paymentDay: dayjs().date(),
             settings: { cardId: faker.datatype.uuid() },
@@ -286,6 +288,51 @@ describe('notify-before-recurrent-payment-date', () => {
             serviceConsumerId: batch.serviceConsumer.id,
             residentId: batch.resident.id,
             userId: batch.resident.user.id,
+        })
+    })
+
+    it('should create notification - limit exceeded', async () => {
+        const { batches } = await makePayerWithMultipleConsumers(1, 2)
+        const [batch] = batches
+        const {
+            billingReceipts,
+        } = batch
+        const [{ period }] = billingReceipts
+        const today = dayjs(period)
+
+        const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, {
+            ...getContextRequest(batch),
+            enabled: true,
+            limit: '0.01',
+        })
+
+        // send notification
+        await notifyRecurrentPaymentContext(adminContext, today, recurrentPaymentContext)
+
+        const [notification] = await Message.getAll(adminContext, {
+            type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
+            user: { id: batch.resident.user.id },
+        }, {
+            sortBy: 'createdAt_DESC',
+        })
+        expect(notification).toBeDefined()
+        expect(notification).toHaveProperty('user')
+        expect(notification.user).toHaveProperty('id')
+        expect(notification.user.id).toEqual(batch.resident.user.id)
+        expect(notification).toHaveProperty('meta')
+        expect(notification.meta).toHaveProperty('data')
+        expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+        expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+        expect(notification.meta.data).toHaveProperty('residentId')
+        expect(notification.meta.data).toHaveProperty('userId')
+        expect(notification.meta.data).toHaveProperty('toPayAmount')
+
+        expect(notification.meta.data).toMatchObject({
+            recurrentPaymentContextId: recurrentPaymentContext.id,
+            serviceConsumerId: batch.serviceConsumer.id,
+            residentId: batch.resident.id,
+            userId: batch.resident.user.id,
+            url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}/`,
         })
     })
 })

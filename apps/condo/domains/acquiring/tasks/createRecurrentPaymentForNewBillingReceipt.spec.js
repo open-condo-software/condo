@@ -22,6 +22,7 @@ const {
 const { DATE_FORMAT, DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const {
     Message,
@@ -44,7 +45,7 @@ describe('create-recurrent-payment-for-new-billing-receipt', () => {
 
         getContextRequest = (batch) => ({
             enabled: false,
-            limit: '10000',
+            limit: '100000000',
             autoPayReceipts: true,
             paymentDay: null,
             settings: { cardId: faker.datatype.uuid() },
@@ -402,6 +403,79 @@ describe('create-recurrent-payment-for-new-billing-receipt', () => {
             residentId: batch.resident.id,
             userId: batch.resident.user.id,
             url: `${conf.SERVER_URL}/payments/`,
+        })
+    })
+
+    it('should create RecurrentPayment - limit exceeded', async () => {
+        const { batches } = await makePayerWithMultipleConsumers(1, 2)
+        const [batch] = batches
+        const {
+            billingReceipts,
+        } = batch
+        const [{ period, createdAt }] = billingReceipts
+        const lastDt = dayjs(createdAt).startOf('day')
+        const periodDt = dayjs(period).startOf('month')
+        const lastDtString = lastDt.toISOString()
+        const periods = [periodDt.add(1, 'months').format(DATE_FORMAT), periodDt.format(DATE_FORMAT)]
+        const tomorrowMidnight = dayjs().add(1, 'days').startOf('day')
+
+        const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, {
+            ...getContextRequest(batch),
+            enabled: true,
+            limit: '0.01',
+        })
+
+        // create recurrent payments
+        await scanBillingReceiptsForRecurrentPaymentContext(adminContext, recurrentPaymentContext, periods, lastDtString)
+
+        const recurrentPayments = await RecurrentPayment.getAll(admin, {
+            recurrentPaymentContext: { id: recurrentPaymentContext.id },
+        })
+
+        expect(recurrentPayments).toHaveLength(1)
+
+        const [recurrentPayment] = recurrentPayments
+        expect(recurrentPayment).toHaveProperty('status')
+        expect(recurrentPayment).toHaveProperty('tryCount')
+        expect(recurrentPayment).toHaveProperty('state')
+        expect(recurrentPayment).toHaveProperty('payAfter')
+        expect(recurrentPayment).toHaveProperty('billingReceipts')
+        expect(recurrentPayment).toHaveProperty('recurrentPaymentContext')
+
+        expect(recurrentPayment.status).toEqual(RECURRENT_PAYMENT_INIT_STATUS)
+        expect(recurrentPayment.payAfter).toEqual(tomorrowMidnight.toISOString())
+        expect(recurrentPayment.tryCount).toEqual(0)
+        expect(recurrentPayment.state).toBeDefined()
+        expect(recurrentPayment.billingReceipts).toHaveLength(2)
+
+        const ids = recurrentPayment.billingReceipts.map(receipt => receipt.id)
+        expect(ids).toContain(billingReceipts[0].id)
+        expect(ids).toContain(billingReceipts[1].id)
+
+        const [notification] = await Message.getAll(adminContext, {
+            type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
+            user: { id: batch.resident.user.id },
+        }, {
+            sortBy: 'createdAt_DESC',
+        })
+        expect(notification).toBeDefined()
+        expect(notification).toHaveProperty('user')
+        expect(notification.user).toHaveProperty('id')
+        expect(notification.user.id).toEqual(batch.resident.user.id)
+        expect(notification).toHaveProperty('meta')
+        expect(notification.meta).toHaveProperty('data')
+        expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+        expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+        expect(notification.meta.data).toHaveProperty('residentId')
+        expect(notification.meta.data).toHaveProperty('userId')
+        expect(notification.meta.data).toHaveProperty('toPayAmount')
+
+        expect(notification.meta.data).toMatchObject({
+            recurrentPaymentContextId: recurrentPaymentContext.id,
+            serviceConsumerId: batch.serviceConsumer.id,
+            residentId: batch.resident.id,
+            userId: batch.resident.user.id,
+            url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}/`,
         })
     })
 
