@@ -8,6 +8,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { FileDown, Filter } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -35,6 +36,7 @@ import {
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG } from '@condo/domains/meter/constants/constants'
 import { EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT, EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '@condo/domains/meter/constants/errors'
 import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
@@ -471,6 +473,9 @@ const MetersPage: IMeterIndexPage = () => {
     const userOrganizationId = get(organization, 'id')
     const role = get(link, 'role')
 
+    const { useFlag } = useFeatureFlags()
+    const isMeterReportingPeriodEnabled = useFlag(METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG)
+
     const { GlobalHints } = useGlobalHints()
 
     const [tab, setTab] = useState<MeterPageTypes>(METER_PAGE_TYPES.meter)
@@ -507,7 +512,7 @@ const MetersPage: IMeterIndexPage = () => {
                 <Tabs activeKey={tab} onChange={handleTabChange}>
                     <Tabs.TabPane tab={MeterMessage} key={METER_PAGE_TYPES.meter} />
                     <Tabs.TabPane tab={PropertyMeterMessage} key={METER_PAGE_TYPES.propertyMeter} />
-                    <Tabs.TabPane tab={ReportingPeriodMessage} key={METER_PAGE_TYPES.reportingPeriod} />
+                    {isMeterReportingPeriodEnabled && <Tabs.TabPane tab={ReportingPeriodMessage} key={METER_PAGE_TYPES.reportingPeriod} />}
                 </Tabs>
                 {
                     tab === METER_PAGE_TYPES.meter && (
@@ -534,7 +539,7 @@ const MetersPage: IMeterIndexPage = () => {
                     )
                 }
                 {
-                    tab === METER_PAGE_TYPES.reportingPeriod && (
+                    tab === METER_PAGE_TYPES.reportingPeriod && isMeterReportingPeriodEnabled && (
                         <MeterReportingPeriodPageContent
                             tableColumns={tableColumns}
                             searchMeterReportingPeriodsQuery={searchMeterReportingPeriodsQuery}
