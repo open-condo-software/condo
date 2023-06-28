@@ -46,6 +46,7 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import MemoizedNewsPreview from '@condo/domains/news/components/NewsPreview'
 import { detectTargetedSections, RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
+import { PROFANITY_TITLE_DETECTED_MOT_ERF_KER, PROFANITY_BODY_DETECTED_MOT_ERF_KER } from '@condo/domains/news/constants/errors'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -295,6 +296,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const TemlatesLabel = intl.formatMessage({ id: 'news.fields.templates' })
     const PastTimeErrorMessage = intl.formatMessage({ id: 'global.input.error.pastTime' })
     const TimezoneMskTitle = intl.formatMessage({ id: 'timezone.msk' })
+    const ProfanityInTitle = intl.formatMessage({ id: 'news.fields.profanityInTitle.error' })
+    const ProfanityInBody = intl.formatMessage({ id: 'news.fields.profanityInBody.error' })
 
     const router = useRouter()
 
@@ -739,6 +742,17 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         return result
     }, [TimezoneMskTitle, dayjsTz])
 
+    const ErrorToFormFieldMsgMapping = useMemo(() => ({
+        [PROFANITY_TITLE_DETECTED_MOT_ERF_KER]: {
+            name: 'title',
+            errors: [ProfanityInTitle],
+        },
+        [PROFANITY_BODY_DETECTED_MOT_ERF_KER]: {
+            name: 'body',
+            errors: [ProfanityInBody],
+        },
+    }), [ProfanityInBody, ProfanityInTitle])
+
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
             <Col span={24} flex='auto'>
@@ -748,6 +762,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                     action={handleFormSubmit}
                     OnCompletedMsg={isNull(OnCompletedMsg) ? undefined : null}
                     scrollToFirstError={SCROLL_TO_FIRST_ERROR_CONFIG}
+                    ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
                     formValuesToMutationDataPreprocessor={(values) => {
                         values.property = selectedProperties[0]
 

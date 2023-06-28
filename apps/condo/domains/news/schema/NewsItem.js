@@ -20,7 +20,8 @@ const {
     VALIDITY_DATE_LESS_THAN_SEND_DATE,
     EDIT_DENIED_ALREADY_SENT,
     EDIT_DENIED_PUBLISHED,
-    PROFANITY_DETECTED_MOT_ERF_KER,
+    PROFANITY_TITLE_DETECTED_MOT_ERF_KER,
+    PROFANITY_BODY_DETECTED_MOT_ERF_KER,
     WRONG_SEND_DATE,
     NO_NEWS_ITEM_SCOPES,
 } = require('@condo/domains/news/constants/errors')
@@ -62,11 +63,17 @@ const ERRORS = {
         messageForUser: 'api.newsItem.EDIT_DENIED_PUBLISHED',
         mutation: 'updateNewsItem',
     },
-    PROFANITY_DETECTED_MOT_ERF_KER: {
+    PROFANITY_TITLE_DETECTED_MOT_ERF_KER: {
         code: BAD_USER_INPUT,
-        type: PROFANITY_DETECTED_MOT_ERF_KER,
-        message: 'Profanity detected',
-        messageForUser: 'api.newsItem.PROFANITY_DETECTED_MOT_ERF_KER',
+        type: PROFANITY_TITLE_DETECTED_MOT_ERF_KER,
+        message: 'Profanity in title detected',
+        messageForUser: 'api.newsItem.PROFANITY_TITLE_DETECTED_MOT_ERF_KER',
+    },
+    PROFANITY_BODY_DETECTED_MOT_ERF_KER: {
+        code: BAD_USER_INPUT,
+        type: PROFANITY_BODY_DETECTED_MOT_ERF_KER,
+        message: 'Profanity in body detected',
+        messageForUser: 'api.newsItem.PROFANITY_BODY_DETECTED_MOT_ERF_KER',
     },
     WRONG_SEND_DATE: {
         code: BAD_USER_INPUT,
@@ -243,10 +250,16 @@ const NewsItem = new GQLListSchema('NewsItem', {
                 })
             }
 
-            if (titleBadWords.length > 0 || bodyBadWords.length > 0) {
+            if (titleBadWords.length > 0) {
                 throw new GQLError({
-                    ...ERRORS.PROFANITY_DETECTED_MOT_ERF_KER,
-                    badWords: [...titleBadWords, ...bodyBadWords].join(','),
+                    ...ERRORS.PROFANITY_TITLE_DETECTED_MOT_ERF_KER,
+                    badWords: [...titleBadWords].join(','),
+                }, context)
+            }
+            if (bodyBadWords.length > 0) {
+                throw new GQLError({
+                    ...ERRORS.PROFANITY_BODY_DETECTED_MOT_ERF_KER,
+                    badWords: [...bodyBadWords].join(','),
                 }, context)
             }
         },
