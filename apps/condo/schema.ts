@@ -14504,7 +14504,21 @@ export type BillingReceipt = {
   raw?: Maybe<Scalars['JSON']>;
   /**  Total sum to pay. Usually counts as the sum of all services.  */
   toPay?: Maybe<Scalars['String']>;
-  /**  Sum to pay details. Detail level 2  */
+  /**  Calculation formula. Example: balance + charge + recalculation + privilege + penalty  */
+  formula?: Maybe<Scalars['String']>;
+  /**  Amount of money charged by paid period. Example: "50.00", "-50.00"  */
+  charge?: Maybe<Scalars['String']>;
+  /**  Recipient balance on the receipt creation moment. Example: "50.00", "-50.00"  */
+  balance?: Maybe<Scalars['String']>;
+  /**  Recipient balance recalculation in case of overpaid or etc. Example: "50.00", "-50.00"  */
+  recalculation?: Maybe<Scalars['String']>;
+  /**  Special privileges for recipient. Example: "50.00", "-50.00"  */
+  privilege?: Maybe<Scalars['String']>;
+  /**  Amount of money that recipient doesn't pay for previous receipt. Example: "50.00", "-50.00"  */
+  penalty?: Maybe<Scalars['String']>;
+  /**  Amount of money that recipient already paid by current receipt. Example: "50.00", "-50.00"  */
+  paid?: Maybe<Scalars['String']>;
+  /**  @deprecated Sum to pay details. Detail level 2. This field will be removed in the future. All data is saved in the corresponding fields of the BillingReceipt (charge formula balance recalculation privilege penalty paid). After toPayDetails field removal you should update it content explicitly  */
   toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   /**  Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4  */
   services?: Maybe<Array<BillingReceiptServiceField>>;
@@ -14540,6 +14554,13 @@ export type BillingReceiptCreateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  formula?: Maybe<Scalars['String']>;
+  charge?: Maybe<Scalars['String']>;
+  balance?: Maybe<Scalars['String']>;
+  recalculation?: Maybe<Scalars['String']>;
+  privilege?: Maybe<Scalars['String']>;
+  penalty?: Maybe<Scalars['String']>;
+  paid?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
   recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
@@ -14983,6 +15004,13 @@ export type BillingReceiptHistoryRecord = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  formula?: Maybe<Scalars['String']>;
+  charge?: Maybe<Scalars['String']>;
+  balance?: Maybe<Scalars['String']>;
+  recalculation?: Maybe<Scalars['String']>;
+  privilege?: Maybe<Scalars['String']>;
+  penalty?: Maybe<Scalars['String']>;
+  paid?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
@@ -15013,6 +15041,13 @@ export type BillingReceiptHistoryRecordCreateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  formula?: Maybe<Scalars['String']>;
+  charge?: Maybe<Scalars['String']>;
+  balance?: Maybe<Scalars['String']>;
+  recalculation?: Maybe<Scalars['String']>;
+  privilege?: Maybe<Scalars['String']>;
+  penalty?: Maybe<Scalars['String']>;
+  paid?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
@@ -15048,6 +15083,13 @@ export type BillingReceiptHistoryRecordUpdateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  formula?: Maybe<Scalars['String']>;
+  charge?: Maybe<Scalars['String']>;
+  balance?: Maybe<Scalars['String']>;
+  recalculation?: Maybe<Scalars['String']>;
+  privilege?: Maybe<Scalars['String']>;
+  penalty?: Maybe<Scalars['String']>;
+  paid?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
   recipient?: Maybe<Scalars['JSON']>;
@@ -15142,6 +15184,72 @@ export type BillingReceiptHistoryRecordWhereInput = {
   toPay_gte?: Maybe<Scalars['String']>;
   toPay_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPay_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  formula?: Maybe<Scalars['String']>;
+  formula_not?: Maybe<Scalars['String']>;
+  formula_contains?: Maybe<Scalars['String']>;
+  formula_not_contains?: Maybe<Scalars['String']>;
+  formula_starts_with?: Maybe<Scalars['String']>;
+  formula_not_starts_with?: Maybe<Scalars['String']>;
+  formula_ends_with?: Maybe<Scalars['String']>;
+  formula_not_ends_with?: Maybe<Scalars['String']>;
+  formula_i?: Maybe<Scalars['String']>;
+  formula_not_i?: Maybe<Scalars['String']>;
+  formula_contains_i?: Maybe<Scalars['String']>;
+  formula_not_contains_i?: Maybe<Scalars['String']>;
+  formula_starts_with_i?: Maybe<Scalars['String']>;
+  formula_not_starts_with_i?: Maybe<Scalars['String']>;
+  formula_ends_with_i?: Maybe<Scalars['String']>;
+  formula_not_ends_with_i?: Maybe<Scalars['String']>;
+  formula_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  formula_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  charge?: Maybe<Scalars['String']>;
+  charge_not?: Maybe<Scalars['String']>;
+  charge_lt?: Maybe<Scalars['String']>;
+  charge_lte?: Maybe<Scalars['String']>;
+  charge_gt?: Maybe<Scalars['String']>;
+  charge_gte?: Maybe<Scalars['String']>;
+  charge_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  charge_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  balance?: Maybe<Scalars['String']>;
+  balance_not?: Maybe<Scalars['String']>;
+  balance_lt?: Maybe<Scalars['String']>;
+  balance_lte?: Maybe<Scalars['String']>;
+  balance_gt?: Maybe<Scalars['String']>;
+  balance_gte?: Maybe<Scalars['String']>;
+  balance_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  balance_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recalculation?: Maybe<Scalars['String']>;
+  recalculation_not?: Maybe<Scalars['String']>;
+  recalculation_lt?: Maybe<Scalars['String']>;
+  recalculation_lte?: Maybe<Scalars['String']>;
+  recalculation_gt?: Maybe<Scalars['String']>;
+  recalculation_gte?: Maybe<Scalars['String']>;
+  recalculation_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recalculation_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  privilege?: Maybe<Scalars['String']>;
+  privilege_not?: Maybe<Scalars['String']>;
+  privilege_lt?: Maybe<Scalars['String']>;
+  privilege_lte?: Maybe<Scalars['String']>;
+  privilege_gt?: Maybe<Scalars['String']>;
+  privilege_gte?: Maybe<Scalars['String']>;
+  privilege_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  privilege_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  penalty?: Maybe<Scalars['String']>;
+  penalty_not?: Maybe<Scalars['String']>;
+  penalty_lt?: Maybe<Scalars['String']>;
+  penalty_lte?: Maybe<Scalars['String']>;
+  penalty_gt?: Maybe<Scalars['String']>;
+  penalty_gte?: Maybe<Scalars['String']>;
+  penalty_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  penalty_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paid?: Maybe<Scalars['String']>;
+  paid_not?: Maybe<Scalars['String']>;
+  paid_lt?: Maybe<Scalars['String']>;
+  paid_lte?: Maybe<Scalars['String']>;
+  paid_gt?: Maybe<Scalars['String']>;
+  paid_gte?: Maybe<Scalars['String']>;
+  paid_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paid_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   toPayDetails_not?: Maybe<Scalars['JSON']>;
   toPayDetails_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -15333,6 +15441,13 @@ export type BillingReceiptUpdateInput = {
   printableNumber?: Maybe<Scalars['String']>;
   raw?: Maybe<Scalars['JSON']>;
   toPay?: Maybe<Scalars['String']>;
+  formula?: Maybe<Scalars['String']>;
+  charge?: Maybe<Scalars['String']>;
+  balance?: Maybe<Scalars['String']>;
+  recalculation?: Maybe<Scalars['String']>;
+  privilege?: Maybe<Scalars['String']>;
+  penalty?: Maybe<Scalars['String']>;
+  paid?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
   recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
@@ -15415,6 +15530,72 @@ export type BillingReceiptWhereInput = {
   toPay_gte?: Maybe<Scalars['String']>;
   toPay_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPay_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  formula?: Maybe<Scalars['String']>;
+  formula_not?: Maybe<Scalars['String']>;
+  formula_contains?: Maybe<Scalars['String']>;
+  formula_not_contains?: Maybe<Scalars['String']>;
+  formula_starts_with?: Maybe<Scalars['String']>;
+  formula_not_starts_with?: Maybe<Scalars['String']>;
+  formula_ends_with?: Maybe<Scalars['String']>;
+  formula_not_ends_with?: Maybe<Scalars['String']>;
+  formula_i?: Maybe<Scalars['String']>;
+  formula_not_i?: Maybe<Scalars['String']>;
+  formula_contains_i?: Maybe<Scalars['String']>;
+  formula_not_contains_i?: Maybe<Scalars['String']>;
+  formula_starts_with_i?: Maybe<Scalars['String']>;
+  formula_not_starts_with_i?: Maybe<Scalars['String']>;
+  formula_ends_with_i?: Maybe<Scalars['String']>;
+  formula_not_ends_with_i?: Maybe<Scalars['String']>;
+  formula_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  formula_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  charge?: Maybe<Scalars['String']>;
+  charge_not?: Maybe<Scalars['String']>;
+  charge_lt?: Maybe<Scalars['String']>;
+  charge_lte?: Maybe<Scalars['String']>;
+  charge_gt?: Maybe<Scalars['String']>;
+  charge_gte?: Maybe<Scalars['String']>;
+  charge_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  charge_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  balance?: Maybe<Scalars['String']>;
+  balance_not?: Maybe<Scalars['String']>;
+  balance_lt?: Maybe<Scalars['String']>;
+  balance_lte?: Maybe<Scalars['String']>;
+  balance_gt?: Maybe<Scalars['String']>;
+  balance_gte?: Maybe<Scalars['String']>;
+  balance_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  balance_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recalculation?: Maybe<Scalars['String']>;
+  recalculation_not?: Maybe<Scalars['String']>;
+  recalculation_lt?: Maybe<Scalars['String']>;
+  recalculation_lte?: Maybe<Scalars['String']>;
+  recalculation_gt?: Maybe<Scalars['String']>;
+  recalculation_gte?: Maybe<Scalars['String']>;
+  recalculation_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  recalculation_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  privilege?: Maybe<Scalars['String']>;
+  privilege_not?: Maybe<Scalars['String']>;
+  privilege_lt?: Maybe<Scalars['String']>;
+  privilege_lte?: Maybe<Scalars['String']>;
+  privilege_gt?: Maybe<Scalars['String']>;
+  privilege_gte?: Maybe<Scalars['String']>;
+  privilege_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  privilege_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  penalty?: Maybe<Scalars['String']>;
+  penalty_not?: Maybe<Scalars['String']>;
+  penalty_lt?: Maybe<Scalars['String']>;
+  penalty_lte?: Maybe<Scalars['String']>;
+  penalty_gt?: Maybe<Scalars['String']>;
+  penalty_gte?: Maybe<Scalars['String']>;
+  penalty_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  penalty_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paid?: Maybe<Scalars['String']>;
+  paid_not?: Maybe<Scalars['String']>;
+  paid_lt?: Maybe<Scalars['String']>;
+  paid_lte?: Maybe<Scalars['String']>;
+  paid_gt?: Maybe<Scalars['String']>;
+  paid_gte?: Maybe<Scalars['String']>;
+  paid_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paid_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   toPayDetails_not?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   toPayDetails_in?: Maybe<Array<Maybe<BillingReceiptToPayDetailsFieldInput>>>;
@@ -63772,6 +63953,20 @@ export enum SortBillingReceiptHistoryRecordsBy {
   PrintableNumberDesc = 'printableNumber_DESC',
   ToPayAsc = 'toPay_ASC',
   ToPayDesc = 'toPay_DESC',
+  FormulaAsc = 'formula_ASC',
+  FormulaDesc = 'formula_DESC',
+  ChargeAsc = 'charge_ASC',
+  ChargeDesc = 'charge_DESC',
+  BalanceAsc = 'balance_ASC',
+  BalanceDesc = 'balance_DESC',
+  RecalculationAsc = 'recalculation_ASC',
+  RecalculationDesc = 'recalculation_DESC',
+  PrivilegeAsc = 'privilege_ASC',
+  PrivilegeDesc = 'privilege_DESC',
+  PenaltyAsc = 'penalty_ASC',
+  PenaltyDesc = 'penalty_DESC',
+  PaidAsc = 'paid_ASC',
+  PaidDesc = 'paid_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -63807,6 +64002,20 @@ export enum SortBillingReceiptsBy {
   PrintableNumberDesc = 'printableNumber_DESC',
   ToPayAsc = 'toPay_ASC',
   ToPayDesc = 'toPay_DESC',
+  FormulaAsc = 'formula_ASC',
+  FormulaDesc = 'formula_DESC',
+  ChargeAsc = 'charge_ASC',
+  ChargeDesc = 'charge_DESC',
+  BalanceAsc = 'balance_ASC',
+  BalanceDesc = 'balance_DESC',
+  RecalculationAsc = 'recalculation_ASC',
+  RecalculationDesc = 'recalculation_DESC',
+  PrivilegeAsc = 'privilege_ASC',
+  PrivilegeDesc = 'privilege_DESC',
+  PenaltyAsc = 'penalty_ASC',
+  PenaltyDesc = 'penalty_DESC',
+  PaidAsc = 'paid_ASC',
+  PaidDesc = 'paid_DESC',
   ReceiverAsc = 'receiver_ASC',
   ReceiverDesc = 'receiver_DESC',
   IdAsc = 'id_ASC',
