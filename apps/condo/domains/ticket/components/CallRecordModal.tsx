@@ -150,8 +150,6 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
     const clientName = get(ticket, 'clientName') || EmptyClientMessage
     const property = get(ticket, 'property') || EmptyAddressMessage
 
-    console.log('clientName', clientName)
-
     return (
         <Modal
             open={!!selectedCallRecordFragment}
