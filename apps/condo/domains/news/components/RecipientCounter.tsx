@@ -137,8 +137,7 @@ const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
 const downloaderButtonStyle: CSSProperties = {
     background: 'transparent',
     border: 0,
-    padding: 0,
-    paddingTop: '3px',
+    padding: '4px',
     display: 'inline-block',
 }
 
