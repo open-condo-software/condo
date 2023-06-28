@@ -254,6 +254,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                             validateFirst
                                         >
                                             <Select
+                                                displayMode='fit-content'
                                                 options={DAY_SELECT_OPTIONS}
                                                 value={startNumberRef.current}
                                                 onChange={handleStartChange}
@@ -272,6 +273,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                             validateFirst
                                         >
                                             <Select
+                                                displayMode='fit-content'
                                                 options={DAY_SELECT_OPTIONS}
                                                 value={finishNumberRef.current}
                                                 onChange={handleFinishChange}
