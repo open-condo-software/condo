@@ -21,7 +21,7 @@ const downloadFile = async (response: Response, file: FileType) => {
     a.click()
 }
 
-const getRedirectUrl: GetRedirectUrlType = async (response) => {
+export const getRedirectUrl: GetRedirectUrlType = async (response) => {
     try {
         const json = await response.clone().json()
         return json.redirectUrl

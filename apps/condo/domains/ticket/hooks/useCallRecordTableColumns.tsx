@@ -191,13 +191,13 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
         },
         {
             title: AddressMessage,
-            sortOrder: get(sorterMap, 'address'),
-            filteredValue: getFilteredValue<IFilters>(filters, 'address'),
-            key: 'address',
+            sortOrder: get(sorterMap, 'property'),
+            filteredValue: getFilteredValue<IFilters>(filters, 'property'),
+            key: 'property',
             dataIndex: ['ticket', 'property'],
             width: COLUMNS_WIDTH.address,
             render: addressRender,
-            filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
+            filterDropdown: getFilterDropdownByKey(filterMetas, 'property'),
             filterIcon: getFilterIcon,
         },
         {

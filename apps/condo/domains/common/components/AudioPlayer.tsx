@@ -8,6 +8,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { getRedirectUrl } from '../hooks/useDownloadFileFromServer'
+
 const { Option } = Select
 
 const WAVE_WRAPPER_STYLE: CSSProperties = { width: '100%', height: '28px' }
@@ -49,6 +51,18 @@ const MAIN_SPACE_CSS = css`
   }
 `
 
+const extractAudioUrl = async (src: string) => {
+    const firstResponse = await fetch(src, {
+        credentials: 'include',
+        headers: {
+            'shallow-redirect': 'true',
+        },
+    })
+    if (!firstResponse.ok) throw new Error('Failed to fetch audio file')
+
+    return await getRedirectUrl(firstResponse)
+}
+
 export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPlay }) => {
     const intl = useIntl()
     const SpeedMessage = intl.formatMessage({ id: 'ticket.callRecord.speed' })
@@ -59,6 +73,51 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
     const [speed, setSpeed] = useState(1)
     const waveformRef = useRef<HTMLDivElement>(null)
     const waveform = useRef(null)
+
+    const [url, setUrl] = useState<string>()
+
+    useEffect(() => {
+        if (src) {
+            fetch(src)
+                .then(data => {
+                    console.log('data from initial src', data)
+                })
+        }
+    }, [src])
+
+    useEffect(() => {
+        if (src && typeof window !== 'undefined') {
+            extractAudioUrl(src)
+                .then(responseUrl => {
+                    setUrl(responseUrl)
+                })
+                // .then(response => {
+                //     console.log('response,', response)
+                //     return response.blob()
+                // })
+                // .then(blob => {
+                //     console.log('blob from promise', blob)
+                //     const url = window.URL.createObjectURL(blob)
+                //     console.log('url from blob')
+                //     setUrl(url)
+                // })
+        }
+    }, [src])
+
+    // useEffect(() => {
+    //     if (url && typeof window !== 'undefined') {
+    //         fetch(url)
+    //             .then(response => {
+    //                 console.log('data from extracted url', response)
+    //                 return response.blob()
+    //
+    //             })
+    //             .then(blob => {
+    //                 window.URL.createObjectURL(blob)
+    //                 console.log('blob', blob)
+    //             })
+    //     }
+    // }, [url])
 
     const handlePlay = useCallback(() => {
         setPlaying(!playing)
@@ -152,7 +211,9 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
                 <PlayerIcon color={colors.gray[7]} size='auto' onClick={handlePlay}/>
                 <div style={WAVEFORM_CONTAINER_STYLE}>
                     <div id='waveform' ref={waveformRef} style={WAVE_WRAPPER_STYLE}/>
-                    <audio id={trackId} src={src}/>
+                    <audio id={trackId} src={url} crossOrigin='use-credentials'>
+                        <source src={url} type='audio/mpeg' />
+                    </audio>
                 </div>
                 <Typography.Text size='small'>
                     {`${formatTime(currentSeconds)}/${totalTime}`}
