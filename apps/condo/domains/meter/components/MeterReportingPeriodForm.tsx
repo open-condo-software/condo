@@ -281,7 +281,10 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
-                                        <Form.Item noStyle dependencies={['property', 'start', 'finish', 'isOrganizationPeriod']} shouldUpdate>
+                                        <Form.Item
+                                            noStyle
+                                            dependencies={['property', 'start', 'finish', 'isOrganizationPeriod']}
+                                            shouldUpdate>
                                             {
                                                 ({ getFieldsValue, getFieldError }) => {
                                                     const { property, start, finish, isOrganizationPeriod } = getFieldsValue(['property', 'start', 'finish', 'isOrganizationPeriod'])

@@ -1,7 +1,7 @@
 import { Col, Row, RowProps, Typography } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React from 'React'
+import React from 'react'
 import { useIntl } from 'react-intl'
 
 
