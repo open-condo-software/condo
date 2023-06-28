@@ -95,6 +95,7 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         const [user13] = await createTestUser(adminClient)
         const [user14] = await createTestUser(adminClient)
         const [user15] = await createTestUser(adminClient)
+        const [user16] = await createTestUser(adminClient)
         const [user21] = await createTestUser(adminClient)
 
         await createTestResident(adminClient, user11, property, { unitType: 'flat', unitName: '1' })
@@ -106,6 +107,9 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         await createTestResident(adminClient, user13, property, { unitType: 'flat', unitName: '4' })
         await createTestResident(adminClient, user14, property, { unitType: 'flat', unitName: '4' })
         await createTestResident(adminClient, user15, property, { unitType: 'flat', unitName: '4' })
+
+        // unitName not from map
+        await createTestResident(adminClient, user16, property, { unitType: 'flat', unitName: '100500' })
 
         await createTestResident(adminClient, user21, otherProperty, { unitType: 'flat', unitName: '1' })
 
@@ -144,8 +148,9 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         const [data4] = await getNewsItemsRecipientsCountersByTestClient(staffClientYes, payload4)
 
         expect(data1).toEqual({ propertiesCount: 1, unitsCount: 2, receiversCount: 1 })
-        expect(data2).toEqual({ propertiesCount: 1, unitsCount: 36, receiversCount: 4 })
-        expect(data3).toEqual({ propertiesCount: 2, unitsCount: 72, receiversCount: 5 })
+        // + 1 from unit not listed in property map (see unitName = 100500)
+        expect(data2).toEqual({ propertiesCount: 1, unitsCount: 36, receiversCount: 4 + 1 })
+        expect(data3).toEqual({ propertiesCount: 2, unitsCount: 72, receiversCount: 5 + 1 })
         expect(data4).toEqual({ propertiesCount: 2, unitsCount: 2, receiversCount: 1 })
     })
 
