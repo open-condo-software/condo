@@ -94,15 +94,18 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         const [user12] = await createTestUser(adminClient)
         const [user13] = await createTestUser(adminClient)
         const [user14] = await createTestUser(adminClient)
+        const [user15] = await createTestUser(adminClient)
         const [user21] = await createTestUser(adminClient)
 
         await createTestResident(adminClient, user11, property, { unitType: 'flat', unitName: '1' })
+        await createTestResident(adminClient, user12, property, { unitType: 'flat', unitName: '1' })
 
         await createTestResident(adminClient, user12, property, { unitType: 'flat', unitName: '2' })
         await createTestResident(adminClient, user12, property, { unitType: 'flat', unitName: '3' })
 
         await createTestResident(adminClient, user13, property, { unitType: 'flat', unitName: '4' })
         await createTestResident(adminClient, user14, property, { unitType: 'flat', unitName: '4' })
+        await createTestResident(adminClient, user15, property, { unitType: 'flat', unitName: '4' })
 
         await createTestResident(adminClient, user21, otherProperty, { unitType: 'flat', unitName: '1' })
 
