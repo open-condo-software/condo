@@ -681,7 +681,7 @@ __metadata:
     get-contrast: ^2.0.0
     graphql: ^15.6.1
     graphql-tag: ^2.12.6
-    graphql-upload: ^11.0.0
+    graphql-upload: ^15.0.2
     graphql-voyager: ^1.0.0-rc.31
     html2canvas: ^1.0.0-rc.7
     http-proxy-middleware: ^2.0.6
@@ -24681,7 +24681,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql-upload@npm:^15.0.1":
+"graphql-upload@npm:^15.0.1, graphql-upload@npm:^15.0.2":
   version: 15.0.2
   resolution: "graphql-upload@npm:15.0.2"
   dependencies:
