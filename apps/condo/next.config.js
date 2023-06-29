@@ -43,6 +43,7 @@ const sppConfig = JSON.parse(conf['SPP_CONFIG'] || '{}')
 const globalHints = JSON.parse(conf['GLOBAL_HINTS'] || '{}')
 const newsItemsSendingDelay = Number(conf['NEWS_ITEMS_SENDING_DELAY_SEC']) || 15
 const audioConfig = JSON.parse(conf['AUDIO_CONFIG'] || '{}')
+const checkTLSClientCertPath = conf['CHECK_TLS_CLIENT_CERT_PATH']
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -69,6 +70,7 @@ module.exports = withTM(withLess(withCSS({
         globalHints,
         newsItemsSendingDelay,
         audioConfig,
+        checkTLSClientCertPath,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,

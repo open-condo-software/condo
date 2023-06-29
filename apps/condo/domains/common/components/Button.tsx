@@ -4,11 +4,13 @@ import { css, jsx } from '@emotion/react'
 import { Button as DefaultButton, ButtonProps } from 'antd'
 import isArray from 'lodash/isArray'
 import isString from 'lodash/isString'
+import { useRouter } from 'next/router'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { ITrackingComponent, useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { useCheckTLSClientCert } from '@condo/domains/common/hooks/useCheckTLSClientCert'
 
 import { SberIconWithoutLabel } from './icons/SberIcon'
 
@@ -325,9 +327,23 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
 // TODO: Restyle and refactor this button someday later
 export const LoginWithSBBOLButton: React.FC<{ block?: boolean, redirect?: string }> = ({ block, redirect }) => {
     const intl = useIntl()
+    const router = useRouter()
+
+    function redirectToAuth () {
+        const queryParams = redirect ? `?redirectUrl=${encodeURIComponent(redirect)}` : ''
+        const authUrl = `/api/sbbol/auth${queryParams}`
+        router.push(authUrl)
+    }
+
+    function redirectToInstallTLSCert () {
+        router.push('/install-tls-cert')
+    }
+
+    const { loading, checkSSLClientCert } = useCheckTLSClientCert({
+        onFail: redirectToInstallTLSCert,
+        onSuccess: redirectToAuth,
+    })
     const LoginLabel = intl.formatMessage({ id: 'LoginBySBBOL' })
-    const queryParams = redirect ? `?redirectUrl=${encodeURIComponent(redirect)}` : ''
-    const authUrl = `/api/sbbol/auth${queryParams}`
 
     return (
         <Button
@@ -335,7 +351,8 @@ export const LoginWithSBBOLButton: React.FC<{ block?: boolean, redirect?: string
             type='sberAction'
             secondary
             icon={<SberIconWithoutLabel/>}
-            href={authUrl}
+            onClick={checkSSLClientCert}
+            loading={loading}
             block={block}
             className='sbbol-button'
         >
