@@ -6,7 +6,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { BANK_INTEGRATION_IDS, BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
-const { BankAccount, BankTransaction, BankContractorAccount, predictTransactionClassification, BankSyncTask } = require('@condo/domains/banking/utils/serverSchema')
+const { BankAccount, BankTransaction, BankContractorAccount, predictTransactionClassification, BankSyncTask, BankIntegrationAccountContext } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
@@ -122,37 +122,52 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 allDataReceived = true
             }
 
-            // WORKFLOW_FAULT means invalid request parameters, that can occur in cases:
-            // when report is requested for date in future
-            // when report page does not exist, for example number is out of range of available pages
-            if (get(transactions, 'error.cause') === SBBOL_ERRORS.WORKFLOW_FAULT) {
-                reqErrored = true
-                transactionException = SBBOL_ERRORS.WORKFLOW_FAULT
-            }
-            if (get(summary, 'error.cause') === SBBOL_ERRORS.WORKFLOW_FAULT) {
-                reqErrored = true
-                summaryException = SBBOL_ERRORS.WORKFLOW_FAULT
+            switch (get(transactions, 'error.cause')) {
+                // WORKFLOW_FAULT means invalid request parameters, that can occur in cases:
+                // when report is requested for date in future
+                // when report page does not exist, for example number is out of range of available pages
+                case SBBOL_ERRORS.WORKFLOW_FAULT: {
+                    reqErrored = true
+                    transactionException = SBBOL_ERRORS.WORKFLOW_FAULT
+                    break
+                }
+                // DATA_NOT_FOUND_EXCEPTION means that the statement not found and cannot be generated
+                case SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION: {
+                    reqErrored = true
+                    transactionException = SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION
+                    break
+                }
+                // ACTION_ACCESS_EXCEPTION means that the required access parameter for the requested data
+                // is not included in the offer with the user
+                case SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION: {
+                    reqErrored = true
+                    transactionException = SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION
+                    break
+                }
+                default: {
+                    break
+                }
             }
 
-            // DATA_NOT_FOUND_EXCEPTION means that the statement not found and cannot be generated
-            if (get(transactions, 'error.cause') === SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION) {
-                reqErrored = true
-                transactionException = SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION
-            }
-            if (get(summary, 'error.cause') === SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION) {
-                reqErrored = true
-                summaryException = SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION
-            }
-
-            // ACTION_ACCESS_EXCEPTION means that the required access parameter for the requested data
-            // is not included in the offer with the user
-            if (get(transactions, 'error.cause') === SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION) {
-                reqErrored = true
-                transactionException = SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION
-            }
-            if (get(summary, 'error.cause' === SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION)) {
-                reqErrored = true
-                summaryException = SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION
+            switch (get(summary, 'error.cause')) {
+                case SBBOL_ERRORS.WORKFLOW_FAULT: {
+                    reqErrored = true
+                    summaryException = SBBOL_ERRORS.WORKFLOW_FAULT
+                    break
+                }
+                case SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION: {
+                    reqErrored = true
+                    summaryException = SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION
+                    break
+                }
+                case SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION: {
+                    reqErrored = true
+                    summaryException = SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION
+                    break
+                }
+                default: {
+                    break
+                }
             }
 
             if (get(transactions, 'error.cause') === SBBOL_ERRORS.UNAUTHORIZED) {
@@ -172,6 +187,11 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
         accessTokenIndex = 0
 
         if (summary) {
+            const bankIntegrationAccountContextId = get(bankAccount, 'integrationContext.id')
+            const bankIntegrationAccountContext = BankIntegrationAccountContext.getOne(context, {
+                id: bankIntegrationAccountContextId,
+            })
+
             const meta = {}
             if (transactionException || summaryException) {
                 meta.lastSyncStatus = BANK_SYNC_TASK_STATUS.ERROR
@@ -184,9 +204,9 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             }
             meta.lastSyncAt = new Date().toISOString()
 
-            await BankAccount.update(context, bankAccount.id, {
+            await BankIntegrationAccountContext.update(context, bankIntegrationAccountContextId, {
                 meta: {
-                    ...bankAccount.meta,
+                    ...bankIntegrationAccountContext.meta,
                     ...meta,
                 },
                 ...dvSenderFields,
