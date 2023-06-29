@@ -795,8 +795,8 @@ describe('NewsItems', () => {
         test('must throw an error if validity date is less than send date', async () => {
             await expectToThrowGQLError(
                 async () => await createTestNewsItem(adminClient, dummyO10n, {
-                    sendAt: dayjs().toISOString(),
-                    validBefore: dayjs().subtract(1, 'second').toISOString(),
+                    sendAt: dayjs().add(1, 'hour').toISOString(),
+                    validBefore: dayjs().add(57, 'minutes').toISOString(),
                 }),
                 {
                     code: 'BAD_USER_INPUT',
