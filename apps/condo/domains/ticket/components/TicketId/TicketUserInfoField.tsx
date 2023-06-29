@@ -1,5 +1,6 @@
 import { Ticket, User } from '@app/condo/schema'
 import { get } from 'lodash'
+import Link from 'next/link'
 import React, { useMemo } from 'react'
 
 import { Typography } from '@open-condo/ui'
@@ -41,14 +42,14 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
         userInfo.push(
             <UserNameField user={{ name, id }}>
                 {({ name: userName, postfix }) => (
-                    <UserInfoLink href={props.nameLink}>
-                        <>
+                    <Link href={props.nameLink}>
+                        <a>
                             {userName}
                             {postfix && (
                                 <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
                             )}
-                        </>
-                    </UserInfoLink>
+                        </a>
+                    </Link>
                 )}
             </UserNameField>
         )
