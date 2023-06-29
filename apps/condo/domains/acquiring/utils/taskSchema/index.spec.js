@@ -3,6 +3,7 @@
  */
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
+const Big = require('big.js')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
@@ -52,6 +53,7 @@ const { createTestBillingCategory } = require('@condo/domains/billing/utils/test
 const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
+    RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
@@ -74,8 +76,10 @@ const {
     setRecurrentPaymentAsFailed,
     sendTomorrowPaymentNotificationSafely,
     sendTomorrowPaymentNoReceiptsNotificationSafely,
+    sendTomorrowPaymentLimitExceedNotificationSafely,
     sendNoReceiptsToProceedNotificationSafely,
     getNotificationMetaByErrorCode,
+    isLimitExceedForBillingReceipts,
 } = require('./index')
 
 const offset = 0
@@ -732,6 +736,119 @@ describe('task schema queries', () => {
                 await filterPaidBillingReceipts(adminContext, null)
             }, (error) => {
                 expect(error.message).toContain('invalid billingReceipts argument')
+            })
+        })
+    })
+
+    describe('isLimitExceedForBillingReceipts', () => {
+        let admin,
+            getContextRequest,
+            billingCategory,
+            serviceConsumerBatch,
+            billingReceipts
+
+        beforeEach( async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            serviceConsumerBatch = batches[0]
+            billingReceipts = serviceConsumerBatch.billingReceipts
+        })
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            billingCategory = (await createTestBillingCategory(admin, { name: `Category ${new Date()}` }))[0]
+
+            getContextRequest = (batch, extra = {}) => ({
+                enabled: false,
+                limit: '10000',
+                autoPayReceipts: false,
+                paymentDay: 10,
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batch.serviceConsumer.id } },
+                billingCategory: { connect: { id: batch.billingReceipts[0].category.id } },
+                ...extra,
+            })
+        })
+
+        it('should return false for no limit case', async () => {
+            // create context without limit
+            const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, getContextRequest(
+                serviceConsumerBatch,
+                { limit: null },
+            ))
+
+            // get receipts
+            const { isExceed, totalAmount } = await isLimitExceedForBillingReceipts(adminContext, recurrentPaymentContext, billingReceipts)
+
+            expect(isExceed).toBeFalsy()
+            expect(totalAmount).toBeUndefined()
+        })
+
+        it('should return false for not exceed limit case', async () => {
+            // create context
+            const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, getContextRequest(
+                serviceConsumerBatch,
+                { limit: '1000000000' },
+            ))
+
+            // get receipts
+            const { isExceed, totalAmount } = await isLimitExceedForBillingReceipts(adminContext, recurrentPaymentContext, billingReceipts)
+
+            expect(isExceed).toBeFalsy()
+            expect(totalAmount).toBeDefined()
+        })
+
+        it('should return true for exceed limit case', async () => {
+            // create context
+            const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, getContextRequest(
+                serviceConsumerBatch,
+                { limit: '0.01' },
+            ))
+
+            // get receipts
+            const { isExceed, totalAmount } = await isLimitExceedForBillingReceipts(adminContext, recurrentPaymentContext, billingReceipts)
+
+            expect(isExceed).toBeTruthy()
+            expect(totalAmount).toBeDefined()
+        })
+
+        it('should validate inputs', async () => {
+            // create context
+            const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, getContextRequest(serviceConsumerBatch))
+
+            await catchErrorFrom(async () => {
+                await isLimitExceedForBillingReceipts(adminContext, recurrentPaymentContext, null)
+            }, (error) => {
+                expect(error.message).toContain('invalid billingReceipts argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await isLimitExceedForBillingReceipts(adminContext, null, [])
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPaymentContext argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await isLimitExceedForBillingReceipts(adminContext, {}, [])
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPaymentContext argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await isLimitExceedForBillingReceipts(adminContext, { id: recurrentPaymentContext.id }, [])
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPaymentContext argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await isLimitExceedForBillingReceipts(adminContext, { id: recurrentPaymentContext.id, serviceConsumer: {} }, [])
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPaymentContext argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await isLimitExceedForBillingReceipts(adminContext, { id: recurrentPaymentContext.id, serviceConsumer: { id: null } }, [])
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPaymentContext argument')
             })
         })
     })
@@ -1990,6 +2107,118 @@ describe('task schema queries', () => {
                 await sendTomorrowPaymentNoReceiptsNotificationSafely(adminContext, {})
             }, (error) => {
                 expect(error.message).toContain('invalid recurrentPaymentContext argument')
+            })
+        })
+    })
+
+    describe('sendTomorrowPaymentLimitExceedNotificationSafely', () => {
+        let admin,
+            getContextRequest,
+            serviceConsumerBatch,
+            recurrentPaymentContext
+
+        beforeEach( async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 1)
+            serviceConsumerBatch = batches[0]
+            recurrentPaymentContext = (await createTestRecurrentPaymentContext(admin, getContextRequest(serviceConsumerBatch)))[0]
+        })
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+
+            getContextRequest = (batch) => ({
+                enabled: true,
+                limit: '100000000',
+                autoPayReceipts: false,
+                paymentDay: 10,
+                settings: { cardId: faker.datatype.uuid() },
+                serviceConsumer: { connect: { id: batch.serviceConsumer.id } },
+                billingCategory: { connect: { id: batch.billingReceipts[0].category.id } },
+            })
+        })
+
+        it('should send notification', async () => {
+            // send notification
+            await sendTomorrowPaymentLimitExceedNotificationSafely(adminContext, recurrentPaymentContext, Big('1'))
+
+            const [notification] = await Message.getAll(adminContext, {
+                type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
+                user: { id: serviceConsumerBatch.resident.user.id },
+            }, {
+                sortBy: 'createdAt_DESC',
+            })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}/`,
+                toPayAmount: '1',
+            })
+        })
+
+        it('should send one notification for retry payment processing', async () => {
+            // send notification
+            await sendTomorrowPaymentLimitExceedNotificationSafely(adminContext, recurrentPaymentContext, '1')
+            await sendTomorrowPaymentLimitExceedNotificationSafely(adminContext, recurrentPaymentContext, '1')
+
+            const notifications = await Message.getAll(adminContext, {
+                type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
+                user: { id: serviceConsumerBatch.resident.user.id },
+            }, {
+                sortBy: 'createdAt_DESC',
+            })
+            expect(notifications).toHaveLength(1)
+            const [notification] = notifications
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('data')
+            expect(notification.meta.data).toHaveProperty('recurrentPaymentContextId')
+            expect(notification.meta.data).toHaveProperty('serviceConsumerId')
+            expect(notification.meta.data).toHaveProperty('residentId')
+            expect(notification.meta.data).toHaveProperty('userId')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}/`,
+                toPayAmount: '1',
+            })
+        })
+
+        it('should validate inputs', async () => {
+            await catchErrorFrom(async () => {
+                await sendTomorrowPaymentLimitExceedNotificationSafely(adminContext, null, '1')
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPaymentContext argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await sendTomorrowPaymentLimitExceedNotificationSafely(adminContext, {}, '1')
+            }, (error) => {
+                expect(error.message).toContain('invalid recurrentPaymentContext argument')
+            })
+
+            await catchErrorFrom(async () => {
+                await sendTomorrowPaymentLimitExceedNotificationSafely(adminContext, recurrentPaymentContext, null)
+            }, (error) => {
+                expect(error.message).toContain('invalid toPayAmount argument')
             })
         })
     })

@@ -1356,6 +1356,7 @@
   "notification.messages.RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE.push.title": "Autopayment error 🚨",
   "notification.messages.RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE.push.title": "Autopayment reminder 😉",
   "notification.messages.RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE.push.title": "Autopayment reminder 😉",
+  "notification.messages.RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE.push.title": "Autopayment reminder ⚠️",
   "notification.messages.NEWS_ITEM_COMMON_MESSAGE_TYPE.push.title": "{title}",
   "notification.messages.NEWS_ITEM_EMERGENCY_MESSAGE_TYPE.push.title": "{title}",
   "notification.messages.B2C_APP_MESSAGE_PUSH.push.title": "{title}",

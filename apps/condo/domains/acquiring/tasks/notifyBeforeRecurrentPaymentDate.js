@@ -11,8 +11,10 @@ const {
     getAllReadyToPayRecurrentPaymentContexts,
     sendTomorrowPaymentNotificationSafely,
     sendTomorrowPaymentNoReceiptsNotificationSafely,
+    sendTomorrowPaymentLimitExceedNotificationSafely,
     getReceiptsForServiceConsumer,
     filterPaidBillingReceipts,
+    isLimitExceedForBillingReceipts,
 } = require('@condo/domains/acquiring/utils/taskSchema')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
@@ -34,9 +36,20 @@ async function notifyRecurrentPaymentContext (context, date, recurrentPaymentCon
     // filter receipts if they are already paid
     const unpaidBillingReceipts = await filterPaidBillingReceipts(context, billingReceipts)
 
-    // send notification by count of payable receipts
+    // send notification - no payable receipts
     if (unpaidBillingReceipts.length === 0) {
         return await sendTomorrowPaymentNoReceiptsNotificationSafely(context, recurrentPaymentContext)
+    }
+
+    // check limits
+    const { isExceed, totalAmount } = await isLimitExceedForBillingReceipts(
+        context,
+        recurrentPaymentContext,
+        unpaidBillingReceipts
+    )
+
+    if (isExceed) {
+        return await sendTomorrowPaymentLimitExceedNotificationSafely(context, recurrentPaymentContext, totalAmount)
     } else {
         return await sendTomorrowPaymentNotificationSafely(context, recurrentPaymentContext)
     }

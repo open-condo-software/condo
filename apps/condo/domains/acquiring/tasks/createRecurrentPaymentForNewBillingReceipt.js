@@ -15,6 +15,8 @@ const {
     getAllReadyToPayRecurrentPaymentContexts,
     getReceiptsForServiceConsumer,
     sendTomorrowPaymentNotificationSafely,
+    sendTomorrowPaymentLimitExceedNotificationSafely,
+    isLimitExceedForBillingReceipts,
 } = require('@condo/domains/acquiring/utils/taskSchema')
 const { getStartDates } = require('@condo/domains/common/utils/date')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
@@ -59,8 +61,18 @@ async function scanBillingReceiptsForRecurrentPaymentContext (context, recurrent
         recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
     })
 
-    // send a message
-    await sendTomorrowPaymentNotificationSafely(context, recurrentPaymentContext, recurrentPayment)
+    // check limits
+    const { isExceed, totalAmount } = await isLimitExceedForBillingReceipts(
+        context,
+        recurrentPaymentContext,
+        billingReceipts
+    )
+
+    if (isExceed) {
+        return await sendTomorrowPaymentLimitExceedNotificationSafely(context, recurrentPaymentContext, totalAmount)
+    } else {
+        return await sendTomorrowPaymentNotificationSafely(context, recurrentPaymentContext, recurrentPayment)
+    }
 }
 
 async function createRecurrentPaymentForNewBillingReceipt () {
