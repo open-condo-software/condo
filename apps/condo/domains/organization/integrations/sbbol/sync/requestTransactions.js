@@ -144,7 +144,12 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     transactionException = SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION
                     break
                 }
+                case undefined: {
+                    break
+                }
                 default: {
+                    reqErrored = true
+                    transactionException = get(transactions, 'error.cause')
                     break
                 }
             }
@@ -165,8 +170,12 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     summaryException = SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION
                     break
                 }
-                default: {
+                case undefined: {
                     break
+                }
+                default: {
+                    reqErrored = true
+                    summaryException = get(summary, 'error.cause')
                 }
             }
 
