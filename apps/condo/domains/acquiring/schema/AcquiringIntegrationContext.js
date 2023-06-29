@@ -8,6 +8,7 @@ const { isEmpty, isUndefined, isNull } = require('lodash')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
@@ -107,7 +108,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
     access: {
         read: access.canReadAcquiringIntegrationContexts,
         create: access.canManageAcquiringIntegrationContexts,
