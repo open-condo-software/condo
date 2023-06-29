@@ -18,12 +18,12 @@ const {
     makeServiceUserForIntegration,
     makeOrganizationIntegrationManager, createTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-
 const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
-} = require('../../organization/utils/testSchema')
+} = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
 
 
 
@@ -270,5 +270,13 @@ describe('BillingReceiptFile', () => {
             }, 'Context is not equal to receipt.context')
         })
     })
+
+})
+
+describe('Sensitive and Public data access', () => {
+    // 1. 2 резидента в одной организации у одного пользователя = 1 контакт подтвержден, другой нет = 1 Public, 2 Sensitive
+    // 2. вообще нет контактов в организации = Public
+    // 3. Service, Admin, Support, Employee => file = Sensitive
+
 
 })

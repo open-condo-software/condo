@@ -504,7 +504,8 @@ async function createTestBillingReceiptFile (client, receipt, context, extraAttr
     const attrs = {
         dv: 1,
         sender,
-        file:  new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')),
+        sensitiveDataFile:  new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')),
+        publicDataFile:  new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')),
         controlSum: faker.random.alphaNumeric(20),
         ...receiptConnection,
         ...contextConnection,

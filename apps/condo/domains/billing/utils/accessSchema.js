@@ -96,6 +96,8 @@ async function canManageBillingEntityWithContext ({ authentication, operation, i
     return await checkBillingIntegrationsAccessRights(user.id, integrationIds)
 }
 
+
+
 module.exports = {
     checkBillingIntegrationsAccessRights,
     canReadBillingEntity,

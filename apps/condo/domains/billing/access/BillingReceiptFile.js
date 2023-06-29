@@ -9,7 +9,9 @@ const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { STAFF } = require('@condo/domains/user/constants/common')
+const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
+
+const { canReadBillingReceipts } = require('./BillingReceipt')
 
 
 async function canReadBillingReceiptFiles ({ authentication }) {
@@ -32,11 +34,28 @@ async function canReadBillingReceiptFiles ({ authentication }) {
         }
     }
 
+    if (user.type === RESIDENT) {
+        // We allow access to those residents, who has access to related BillingReceipt
+        const condition = await canReadBillingReceipts({ authentication })
+        if (!condition) {
+            return false
+        }
+        return {
+            receipt: condition,
+        }
+    }
+
     return await canReadBillingEntity(authentication)
 }
 
 async function canManageBillingReceiptFiles (args) {
     return await canManageBillingEntityWithContext(args)
+}
+
+async function hasAccessToSensitiveDataFile ({ authentication:  { item: user } }) {
+    // Access to fields will be checked after main access check
+    // So we can allow all service users who has passed so far
+    return (user.isAdmin || user.isSupport || user.type === SERVICE)
 }
 
 /*
@@ -46,4 +65,5 @@ async function canManageBillingReceiptFiles (args) {
 module.exports = {
     canReadBillingReceiptFiles,
     canManageBillingReceiptFiles,
+    hasAccessToSensitiveDataFile,
 }
