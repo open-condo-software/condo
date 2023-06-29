@@ -17,6 +17,7 @@ import { useFocusContext } from '@condo/domains/common/components/Focus/FocusCon
 import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
 import { UserIcon } from '@condo/domains/common/components/icons/UserIcon'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import { ONBOARDING_COMPLETED_PROGRESS } from '@condo/domains/onboarding/constants'
 import { useOnBoardingCompleteModal } from '@condo/domains/onboarding/hooks/useOnBoardingCompleeteModal'
 import { OnBoarding as OnBoardingHooks, OnBoardingStep as OnBoardingStepHooks } from '@condo/domains/onboarding/utils/clientSchema'
@@ -104,13 +105,13 @@ export const OnBoardingProvider: React.FC = (props) => {
         },
         'create.Billing': {
             query: BillingGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
-            resolver: (data) => get(data, 'objs', []).length > 0,
-            action: () => Router.push('/miniapps?tab=ACCRUALS_AND_PAYMENTS'),
+            resolver: (data) => get(data, 'objs', []).some(ctx => ctx.status === CONTEXT_FINISHED_STATUS),
+            action: () => Router.push('/billing'),
         },
         'create.Acquiring': {
             query: AcquiringGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
-            resolver: (data) => get(data, 'objs', []).length > 0,
-            action: () => Router.push('/miniapps?tab=ACCRUALS_AND_PAYMENTS'),
+            resolver: (data) => get(data, 'objs', []).some(ctx => ctx.status === CONTEXT_FINISHED_STATUS),
+            action: () => Router.push('/billing'),
         },
     }
 
