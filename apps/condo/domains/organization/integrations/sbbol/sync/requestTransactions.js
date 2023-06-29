@@ -12,12 +12,13 @@ const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { ERROR_PASSED_DATE_IN_THE_FUTURE } = require('@condo/domains/organization/integrations/sbbol/constants')
+const { SBBOL_ERRORS } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { initSbbolFintechApi, initSbbolClientWithToken } = require('@condo/domains/organization/integrations/sbbol/SbbolFintechApi')
 const { getAllAccessTokensByOrganization } = require('@condo/domains/organization/integrations/sbbol/utils/getAccessTokenForUser')
 
 
 const logger = getLogger('sbbol/SbbolSyncTransactions')
-const isResponseProcessing = (response) => (get(response, 'error.cause', '') === 'STATEMENT_RESPONSE_PROCESSING')
+const isResponseProcessing = (response) => (get(response, 'error.cause', '') === SBBOL_ERRORS.STATEMENT_RESPONSE_PROCESSING)
 const dvSenderFieldsBankSyncTask = {
     dv: 1,
     sender: { dv: 1, fingerprint: 'BankSyncTask' },
@@ -37,7 +38,7 @@ async function isTaskCancelled (context, taskId) {
  *  @param {String} organizationId
  */
 async function requestTransactionsForDate ({ userId, bankAccounts, context, statementDate, organizationId }) {
-    let sbbolFintechClient, accessTokens, accessTokenIndex = 0
+    let sbbolFintechClient, accessTokens, accessTokenIndex = 0, transactionException, summaryException
 
     sbbolFintechClient = await initSbbolFintechApi(userId)
 
@@ -124,10 +125,37 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             // WORKFLOW_FAULT means invalid request parameters, that can occur in cases:
             // when report is requested for date in future
             // when report page does not exist, for example number is out of range of available pages
-            if (get(transactions, 'error.cause') === 'WORKFLOW_FAULT') reqErrored = true
-            if (get(summary, 'error.cause') === 'WORKFLOW_FAULT') reqErrored = true
-            if (get(summary, 'error.cause') === 'DATA_NOT_FOUND_EXCEPTION') reqErrored = true
-            if (get(transactions, 'error.cause') === 'UNAUTHORIZED') {
+            if (get(transactions, 'error.cause') === SBBOL_ERRORS.WORKFLOW_FAULT) {
+                reqErrored = true
+                transactionException = SBBOL_ERRORS.WORKFLOW_FAULT
+            }
+            if (get(summary, 'error.cause') === SBBOL_ERRORS.WORKFLOW_FAULT) {
+                reqErrored = true
+                summaryException = SBBOL_ERRORS.WORKFLOW_FAULT
+            }
+
+            // DATA_NOT_FOUND_EXCEPTION means that the statement not found and cannot be generated
+            if (get(transactions, 'error.cause') === SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION) {
+                reqErrored = true
+                transactionException = SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION
+            }
+            if (get(summary, 'error.cause') === SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION) {
+                reqErrored = true
+                summaryException = SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION
+            }
+
+            // ACTION_ACCESS_EXCEPTION means that the required access parameter for the requested data
+            // is not included in the offer with the user
+            if (get(transactions, 'error.cause') === SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION) {
+                reqErrored = true
+                transactionException = SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION
+            }
+            if (get(summary, 'error.cause' === SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION)) {
+                reqErrored = true
+                summaryException = SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION
+            }
+
+            if (get(transactions, 'error.cause') === SBBOL_ERRORS.UNAUTHORIZED) {
                 allDataReceived = false
                 reqErrored = false
                 accessTokenIndex++
@@ -135,6 +163,8 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     sbbolFintechClient = initSbbolClientWithToken(accessTokens[accessTokenIndex])
                 } else {
                     reqErrored = true
+                    transactionException = SBBOL_ERRORS.UNAUTHORIZED
+                    summaryException = SBBOL_ERRORS.UNAUTHORIZED
                 }
             }
         }
@@ -142,11 +172,22 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
         accessTokenIndex = 0
 
         if (summary) {
+            const meta = {}
+            if (transactionException || summaryException) {
+                meta.lastSyncStatus = BANK_SYNC_TASK_STATUS.ERROR
+                meta.transactionException = transactionException ?? null
+                meta.summaryException = summaryException ?? null
+            } else {
+                meta.amount = get(summary, 'data.closingBalance.amount')
+                meta.amountAt = get(summary, 'data.composedDateTime')
+                meta.lastSyncStatus = BANK_SYNC_TASK_STATUS.COMPLETED
+            }
+            meta.lastSyncAt = new Date().toISOString()
+
             await BankAccount.update(context, bankAccount.id, {
                 meta: {
                     ...bankAccount.meta,
-                    amount: get(summary, 'data.closingBalance.amount'),
-                    amountAt: get(summary, 'data.composedDateTime'),
+                    ...meta,
                 },
                 ...dvSenderFields,
             })
