@@ -84,6 +84,7 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
                     />
                     <ConnectModal
                         miniappHasFrame={Boolean(app.appUrl)}
+                        miniappHasIcon={Boolean(app.icon)}
                         contextStatus={get(context, 'status', null)}
                         open={modalOpen}
                         closeModal={handleCloseModal}
