@@ -1063,6 +1063,8 @@
   "news.fields.sections.label": "Entrance",
   "news.fields.sections.message": "To select entrances, delete the selected flats",
   "news.fields.type.label": "News type",
+  "news.fields.type.common": "common",
+  "news.fields.type.emergency": "emergency",
   "news.fields.title.label": "Title",
   "news.fields.title.placeholder": "Form title of news. Don't start with a greeting, but get right to the point: tell what happened in a short sentence",
   "news.fields.body.label": "Message text",
