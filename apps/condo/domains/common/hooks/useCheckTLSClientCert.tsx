@@ -8,7 +8,6 @@ const {
 interface IUseCheckSSLClientCert {
     loading: boolean
     checkSSLClientCert: () => void
-}
 
 type UseCheckSSLClientCertProps = {
     onSuccess: () => void

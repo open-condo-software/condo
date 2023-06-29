@@ -327,6 +327,7 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
 // TODO: Restyle and refactor this button someday later
 export const LoginWithSBBOLButton: React.FC<{ block?: boolean, redirect?: string }> = ({ block, redirect }) => {
     const intl = useIntl()
+    const LoginLabel = intl.formatMessage({ id: 'LoginBySBBOL' })
     const router = useRouter()
 
     function redirectToAuth () {
@@ -335,29 +336,24 @@ export const LoginWithSBBOLButton: React.FC<{ block?: boolean, redirect?: string
         router.push(authUrl)
     }
 
-    function redirectToInstallTLSCert () {
-        router.push('/install-tls-cert')
-    }
-
-    const { loading, checkSSLClientCert } = useCheckTLSClientCert({
-        onFail: redirectToInstallTLSCert,
+    const { loading, checkSSLClientCert, InstallTLSClientCertModal } = useCheckTLSClientCert({
         onSuccess: redirectToAuth,
     })
-    const LoginLabel = intl.formatMessage({ id: 'LoginBySBBOL' })
 
     return (
-        <Button
-            key='submit'
-            type='sberAction'
-            secondary
-            icon={<SberIconWithoutLabel/>}
-            onClick={checkSSLClientCert}
-            loading={loading}
-            block={block}
-            className='sbbol-button'
-        >
-            {LoginLabel}
-        </Button>
+        <>
+            <Button
+                key='submit'
+                type='sberAction'
+                secondary
+                icon={<SberIconWithoutLabel/>}
+                onClick={checkSSLClientCert}
+                loading={loading}
+                block={block}
+            >
+                {LoginLabel}
+            </Button>
+            <InstallTLSClientCertModal/>
+        </>
     )
-
 }
