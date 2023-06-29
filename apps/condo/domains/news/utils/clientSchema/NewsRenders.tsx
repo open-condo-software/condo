@@ -10,7 +10,7 @@ import isNull from 'lodash/isNil'
 import getConfig from 'next/config'
 import Link from 'next/link'
 import { ColumnType } from 'rc-table/lib/interface'
-import React, { CSSProperties, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
 import { RefreshCw } from '@open-condo/icons'
@@ -60,7 +60,7 @@ const getNewsDate = (intl, stringDate: string, format: string): string => {
 }
 
 export const getRenderTitle: GetRenderTitleType = (search) => (body) => {
-    return getTableCellRenderer({ search, extraTitle: body })(body)
+    return getTableCellRenderer({ search, extraTitle: body, ellipsis: true })(body)
 }
 
 export const getRenderBody: GetRenderBodyType = (search) => (body) => {
