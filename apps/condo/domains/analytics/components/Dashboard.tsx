@@ -96,7 +96,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoadin
 
     useEffect(() => {
         if (!paymentLoading && !isNull(paymentSum) && !isNull(receiptSum)) {
-            paymentsAmountPercent.current = Big(paymentSum).div(receiptSum).mul(100).round(0).toString() + '%'
+            paymentsAmountPercent.current = Number(receiptSum) === 0 ? '-' : Big(paymentSum).div(receiptSum).mul(100).round(0).toString() + '%'
         }
     }, [receiptSum, paymentSum, paymentLoading])
 
