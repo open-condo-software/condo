@@ -1,26 +1,25 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
-import { useLazyQuery, useMutation } from '@apollo/client'
+import { useLazyQuery } from '@apollo/client'
 import { BuildingSection, NewsItemScope, Property as PropertyType } from '@app/condo/schema'
-import { Button, ButtonProps, Col, notification, Row } from 'antd'
+import { ButtonProps, Col, notification, Row } from 'antd'
 import every from 'lodash/every'
 import get from 'lodash/get'
 import intersection from 'lodash/intersection'
 import map from 'lodash/map'
 import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
-import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useEffect, useMemo, useState } from 'react'
 
-import { Download } from '@open-condo/icons'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Card, Space, Typography, TypographyTitleProps } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { EXPORT_NEWS_RECIPIENTS_MUTATION, GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION } from '@condo/domains/news/gql'
+import { GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION } from '@condo/domains/news/gql'
+import { useNewsItemRecipientsExportToExcelTask } from '@condo/domains/news/hooks/useNewsItemRecipientsExportToExcelTask'
 
 import { TNewsItemScopeNoInstance } from './types'
 
@@ -121,13 +120,6 @@ const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
     }
 }
 
-const downloaderButtonStyle: CSSProperties = {
-    background: 'transparent',
-    border: 0,
-    padding: '4px',
-    display: 'inline-block',
-}
-
 interface RecipientCounterProps {
     newsItemScopes: TNewsItemScopeNoInstance[]
 }
@@ -143,8 +135,6 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     const formatWillReceiveHintMessage = (count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hint' }, { count })
     const WillZeroReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hintZero' })
 
-    const [isXlsLoading, setIsXlsLoading] = useState(false)
-
     const [counters, setCounters] = useState<{
         propertiesCount: number,
         unitsCount: number,
@@ -152,7 +142,9 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     }>(null)
 
     const { organization } = useOrganization()
-    const { push } = useRouter()
+
+    const auth = useAuth() as { user: { id: string } }
+    const user = get(auth, 'user')
 
     const processedNewsItemScope = useMemo(() => {
         return newsItemScopes.reduce<TNewsItemScopeNoInstance[]>((acc, scope) => {
@@ -168,6 +160,12 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
             ]
         }, [])
     }, [newsItemScopes])
+
+    const { NewsItemRecipientsExportToXlsxButton } = useNewsItemRecipientsExportToExcelTask({
+        organization,
+        user,
+        scopes: processedNewsItemScope,
+    })
 
     const [getCounters, { loading: isCountersLoading }] = useLazyQuery(
         GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION,
@@ -196,28 +194,6 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
             },
         })
     }, [getCounters, organization.id, processedNewsItemScope])
-
-    const [exportNewsRecipientsMutation] = useMutation(EXPORT_NEWS_RECIPIENTS_MUTATION)
-    const runExportNewsRecipients = useCallback(() => {
-        const sender = getClientSideSenderInfo()
-        const meta = { dv: 1, sender }
-        setIsXlsLoading(true)
-
-        return runMutation({
-            mutation: exportNewsRecipientsMutation,
-            variables: {
-                data: {
-                    newsItemScopes: processedNewsItemScope,
-                    organization: { id: organization.id },
-                    ...meta,
-                },
-            },
-            intl,
-        }).then(({ data: { result: { linkToFile } } }) => push(linkToFile))
-            .then(() => {
-                setIsXlsLoading(false)
-            })
-    }, [exportNewsRecipientsMutation, processedNewsItemScope, organization.id, intl, push])
 
     if (isCountersLoading || !counters) {
         return null
@@ -260,13 +236,9 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                                     value={unitsCount - receiversCount}
                                     type='danger'
                                     hint={willNotReceiveUnitsCount === 0 ? WillZeroNotReceiveHintMessage : formatWillNotReceiveHintMessage(willNotReceiveUnitsCount)}
-                                    downloadButton={<Button
-                                        size='small'
-                                        onClick={runExportNewsRecipients}
-                                        disabled={isXlsLoading}
-                                        children={<Download size='small'/>}
-                                        style={downloaderButtonStyle}
-                                    />}
+                                    downloadButton={(
+                                        <NewsItemRecipientsExportToXlsxButton key='exportToExcel' />
+                                    )}
                                 />
                             </Col>
                         </Row>
