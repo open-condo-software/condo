@@ -75,27 +75,27 @@ WHERE "toPayDetails"->>'formula' IS NOT NULL;
 
 UPDATE "BillingReceipt"
 SET "charge" = CAST("toPayDetails"->>'charge' AS NUMERIC)
-WHERE "toPayDetails"->>'charge' IS NOT NULL;
+WHERE "toPayDetails"->>'charge' IS NOT NULL AND "toPayDetails"->>'charge'~ '^\\d+\\.?\\d+$';
 
 UPDATE "BillingReceipt"
 SET "balance" = CAST("toPayDetails"->>'balance' AS NUMERIC)
-WHERE "toPayDetails"->>'balance' IS NOT NULL;
+WHERE "toPayDetails"->>'balance' IS NOT NULL AND "toPayDetails"->>'balance'~ '^\\d+\\.?\\d+$';
 
 UPDATE "BillingReceipt"
 SET "recalculation" = CAST("toPayDetails"->>'recalculation' AS NUMERIC)
-WHERE "toPayDetails"->>'recalculation' IS NOT NULL;
+WHERE "toPayDetails"->>'recalculation' IS NOT NULL AND "toPayDetails"->>'recalculation'~ '^\\d+\\.?\\d+$';
 
 UPDATE "BillingReceipt"
 SET "privilege" = CAST("toPayDetails"->>'privilege' AS NUMERIC)
-WHERE "toPayDetails"->>'privilege' IS NOT NULL;
+WHERE "toPayDetails"->>'privilege' IS NOT NULL AND "toPayDetails"->>'privilege'~ '^\\d+\\.?\\d+$';
 
 UPDATE "BillingReceipt"
 SET "penalty" = CAST("toPayDetails"->>'penalty' AS NUMERIC)
-WHERE "toPayDetails"->>'penalty' IS NOT NULL;
+WHERE "toPayDetails"->>'penalty' IS NOT NULL AND "toPayDetails"->>'penalty'~ '^\\d+\\.?\\d+$';
 
 UPDATE "BillingReceipt"
 SET "paid" = CAST("toPayDetails"->>'paid' AS NUMERIC)
-WHERE "toPayDetails"->>'paid' IS NOT NULL;
+WHERE "toPayDetails"->>'paid' IS NOT NULL AND "toPayDetails"->>'paid'~ '^\\d+\\.?\\d+$';
 
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
