@@ -68,6 +68,7 @@ interface IMenuItemProps {
     path?: string
     icon: React.ElementType
     label: string
+    labelRaw?: true
     disabled?: boolean
     hideInMenu?: boolean
     menuItemWrapperProps?: IMenuItemWrapperProps
@@ -107,6 +108,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         onClick,
         eventName,
         excludePaths = [],
+        labelRaw,
     } = props
     const { breakpoints } = useLayoutContext()
     const router = useRouter()
@@ -134,7 +136,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         return null
     }
 
-    const Message = intl.formatMessage({ id: label })
+    const Message = labelRaw ? label : intl.formatMessage({ id: label })
 
     const menuItemClassNames = classnames(wrapperClassName, {
         'side': breakpoints.TABLET_LARGE,

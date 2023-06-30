@@ -31,6 +31,7 @@ const {
     DISPLAY_PRIORITY_FIELD,
     PRICE_FIELD,
     ICON_FIELD,
+    MENU_CATEGORY_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
@@ -57,6 +58,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
             isRequired: true,
         },
         icon: ICON_FIELD,
+        menuCategory: MENU_CATEGORY_FIELD,
         contextDefaultStatus: CONTEXT_DEFAULT_STATUS_FIELD,
         category: {
             schemaDoc: `Category of app. Can be one of the following: [${B2B_APP_CATEGORIES.map(category => `"${category}"`).join(', ')}] By default set to "${OTHER_CATEGORY}"`,

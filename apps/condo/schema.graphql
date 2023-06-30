@@ -52363,6 +52363,7 @@ type B2BAppHistoryRecord {
   isHidden: Boolean
   isGlobal: Boolean
   icon: String
+  menuCategory: String
   contextDefaultStatus: String
   category: String
   features: JSON
@@ -52508,6 +52509,24 @@ input B2BAppHistoryRecordWhereInput {
   icon_not_ends_with_i: String
   icon_in: [String]
   icon_not_in: [String]
+  menuCategory: String
+  menuCategory_not: String
+  menuCategory_contains: String
+  menuCategory_not_contains: String
+  menuCategory_starts_with: String
+  menuCategory_not_starts_with: String
+  menuCategory_ends_with: String
+  menuCategory_not_ends_with: String
+  menuCategory_i: String
+  menuCategory_not_i: String
+  menuCategory_contains_i: String
+  menuCategory_not_contains_i: String
+  menuCategory_starts_with_i: String
+  menuCategory_not_starts_with_i: String
+  menuCategory_ends_with_i: String
+  menuCategory_not_ends_with_i: String
+  menuCategory_in: [String]
+  menuCategory_not_in: [String]
   contextDefaultStatus: String
   contextDefaultStatus_not: String
   contextDefaultStatus_contains: String
@@ -52695,6 +52714,8 @@ enum SortB2BAppHistoryRecordsBy {
   isGlobal_DESC
   icon_ASC
   icon_DESC
+  menuCategory_ASC
+  menuCategory_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   category_ASC
@@ -52734,6 +52755,7 @@ input B2BAppHistoryRecordUpdateInput {
   isHidden: Boolean
   isGlobal: Boolean
   icon: String
+  menuCategory: String
   contextDefaultStatus: String
   category: String
   features: JSON
@@ -52771,6 +52793,7 @@ input B2BAppHistoryRecordCreateInput {
   isHidden: Boolean
   isGlobal: Boolean
   icon: String
+  menuCategory: String
   contextDefaultStatus: String
   category: String
   features: JSON
@@ -52855,6 +52878,10 @@ type B2BApp {
   """ App icon. The presence of this field means that this app will be pinned to the CRM menu after the connection. 
   """
   icon: String
+
+  """ This field is responsible for which category of the CRM menu the application icon will fall into when connected. If not specified - then connected with the icon will be displayed in category "MINIAPPS" by default. 
+  """
+  menuCategory: String
 
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
@@ -53034,6 +53061,10 @@ input B2BAppWhereInput {
   icon_not: String
   icon_in: [String]
   icon_not_in: [String]
+  menuCategory: String
+  menuCategory_not: String
+  menuCategory_in: [String]
+  menuCategory_not_in: [String]
   contextDefaultStatus: String
   contextDefaultStatus_not: String
   contextDefaultStatus_in: [String]
@@ -53170,6 +53201,8 @@ enum SortB2BAppsBy {
   isGlobal_DESC
   icon_ASC
   icon_DESC
+  menuCategory_ASC
+  menuCategory_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   category_ASC
@@ -53211,6 +53244,7 @@ input B2BAppUpdateInput {
   isHidden: Boolean
   isGlobal: Boolean
   icon: String
+  menuCategory: String
   contextDefaultStatus: String
   category: String
   accessRights: B2BAppAccessRightRelateToManyInput
@@ -53246,6 +53280,7 @@ input B2BAppCreateInput {
   isHidden: Boolean
   isGlobal: Boolean
   icon: String
+  menuCategory: String
   contextDefaultStatus: String
   category: String
   accessRights: B2BAppAccessRightRelateToManyInput
