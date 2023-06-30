@@ -48,6 +48,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTy
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.Account' })
     const PeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.Period' })
+    const DefaultPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.Table.defaultPeriod' })
+    const CustomPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.Table.customPeriod' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -57,13 +59,22 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTy
 
     const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
 
-    const renderAddress = useCallback((_, record) =>
-        getAddressRender(
-            meterType === METER_PAGE_TYPES.reportingPeriod ? get(record, ['property']) : get(record, ['meter', 'property']),
-            DeletedMessage,
-            search
-        ),
-    [DeletedMessage, search, meterType])
+    const renderAddress = useCallback((_, record) => {
+        const property = meterType === METER_PAGE_TYPES.reportingPeriod ? get(record, ['property']) : get(record, ['meter', 'property'])
+        if (property) {
+            return getAddressRender(
+                property,
+                DeletedMessage,
+                search
+            )
+        }
+
+        if (!record.organization) {
+            return DefaultPeriodMessage
+        } else {
+            return CustomPeriodMessage
+        }
+    }, [DeletedMessage, search, meterType])
 
     const renderSource = useCallback((source) => getTableCellRenderer({ search })(source.name), [search])
 

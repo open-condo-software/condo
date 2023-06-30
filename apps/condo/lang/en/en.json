@@ -644,6 +644,8 @@
   "pages.condo.meter.index.propertyMeterTab": "Meter log",
   "pages.condo.meter.index.reportingPeriodTab": "Meter readings reporting period",
   "pages.condo.meter.index.reportingPeriod.EmptyList.create": "Create period",
+  "pages.condo.meter.index.reportingPeriod.Table.defaultPeriod": "Default reporting period",
+  "pages.condo.meter.index.reportingPeriod.Table.customPeriod": "Reporting period for all houses",
   "pages.condo.meter.Place": "Place",
   "pages.condo.meter.MeterReading": "Reading",
   "pages.condo.meter.MeterReadingDate": "Reading date",

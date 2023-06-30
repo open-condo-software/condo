@@ -474,7 +474,7 @@ const MetersPage: IMeterIndexPage = () => {
     const role = get(link, 'role')
 
     const { useFlag } = useFeatureFlags()
-    const isMeterReportingPeriodEnabled = useFlag(METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG)
+    const isMeterReportingPeriodEnabled = true
 
     const { GlobalHints } = useGlobalHints()
 
@@ -490,9 +490,16 @@ const MetersPage: IMeterIndexPage = () => {
         meter: { deletedAt: null },
         organization: { id: userOrganizationId } }),
     [filters, filtersToWhere, userOrganizationId])
-    const searchMeterReportingPeriodsQuery = useMemo(() => ({
-        ...filtersToWhere(filters),
-        organization: { id: userOrganizationId } }),
+    const searchMeterReportingPeriodsQuery = useMemo(() => {
+        return {
+            OR: [
+                { organization_is_null: true },
+                {
+                    ...filtersToWhere(filters),
+                    organization: { id: userOrganizationId },
+                },
+            ],
+        }},
     [filters, filtersToWhere, userOrganizationId])
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
 
