@@ -43,6 +43,10 @@ jobs:
           pip3 install django
           pip3 install psycopg2-binary
 
+      - name: build deps
+        run: |
+          turbo build --filter=condo^...
+
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
@@ -140,6 +144,10 @@ jobs:
           yarn install --immutable
           pip3 install django
           pip3 install psycopg2-binary
+
+      - name: build deps
+        run: |
+          turbo build --filter=condo^...
 
       - name: run tests for ${{ matrix.database }}
         run: |
@@ -241,6 +249,10 @@ jobs:
           pip3 install django
           pip3 install psycopg2-binary
 
+      - name: build deps
+        run: |
+          turbo build --filter=condo^...
+
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
@@ -340,6 +352,10 @@ jobs:
           yarn install --immutable
           pip3 install django
           pip3 install psycopg2-binary
+
+      - name: build deps
+        run: |
+          turbo build --filter=condo^...
 
       - name: run tests for ${{ matrix.database }}
         run: |
