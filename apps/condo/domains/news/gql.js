@@ -24,11 +24,14 @@ const NewsItemTemplate = generateGqlQueries('NewsItemTemplate', NEWS_ITEM_TEMPLA
 const NEWS_ITEM_USER_READ_FIELDS = `{ newsItem { id } user { id } ${COMMON_FIELDS} }`
 const NewsItemUserRead = generateGqlQueries('NewsItemUserRead', NEWS_ITEM_USER_READ_FIELDS)
 
-const EXPORT_NEWS_RECIPIENTS_MUTATION = gql`
-    mutation exportNewsRecipients ($data: ExportNewsRecipientsInput!) {
-        result: exportNewsRecipients(data: $data) { status linkToFile }
+const GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION = gql`
+    query getNewsItemsRecipientsCounters ($data: GetNewsItemsRecipientsCountersInput!) {
+        result: getNewsItemsRecipientsCounters(data: $data) { propertiesCount, unitsCount, receiversCount }
     }
 `
+
+const RECIPIENTS_EXPORT_TASK_FIELDS = `{ user { id locale } organization { id } scopes status file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
+const NewsItemRecipientsExportTask = generateGqlQueries('NewsItemRecipientsExportTask', RECIPIENTS_EXPORT_TASK_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -37,6 +40,7 @@ module.exports = {
     NewsItemScope,
     NewsItemTemplate,
     NewsItemUserRead,
-    EXPORT_NEWS_RECIPIENTS_MUTATION,
+    GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION,
+    NewsItemRecipientsExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

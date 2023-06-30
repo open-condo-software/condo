@@ -1,7 +1,8 @@
 import {
-    IncidentExportTask as IncidentExportTaskType,
-    TicketExportTask as TicketExportTaskType,
     ContactExportTask as ContactExportTaskType,
+    IncidentExportTask as IncidentExportTaskType,
+    NewsItemRecipientsExportTask as NewsItemRecipientsExportTaskType,
+    TicketExportTask as TicketExportTaskType,
 } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useCallback, useMemo } from 'react'
@@ -13,12 +14,27 @@ import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storag
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
 import { ContactExportTask } from '@condo/domains/contact/utils/clientSchema'
+import { NewsItemRecipientsExportTask } from '@condo/domains/news/utils/clientSchema'
 import { IncidentExportTask, TicketExportTask } from '@condo/domains/ticket/utils/clientSchema'
 
 
-type ExportTaskTypes = IncidentExportTaskType | TicketExportTaskType | ContactExportTaskType
-type ExportTaskClientSchemas = typeof IncidentExportTask | typeof TicketExportTask | typeof ContactExportTask
-type ExportTaskSchemaNames = 'IncidentExportTask' | 'TicketExportTask' | 'ContactExportTask'
+type ExportTaskTypes =
+    IncidentExportTaskType
+    | TicketExportTaskType
+    | ContactExportTaskType
+    | (NewsItemRecipientsExportTaskType & { exportedRecordsCount: number, totalRecordsCount: number })
+
+type ExportTaskClientSchemas =
+    typeof IncidentExportTask
+    | typeof TicketExportTask
+    | typeof ContactExportTask
+    | typeof NewsItemRecipientsExportTask
+
+type ExportTaskSchemaNames =
+    'IncidentExportTask'
+    | 'TicketExportTask'
+    | 'ContactExportTask'
+    | 'NewsItemRecipientsExportTask'
 
 type UseExportTaskUIInterfaceProps = {
     clientSchema: ExportTaskClientSchemas
@@ -27,7 +43,10 @@ type UseExportTaskUIInterfaceProps = {
 
 type UseExportTaskUIInterfaceReturn = { TaskUIInterface: ITask }
 
-export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({ clientSchema, schemaName }: UseExportTaskUIInterfaceProps): UseExportTaskUIInterfaceReturn => {
+export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({
+    clientSchema,
+    schemaName,
+}: UseExportTaskUIInterfaceProps): UseExportTaskUIInterfaceReturn => {
     const intl = useIntl()
     const ExportTaskProgressTitle = intl.formatMessage({ id: `tasks.${schemaName}.progress.title` })
     const ExportTaskProgressDescriptionPreparing = intl.formatMessage({ id: `tasks.${schemaName}.progress.description.preparing` })

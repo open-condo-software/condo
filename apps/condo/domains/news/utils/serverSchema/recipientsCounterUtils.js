@@ -1,0 +1,38 @@
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+
+const getUnitsFromProperty = (property) => (
+    property?.map?.sections?.reduce((acc, section) => ([
+        ...acc,
+        ...getUnitsFromSection(section),
+    ]), []) || []
+)
+
+const getUnitsFromSection = (section) => section.floors.flatMap(floor => floor.units.map(unit => ({
+    unitName: unit.label,
+    unitType: unit.unitType,
+})))
+
+async function countUniqueUnitsFromResidents (context, where) {
+    const units = new Set()
+
+    // Trying to minimize memory usage by working with chunks without keeping all residents within memory
+    await loadListByChunks({
+        context,
+        list: Resident,
+        chunkSize: 50,
+        where: { ...where, deletedAt: null },
+        /**
+         * @param {Resident[]} chunk
+         * @returns {Resident[]}
+         */
+        chunkProcessor: (chunk) => {
+            chunk.forEach((r) => units.add(`${r.property.id}_${r.unitType}_${r.unitName}`))
+            return []
+        },
+    })
+
+    return units.size
+}
+
+module.exports = { getUnitsFromProperty, getUnitsFromSection, countUniqueUnitsFromResidents }

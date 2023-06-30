@@ -7,6 +7,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
 const { defineMessageType } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem.helpers')
 const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
@@ -56,9 +57,31 @@ async function sendNotifications (context, newsItem) {
     }
 
     const scopes = await NewsItemScope.getAll(context, { newsItem: { id: newsItem.id } })
-    const residents = await Resident.getAll(context, queryFindResidentsByOrganizationAndScopes(newsItem.organization.id, scopes))
 
-    const residentsIdsByUser = residents.reduce((result, resident) => ({
+    const residentsData = []
+    await loadListByChunks({
+        context,
+        list: Resident,
+        chunkSize: 50,
+        where: {
+            ...queryFindResidentsByOrganizationAndScopes(newsItem.organization.id, scopes),
+            deletedAt: null,
+        },
+        /**
+         * @param {Resident[]} chunk
+         * @returns {Resident[]}
+         */
+        chunkProcessor: (chunk) => {
+            residentsData.push(...chunk.map((resident) => ({
+                id: resident.id,
+                user: { id: resident.user.id },
+            })))
+
+            return []
+        },
+    })
+
+    const residentsIdsByUser = residentsData.reduce((result, resident) => ({
         ...result,
         [resident.user.id]: [
             ...get(result, resident.user.id, []),
@@ -67,7 +90,7 @@ async function sendNotifications (context, newsItem) {
     }), {})
 
     const { keystone: contextMessage } = await getSchemaCtx('Message')
-    for (const resident of residents) {
+    for (const resident of residentsData) {
         await sendMessage(contextMessage, {
             ...DV_SENDER,
             to: { user: { id: resident.user.id } },
