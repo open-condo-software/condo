@@ -5,6 +5,7 @@ import {
     TicketQualityControlValueType,
 } from '@app/condo/schema'
 import { Row, Col, Skeleton, Result } from 'antd'
+import Big from 'big.js'
 import dayjs, { Dayjs } from 'dayjs'
 import ReactECharts from 'echarts-for-react'
 import get from 'lodash/get'
@@ -24,6 +25,7 @@ import { getAggregatedData } from '@condo/domains/analytics/utils/helpers'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { Resident } from '@condo/domains/resident/utils/clientSchema'
+import { Ticket as TicketGql } from '@condo/domains/ticket/gql'
 import { Incident, Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 
@@ -48,7 +50,7 @@ const DataCard: React.FC<{ label: string, value: string | number }> = ({ label, 
     </Col>
 )
 
-const PerformanceCard = ({ organizationId, paymentSum, paymentLoading }) => {
+const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoading }) => {
     const intl = useIntl()
     const DoneLabel = intl.formatMessage({ id: 'Done' })
     const InWorkLabel = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
@@ -56,7 +58,8 @@ const PerformanceCard = ({ organizationId, paymentSum, paymentLoading }) => {
     const PaymentsAmount = intl.formatMessage({ id: 'pages.reports.paymentsAmount' })
     const ResidentsInApp = intl.formatMessage({ id: 'pages.reports.residentsWithApp' })
 
-    const completionPercent = useRef('0%')
+    const completionPercent = useRef(null)
+    const paymentsAmountPercent = useRef(null)
     const ticketCounts = useRef(null)
 
     const { count: residentsCount, loading: residentsLoading } = Resident.useCount({
@@ -91,6 +94,12 @@ const PerformanceCard = ({ organizationId, paymentSum, paymentLoading }) => {
         loadMonthTicketCounts({ variables: { where: ticketMonthWhere, whereWithoutStatuses: ticketMonthWhere } })
     }, [organizationId, loadTicketCounts, loadMonthTicketCounts])
 
+    useEffect(() => {
+        if (!paymentLoading && !isNull(paymentSum) && !isNull(receiptSum)) {
+            paymentsAmountPercent.current = Big(paymentSum).div(receiptSum).mul(100).round(0).toString() + '%'
+        }
+    }, [receiptSum, paymentSum, paymentLoading])
+
     const loading = monthTicketLoading || ticketCountLoading || isNull(ticketCounts.current)
 
     return (
@@ -113,7 +122,7 @@ const PerformanceCard = ({ organizationId, paymentSum, paymentLoading }) => {
                             <Wallet />
                             <DataCard
                                 label={PaymentsAmountPercent}
-                                value='98%'
+                                value={paymentsAmountPercent.current}
                             />
                             <DataCard
                                 label={PaymentsAmount}
@@ -394,7 +403,11 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
     )
 }
 
-const PaymentChartContainer = ({ data, title }) => {
+const PaymentChartContainer = ({ data, title, viewMode }) => {
+    const intl = useIntl()
+    const SumTitle = intl.formatMessage({ id: 'global.sum' })
+    const PaymentCountTitle = intl.formatMessage({ id: 'pages.reports.paymentCount' })
+
     const mapperInstance = new PaymentChart({
         barSummary: {
             chart: (viewMode, payments) => {
@@ -402,13 +415,14 @@ const PaymentChartContainer = ({ data, title }) => {
                 const maxCount = Math.max(...paymentsCount.map(([, value]) => value))
                 const series: Array<EchartsSeries> = [
                     {
-                        name: 'Сумма',
+                        name: SumTitle,
                         data: payments.map(payment => [payment.dayGroup, Number(payment.sum).toFixed(2)]),
                         type: 'bar',
                         label: { show: true, position: 'top' },
+                        barMaxWidth: 40,
                     },
                     {
-                        name: 'Количество оплат',
+                        name: PaymentCountTitle,
                         data: paymentsCount,
                         type: 'line',
                         yAxisIndex: 1,
@@ -416,7 +430,7 @@ const PaymentChartContainer = ({ data, title }) => {
                 ]
 
                 return {
-                    legend: ['Сумма', 'Количество оплат'],
+                    legend: [SumTitle, PaymentCountTitle],
                     tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
                     axisData: {
                         yAxis: [
@@ -437,9 +451,44 @@ const PaymentChartContainer = ({ data, title }) => {
                             type: 'category',
                             data: null,
                             axisLabel: {
-                                formatter: (value) => {
-                                    return dayjs(value).format('MMM, YYYY')
-                                },
+                                formatter: (value) => dayjs(value).format('MMM, YYYY'),
+                            },
+                        },
+                    },
+                    series,
+                }
+            },
+        },
+        bar: {
+            chart: (viewMode, dataset) => {
+                const series: Array<EchartsSeries> = [
+                    {
+                        name: 'Начислено',
+                        data: dataset[1].map(receipt => [receipt.dayGroup, Number(receipt.sum).toFixed(2)]),
+                        type: viewMode,
+                        label: { show: true, position: 'top' },
+                    },
+                    {
+                        name: 'Оплачено',
+                        data: dataset[0].map(payment => [payment.dayGroup, Number(payment.sum).toFixed(2)]),
+                        type: viewMode,
+                        label: { show: true, position: 'top' },
+                    },
+                ]
+
+                return {
+                    legend: ['Начислено', 'Оплачено'],
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
+                    axisData: {
+                        yAxis: {
+                            type: 'value',
+                            data: null,
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: null,
+                            axisLabel: {
+                                formatter: (value) => dayjs(value).format('MMM, YYYY'),
                             },
                         },
                     },
@@ -448,6 +497,7 @@ const PaymentChartContainer = ({ data, title }) => {
             },
         },
     })
+
     return (
         <Row gutter={[0, 16]}>
             <Col span={24}>
@@ -456,7 +506,7 @@ const PaymentChartContainer = ({ data, title }) => {
             <Col span={24}>
                 <PaymentChartView
                     data={data}
-                    viewMode='barSummary'
+                    viewMode={viewMode}
                     mapperInstance={mapperInstance}
                     loading={false}
                     chartConfig={{ chartOptions: { height: 300 }, animationEnabled: true }}
@@ -464,6 +514,65 @@ const PaymentChartContainer = ({ data, title }) => {
             </Col>
         </Row>
     )
+}
+
+const TicketTableView = ({ organizationId }) => {
+    // const { objs: processingTickets } = Ticket.useObjects({
+    //     where: {
+    //         organization: { id: organizationId },
+    //         status: { type: TicketStatusTypeType.Processing },
+    //     },
+    // })
+
+    // const { objs: overdueTickets } = Ticket.useObjects({
+    //     where: {
+    //         organization: { id: organizationId },
+    //         deadline_lt: dayjs().toISOString(),
+    //         status: { type_not_in: [TicketStatusTypeType.Completed, TicketStatusTypeType.Closed] },
+    //     },
+    // })
+
+    const [loadOverdueTickets, { loading: overdueTicketsLoading }] = useLazyQuery(TicketGql.GET_ALL_OBJS_QUERY, {
+        onCompleted: (response) => {
+            console.log('overdue tickets')
+            console.log(response)
+        },
+        onError: (error) => {
+            console.log('error load overdue tickets')
+            console.log(error)
+        },
+    })
+
+    // console.log(overdueTickets)
+
+    useEffect(() => {
+        loadOverdueTickets({
+            variables: {
+                where: {
+                    organization: { id: organizationId },
+                    OR: [
+                        {
+                            AND: [
+                                { completedAt_not: null },
+                            ],
+                        },
+                    ],
+                    AND: [
+                        { deadline_not: null },
+                        { deadline_lt: dayjs().toISOString() },
+                    ],
+                    // OR: [
+                    //     { status: { type: TicketStatusTypeType.NewOrReopened } },
+                    //     { status: { type: TicketStatusTypeType.Processing } },
+                    // ],
+                },
+            },
+        })
+    }, [organizationId, loadOverdueTickets])
+
+    // console.log(processingTickets)
+    // console.log(overdueTickets)
+    return <>table here</>
 }
 
 export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId }) => {
@@ -518,14 +627,15 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const categoryTickets = get(overview, 'ticketByCategory.ticketCounts', [])
         .filter(e => e.status === get(overview, 'ticketByDay.translates.status', [])
             .find(e => e.type === TicketStatusTypeType.NewOrReopened).label)
-    const paymentsData = get(overview, 'payment.aggregatedPayments')
+    const paymentsData = get(overview, 'payment.payments')
     const paymentSum = get(overview, 'payment.sum', null)
-    console.log(overview)
+    const receiptsData = get(overview, 'receipt.receipts')
+    const receiptSum = get(overview, 'receipt.sum', null)
 
     return (
         <Row gutter={DASHBOARD_ROW_GUTTER}>
             <Col lg={12} md={24}>
-                <PerformanceCard organizationId={organizationId} paymentSum={paymentSum} paymentLoading={false} />
+                <PerformanceCard organizationId={organizationId} paymentSum={paymentSum} receiptSum={receiptSum} paymentLoading={false} />
             </Col>
             <Col lg={6} md={24}>
                 <IncidentDashboard organizationId={organizationId} />
@@ -565,10 +675,21 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                                 sliceWords
                             />
                         </Col>
+                        {/*<Col span={24}>*/}
+                        {/*    <TicketTableView organizationId={organizationId} />*/}
+                        {/*</Col>*/}
                         <Col lg={12} md={24}>
                             <PaymentChartContainer
                                 title={PaymentsTotalTitle}
                                 data={paymentsData}
+                                viewMode='barSummary'
+                            />
+                        </Col>
+                        <Col lg={12} md={24}>
+                            <PaymentChartContainer
+                                title='Начислено / оплачено'
+                                data={[paymentsData, receiptsData]}
+                                viewMode='bar'
                             />
                         </Col>
                         <Col lg={12} md={24}>

@@ -47,13 +47,15 @@ class ReceiptGqlKnexLoader extends GqlToKnexBaseAdapter {
             filterValues.push(...groupIdArray.map(id => [id]))
         }, [[], []])
 
-        const query = knex(this.domainName).count('id').sum('toPay').select(this.groups)
-        query.select(knex.raw(`date_trunc('${this.dayGroup}', "createdAt") as "dayGroup"`))
+        const query = knex(this.domainName).count('id').sum('charge').select(this.groups)
+        query.select(knex.raw(`date_trunc('${this.dayGroup}', "period") as "dayGroup"`))
         const knexWhere = where.reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
         this.result = await query.groupBy(this.aggregateBy)
             .where(knexWhere)
-            .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
+            .whereNotNull('charge')
+            .whereIn(Object.keys(this.whereIn), Object.values(this.whereIn)[0])
+            .whereBetween('period', [this.dateRange.from, this.dateRange.to])
             .orderBy('dayGroup', 'asc')
     }
 }
@@ -66,19 +68,31 @@ class ReceiptDataLoader extends AbstractDataLoader {
             deletedAt: null,
         })
 
+        const billingReceiptContextWhereFilter = { context: { id_in: billingIntegrationOrganizationContexts.map(({ id }) => id) } }
+
+        const receiptMonthSumLoader = new GqlWithKnexLoadList({
+            listKey: 'BillingReceipt',
+            fields: 'id',
+            where: {
+                AND: [{ period_gte: dayjs().startOf('month').toISOString() }, { period_lte: dayjs().endOf('month').toISOString() }],
+                charge_not: null,
+                ...billingReceiptContextWhereFilter,
+            },
+        })
+
+        const receiptIds = await receiptMonthSumLoader.load()
+        const sumAggregate = await receiptMonthSumLoader.loadAggregate('SUM(charge) as "chargeSum"', receiptIds.map(({ id }) => id))
+        const sum = Big(sumAggregate.chargeSum || 0).toFixed(2)
+
         const receiptsLoader = new ReceiptGqlKnexLoader({
             ...omit(where, ['organization']),
-            context: { id_in: billingIntegrationOrganizationContexts.map(({ id }) => id) },
+            ...billingReceiptContextWhereFilter,
         }, groupBy)
 
         await receiptsLoader.loadData()
         const receipts = receiptsLoader.getResult()
 
-        // for (const billingIntegrationContext of billingIntegrationOrganizationContexts) {
-        //
-        // }
-
-        return { receipts }
+        return { sum, receipts }
     }
 }
 

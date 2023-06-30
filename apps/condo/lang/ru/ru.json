@@ -1084,6 +1084,7 @@
   "pages.reports.incidentsTitle": "Инциденты",
   "pages.reports.activeIncidents": "Актуальных инцидентов: {count}",
   "pages.reports.ticketFeedbackCount": "Количество оценок: {count}",
+  "pages.reports.paymentCount": "Количество оплат",
   "pages.reports.paymentsAmountPercent": "Сбор",
   "pages.reports.paymentsAmount": "Сумма оплат",
   "pages.reports.residentsWithApp": "Жителей в приложении",

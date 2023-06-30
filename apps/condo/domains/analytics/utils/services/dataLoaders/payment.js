@@ -4,11 +4,23 @@ const { get, pick } = require('lodash')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { AbstractDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/AbstractDataLoader')
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { GqlToKnexBaseAdapter } = require('@condo/domains/common/utils/serverSchema/GqlToKnexBaseAdapter')
 
 const PERIOD_DATE_FORMAT = 'YYYY-MM-DD'
+
+const createBillingPropertyRange = async (organizationWhereInput) => {
+    const billingResidentLoader = new GqlWithKnexLoadList({
+        listKey: 'Resident',
+        fields: 'id address user',
+        singleRelations: [['User', 'user', 'id']],
+        where: { ...organizationWhereInput },
+    })
+    const billingResidents = await billingResidentLoader.load()
+    return billingResidents.map(billingResident => ({ label: billingResident.address, value: billingResident.user }))
+}
 
 class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
     aggregateBy = []
@@ -46,7 +58,7 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
         }, [[], []])
 
         const query = knex(this.domainName).count('id').sum('amount').select(this.groups)
-        query.select(knex.raw(`date_trunc('${this.dayGroup}', "updatedAt") as "dayGroup"`))
+        query.select(knex.raw(`date_trunc('${this.dayGroup}', "period") as "dayGroup"`))
         const knexWhere = where.reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
         this.result = await query.groupBy(this.aggregateBy)
@@ -58,12 +70,13 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
 
 class PaymentDataLoader extends AbstractDataLoader {
     async get ({ where, groupBy }) {
-        // explicitFee explicitServiceCharge amount status
+        const translates = {}
         const paymentMonthSumLoader = new GqlWithKnexLoadList({
             listKey: 'Payment',
             fields: 'id',
             where: {
-                ...pick(where, ['organization', 'status_in']),
+                ...pick(where, ['organization']),
+                status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
                 AND: [{ period_gte: dayjs().startOf('month').format(PERIOD_DATE_FORMAT) }, { period_lte: dayjs().endOf('month').format(PERIOD_DATE_FORMAT) }],
             },
         })
@@ -75,9 +88,19 @@ class PaymentDataLoader extends AbstractDataLoader {
 
         const paymentGqlKnexLoader = new PaymentGqlKnexLoader(where, groupBy)
         await paymentGqlKnexLoader.loadData()
-        const aggregatedPayments = paymentGqlKnexLoader.getResult()
+        const payments = paymentGqlKnexLoader.getResult()
 
-        return { sum, aggregatedPayments }
+        for (const group of groupBy) {
+            switch (group) {
+                case 'createdBy':
+                    translates[group] = await createBillingPropertyRange(pick(where, ['organization']))
+                    break
+                default:
+                    break
+            }
+        }
+
+        return { sum, payments, translates }
     }
 }
 

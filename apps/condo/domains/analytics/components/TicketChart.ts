@@ -12,6 +12,7 @@ export type EchartsSeries = {
     name?: string
     stack?: string
     smooth?: boolean
+    barMaxWidth?: number
     data: unknown[]
     label?: {
         show?: boolean

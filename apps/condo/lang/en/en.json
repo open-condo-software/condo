@@ -1084,6 +1084,7 @@
   "pages.reports.incidentsTitle": "Incidents",
   "pages.reports.activeIncidents": "Actual incidents: {count}",
   "pages.reports.ticketFeedbackCount": "Total feedbacks: {count}",
+  "pages.reports.paymentCount": "Payments count",
   "pages.reports.paymentsAmountPercent": "Payments received",
   "pages.reports.paymentsAmount": "Payments sum",
   "pages.reports.residentsWithApp": "Residents in app",
