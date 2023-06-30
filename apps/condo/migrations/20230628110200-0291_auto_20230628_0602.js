@@ -67,36 +67,58 @@ ALTER TABLE "BillingReceiptHistoryRecord" ADD COLUMN "privilege" numeric(18, 4) 
 ALTER TABLE "BillingReceiptHistoryRecord" ADD COLUMN "recalculation" numeric(18, 4) NULL;
 
 --
+-- [CUSTOM] create transform function that convert text value to numeric. Otherwise return null
+--
+CREATE OR REPLACE FUNCTION convert_to_numeric(v_input text)
+RETURNS NUMERIC AS $$
+DECLARE v_numeric_value NUMERIC DEFAULT NULL;
+BEGIN
+    BEGIN
+        v_numeric_value := v_input::NUMERIC;
+    EXCEPTION WHEN OTHERS THEN
+        RAISE NOTICE 'Invalid NUMERIC value: "%".  Returning NULL.', v_input;
+        RETURN NULL;
+    END;
+RETURN v_numeric_value;
+END;
+$$ LANGUAGE plpgsql;
+
+--
 -- [CUSTOM] Synchronize values for every key of toPayDetails from BillingReceipt model 
 --
+
 UPDATE "BillingReceipt"
 SET "formula" = "toPayDetails"->>'formula'
 WHERE "toPayDetails"->>'formula' IS NOT NULL;
 
 UPDATE "BillingReceipt"
-SET "charge" = CAST("toPayDetails"->>'charge' AS NUMERIC)
-WHERE "toPayDetails"->>'charge' IS NOT NULL AND "toPayDetails"->>'charge'~ '^\\d+\\.?\\d+$';
+SET "charge" = convert_to_numeric("toPayDetails"->>'charge')
+WHERE "toPayDetails"->>'charge' IS NOT NULL;
 
 UPDATE "BillingReceipt"
-SET "balance" = CAST("toPayDetails"->>'balance' AS NUMERIC)
-WHERE "toPayDetails"->>'balance' IS NOT NULL AND "toPayDetails"->>'balance'~ '^\\d+\\.?\\d+$';
+SET "balance" = convert_to_numeric("toPayDetails"->>'balance')
+WHERE "toPayDetails"->>'balance' IS NOT NULL;
 
 UPDATE "BillingReceipt"
-SET "recalculation" = CAST("toPayDetails"->>'recalculation' AS NUMERIC)
-WHERE "toPayDetails"->>'recalculation' IS NOT NULL AND "toPayDetails"->>'recalculation'~ '^\\d+\\.?\\d+$';
+SET "recalculation" = convert_to_numeric("toPayDetails"->>'recalculation')
+WHERE "toPayDetails"->>'recalculation' IS NOT NULL;
 
 UPDATE "BillingReceipt"
-SET "privilege" = CAST("toPayDetails"->>'privilege' AS NUMERIC)
-WHERE "toPayDetails"->>'privilege' IS NOT NULL AND "toPayDetails"->>'privilege'~ '^\\d+\\.?\\d+$';
+SET "privilege" = convert_to_numeric("toPayDetails"->>'privilege')
+WHERE "toPayDetails"->>'privilege' IS NOT NULL;
 
 UPDATE "BillingReceipt"
-SET "penalty" = CAST("toPayDetails"->>'penalty' AS NUMERIC)
-WHERE "toPayDetails"->>'penalty' IS NOT NULL AND "toPayDetails"->>'penalty'~ '^\\d+\\.?\\d+$';
+SET "penalty" = convert_to_numeric("toPayDetails"->>'penalty')
+WHERE "toPayDetails"->>'penalty' IS NOT NULL;
 
 UPDATE "BillingReceipt"
-SET "paid" = CAST("toPayDetails"->>'paid' AS NUMERIC)
-WHERE "toPayDetails"->>'paid' IS NOT NULL AND "toPayDetails"->>'paid'~ '^\\d+\\.?\\d+$';
+SET "paid" = convert_to_numeric("toPayDetails"->>'paid')
+WHERE "toPayDetails"->>'paid' IS NOT NULL;
 
+--
+-- [CUSTOM] drop function convert_to_numeric
+--
+DROP FUNCTION convert_to_numeric;
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
 --
