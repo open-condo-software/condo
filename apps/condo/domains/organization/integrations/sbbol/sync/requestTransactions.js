@@ -125,7 +125,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             switch (get(transactions, 'error.cause')) {
                 // WORKFLOW_FAULT means invalid request parameters, that can occur in cases:
                 // when report is requested for date in future
-                // when report page does not exist, for example number is out of range of available pages
+                // when report page does not exist, for example, number is out of range of available pages
                 case SBBOL_ERRORS.WORKFLOW_FAULT: {
                     reqErrored = true
                     transactionException = SBBOL_ERRORS.WORKFLOW_FAULT
@@ -138,7 +138,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     break
                 }
                 // ACTION_ACCESS_EXCEPTION means that the required access parameter for the requested data
-                // is not included in the offer with the user
+                // is not included in the offer, accepted by SBBOL user
                 case SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION: {
                     reqErrored = true
                     transactionException = SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION
