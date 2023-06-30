@@ -386,10 +386,12 @@ export const MeterReportingPeriodPageContent = ({
     const isNoMeterData = isEmpty(reportingPeriods) && isEmpty(filters) && !periodLoading && !loading
 
     const handleRowAction = useCallback((record) => {
-        return {
-            onClick: () => {
-                router.push(`/meter/reportingPeriod/${record.id}/update`)
-            },
+        if (record.organization) {
+            return {
+                onClick: () => {
+                    router.push(`/meter/reportingPeriod/${record.id}/update`)
+                },
+            }
         }
     }, [reportingPeriods])
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])

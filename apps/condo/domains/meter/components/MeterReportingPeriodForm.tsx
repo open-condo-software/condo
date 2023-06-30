@@ -63,7 +63,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const StartLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.start' })
     const FinishLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.finish' })
-    const IncorrectPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.IncorrectPeriod' })
+    const IncorrectPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.incorrectPeriod' })
     const OrganizationLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.organizationPeriod' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.update.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.update.ConfirmDeleteMessage' })
@@ -87,11 +87,11 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const organizationId = get(organization, 'id', null)
     const isCreateMode = mode === 'create'
     const formInitialValues = useMemo(() => ({
-        start: get(reportingPeriodRecord, 'start'),
-        finish: get(reportingPeriodRecord, 'finish'),
-        property: get(reportingPeriodRecord, 'property.address'),
-        isOrganizationPeriod: get(reportingPeriodRecord, 'property') === null,
-    }), [reportingPeriodRecord])
+        start: isCreateMode ? 20 : get(reportingPeriodRecord, 'start'),
+        finish: isCreateMode ? 25 : get(reportingPeriodRecord, 'finish'),
+        property: isCreateMode ? undefined : get(reportingPeriodRecord, 'property.address'),
+        isOrganizationPeriod: isCreateMode ? false : get(reportingPeriodRecord, 'property') === null,
+    }), [reportingPeriodRecord, mode])
 
     useEffect(() => {
         if (!isCreateMode) {
@@ -119,8 +119,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const handleCheckboxChange = useCallback(() => {
         setIsOrganizationPeriod(!isOrganizationPeriod)
         if (!isOrganizationPeriod) {
-            setSelectedPropertyId(null)
-            form.resetFields(['property'])
+            setSelectedPropertyId(undefined)
+            form.setFieldValue('property', undefined)
         }
     }, [isOrganizationPeriod])
 
@@ -177,7 +177,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
             layout='horizontal'
             validateTrigger={['onBlur', 'onSubmit']}
             colon={false}
-            initialValues={isCreateMode ? undefined : formInitialValues}
+            initialValues={formInitialValues}
             formValuesToMutationDataPreprocessor={(values) => {
                 if (values.isOrganizationPeriod) {
                     values.property = undefined
