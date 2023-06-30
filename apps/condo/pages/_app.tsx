@@ -319,7 +319,7 @@ const MenuItems: React.FC = () => {
                                 id={`menu-item-app-${ctx.app.id}`}
                                 key={`menu-item-app-${ctx.app.id}`}
                                 path={`/miniapps/${ctx.app.id}`}
-                                icon={get(AllIcons, ctx.app.icon, null)}
+                                icon={get(AllIcons, ctx.app.icon, AllIcons['QuestionCircle'])}
                                 label={ctx.app.name}
                                 labelRaw
                                 disabled={disabled}

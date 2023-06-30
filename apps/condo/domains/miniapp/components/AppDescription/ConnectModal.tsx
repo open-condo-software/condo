@@ -26,10 +26,10 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
         return null
     }
 
-    const postFix = contextStatus === CONTEXT_FINISHED_STATUS && miniappHasIcon ? '.withIcon' : ''
+    const postfix = contextStatus === CONTEXT_FINISHED_STATUS && miniappHasIcon ? '.withIcon' : ''
 
-    const ModalTitle = intl.formatMessage({ id: `miniapp.connectModal.${contextStatus}${postFix}.title` })
-    const ModalMessage = intl.formatMessage({ id: `miniapp.connectModal.${contextStatus}${postFix}.message` })
+    const ModalTitle = intl.formatMessage({ id: `miniapp.connectModal.${contextStatus}${postfix}.title` })
+    const ModalMessage = intl.formatMessage({ id: `miniapp.connectModal.${contextStatus}${postfix}.message` })
 
     return (
         <Modal
