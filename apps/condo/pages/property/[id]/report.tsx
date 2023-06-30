@@ -464,6 +464,11 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
             organization: { id: link.organization.id },
         },
     })
+    const { loading: loadingIntegrationContext, obj: bankIntegrationAccountContext } = BankAccount.useObject({
+        where: {
+            id: bankAccount.integrationContext.id,
+        },
+    })
     const { count, loading: isCountLoading } = BankTransaction.useCount({
         where: { account: { id: get(bankAccount, 'id') } },
     })
@@ -511,7 +516,7 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
                                                 {
                                                     intl.formatMessage(
                                                         { id: 'pages.condo.property.report.dataUpdatedTitle' },
-                                                        { updatedAt: intl.formatDate(get(bankAccount, 'meta.amountAt', bankAccount.updatedAt), DATE_DISPLAY_FORMAT) }
+                                                        { updatedAt: intl.formatDate(get(bankIntegrationAccountContext, 'meta.amountAt', bankAccount.updatedAt), DATE_DISPLAY_FORMAT) }
                                                     )
                                                 }
                                             </Typography.Paragraph>

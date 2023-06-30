@@ -13,7 +13,7 @@ const {
 
 const { BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { BankAccountReportTask, createTestBankAccountReportTask, updateTestBankAccountReportTask, createTestBankAccount, BankAccountReport, createTestBankTransaction, updateTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
+const { BankAccountReportTask, createTestBankAccountReportTask, updateTestBankAccountReportTask, createTestBankAccount, BankAccountReport, createTestBankTransaction, updateTestBankAccount, updateTestBankIntegrationAccountContext } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBankIntegrationAccountContext, createTestBankContractorAccount, BankIntegration, createTestBankCategory, createTestBankCostItem } = require('@condo/domains/banking/utils/testSchema')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -142,7 +142,10 @@ describe('BankAccountReportTask', () => {
         describe('update', () => {
             test('admin can', async () => {
                 const [org] = await createTestOrganization(admin)
-                const [account] = await createTestBankAccount(admin, org)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org)
+                const [account] = await createTestBankAccount(admin, org, {
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
                 const [objCreated] = await createTestBankAccountReportTask(admin, account, org, admin.user.id, { progress: 0 })
 
                 await waitFor(async () => {
@@ -186,7 +189,10 @@ describe('BankAccountReportTask', () => {
             test('user can', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [org] = await createTestOrganization(admin)
-                const [account] = await createTestBankAccount(admin, org)
+                const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org)
+                const [account] = await createTestBankAccount(admin, org, {
+                    integrationContext: { connect: { id: integrationContext.id } },
+                })
                 const [role] = await createTestOrganizationEmployeeRole(admin, org, {
                     canManageBankAccountReportTasks: true,
                 })
@@ -356,13 +362,14 @@ describe('BankAccountReportTask', () => {
 
         it('create BankAccountReport', async () => {
             const [org] = await createTestOrganization(admin)
-            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org)
-            const [account] = await createTestBankAccount(admin, org, {
-                integrationContext: { connect: { id: integrationContext.id } },
+            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org, {
                 meta: {
                     amount: '200',
                     amountAt: dayjs().format('YYYY-MM-DD'),
                 },
+            })
+            const [account] = await createTestBankAccount(admin, org, {
+                integrationContext: { connect: { id: integrationContext.id } },
             })
 
             const [costItem1] = await createTestBankCostItem(admin, category, {
@@ -427,13 +434,14 @@ describe('BankAccountReportTask', () => {
 
         it('create BankAccountReport with unsigned CostItem and Category', async () => {
             const [org] = await createTestOrganization(admin)
-            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org)
-            const [account] = await createTestBankAccount(admin, org, {
-                integrationContext: { connect: { id: integrationContext.id } },
+            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org, {
                 meta: {
                     amount: '200',
                     amountAt: dayjs().format('YYYY-MM-DD'),
                 },
+            })
+            const [account] = await createTestBankAccount(admin, org, {
+                integrationContext: { connect: { id: integrationContext.id } },
             })
 
             const [costItem1] = await createTestBankCostItem(admin, category, {
@@ -490,13 +498,14 @@ describe('BankAccountReportTask', () => {
 
         it('create BankAccountReport with contractorAccount without costItem', async () => {
             const [org] = await createTestOrganization(admin)
-            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org)
-            const [account] = await createTestBankAccount(admin, org, {
-                integrationContext: { connect: { id: integrationContext.id } },
+            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org, {
                 meta: {
                     amount: '250',
                     amountAt: dayjs().format('YYYY-MM-DD'),
                 },
+            })
+            const [account] = await createTestBankAccount(admin, org, {
+                integrationContext: { connect: { id: integrationContext.id } },
             })
 
             const [costItem1] = await createTestBankCostItem(admin, category, {
@@ -547,13 +556,14 @@ describe('BankAccountReportTask', () => {
 
         it('do not create a new BankAccountReport instance if the transaction pool has not changed', async () => {
             const [org] = await createTestOrganization(admin)
-            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org)
-            const [account] = await createTestBankAccount(admin, org, {
-                integrationContext: { connect: { id: integrationContext.id } },
+            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org, {
                 meta: {
                     amount: '250',
                     amountAt: dayjs().format('YYYY-MM-DD'),
                 },
+            })
+            const [account] = await createTestBankAccount(admin, org, {
+                integrationContext: { connect: { id: integrationContext.id } },
             })
 
             const [costItem1] = await createTestBankCostItem(admin, category, {
@@ -620,13 +630,14 @@ describe('BankAccountReportTask', () => {
         it('regenerate BankAccountReport with version===2 and isLatest===true if transactions pull will be expanded', async () => {
             const date = dayjs().format('YYYY-MM-DD')
             const [org] = await createTestOrganization(admin)
-            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org)
-            const [account] = await createTestBankAccount(admin, org, {
-                integrationContext: { connect: { id: integrationContext.id } },
+            const [integrationContext] = await createTestBankIntegrationAccountContext(admin, bankIntegration, org, {
                 meta: {
                     amount: '250',
                     amountAt: date,
                 },
+            })
+            const [account] = await createTestBankAccount(admin, org, {
+                integrationContext: { connect: { id: integrationContext.id } },
             })
 
             const [costItem1] = await createTestBankCostItem(admin, category, {
@@ -672,7 +683,7 @@ describe('BankAccountReportTask', () => {
             expect(Number(report.totalIncome)).toEqual(250)
             expect(report.data.categoryGroups[0].costItemGroups[0].sum).toEqual(250)
 
-            await updateTestBankAccount(admin, account.id, {
+            await updateTestBankIntegrationAccountContext(admin, integrationContext.id, {
                 meta: {
                     amount: '0',
                     amountAt: date,

@@ -10,7 +10,7 @@ const { createTask } = require('@open-condo/keystone/tasks')
 
 const {
     BankAccount, BankAccountReportTask, BankAccountReport,
-    BankTransaction,
+    BankTransaction, BankIntegrationAccountContext,
 } = require('@condo/domains/banking/utils/serverSchema')
 const { TASK_PROCESSING_STATUS, TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } = require('@condo/domains/common/constants/tasks')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -149,6 +149,10 @@ const generateReports = async (taskId) => {
         deletedAt: null,
     })
 
+    const bankIntegrationAccountContext = await BankIntegrationAccountContext.getOne(context, {
+        id: bankAccount.integrationContext.id,
+    })
+
     const taskUpdatePayload = {
         ...DV_SENDER,
         progress: 0,
@@ -243,8 +247,8 @@ const generateReports = async (taskId) => {
             totalIncome: monthTurnovers[index].totalIncome,
             totalOutcome: monthTurnovers[index].totalOutcome,
             template: EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM,
-            amount: get(bankAccount, 'meta.amount'),
-            amountAt: get(bankAccount, 'meta.amountAt'),
+            amount: get(bankIntegrationAccountContext, 'meta.amount'),
+            amountAt: get(bankIntegrationAccountContext, 'meta.amountAt'),
             ...DV_SENDER,
         }
         const lastReport = reports[reports.length - 1]

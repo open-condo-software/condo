@@ -119,10 +119,9 @@ describe('syncBankTransaction from SBBOL', () => {
                 organization: commonOrganization,
             })
 
-            const bankAccountBalance = await BankAccount.getOne(adminClient, { id: commonBankAccount.id })
+            const bankAccountBalance = await BankIntegrationAccountContext.getOne(adminClient, { id: commonBankAccount.integrationContext.id })
             expect(get(bankAccountBalance, 'meta.amount')).toBeDefined()
             expect(get(bankAccountBalance, 'meta.amountAt')).toBeDefined()
-            expect(get(bankAccountBalance, 'meta.sbbol.type')).toEqual('test')
             expect(transactions[0]).toHaveLength(5)
         })
 

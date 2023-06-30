@@ -132,6 +132,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
             ...DV_SENDER,
             integration: { connect: { id: integration.id } },
             organization: { connect: { id: organization.id } },
+            meta: bankAccountData.meta,
         })
         const data = {
             ...DV_SENDER,
@@ -164,6 +165,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
                 ...DV_SENDER,
                 integration: { connect: { id: integration.id } },
                 organization: { connect: { id: organization.id } },
+                meta: bankAccountData.meta,
             })
             bankAccountUpdatePayload.integrationContext = {
                 connect: { id: integrationContext.id },
@@ -174,6 +176,10 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
             ...DV_SENDER,
             ...bankAccountUpdatePayload,
         })
+        await BankIntegrationAccountContext.update(context, bankAccount.integrationContext.id, {
+            ...DV_SENDER,
+            meta: bankAccountData.meta,
+        })
     }
 
     if (!existingIntegrationOrganizationContext) {
@@ -181,6 +187,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
             ...DV_SENDER,
             integration: { connect: { id: integration.id } },
             organization: { connect: { id: organization.id } },
+
         })
     }
 

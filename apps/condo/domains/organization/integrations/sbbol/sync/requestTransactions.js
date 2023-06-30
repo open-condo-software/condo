@@ -6,18 +6,19 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { BANK_INTEGRATION_IDS, BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
-const { BankAccount, BankTransaction, BankContractorAccount, predictTransactionClassification, BankSyncTask } = require('@condo/domains/banking/utils/serverSchema')
+const { BankAccount, BankTransaction, BankContractorAccount, predictTransactionClassification, BankSyncTask, BankIntegrationAccountContext } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { ERROR_PASSED_DATE_IN_THE_FUTURE } = require('@condo/domains/organization/integrations/sbbol/constants')
+const { SBBOL_ERRORS } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { initSbbolFintechApi, initSbbolClientWithToken } = require('@condo/domains/organization/integrations/sbbol/SbbolFintechApi')
 const { getAllAccessTokensByOrganization } = require('@condo/domains/organization/integrations/sbbol/utils/getAccessTokenForUser')
 
 
 const logger = getLogger('sbbol/SbbolSyncTransactions')
-const isResponseProcessing = (response) => (get(response, 'error.cause', '') === 'STATEMENT_RESPONSE_PROCESSING')
+const isResponseProcessing = (response) => (get(response, 'error.cause', '') === SBBOL_ERRORS.STATEMENT_RESPONSE_PROCESSING)
 const dvSenderFieldsBankSyncTask = {
     dv: 1,
     sender: { dv: 1, fingerprint: 'BankSyncTask' },
@@ -37,7 +38,7 @@ async function isTaskCancelled (context, taskId) {
  *  @param {String} organizationId
  */
 async function requestTransactionsForDate ({ userId, bankAccounts, context, statementDate, organizationId }) {
-    let sbbolFintechClient, accessTokens, accessTokenIndex = 0
+    let sbbolFintechClient, accessTokens, accessTokenIndex = 0, transactionException, summaryException
 
     sbbolFintechClient = await initSbbolFintechApi(userId)
 
@@ -121,13 +122,64 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 allDataReceived = true
             }
 
-            // WORKFLOW_FAULT means invalid request parameters, that can occur in cases:
-            // when report is requested for date in future
-            // when report page does not exist, for example number is out of range of available pages
-            if (get(transactions, 'error.cause') === 'WORKFLOW_FAULT') reqErrored = true
-            if (get(summary, 'error.cause') === 'WORKFLOW_FAULT') reqErrored = true
-            if (get(summary, 'error.cause') === 'DATA_NOT_FOUND_EXCEPTION') reqErrored = true
-            if (get(transactions, 'error.cause') === 'UNAUTHORIZED') {
+            switch (get(transactions, 'error.cause')) {
+                // WORKFLOW_FAULT means invalid request parameters, that can occur in cases:
+                // when report is requested for date in future
+                // when report page does not exist, for example, number is out of range of available pages
+                case SBBOL_ERRORS.WORKFLOW_FAULT: {
+                    reqErrored = true
+                    transactionException = SBBOL_ERRORS.WORKFLOW_FAULT
+                    break
+                }
+                // DATA_NOT_FOUND_EXCEPTION means that the statement not found and cannot be generated
+                case SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION: {
+                    reqErrored = true
+                    transactionException = SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION
+                    break
+                }
+                // ACTION_ACCESS_EXCEPTION means that the required access parameter for the requested data
+                // is not included in the offer, accepted by SBBOL user
+                case SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION: {
+                    reqErrored = true
+                    transactionException = SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION
+                    break
+                }
+                case undefined: {
+                    break
+                }
+                default: {
+                    reqErrored = true
+                    transactionException = get(transactions, 'error.cause')
+                    break
+                }
+            }
+
+            switch (get(summary, 'error.cause')) {
+                case SBBOL_ERRORS.WORKFLOW_FAULT: {
+                    reqErrored = true
+                    summaryException = SBBOL_ERRORS.WORKFLOW_FAULT
+                    break
+                }
+                case SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION: {
+                    reqErrored = true
+                    summaryException = SBBOL_ERRORS.DATA_NOT_FOUND_EXCEPTION
+                    break
+                }
+                case SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION: {
+                    reqErrored = true
+                    summaryException = SBBOL_ERRORS.ACTION_ACCESS_EXCEPTION
+                    break
+                }
+                case undefined: {
+                    break
+                }
+                default: {
+                    reqErrored = true
+                    summaryException = get(summary, 'error.cause')
+                }
+            }
+
+            if (get(transactions, 'error.cause') === SBBOL_ERRORS.UNAUTHORIZED) {
                 allDataReceived = false
                 reqErrored = false
                 accessTokenIndex++
@@ -135,6 +187,8 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     sbbolFintechClient = initSbbolClientWithToken(accessTokens[accessTokenIndex])
                 } else {
                     reqErrored = true
+                    transactionException = SBBOL_ERRORS.UNAUTHORIZED
+                    summaryException = SBBOL_ERRORS.UNAUTHORIZED
                 }
             }
         }
@@ -142,11 +196,27 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
         accessTokenIndex = 0
 
         if (summary) {
-            await BankAccount.update(context, bankAccount.id, {
+            const bankIntegrationAccountContextId = get(bankAccount, 'integrationContext.id')
+            const bankIntegrationAccountContext = BankIntegrationAccountContext.getOne(context, {
+                id: bankIntegrationAccountContextId,
+            })
+
+            const meta = {}
+            if (transactionException || summaryException) {
+                meta.lastSyncStatus = BANK_SYNC_TASK_STATUS.ERROR
+                meta.transactionException = transactionException ?? null
+                meta.summaryException = summaryException ?? null
+            } else {
+                meta.amount = get(summary, 'data.closingBalance.amount')
+                meta.amountAt = get(summary, 'data.composedDateTime')
+                meta.lastSyncStatus = BANK_SYNC_TASK_STATUS.COMPLETED
+            }
+            meta.lastSyncAt = new Date().toISOString()
+
+            await BankIntegrationAccountContext.update(context, bankIntegrationAccountContextId, {
                 meta: {
-                    ...bankAccount.meta,
-                    amount: get(summary, 'data.closingBalance.amount'),
-                    amountAt: get(summary, 'data.composedDateTime'),
+                    ...bankIntegrationAccountContext.meta,
+                    ...meta,
                 },
                 ...dvSenderFields,
             })
