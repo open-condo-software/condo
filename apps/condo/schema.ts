@@ -19432,19 +19432,6 @@ export type ExportMeterReadingsOutput = {
   linkToFile: Scalars['String'];
 };
 
-export type ExportNewsRecipientsInput = {
-  dv: Scalars['Int'];
-  sender: Scalars['JSON'];
-  organization: OrganizationWhereUniqueInput;
-  newsItemScopes?: Maybe<Array<Maybe<NewsItemScopeWhereInput>>>;
-};
-
-export type ExportNewsRecipientsOutput = {
-  __typename?: 'ExportNewsRecipientsOutput';
-  status: Scalars['String'];
-  linkToFile: Scalars['String'];
-};
-
 export type ExportPaymentsToExcelInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -34205,7 +34192,6 @@ export type Mutation = {
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   sendB2CAppPushMessage?: Maybe<SendB2CAppPushMessageOutput>;
-  exportNewsRecipients?: Maybe<ExportNewsRecipientsOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -41263,11 +41249,6 @@ export type MutationRegisterMultiPaymentForVirtualReceiptArgs = {
 
 export type MutationSendB2CAppPushMessageArgs = {
   data: SendB2CAppPushMessageInput;
-};
-
-
-export type MutationExportNewsRecipientsArgs = {
-  data: ExportNewsRecipientsInput;
 };
 
 

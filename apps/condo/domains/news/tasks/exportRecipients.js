@@ -17,7 +17,7 @@ const { i18n } = require('@open-condo/locales/loader')
 
 const { ERROR, COMPLETED } = require('@condo/domains/common/constants/export')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
-const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
+const { buildExportFile: buildExportExcelFile, EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { getHeadersTranslations, EXPORT_TYPE_NEWS_RECIPIENTS } = require('@condo/domains/common/utils/exportToExcel')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
@@ -26,7 +26,6 @@ const { NewsItemRecipientsExportTask } = require('@condo/domains/news/utils/serv
 const { getUnitsFromProperty } = require('@condo/domains/news/utils/serverSchema/recipientsCounterUtils')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
-const { buildExportFile: buildExportExcelFile, EXCEL_FILE_META } = require('../../common/utils/createExportFile')
 
 const logger = getLogger('exportNewsItemRecipients')
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: TASK_WORKER_FINGERPRINT } }

@@ -63439,18 +63439,6 @@ type ExportPropertyScopeToExcelOutput {
   linkToFile: String!
 }
 
-input ExportNewsRecipientsInput {
-  dv: Int!
-  sender: JSON!
-  organization: OrganizationWhereUniqueInput!
-  newsItemScopes: [NewsItemScopeWhereInput]
-}
-
-type ExportNewsRecipientsOutput {
-  status: String!
-  linkToFile: String!
-}
-
 input GetNewsItemsRecipientsCountersInput {
   dv: Int!
   sender: JSON!
@@ -73018,7 +73006,6 @@ type Mutation {
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
-  exportNewsRecipients(data: ExportNewsRecipientsInput!): ExportNewsRecipientsOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

@@ -3,7 +3,6 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { ExportNewsRecipientsService } = require('./ExportNewsRecipientsService')
 const { GetNewsItemsRecipientsCountersService } = require('./GetNewsItemsRecipientsCountersService')
 const { NewsItem } = require('./NewsItem')
 const { NewsItemRecipientsExportTask } = require('./NewsItemRecipientsExportTask')
@@ -17,7 +16,6 @@ module.exports = {
     NewsItemScope,
     NewsItemTemplate,
     NewsItemUserRead,
-    ExportNewsRecipientsService,
     GetNewsItemsRecipientsCountersService,
     NewsItemRecipientsExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
