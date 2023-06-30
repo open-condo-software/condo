@@ -1763,6 +1763,8 @@
   "api.incident.WORK_FINISH_MUST_BE_SPECIFIED_IF_NOT_ACTUAL_STATUS": "The end of the work should be specified if the incident has status not actual",
   "api.incidentExportTask.STATUS_IS_ALREADY_COMPLETED": "Task already completed successfully",
   "api.incidentExportTask.STATUS_IS_ALREADY_ERROR": "The task has already completed with an error",
+  "api.newsItemRecipientsExportTask.STATUS_IS_ALREADY_COMPLETED": "Task already completed successfully",
+  "api.newsItemRecipientsExportTask.STATUS_IS_ALREADY_ERROR": "The task has already completed with an error",
   "api.newsItem.EMPTY_VALID_BEFORE_DATE": "Validity date is required",
   "api.newsItem.EDIT_DENIED_ALREADY_SENT": "You cannot edit the news item which already been sent",
   "api.newsItem.EDIT_DENIED_PUBLISHED": "You can not edit published news item",

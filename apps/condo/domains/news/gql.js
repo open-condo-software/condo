@@ -36,6 +36,9 @@ const GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION = gql`
     }
 `
 
+const RECIPIENTS_EXPORT_TASK_FIELDS = `{ user { id locale } organization { id } scopes status file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
+const NewsItemRecipientsExportTask = generateGqlQueries('NewsItemRecipientsExportTask', RECIPIENTS_EXPORT_TASK_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -45,5 +48,6 @@ module.exports = {
     NewsItemUserRead,
     EXPORT_NEWS_RECIPIENTS_MUTATION,
     GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION,
+    NewsItemRecipientsExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
