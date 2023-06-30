@@ -239,10 +239,11 @@ const PropertyReportCard: IPropertyReportCard = ({ organizationId, property, rol
             property: { id: property.id },
         },
     })
-    const { obj: bankIntegrationAccountContext, loading: loadingIntegrationContext } = BankIntegrationAccountContext.useObject({
+    const { objs: [bankIntegrationAccountContext], loading: loadingIntegrationContext } = BankIntegrationAccountContext.useObjects({
         where: {
-            id: bankAccount.integrationContext.id,
+            id: get(bankAccount, 'integrationContext.id'),
         },
+        first: 1,
     })
 
     const setupReportClick = useCallback(async () => {
