@@ -11,6 +11,7 @@ const utc = require('dayjs/plugin/utc')
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
 const { AdapterCache } = require('@open-condo/keystone/adapterCache')
+const { HealthCheck } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const metrics = require('@open-condo/keystone/metrics')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
@@ -120,6 +121,10 @@ const tasks = () => [
 
 const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })
 const apps = () => [
+    new HealthCheck({ checks: [
+        { name: 'test', run: () => true },
+        { name: 'test2', run: () => true },
+    ] } ),
     new RequestCache(conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : {}),
     new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : {}),
     new VersioningMiddleware(),
