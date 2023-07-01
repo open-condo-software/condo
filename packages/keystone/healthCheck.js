@@ -33,12 +33,12 @@ class HealthCheck {
         this.cache = new LRUCache({ ttl: interval })
     }
 
-    runCheck = async (check) => {
+    runCheck = async (check, keystone) => {
         if (this.cache.has(check.name)) {
             return this.cache.get(check.name)
         }
 
-        const checkResult = await check.run()
+        const checkResult = await check.run(keystone)
 
         if (typeof checkResult !== 'boolean') {
             throw new Error(`Check.run function output non bool value for check named ${check.name}`)
@@ -60,7 +60,7 @@ class HealthCheck {
             console.log(this.registeredChecks)
 
             await Promise.all(this.registeredChecks.map(async registeredCheck => {
-                result[registeredCheck.name] = await this.runCheck(registeredCheck)
+                result[registeredCheck.name] = await this.runCheck(registeredCheck, keystone)
             }))
 
             res.status(200).json(result)

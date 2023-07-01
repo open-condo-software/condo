@@ -129,10 +129,25 @@ const apps = () => {
                 {
                     name: 'redis', run: async () => {
                         try {
-                            const client = getRedisClient('cache')
+                            const client = getRedisClient('health')
                             const res = await client.ping()
                             if (res === 'PONG') { return true }
                         } catch (e) {
+                            return false
+                        }
+                    },
+                },
+                {
+                    name: 'postgres', run: async (keystone) => {
+                        try {
+                            console.log(keystone)
+                            console.log(keystone.adapter)
+                            const res = await keystone.adapter.knex.raw('SELECT 1')
+                            if (res) {
+                                return true
+                            }
+                        } catch (e) {
+                            console.log(e)
                             return false
                         }
                     },
