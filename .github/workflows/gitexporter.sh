@@ -90,6 +90,7 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
     "apps/condo/public/20210805182921-0036_classifiers_import_20210803_1654.js",
     "apps/condo/report.20210627.215319.44165.0.001.json",
     "apps/sberhack/*",
+    "packages/bicrypt/*,
     ".github/workflows/deploy_*",
     "package-lock.json",
     "werf-giterminism.yaml",

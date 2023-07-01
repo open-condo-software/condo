@@ -6,6 +6,8 @@ KeystoneJS is just a glue between [Express](https://github.com/expressjs/express
 
 ### Contents
 
-* [Getting started](getting-started.md)
+* [Getting started (README)](./../README.MD)
 * [Deploy](deploy.md)
 * [Contibuting](contributing.md)
+* [Developing](develop.md)
+* 

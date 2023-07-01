@@ -1,5 +1,29 @@
 # Some advanced topics # 
 
+Project is split on apps and packages.
+
+Apps are independent applications and cannot use code from each other.
+
+Packages are internal libraries and can be used in any app
+
+### yarn run:
+
+- `yarn <command>` -- run command (`yarn dev`)
+- `yarn workspace @app/<name> <command>` -- run command inside workspace (`yarn workspace @app/web dev`)
+- `yarn --cwd <app-path-name> <command>` -- run command inside app (`yarn --cwd apps/web dev`)
+- `yarn workspaces foreach -pt run dev` -- run `dev` command for all apps and packages
+
+### yarn add:
+
+- `yarn add <package> -W` -- add package for all apps (`yarn add react react-dom -W`)
+- `yarn workspace @app/<name> add <package>` -- add package for special app (`yarn workspace @app/web add react react-dom`)
+
+## Launch for development
+
+You can launch condo in development mode, which supports hot reload using this command:
+
+`yarn workspace @app/condo dev`
+
 ## Database and Migrations
 
 Migration process based on: https://github.com/keystonejs/keystone/discussions/3067
@@ -70,17 +94,3 @@ The configuration for the [eslint](https://eslint.org) is found under `package.j
 [VSCode integration:](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 
 [Other editors](https://eslint.org/docs/user-guide/integrations#editors)
-
-## Tips
-
-### yarn add
-
- - `yarn add <package> -W` -- add package for all apps (`yarn add react react-dom -W`)
- - `yarn workspace @app/<name> add <package>` -- add package for special app (`yarn workspace @app/web add react react-dom`)
-
-### yarn <command>
-
- - `yarn <command>` -- run command (`yarn dev`)
- - `yarn workspace @app/<name> <command>` -- run command inside workspace (`yarn workspace @app/web dev`)
- - `yarn --cwd <app-path-name> <command>` -- run command inside app (`yarn --cwd apps/web dev`)
- - `yarn workspaces foreach -pt run dev` -- run `dev` command for all apps and packages
