@@ -14,6 +14,7 @@ const { AdapterCache } = require('@open-condo/keystone/adapterCache')
 const { HealthCheck } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const metrics = require('@open-condo/keystone/metrics')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 
@@ -120,20 +121,34 @@ const tasks = () => [
 ]
 
 const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })
-const apps = () => [
-    new HealthCheck({ checks: [
-        { name: 'test', run: () => true },
-        { name: 'test2', run: () => true },
-    ] } ),
-    new RequestCache(conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : {}),
-    new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : {}),
-    new VersioningMiddleware(),
-    new OIDCMiddleware(),
-    new FeaturesMiddleware(),
-    new PaymentLinkMiddleware(),
-    FileAdapter.makeFileAdapterMiddleware(),
-    new UserExternalIdentityMiddleware(),
-]
+const apps = () => {
+    return [
+        new HealthCheck({
+            checks: [
+                { name: 'test', run: () => true },
+                {
+                    name: 'redis', run: async () => {
+                        try {
+                            const client = getRedisClient('cache')
+                            const res = await client.ping()
+                            if (res === 'PONG') { return true }
+                        } catch (e) {
+                            return false
+                        }
+                    },
+                },
+            ],
+        }),
+        new RequestCache(conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : {}),
+        new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : {}),
+        new VersioningMiddleware(),
+        new OIDCMiddleware(),
+        new FeaturesMiddleware(),
+        new PaymentLinkMiddleware(),
+        FileAdapter.makeFileAdapterMiddleware(),
+        new UserExternalIdentityMiddleware(),
+    ]
+}
 
 /** @type {(app: import('express').Application) => void} */
 const extendExpressApp = (app) => {
