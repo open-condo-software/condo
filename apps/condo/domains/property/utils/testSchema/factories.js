@@ -1,6 +1,5 @@
 const { faker } = require('@faker-js/faker')
 const { sample } = require('lodash')
-const { v4: uuid } = require('uuid')
 
 const { AddressMetaDataFields } = require('../../schema/fields/AddressMetaField')
 
@@ -94,7 +93,7 @@ const buildFakeAddressAndMeta = (withFlat, addressMetaExtraAttrs = {}) => {
         const index = address.lastIndexOf(',')
         address = address.substring(0, index)
     }
-    return { address, addressMeta, addressKey: uuid(), addressSources: [address] }
+    return { address, addressMeta }
 }
 
 module.exports = {
