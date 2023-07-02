@@ -52,11 +52,14 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
     ".dockerignore",
     ".env.example",
     ".eslintignore",
+    ".eslintrc.js",
     ".gitignore",
     ".husky/commit-msg",
     ".husky/pre-commit",
     ".prettierignore",
     ".prettierrc.json",
+    ".stylelintrc.json",
+    ".yarnrc.yaml",
     "commitlint.config.js",
     "defaults.json",
     "docker-compose.yml",
@@ -65,6 +68,7 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
     "package.json",
     "prettierrc.json",
     "renovate.json",
+    "turbo.json",
     "README.md"
   ],
   "ignoredPaths": [
