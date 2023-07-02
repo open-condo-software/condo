@@ -1,6 +1,9 @@
 const { Text, File, Checkbox, Select, Integer, Url } = require('@keystonejs/fields')
 const { Markdown } = require('@keystonejs/fields-markdown')
 
+const AllIcons = require('@open-condo/icons')
+
+const { DEFAULT_MENU_CATEGORY, ALL_MENU_CATEGORIES } = require('@condo/domains/common/constants/menuCategories')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS, B2B_APPS_LABELS } = require('@condo/domains/miniapp/constants')
 
@@ -17,6 +20,24 @@ const LOGO_FIELD = {
     type: File,
     isRequired: false,
     adapter: APPS_FILE_ADAPTER,
+}
+
+const ICON_FIELD = {
+    schemaDoc: 'App icon. The presence of this field means that this app will be pinned to the CRM menu after the connection.',
+    isRequired: false,
+    type: Select,
+    dataType: 'string',
+    options: Object.keys(AllIcons),
+}
+
+const MENU_CATEGORY_FIELD = {
+    schemaDoc: 'This field is responsible for which category of the CRM menu the application ' +
+        'icon will fall into when connected. ' +
+        `If not specified - then connected with the icon will be displayed in category "${DEFAULT_MENU_CATEGORY}" by default.`,
+    isRequired: false,
+    type: Select,
+    dataType: 'string',
+    options: ALL_MENU_CATEGORIES,
 }
 
 const PARTNER_URL_FIELD = {
@@ -104,5 +125,7 @@ module.exports = {
     DISPLAY_PRIORITY_FIELD,
     LABEL_FIELD,
     PRICE_FIELD,
+    ICON_FIELD,
+    MENU_CATEGORY_FIELD,
 }
 

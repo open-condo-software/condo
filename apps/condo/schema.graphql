@@ -52362,6 +52362,8 @@ type B2BAppHistoryRecord {
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
+  icon: String
+  menuCategory: String
   contextDefaultStatus: String
   category: String
   features: JSON
@@ -52489,6 +52491,42 @@ input B2BAppHistoryRecordWhereInput {
   isHidden_not: Boolean
   isGlobal: Boolean
   isGlobal_not: Boolean
+  icon: String
+  icon_not: String
+  icon_contains: String
+  icon_not_contains: String
+  icon_starts_with: String
+  icon_not_starts_with: String
+  icon_ends_with: String
+  icon_not_ends_with: String
+  icon_i: String
+  icon_not_i: String
+  icon_contains_i: String
+  icon_not_contains_i: String
+  icon_starts_with_i: String
+  icon_not_starts_with_i: String
+  icon_ends_with_i: String
+  icon_not_ends_with_i: String
+  icon_in: [String]
+  icon_not_in: [String]
+  menuCategory: String
+  menuCategory_not: String
+  menuCategory_contains: String
+  menuCategory_not_contains: String
+  menuCategory_starts_with: String
+  menuCategory_not_starts_with: String
+  menuCategory_ends_with: String
+  menuCategory_not_ends_with: String
+  menuCategory_i: String
+  menuCategory_not_i: String
+  menuCategory_contains_i: String
+  menuCategory_not_contains_i: String
+  menuCategory_starts_with_i: String
+  menuCategory_not_starts_with_i: String
+  menuCategory_ends_with_i: String
+  menuCategory_not_ends_with_i: String
+  menuCategory_in: [String]
+  menuCategory_not_in: [String]
   contextDefaultStatus: String
   contextDefaultStatus_not: String
   contextDefaultStatus_contains: String
@@ -52674,6 +52712,10 @@ enum SortB2BAppHistoryRecordsBy {
   isHidden_DESC
   isGlobal_ASC
   isGlobal_DESC
+  icon_ASC
+  icon_DESC
+  menuCategory_ASC
+  menuCategory_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   category_ASC
@@ -52712,6 +52754,8 @@ input B2BAppHistoryRecordUpdateInput {
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
+  icon: String
+  menuCategory: String
   contextDefaultStatus: String
   category: String
   features: JSON
@@ -52748,6 +52792,8 @@ input B2BAppHistoryRecordCreateInput {
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
+  icon: String
+  menuCategory: String
   contextDefaultStatus: String
   category: String
   features: JSON
@@ -52828,6 +52874,14 @@ type B2BApp {
   """ Indicates whether the app is global or not. If so, then the application will be opened in hidden mode and receive various notifications from the condo. It's also possible to trigger some condo IFrame methods via global app outside of miniapps CRM section 
   """
   isGlobal: Boolean
+
+  """ App icon. The presence of this field means that this app will be pinned to the CRM menu after the connection. 
+  """
+  icon: String
+
+  """ This field is responsible for which category of the CRM menu the application icon will fall into when connected. If not specified - then connected with the icon will be displayed in category "MINIAPPS" by default. 
+  """
+  menuCategory: String
 
   """ Status, which context will have by default after creation if no overwriting option provided 
   """
@@ -53003,6 +53057,14 @@ input B2BAppWhereInput {
   isHidden_not: Boolean
   isGlobal: Boolean
   isGlobal_not: Boolean
+  icon: String
+  icon_not: String
+  icon_in: [String]
+  icon_not_in: [String]
+  menuCategory: String
+  menuCategory_not: String
+  menuCategory_in: [String]
+  menuCategory_not_in: [String]
   contextDefaultStatus: String
   contextDefaultStatus_not: String
   contextDefaultStatus_in: [String]
@@ -53137,6 +53199,10 @@ enum SortB2BAppsBy {
   isHidden_DESC
   isGlobal_ASC
   isGlobal_DESC
+  icon_ASC
+  icon_DESC
+  menuCategory_ASC
+  menuCategory_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   category_ASC
@@ -53177,6 +53243,8 @@ input B2BAppUpdateInput {
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
+  icon: String
+  menuCategory: String
   contextDefaultStatus: String
   category: String
   accessRights: B2BAppAccessRightRelateToManyInput
@@ -53211,6 +53279,8 @@ input B2BAppCreateInput {
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
+  icon: String
+  menuCategory: String
   contextDefaultStatus: String
   category: String
   accessRights: B2BAppAccessRightRelateToManyInput

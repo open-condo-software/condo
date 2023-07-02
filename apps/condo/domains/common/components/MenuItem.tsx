@@ -68,13 +68,14 @@ interface IMenuItemProps {
     path?: string
     icon: React.ElementType
     label: string
+    labelRaw?: true
     disabled?: boolean
     hideInMenu?: boolean
     menuItemWrapperProps?: IMenuItemWrapperProps
     isCollapsed?: boolean
     onClick?: () => void
     eventName?: string
-    excludePaths?: Array<string>
+    excludePaths?: Array<RegExp>
 
     toolTipDecorator? (params: INoOrganizationToolTipWrapper): JSX.Element
 }
@@ -107,9 +108,11 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         onClick,
         eventName,
         excludePaths = [],
+        labelRaw,
     } = props
     const { breakpoints } = useLayoutContext()
-    const { asPath } = useRouter()
+    const router = useRouter()
+    const asPath = router.asPath
     const intl = useIntl()
     const { getTrackingWrappedCallback } = useTracking()
     const { className: wrapperClassName, ...restWrapperProps } = menuItemWrapperProps
@@ -121,7 +124,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         const regex = new RegExp(`^${escapedPath}`)
         setIsActive(path === '/'
             ? asPath === path
-            : regex.test(asPath) && excludePaths.every(exPath => !asPath.includes(exPath)))
+            : regex.test(asPath) && excludePaths.every(exPath => !exPath.test(asPath)))
     }, [path, asPath, excludePaths])
 
     const handleClick = useMemo(
@@ -133,7 +136,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         return null
     }
 
-    const Message = intl.formatMessage({ id: label })
+    const Message = labelRaw ? label : intl.formatMessage({ id: label })
 
     const menuItemClassNames = classnames(wrapperClassName, {
         'side': breakpoints.TABLET_LARGE,

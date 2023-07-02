@@ -12,20 +12,7 @@ import React, { useMemo } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { FeatureFlagsProvider, useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import {
-    BarChartVertical,
-    LayoutList,
-    Building,
-    Contacts,
-    Employee,
-    Wallet,
-    Meters,
-    Services,
-    Settings,
-    OnOff,
-    Sber,
-    Newspaper,
-} from '@open-condo/icons'
+import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { withApollo } from '@open-condo/next/apollo'
 import { useAuth, withAuth } from '@open-condo/next/auth'
@@ -53,10 +40,22 @@ import { TasksContextProvider } from '@condo/domains/common/components/tasks/Tas
 import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { SERVICE_PROVIDER_PROFILE } from '@condo/domains/common/constants/featureflags'
+import {
+    DASHBOARD_CATEGORY,
+    COMMUNICATION_CATEGORY,
+    PROPERTIES_CATEGORY,
+    RESIDENTS_CATEGORY,
+    EMPLOYEES_CATEGORY,
+    BILLING_CATEGORY,
+    METERS_CATEGORY,
+    MINIAPPS_CATEGORY,
+    SETTINGS_CATEGORY,
+} from '@condo/domains/common/constants/menuCategories'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
+import { ConnectedAppsWithIconsContextProvider, useConnectedAppsWithIconsContext } from '@condo/domains/miniapp/components/ConnectedAppsWithIconsProvider'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import {
@@ -96,8 +95,17 @@ interface IMenuItemData {
     path: string,
     icon: React.FC,
     label: string,
-    access?: () => boolean,
-    excludePaths?: Array<string>
+    access?: boolean,
+    excludePaths?: Array<RegExp>
+}
+
+function checkItemAccess (item: IMenuItemData): boolean {
+    return !('access' in item) || item.access
+}
+
+interface IMenuCategoryData {
+    key: string
+    items: Array<IMenuItemData>
 }
 
 const ANT_DEFAULT_LOCALE = enUS
@@ -124,88 +132,154 @@ const MenuItems: React.FC = () => {
     // The menu item is hidden until release
     const canManageNewsItems = false && get<boolean>(role, 'canManageNewsItems', false)
 
+    const { contextsByCategories, connectedAppsIds } = useConnectedAppsWithIconsContext()
+
     useDeepCompareEffect(() => {
         updateContext({ orgFeatures })
     }, [updateContext, orgFeatures])
 
-    const menuItemsData: IMenuItemData[] = useMemo(() => {
-        const itemsConfigs = [{
-            id: 'menuitem-reports',
-            path: 'reports',
-            icon: BarChartVertical,
-            label: 'global.section.analytics',
-            access: () => !isAssignedVisibilityType,
-        }, {
-            id: 'menuitem-ticket',
-            path: 'ticket',
-            icon: LayoutList,
-            label: 'global.section.controlRoom',
-        }, {
-            id: 'menuitem-incident',
-            path: 'incident',
-            icon: OnOff,
-            label: 'global.section.incidents',
-            access: () => !isAssignedVisibilityType,
-        }, {
-            id: 'menuitem-news',
-            path: 'news',
-            icon: Newspaper,
-            label: 'global.section.newsItems',
-            access: () => canManageNewsItems,
-        }, {
-            id: 'menuitem-property',
-            path: 'property',
-            icon: Building,
-            label: 'global.section.properties',
-            access: () => !isAssignedVisibilityType,
-        }, {
-            id: 'menuitem-contact',
-            path: 'contact',
-            icon: Contacts,
-            label: 'global.section.contacts',
-            access: () => !isAssignedVisibilityType,
-        }, {
-            id: 'menuitem-emloyee',
-            path: 'employee',
-            icon: Employee,
-            label: 'global.section.employees',
-            access: () => !isAssignedVisibilityType,
-        }, {
-            id: 'menuitem-billing',
-            path: 'billing',
-            icon: Wallet,
-            label: 'global.section.accrualsAndPayments',
-            // NOTE: For SPP users billing is available after first receipts-load finished
-            access: () => isSPPOrg
-                ? hasAccessToBilling && anyReceiptsLoaded
-                : hasAccessToBilling,
-        }, {
-            id: 'menuitem-meter',
-            path: 'meter',
-            icon: Meters,
-            label: 'global.section.meters',
-            access: () => !isAssignedVisibilityType,
-        }, {
-            id: 'menuitem-miniapps',
-            path: 'miniapps',
-            icon: Services,
-            label: 'global.section.miniapps',
-            access: () => !isAssignedVisibilityType,
-        }, {
-            id: 'menuitem-service-provider-profile',
-            path: 'service-provider-profile',
-            icon: Sber,
-            label: 'global.section.SPP',
-            access: () => sppBillingId && isSPPOrg,
-        }, {
-            id: 'menuitem-settings',
-            path: 'settings',
-            icon: Settings,
-            label: 'global.section.settings',
-            access: () => !isAssignedVisibilityType,
-        }]
-        return itemsConfigs.filter((item) => get(item, 'access', () => true)())
-    }, [isAssignedVisibilityType, hasAccessToBilling, anyReceiptsLoaded, isSPPOrg, sppBillingId])
+    const menuCategoriesData = useMemo<Array<IMenuCategoryData>>(() => ([
+        {
+            key: DASHBOARD_CATEGORY,
+            items: [
+                {
+                    id: 'menuitem-reports',
+                    path: 'reports',
+                    icon: AllIcons['BarChartVertical'],
+                    label: 'global.section.analytics',
+                    access: !isAssignedVisibilityType,
+                },
+            ].filter(checkItemAccess),
+        },
+        {
+            key: COMMUNICATION_CATEGORY,
+            items: [
+                {
+                    id: 'menuitem-ticket',
+                    path: 'ticket',
+                    icon: AllIcons['LayoutList'],
+                    label: 'global.section.controlRoom',
+                },
+                {
+                    id: 'menuitem-incident',
+                    path: 'incident',
+                    icon: AllIcons['OnOff'],
+                    label: 'global.section.incidents',
+                    access: !isAssignedVisibilityType,
+                },
+                {
+                    id: 'menuitem-news',
+                    path: 'news',
+                    icon: AllIcons['Newspaper'],
+                    label: 'global.section.newsItems',
+                    access: canManageNewsItems,
+                },
+            ].filter(checkItemAccess),
+        },
+        {
+            key: PROPERTIES_CATEGORY,
+            items: [
+                {
+                    id: 'menuitem-property',
+                    path: 'property',
+                    icon: AllIcons['Building'],
+                    label: 'global.section.properties',
+                    access: !isAssignedVisibilityType,
+                },
+            ].filter(checkItemAccess),
+        },
+        {
+            key: RESIDENTS_CATEGORY,
+            items: [
+                {
+                    id: 'menuitem-contact',
+                    path: 'contact',
+                    icon: AllIcons['Contacts'],
+                    label: 'global.section.contacts',
+                    access: !isAssignedVisibilityType,
+                },
+            ].filter(checkItemAccess),
+        },
+        {
+            key: EMPLOYEES_CATEGORY,
+            items: [
+                {
+                    id: 'menuitem-employee',
+                    path: 'employee',
+                    icon: AllIcons['Employee'],
+                    label: 'global.section.employees',
+                    access: !isAssignedVisibilityType,
+                },
+            ].filter(checkItemAccess),
+        },
+        {
+            key: BILLING_CATEGORY,
+            items: [
+                {
+                    id: 'menuitem-billing',
+                    path: 'billing',
+                    icon: AllIcons['Wallet'],
+                    label: 'global.section.accrualsAndPayments',
+                    // NOTE: For SPP users billing is available after first receipts-load finished
+                    access: isSPPOrg
+                        ? hasAccessToBilling && anyReceiptsLoaded
+                        : hasAccessToBilling,
+                },
+                {
+                    id: 'menuitem-service-provider-profile',
+                    path: 'service-provider-profile',
+                    icon: AllIcons['Sber'],
+                    label: 'global.section.SPP',
+                    access: sppBillingId && isSPPOrg,
+                },
+            ].filter(checkItemAccess),
+        },
+        {
+            key: METERS_CATEGORY,
+            items: [
+                {
+                    id: 'menuitem-meter',
+                    path: 'meter',
+                    icon: AllIcons['Meters'],
+                    label: 'global.section.meters',
+                    access: !isAssignedVisibilityType,
+                },
+            ].filter(checkItemAccess),
+        },
+        {
+            key: MINIAPPS_CATEGORY,
+            items: [
+                {
+                    id: 'menuitem-miniapps',
+                    path: 'miniapps',
+                    icon: AllIcons['Services'],
+                    label: 'global.section.miniapps',
+                    access: !isAssignedVisibilityType,
+                    excludePaths: connectedAppsIds.map((id) => new RegExp(`/miniapps/${id}$`)),
+                },
+            ].filter(checkItemAccess),
+        },
+        {
+            key: SETTINGS_CATEGORY,
+            items: [
+                {
+                    id: 'menuitem-settings',
+                    path: 'settings',
+                    icon: AllIcons['Settings'],
+                    label: 'global.section.settings',
+                    access: !isAssignedVisibilityType,
+                },
+            ],
+        },
+    ]), [
+        isAssignedVisibilityType,
+        canManageNewsItems,
+        isSPPOrg,
+        hasAccessToBilling,
+        anyReceiptsLoaded,
+        sppBillingId,
+        connectedAppsIds,
+    ])
 
     return (
         <>
@@ -225,18 +299,36 @@ const MenuItems: React.FC = () => {
                 )
             }
             <div>
-                {menuItemsData.map((menuItemData) => (
-                    <MenuItem
-                        id={menuItemData.id}
-                        key={`menu-item-${menuItemData.path}`}
-                        path={`/${menuItemData.path}`}
-                        icon={menuItemData.icon}
-                        label={menuItemData.label}
-                        disabled={disabled}
-                        isCollapsed={isCollapsed}
-                        toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
-                        excludePaths={menuItemData.excludePaths}
-                    />
+                {menuCategoriesData.map((category) => (
+                    <>
+                        {category.items.map((item) => (
+                            <MenuItem
+                                id={item.id}
+                                key={`menu-item-${item.path}`}
+                                path={`/${item.path}`}
+                                icon={item.icon}
+                                label={item.label}
+                                disabled={disabled}
+                                isCollapsed={isCollapsed}
+                                toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
+                                excludePaths={item.excludePaths}
+                            />
+                        ))}
+                        {get(contextsByCategories, category.key, []).map((ctx) => (
+                            <MenuItem
+                                id={`menu-item-app-${ctx.app.id}`}
+                                key={`menu-item-app-${ctx.app.id}`}
+                                path={`/miniapps/${ctx.app.id}`}
+                                icon={get(AllIcons, ctx.app.icon, AllIcons['QuestionCircle'])}
+                                label={ctx.app.name}
+                                labelRaw
+                                disabled={disabled}
+                                isCollapsed={isCollapsed}
+                                toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
+                                excludePaths={[new RegExp(`/miniapps/${ctx.app.id}/.+`)]}
+                            />
+                        ))}
+                    </>
                 ))}
             </div>
         </>
@@ -354,16 +446,18 @@ const MyApp = ({ Component, pageProps }) => {
                                                     <LayoutContextProvider>
                                                         <TicketVisibilityContextProvider>
                                                             <ActiveCallContextProvider>
-                                                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                    <RequiredAccess>
-                                                                        <Component {...pageProps} />
-                                                                        {
-                                                                            isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                <EndTrialSubscriptionReminderPopup/>
-                                                                            )
-                                                                        }
-                                                                    </RequiredAccess>
-                                                                </LayoutComponent>
+                                                                <ConnectedAppsWithIconsContextProvider>
+                                                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                        <RequiredAccess>
+                                                                            <Component {...pageProps} />
+                                                                            {
+                                                                                isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                    <EndTrialSubscriptionReminderPopup/>
+                                                                                )
+                                                                            }
+                                                                        </RequiredAccess>
+                                                                    </LayoutComponent>
+                                                                </ConnectedAppsWithIconsContextProvider>
                                                             </ActiveCallContextProvider>
                                                         </TicketVisibilityContextProvider>
                                                     </LayoutContextProvider>

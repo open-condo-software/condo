@@ -8,11 +8,13 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { PageWrapper, PageContent as PageContentWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { useConnectedAppsWithIconsContext } from '@condo/domains/miniapp/components/ConnectedAppsWithIconsProvider'
 import { B2B_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { B2BApp, B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 
 import { ConnectModal } from './ConnectModal'
 import { PageContent } from './PageContent'
+
 
 type B2BPageProps = {
     id: string
@@ -20,6 +22,7 @@ type B2BPageProps = {
 
 export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
     const intl = useIntl()
+    const { refetch: refetchMenu } = useConnectedAppsWithIconsContext()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
     const userOrganization = useOrganization()
@@ -37,6 +40,7 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
 
     const initialAction = B2BAppContext.useCreate({}, () => {
         refetch()
+        refetchMenu()
         setModalOpen(true)
     })
     const createContextAction = useCallback(() => {
@@ -80,6 +84,7 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
                     />
                     <ConnectModal
                         miniappHasFrame={Boolean(app.appUrl)}
+                        miniappHasIcon={Boolean(app.icon)}
                         contextStatus={get(context, 'status', null)}
                         open={modalOpen}
                         closeModal={handleCloseModal}
