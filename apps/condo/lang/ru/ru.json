@@ -910,7 +910,7 @@
   "pages.condo.settings.propertyScope.default.name": "Предустановленная",
   "pages.condo.settings.propertyScope.propertyScopeName": "Название области видимости",
   "pages.condo.settings.propertyScope.properties": "Дома",
-  "pages.condo.settings.propertyScope.propertiesCount": "и ещё адресов: ",
+  "pages.condo.settings.propertyScope.propertiesCount": "ещё адресатов: ",
   "pages.condo.settings.propertyScope.employees": "Сотрудники",
   "pages.condo.settings.propertyScope.create": "Добавить область видимости",
   "pages.condo.settings.propertyScope.allProperties": "Все дома",
