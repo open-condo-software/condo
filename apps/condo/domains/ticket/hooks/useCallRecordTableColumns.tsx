@@ -114,7 +114,9 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
 
         const url = get(callRecordFragment, 'callRecord.file.publicUrl')
         const name = get(callRecordFragment, 'callRecord.file.originalFilename')
-        const handleDownloadFile = () => {
+        const handleDownloadFile = (e) => {
+            e.stopPropagation()
+
             downloadFile({ url, name })
         }
 
