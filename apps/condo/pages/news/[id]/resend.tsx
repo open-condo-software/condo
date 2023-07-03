@@ -5,8 +5,11 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { NewsForm } from '@condo/domains/news/components/NewsForm'
+import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 export interface ICreateNewsPage extends React.FC {
@@ -21,7 +24,7 @@ const CreateNewsPageContent: React.FC = () => {
     const router = useRouter()
 
     const { query: { id } } = router as { query: { [key: string]: string } }
-    
+
     return (
         <>
             <Head>
@@ -30,7 +33,7 @@ const CreateNewsPageContent: React.FC = () => {
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} spaced/>
                 <PageContent>
-                    <NewsForm 
+                    <NewsForm
                         id={id}
                         actionName='create'
                     />
@@ -41,6 +44,16 @@ const CreateNewsPageContent: React.FC = () => {
 }
 
 const CreateNewsPage: ICreateNewsPage = () => {
+    const { canManage, isLoading: isAccessLoading } = useNewsItemsAccess()
+
+    if (isAccessLoading) {
+        return <LoadingOrErrorPage error='' loading={true}/>
+    }
+
+    if (!canManage) {
+        return <AccessDeniedPage/>
+    }
+
     return <CreateNewsPageContent />
 }
 
