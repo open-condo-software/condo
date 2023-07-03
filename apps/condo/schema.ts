@@ -14645,11 +14645,11 @@ export type BillingReceiptFile = {
    *  4. As an alias to the 'id' field on the BillingReceiptFile List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Link to the property model  */
+  /**  Wrapper to return file version of the receipt (usually PDF) with personal information or without  */
   file?: Maybe<File>;
-  /**  File object with meta information about the receipt  */
+  /**  File version of the receipt with personal information  */
   sensitiveDataFile?: Maybe<File>;
-  /**  File object with meta information about the receipt  */
+  /**  File version of the receipt without personal information  */
   publicDataFile?: Maybe<File>;
   /**  Link to Context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;

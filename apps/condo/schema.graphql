@@ -13305,13 +13305,14 @@ type BillingReceiptFile {
   """
   _label_: String
 
-  """ Link to the property model """
+  """ Wrapper to return file version of the receipt (usually PDF) with personal information or without 
+  """
   file: File
 
-  """ File object with meta information about the receipt """
+  """ File version of the receipt with personal information """
   sensitiveDataFile: File
 
-  """ File object with meta information about the receipt """
+  """ File version of the receipt without personal information """
   publicDataFile: File
 
   """ Link to Context """
