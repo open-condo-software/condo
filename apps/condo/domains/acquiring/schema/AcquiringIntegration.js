@@ -9,6 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
+const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR } = require('@condo/domains/acquiring/constants/errors')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
@@ -80,7 +81,11 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             ...FEE_DISTRIBUTION_SCHEMA_FIELD,
             schemaDoc: 'Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient',
         },
-        contextDefaultStatus: CONTEXT_DEFAULT_STATUS_FIELD,
+        contextDefaultStatus: {
+            ...CONTEXT_DEFAULT_STATUS_FIELD,
+            options: CONTEXT_STATUSES,
+            defaultValue: CONTEXT_IN_PROGRESS_STATUS,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
