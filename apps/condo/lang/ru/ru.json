@@ -1087,6 +1087,7 @@
   "pages.reports.paymentCount": "Количество оплат",
   "pages.reports.paymentsAmountPercent": "Сбор",
   "pages.reports.paymentsAmount": "Сумма оплат",
+  "pages.reports.paymentsByProperty": "Оплаты по домам",
   "pages.reports.residentsWithApp": "Жителей в приложении",
   "news.fields.units.label": "Помещение",
   "news.fields.units.message": "Чтобы выбрать помещения, удалите выбранные подъезды",

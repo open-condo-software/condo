@@ -18,7 +18,7 @@ interface IGetChartConfig extends IGetBaseChartConfig<PaymentChartType, PaymentD
 }
 
 type ChartConfigMapType = {
-    barSummary: { chart: IGetChartConfig }
+    barSummary?: { chart: IGetChartConfig }
     bar?: { chart: IGetChartConfig }
 }
 

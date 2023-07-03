@@ -175,8 +175,8 @@ export const getChartOptions: IGetChartOptions = ({
         animation: animationEnabled,
         color,
         grid: {
-            left: 0,
-            right: 0,
+            left: '3%',
+            right: '3%',
             bottom: 0,
             containLabel: true,
             borderWidth: 1,

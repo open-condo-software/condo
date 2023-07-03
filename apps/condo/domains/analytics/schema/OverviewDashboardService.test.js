@@ -7,12 +7,18 @@ const dayjs = require('dayjs')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@open-condo/keystone/test.utils')
 
+const { PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { makePayerAndPayments } = require('@condo/domains/acquiring/utils/testSchema')
+const { updateTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
 const { overviewDashboardByTestClient } = require('@condo/domains/analytics/utils/testSchema')
 
 describe('OverviewDashboardService', () => {
     test('user: execute', async () => {
         const { client, organization, admin, payments } = await makePayerAndPayments()
+
+        await updateTestPayment(admin, payments[0].id, {
+            status: PAYMENT_DONE_STATUS,
+        })
 
         const payload = {
             where: {
@@ -24,7 +30,7 @@ describe('OverviewDashboardService', () => {
         }
         const [data, attrs] = await overviewDashboardByTestClient(admin, payload)
         // TODO(codegen): write user expect logic
-        console.log(data.overview.payment.translates)
+        console.log(data.overview.payment.payments)
     })
 
     test('anonymous: execute', async () => {

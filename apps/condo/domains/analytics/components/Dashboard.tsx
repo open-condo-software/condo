@@ -33,6 +33,8 @@ import PaymentChart from './PaymentChart'
 import { PaymentChartView } from './PaymentChartView'
 import TicketChartView from './TicketChartView'
 
+import { BasicEmptyListView } from '../../common/components/EmptyListView'
+
 import type { RowProps } from 'antd'
 
 const DASHBOARD_ROW_GUTTER: RowProps['gutter'] = [20, 40]
@@ -58,8 +60,8 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoadin
     const PaymentsAmount = intl.formatMessage({ id: 'pages.reports.paymentsAmount' })
     const ResidentsInApp = intl.formatMessage({ id: 'pages.reports.residentsWithApp' })
 
-    const completionPercent = useRef(null)
-    const paymentsAmountPercent = useRef(null)
+    const completionPercent = useRef('—')
+    const paymentsAmountPercent = useRef('—')
     const ticketCounts = useRef(null)
 
     const { count: residentsCount, loading: residentsLoading } = Resident.useCount({
@@ -73,7 +75,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoadin
     })
     const [loadMonthTicketCounts, { loading: monthTicketLoading }] = useLazyQuery(GET_TICKETS_COUNT_QUERY, {
         onCompleted: (result) => {
-            completionPercent.current = (result.completed.count / result.all.count * 100).toFixed(0) + '%'
+            completionPercent.current = result.all.count === 0 ? '—' : (result.completed.count / result.all.count * 100).toFixed(0) + '%'
         },
         fetchPolicy: 'cache-first',
     })
@@ -96,7 +98,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoadin
 
     useEffect(() => {
         if (!paymentLoading && !isNull(paymentSum) && !isNull(receiptSum)) {
-            paymentsAmountPercent.current = Number(receiptSum) === 0 ? '-' : Big(paymentSum).div(receiptSum).mul(100).round(0).toString() + '%'
+            paymentsAmountPercent.current = Number(receiptSum) === 0 ? '—' : Big(paymentSum).div(receiptSum).mul(100).round(0).toString() + '%'
         }
     }, [receiptSum, paymentSum, paymentLoading])
 
@@ -183,6 +185,7 @@ const IncidentDashboard = ({ organizationId }) => {
 const TicketQualityControlDashboard = ({ organizationId }) => {
     const intl = useIntl()
     const QualityControlTitle = intl.formatMessage({ id: 'ticket.qualityControl' })
+    const NoDataTitle = intl.formatMessage({ id: 'NoData' })
 
     const { count: goodCount, loading: goodLoading } = Ticket.useCount({
         where: {
@@ -208,6 +211,14 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
     })
 
     const ticketCardContent = useMemo(() => {
+        if (badCount === 0 && goodCount === 0) {
+            return <BasicEmptyListView image='/dino/searching@2x.png' imageStyle={{ height: '152px' }}>
+                <Typography.Title level={4}>
+                    {NoDataTitle}
+                </Typography.Title>
+            </BasicEmptyListView>
+        }
+
         const option = {
             series: [
                 {
@@ -403,100 +414,7 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
     )
 }
 
-const PaymentChartContainer = ({ data, title, viewMode }) => {
-    const intl = useIntl()
-    const SumTitle = intl.formatMessage({ id: 'global.sum' })
-    const PaymentCountTitle = intl.formatMessage({ id: 'pages.reports.paymentCount' })
-
-    const mapperInstance = new PaymentChart({
-        barSummary: {
-            chart: (viewMode, payments) => {
-                const paymentsCount = payments.map(payment => [payment.dayGroup, Number(payment.count)])
-                const maxCount = Math.max(...paymentsCount.map(([, value]) => value))
-                const series: Array<EchartsSeries> = [
-                    {
-                        name: SumTitle,
-                        data: payments.map(payment => [payment.dayGroup, Number(payment.sum).toFixed(2)]),
-                        type: 'bar',
-                        label: { show: true, position: 'top' },
-                        barMaxWidth: 40,
-                    },
-                    {
-                        name: PaymentCountTitle,
-                        data: paymentsCount,
-                        type: 'line',
-                        yAxisIndex: 1,
-                    },
-                ]
-
-                return {
-                    legend: [SumTitle, PaymentCountTitle],
-                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
-                    axisData: {
-                        yAxis: [
-                            { type: 'value', data: null },
-                            {
-                                type: 'value',
-                                data: null,
-                                min: 0,
-                                max: maxCount + Math.round(maxCount / 2),
-                                axisLabel: {
-                                    formatter: (value) => {
-                                        return value % 1 === 0 ? value : ''
-                                    },
-                                },
-                            },
-                        ],
-                        xAxis: {
-                            type: 'category',
-                            data: null,
-                            axisLabel: {
-                                formatter: (value) => dayjs(value).format('MMM, YYYY'),
-                            },
-                        },
-                    },
-                    series,
-                }
-            },
-        },
-        bar: {
-            chart: (viewMode, dataset) => {
-                const series: Array<EchartsSeries> = [
-                    {
-                        name: 'Начислено',
-                        data: dataset[1].map(receipt => [receipt.dayGroup, Number(receipt.sum).toFixed(2)]),
-                        type: viewMode,
-                        label: { show: true, position: 'top' },
-                    },
-                    {
-                        name: 'Оплачено',
-                        data: dataset[0].map(payment => [payment.dayGroup, Number(payment.sum).toFixed(2)]),
-                        type: viewMode,
-                        label: { show: true, position: 'top' },
-                    },
-                ]
-
-                return {
-                    legend: ['Начислено', 'Оплачено'],
-                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
-                    axisData: {
-                        yAxis: {
-                            type: 'value',
-                            data: null,
-                        },
-                        xAxis: {
-                            type: 'category',
-                            data: null,
-                            axisLabel: {
-                                formatter: (value) => dayjs(value).format('MMM, YYYY'),
-                            },
-                        },
-                    },
-                    series,
-                }
-            },
-        },
-    })
+const PaymentChartContainer = ({ data, title, viewMode, mapperInstance }) => {
 
     return (
         <Row gutter={[0, 16]}>
@@ -578,9 +496,15 @@ const TicketTableView = ({ organizationId }) => {
 export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId }) => {
     const intl = useIntl()
     const NewTicketsTitle = intl.formatMessage({ id: 'pages.reports.newTicketsTitle' })
+    const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
     const TicketsByPropertyTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })
     const TicketsByCategory = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
     const PaymentsTotalTitle = intl.formatMessage({ id: 'pages.reports.paymentsTotal' })
+    const SumTitle = intl.formatMessage({ id: 'global.sum' })
+    const PaymentCountTitle = intl.formatMessage({ id: 'pages.reports.paymentCount' })
+    const ChargedTitle = intl.formatMessage({ id: 'Charged' })
+    const PaidTitle = intl.formatMessage({ id: 'PaymentPaid' })
+    const PaymentsByPropertyTitle = intl.formatMessage({ id: 'pages.reports.paymentsByProperty' })
 
     const [overview, setOverview] = useState(null)
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
@@ -632,6 +556,113 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const receiptsData = get(overview, 'receipt.receipts')
     const receiptSum = get(overview, 'receipt.sum', null)
 
+    const paymentChart = new PaymentChart({
+        barSummary: {
+            chart: (viewMode, payments) => {
+                const paymentsCount = payments.map(payment => [payment.dayGroup, Number(payment.count)])
+                const maxCount = Math.max(...paymentsCount.map(([, value]) => value))
+                const series: Array<EchartsSeries> = [
+                    {
+                        name: SumTitle,
+                        data: payments.map(payment => [payment.dayGroup, Number(payment.sum).toFixed(2)]),
+                        type: 'bar',
+                        label: { show: true, position: 'top' },
+                        barMaxWidth: 40,
+                    },
+                    {
+                        name: PaymentCountTitle,
+                        data: paymentsCount,
+                        type: 'line',
+                        yAxisIndex: 1,
+                    },
+                ]
+
+                return {
+                    legend: [SumTitle, PaymentCountTitle],
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
+                    axisData: {
+                        yAxis: [
+                            { type: 'value', data: null },
+                            {
+                                type: 'value',
+                                data: null,
+                                min: 0,
+                                max: maxCount + Math.round(maxCount / 2),
+                                axisLabel: {
+                                    formatter: (value) => {
+                                        return value % 1 === 0 ? value : ''
+                                    },
+                                },
+                            },
+                        ],
+                        xAxis: {
+                            type: 'category',
+                            data: null,
+                            axisLabel: {
+                                formatter: (value) => dayjs(value).format('MMM, YYYY'),
+                            },
+                        },
+                    },
+                    series,
+                }
+            },
+        },
+        bar: {
+            chart: (viewMode, dataset) => {
+                const series: Array<EchartsSeries> = [
+                    {
+                        name: ChargedTitle,
+                        data: dataset[1].map(receipt => [receipt.dayGroup, Number(receipt.sum).toFixed(2)]),
+                        type: viewMode,
+                        label: { show: true, position: 'top' },
+                    },
+                    {
+                        name: PaidTitle,
+                        data: dataset[0].map(payment => [payment.dayGroup, Number(payment.sum).toFixed(2)]),
+                        type: viewMode,
+                        label: { show: true, position: 'top' },
+                    },
+                ]
+
+                return {
+                    legend: [ChargedTitle, PaidTitle],
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
+                    axisData: {
+                        yAxis: { type: 'value', data: null },
+                        xAxis: {
+                            type: 'category',
+                            data: null,
+                            axisLabel: {
+                                formatter: (value) => dayjs(value).format('MMM, YYYY'),
+                            },
+                        },
+                    },
+                    series,
+                }
+            },
+        },
+    })
+    const paymentCreatedByChart = new PaymentChart({
+        bar: {
+            chart: (viewMode, payments) => {
+                const series: Array<EchartsSeries> = [{
+                    name: PaidTitle,
+                    data: payments.map(payment => [Number(payment.sum).toFixed(2), payment.createdBy]),
+                    type: viewMode,
+                }]
+                return {
+                    legend: [],
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
+                    axisData: {
+                        yAxis: { type: 'category', data: null },
+                        xAxis: { type: 'value', data: null },
+                    },
+                    series,
+                }
+            },
+        },
+    })
+
     return (
         <Row gutter={DASHBOARD_ROW_GUTTER}>
             <Col lg={12} md={24}>
@@ -667,7 +698,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                         </Col>
                         <Col lg={12} md={24}>
                             <TicketChartContainer
-                                title={TicketsByCategory}
+                                title={TicketTitle + ' ' + TicketsByCategory.toLowerCase()}
                                 data={categoryTickets}
                                 groupBy={[TicketAnalyticsGroupBy.Status, TicketAnalyticsGroupBy.CategoryClassifier]}
                                 isStacked
@@ -683,18 +714,28 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                                 title={PaymentsTotalTitle}
                                 data={paymentsData}
                                 viewMode='barSummary'
+                                mapperInstance={paymentChart}
                             />
                         </Col>
                         <Col lg={12} md={24}>
                             <PaymentChartContainer
-                                title='Начислено / оплачено'
+                                title={`${ChargedTitle} / ${PaidTitle}`}
                                 data={[paymentsData, receiptsData]}
                                 viewMode='bar'
+                                mapperInstance={paymentChart}
+                            />
+                        </Col>
+                        <Col lg={12} md={24}>
+                            <PaymentChartContainer
+                                title={PaymentsByPropertyTitle}
+                                data={paymentsData}
+                                viewMode='bar'
+                                mapperInstance={paymentCreatedByChart}
                             />
                         </Col>
                         <Col lg={12} md={24}>
                             <TicketChartContainer
-                                title={TicketsByPropertyTitle}
+                                title={TicketTitle + ' ' + TicketsByPropertyTitle.toLowerCase()}
                                 data={propertyTickets}
                                 groupBy={[TicketAnalyticsGroupBy.Status, TicketAnalyticsGroupBy.Property]}
                                 isStacked

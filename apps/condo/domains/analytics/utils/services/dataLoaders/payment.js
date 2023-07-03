@@ -70,7 +70,6 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
 
 class PaymentDataLoader extends AbstractDataLoader {
     async get ({ where, groupBy }) {
-        const translates = {}
         const paymentMonthSumLoader = new GqlWithKnexLoadList({
             listKey: 'Payment',
             fields: 'id',
@@ -91,16 +90,22 @@ class PaymentDataLoader extends AbstractDataLoader {
         const payments = paymentGqlKnexLoader.getResult()
 
         for (const group of groupBy) {
+            let groupByLabels = []
             switch (group) {
                 case 'createdBy':
-                    translates[group] = await createBillingPropertyRange(pick(where, ['organization']))
+                    groupByLabels = await createBillingPropertyRange(pick(where, ['organization']))
+                    payments.forEach(payment => {
+                        payment[group] = groupByLabels.find(e => e.value === payment[group]).label
+                    })
                     break
                 default:
                     break
             }
         }
 
-        return { sum, payments, translates }
+
+
+        return { sum, payments }
     }
 }
 

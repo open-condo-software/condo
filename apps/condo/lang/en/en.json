@@ -1087,6 +1087,7 @@
   "pages.reports.paymentCount": "Payments count",
   "pages.reports.paymentsAmountPercent": "Payments received",
   "pages.reports.paymentsAmount": "Payments sum",
+  "pages.reports.paymentsByProperty": "Payments by property",
   "pages.reports.residentsWithApp": "Residents in app",
   "news.fields.units.label": "Flat",
   "news.fields.units.message": "To select flats, delete the selected entrances",

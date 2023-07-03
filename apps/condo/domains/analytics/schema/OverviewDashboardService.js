@@ -114,7 +114,7 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                                     //     { status: PAYMENT_WITHDRAWN_STATUS },
                                     // ],
                                 },
-                                groupBy: ['month'],
+                                groupBy: ['month', 'createdBy'],
                             },
                         },
                         receipt: {
