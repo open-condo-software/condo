@@ -34,8 +34,9 @@ describe('GetNewsItemsRecipientsCountersService', () => {
     })
 
     test('The data for counters calculated correctly', async () => {
-        const [property] = await createTestProperty(adminClient, dummyO10n, { map: propertyMap1x9x4 })
-        const [otherProperty] = await createTestProperty(adminClient, dummyO10n, { map: propertyMap1x9x4 })
+        const [property1] = await createTestProperty(adminClient, dummyO10n, { map: propertyMap1x9x4 })
+        const [property2] = await createTestProperty(adminClient, dummyO10n, { map: propertyMap1x9x4 })
+        const [property3] = await createTestProperty(adminClient, dummyO10n, { map: propertyMap1x9x4 })
         const [user11] = await createTestUser(adminClient)
         const [user12] = await createTestUser(adminClient)
         const [user13] = await createTestUser(adminClient)
@@ -44,26 +45,28 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         const [user16] = await createTestUser(adminClient)
         const [user21] = await createTestUser(adminClient)
 
-        await createTestResident(adminClient, user11, property, { unitType: 'flat', unitName: '1' })
-        await createTestResident(adminClient, user12, property, { unitType: 'flat', unitName: '1' })
+        await createTestResident(adminClient, user11, property1, { unitType: 'flat', unitName: '1' })
+        await createTestResident(adminClient, user12, property1, { unitType: 'flat', unitName: '1' })
 
-        await createTestResident(adminClient, user12, property, { unitType: 'flat', unitName: '2' })
-        await createTestResident(adminClient, user12, property, { unitType: 'flat', unitName: '3' })
+        await createTestResident(adminClient, user12, property1, { unitType: 'flat', unitName: '2' })
+        await createTestResident(adminClient, user12, property1, { unitType: 'flat', unitName: '3' })
 
-        await createTestResident(adminClient, user13, property, { unitType: 'flat', unitName: '4' })
-        await createTestResident(adminClient, user14, property, { unitType: 'flat', unitName: '4' })
-        await createTestResident(adminClient, user15, property, { unitType: 'flat', unitName: '4' })
+        await createTestResident(adminClient, user13, property1, { unitType: 'flat', unitName: '4' })
+        await createTestResident(adminClient, user14, property1, { unitType: 'flat', unitName: '4' })
+        await createTestResident(adminClient, user15, property1, { unitType: 'flat', unitName: '4' })
 
-        // unitName not from map
-        await createTestResident(adminClient, user16, property, { unitType: 'flat', unitName: '100500' })
+        // 10050* - unitName not from map
+        await createTestResident(adminClient, user16, property1, { unitType: 'flat', unitName: '100500' })
 
-        await createTestResident(adminClient, user21, otherProperty, { unitType: 'flat', unitName: '1' })
+        await createTestResident(adminClient, user21, property2, { unitType: 'flat', unitName: '1' })
+
+        await createTestResident(adminClient, user11, property3, { unitType: 'flat', unitName: '100501' })
 
         const payload1 = {
             organization: pick(dummyO10n, 'id'),
             newsItemScopes: [
-                { property: { id: property.id }, unitType: FLAT_UNIT_TYPE, unitName: '1' },
-                { property: { id: property.id }, unitType: FLAT_UNIT_TYPE, unitName: '36' },
+                { property: { id: property1.id }, unitType: FLAT_UNIT_TYPE, unitName: '1' },
+                { property: { id: property1.id }, unitType: FLAT_UNIT_TYPE, unitName: '36' },
             ],
         }
         const [data1] = await getNewsItemsRecipientsCountersByTestClient(staffClientYes, payload1)
@@ -71,7 +74,7 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         const payload2 = {
             organization: pick(dummyO10n, 'id'),
             newsItemScopes: [
-                { property: { id: property.id }, unitType: null, unitName: null },
+                { property: { id: property1.id }, unitType: null, unitName: null },
             ],
         }
         const [data2] = await getNewsItemsRecipientsCountersByTestClient(staffClientYes, payload2)
@@ -87,17 +90,35 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         const payload4 = {
             organization: pick(dummyO10n, 'id'),
             newsItemScopes: [
-                { property: { id: property.id }, unitType: FLAT_UNIT_TYPE, unitName: '1' },
-                { property: { id: otherProperty.id }, unitType: FLAT_UNIT_TYPE, unitName: '36' },
+                { property: { id: property1.id }, unitType: FLAT_UNIT_TYPE, unitName: '1' },
+                { property: { id: property2.id }, unitType: FLAT_UNIT_TYPE, unitName: '36' },
             ],
         }
         const [data4] = await getNewsItemsRecipientsCountersByTestClient(staffClientYes, payload4)
 
+        const payload5 = {
+            organization: pick(dummyO10n, 'id'),
+            newsItemScopes: [
+                { property: { id: property3.id }, unitType: null, unitName: null },
+            ],
+        }
+        const [data5] = await getNewsItemsRecipientsCountersByTestClient(staffClientYes, payload5)
+
+        const payload6 = {
+            organization: pick(dummyO10n, 'id'),
+            newsItemScopes: [
+                { property: { id: property2.id }, unitType: null, unitName: null },
+                { property: { id: property3.id }, unitType: null, unitName: null },
+            ],
+        }
+        const [data6] = await getNewsItemsRecipientsCountersByTestClient(staffClientYes, payload6)
+
         expect(data1).toEqual({ propertiesCount: 1, unitsCount: 2, receiversCount: 1 })
-        // + 1 from unit not listed in property map (see unitName = 100500)
-        expect(data2).toEqual({ propertiesCount: 1, unitsCount: 36, receiversCount: 4 + 1 })
-        expect(data3).toEqual({ propertiesCount: 2, unitsCount: 72, receiversCount: 5 + 1 })
+        expect(data2).toEqual({ propertiesCount: 1, unitsCount: 36, receiversCount: 4 })
+        expect(data3).toEqual({ propertiesCount: 3, unitsCount: 108, receiversCount: 5 })
         expect(data4).toEqual({ propertiesCount: 2, unitsCount: 2, receiversCount: 1 })
+        expect(data5).toEqual({ propertiesCount: 1, unitsCount: 36, receiversCount: 0 })
+        expect(data6).toEqual({ propertiesCount: 2, unitsCount: 72, receiversCount: 1 })
     })
 
     test('anonymous can\'t execute', async () => {
