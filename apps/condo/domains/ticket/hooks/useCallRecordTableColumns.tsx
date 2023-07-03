@@ -121,14 +121,18 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
         return (
             <Space size={20}>
                 <Tooltip title={PlayMessage}>
-                    <Play
-                        onClick={handlePlay}
-                    />
+                    <div>
+                        <Play
+                            onClick={handlePlay}
+                        />
+                    </div>
                 </Tooltip>
                 <Tooltip title={DownloadMessage}>
-                    <Download
-                        onClick={handleDownloadFile}
-                    />
+                    <div>
+                        <Download
+                            onClick={handleDownloadFile}
+                        />
+                    </div>
                 </Tooltip>
             </Space>
         )
