@@ -34,6 +34,7 @@ interface ITicketUserInfoFieldProps {
 export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
     const id = useMemo(() => get(props, ['user', 'id']), [props])
     const name = useMemo(() => get(props, ['user', 'name']), [props])
+    const nameLink = useMemo(() => get(props, ['nameLink'], '#'), [props])
     const phone = useMemo(() => get(props, ['user', 'phone']), [props])
     const email = useMemo(() => get(props, ['user', 'email']), [props])
     const userInfo = useMemo(() => [], [])
@@ -42,7 +43,7 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
         userInfo.push(
             <UserNameField user={{ name, id }}>
                 {({ name: userName, postfix }) => (
-                    <Link href={props.nameLink}>
+                    <Link href={nameLink}>
                         <a>
                             {userName}
                             {postfix && (
