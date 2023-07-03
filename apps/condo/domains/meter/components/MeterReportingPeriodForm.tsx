@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { MeterReportingPeriod as MeterReportingPeriodType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
-import { Col, Form, Row } from 'antd'
+import { Col, Form, Row, Typography } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
@@ -17,6 +17,7 @@ import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/Butt
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { DAY_SELECT_OPTIONS } from '@condo/domains/meter/constants/constants'
@@ -30,7 +31,7 @@ const INPUT_LAYOUT_PROPS = {
         span: 8,
     },
     wrapperCol: {
-        span: 4,
+        span: 8,
     },
 }
 const ADDRESS_LAYOUT_PROPS = {
@@ -43,8 +44,9 @@ const ADDRESS_LAYOUT_PROPS = {
 }
 
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
-
+const SELECT_POSTFIX_STYLE: CSSProperties = { margin: '0 0 0 10px' }
 const ADDRESS_SEARCH_WRAPPER_COL = { span: 14 }
+const DESCRIPTION_TEXT_STYLE = { alignSelf: 'start' }
 
 interface IMeterReportingPeriodForm {
     mode: 'create' | 'update',
@@ -65,6 +67,9 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const FinishLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.finish' })
     const IncorrectPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.incorrectPeriod' })
     const OrganizationLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.organizationPeriod' })
+    const OrganizationTooltipMessage = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.organizationTooltip' })
+    const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.descriptionMessage' })
+    const InputPostfixMessage = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.inputPostfix' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.update.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.update.ConfirmDeleteMessage' })
 
@@ -203,6 +208,9 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                         <>
                             <Col span={24}>
                                 <Row gutter={[0, 40]}>
+                                    <Typography.Text style={DESCRIPTION_TEXT_STYLE} type='secondary' >
+                                        {DescriptionMessage}
+                                    </Typography.Text>
                                     <Col span={24}>
                                         <Form.Item
                                             name='property'
@@ -231,7 +239,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                             {...INPUT_LAYOUT_PROPS}
                                             labelAlign='left'
                                             name='isOrganizationPeriod'
-                                            label={OrganizationLabel}
+                                            label={<LabelWithInfo title={OrganizationTooltipMessage} message={OrganizationLabel}/>}
                                             valuePropName='checked'
                                         >
                                             <Checkbox
@@ -259,6 +267,9 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                 value={startNumberRef.current}
                                                 onChange={handleStartChange}
                                             />
+                                            <Typography.Text style={SELECT_POSTFIX_STYLE} type='secondary' >
+                                                {InputPostfixMessage}
+                                            </Typography.Text>
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>
@@ -278,6 +289,9 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                 value={finishNumberRef.current}
                                                 onChange={handleFinishChange}
                                             />
+                                            <Typography.Text style={SELECT_POSTFIX_STYLE} type='secondary' >
+                                                {InputPostfixMessage}
+                                            </Typography.Text>
                                         </Form.Item>
                                     </Col>
                                     <Col span={24}>

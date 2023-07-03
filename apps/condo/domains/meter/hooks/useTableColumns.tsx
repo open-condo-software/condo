@@ -34,7 +34,7 @@ const renderMeterRecord = (record) => {
     return renderMeterReading([value1, value2, value3, value4], resourceId, measure)
 }
 
-export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterType: MeterPageTypes = METER_PAGE_TYPES.meter) {
+export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterPageType: MeterPageTypes = METER_PAGE_TYPES.meter) {
     const intl = useIntl()
     const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
@@ -48,7 +48,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTy
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.Account' })
     const PeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.Period' })
-    const DefaultPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.Table.defaultPeriod' })
     const CustomPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.Table.customPeriod' })
 
     const router = useRouter()
@@ -57,10 +56,10 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTy
 
     const search = getFilteredValue(filters, 'search')
 
-    const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
+    const isPropertyMeter = meterPageType === METER_PAGE_TYPES.propertyMeter
 
     const renderAddress = useCallback((_, record) => {
-        const property = meterType === METER_PAGE_TYPES.reportingPeriod ? get(record, ['property']) : get(record, ['meter', 'property'])
+        const property = meterPageType === METER_PAGE_TYPES.reportingPeriod ? get(record, ['property']) : get(record, ['meter', 'property'])
         if (property) {
             return getAddressRender(
                 property,
@@ -69,17 +68,15 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTy
             )
         }
 
-        if (!record.organization) {
-            return DefaultPeriodMessage
-        } else {
+        if (record.organization) {
             return CustomPeriodMessage
         }
-    }, [DeletedMessage, search, meterType])
+    }, [DeletedMessage, search, meterPageType])
 
     const renderSource = useCallback((source) => getTableCellRenderer({ search })(source.name), [search])
 
     return useMemo(() => {
-        return meterType === METER_PAGE_TYPES.reportingPeriod ? [
+        return meterPageType === METER_PAGE_TYPES.reportingPeriod ? [
             {
                 title: AddressMessage,
                 filteredValue: getFilteredValue(filters, 'address'),
@@ -201,5 +198,5 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterTy
                 filterIcon: getFilterIcon,
             },
         ])
-    }, [meterType, MeterReadingDateMessage, sorterMap, filters, intl, search, filterMetas, AddressMessage, renderAddress, UnitMessage, ServiceMessage, AccountNumberMessage, MeterNumberMessage, PlaceMessage, MeterReadingMessage, ClientNameMessage, SourceMessage, renderSource])
+    }, [meterPageType, MeterReadingDateMessage, sorterMap, filters, intl, search, filterMetas, AddressMessage, renderAddress, UnitMessage, ServiceMessage, AccountNumberMessage, MeterNumberMessage, PlaceMessage, MeterReadingMessage, ClientNameMessage, SourceMessage, renderSource])
 }
