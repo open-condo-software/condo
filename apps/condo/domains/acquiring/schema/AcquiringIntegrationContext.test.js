@@ -310,7 +310,7 @@ describe('AcquiringIntegrationContext', () => {
                 })
             }, 'Field "integration" is not defined')
         })
-        test('Organization can have only 1 active context at the time', async () => {
+        test(`Organization can have only 1 active context (having "${CONTEXT_VERIFICATION_STATUS}" or "${CONTEXT_FINISHED_STATUS}" status) at the time`, async () => {
             [context] = await createTestAcquiringIntegrationContext(manager, organization, integration, {
                 status: CONTEXT_IN_PROGRESS_STATUS,
             })
@@ -320,27 +320,74 @@ describe('AcquiringIntegrationContext', () => {
             const [anotherContext] = await createTestAcquiringIntegrationContext(support, organization, anotherIntegration, {
                 status: CONTEXT_IN_PROGRESS_STATUS,
             })
+            // Multiple contexts in progress are allowed
             expect(anotherContext).toBeDefined()
-            const [connectedContext] = await updateTestAcquiringIntegrationContext(manager, context.id, {
-                status: CONTEXT_FINISHED_STATUS,
-            })
-            expect(connectedContext).toHaveProperty('status', CONTEXT_FINISHED_STATUS)
 
+            // One of contexts became connected (but not verified yet), so it becomes active
+            const [connectedContext] = await updateTestAcquiringIntegrationContext(manager, context.id, {
+                status: CONTEXT_VERIFICATION_STATUS,
+            })
+            expect(connectedContext).toHaveProperty('status', CONTEXT_VERIFICATION_STATUS)
+
+            // Cannot bypass verification by finishing another context
             await expectToThrowValidationFailureError(async () => {
                 await updateTestAcquiringIntegrationContext(manager, anotherContext.id, {
                     status: CONTEXT_FINISHED_STATUS,
                 })
             }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
 
+            // Cannot create new context if active exist (same integration)
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegrationContext(support, organization, integration, {
                     status: CONTEXT_FINISHED_STATUS,
                 })
             }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
 
+            // Cannot create new context if active exist (another integration)
             await expectToThrowValidationFailureError(async () => {
                 await createTestAcquiringIntegrationContext(support, organization, thirdIntegration, {
                     status: CONTEXT_FINISHED_STATUS,
+                })
+            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+
+            // Cannot start new verification while another one is active
+            await expectToThrowValidationFailureError(async () => {
+                await createTestAcquiringIntegrationContext(manager, organization, thirdIntegration, {
+                    status: CONTEXT_VERIFICATION_STATUS,
+                })
+            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+
+            // Verification approved by support team
+            const [finished] = await updateTestAcquiringIntegrationContext(support, context.id, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+            expect(finished).toHaveProperty('status', CONTEXT_FINISHED_STATUS)
+
+            // Cannot finish connecting another context
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestAcquiringIntegrationContext(manager, anotherContext.id, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+
+            // Cannot create new context if active exist (same integration)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestAcquiringIntegrationContext(support, organization, integration, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+
+            // Cannot create new context if active exist (another integration)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestAcquiringIntegrationContext(support, organization, thirdIntegration, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+
+            // Cannot start new verification while another one is active
+            await expectToThrowValidationFailureError(async () => {
+                await createTestAcquiringIntegrationContext(manager, organization, thirdIntegration, {
+                    status: CONTEXT_VERIFICATION_STATUS,
                 })
             }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
         })
