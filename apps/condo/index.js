@@ -11,10 +11,9 @@ const utc = require('dayjs/plugin/utc')
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
 const { AdapterCache } = require('@open-condo/keystone/adapterCache')
-const { HealthCheck } = require('@open-condo/keystone/healthCheck')
+const { HealthCheck, getRedisHealthCheck, getPostgresHealthCheck } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const metrics = require('@open-condo/keystone/metrics')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 
@@ -120,40 +119,15 @@ const tasks = () => [
     require('@open-condo/webhooks/tasks'),
 ]
 
+const checks = [
+    getRedisHealthCheck(),
+    getPostgresHealthCheck(),
+]
+
 const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })
 const apps = () => {
     return [
-        new HealthCheck({
-            checks: [
-                { name: 'test', run: () => true },
-                {
-                    name: 'redis', run: async () => {
-                        try {
-                            const client = getRedisClient('health')
-                            const res = await client.ping()
-                            if (res === 'PONG') { return true }
-                        } catch (e) {
-                            return false
-                        }
-                    },
-                },
-                {
-                    name: 'postgres', run: async (keystone) => {
-                        try {
-                            console.log(keystone)
-                            console.log(keystone.adapter)
-                            const res = await keystone.adapter.knex.raw('SELECT 1')
-                            if (res) {
-                                return true
-                            }
-                        } catch (e) {
-                            console.log(e)
-                            return false
-                        }
-                    },
-                },
-            ],
-        }),
+        new HealthCheck({ checks }),
         new RequestCache(conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : {}),
         new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : {}),
         new VersioningMiddleware(),
