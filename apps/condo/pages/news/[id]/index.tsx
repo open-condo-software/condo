@@ -168,6 +168,16 @@ const NewsItemCard: React.FC = () => {
         isOwner: createdBy === user.id,
     })
 
+    const sendDateStr = useMemo(() => {
+        let date = get(newsItem, 'sentAt')
+
+        if (!date) {
+            date = get(newsItem, 'sendAt')
+        }
+
+        return date ? dayjs(date).format('YYYY.MM.DD HH:mm') : null
+    }, [newsItem])
+
     const isLoading = employeeLoading || newsItemLoading || isAccessLoading
     const hasError = employeeError || newsItemError
     const isNotFound = !isLoading && (!employee || !newsItem)
@@ -191,10 +201,12 @@ const NewsItemCard: React.FC = () => {
                     <Col span={16}>
                         <FrontLayerContainer>
                             <Row gutter={HORIZONTAL_ROW_GUTTER}>
-                                <FieldPairRow
-                                    fieldTitle={SentAtLabel}
-                                    fieldValue={newsItem.sentAt ? dayjs(newsItem.sentAt).format('YYYY.MM.DD HH:mm') : '-'}
-                                />
+                                {sendDateStr && (
+                                    <FieldPairRow
+                                        fieldTitle={SentAtLabel}
+                                        fieldValue={sendDateStr}
+                                    />
+                                )}
                                 <FieldPairRow
                                     fieldTitle={TypeLabel}
                                     fieldValue={newsItemType}
