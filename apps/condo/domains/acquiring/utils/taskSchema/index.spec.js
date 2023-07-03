@@ -81,6 +81,7 @@ const {
     getNotificationMetaByErrorCode,
     isLimitExceedForBillingReceipts,
 } = require('./index')
+const { RECURRENT_PAYMENT_PROCESS_ERROR_NO_RECEIPTS_TO_PROCEED_CODE } = require("../../constants/recurrentPayment");
 
 const offset = 0
 const pageSize = 10
@@ -1630,6 +1631,9 @@ describe('task schema queries', () => {
             [RECURRENT_PAYMENT_PROCESS_ERROR_UNKNOWN_CODE],
             [RECURRENT_PAYMENT_PROCESS_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE],
             [RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE],
+            [RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE],
+            [RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE],
+            [RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE],
         ]
         test.each(retryCases)('should set retry status and increase try count for %s errorCode', async (errorCode) => {
             const notificationMeta = getNotificationMetaByErrorCode(errorCode, recurrentPaymentContext.id)
@@ -1688,10 +1692,8 @@ describe('task schema queries', () => {
         })
 
         const noRetryCases = [
-            [RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE],
-            [RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE],
             [RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE],
-            [RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE],
+            [RECURRENT_PAYMENT_PROCESS_ERROR_NO_RECEIPTS_TO_PROCEED_CODE],
         ]
         test.each(noRetryCases)('should set error status and increase try count for %s errorCode', async (errorCode) => {
             const notificationMeta = getNotificationMetaByErrorCode(errorCode, recurrentPaymentContext.id)
@@ -1749,7 +1751,7 @@ describe('task schema queries', () => {
             })
         })
 
-        it('should set error status and increase try count for CONTEXT_NOT_FOUND errorCode', async () => {
+        it('should set error need retry status and increase try count for CONTEXT_NOT_FOUND errorCode', async () => {
             const errorCode = RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE
             const notificationMeta = getNotificationMetaByErrorCode(errorCode, recurrentPaymentContext.id)
             const errorMessage = 'An error message'
@@ -1771,7 +1773,7 @@ describe('task schema queries', () => {
             expect(result).toHaveProperty('tryCount')
             expect(result).toHaveProperty('state')
 
-            expect(result.status).toEqual(RECURRENT_PAYMENT_ERROR_STATUS)
+            expect(result.status).toEqual(RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS)
             expect(result.tryCount).toEqual(recurrentPayment.tryCount + 1)
             expect(result.state).toMatchObject({
                 errorCode,

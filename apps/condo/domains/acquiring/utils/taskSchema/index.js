@@ -639,11 +639,7 @@ async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMess
 
     // cases when we have to deny retry
     if (nextTryCount >= 5
-        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE
-        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE
-        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE
         || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE
-        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE
         || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_NO_RECEIPTS_TO_PROCEED_CODE) {
         nextStatus = RECURRENT_PAYMENT_ERROR_STATUS
     }
