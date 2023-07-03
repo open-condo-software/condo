@@ -5,10 +5,12 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { NewsForm } from '@condo/domains/news/components/NewsForm'
+import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-
 
 export interface IUpdateNewsPage extends React.FC {
     headerAction?: JSX.Element
@@ -31,7 +33,7 @@ const UpdateNewsPageContent: React.FC = () => {
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
                 <PageContent>
-                    <NewsForm 
+                    <NewsForm
                         id={id}
                         actionName='update'
                     />
@@ -42,6 +44,16 @@ const UpdateNewsPageContent: React.FC = () => {
 }
 
 const UpdateNewsPage: IUpdateNewsPage = () => {
+    const { canManage, isLoading: isAccessLoading } = useNewsItemsAccess()
+
+    if (isAccessLoading) {
+        return <LoadingOrErrorPage error='' loading={true}/>
+    }
+
+    if (!canManage) {
+        return <AccessDeniedPage/>
+    }
+
     return <UpdateNewsPageContent />
 }
 

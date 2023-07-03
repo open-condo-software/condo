@@ -16,6 +16,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar } from '@open-condo/ui'
 import { Typography, Button } from '@open-condo/ui'
 
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import {
     PageContent,
     PageHeader,
@@ -27,6 +28,7 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
+import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -83,6 +85,8 @@ const NewsItemCard: React.FC = () => {
     const { user } = useAuth()
     const { query, push } = useRouter()
     const { organization } = useOrganization()
+
+    const { canManage, isLoading: isAccessLoading } = useNewsItemsAccess()
 
     const newsItemId = String(get(query, 'id'))
 
@@ -164,7 +168,7 @@ const NewsItemCard: React.FC = () => {
         isOwner: createdBy === user.id,
     })
 
-    const isLoading = employeeLoading || newsItemLoading
+    const isLoading = employeeLoading || newsItemLoading || isAccessLoading
     const hasError = employeeError || newsItemError
     const isNotFound = !isLoading && (!employee || !newsItem)
     if (hasError || isLoading || isNotFound) {
@@ -214,40 +218,44 @@ const NewsItemCard: React.FC = () => {
                             </Row>
                         </FrontLayerContainer>
                     </Col>
-                    <Col span={8}>
-                        <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
-                    </Col>
-                    <Row>
-                        {get(newsItem, 'sentAt') ? (
-                            <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>
-                                <Button
-                                    type='primary'
-                                >
-                                    {ResendTitle}
-                                </Button>
-                            </Link>
-                        ) : ( <ActionBar actions={[
-                            <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
-                                <Button
-                                    type='primary'
-                                >
-                                    {EditTitle}
-                                </Button>
-                            </Link>,
-                            <DeleteButtonWithConfirmModal
-                                key='delete'
-                                title={ConfirmDeleteTitle}
-                                message={ConfirmDeleteMessage}
-                                okButtonLabel={DeleteTitle}
-                                action={handleDeleteButtonClick}
-                                buttonContent={DeleteTitle}
-                                showCancelButton={true}
-                                cancelMessage={CancelMessage}
-                                messageType='secondary'
-                            />,
-                        ]}/>)
-                        }
-                    </Row>
+                    {canManage && (
+                        <>
+                            <Col span={8}>
+                                <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
+                            </Col>
+                            <Row>
+                                {get(newsItem, 'sentAt') ? (
+                                    <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>
+                                        <Button
+                                            type='primary'
+                                        >
+                                            {ResendTitle}
+                                        </Button>
+                                    </Link>
+                                ) : ( <ActionBar actions={[
+                                    <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
+                                        <Button
+                                            type='primary'
+                                        >
+                                            {EditTitle}
+                                        </Button>
+                                    </Link>,
+                                    <DeleteButtonWithConfirmModal
+                                        key='delete'
+                                        title={ConfirmDeleteTitle}
+                                        message={ConfirmDeleteMessage}
+                                        okButtonLabel={DeleteTitle}
+                                        action={handleDeleteButtonClick}
+                                        buttonContent={DeleteTitle}
+                                        showCancelButton={true}
+                                        cancelMessage={CancelMessage}
+                                        messageType='secondary'
+                                    />,
+                                ]}/>)
+                                }
+                            </Row>
+                        </>
+                    )}
                 </Row>
             </PageContent>
         </PageWrapper>
@@ -255,6 +263,16 @@ const NewsItemCard: React.FC = () => {
 }
 
 const NewsItemCardPage = () => {
+    const { canRead, isLoading: isAccessLoading } = useNewsItemsAccess()
+
+    if (isAccessLoading) {
+        return <LoadingOrErrorPage error='' loading={true}/>
+    }
+
+    if (!canRead) {
+        return <AccessDeniedPage/>
+    }
+
     return <NewsItemCard/>
 }
 NewsItemCardPage.requiredAccess = OrganizationRequired

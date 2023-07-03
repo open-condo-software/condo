@@ -4,7 +4,6 @@ import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import has from 'lodash/has'
 import isArray from 'lodash/isArray'
-import isUndefined from 'lodash/isUndefined'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
@@ -16,6 +15,7 @@ import { ActionBar, Button, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -25,13 +25,12 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { useTableColumns } from '@condo/domains/news/hooks/useTableColumns'
 import { useTableFilters } from '@condo/domains/news/hooks/useTableFilters'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
-
-
 
 interface INewsIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -243,12 +242,21 @@ const NewsPage: INewsIndexPage = () => {
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.news.index.pageTitle' })
 
     const { organization } = useOrganization()
+    const { canRead, isLoading: isAccessLoading } = useNewsItemsAccess()
 
     const baseNewsQuery = {
         organization: { id: organization.id },
     }
 
     const filterMetas = useTableFilters()
+
+    if (isAccessLoading) {
+        return <LoadingOrErrorPage error='' loading={true}/>
+    }
+
+    if (!canRead) {
+        return <AccessDeniedPage/>
+    }
 
     return (
         <>
