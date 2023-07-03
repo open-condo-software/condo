@@ -34401,6 +34401,7 @@ export type Mutation = {
    * }`
    */
   sendNewReceiptMessagesToResidentScopes?: Maybe<SendNewReceiptMessagesToResidentScopesOutput>;
+  validateQRCode?: Maybe<ValidateQrCodeOutput>;
   createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
   ticketMultipleUpdate: Ticket;
@@ -43120,6 +43121,11 @@ export type MutationRegisterBillingReceiptsArgs = {
 
 export type MutationSendNewReceiptMessagesToResidentScopesArgs = {
   data: SendNewReceiptMessagesToResidentScopesInput;
+};
+
+
+export type MutationValidateQrCodeArgs = {
+  data: ValidateQrCodeInput;
 };
 
 
@@ -82677,6 +82683,17 @@ export type UsersCreateInput = {
 export type UsersUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<UserUpdateInput>;
+};
+
+export type ValidateQrCodeInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  qrCode: Scalars['String'];
+};
+
+export type ValidateQrCodeOutput = {
+  __typename?: 'ValidateQRCodeOutput';
+  qrCodeFields: Scalars['JSON'];
 };
 
 /** Technical map of the 'village' type Property object. We assume that there will be different maps for different property types.  */

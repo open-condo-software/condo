@@ -64731,6 +64731,16 @@ type SendNewReceiptMessagesToResidentScopesOutput {
   status: String!
 }
 
+input ValidateQRCodeInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  qrCode: String!
+}
+
+type ValidateQRCodeOutput {
+  qrCodeFields: JSON!
+}
+
 input CreateBankAccountRequestInput {
   dv: Int!
   sender: JSON!
@@ -73799,6 +73809,7 @@ type Mutation {
   }`
   """
   sendNewReceiptMessagesToResidentScopes(data: SendNewReceiptMessagesToResidentScopesInput!): SendNewReceiptMessagesToResidentScopesOutput
+  validateQRCode(data: ValidateQRCodeInput!): ValidateQRCodeOutput
   createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
   ticketMultipleUpdate(data: TicketMultipleUpdateInput!): Ticket!

@@ -32,6 +32,7 @@ const { registerServiceConsumerByTestClient } = require('@condo/domains/resident
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { REGISTER_BILLING_RECEIPTS_MUTATION, SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/billing/gql')
+const { VALIDATE_QRCODE_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -807,6 +808,20 @@ async function sendNewReceiptMessagesToResidentScopesByTestClient(client, extraA
     return [data.result, attrs]
 }
 
+async function validateQRCodeByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(VALIDATE_QRCODE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 
 /** used to generate random services
  * @param {number} count the number of services to create
@@ -856,6 +871,7 @@ module.exports = {
     sendNewReceiptMessagesToResidentScopesByTestClient,
     BillingReceiptFile, createTestBillingReceiptFile, updateTestBillingReceiptFile,
     PUBLIC_FILE, PRIVATE_FILE,
+    validateQRCodeByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
