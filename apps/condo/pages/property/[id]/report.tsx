@@ -466,7 +466,7 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
     })
     const { loading: loadingIntegrationContext, obj: bankIntegrationAccountContext } = BankAccount.useObject({
         where: {
-            id: bankAccount.integrationContext.id,
+            id: get(bankAccount, 'integrationContext.id'),
         },
     })
     const { count, loading: isCountLoading } = BankTransaction.useCount({
