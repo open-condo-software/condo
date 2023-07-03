@@ -82,6 +82,7 @@ const {
     getNotificationMetaByErrorCode,
     isLimitExceedForBillingReceipts,
 } = require('./index')
+const { RECURRENT_PAYMENT_PROCESS_ERROR_NO_RECEIPTS_TO_PROCEED_CODE } = require("../../constants/recurrentPayment");
 
 const offset = 0
 const pageSize = 10
