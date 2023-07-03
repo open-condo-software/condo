@@ -11,6 +11,7 @@ const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/ne
 const {
     countUniqueUnitsFromResidents,
     getUnitsFromProperty,
+    queryConditionsByUnits,
 } = require('@condo/domains/news/utils/serverSchema/recipientsCounterUtils')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
@@ -41,6 +42,7 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                 }).length > 0
 
                 let propertiesCount = 0, unitsCount = 0, receiversCount = 0
+                const orConditions = []
 
                 if (isAllOrganization) {
                     await loadListByChunks({
@@ -56,18 +58,22 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                             propertiesCount += chunk.length
                             for (const property of chunk) {
                                 unitsCount += property.unitsCount
+                                orConditions.push(...queryConditionsByUnits(property))
                             }
 
                             return []
                         },
                     })
-                    receiversCount = await countUniqueUnitsFromResidents(context, { organization: { id: organizationId } })
+                    receiversCount = await countUniqueUnitsFromResidents(context, {
+                        organization: { id: organizationId },
+                        OR: orConditions,
+                    })
                 } else {
                     const propertiesIds = uniq(newsItemScopes.map(({ property: { id } }) => id))
                     propertiesCount = propertiesIds.length
 
                     /**
-                     * @type {Object<string,{unitType: string?, unitName: string?}[]>}
+                     * @type {Object<string, {unitType: string?, unitName: string?}[]>}
                      */
                     const unitsByProperties = newsItemScopes.reduce((acc, scope) => {
                         return {
@@ -78,6 +84,8 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                             ]),
                         }
                     }, {})
+
+                    const orConditions = []
 
                     await loadListByChunks({
                         context,
@@ -108,13 +116,18 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                                         }
                                     }
                                 }
+
+                                orConditions.push(...queryConditionsByUnits(property))
                             }
 
                             return []
                         },
                     })
 
-                    receiversCount = await countUniqueUnitsFromResidents(context, queryFindResidentsByOrganizationAndScopes(organizationId, newsItemScopes))
+                    receiversCount = await countUniqueUnitsFromResidents(context, {
+                        ...queryFindResidentsByOrganizationAndScopes(organizationId, newsItemScopes),
+                        OR: orConditions,
+                    })
                 }
 
                 return { propertiesCount, unitsCount, receiversCount }

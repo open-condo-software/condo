@@ -13,6 +13,25 @@ const getUnitsFromSection = (section) => section.floors.flatMap(floor => floor.u
     unitType: unit.unitType,
 })))
 
+/**
+ * @param {Property} property
+ * @returns {{property: PropertyWhereUniqueInput, unitType: string, unitName: string}[]}
+ */
+const queryConditionsByUnits = (property) => {
+    const conditions = []
+    const unitsFromProperty = getUnitsFromProperty(property)
+    for (const unitFromProperty of unitsFromProperty) {
+        conditions.push({
+            AND: {
+                property: { id: property.id },
+                unitType: unitFromProperty.unitType,
+                unitName: unitFromProperty.unitName,
+            },
+        })
+    }
+    return conditions
+}
+
 async function countUniqueUnitsFromResidents (context, where) {
     const units = new Set()
 
@@ -35,4 +54,4 @@ async function countUniqueUnitsFromResidents (context, where) {
     return units.size
 }
 
-module.exports = { getUnitsFromProperty, getUnitsFromSection, countUniqueUnitsFromResidents }
+module.exports = { getUnitsFromProperty, getUnitsFromSection, countUniqueUnitsFromResidents, queryConditionsByUnits }

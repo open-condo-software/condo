@@ -956,7 +956,7 @@ describe('NewsItems', () => {
             })
 
             // News item for particular unit
-            const [newsItem1, newsItem1Attrs] = await createTestNewsItem(
+            const [newsItem1] = await createTestNewsItem(
                 adminClient,
                 o10n,
                 {
@@ -1014,7 +1014,7 @@ describe('NewsItems', () => {
                             userRelatedResidentsIds: resident.id,
                             organizationId: o10n.id,
                             validBefore: null,
-                            dateCreated: updatedItem1.updatedAt,
+                            dateCreated: updatedItem1.publishedAt,
                         }),
                     }),
                 }))
