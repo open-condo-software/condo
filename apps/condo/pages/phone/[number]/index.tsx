@@ -343,6 +343,7 @@ const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, sho
                                     <Typography.Link
                                         size='large'
                                         onClick={handleCallRecordLinkClick}
+                                        target='_blank'
                                     >
                                         <Space size={8} align='center'>
                                             <History size='medium'/>

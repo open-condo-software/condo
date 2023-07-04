@@ -80,7 +80,7 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
             return '—'
         }
 
-        return getTableCellRenderer({ search, href: `/ticket/${ticketId}` })(ticketNumber)
+        return getTableCellRenderer({ search, href: `/ticket/${ticketId}`, target: '_blank' })(ticketNumber)
     }
     , [search])
 

@@ -11,6 +11,7 @@ import isString from 'lodash/isString'
 import React from 'react'
 
 import { IconProps } from '@open-condo/icons'
+import { TypographyLinkProps } from '@open-condo/ui'
 
 import { TTextHighlighterRenderPartFN } from '@condo/domains/common/components/TextHighlighter'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
@@ -146,6 +147,7 @@ type GetTableCellRendererType = (props?: {
     extraPostfixProps?: TextProps,
     extraTitle?: string,
     href?: string,
+    target?: TypographyLinkProps['target'],
     underline?: boolean,
     Icon?: React.FC<IconProps>
 }) => (text?: string) => React.ReactElement
@@ -160,6 +162,7 @@ type GetTableCellRendererType = (props?: {
  * @param extraPostfixProps
  * @param extraTitle
  * @param href
+ * @param target
  * @param underline
  * @param Icon
  * @return cell contents renderer fn
@@ -173,6 +176,7 @@ export const getTableCellRenderer: GetTableCellRendererType = ({
     extraTitle,
     href,
     underline,
+    target,
     Icon,
 } = {}) =>
     (text) => {
@@ -205,7 +209,7 @@ export const getTableCellRenderer: GetTableCellRendererType = ({
                 <span>
                     {
                         href
-                            ? renderLink(cellContent, href, underline)
+                            ? renderLink(cellContent, href, underline, target)
                             : cellContent
                     }
                 </span>
