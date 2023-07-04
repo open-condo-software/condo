@@ -22,6 +22,7 @@ const PLAYER_ROW_STYLE: CSSProperties = {
     whiteSpace: 'nowrap',
 }
 const WAVEFORM_CONTAINER_STYLE: CSSProperties = { flex: 'auto' }
+const SELECT_STYLE: CSSProperties = { width: '75px' }
 
 interface IAudioPlayerProps {
     src: string
@@ -72,7 +73,7 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
         setSpeed(value)
 
         if (waveform.current) {
-            waveform.current.setPlaybackRate(value)
+            waveform.current.setPlaybackRate(value, false)
         }
     }, [])
 
@@ -160,7 +161,7 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
             </div>
             <Space size={8}>
                 <Typography.Text size='medium' type='secondary'>{SpeedMessage}</Typography.Text>
-                <Select value={speed} onChange={handleSpeedChange}>
+                <Select value={speed} onChange={handleSpeedChange} style={SELECT_STYLE}>
                     {
                         SPEED_OPTIONS.map((value) => (
                             <Option key={value} value={value}>{value}x</Option>
