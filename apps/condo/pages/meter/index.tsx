@@ -384,7 +384,6 @@ export const MeterReportingPeriodPageContent = ({
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-
     const {
         loading: periodLoading,
         count: total,
@@ -596,8 +595,10 @@ const MetersPage: IMeterIndexPage = () => {
             OR: [
                 { organization_is_null: true },
                 {
-                    ...filtersToWhere(filters),
-                    organization: { id: userOrganizationId },
+                    AND: [{
+                        ...filtersToWhere(filters),
+                        organization: { id: userOrganizationId },
+                    }],
                 },
             ],
         }},

@@ -21,6 +21,8 @@ import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSc
 
 
 const addressFilter = getFilter(['meter', 'property', 'id'], 'array', 'string', 'in')
+const reportAddressFilter = getFilter(['property', 'id'], 'array', 'string', 'in')
+const reportAddressStringContainsFilter = getStringContainsFilter(['property', 'address'])
 const addressStringContainsFilter = getStringContainsFilter(['meter', 'property', 'address'])
 const accountNumberFilter = getStringContainsFilter(['meter', 'accountNumber'])
 const placeFilter = getStringContainsFilter(['meter', 'place'])
@@ -29,7 +31,6 @@ const unitNameFilter = getFilter(['meter', 'unitName'], 'array', 'string', 'in')
 const unitNameStringContainsFilter = getStringContainsFilter(['meter', 'unitName'])
 const resourceStringContainsFilter = getStringContainsFilter(['meter', 'resource', 'name'])
 const clientNameFilter = getStringContainsFilter('clientName')
-const reportingPeriodFilter = getStringContainsFilter('reportingPeriod')
 const readingDateRangeFilter = getDayRangeFilter('date')
 const verificationDateRangeFilter = getDayRangeFilter(['meter', 'verificationDate'])
 const installationDateRangeFilter = getDayRangeFilter(['meter', 'installationDate'])
@@ -84,7 +85,7 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
                 return [
                     {
                         keyword: 'address',
-                        filters: [addressFilter],
+                        filters: [reportAddressFilter],
                         component: {
                             type: ComponentType.GQLSelect,
                             props: {
@@ -104,18 +105,9 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
                         },
                     },
                     {
-                        keyword: 'reportingPeriod',
-                        filters: [reportingPeriodFilter],
-                        component: {
-                            type: ComponentType.Input,
-                            props: {
-                                placeholder: FullNameMessage,
-                            },
-                            modalFilterComponentWrapper: {
-                                label: PeriodMessage,
-                                size: FilterComponentSize.Medium,
-                            },
-                        },
+                        keyword: 'search',
+                        filters: [reportAddressStringContainsFilter],
+                        combineType: 'OR',
                     },
                 ]
             }
