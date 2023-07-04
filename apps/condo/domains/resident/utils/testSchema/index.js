@@ -33,7 +33,8 @@ async function createTestResident (client, user, property, extraAttrs = {}) {
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const { address, addressMeta } = property
+    const address = extraAttrs.address || get(property, 'address')
+    const addressMeta = extraAttrs.addressMeta || get(property, 'addressMeta')
 
     const attrs = {
         dv: 1,
