@@ -3,6 +3,8 @@
  */
 
 const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const omit = require('lodash/omit')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
@@ -41,11 +43,21 @@ async function canManageNewsItemScopes ({ authentication: { item: user }, origin
     if (user.isAdmin) return true
 
     if (user.type === STAFF) {
-        if (operation === 'update') {
-            return false
+        let newsItemId
+
+        if (operation === 'create') {
+            newsItemId = get(originalInput, ['newsItem', 'connect', 'id'])
         }
 
-        let newsItemId = get(originalInput, ['newsItem', 'connect', 'id'])
+        if (operation === 'update') {
+            // allow soft-deleting only
+            if (!isEmpty(omit(originalInput, ['deletedAt', 'dv', 'sender']))) {
+                return false
+            }
+            const newsItemScope = await getById('NewsItemScope', itemId)
+            newsItemId = newsItemScope.newsItem
+        }
+
         if (!newsItemId) {
             return false
         }
