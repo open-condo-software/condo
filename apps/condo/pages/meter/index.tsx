@@ -11,6 +11,7 @@ import { TableRowSelection } from 'antd/lib/table/interface'
 import compact from 'lodash/compact'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
@@ -23,6 +24,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Space } from '@open-condo/ui'
 
 import { BaseMutationArgs } from '@condo/domains/banking/hooks/useBankTransactionsTable'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import {
     PageHeader,
@@ -66,9 +68,11 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
-const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [0, 20]
+const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [20, 20]
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 const DEFAULT_PERIOD_TEXT_STYLE = { alignSelf: 'start' }
+const CHECKBOX_WRAPPER_STYLES: CSSProperties = { flexWrap: 'nowrap', overflowX: 'auto', overflowY: 'hidden' }
+const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [8, 16]
 
 export type UpdateSelectedMeterReportingPeriods = (args: BaseMutationArgs<MutationUpdateMeterReportingPeriodsArgs>) => Promise<unknown>
 
@@ -83,6 +87,7 @@ export const MetersPageContent = ({
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
     const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
+    const OnlyLatestMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatest' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const MeterReadingImportObjectsName = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many' })
@@ -120,6 +125,18 @@ export const MetersPageContent = ({
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible, ResetFiltersModalButton } = useMultipleFiltersModal(filterMetas, MeterReadingFilterTemplate, handleSearchReset)
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
     const isNoMeterData = isEmpty(meterReadings) && isEmpty(filters) && !metersLoading && !loading
+
+    const [showOnlyLatestReadings, setShowOnlyLatestReadings] = useState(false)
+    const switchShowOnlyLatestReadings = useCallback(
+        () => setShowOnlyLatestReadings(!showOnlyLatestReadings),
+        [showOnlyLatestReadings]
+    )
+    const processedMeterReadings = useMemo(() => {
+        if (showOnlyLatestReadings) {
+            const filteredMeterReading = meterReadings.map(a => a).sort((a, b) => (a.date < b.date ? 1 : -1))
+            return uniqBy(filteredMeterReading, (reading => get(reading, 'meter.id')))
+        }
+    }, [showOnlyLatestReadings, meterReadings])
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -177,20 +194,35 @@ export const MetersPageContent = ({
                 <Row
                     gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
                     align='middle'
-                    justify='center'
                     hidden={isNoMeterData}
                 >
                     <Col span={24}>
                         <TableFiltersContainer>
-                            <Row justify='space-between' gutter={FILTERS_CONTAINER_GUTTER}>
-                                <Col xs={24} lg={7}>
-                                    <Input
-                                        placeholder={SearchPlaceholder}
-                                        onChange={handleSearch}
-                                        value={search}
-                                        allowClear
-                                    />
+                            <Row gutter={FILTERS_CONTAINER_GUTTER} align='middle' justify='space-between'>
+                                <Col xs={24} lg={12}>
+                                    <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER}>
+                                        <Col>
+                                            <Input
+                                                placeholder={SearchPlaceholder}
+                                                onChange={handleSearch}
+                                                value={search}
+                                                allowClear
+                                            />
+                                        </Col>
+                                        <Col>
+                                            <Checkbox
+                                                checked={showOnlyLatestReadings}
+                                                onClick={switchShowOnlyLatestReadings}
+                                            >
+                                                {OnlyLatestMessage}
+                                            </Checkbox>
+
+                                        </Col>
+                                    </Row>
                                 </Col>
+                                <Row gutter={CHECKBOX_WRAPPER_GUTTERS} style={CHECKBOX_WRAPPER_STYLES}>
+
+                                </Row>
                                 <Col>
                                     <Space size={12} direction={breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical'}>
                                         {
@@ -223,7 +255,7 @@ export const MetersPageContent = ({
                         <Table
                             totalRows={total}
                             loading={metersLoading || loading}
-                            dataSource={meterReadings}
+                            dataSource={showOnlyLatestReadings ? processedMeterReadings : meterReadings}
                             columns={tableColumns}
                             onRow={handleRowAction}
                         />
