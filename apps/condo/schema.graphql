@@ -13049,6 +13049,8 @@ type BillingReceiptFileHistoryRecord {
   """
   _label_: String
   file: JSON
+  sensitiveDataFile: JSON
+  publicDataFile: JSON
   context: String
   receipt: String
   controlSum: String
@@ -13075,6 +13077,14 @@ input BillingReceiptFileHistoryRecordWhereInput {
   file_not: JSON
   file_in: [JSON]
   file_not_in: [JSON]
+  sensitiveDataFile: JSON
+  sensitiveDataFile_not: JSON
+  sensitiveDataFile_in: [JSON]
+  sensitiveDataFile_not_in: [JSON]
+  publicDataFile: JSON
+  publicDataFile_not: JSON
+  publicDataFile_in: [JSON]
+  publicDataFile_not_in: [JSON]
   context: String
   context_not: String
   context_in: [String]
@@ -13226,6 +13236,8 @@ enum SortBillingReceiptFileHistoryRecordsBy {
 
 input BillingReceiptFileHistoryRecordUpdateInput {
   file: JSON
+  sensitiveDataFile: JSON
+  publicDataFile: JSON
   context: String
   receipt: String
   controlSum: String
@@ -13251,6 +13263,8 @@ input BillingReceiptFileHistoryRecordsUpdateInput {
 
 input BillingReceiptFileHistoryRecordCreateInput {
   file: JSON
+  sensitiveDataFile: JSON
+  publicDataFile: JSON
   context: String
   receipt: String
   controlSum: String
@@ -13291,8 +13305,15 @@ type BillingReceiptFile {
   """
   _label_: String
 
-  """ File object with meta information about the receipt """
+  """ Wrapper to return file version of the receipt (usually PDF) with personal information or without 
+  """
   file: File
+
+  """ File version of the receipt with personal information """
+  sensitiveDataFile: File
+
+  """ File version of the receipt without personal information """
+  publicDataFile: File
 
   """ Link to Context """
   context: BillingIntegrationOrganizationContext
@@ -13331,10 +13352,14 @@ type BillingReceiptFile {
 input BillingReceiptFileWhereInput {
   AND: [BillingReceiptFileWhereInput]
   OR: [BillingReceiptFileWhereInput]
-  file: String
-  file_not: String
-  file_in: [String]
-  file_not_in: [String]
+  sensitiveDataFile: String
+  sensitiveDataFile_not: String
+  sensitiveDataFile_in: [String]
+  sensitiveDataFile_not_in: [String]
+  publicDataFile: String
+  publicDataFile_not: String
+  publicDataFile_in: [String]
+  publicDataFile_not_in: [String]
   context: BillingIntegrationOrganizationContextWhereInput
   context_is_null: Boolean
   receipt: BillingReceiptWhereInput
@@ -13465,7 +13490,8 @@ enum SortBillingReceiptFilesBy {
 }
 
 input BillingReceiptFileUpdateInput {
-  file: Upload
+  sensitiveDataFile: Upload
+  publicDataFile: Upload
   context: BillingIntegrationOrganizationContextRelateToOneInput
   receipt: BillingReceiptRelateToOneInput
   controlSum: String
@@ -13487,7 +13513,8 @@ input BillingReceiptFilesUpdateInput {
 }
 
 input BillingReceiptFileCreateInput {
-  file: Upload
+  sensitiveDataFile: Upload
+  publicDataFile: Upload
   context: BillingIntegrationOrganizationContextRelateToOneInput
   receipt: BillingReceiptRelateToOneInput
   controlSum: String

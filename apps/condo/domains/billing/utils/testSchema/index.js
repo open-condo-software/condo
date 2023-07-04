@@ -50,6 +50,7 @@ const BillingReceiptFile = generateGQLTestUtils(BillingReceiptFileGQL)
 
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
 const bannerVariants = [
     { bannerColor: "#9b9dfa", bannerTextColor: "WHITE" },
@@ -202,6 +203,7 @@ async function updateTestBillingIntegrationProblem (client, id, extraAttrs = {})
 async function createTestBillingProperty (client, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const { address, addressMeta } = buildFakeAddressAndMeta()
 
     const attrs = {
         dv: 1,
@@ -209,7 +211,7 @@ async function createTestBillingProperty (client, context, extraAttrs = {}) {
         context: { connect: { id: context.id } },
         raw: { foo: faker.lorem.words() },
         globalId: faker.random.alphaNumeric(10),
-        address: faker.address.streetAddress(true),
+        address, addressMeta,
         meta: {
             test: 123,
         },
@@ -494,6 +496,9 @@ async function updateTestBillingCategory (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+const PUBLIC_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
+const PRIVATE_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')
+
 async function createTestBillingReceiptFile (client, receipt, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!receipt) throw new Error('no receipt')
@@ -504,7 +509,8 @@ async function createTestBillingReceiptFile (client, receipt, context, extraAttr
     const attrs = {
         dv: 1,
         sender,
-        file:  new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')),
+        sensitiveDataFile:  new UploadingFile(PRIVATE_FILE),
+        publicDataFile:  new UploadingFile(PUBLIC_FILE),
         controlSum: faker.random.alphaNumeric(20),
         ...receiptConnection,
         ...contextConnection,
@@ -849,6 +855,7 @@ module.exports = {
     generateServicesData,
     sendNewReceiptMessagesToResidentScopesByTestClient,
     BillingReceiptFile, createTestBillingReceiptFile, updateTestBillingReceiptFile,
+    PUBLIC_FILE, PRIVATE_FILE,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

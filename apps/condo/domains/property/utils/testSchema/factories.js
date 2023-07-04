@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker')
 const { sample } = require('lodash')
+
 const { AddressMetaDataFields } = require('../../schema/fields/AddressMetaField')
 
 const FIAS_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 35, 65, 75, 90, 91]

@@ -14645,8 +14645,12 @@ export type BillingReceiptFile = {
    *  4. As an alias to the 'id' field on the BillingReceiptFile List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  File object with meta information about the receipt  */
+  /**  Wrapper to return file version of the receipt (usually PDF) with personal information or without  */
   file?: Maybe<File>;
+  /**  File version of the receipt with personal information  */
+  sensitiveDataFile?: Maybe<File>;
+  /**  File version of the receipt without personal information  */
+  publicDataFile?: Maybe<File>;
   /**  Link to Context  */
   context?: Maybe<BillingIntegrationOrganizationContext>;
   /**  Link to Billing Receipt  */
@@ -14672,7 +14676,8 @@ export type BillingReceiptFile = {
 };
 
 export type BillingReceiptFileCreateInput = {
-  file?: Maybe<Scalars['Upload']>;
+  sensitiveDataFile?: Maybe<Scalars['Upload']>;
+  publicDataFile?: Maybe<Scalars['Upload']>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   receipt?: Maybe<BillingReceiptRelateToOneInput>;
   controlSum?: Maybe<Scalars['String']>;
@@ -14700,6 +14705,8 @@ export type BillingReceiptFileHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
+  sensitiveDataFile?: Maybe<Scalars['JSON']>;
+  publicDataFile?: Maybe<Scalars['JSON']>;
   context?: Maybe<Scalars['String']>;
   receipt?: Maybe<Scalars['String']>;
   controlSum?: Maybe<Scalars['String']>;
@@ -14721,6 +14728,8 @@ export type BillingReceiptFileHistoryRecord = {
 
 export type BillingReceiptFileHistoryRecordCreateInput = {
   file?: Maybe<Scalars['JSON']>;
+  sensitiveDataFile?: Maybe<Scalars['JSON']>;
+  publicDataFile?: Maybe<Scalars['JSON']>;
   context?: Maybe<Scalars['String']>;
   receipt?: Maybe<Scalars['String']>;
   controlSum?: Maybe<Scalars['String']>;
@@ -14747,6 +14756,8 @@ export enum BillingReceiptFileHistoryRecordHistoryActionType {
 
 export type BillingReceiptFileHistoryRecordUpdateInput = {
   file?: Maybe<Scalars['JSON']>;
+  sensitiveDataFile?: Maybe<Scalars['JSON']>;
+  publicDataFile?: Maybe<Scalars['JSON']>;
   context?: Maybe<Scalars['String']>;
   receipt?: Maybe<Scalars['String']>;
   controlSum?: Maybe<Scalars['String']>;
@@ -14772,6 +14783,14 @@ export type BillingReceiptFileHistoryRecordWhereInput = {
   file_not?: Maybe<Scalars['JSON']>;
   file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   file_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sensitiveDataFile?: Maybe<Scalars['JSON']>;
+  sensitiveDataFile_not?: Maybe<Scalars['JSON']>;
+  sensitiveDataFile_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sensitiveDataFile_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  publicDataFile?: Maybe<Scalars['JSON']>;
+  publicDataFile_not?: Maybe<Scalars['JSON']>;
+  publicDataFile_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  publicDataFile_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   context?: Maybe<Scalars['String']>;
   context_not?: Maybe<Scalars['String']>;
   context_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -14908,7 +14927,8 @@ export type BillingReceiptFileHistoryRecordsUpdateInput = {
 };
 
 export type BillingReceiptFileUpdateInput = {
-  file?: Maybe<Scalars['Upload']>;
+  sensitiveDataFile?: Maybe<Scalars['Upload']>;
+  publicDataFile?: Maybe<Scalars['Upload']>;
   context?: Maybe<BillingIntegrationOrganizationContextRelateToOneInput>;
   receipt?: Maybe<BillingReceiptRelateToOneInput>;
   controlSum?: Maybe<Scalars['String']>;
@@ -14927,10 +14947,14 @@ export type BillingReceiptFileUpdateInput = {
 export type BillingReceiptFileWhereInput = {
   AND?: Maybe<Array<Maybe<BillingReceiptFileWhereInput>>>;
   OR?: Maybe<Array<Maybe<BillingReceiptFileWhereInput>>>;
-  file?: Maybe<Scalars['String']>;
-  file_not?: Maybe<Scalars['String']>;
-  file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sensitiveDataFile?: Maybe<Scalars['String']>;
+  sensitiveDataFile_not?: Maybe<Scalars['String']>;
+  sensitiveDataFile_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sensitiveDataFile_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  publicDataFile?: Maybe<Scalars['String']>;
+  publicDataFile_not?: Maybe<Scalars['String']>;
+  publicDataFile_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  publicDataFile_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   context?: Maybe<BillingIntegrationOrganizationContextWhereInput>;
   context_is_null?: Maybe<Scalars['Boolean']>;
   receipt?: Maybe<BillingReceiptWhereInput>;
