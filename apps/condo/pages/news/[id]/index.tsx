@@ -238,20 +238,14 @@ const NewsItemCard: React.FC = () => {
                             <Row>
                                 {get(newsItem, 'sentAt') ? (
                                     <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>
-                                        <Button
-                                            type='primary'
-                                        >
-                                            {ResendTitle}
-                                        </Button>
+                                        <Button type='primary'>{ResendTitle}</Button>
                                     </Link>
                                 ) : ( <ActionBar actions={[
-                                    <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
-                                        <Button
-                                            type='primary'
-                                        >
-                                            {EditTitle}
-                                        </Button>
-                                    </Link>,
+                                    newsItem.sendAt && (
+                                        <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
+                                            <Button type='primary'>{EditTitle}</Button>
+                                        </Link>
+                                    ),
                                     <DeleteButtonWithConfirmModal
                                         key='delete'
                                         title={ConfirmDeleteTitle}
