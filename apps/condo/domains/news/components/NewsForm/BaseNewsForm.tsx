@@ -377,7 +377,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [newsItemCountAtSameDay, setNewsItemCountAtSameDay] = useState(getNewsItemCountAtSameDay(null, allNews))
     const [selectedUnitNameKeys, setSelectedUnitNameKeys] = useState(initialUnitTypes)
     const [selectedPropertiesId, setSelectedPropertiesId] = useState(initialPropertyIds)
-    const [isAllPropertiesChecked, setIsAllPropertiesChecked] = useState(false)
+    const [isAllPropertiesChecked, setIsAllPropertiesChecked] = useState(initialHasAllProperties)
     const [selectedSectionKeys, setSelectedSectionKeys] = useState(initialSectionIds)
 
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
