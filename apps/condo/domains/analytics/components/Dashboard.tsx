@@ -22,18 +22,19 @@ import { colors } from '@open-condo/ui/dist/colors'
 import TicketChart, { EchartsSeries } from '@condo/domains/analytics/components/TicketChart'
 import { OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
 import { getAggregatedData } from '@condo/domains/analytics/utils/helpers'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
+import { Table } from '@condo/domains/common/components/Table/Index'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { Resident } from '@condo/domains/resident/utils/clientSchema'
 import { Ticket as TicketGql } from '@condo/domains/ticket/gql'
+import { useLightWeightTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { Incident, Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 
 import PaymentChart from './PaymentChart'
 import { PaymentChartView } from './PaymentChartView'
 import TicketChartView from './TicketChartView'
-
-import { BasicEmptyListView } from '../../common/components/EmptyListView'
 
 import type { RowProps } from 'antd'
 
@@ -60,8 +61,8 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoadin
     const PaymentsAmount = intl.formatMessage({ id: 'pages.reports.paymentsAmount' })
     const ResidentsInApp = intl.formatMessage({ id: 'pages.reports.residentsWithApp' })
 
-    const completionPercent = useRef('—')
-    const paymentsAmountPercent = useRef('—')
+    const [completionPercent, setCompletionPercent] = useState('—')
+    const [paymentsAmountPercent, setPaymentsAmountPercent] = useState('—')
     const ticketCounts = useRef(null)
 
     const { count: residentsCount, loading: residentsLoading } = Resident.useCount({
@@ -75,7 +76,11 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoadin
     })
     const [loadMonthTicketCounts, { loading: monthTicketLoading }] = useLazyQuery(GET_TICKETS_COUNT_QUERY, {
         onCompleted: (result) => {
-            completionPercent.current = result.all.count === 0 ? '—' : (result.completed.count / result.all.count * 100).toFixed(0) + '%'
+            if (result.all.count > 0) {
+                setCompletionPercent((result.completed.count + result.closed.count / result.all.count * 100)
+                    .toFixed(0) + '%'
+                )
+            }
         },
         fetchPolicy: 'cache-first',
     })
@@ -98,7 +103,9 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoadin
 
     useEffect(() => {
         if (!paymentLoading && !isNull(paymentSum) && !isNull(receiptSum)) {
-            paymentsAmountPercent.current = Number(receiptSum) === 0 ? '—' : Big(paymentSum).div(receiptSum).mul(100).round(0).toString() + '%'
+            if (Number(receiptSum) > 0) {
+                setPaymentsAmountPercent(Big(paymentSum).div(receiptSum).mul(100).round(0).toString() + '%')
+            }
         }
     }, [receiptSum, paymentSum, paymentLoading])
 
@@ -113,7 +120,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoadin
                     <Col span={24}>
                         <Row align='middle' justify='space-between'>
                             <LayoutList />
-                            <DataCard label={DoneLabel} value={completionPercent.current} />
+                            <DataCard label={DoneLabel} value={completionPercent} />
                             <DataCard label='Новые' value={ticketCounts.current.new_or_reopened.count} />
                             <DataCard label={InWorkLabel} value={ticketCounts.current.processing.count} />
                             <DataCard label='Закрытые' value={ticketCounts.current.closed.count} />
@@ -124,7 +131,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoadin
                             <Wallet />
                             <DataCard
                                 label={PaymentsAmountPercent}
-                                value={paymentsAmountPercent.current}
+                                value={paymentsAmountPercent}
                             />
                             <DataCard
                                 label={PaymentsAmount}
@@ -153,7 +160,7 @@ const IncidentDashboard = ({ organizationId }) => {
     })
 
     const onCardClick = useCallback(async () => {
-        await push('/incidents')
+        await push('/incident')
     }, [push])
 
     const incidentCardContent = useMemo(() => (
@@ -309,7 +316,7 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
                 </Col>
             </Row>
         )
-    }, [goodCount, badCount, intl])
+    }, [goodCount, badCount, intl, NoDataTitle])
 
     return (
         <Card
@@ -322,22 +329,24 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
 }
 
 const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = false, title, topValues = 0, sliceWords = false }) => {
-
     const mapperInstance = new TicketChart({
         bar: {
             chart: (viewMode, ticketGroupedCounter) => {
                 const aggregatedData = getAggregatedData(
                     ticketGroupedCounter,
                     groupBy,
+                    true
                 )
 
-                let axisLabels = Array.from(new Set(Object.values(aggregatedData).flatMap(e => Object.keys(e))))
+                let axisLabels = Object.keys(aggregatedData.summary)
+                    .sort((firstLabel, secondLabel) => aggregatedData.summary[secondLabel] - aggregatedData.summary[firstLabel])
+
                 const series = []
 
                 if (topValues) {
-                    axisLabels = []
+                    axisLabels = axisLabels.slice(0, topValues)
+
                     Object.entries(aggregatedData).map(([groupBy, dataObj]) => {
-                        const sortedValues = Object.entries(dataObj).sort(([,a], [,b]) => b - a)
 
                         const seriesConfig = {
                             name: groupBy,
@@ -350,14 +359,9 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                                 blurScope: 'none',
                             },
                         }
-
-                        for (const [key, value] of sortedValues) {
-                            if (seriesConfig.data.length === topValues) {
-                                break
-                            }
-                            seriesConfig.data.push(value)
-                            axisLabels.push(key)
-                        }
+                        axisLabels.forEach(axisLabel => {
+                            seriesConfig.data.push(dataObj[axisLabel])
+                        })
 
                         series.push(seriesConfig)
                     })
@@ -378,11 +382,16 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                 }
 
                 const valueData = { type: 'value', data: null }
-                const categoryData = { type: 'category', data: axisLabels, axisLabel: {
-                    formatter: (val) => {
-                        return val.length > 12 && sliceWords ? val.slice(0, 12) + '\n' + val.slice(12, val.length) : val
+                const categoryData = {
+                    type: 'category',
+                    data: axisLabels,
+                    axisLabel: {
+                        formatter: (val) => {
+                            return val.length > 12 && sliceWords ? val.slice(0, 12) + '\n' + val.slice(12, val.length) : val
+                        },
                     },
-                } }
+                    axisTick: { alignWithLabel: true },
+                }
 
                 const axisData = {
                     yAxis: isYValue ? categoryData : valueData,
@@ -435,50 +444,27 @@ const PaymentChartContainer = ({ data, title, viewMode, mapperInstance }) => {
 }
 
 const TicketTableView = ({ organizationId }) => {
-    // const { objs: processingTickets } = Ticket.useObjects({
-    //     where: {
-    //         organization: { id: organizationId },
-    //         status: { type: TicketStatusTypeType.Processing },
-    //     },
-    // })
+    const intl = useIntl()
+    const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
+    const InProgressTitle = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
 
-    // const { objs: overdueTickets } = Ticket.useObjects({
-    //     where: {
-    //         organization: { id: organizationId },
-    //         deadline_lt: dayjs().toISOString(),
-    //         status: { type_not_in: [TicketStatusTypeType.Completed, TicketStatusTypeType.Closed] },
-    //     },
-    // })
+    const router = useRouter()
+    const { columns } = useLightWeightTableColumns()
 
-    const [loadOverdueTickets, { loading: overdueTicketsLoading }] = useLazyQuery(TicketGql.GET_ALL_OBJS_QUERY, {
+    const [dataSource, setDataSource] = useState([])
+
+    const [loadTickets, { loading }] = useLazyQuery(TicketGql.GET_ALL_OBJS_QUERY, {
         onCompleted: (response) => {
-            console.log('overdue tickets')
-            console.log(response)
-        },
-        onError: (error) => {
-            console.log('error load overdue tickets')
-            console.log(error)
+            setDataSource(response.objs)
         },
     })
 
-    // console.log(overdueTickets)
-
     useEffect(() => {
-        loadOverdueTickets({
+        loadTickets({
             variables: {
                 where: {
                     organization: { id: organizationId },
-                    OR: [
-                        {
-                            AND: [
-                                { completedAt_not: null },
-                            ],
-                        },
-                    ],
-                    AND: [
-                        { deadline_not: null },
-                        { deadline_lt: dayjs().toISOString() },
-                    ],
+                    status: { type: TicketStatusTypeType.Processing },
                     // OR: [
                     //     { status: { type: TicketStatusTypeType.NewOrReopened } },
                     //     { status: { type: TicketStatusTypeType.Processing } },
@@ -486,11 +472,35 @@ const TicketTableView = ({ organizationId }) => {
                 },
             },
         })
-    }, [organizationId, loadOverdueTickets])
+    }, [organizationId, loadTickets])
 
-    // console.log(processingTickets)
-    // console.log(overdueTickets)
-    return <>table here</>
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: async () => {
+                await router.push(`/ticket/${record.id}`)
+            },
+        }
+    }, [router])
+
+    return (
+        <Row gutter={[0, 16]}>
+            <Col span={24}>
+                <Typography.Title level={3}>
+                    {TicketTitle} {InProgressTitle.toLowerCase()}
+                </Typography.Title>
+            </Col>
+            <Col span={24}>
+                <Table
+                    loading={loading}
+                    columns={columns}
+                    dataSource={dataSource}
+                    pageSize={5}
+                    onRow={handleRowAction}
+                    pagination={false}
+                />
+            </Col>
+        </Row>
+    )
 }
 
 export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId }) => {
@@ -549,8 +559,6 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
 
     const propertyTickets = get(overview, 'ticketByProperty.ticketCounts')
     const categoryTickets = get(overview, 'ticketByCategory.ticketCounts', [])
-        .filter(e => e.status === get(overview, 'ticketByDay.translates.status', [])
-            .find(e => e.type === TicketStatusTypeType.NewOrReopened).label)
     const paymentsData = get(overview, 'payment.payments')
     const paymentSum = get(overview, 'payment.sum', null)
     const receiptsData = get(overview, 'receipt.receipts')
@@ -706,9 +714,9 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                                 sliceWords
                             />
                         </Col>
-                        {/*<Col span={24}>*/}
-                        {/*    <TicketTableView organizationId={organizationId} />*/}
-                        {/*</Col>*/}
+                        <Col span={24}>
+                            <TicketTableView organizationId={organizationId} />
+                        </Col>
                         <Col lg={12} md={24}>
                             <PaymentChartContainer
                                 title={PaymentsTotalTitle}
@@ -740,6 +748,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                                 groupBy={[TicketAnalyticsGroupBy.Status, TicketAnalyticsGroupBy.Property]}
                                 isStacked
                                 isYValue
+                                topValues={5}
                             />
                         </Col>
                     </Row>
