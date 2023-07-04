@@ -85,12 +85,13 @@ export type BaseNewsFormProps = {
 }
 
 export const StyledTabs = styled(Tabs)`
-    color: red;
     > .condo-tabs-nav {
+        margin: 0;
+
         .condo-tabs-ink-bar {
           display: none;
         }
-  
+
         .condo-tabs-tab {
           padding: 12px;
           border: 1px solid ${colors.gray[3]};
@@ -100,22 +101,19 @@ export const StyledTabs = styled(Tabs)`
             background-color: ${colors.gray[3]};
             transition: background-color 0.3s ease-out;
           }
-  
+
           & + .condo-tabs-tab {
             margin-left: 8px;
+          }
+
+          & .condo-tabs-tab-label {
+            font-size: 14px;
+            line-height: 22px;
           }
         }
     }
 `
-const COUNTER_COL_STYLE: React.CSSProperties = {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    margin: '12px',
-    padding: '2px 10px',
-    backgroundColor: 'black',
-    borderRadius: '100px',
-}
+
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
 export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
@@ -126,6 +124,25 @@ const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX = /\[[^\]]*?\]/g
 const ADDITIONAL_DISABLED_MINUTES_COUNT = 5
+
+const getCounterStyle = (textLength: number): React.CSSProperties => {
+    const style: React.CSSProperties = {
+        position: 'absolute',
+        right: 0,
+        bottom: 0,
+        margin: '12px',
+        padding: '2px 10px',
+        borderRadius: '100px',
+        backgroundColor: `${colors.gray[7]}`,
+    }
+  
+    if (textLength > 0) {
+        style.backgroundColor = `${colors.black}`
+    }
+  
+    return style
+}
+
 
 const getTypeAndNameByKey = (unitKey) => {
     const indexOfFirst = unitKey.indexOf('-')
@@ -800,7 +817,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 required
                                                             >
                                                                 <RadioGroup onChange={handleTypeChange(form)}>
-                                                                    <Space size={24} wrap>
+                                                                    <Space size={8} wrap>
                                                                         <Radio value={NEWS_TYPE_COMMON}>
                                                                             {CommonTypeLabel}
                                                                         </Radio>
@@ -883,7 +900,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 onChange={handleTitleChange}
                                                             />
                                                         </Form.Item>
-                                                        <Col style={COUNTER_COL_STYLE}>
+                                                        <Col style={getCounterStyle(Title.textLength)}>
                                                             <Title.Counter type='inverted'/>
                                                         </Col>
                                                     </Col>
@@ -902,7 +919,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 onChange={handleBodyChange}
                                                             />
                                                         </Form.Item>
-                                                        <Col style={COUNTER_COL_STYLE}>
+                                                        <Col style={getCounterStyle(Body.textLength)}>
                                                             <Body.Counter type='inverted'/>
                                                         </Col>
                                                     </Col>
