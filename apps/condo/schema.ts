@@ -33728,6 +33728,9 @@ export type Mutation = {
    * 			},
    * 			"url": {
    * 				"required": true
+   * 			},
+   * 			"lastTry": {
+   * 				"required": false
    * 			}
    * 		}
    * 	},
@@ -33756,6 +33759,9 @@ export type Mutation = {
    * 			},
    * 			"url": {
    * 				"required": true
+   * 			},
+   * 			"lastTry": {
+   * 				"required": false
    * 			}
    * 		}
    * 	},
@@ -33784,6 +33790,9 @@ export type Mutation = {
    * 			},
    * 			"url": {
    * 				"required": true
+   * 			},
+   * 			"lastTry": {
+   * 				"required": false
    * 			}
    * 		}
    * 	},
@@ -33812,6 +33821,9 @@ export type Mutation = {
    * 			},
    * 			"url": {
    * 				"required": true
+   * 			},
+   * 			"lastTry": {
+   * 				"required": false
    * 			}
    * 		}
    * 	},
@@ -33840,6 +33852,9 @@ export type Mutation = {
    * 			},
    * 			"url": {
    * 				"required": true
+   * 			},
+   * 			"lastTry": {
+   * 				"required": false
    * 			}
    * 		}
    * 	},
@@ -33868,6 +33883,9 @@ export type Mutation = {
    * 			},
    * 			"url": {
    * 				"required": true
+   * 			},
+   * 			"lastTry": {
+   * 				"required": false
    * 			}
    * 		}
    * 	},
@@ -33896,6 +33914,9 @@ export type Mutation = {
    * 			},
    * 			"url": {
    * 				"required": true
+   * 			},
+   * 			"lastTry": {
+   * 				"required": false
    * 			}
    * 		}
    * 	},
@@ -33924,6 +33945,9 @@ export type Mutation = {
    * 			},
    * 			"url": {
    * 				"required": true
+   * 			},
+   * 			"lastTry": {
+   * 				"required": false
    * 			}
    * 		}
    * 	},

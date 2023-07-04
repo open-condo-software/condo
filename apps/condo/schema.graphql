@@ -72551,6 +72551,9 @@ type Mutation {
   			},
   			"url": {
   				"required": true
+  			},
+  			"lastTry": {
+  				"required": false
   			}
   		}
   	},
@@ -72579,6 +72582,9 @@ type Mutation {
   			},
   			"url": {
   				"required": true
+  			},
+  			"lastTry": {
+  				"required": false
   			}
   		}
   	},
@@ -72607,6 +72613,9 @@ type Mutation {
   			},
   			"url": {
   				"required": true
+  			},
+  			"lastTry": {
+  				"required": false
   			}
   		}
   	},
@@ -72635,6 +72644,9 @@ type Mutation {
   			},
   			"url": {
   				"required": true
+  			},
+  			"lastTry": {
+  				"required": false
   			}
   		}
   	},
@@ -72663,6 +72675,9 @@ type Mutation {
   			},
   			"url": {
   				"required": true
+  			},
+  			"lastTry": {
+  				"required": false
   			}
   		}
   	},
@@ -72691,6 +72706,9 @@ type Mutation {
   			},
   			"url": {
   				"required": true
+  			},
+  			"lastTry": {
+  				"required": false
   			}
   		}
   	},
@@ -72719,6 +72737,9 @@ type Mutation {
   			},
   			"url": {
   				"required": true
+  			},
+  			"lastTry": {
+  				"required": false
   			}
   		}
   	},
@@ -72747,6 +72768,9 @@ type Mutation {
   			},
   			"url": {
   				"required": true
+  			},
+  			"lastTry": {
+  				"required": false
   			}
   		}
   	},
