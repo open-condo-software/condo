@@ -18,7 +18,11 @@ interface IFeatureFlagsContext {
     updateContext: (context) => void
 }
 
-const FeatureFlagsContext = createContext<IFeatureFlagsContext>(null)
+const FeatureFlagsContext = createContext<IFeatureFlagsContext>({
+    useFlag: () => false,
+    useFlagValue: () => null,
+    updateContext: () => ({}),
+})
 
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
 
