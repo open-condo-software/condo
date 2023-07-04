@@ -40436,6 +40436,7 @@ type ResidentProperty {
   id: ID!
   name: String
   address: String!
+  addressKey: String
 }
 
 type OrganizationFeatures {

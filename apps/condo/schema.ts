@@ -61383,6 +61383,7 @@ export type ResidentProperty = {
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   address: Scalars['String'];
+  addressKey?: Maybe<Scalars['String']>;
 };
 
 export type ResidentRelateToOneInput = {
