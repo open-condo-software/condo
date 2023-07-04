@@ -176,13 +176,10 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
         {
             title: TalkTimeMessage,
             sortOrder: get(sorterMap, 'talkTime'),
-            filteredValue: getFilteredValue<IFilters>(filters, 'talkTime'),
             key: 'talkTime',
             dataIndex: ['callRecord', 'talkTime'],
             width: COLUMNS_WIDTH.talkTime,
             render: talkTimeRender,
-            filterDropdown: getFilterDropdownByKey(filterMetas, 'talkTime'),
-            filterIcon: getFilterIcon,
         },
         {
             title: ClientMessage,
