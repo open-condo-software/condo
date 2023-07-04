@@ -25,9 +25,9 @@ import { getAggregatedData } from '@condo/domains/analytics/utils/helpers'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { Table } from '@condo/domains/common/components/Table/Index'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { Resident } from '@condo/domains/resident/utils/clientSchema'
-import { Ticket as TicketGql } from '@condo/domains/ticket/gql'
 import { useLightWeightTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { Incident, Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
@@ -451,28 +451,15 @@ const TicketTableView = ({ organizationId }) => {
     const router = useRouter()
     const { columns } = useLightWeightTableColumns()
 
-    const [dataSource, setDataSource] = useState([])
+    const { offset } = useMemo(() => parseQuery(router.query), [router.query])
 
-    const [loadTickets, { loading }] = useLazyQuery(TicketGql.GET_ALL_OBJS_QUERY, {
-        onCompleted: (response) => {
-            setDataSource(response.objs)
-        },
+    const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, 5), [offset])
+
+    const { objs: tickets, loading, count } = Ticket.useObjects({
+        where: { organization: { id: organizationId }, status: { type: TicketStatusTypeType.Processing } },
+        first: 5,
+        skip: (currentPageIndex - 1) * 5,
     })
-
-    useEffect(() => {
-        loadTickets({
-            variables: {
-                where: {
-                    organization: { id: organizationId },
-                    status: { type: TicketStatusTypeType.Processing },
-                    // OR: [
-                    //     { status: { type: TicketStatusTypeType.NewOrReopened } },
-                    //     { status: { type: TicketStatusTypeType.Processing } },
-                    // ],
-                },
-            },
-        })
-    }, [organizationId, loadTickets])
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -491,12 +478,12 @@ const TicketTableView = ({ organizationId }) => {
             </Col>
             <Col span={24}>
                 <Table
+                    totalRows={count}
                     loading={loading}
                     columns={columns}
-                    dataSource={dataSource}
+                    dataSource={tickets}
                     pageSize={5}
                     onRow={handleRowAction}
-                    pagination={false}
                 />
             </Col>
         </Row>
