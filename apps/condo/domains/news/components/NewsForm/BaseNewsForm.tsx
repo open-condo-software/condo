@@ -546,7 +546,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [initialValues])
 
     const handleFormSubmit = useCallback(async (values) => {
-        if (actionName == 'update') {
+        if (actionName === 'update') {
             await updateNewsItem({ isPublished: false }, currentNewsItem)
         }
 
@@ -588,7 +588,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 .filter(newsItemScope => deletedPropertyIds.includes(newsItemScope.property.id))
 
             await Promise.all(newsItemScopesToDelete.map(newsItemScope => {
-                softDeleteNewsItemScope(newsItemScope)
+                return softDeleteNewsItemScope(newsItemScope)
             }))
 
             if (isEmpty(deletedPropertyIds)) {
@@ -600,7 +600,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                     })
 
                 await Promise.all(newsItemScopesToDelete.map(newsItemScope => {
-                    softDeleteNewsItemScope(newsItemScope)
+                    return softDeleteNewsItemScope(newsItemScope)
                 }))
 
                 if (!isEmpty(initialUnitKeys) && isEmpty(unitNames) && isEmpty(sectionIds) && deletedKeys.length === initialUnitKeys.length) {
@@ -623,7 +623,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
             await Promise.all(unitNames.map((unitKey) => {
                 const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
-                createNewsItemScope({
+                return createNewsItemScope({
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
@@ -636,7 +636,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
 
             await Promise.all(unitNames.map((unitName, i) => {
-                createNewsItemScope({
+                return createNewsItemScope({
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
@@ -646,7 +646,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
         if (isEmpty(sectionIds) && isEmpty(unitNames) && !isEmpty(addedPropertyIds)) {
             await Promise.all(addedPropertyIds.map(propertyId => {
-                createNewsItemScope({
+                return createNewsItemScope({
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                 })
@@ -661,7 +661,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(property, sectionIds)
 
             await Promise.all(unitNames.map((unitName, i) => {
-                createNewsItemScope({
+                return createNewsItemScope({
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
@@ -678,7 +678,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
             await Promise.all(addedKeys.map((unitKey) => {
                 const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
-                createNewsItemScope({
+                return createNewsItemScope({
                     newsItem: { connect: { id: newsItemId } },
                     property: { connect: { id: propertyId } },
                     unitName: unitName,
@@ -980,50 +980,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         </>
                                                     )
                                                 }
-                                                {isOnlyOnePropertySelected && (
-                                                    <>
-                                                        <Col span={11}>
-                                                            <Form.Item
-                                                                name='unitNames'
-                                                                label={
-                                                                    selectedPropertiesLoading || !isEmpty(selectedSectionKeys)
-                                                                        ? (<LabelWithInfo
-                                                                            title={UnitsMessage}
-                                                                            message={UnitsLabel}
-                                                                        />)
-                                                                        : UnitsLabel
-                                                                }
-                                                            >
-                                                                <UnitNameInput
-                                                                    multiple={true}
-                                                                    property={selectedProperties[0]}
-                                                                    allowClear={false}
-                                                                    loading={selectedPropertiesLoading || !isEmpty(selectedSectionKeys)}
-                                                                    onChange={handleChangeUnitNameInput}
-                                                                />
-                                                            </Form.Item>
-                                                        </Col>
-
-                                                        <Col span={11} offset={2}>
-                                                            <Form.Item
-                                                                name='sectionIds'
-                                                                label={selectedPropertiesLoading || !isEmpty(selectedUnitNameKeys)
-                                                                    ? (<LabelWithInfo
-                                                                        title={SectionsMessage}
-                                                                        message={SectionsLabel}
-                                                                    />)
-                                                                    : SectionsLabel}
-                                                            >
-                                                                <SectionNameInput
-                                                                    disabled={selectedPropertiesLoading || !isEmpty(selectedUnitNameKeys)}
-                                                                    property={selectedProperties[0]}
-                                                                    onChange={handleChangeSectionNameInput(selectedProperties[0])}
-                                                                    mode='multiple'
-                                                                />
-                                                            </Form.Item>
-                                                        </Col>
-                                                    </>
-                                                )}
                                             </Row>
                                         </Col>
                                         <Col span={formInfoColSpan}>
