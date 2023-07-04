@@ -33,6 +33,7 @@ const {
     RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE,
     RECURRENT_PAYMENT_PROCESS_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE,
     RECURRENT_PAYMENT_PROCESS_ERROR_ACQUIRING_PAYMENT_PROCEED_FAILED_CODE,
+    RECURRENT_PAYMENT_PROCESS_ERROR_NO_RECEIPTS_TO_PROCEED_CODE,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     Payment,
@@ -81,7 +82,6 @@ const {
     getNotificationMetaByErrorCode,
     isLimitExceedForBillingReceipts,
 } = require('./index')
-const { RECURRENT_PAYMENT_PROCESS_ERROR_NO_RECEIPTS_TO_PROCEED_CODE } = require("../../constants/recurrentPayment");
 
 const offset = 0
 const pageSize = 10
@@ -1624,6 +1624,7 @@ describe('task schema queries', () => {
                 userId: serviceConsumerBatch.resident.user.id,
                 errorCode,
                 url: notificationMeta.url,
+                lastTry: false,
             })
         })
 
@@ -1688,6 +1689,7 @@ describe('task schema queries', () => {
                 userId: serviceConsumerBatch.resident.user.id,
                 errorCode,
                 url: notificationMeta.url,
+                lastTry: false,
             })
         })
 
@@ -1748,6 +1750,7 @@ describe('task schema queries', () => {
                 userId: serviceConsumerBatch.resident.user.id,
                 errorCode,
                 url: notificationMeta.url,
+                lastTry: false,
             })
         })
 

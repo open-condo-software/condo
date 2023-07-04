@@ -94,6 +94,7 @@ const recurrentPaymentProceedingFailedCommonMessageMeta = {
         userId: { required: true },
         errorCode: { required: true },
         url: { required: true },
+        lastTry: { required: false },
     },
 }
 
