@@ -10,6 +10,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
+import { SERVICE_PROVIDER_TYPE, MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 
 import {
@@ -23,7 +24,10 @@ interface ISideNavProps {
 
 export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
     const { onLogoClick, menuData } = props
-    const { link } = useOrganization()
+    const { link, organization } = useOrganization()
+
+    const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
+
     const { breakpoints, toggleCollapsed, isCollapsed } = useLayoutContext()
 
     const isEmployeeBlocked = get(link, 'isBlocked', false)
@@ -52,9 +56,11 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
                 <div className='expand-button' onClick={toggleCollapsed}>
                     {isCollapsed ? <ChevronRight size='small'/> : <ChevronLeft size='small'/>}
                 </div>
-                <div className='actions-container'>
-                    <ResidentActions minified={isCollapsed}/>
-                </div>
+                {hasAccessToAppeals && (
+                    <div className='actions-container'>
+                        <ResidentActions minified={isCollapsed}/>
+                    </div>
+                )}
                 <div className='menu-items-container'>
                     {menuData}
                 </div>

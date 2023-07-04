@@ -7,13 +7,15 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Space } from '@open-condo/ui'
 
+import { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_VERIFICATION_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext as AcquiringContext, AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/Button'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
-import { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
+import { CONTEXT_FINISHED_STATUS as BILLING_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
+import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/constants'
 
 
@@ -44,6 +46,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     const router = useRouter()
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
+    const orgType = get(organization, 'type', MANAGING_COMPANY_TYPE)
     const remoteSystem = get(organization, 'importRemoteSystem', null)
     const isOrgVerified = remoteSystem === SBBOL_IMPORT_NAME
 
@@ -58,7 +61,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
 
     const { obj: billingCtx, loading: billingCtxLoading, error: billingCtxError } = BillingContext.useObject({
         where: {
-            status: CONTEXT_FINISHED_STATUS,
+            status: BILLING_FINISHED_STATUS,
             organization: { id: orgId },
         },
     })
@@ -80,17 +83,36 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         },
     })
 
+    // Note: is active context is in FINISHED status - we'll ignore this step render at all, so we only interested in verification ones
+    const { obj: connectedCtx, loading:connectedCtxLoading, error: connectedCtxError } = AcquiringContext.useObject({
+        where: {
+            organization: { id: orgId },
+            status_in: [CONTEXT_VERIFICATION_STATUS],
+        },
+    })
+
 
 
     const billingCtxId = get(billingCtx, 'id', null)
     const acquiringCtxId = get(acquiringCtx, 'id', null)
+    const connectedCtxId = get(connectedCtx, 'id', null)
 
-    // No connected billing = go to setup beginning
     useEffect(() => {
+        // No connected billing = go to setup beginning
         if (!billingCtxLoading && !billingCtxError && !billingCtxId) {
             router.replace({ query: { step: 0 } })
+        } else if (!connectedCtxLoading && !connectedCtxError && connectedCtxId) {
+            router.replace({ query: { step: 3 } })
         }
-    }, [billingCtxLoading, billingCtxError, billingCtxId, router])
+    }, [
+        billingCtxLoading,
+        billingCtxError,
+        billingCtxId,
+        connectedCtxLoading,
+        connectedCtxError,
+        connectedCtxId,
+        router,
+    ])
 
     // If no context for selected acquiring and correct organization => need to create it and re-fetch
     useEffect(() => {
@@ -123,12 +145,18 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
 
     const handleDoneMessage = useCallback((event: MessageEvent) => {
         if (event.origin === setupOrigin && get(event.data, 'success') === true) {
-            updateAction({}, { id: acquiringCtxId })
+            updateAction({
+                status: orgType === SERVICE_PROVIDER_TYPE ? CONTEXT_VERIFICATION_STATUS : CONTEXT_FINISHED_STATUS,
+            }, { id: acquiringCtxId })
                 .then(() => {
-                    onFinish()
+                    if (orgType === SERVICE_PROVIDER_TYPE) {
+                        router.push({ query: { step: 3 } })
+                    } else {
+                        onFinish()
+                    }
                 })
         }
-    }, [acquiringCtxId, setupOrigin, updateAction, onFinish])
+    }, [acquiringCtxId, setupOrigin, updateAction, onFinish, orgType, router])
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -161,12 +189,12 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         )
     }
 
-    if (acquiringError || acquiringCtxError || billingCtxError) {
-        return <Typography.Title>{acquiringError || acquiringCtxError || billingCtxError}</Typography.Title>
+    if (acquiringError || acquiringCtxError || billingCtxError || connectedCtxError) {
+        return <Typography.Title>{acquiringError || acquiringCtxError || billingCtxError || connectedCtxError}</Typography.Title>
     }
 
     // NOTE: !setupUrl = case when useEffect for creating ctx is being triggered, but not finished yet
-    if (acquiringLoading || acquiringCtxLoading || billingCtxLoading || !setupUrl) {
+    if (acquiringLoading || acquiringCtxLoading || billingCtxLoading || connectedCtxLoading || !setupUrl) {
         return <Loader fill size='large'/>
     }
 
