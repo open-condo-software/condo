@@ -138,9 +138,7 @@ const getTypeAndNameByKey = (unitKey) => {
 
 const getUnitNamesAndUnitTypes = (property, sectionKeys) => {
     const selectedSections = get(property, ['map', 'sections'], []).filter((section) => includes(sectionKeys, `${section.type}-${section.name}`))
-    const selectedParking = get(property, ['map', 'parking'], []).filter((section) => {
-        return includes(sectionKeys, `${PARKING_SECTION_TYPE}-${section.name}`)
-    })
+    const selectedParking = get(property, ['map', 'parking'], []).filter((section) => includes(sectionKeys, `${PARKING_SECTION_TYPE}-${section.name}`))
     const allSectionsUnits = getAllSectionsUnits([...selectedSections, ...selectedParking])
     const unitNames = allSectionsUnits.map(unit => unit.label)
     const unitTypes = allSectionsUnits.map(unit => get(unit, 'unitType', NewsItemScopeUnitTypeType.Flat) as NewsItemScopeUnitTypeType)
