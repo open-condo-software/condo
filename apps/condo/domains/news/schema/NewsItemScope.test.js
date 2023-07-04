@@ -190,7 +190,7 @@ describe('NewsItemScope', () => {
                 expect(obj.deletedAt).not.toBeNull()
             })
 
-            test('stuff without permission can\'t', async () => {
+            test('staff without permissions can\'t', async () => {
                 const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
