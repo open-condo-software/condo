@@ -49,6 +49,7 @@ import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
 import { PROFANITY_TITLE_DETECTED_MOT_ERF_KER, PROFANITY_BODY_DETECTED_MOT_ERF_KER } from '@condo/domains/news/constants/errors'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
+import { PARKING_SECTION_TYPE } from '@condo/domains/property/constants/common'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
@@ -136,8 +137,9 @@ const getTypeAndNameByKey = (unitKey) => {
 }
 
 const getUnitNamesAndUnitTypes = (property, sectionKeys) => {
-    const selectedSections = get(property, ['map', 'sections'], []).filter(section => includes(sectionKeys, `${section.type}-${section.name}`))
-    const allSectionsUnits = getAllSectionsUnits(selectedSections)
+    const selectedSections = get(property, ['map', 'sections'], []).filter((section) => includes(sectionKeys, `${section.type}-${section.name}`))
+    const selectedParking = get(property, ['map', 'parking'], []).filter((section) => includes(sectionKeys, `${PARKING_SECTION_TYPE}-${section.name}`))
+    const allSectionsUnits = getAllSectionsUnits([...selectedSections, ...selectedParking])
     const unitNames = allSectionsUnits.map(unit => unit.label)
     const unitTypes = allSectionsUnits.map(unit => get(unit, 'unitType', NewsItemScopeUnitTypeType.Flat) as NewsItemScopeUnitTypeType)
     return { unitNames, unitTypes }

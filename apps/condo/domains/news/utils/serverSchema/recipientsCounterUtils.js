@@ -1,8 +1,13 @@
+const get = require('lodash/get')
+
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 const getUnitsFromProperty = (property) => (
-    property?.map?.sections?.reduce((acc, section) => ([
+    [
+        ...(get(property, ['map', 'sections'], []) || []),
+        ...(get(property, ['map', 'parking'], []) || []),
+    ].reduce((acc, section) => ([
         ...acc,
         ...getUnitsFromSection(section),
     ]), []) || []
