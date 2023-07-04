@@ -1,12 +1,59 @@
 /**
  * This service defines custom api handle which will output health status of defined services
  *
- * Example:
+ *
+ * ## Simple usage:
+ *
+ * Go to <url>
+ *
+ * Example: if all checks pass:
+ * 200
+ * {
+ *     postgres: pass
+ *     redis: pass
+ *     apollo: pass
+ * }
+ *
+ * Example: if any check fails
+ * 500
  * {
  *     postgres: pass
  *     redis: pass
  *     apollo: fail
  * }
+ *
+ *
+ * ## Advanced usage:
+ *
+ * API supports to filter checks you need via query string
+ *
+ * Syntax: <url>?checks=<check1>,<check2>,...,<checkN>
+ *
+ * Configuration example - available checks: postgres, redis, apollo, postgres pass, apollo fails.
+ *
+ * Request: <url>?checks=postgres
+ * 200
+ * {
+ *      postgres: pass
+ * }
+ *
+ * Request <url>?checks=postgres,redis
+ * 500
+ * {
+ *      postgres: pass,
+ *      redis: fail
+ * }
+ *
+ * Note: if configured, non specified checks are ignored. That means, if redis and apollo fails, output will be 200OK, since only postgres was specified
+ *
+ * ## Response codes:
+ *
+ * API will output 500 if ANY check fails
+ * API will output 200 if EVERY check passes
+ * API will output 400 if checks=... is badly configured
+ *
+ *
+ * ## Create own checks:
  *
  * Check is JS object with some required keys:
  *
@@ -19,16 +66,20 @@
  */
 
 const express = require('express')
-const get = require('lodash/get')
 const LRUCache = require('lru-cache')
 
 const { getRedisClient } = require('./redis')
 
-const DEFAULT_HEALTHCHECK_URL = '/.well-known/keystone/server-health'
+const DEFAULT_HEALTHCHECK_URL = '/server-health'
 const DEFAULT_INTERVAL = 1000 // 1s
-const DEFAULT_TIMEOUT = 5000 // 1s
+const DEFAULT_TIMEOUT = 5000 // 5s
+const DELIMITER = ','
 const PASS = 'pass'
 const FAIL = 'fail'
+
+const BAD_REQUEST = 400
+const OK = 200
+const INTERNAL_SERVER_ERROR = 500
 
 const getRedisHealthCheck = (clientName = 'healthcheck') => {
     return {
@@ -69,13 +120,12 @@ class HealthCheck {
 
     constructor ({
         interval = DEFAULT_INTERVAL,
-        timeout = DEFAULT_TIMEOUT,
         url = DEFAULT_HEALTHCHECK_URL,
         checks = [],
     }) {
         this.url = url
         this.checks = checks
-        this.preparedChecks = []
+        this.preparedChecks = {}
 
         for (const check of this.checks) {
             if (!check.name) {
@@ -91,10 +141,13 @@ class HealthCheck {
 
     prepareChecks = async ({ keystone }) => {
         for (const check of this.checks) {
+            if (this.preparedChecks[check.name]) {
+                throw new Error(`Check ${check.name} is already registered!`)
+            }
             if (typeof check.prepare === 'function') {
                 await check.prepare({ keystone })
             }
-            this.preparedChecks.push(check)
+            this.preparedChecks[check.name] = check
         }
     }
 
@@ -109,7 +162,10 @@ class HealthCheck {
             return this.cache.get(check.name)
         }
 
-        const checkResult = await check.run()
+        const checkResult = await Promise.race([
+            check.run(),
+            new Promise(r => { setTimeout(r, DEFAULT_TIMEOUT) }).then(() => false),
+        ])
 
         if (typeof checkResult !== 'boolean') {
             throw new Error(`Check.run function output non bool value for check named ${check.name}`)
@@ -126,18 +182,38 @@ class HealthCheck {
 
         app.use(this.url, async (req, res) => {
 
-            const result = {}
+            const customChecksConfigured = typeof req.query.checks === 'string'
 
+            let customChecks = null
+
+            if (customChecksConfigured) {
+                customChecks = req.query.checks.trim().split(DELIMITER)
+
+                if (!Array.isArray(customChecks)) {
+                    return res.status(BAD_REQUEST).json({ error: 'Can\'t parse custom checks' })
+                }
+                const nonExistingChecks = customChecks.filter(checkName => !this.preparedChecks[checkName])
+                if (nonExistingChecks.length > 0) {
+                    return res.status(BAD_REQUEST).json({ error: `Non existing checks found! ${nonExistingChecks}` })
+                }
+            }
+
+            const selectedChecks = customChecksConfigured ? customChecks : Object.keys(this.preparedChecks)
+
+            const result = {}
+            let allSelectedChecksPassed = true
             await Promise.all(
-                this.preparedChecks.map(
-                    async check => {
-                        const checkPassed = await this.runCheck(check)
-                        result[check.name] = checkPassed ? PASS : FAIL
+                selectedChecks.map(
+                    async checkName => {
+                        const checkPassed = await this.runCheck(this.preparedChecks[checkName])
+                        if (!checkPassed) { allSelectedChecksPassed = false }
+                        result[checkName] = checkPassed ? PASS : FAIL
                     }
                 )
             )
 
-            res.status(200).json(result)
+            const status = allSelectedChecksPassed ? OK : INTERNAL_SERVER_ERROR
+            res.status(status).json(result)
         })
 
         return app
