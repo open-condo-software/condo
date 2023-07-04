@@ -172,13 +172,13 @@ describe('NewsItemScope', () => {
                 })
             })
 
-            test('stuff with permission can\'t', async () => {
+            test('staff with permissions can\'t', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestNewsItemScope(staffClient, dummyNewsItem.id, { unitName: '1' })
                 })
             })
 
-            test('stuff with permission can soft-delete', async () => {
+            test('staff with permissions can soft-delete', async () => {
                 const [objCreated] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
                 const [obj, attrs] = await updateTestNewsItemScope(staffClient, objCreated.id, { deletedAt: 'true' })
