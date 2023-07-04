@@ -10,6 +10,7 @@ const HUAWEI_SILENT_DATA_PUSH_ENABLED = 'huawei-silent-data-push-enabled'
 const PROPERTY_BANK_ACCOUNT = 'property-bank-account'
 const PROPERTY_REPORT_DELETE_ENTITIES = 'property-report-delete-entities'
 const SERVICE_PROVIDER_PROFILE = 'service-provider-profile'
+const SHOW_ORGANIZATION_TYPES = 'show-organization-types'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -24,4 +25,5 @@ module.exports = {
     PROPERTY_BANK_ACCOUNT,
     PROPERTY_REPORT_DELETE_ENTITIES,
     SERVICE_PROVIDER_PROFILE,
+    SHOW_ORGANIZATION_TYPES,
 }
