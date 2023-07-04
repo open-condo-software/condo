@@ -6,7 +6,7 @@ Open Source condominium management platform.
 
 ## Getting started
 
-You should have `docker-compose`, `git` and `node`.
+You should have `docker-compose`, `git`, `node` and `python3` commands.
 
 > **Node should be > 16.** You can check node version using `node -v` command in your terminal.
 
@@ -34,7 +34,7 @@ yarn workspace @app/condo build
 yarn workspace @app/condo start
 ```
 
-Now open your browser and head to http://localhost:3000 - you should see condo interface
+Now open your browser and head to http://localhost:3000 - you should see condo app
 
 Login and password can be found in `initialData.js`
 
