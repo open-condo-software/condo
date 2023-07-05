@@ -28,10 +28,16 @@ const {
     updateTestBillingAccounts,
 } = require('@condo/domains/billing/utils/testSchema')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const { registerResidentByTestClient, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('BillingAccount', () => {
     let admin
@@ -508,6 +514,99 @@ describe('BillingAccount', () => {
                     property: { connect: { id: anotherProperty.id } },
                 })
             }, `${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
+        })
+    })
+
+    describe('DiscoverServiceConsumers hook', () => {
+        test('should create one ServiceConsumer when BillingAccount is created', async () => {
+            const user = await makeClientWithResidentUser()
+            const unitName = faker.random.alphaNumeric(8)
+            const { address, addressMeta } = buildFakeAddressAndMeta(false)
+            const [organization] = await registerNewOrganization(admin)
+            const [billingProperty] = await createTestBillingProperty(admin, context, { address })
+            await createTestProperty(admin, organization, {
+                address,
+                addressMeta,
+            })
+            const [resident] = await registerResidentByTestClient(user,
+                { address, addressMeta, unitName, unitType: FLAT_UNIT_TYPE }
+            )
+
+            const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty,
+                { unitName, unitType: FLAT_UNIT_TYPE }
+            )
+
+            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                resident: { id: resident.id, deletedAt: null },
+                accountNumber: billingAccount.number,
+                deletedAt: null,
+            })
+
+            expect(createdServiceConsumers).toHaveLength(1)
+            expect(createdServiceConsumers[0].organization.id).toEqual(organization.id)
+            expect(createdServiceConsumers.map((serviceConsumer) => serviceConsumer.accountNumber).toString()).toContain(billingAccount.number)
+            expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
+
+        })
+
+        test('should create multiple ServiceConsumers when BillingAccount is created', async () => {
+            const user1 = await makeClientWithResidentUser()
+            const user2 = await makeClientWithResidentUser()
+            const unitName = faker.random.alphaNumeric(8)
+            const { address, addressMeta } = buildFakeAddressAndMeta(false)
+            const [organization] = await registerNewOrganization(admin)
+            const [billingProperty] = await createTestBillingProperty(admin, context, { address })
+            await createTestProperty(admin, organization, {
+                address,
+                addressMeta,
+            })
+            const [resident] = await registerResidentByTestClient(user1,
+                { address, addressMeta, unitName, unitType: FLAT_UNIT_TYPE }
+            )
+
+            const [resident2] = await registerResidentByTestClient(user2,
+                { address, addressMeta, unitName, unitType: FLAT_UNIT_TYPE }
+            )
+
+            const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty,
+                { unitName, unitType: FLAT_UNIT_TYPE }
+            )
+
+            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                accountNumber: billingAccount.number,
+                deletedAt: null,
+            })
+
+            expect(createdServiceConsumers).toHaveLength(2)
+            expect(createdServiceConsumers[0].organization.id).toEqual(organization.id)
+            expect(createdServiceConsumers[1].organization.id).toEqual(organization.id)
+            expect(createdServiceConsumers.map((serviceConsumer) => serviceConsumer.resident.id).toString()).toContain(resident.id)
+            expect(createdServiceConsumers.map((serviceConsumer) => serviceConsumer.resident.id).toString()).toContain(resident2.id)
+            expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
+            expect(createdServiceConsumers[1].accountNumber).toEqual(billingAccount.number)
+
+        })
+
+        test('should not create ServiceConsumer when BillingAccount is created if no resident exists for that property', async () => {
+            const unitName = faker.random.alphaNumeric(8)
+            const { address, addressMeta } = buildFakeAddressAndMeta(false)
+            const [organization] = await registerNewOrganization(admin)
+            const [billingProperty] = await createTestBillingProperty(admin, context, { address })
+            await createTestProperty(admin, organization, {
+                address,
+                addressMeta,
+            })
+
+            const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty,
+                { unitName, unitType: FLAT_UNIT_TYPE }
+            )
+
+            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                accountNumber: billingAccount.number,
+                deletedAt: null,
+            })
+
+            expect(createdServiceConsumers).toHaveLength(0)
         })
     })
 })

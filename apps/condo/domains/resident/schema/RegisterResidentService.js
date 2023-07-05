@@ -14,6 +14,7 @@ const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverS
 const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/serverSchema/helpers')
 const access = require('@condo/domains/resident/access/RegisterResidentService')
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
+const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 
 const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
     types: [
@@ -91,6 +92,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                 }
 
                 // Hack that helps to resolve all subfields in result of this mutation
+                await discoverServiceConsumers(context, { dv, sender, address, unitName, unitType, resident: { id }  })
                 const result = await getById('Resident', id)
 
                 return result
