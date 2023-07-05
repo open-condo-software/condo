@@ -608,5 +608,46 @@ describe('BillingAccount', () => {
 
             expect(createdServiceConsumers).toHaveLength(0)
         })
+
+        test('should create ServiceConsumer only for passed BillingAccount', async () => {
+            const user1 = await makeClientWithResidentUser()
+            const unitName = faker.random.alphaNumeric(8)
+            const { address, addressMeta } = buildFakeAddressAndMeta(false)
+            const { address: address2 } = buildFakeAddressAndMeta(false)
+            const [organization] = await registerNewOrganization(admin)
+            const [billingProperty] = await createTestBillingProperty(admin, context, { address })
+            const [billingProperty2] = await createTestBillingProperty(admin, context, { address: address2 })
+            await createTestProperty(admin, organization, {
+                address,
+                addressMeta,
+            })
+            const [resident] = await registerResidentByTestClient(user1,
+                { address, addressMeta, unitName, unitType: FLAT_UNIT_TYPE }
+            )
+
+            const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty,
+                { unitName, unitType: FLAT_UNIT_TYPE }
+            )
+
+            const [billingAccount2] = await createTestBillingAccount(admin, context, billingProperty2,
+                { unitName, unitType: FLAT_UNIT_TYPE }
+            )
+
+            const createdServiceConsumer1 = await ServiceConsumer.getAll(admin, {
+                accountNumber: billingAccount.number,
+                deletedAt: null,
+            })
+
+            const createdServiceConsumer2 = await ServiceConsumer.getAll(admin, {
+                accountNumber: billingAccount2.number,
+                deletedAt: null,
+            })
+
+            expect(createdServiceConsumer1).toHaveLength(1)
+            expect(createdServiceConsumer2).toHaveLength(0)
+            expect(createdServiceConsumer1[0].organization.id).toEqual(organization.id)
+            expect(createdServiceConsumer1[0].accountNumber).toEqual(billingAccount.number)
+            expect(createdServiceConsumer1[0].resident.id).toEqual(resident.id)
+        })
     })
 })
