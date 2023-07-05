@@ -118,8 +118,22 @@ const NewsItemCard: React.FC = () => {
     })
 
     const newsItemScopesNoInstance: TNewsItemScopeNoInstance[] = useMemo(() => {
+        const isAllScopesHaveProperty = every(newsItemScopes, newsItemScope => {
+            return has(newsItemScope, ['property', 'id'])
+        })
+
+        if (!isAllScopesHaveProperty) {
+            return newsItemScopes.map(newsItemScope => {
+                return {
+                    property: newsItemScope.property,
+                    unitName: newsItemScope.unitName,
+                    unitType: newsItemScope.unitType,
+                }
+            })
+        }
+
         const isAllScopesHaveSameProperty = every(newsItemScopes, newsItemScope => {
-            return has(newsItemScope, ['property', 'id']) && newsItemScope.property.id === newsItemScopes[0].property.id
+            return newsItemScope.property.id === newsItemScopes[0].property.id
         })
 
         if (isAllScopesHaveSameProperty) {

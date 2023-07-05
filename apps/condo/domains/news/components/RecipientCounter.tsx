@@ -63,7 +63,7 @@ const isTargetedToUnitName = ({ property, unitType, unitName }: TNewsItemScopeNo
 )
 
 const isAllOrganization = (newsItemScopes: TNewsItemScopeNoInstance[]) => {
-    return filter(newsItemScopes, { property: null }).length > 0
+    return filter(newsItemScopes, { property: null, unitType: null, unitName: null }).length > 0
 }
 
 const getUnitsFromSection = (section: BuildingSection): string[] => section.floors.flatMap(floor => floor.units.map(unit => unit.label))
