@@ -647,7 +647,7 @@
   "pages.condo.meter.index.reportingPeriod.EmptyList.create": "Create period",
   "pages.condo.meter.index.reportingPeriod.defaultPeriod": "By default, the reporting period starts on {startAt} and ends on {finishAt} of each month",
   "pages.condo.meter.index.reportingPeriod.Table.customPeriod": "For all properties",
-  "pages.condo.meter.index.reportingPeriod.Table.reportingPeriod": "Starts on {startAt} on the inclusive date and ends on {finishAt} on the inclusive date of each month",
+  "pages.condo.meter.index.reportingPeriod.Table.reportingPeriod": "from the {startAt} to the {finishAt} inclusive",
   "pages.condo.meter.Place": "Place",
   "pages.condo.meter.MeterReading": "Reading",
   "pages.condo.meter.MeterReadingDate": "Reading date",

@@ -647,7 +647,7 @@
   "pages.condo.meter.index.reportingPeriod.EmptyList.create": "Добавить период",
   "pages.condo.meter.index.reportingPeriod.defaultPeriod": "По-умолчанию период подачи показаний начинается {startAt} и заканчивается {finishAt} числа каждого месяца",
   "pages.condo.meter.index.reportingPeriod.Table.customPeriod": "Для всех домов",
-  "pages.condo.meter.index.reportingPeriod.Table.reportingPeriod": "Начинается {startAt} числа включительно и заканчивается {finishAt} числа включительно каждого месяца",
+  "pages.condo.meter.index.reportingPeriod.Table.reportingPeriod": "с {startAt} по {finishAt} числа включительно",
   "pages.condo.meter.Place": "Место",
   "pages.condo.meter.MeterReading": "Показание",
   "pages.condo.meter.MeterReadingDate": "Дата снятия",
