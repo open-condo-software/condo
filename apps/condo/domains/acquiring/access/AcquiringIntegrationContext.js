@@ -7,7 +7,7 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { CONTEXT_IN_PROGRESS_STATUS, CONTEXT_VERIFICATION_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { CONTEXT_IN_PROGRESS_STATUS, CONTEXT_VERIFICATION_STATUS, CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
@@ -88,7 +88,7 @@ async function canManageStatusField ({ authentication: { item: user }, existingI
     }
 
     // Service provider org employee should not be able to finish connecting by itself
-    if ('status' in originalInput && originalInput.status === 'Finished') {
+    if ('status' in originalInput && originalInput.status === CONTEXT_FINISHED_STATUS) {
         const orgId = operation === 'create' ? get(originalInput, ['organization', 'connect', 'id']) : existingItem['organization']
         if (!orgId) {
             return false
