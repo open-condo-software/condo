@@ -438,7 +438,7 @@ export const MeterReportingPeriodPageContent = ({
             else defaultPeriod.current = period
         }))
     }, [reportingPeriods])
-    const DefaultPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.defaultPeriod' }, { startAt: get(defaultPeriod, 'current.start'), finishAt: get(defaultPeriod, 'current.finish') })
+    const DefaultPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.defaultPeriod' }, { startAt: get(defaultPeriod, 'current.startAt'), finishAt: get(defaultPeriod, 'current.finishAt') })
 
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const isNoMeterData = isEmpty(reportingPeriods) && isEmpty(filters) && !periodLoading && !loading
@@ -544,11 +544,11 @@ export const MeterReportingPeriodPageContent = ({
                             </Row>
                         </TableFiltersContainer>
                     </Col>
-                    <Col span={24}>
-                        <Typography.Text style={DEFAULT_PERIOD_TEXT_STYLE} type='secondary' >
-                            {defaultPeriod.current && DefaultPeriodMessage}
+                    {defaultPeriod.current && <Col span={24}>
+                        <Typography.Text style={DEFAULT_PERIOD_TEXT_STYLE} type='secondary'>
+                            {DefaultPeriodMessage}
                         </Typography.Text>
-                    </Col>
+                    </Col>}
                     <Col span={24}>
                         <Table
                             totalRows={total}

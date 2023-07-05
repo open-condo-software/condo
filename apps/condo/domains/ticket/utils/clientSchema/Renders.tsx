@@ -356,11 +356,13 @@ export const getTicketUserNameRender = (search: FilterValue) => {
     }
 }
 
-export const getMeterReportingPeriodRender = (search: FilterValue) => {
+export const getMeterReportingPeriodRender = (search: FilterValue, intl) => {
+
     return function render (periodRecord: MeterReportingPeriod) {
-        const start = get(periodRecord, 'start')
-        const finish = get(periodRecord, 'finish')
-        return getTableCellRenderer({ search })(`${start} - ${finish}`)
+        const startAt = get(periodRecord, 'startAt')
+        const finishAt = get(periodRecord, 'finishAt')
+        const ReportingPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.Table.reportingPeriod' }, { startAt, finishAt })
+        return getTableCellRenderer({ search })(ReportingPeriodMessage)
     }
 }
 

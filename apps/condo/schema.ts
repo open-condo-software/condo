@@ -27613,11 +27613,9 @@ export type MeterReportingPeriod = {
   /**  Ref to the property. Will be null if the instance is an installation for all users in the organization  */
   property?: Maybe<Property>;
   /**  Starting day of the month for sending a push about the need to submit meter readings  */
-  start?: Maybe<Scalars['Int']>;
+  startAt?: Maybe<Scalars['Int']>;
   /**  Finish day of the month for sending a push about the need to submit meter readings  */
-  finish?: Maybe<Scalars['Int']>;
-  /**  Ref to the B2CApp which used to replace default integration in resident's app  */
-  b2cApp?: Maybe<B2CApp>;
+  finishAt?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -27637,9 +27635,8 @@ export type MeterReportingPeriod = {
 export type MeterReportingPeriodCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
-  start?: Maybe<Scalars['Int']>;
-  finish?: Maybe<Scalars['Int']>;
-  b2cApp?: Maybe<B2CAppRelateToOneInput>;
+  startAt?: Maybe<Scalars['Int']>;
+  finishAt?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27664,9 +27661,8 @@ export type MeterReportingPeriodHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
-  start?: Maybe<Scalars['Int']>;
-  finish?: Maybe<Scalars['Int']>;
-  b2cApp?: Maybe<Scalars['String']>;
+  startAt?: Maybe<Scalars['Int']>;
+  finishAt?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -27685,9 +27681,8 @@ export type MeterReportingPeriodHistoryRecord = {
 export type MeterReportingPeriodHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
-  start?: Maybe<Scalars['Int']>;
-  finish?: Maybe<Scalars['Int']>;
-  b2cApp?: Maybe<Scalars['String']>;
+  startAt?: Maybe<Scalars['Int']>;
+  finishAt?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27711,9 +27706,8 @@ export enum MeterReportingPeriodHistoryRecordHistoryActionType {
 export type MeterReportingPeriodHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
-  start?: Maybe<Scalars['Int']>;
-  finish?: Maybe<Scalars['Int']>;
-  b2cApp?: Maybe<Scalars['String']>;
+  startAt?: Maybe<Scalars['Int']>;
+  finishAt?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27739,26 +27733,22 @@ export type MeterReportingPeriodHistoryRecordWhereInput = {
   property_not?: Maybe<Scalars['String']>;
   property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  start?: Maybe<Scalars['Int']>;
-  start_not?: Maybe<Scalars['Int']>;
-  start_lt?: Maybe<Scalars['Int']>;
-  start_lte?: Maybe<Scalars['Int']>;
-  start_gt?: Maybe<Scalars['Int']>;
-  start_gte?: Maybe<Scalars['Int']>;
-  start_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  start_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  finish?: Maybe<Scalars['Int']>;
-  finish_not?: Maybe<Scalars['Int']>;
-  finish_lt?: Maybe<Scalars['Int']>;
-  finish_lte?: Maybe<Scalars['Int']>;
-  finish_gt?: Maybe<Scalars['Int']>;
-  finish_gte?: Maybe<Scalars['Int']>;
-  finish_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  finish_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  b2cApp?: Maybe<Scalars['String']>;
-  b2cApp_not?: Maybe<Scalars['String']>;
-  b2cApp_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  b2cApp_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  startAt?: Maybe<Scalars['Int']>;
+  startAt_not?: Maybe<Scalars['Int']>;
+  startAt_lt?: Maybe<Scalars['Int']>;
+  startAt_lte?: Maybe<Scalars['Int']>;
+  startAt_gt?: Maybe<Scalars['Int']>;
+  startAt_gte?: Maybe<Scalars['Int']>;
+  startAt_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  startAt_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  finishAt?: Maybe<Scalars['Int']>;
+  finishAt_not?: Maybe<Scalars['Int']>;
+  finishAt_lt?: Maybe<Scalars['Int']>;
+  finishAt_lte?: Maybe<Scalars['Int']>;
+  finishAt_gt?: Maybe<Scalars['Int']>;
+  finishAt_gte?: Maybe<Scalars['Int']>;
+  finishAt_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  finishAt_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -27853,9 +27843,8 @@ export type MeterReportingPeriodHistoryRecordsUpdateInput = {
 export type MeterReportingPeriodUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
-  start?: Maybe<Scalars['Int']>;
-  finish?: Maybe<Scalars['Int']>;
-  b2cApp?: Maybe<B2CAppRelateToOneInput>;
+  startAt?: Maybe<Scalars['Int']>;
+  finishAt?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27874,24 +27863,22 @@ export type MeterReportingPeriodWhereInput = {
   organization_is_null?: Maybe<Scalars['Boolean']>;
   property?: Maybe<PropertyWhereInput>;
   property_is_null?: Maybe<Scalars['Boolean']>;
-  start?: Maybe<Scalars['Int']>;
-  start_not?: Maybe<Scalars['Int']>;
-  start_lt?: Maybe<Scalars['Int']>;
-  start_lte?: Maybe<Scalars['Int']>;
-  start_gt?: Maybe<Scalars['Int']>;
-  start_gte?: Maybe<Scalars['Int']>;
-  start_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  start_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  finish?: Maybe<Scalars['Int']>;
-  finish_not?: Maybe<Scalars['Int']>;
-  finish_lt?: Maybe<Scalars['Int']>;
-  finish_lte?: Maybe<Scalars['Int']>;
-  finish_gt?: Maybe<Scalars['Int']>;
-  finish_gte?: Maybe<Scalars['Int']>;
-  finish_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  finish_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  b2cApp?: Maybe<B2CAppWhereInput>;
-  b2cApp_is_null?: Maybe<Scalars['Boolean']>;
+  startAt?: Maybe<Scalars['Int']>;
+  startAt_not?: Maybe<Scalars['Int']>;
+  startAt_lt?: Maybe<Scalars['Int']>;
+  startAt_lte?: Maybe<Scalars['Int']>;
+  startAt_gt?: Maybe<Scalars['Int']>;
+  startAt_gte?: Maybe<Scalars['Int']>;
+  startAt_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  startAt_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  finishAt?: Maybe<Scalars['Int']>;
+  finishAt_not?: Maybe<Scalars['Int']>;
+  finishAt_lt?: Maybe<Scalars['Int']>;
+  finishAt_lte?: Maybe<Scalars['Int']>;
+  finishAt_gt?: Maybe<Scalars['Int']>;
+  finishAt_gte?: Maybe<Scalars['Int']>;
+  finishAt_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  finishAt_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -66154,10 +66141,10 @@ export enum SortMeterReadingsBy {
 }
 
 export enum SortMeterReportingPeriodHistoryRecordsBy {
-  StartAsc = 'start_ASC',
-  StartDesc = 'start_DESC',
-  FinishAsc = 'finish_ASC',
-  FinishDesc = 'finish_DESC',
+  StartAtAsc = 'startAt_ASC',
+  StartAtDesc = 'startAt_DESC',
+  FinishAtAsc = 'finishAt_ASC',
+  FinishAtDesc = 'finishAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -66181,12 +66168,10 @@ export enum SortMeterReportingPeriodsBy {
   OrganizationDesc = 'organization_DESC',
   PropertyAsc = 'property_ASC',
   PropertyDesc = 'property_DESC',
-  StartAsc = 'start_ASC',
-  StartDesc = 'start_DESC',
-  FinishAsc = 'finish_ASC',
-  FinishDesc = 'finish_DESC',
-  B2cAppAsc = 'b2cApp_ASC',
-  B2cAppDesc = 'b2cApp_DESC',
+  StartAtAsc = 'startAt_ASC',
+  StartAtDesc = 'startAt_DESC',
+  FinishAtAsc = 'finishAt_ASC',
+  FinishAtDesc = 'finishAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

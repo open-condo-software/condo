@@ -46,7 +46,7 @@ const ADDRESS_LAYOUT_PROPS = {
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 const SELECT_POSTFIX_STYLE: CSSProperties = { margin: '0 0 0 10px' }
 const ADDRESS_SEARCH_WRAPPER_COL = { span: 14 }
-const DESCRIPTION_TEXT_STYLE = { alignSelf: 'start' }
+const DESCRIPTION_TEXT_STYLE = { alignSelf: 'startAt' }
 
 interface IMeterReportingPeriodForm {
     mode: 'create' | 'update',
@@ -81,8 +81,16 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const [incorrectPeriodError, setIncorrectPeriodError] = useState(false)
     const [selectedPropertyId, setSelectedPropertyId] = useState()
 
-    const startNumberRef = useRef<number>()
-    const finishNumberRef = useRef<number>()
+    const isCreateMode = mode === 'create'
+    const formInitialValues = useMemo(() => ({
+        startAt: isCreateMode ? 20 : get(reportingPeriodRecord, 'startAt'),
+        finishAt: isCreateMode ? 25 : get(reportingPeriodRecord, 'finishAt'),
+        property: isCreateMode ? undefined : get(reportingPeriodRecord, 'property.address'),
+        isOrganizationPeriod: isCreateMode ? false : get(reportingPeriodRecord, 'property') === null,
+    }), [reportingPeriodRecord, mode])
+
+    const startNumberRef = useRef<number>(formInitialValues.startAt)
+    const finishNumberRef = useRef<number>(formInitialValues.finishAt)
     const selectedPropertyIdRef = useRef(selectedPropertyId)
 
     useEffect(() => {
@@ -90,19 +98,10 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     }, [selectedPropertyId])
 
     const organizationId = get(organization, 'id', null)
-    const isCreateMode = mode === 'create'
-    const formInitialValues = useMemo(() => ({
-        start: isCreateMode ? 20 : get(reportingPeriodRecord, 'start'),
-        finish: isCreateMode ? 25 : get(reportingPeriodRecord, 'finish'),
-        property: isCreateMode ? undefined : get(reportingPeriodRecord, 'property.address'),
-        isOrganizationPeriod: isCreateMode ? false : get(reportingPeriodRecord, 'property') === null,
-    }), [reportingPeriodRecord, mode])
 
     useEffect(() => {
         if (!isCreateMode) {
             setSelectedPropertyId(get(reportingPeriodRecord, 'property.id'))
-            startNumberRef.current = formInitialValues.start
-            finishNumberRef.current = formInitialValues.finish
             setIsOrganizationPeriod(formInitialValues.isOrganizationPeriod)
         }
     }, [])
@@ -117,8 +116,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
 
     const validations: { [key: string]: Rule[] } = {
         property: [addressValidator(selectedPropertyId, true)],
-        start: [requiredValidator, incorrectPeriodValidation(incorrectPeriodError)],
-        finish: [requiredValidator, incorrectPeriodValidation(incorrectPeriodError)],
+        startAt: [requiredValidator, incorrectPeriodValidation(incorrectPeriodError)],
+        finishAt: [requiredValidator, incorrectPeriodValidation(incorrectPeriodError)],
     }
 
     const handleCheckboxChange = useCallback(() => {
@@ -145,7 +144,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     }, [])
 
     useEffect(() => {
-        if (form.isFieldsTouched(['start', 'finish'])) form.validateFields(['start', 'finish'])
+        if (form.isFieldsTouched(['startAt', 'finishAt'])) form.validateFields(['startAt', 'finishAt'])
     }, [startNumberRef.current, finishNumberRef.current])
 
     const {
@@ -185,13 +184,13 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
             initialValues={formInitialValues}
             formValuesToMutationDataPreprocessor={(values) => {
                 if (values.isOrganizationPeriod) {
-                    values.property = undefined
+                    values.property = { disconnectAll: true }
                 } else {
                     values.property = { connect: { id: selectedPropertyIdRef.current } }
                 }
                 values.isOrganizationPeriod = undefined
-                values.start = parseInt(values.start)
-                values.finish = parseInt(values.finish)
+                values.startAt = parseInt(values.startAt)
+                values.finishAt = parseInt(values.finishAt)
 
                 if (isCreateMode) {
                     values.organization = { connect: { id: organizationId } }
@@ -252,8 +251,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                     </Col>
                                     <Col span={24}>
                                         <Form.Item
-                                            name='start'
-                                            rules={validations.start}
+                                            name='startAt'
+                                            rules={validations.startAt}
                                             label={StartLabel}
                                             {...INPUT_LAYOUT_PROPS}
                                             labelAlign='left'
@@ -274,8 +273,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                     </Col>
                                     <Col span={24}>
                                         <Form.Item
-                                            name='finish'
-                                            rules={validations.finish}
+                                            name='finishAt'
+                                            rules={validations.finishAt}
                                             label={FinishLabel}
                                             {...INPUT_LAYOUT_PROPS}
                                             labelAlign='left'
@@ -297,16 +296,16 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                     <Col span={24}>
                                         <Form.Item
                                             noStyle
-                                            dependencies={['property', 'start', 'finish', 'isOrganizationPeriod']}
+                                            dependencies={['property', 'startAt', 'finishAt', 'isOrganizationPeriod']}
                                             shouldUpdate>
                                             {
                                                 ({ getFieldsValue, getFieldError }) => {
-                                                    const { property, start, finish, isOrganizationPeriod } = getFieldsValue(['property', 'start', 'finish', 'isOrganizationPeriod'])
+                                                    const { property, startAt, finishAt, isOrganizationPeriod } = getFieldsValue(['property', 'startAt', 'finishAt', 'isOrganizationPeriod'])
 
                                                     const messageLabels = []
                                                     if (!property && !isOrganizationPeriod) messageLabels.push(`"${AddressLabel}" ${OrMessage} "${OrganizationLabel}"`)
-                                                    if (!start) messageLabels.push(`"${StartLabel}"`)
-                                                    if (!finish) messageLabels.push(`"${FinishLabel}"`)
+                                                    if (!startAt) messageLabels.push(`"${StartLabel}"`)
+                                                    if (!finishAt) messageLabels.push(`"${FinishLabel}"`)
 
                                                     const hasIncorrectPeriodError = incorrectPeriodError ? IncorrectPeriodLabel : undefined
                                                     const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
@@ -314,7 +313,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                         .filter(Boolean)
                                                         .join(', ')
 
-                                                    const isDisabled = (!property && !isOrganizationPeriod) || !start || !finish || hasIncorrectPeriodError
+                                                    const isDisabled = (!property && !isOrganizationPeriod) || !startAt || !finishAt || hasIncorrectPeriodError
 
                                                     return (
                                                         <ActionBar

@@ -284,40 +284,40 @@ describe('MeterReportingPeriod', () => {
                 await MeterReportingPeriod.softDelete(admin, defaultMeterReportingPeriod.id)
             })
 
-            test('start field validation', async () => {
+            test('startAt field validation', async () => {
                 await catchErrorFrom(async () => {
                     await createTestMeterReportingPeriod(admin, commonOrganization, {
-                        start: 0,
+                        startAt: 0,
                     })
                 }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('The "start" field can take values in the range from 1 to 31')
+                    expect(errors[0].message).toMatch('The "startAt" field can take values in the range from 1 to 31')
                     expect(data).toEqual({ 'obj': null })
                 })
                 await catchErrorFrom(async () => {
                     await createTestMeterReportingPeriod(admin, commonOrganization, {
-                        start: 32,
+                        startAt: 32,
                     })
                 }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('The "start" field can take values in the range from 1 to 31')
+                    expect(errors[0].message).toMatch('The "startAt" field can take values in the range from 1 to 31')
                     expect(data).toEqual({ 'obj': null })
                 })
             })
 
-            test('finish field validation', async () => {
+            test('finishAt field validation', async () => {
                 await catchErrorFrom(async () => {
                     await createTestMeterReportingPeriod(admin, commonOrganization, {
-                        finish: 0,
+                        finishAt: 0,
                     })
                 }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('The "finish" field can take values in the range from 1 to 31')
+                    expect(errors[0].message).toMatch('The "finishAt" field can take values in the range from 1 to 31')
                     expect(data).toEqual({ 'obj': null })
                 })
                 await catchErrorFrom(async () => {
                     await createTestMeterReportingPeriod(admin, commonOrganization, {
-                        finish: 32,
+                        finishAt: 32,
                     })
                 }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('The "finish" field can take values in the range from 1 to 31')
+                    expect(errors[0].message).toMatch('The "finishAt" field can take values in the range from 1 to 31')
                     expect(data).toEqual({ 'obj': null })
                 })
             })
