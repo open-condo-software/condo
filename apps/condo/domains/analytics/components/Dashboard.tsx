@@ -529,7 +529,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const PaymentsByPropertyTitle = intl.formatMessage({ id: 'pages.reports.paymentsByProperty' })
 
     const [overview, setOverview] = useState(null)
-    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
+    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(3, 'month'), dayjs()])
     const [aggregatePeriod, setAggregatePeriod] = useState<'day' | 'week' | 'month'>('day')
 
     const [loadDashboardData, { loading }] = useLazyQuery(OVERVIEW_DASHBOARD_MUTATION, {
@@ -657,7 +657,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                         yAxis: { type: 'value', data: null, boundaryGap: [0, 0.05] },
                         xAxis: {
                             type: 'category',
-                            data: null,
+                            data: Array.from(new Set(...dataset.map(e => e.map(q => q.dayGroup)))) as Array<string>,
                             axisLabel: {
                                 formatter: (value) => dayjs(value).format('MMM, YYYY'),
                             },
@@ -734,7 +734,14 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
             </Col>
             <Col span={24}>
                 <Space direction='horizontal' size={16}>
-                    <DateRangePicker value={dateRange} onChange={setDateRange} allowClear={false} />
+                    <DateRangePicker
+                        value={dateRange}
+                        onChange={setDateRange}
+                        allowClear={false}
+                        disabledDate={(current) => {
+                            return current && current < dayjs().startOf('year')
+                        }}
+                    />
                     <Select
                         value={aggregatePeriod}
                         onChange={onAggregatePeriodChange}
