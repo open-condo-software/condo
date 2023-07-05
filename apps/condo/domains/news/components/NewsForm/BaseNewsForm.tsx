@@ -125,7 +125,7 @@ const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX = /\[[^\]]*?\]/g
 const ADDITIONAL_DISABLED_MINUTES_COUNT = 5
 
-const getCounterStyle = (textLength: number): React.CSSProperties => {
+const buildCounterStyle = (textLength: number): React.CSSProperties => {
     const style: React.CSSProperties = {
         position: 'absolute',
         right: 0,
@@ -900,7 +900,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 onChange={handleTitleChange}
                                                             />
                                                         </Form.Item>
-                                                        <Col style={getCounterStyle(Title.textLength)}>
+                                                        <Col style={buildCounterStyle(Title.textLength)}>
                                                             <Title.Counter type='inverted'/>
                                                         </Col>
                                                     </Col>
@@ -919,7 +919,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 onChange={handleBodyChange}
                                                             />
                                                         </Form.Item>
-                                                        <Col style={getCounterStyle(Body.textLength)}>
+                                                        <Col style={buildCounterStyle(Body.textLength)}>
                                                             <Body.Counter type='inverted'/>
                                                         </Col>
                                                     </Col>
