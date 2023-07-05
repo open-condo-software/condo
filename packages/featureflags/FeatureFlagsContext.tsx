@@ -18,7 +18,11 @@ interface IFeatureFlagsContext {
     updateContext: (context) => void
 }
 
-const FeatureFlagsContext = createContext<IFeatureFlagsContext>(null)
+const FeatureFlagsContext = createContext<IFeatureFlagsContext>({
+    useFlag: () => false,
+    useFlagValue: () => null,
+    updateContext: () => ({}),
+})
 
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
 
@@ -29,6 +33,7 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
 
     const isSupport = get(user, 'isSupport', false)
     const isAdmin = get(user, 'isAdmin', false)
+    const userId = get(user, 'id', null)
 
     const {
         publicRuntimeConfig: {
@@ -68,8 +73,8 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
     }, [growthbook, serverUrl])
 
     useEffect(() => {
-        updateContext({ isSupport: isSupport || isAdmin, organization: get(organization, 'id') })
-    }, [updateContext, isAdmin, isSupport, organization])
+        updateContext({ isSupport: isSupport || isAdmin, organization: get(organization, 'id'), userId })
+    }, [updateContext, isAdmin, isSupport, organization, userId])
 
     return (
         <FeatureFlagsContext.Provider value={{
