@@ -606,7 +606,7 @@ const MetersPage: IMeterIndexPage = () => {
     const role = get(link, 'role')
 
     const { useFlag } = useFeatureFlags()
-    const isMeterReportingPeriodEnabled = true
+    const isMeterReportingPeriodEnabled = useFlag(METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG)
 
     const { GlobalHints } = useGlobalHints()
 
