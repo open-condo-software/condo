@@ -3,6 +3,7 @@ import { useLazyQuery } from '@apollo/client'
 import { BuildingSection, NewsItemScope, Property as PropertyType } from '@app/condo/schema'
 import { ButtonProps, Col, notification, Row } from 'antd'
 import every from 'lodash/every'
+import filter from 'lodash/filter'
 import get from 'lodash/get'
 import intersection from 'lodash/intersection'
 import map from 'lodash/map'
@@ -61,6 +62,10 @@ const isTargetedToUnitName = ({ property, unitType, unitName }: TNewsItemScopeNo
     !!property && !!unitType && !!unitName
 )
 
+const isAllOrganization = (newsItemScopes: TNewsItemScopeNoInstance[]) => {
+    return filter(newsItemScopes, { property: null, unitType: null, unitName: null }).length > 0
+}
+
 const getUnitsFromSection = (section: BuildingSection): string[] => section.floors.flatMap(floor => floor.units.map(unit => unit.label))
 
 export const detectTargetedSections = (newsItemScopes: NewsItemScope[], property: PropertyType): BuildingSection[] => (
@@ -74,7 +79,7 @@ export const detectTargetedSections = (newsItemScopes: NewsItemScope[], property
 const areTargetedToOneProperty = (newsItemScopes): boolean => uniq(map(newsItemScopes, ['property', 'id'])).length === 1
 
 const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
-    if (newsItemScopes.length === 0) {
+    if (isAllOrganization(newsItemScopes)) {
         return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInAllProperties' })
     } else if (newsItemScopes.length === 1 && isTargetedToEntireProperty(newsItemScopes[0])) {
         return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperty' }, {
