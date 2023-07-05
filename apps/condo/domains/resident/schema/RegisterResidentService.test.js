@@ -543,5 +543,48 @@ describe('RegisterResidentService', () => {
 
             expect(createdServiceConsumers).toHaveLength(0)
         })
+
+        it('should create ServiceConsumer only for passed resident', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
+                {}, {}, { status: 'Finished' }
+            )
+            const user = await makeClientWithResidentUser()
+            const user2 = await makeClientWithResidentUser()
+            const unitName = faker.random.alphaNumeric(8)
+            const { address, addressMeta } = buildFakeAddressAndMeta(false)
+            const { address: address2, addressMeta: addressMeta2 } = buildFakeAddressAndMeta(false)
+            const [organization] = await registerNewOrganization(adminClient)
+            const [billingProperty] = await createTestBillingProperty(adminClient, context, { address })
+            await createTestBillingAccount(adminClient, context, billingProperty,
+                { unitName, unitType: FLAT_UNIT_TYPE }
+            )
+
+            await createTestProperty(adminClient, organization, {
+                address,
+                addressMeta,
+            })
+            const [resident] = await registerResidentByTestClient(user,
+                { address, addressMeta, unitName, unitType: FLAT_UNIT_TYPE }
+            )
+            const [resident2] = await registerResidentByTestClient(user2,
+                { address: address2, addressMeta: addressMeta2, unitName, unitType: FLAT_UNIT_TYPE }
+            )
+
+            const createdServiceConsumer1 = await ServiceConsumer.getAll(adminClient, {
+                resident: { id: resident.id },
+                deletedAt: null,
+            })
+
+            const createdServiceConsumer2 = await ServiceConsumer.getAll(adminClient, {
+                resident: { id: resident2.id },
+                deletedAt: null,
+            })
+
+            expect(createdServiceConsumer1).toHaveLength(1)
+            expect(createdServiceConsumer1[0].organization.id).toEqual(organization.id)
+            expect(createdServiceConsumer1[0].resident.id).toEqual(resident.id)
+            expect(createdServiceConsumer2).toHaveLength(0)
+        })
     })
 })
