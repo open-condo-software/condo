@@ -572,11 +572,12 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const propertyTickets = get(overview, 'ticketByProperty.ticketCounts')
     const categoryTickets = get(overview, 'ticketByCategory.ticketCounts', [])
     const executorTickets = get(overview, 'ticketByExecutor.ticketCounts', [])
-    const paymentsData = get(overview, 'payment.payments')
+    const paymentsData = get(overview, 'payment.payments', [])
     const paymentSum = get(overview, 'payment.sum', null)
-    const receiptsData = get(overview, 'receipt.receipts')
+    const receiptsData = get(overview, 'receipt.receipts', [])
     const receiptSum = get(overview, 'receipt.sum', null)
     const residentsData = get(overview, 'resident.residents', [])
+    const chargedToPaidData = paymentsData.length > 0 && receiptsData.length > 0 ? [paymentsData, receiptsData] : []
 
     const paymentChart = new PaymentChart({
         barSummary: {
@@ -778,7 +779,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                         <Col lg={12} md={24}>
                             <CustomChartContainer
                                 title={`${ChargedTitle} / ${PaidTitle}`}
-                                data={[paymentsData, receiptsData]}
+                                data={chargedToPaidData}
                                 viewMode='bar'
                                 mapperInstance={paymentChart}
                             />
