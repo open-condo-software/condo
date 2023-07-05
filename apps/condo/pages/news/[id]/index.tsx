@@ -106,7 +106,7 @@ const NewsItemCard: React.FC = () => {
         objs: newsItemScopes,
         loading: newsItemScopesLoading,
         error: newsItemScopesError,
-    } = NewsItemScope.useObjects({
+    } = NewsItemScope.useAllObjects({
         where: {
             newsItem: { id: newsItemId },
         },
@@ -178,8 +178,8 @@ const NewsItemCard: React.FC = () => {
         return date ? dayjs(date).format('YYYY.MM.DD HH:mm') : null
     }, [newsItem])
 
-    const isLoading = employeeLoading || newsItemLoading || isAccessLoading
-    const hasError = employeeError || newsItemError
+    const isLoading = employeeLoading || newsItemLoading || isAccessLoading || newsItemScopesLoading || propertyLoading
+    const hasError = employeeError || newsItemError || newsItemScopesError
     const isNotFound = !isLoading && (!employee || !newsItem)
     if (hasError || isLoading || isNotFound) {
         const errorToPrint = hasError ? ServerErrorMsg : isNotFound ? NotFoundMsg : null
