@@ -11618,7 +11618,7 @@ export type BillingCategoriesUpdateInput = {
   data?: Maybe<BillingCategoryUpdateInput>;
 };
 
-/**  Payment category - used primarily in display purposes  */
+/**  Receipt category - used primarily in display purposes  */
 export type BillingCategory = {
   __typename?: 'BillingCategory';
   /**
@@ -11632,6 +11632,8 @@ export type BillingCategory = {
   /**  Localized name of billing category: Hot water, Cold water, Housing Services  */
   name?: Maybe<Scalars['String']>;
   nameNonLocalized?: Maybe<Scalars['String']>;
+  /**  Possible names of services to auto-detect receipt category  */
+  serviceNames?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11650,6 +11652,7 @@ export type BillingCategory = {
 
 export type BillingCategoryCreateInput = {
   name?: Maybe<Scalars['String']>;
+  serviceNames?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11673,6 +11676,7 @@ export type BillingCategoryHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  serviceNames?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11690,6 +11694,7 @@ export type BillingCategoryHistoryRecord = {
 
 export type BillingCategoryHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
+  serviceNames?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11712,6 +11717,7 @@ export enum BillingCategoryHistoryRecordHistoryActionType {
 
 export type BillingCategoryHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
+  serviceNames?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11747,6 +11753,10 @@ export type BillingCategoryHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  serviceNames?: Maybe<Scalars['JSON']>;
+  serviceNames_not?: Maybe<Scalars['JSON']>;
+  serviceNames_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  serviceNames_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -11847,6 +11857,7 @@ export type BillingCategoryRelateToOneInput = {
 
 export type BillingCategoryUpdateInput = {
   name?: Maybe<Scalars['String']>;
+  serviceNames?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11879,6 +11890,10 @@ export type BillingCategoryWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  serviceNames?: Maybe<Scalars['JSON']>;
+  serviceNames_not?: Maybe<Scalars['JSON']>;
+  serviceNames_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  serviceNames_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

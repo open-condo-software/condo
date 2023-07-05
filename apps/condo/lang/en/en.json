@@ -1995,6 +1995,8 @@
   "billing.category.radio.name": "Radio",
   "billing.category.intercom.name": "Intercom",
   "billing.category.telecom.name": "Telecom",
+  "billing.category.heating.name": "Heating",
+  "billing.category.membership_fee.name": "Membership fee",
   "billing.category.housing.name.declined": "rent",
   "billing.category.repair.name.declined": "repairs",
   "billing.category.electricity.name.declined": "electricity",

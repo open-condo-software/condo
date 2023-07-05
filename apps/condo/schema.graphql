@@ -12675,6 +12675,7 @@ type BillingCategoryHistoryRecord {
   """
   _label_: String
   name: String
+  serviceNames: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -12711,6 +12712,10 @@ input BillingCategoryHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  serviceNames: JSON
+  serviceNames_not: JSON
+  serviceNames_in: [JSON]
+  serviceNames_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -12816,6 +12821,7 @@ enum SortBillingCategoryHistoryRecordsBy {
 
 input BillingCategoryHistoryRecordUpdateInput {
   name: String
+  serviceNames: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -12837,6 +12843,7 @@ input BillingCategoryHistoryRecordsUpdateInput {
 
 input BillingCategoryHistoryRecordCreateInput {
   name: String
+  serviceNames: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -12855,7 +12862,7 @@ input BillingCategoryHistoryRecordsCreateInput {
   data: BillingCategoryHistoryRecordCreateInput
 }
 
-""" Payment category - used primarily in display purposes """
+""" Receipt category - used primarily in display purposes """
 type BillingCategory {
   """
   This virtual field will be resolved in one of the following ways (in this order):
@@ -12870,6 +12877,9 @@ type BillingCategory {
   """
   name: String
   nameNonLocalized: String
+
+  """ Possible names of services to auto-detect receipt category """
+  serviceNames: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -12914,6 +12924,10 @@ input BillingCategoryWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  serviceNames: JSON
+  serviceNames_not: JSON
+  serviceNames_in: [JSON]
+  serviceNames_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -12999,6 +13013,7 @@ enum SortBillingCategoriesBy {
 
 input BillingCategoryUpdateInput {
   name: String
+  serviceNames: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -13017,6 +13032,7 @@ input BillingCategoriesUpdateInput {
 
 input BillingCategoryCreateInput {
   name: String
+  serviceNames: JSON
   v: Int
   createdAt: String
   updatedAt: String
