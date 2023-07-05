@@ -1,6 +1,7 @@
 import {
     NewsItem as INewsItem,
 } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
@@ -9,10 +10,11 @@ import isNull from 'lodash/isNil'
 import getConfig from 'next/config'
 import Link from 'next/link'
 import { ColumnType } from 'rc-table/lib/interface'
-import React, { CSSProperties, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
 import { RefreshCw } from '@open-condo/icons'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
@@ -34,6 +36,15 @@ type GetTypeRenderType = (intl: IntlShape, search: FilterValue) => GetRenderType
 
 type GetRenderPropertiesType = (intl: IntlShape, search: FilterValue) => GetRenderType
 
+// TODO(DOMA-6153): rewrite to css-modules after migrating from custom style loader plugins
+export const ResendButton = styled.div`
+  color: ${colors.gray[7]};
+  transition: color 0.3s;
+  &:hover {
+    color: ${colors.black};
+    transition: color 0.3s;
+  }
+`
 const DATE_FORMAT = 'DD.MM.YYYY'
 const TIME_FORMAT = 'DD.MM.YYYY HH:mm'
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
@@ -50,7 +61,7 @@ const getNewsDate = (intl, stringDate: string, format: string): string => {
 }
 
 export const getRenderTitle: GetRenderTitleType = (search) => (body) => {
-    return getTableCellRenderer({ search, extraTitle: body })(body)
+    return getTableCellRenderer({ search, extraTitle: body, ellipsis: true })(body)
 }
 
 export const getRenderBody: GetRenderBodyType = (search) => (body) => {
@@ -76,7 +87,6 @@ export const getRenderNewsDate: GetRenderNewsDateType = (intl, search) => (strin
     return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(sendAtDate)
 }
 
-const RESEND_MESSAGE_CONTAINER_STYLE: CSSProperties = { cursor: 'pointer' }
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
 
@@ -91,9 +101,9 @@ export const ResendNewsButton = ({ intl, newsItem }) => {
     return (
         <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>
             <Tooltip title={ResendMessage} placement='bottomLeft'>
-                <div style={RESEND_MESSAGE_CONTAINER_STYLE} onClick={handleClick}>
+                <ResendButton onClick={handleClick}>
                     <RefreshCw size='small'/>
-                </div>
+                </ResendButton>
             </Tooltip>
         </Link>
     )
