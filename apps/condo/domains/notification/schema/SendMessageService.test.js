@@ -16,7 +16,7 @@ const {
     DEVICE_PLATFORM_IOS,
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_HUAWEI,
-    PUSH_TRANSPORT_APPLE,
+    PUSH_TRANSPORT_APPLE, PUSH_TYPE_SILENT_DATA,
 } = require('@condo/domains/notification/constants/constants')
 const { syncRemoteClientWithPushTokenByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
@@ -79,6 +79,7 @@ describe('SendMessageService', () => {
                         devicePlatform: DEVICE_PLATFORM_ANDROID,
                         appId: APP_RESIDENT_ID_ANDROID,
                         pushTransport: PUSH_TRANSPORT_FIREBASE,
+                        pushTypeVoIP: PUSH_TYPE_SILENT_DATA,
                         pushTokenVoIP: getRandomFakeSuccessToken(),
                     }
 
@@ -113,8 +114,8 @@ describe('SendMessageService', () => {
                     expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
                     expect(message.processingMeta.isVoIP).toBeTruthy()
-                    expect(transportMeta.deliveryMetadata.pushContext.default.token).toEqual(payload.pushTokenVoIP)
-                    expect(transportMeta.deliveryMetadata.pushContext.default.token).not.toEqual(payload.pushToken)
+                    expect(transportMeta.deliveryMetadata.pushContext[payload.pushTypeVoIP].token).toEqual(payload.pushTokenVoIP)
+                    expect(transportMeta.deliveryMetadata.pushContext[payload.pushTypeVoIP].token).not.toEqual(payload.pushToken)
                 })
 
                 it('correctly detects VoIP message type and sends notification to proper Huawei token', async () => {
