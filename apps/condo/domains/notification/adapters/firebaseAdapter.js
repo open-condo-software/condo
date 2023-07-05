@@ -18,6 +18,7 @@ const FIREBASE_CONFIG = conf[FIREBASE_CONFIG_ENV] ? JSON.parse(conf[FIREBASE_CON
 const DEFAULT_PUSH_SETTINGS = {
     apns: { payload: { aps: { 'mutable-content': 1, sound: 'default' } } },
 }
+const HIGH_PRIORITY_SETTINGS = { android: { priority: 'high' } }
 
 const logger = getLogger('firebaseAdapter')
 
@@ -144,11 +145,12 @@ class FirebaseAdapter {
      * @param tokens
      * @returns {*[][]}
      */
-    static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}) {
+    static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, isVoIP = false) {
         const notification = FirebaseAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = []
         const fakeNotifications = []
         const pushContext = {}
+        const extraPayload = isVoIP ? HIGH_PRIORITY_SETTINGS : {}
 
         tokens.forEach((pushToken) => {
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
@@ -164,12 +166,14 @@ class FirebaseAdapter {
                         '_body': notification.body,
                     },
                     ...DEFAULT_PUSH_SETTINGS,
+                    ...extraPayload,
                 }
                 : {
                     token: pushToken,
                     data: preparedData,
                     notification,
                     ...DEFAULT_PUSH_SETTINGS,
+                    ...extraPayload,
                 }
 
             target.push(pushData)
@@ -192,10 +196,10 @@ class FirebaseAdapter {
      * @param pushTypes
      * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
      */
-    async sendNotification ({ notification, data, tokens, pushTypes } = {}) {
+    async sendNotification ({ notification, data, tokens, pushTypes } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications, pushContext] = FirebaseAdapter.prepareBatchData(notification, data, tokens, pushTypes)
+        const [notifications, fakeNotifications, pushContext] = FirebaseAdapter.prepareBatchData(notification, data, tokens, pushTypes, isVoIP)
         let result
 
         // If we come up to here and no real tokens provided, that means fakeNotifications contains
