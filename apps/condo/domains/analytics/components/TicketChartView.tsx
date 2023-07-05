@@ -170,7 +170,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
         return <ChartViewContainer>
             {isEmptyDataSet ? (
                 <>
-                    <BasicEmptyListView>
+                    <BasicEmptyListView image='/dino/searching@2x.png'>
                         <Typography.Text>{NoData}</Typography.Text>
                     </BasicEmptyListView>
                     {children}

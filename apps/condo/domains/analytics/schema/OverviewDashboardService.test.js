@@ -30,7 +30,7 @@ describe('OverviewDashboardService', () => {
         }
         const [data, attrs] = await overviewDashboardByTestClient(admin, payload)
         // TODO(codegen): write user expect logic
-        console.log(data.overview.payment.payments)
+        console.log(data.overview.resident.residents)
     })
 
     test('anonymous: execute', async () => {

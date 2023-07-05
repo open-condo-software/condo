@@ -328,25 +328,28 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
     )
 }
 
-const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = false, title, topValues = 0, sliceWords = false }) => {
+const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = false, title, topValues = 0, sliceWords = false, showAxisLabel = true, sortBySummary = true }) => {
     const mapperInstance = new TicketChart({
         bar: {
             chart: (viewMode, ticketGroupedCounter) => {
                 const aggregatedData = getAggregatedData(
                     ticketGroupedCounter,
                     groupBy,
-                    true
+                    sortBySummary
                 )
 
-                let axisLabels = Object.keys(aggregatedData.summary)
-                    .sort((firstLabel, secondLabel) => aggregatedData.summary[secondLabel] - aggregatedData.summary[firstLabel])
+                let axisLabels = sortBySummary ?
+                    Object.keys(aggregatedData.summary)
+                        .sort((firstLabel, secondLabel) => aggregatedData.summary[secondLabel] - aggregatedData.summary[firstLabel])
+                    : Array.from(new Set(Object.values(aggregatedData).flatMap(e => Object.keys(e))))
+
 
                 const series = []
 
                 if (topValues) {
                     axisLabels = axisLabels.slice(0, topValues)
 
-                    Object.entries(aggregatedData).map(([groupBy, dataObj]) => {
+                    Object.entries(aggregatedData).map(([groupBy, dataObj], index) => {
 
                         const seriesConfig = {
                             name: groupBy,
@@ -358,6 +361,13 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                                 focus: 'none',
                                 blurScope: 'none',
                             },
+                        }
+                        if (index === 0 && !showAxisLabel) {
+                            seriesConfig['label'] = {
+                                show: true,
+                                formatter: (e) => e.name,
+                                position: 'insideLeft',
+                            }
                         }
                         axisLabels.forEach(axisLabel => {
                             seriesConfig.data.push(dataObj[axisLabel])
@@ -386,6 +396,7 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                     type: 'category',
                     data: axisLabels,
                     axisLabel: {
+                        show: showAxisLabel,
                         formatter: (val) => {
                             return val.length > 12 && sliceWords ? val.slice(0, 12) + '\n' + val.slice(12, val.length) : val
                         },
@@ -398,6 +409,11 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                     xAxis: isYValue ? valueData : categoryData,
                 }
                 const tooltip = { trigger: 'axis', axisPointer: { type: 'line' } }
+
+                if (isYValue && isStacked) {
+                    series.forEach(s => s.data.reverse())
+                    axisLabels.reverse()
+                }
 
                 return { series, legend: [], axisData, tooltip }
             },
@@ -423,7 +439,7 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
     )
 }
 
-const PaymentChartContainer = ({ data, title, viewMode, mapperInstance }) => {
+const CustomChartContainer = ({ data, title, viewMode, mapperInstance }) => {
 
     return (
         <Row gutter={[0, 16]}>
@@ -443,7 +459,7 @@ const PaymentChartContainer = ({ data, title, viewMode, mapperInstance }) => {
     )
 }
 
-const TicketTableView = ({ organizationId }) => {
+const TicketTableView = ({ organizationId, dateRange }) => {
     const intl = useIntl()
     const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
     const InProgressTitle = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
@@ -456,7 +472,14 @@ const TicketTableView = ({ organizationId }) => {
     const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, 5), [offset])
 
     const { objs: tickets, loading, count } = Ticket.useObjects({
-        where: { organization: { id: organizationId }, status: { type: TicketStatusTypeType.Processing } },
+        where: {
+            organization: { id: organizationId },
+            status: { type: TicketStatusTypeType.Processing },
+            AND: [
+                { createdAt_gte: dateRange[0] },
+                { createdAt_lte: dateRange[1] },
+            ],
+        },
         first: 5,
         skip: (currentPageIndex - 1) * 5,
     })
@@ -496,7 +519,9 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
     const TicketsByPropertyTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })
     const TicketsByCategory = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
+    const TicketsByExecutor = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })
     const PaymentsTotalTitle = intl.formatMessage({ id: 'pages.reports.paymentsTotal' })
+    const ResidentTitle = intl.formatMessage({ id: 'global.section.contacts' })
     const SumTitle = intl.formatMessage({ id: 'global.sum' })
     const PaymentCountTitle = intl.formatMessage({ id: 'pages.reports.paymentCount' })
     const ChargedTitle = intl.formatMessage({ id: 'Charged' })
@@ -511,6 +536,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
         onCompleted: (response) => {
             const { result } = response
             setOverview(result.overview)
+            console.log(result.overview)
         },
         onError: error => {console.log(error)},
     })
@@ -537,7 +563,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const aggregateOptions = useMemo(() => [
         { label: 'День', value: 'day' },
         { label: 'Неделя', value: 'week' },
-        { label: 'Месяц', value: 'month' },
+        // { label: 'Месяц', value: 'month' },
     ], [])
 
     const newTickets = get(overview, 'ticketByDay.ticketCounts', [])
@@ -546,10 +572,12 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
 
     const propertyTickets = get(overview, 'ticketByProperty.ticketCounts')
     const categoryTickets = get(overview, 'ticketByCategory.ticketCounts', [])
+    const executorTickets = get(overview, 'ticketByExecutor.ticketCounts', [])
     const paymentsData = get(overview, 'payment.payments')
     const paymentSum = get(overview, 'payment.sum', null)
     const receiptsData = get(overview, 'receipt.receipts')
     const receiptSum = get(overview, 'receipt.sum', null)
+    const residentsData = get(overview, 'resident.residents', [])
 
     const paymentChart = new PaymentChart({
         barSummary: {
@@ -644,12 +672,42 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     name: PaidTitle,
                     data: payments.map(payment => [Number(payment.sum).toFixed(2), payment.createdBy]),
                     type: viewMode,
+                    label: {
+                        show: true,
+                        formatter: (e) => e.name,
+                        position: 'insideLeft',
+                    },
                 }]
                 return {
                     legend: [],
                     tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
                     axisData: {
-                        yAxis: { type: 'category', data: null },
+                        yAxis: { type: 'category', data: null, axisLabel: { show: false } },
+                        xAxis: { type: 'value', data: null },
+                    },
+                    series,
+                }
+            },
+        },
+    })
+    const residentPropertyChart = new PaymentChart({
+        bar: {
+            chart: (viewMode, residents) => {
+                const series: Array<EchartsSeries> = [{
+                    name: ResidentTitle,
+                    data: residents.map(resident => [resident.count, resident.address]),
+                    type: viewMode,
+                    label: {
+                        show: true,
+                        formatter: (e) => e.name,
+                        position: 'insideLeft',
+                    },
+                }]
+                return {
+                    legend: [],
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
+                    axisData: {
+                        yAxis: { type: 'category', data: null, axisLabel: { show: false } },
                         xAxis: { type: 'value', data: null },
                     },
                     series,
@@ -689,6 +747,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                                 title={NewTicketsTitle}
                                 data={newTickets}
                                 groupBy={[TicketAnalyticsGroupBy.Status, TicketAnalyticsGroupBy.Day]}
+                                sortBySummary={false}
                             />
                         </Col>
                         <Col lg={12} md={24}>
@@ -702,10 +761,10 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                             />
                         </Col>
                         <Col span={24}>
-                            <TicketTableView organizationId={organizationId} />
+                            <TicketTableView organizationId={organizationId} dateRange={dateRange} />
                         </Col>
                         <Col lg={12} md={24}>
-                            <PaymentChartContainer
+                            <CustomChartContainer
                                 title={PaymentsTotalTitle}
                                 data={paymentsData}
                                 viewMode='barSummary'
@@ -713,7 +772,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                             />
                         </Col>
                         <Col lg={12} md={24}>
-                            <PaymentChartContainer
+                            <CustomChartContainer
                                 title={`${ChargedTitle} / ${PaidTitle}`}
                                 data={[paymentsData, receiptsData]}
                                 viewMode='bar'
@@ -721,11 +780,30 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                             />
                         </Col>
                         <Col lg={12} md={24}>
-                            <PaymentChartContainer
+                            <CustomChartContainer
                                 title={PaymentsByPropertyTitle}
                                 data={paymentsData}
                                 viewMode='bar'
                                 mapperInstance={paymentCreatedByChart}
+                            />
+                        </Col>
+                        <Col lg={12} md={24}>
+                            <CustomChartContainer
+                                title={ResidentTitle + ' ' + TicketsByPropertyTitle.toLowerCase()}
+                                data={residentsData}
+                                viewMode='bar'
+                                mapperInstance={residentPropertyChart}
+                            />
+                        </Col>
+                        <Col lg={12} md={24}>
+                            <TicketChartContainer
+                                title={TicketTitle + ' ' + TicketsByExecutor.toLowerCase()}
+                                data={executorTickets}
+                                groupBy={[TicketAnalyticsGroupBy.Status, TicketAnalyticsGroupBy.Executor]}
+                                isStacked
+                                isYValue
+                                topValues={5}
+                                showAxisLabel={false}
                             />
                         </Col>
                         <Col lg={12} md={24}>
@@ -736,6 +814,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                                 isStacked
                                 isYValue
                                 topValues={5}
+                                showAxisLabel={false}
                             />
                         </Col>
                     </Row>

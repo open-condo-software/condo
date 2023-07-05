@@ -95,7 +95,10 @@ class PaymentDataLoader extends AbstractDataLoader {
                 case 'createdBy':
                     groupByLabels = await createBillingPropertyRange(pick(where, ['organization']))
                     payments.forEach(payment => {
-                        payment[group] = groupByLabels.find(e => e.value === payment[group]).label
+                        const foundMapping = groupByLabels.find(e => e.value === payment[group])
+                        if (foundMapping) {
+                            payment[group] = foundMapping.label
+                        }
                     })
                     break
                 default:

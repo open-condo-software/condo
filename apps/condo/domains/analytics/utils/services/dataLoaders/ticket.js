@@ -187,7 +187,7 @@ class TicketDataLoader extends AbstractDataLoader {
         const fullCombinationsResult = getCombinations({ options })
 
         const ticketMap = new Map()
-        const transformedGroupBy = groupBy.map(group => ['day', 'week'].includes(group) ? 'dayGroup' : group)
+        const transformedGroupBy = groupBy.map(group => ['day', 'week', 'month'].includes(group) ? 'dayGroup' : group)
         fullCombinationsResult.concat(ticketGqlResult).forEach(ticketCount => {
             const [mainGroup, childGroup] = transformedGroupBy
             const mapKey = (ticketCount[mainGroup] + ticketCount[childGroup]).toString()

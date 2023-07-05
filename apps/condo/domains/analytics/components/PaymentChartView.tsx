@@ -4,6 +4,7 @@ import get from 'lodash/get'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { getChartOptions } from '@condo/domains/analytics/utils/helpers'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
@@ -31,6 +32,14 @@ export const PaymentChartView: React.FC<IPaymentChartViewProps> = (props) => {
 
     if (data === null || loading) {
         return <Skeleton loading={loading} active paragraph={{ rows: 12 }} />
+    }
+
+    if (data.length === 0) {
+        return (
+            <BasicEmptyListView image='/dino/searching@2x.png'>
+                <Typography.Text>{NoData}</Typography.Text>
+            </BasicEmptyListView>
+        )
     }
 
     const mapperResult = mapperInstance.getChartConfig(viewMode, data)

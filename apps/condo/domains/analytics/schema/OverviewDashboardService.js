@@ -13,6 +13,7 @@ const access = require('@condo/domains/analytics/access/OverviewDashboardService
 const { AnalyticsDataProvider } = require('@condo/domains/analytics/utils/services/AnalyticsDataProvider')
 const { PaymentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/payment')
 const { ReceiptDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/receipt')
+const { ResidentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/resident')
 const { TicketDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/ticket')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 
@@ -95,6 +96,14 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                                 nullReplaces: ticketNullReplaces,
                             },
                         },
+                        ticketByExecutor: {
+                            provider: new TicketDataLoader({ context }),
+                            queryOptions: {
+                                where: ticketWhereFilter,
+                                groupBy: ['executor', 'status'],
+                                nullReplaces: ticketNullReplaces,
+                            },
+                        },
                         payment: {
                             provider: new PaymentDataLoader({ context }),
                             queryOptions: {
@@ -128,6 +137,15 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                                     ],
                                 },
                                 groupBy: ['month'],
+                            },
+                        },
+                        resident: {
+                            provider: new ResidentDataLoader({ context }),
+                            queryOptions: {
+                                where: {
+                                    organization: { id: where.organization },
+                                },
+                                groupBy: ['address'],
                             },
                         },
                     },

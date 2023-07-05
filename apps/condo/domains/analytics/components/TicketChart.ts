@@ -16,7 +16,7 @@ export type EchartsSeries = {
     data: unknown[]
     label?: {
         show?: boolean
-        position?: 'top' | 'bottom' | 'left' | 'right'
+        position?: 'top' | 'bottom' | 'left' | 'right' | 'insideLeft'
         padding?: number | number[]
         width?: number
         height?: number

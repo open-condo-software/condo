@@ -1082,7 +1082,7 @@
   "pages.reports.newTicketsTitle": "Новые заявки",
   "pages.reports.paymentsTotal": "Оплата квитанций",
   "pages.reports.incidentsTitle": "Инциденты",
-  "pages.reports.activeIncidents": "Актуальных инцидентов: {count}",
+  "pages.reports.activeIncidents": "Инцидентов: {count}",
   "pages.reports.ticketFeedbackCount": "Количество оценок: {count}",
   "pages.reports.paymentCount": "Количество оплат",
   "pages.reports.paymentsAmountPercent": "Сбор",
