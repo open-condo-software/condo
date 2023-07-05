@@ -64,7 +64,7 @@ import {
 import { OnBoardingProvider } from '@condo/domains/onboarding/components/OnBoardingContext'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
-import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
+import { ASSIGNED_TICKET_VISIBILITY, MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { OnlyTicketPagesAccess } from '@condo/domains/scope/components/OnlyTicketPagesAccess'
 import {
@@ -129,6 +129,7 @@ const MenuItems: React.FC = () => {
     const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } })
     const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
     const hasAccessToBilling = (get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)) && !isAssignedVisibilityType
+    const isManagingCompany = get(organization, 'type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
     // The menu item is hidden until release
     const canManageNewsItems = false && get<boolean>(role, 'canManageNewsItems', false)
 
@@ -147,7 +148,7 @@ const MenuItems: React.FC = () => {
                     path: 'reports',
                     icon: AllIcons['BarChartVertical'],
                     label: 'global.section.analytics',
-                    access: !isAssignedVisibilityType,
+                    access: !isAssignedVisibilityType && isManagingCompany,
                 },
             ].filter(checkItemAccess),
         },
@@ -159,20 +160,21 @@ const MenuItems: React.FC = () => {
                     path: 'ticket',
                     icon: AllIcons['LayoutList'],
                     label: 'global.section.controlRoom',
+                    access: isManagingCompany,
                 },
                 {
                     id: 'menuitem-incident',
                     path: 'incident',
                     icon: AllIcons['OnOff'],
                     label: 'global.section.incidents',
-                    access: !isAssignedVisibilityType,
+                    access: !isAssignedVisibilityType && isManagingCompany,
                 },
                 {
                     id: 'menuitem-news',
                     path: 'news',
                     icon: AllIcons['Newspaper'],
                     label: 'global.section.newsItems',
-                    access: canManageNewsItems,
+                    access: canManageNewsItems && isManagingCompany,
                 },
             ].filter(checkItemAccess),
         },
@@ -184,7 +186,7 @@ const MenuItems: React.FC = () => {
                     path: 'property',
                     icon: AllIcons['Building'],
                     label: 'global.section.properties',
-                    access: !isAssignedVisibilityType,
+                    access: !isAssignedVisibilityType && isManagingCompany,
                 },
             ].filter(checkItemAccess),
         },
@@ -196,7 +198,7 @@ const MenuItems: React.FC = () => {
                     path: 'contact',
                     icon: AllIcons['Contacts'],
                     label: 'global.section.contacts',
-                    access: !isAssignedVisibilityType,
+                    access: !isAssignedVisibilityType && isManagingCompany,
                 },
             ].filter(checkItemAccess),
         },
@@ -208,7 +210,7 @@ const MenuItems: React.FC = () => {
                     path: 'employee',
                     icon: AllIcons['Employee'],
                     label: 'global.section.employees',
-                    access: !isAssignedVisibilityType,
+                    access: !isAssignedVisibilityType && isManagingCompany,
                 },
             ].filter(checkItemAccess),
         },
@@ -242,7 +244,7 @@ const MenuItems: React.FC = () => {
                     path: 'meter',
                     icon: AllIcons['Meters'],
                     label: 'global.section.meters',
-                    access: !isAssignedVisibilityType,
+                    access: !isAssignedVisibilityType && isManagingCompany,
                 },
             ].filter(checkItemAccess),
         },
@@ -254,7 +256,7 @@ const MenuItems: React.FC = () => {
                     path: 'miniapps',
                     icon: AllIcons['Services'],
                     label: 'global.section.miniapps',
-                    access: !isAssignedVisibilityType,
+                    access: !isAssignedVisibilityType && isManagingCompany,
                     excludePaths: connectedAppsIds.map((id) => new RegExp(`/miniapps/${id}$`)),
                 },
             ].filter(checkItemAccess),
@@ -267,9 +269,9 @@ const MenuItems: React.FC = () => {
                     path: 'settings',
                     icon: AllIcons['Settings'],
                     label: 'global.section.settings',
-                    access: !isAssignedVisibilityType,
+                    access: !isAssignedVisibilityType && isManagingCompany,
                 },
-            ],
+            ].filter(checkItemAccess),
         },
     ]), [
         isAssignedVisibilityType,
@@ -279,12 +281,13 @@ const MenuItems: React.FC = () => {
         anyReceiptsLoaded,
         sppBillingId,
         connectedAppsIds,
+        isManagingCompany,
     ])
 
     return (
         <>
             {
-                !isAssignedVisibilityType && (
+                !isAssignedVisibilityType && isManagingCompany &&  (
                     <FocusElement>
                         <OnBoardingProgressIconContainer>
                             <MenuItem

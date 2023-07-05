@@ -1,19 +1,23 @@
 import { MenuOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Layout, Space } from 'antd'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
 import { colors, MAX_CONTENT_WIDTH } from '@condo/domains/common/constants/style'
+import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
+
 
 
 const DesktopHeader = styled(Layout.Header)`
@@ -49,6 +53,10 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     const router = useRouter()
     const { isAuthenticated } = useAuth()
 
+    const { organization } = useOrganization()
+
+    const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
+
     useOrganizationInvites()
 
     const handleLogoClick = useCallback(() => {
@@ -65,7 +73,9 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                 <MobileHeader>
                     <Space size={22}>
                         <MenuOutlined onClick={toggleCollapsed}/>
-                        <ResidentActions minified/>
+                        {hasAccessToAppeals && (
+                            <ResidentActions minified/>
+                        )}
                     </Space>
                     <Logo onClick={handleLogoClick} minified/>
                     <UserMenu/>

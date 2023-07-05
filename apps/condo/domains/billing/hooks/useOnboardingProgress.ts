@@ -5,9 +5,9 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 
 import { UUID_REGEXP } from '@condo/domains/common/constants/regexps'
 
-const ALLOWED_STEPS = ['0', '1', '2']
-
-export function useOnboardingProgress (): [number, string] {
+export function useOnboardingProgress (withVerification?: boolean): [number, string] {
+    const totalSteps = withVerification ? 4 : 3
+    const allowedSteps = Array.from({ length: totalSteps }).map((_, idx) => `${idx}`)
     const router = useRouter()
     const [currentStep, setCurrentStep] = useState(0)
     const [currentBilling, setCurrentBilling] = useState<string>(null)
@@ -15,7 +15,7 @@ export function useOnboardingProgress (): [number, string] {
     useDeepCompareEffect(()=> {
         const { step, billing } = router.query
 
-        if (!Array.isArray(step) && ALLOWED_STEPS.includes(step)) {
+        if (!Array.isArray(step) && allowedSteps.includes(step)) {
             setCurrentStep(parseInt(step))
         } else {
             setCurrentStep(0)

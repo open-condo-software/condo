@@ -7,7 +7,8 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
+const { CONTEXT_IN_PROGRESS_STATUS, CONTEXT_VERIFICATION_STATUS, CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
 const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
@@ -77,6 +78,29 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
     return await checkAcquiringIntegrationAccessRight(user.id, integrationId)
 }
 
+async function canManageStatusField ({ authentication: { item: user }, existingItem, operation, originalInput }) {
+    // Admin / support can freely change status field
+    if (user.isAdmin || user.isSupport) return true
+
+    // Nobody else can update status field if it's on verification currently
+    if (existingItem && existingItem.status === CONTEXT_VERIFICATION_STATUS) {
+        return false
+    }
+
+    // Service provider org employee should not be able to finish connecting by itself
+    if ('status' in originalInput && originalInput.status === CONTEXT_FINISHED_STATUS) {
+        const orgId = operation === 'create' ? get(originalInput, ['organization', 'connect', 'id']) : existingItem['organization']
+        if (!orgId) {
+            return false
+        }
+        const org = await getById('Organization', orgId)
+
+        return Boolean(org && org.type !== SERVICE_PROVIDER_TYPE)
+    }
+
+    return true
+}
+
 
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
@@ -85,4 +109,5 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
 module.exports = {
     canReadAcquiringIntegrationContexts,
     canManageAcquiringIntegrationContexts,
+    canManageStatusField,
 }

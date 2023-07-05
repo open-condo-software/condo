@@ -11,6 +11,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')
+const { CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS, CONTEXT_STATUSES } = require('@condo/domains/acquiring/constants/context')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
@@ -18,7 +19,6 @@ const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema
 const { AcquiringIntegrationContext: ContextServerSchema } = require('@condo/domains/acquiring/utils/serverSchema')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { STATUS_FIELD, getStatusDescription, getStatusResolver } = require('@condo/domains/miniapp/schema/fields/context')
 
 
@@ -102,9 +102,15 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         },
         status: {
             ...STATUS_FIELD,
+            options: CONTEXT_STATUSES,
             schemaDoc: getStatusDescription('AcquiringIntegration'),
             hooks: {
                 resolveInput: getStatusResolver('AcquiringIntegration', 'integration'),
+            },
+            access: {
+                read: true,
+                create: access.canManageStatusField,
+                update: access.canManageStatusField,
             },
         },
     },
@@ -118,12 +124,14 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
     },
     hooks: {
         validateInput: async ({ resolvedData, context, addValidationError, existingItem }) => {
-            if (resolvedData['status'] === CONTEXT_FINISHED_STATUS && !resolvedData['deletedAt']) {
+            if ((resolvedData['status'] === CONTEXT_FINISHED_STATUS || resolvedData['status'] === CONTEXT_VERIFICATION_STATUS) &&
+                !resolvedData['deletedAt']) {
                 const newItem = { ...existingItem, ...resolvedData }
                 const activeContexts = await ContextServerSchema.getAll(context, {
                     organization: { id: newItem['organization'] },
-                    status: CONTEXT_FINISHED_STATUS,
+                    status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS],
                     deletedAt: null,
+                    id_not: newItem['id'],
                 })
                 if (activeContexts.length) {
                     addValidationError(CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
