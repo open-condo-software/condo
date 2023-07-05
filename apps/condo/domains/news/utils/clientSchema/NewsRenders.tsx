@@ -36,6 +36,7 @@ type GetTypeRenderType = (intl: IntlShape, search: FilterValue) => GetRenderType
 
 type GetRenderPropertiesType = (intl: IntlShape, search: FilterValue) => GetRenderType
 
+// TODO(DOMA-6153): rewrite to css-modules after migrating from custom style loader plugins
 export const ResendButton = styled.div`
   color: ${colors.gray[7]};
   transition: color 0.3s;
