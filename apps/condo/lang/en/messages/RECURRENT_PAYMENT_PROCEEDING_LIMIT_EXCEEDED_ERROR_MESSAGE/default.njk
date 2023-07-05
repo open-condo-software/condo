@@ -1,1 +1,5 @@
-The utility bill amount exceeds the auto payment limit. Check out autopayment settings
+{%- if message.meta.data.lastTry -%}
+The utility bill amount exceeds the auto payment limit. Check out autopyment settings
+{%- else -%}
+Increase the autopayment limit, we will try to debit again tomorrow
+{% endif %}

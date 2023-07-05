@@ -56,6 +56,8 @@ const {
     ServiceConsumer,
 } = require('@condo/domains/resident/utils/serverSchema')
 
+const RETRY_COUNT = 5
+
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'recurrent-payment-queries' } }
 const logger = getLogger('recurrent-payment-processing-queries')
 
@@ -280,7 +282,7 @@ async function getReadyForProcessingPaymentsPage (context, pageSize, offset, ext
 
     return await RecurrentPayment.getAll(context, {
         OR: [ { payAfter: null }, { payAfter_lte: dayjs().toISOString() }],
-        tryCount_lt: 5,
+        tryCount_lt: RETRY_COUNT,
         status_in: [RECURRENT_PAYMENT_INIT_STATUS, RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS],
         deletedAt: null,
         ...extraArgs,
@@ -424,7 +426,7 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
     const type = success ? RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE
         : failedMessageMeta.type
     const url = success ? `${conf.SERVER_URL}/payments/` : failedMessageMeta.url
-    const additionalData = success ? {} : { errorCode }
+    const additionalData = success ? {} : { errorCode, lastTry: tryCount >= RETRY_COUNT }
 
     // in case if error happens
     // and error meta signals to us - do not send notification to end user
@@ -638,12 +640,8 @@ async function setRecurrentPaymentAsFailed (context, recurrentPayment, errorMess
     let nextStatus = RECURRENT_PAYMENT_ERROR_NEED_RETRY_STATUS
 
     // cases when we have to deny retry
-    if (nextTryCount >= 5
-        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE
-        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_NOT_FOUND_CODE
-        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CONTEXT_DISABLED_CODE
+    if (nextTryCount >= RETRY_COUNT
         || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE
-        || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE
         || errorCode === RECURRENT_PAYMENT_PROCESS_ERROR_NO_RECEIPTS_TO_PROCEED_CODE) {
         nextStatus = RECURRENT_PAYMENT_ERROR_STATUS
     }
@@ -677,4 +675,5 @@ module.exports = {
     sendTomorrowPaymentLimitExceedNotificationSafely,
     getNotificationMetaByErrorCode,
     isLimitExceedForBillingReceipts,
+    RETRY_COUNT,
 }
