@@ -14,13 +14,13 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Typography, Modal } from '@open-condo/ui'
 
 import { CREATE_BANK_ACCOUNT_REQUEST_MUTATION } from '@condo/domains/banking/gql'
-import { BankAccount, BankIntegrationAccountContext } from '@condo/domains/banking/utils/clientSchema'
+import { BankAccount } from '@condo/domains/banking/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PROPERTY_BANK_ACCOUNT } from '@condo/domains/common/constants/featureflags'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 
 
-import type { Property, BankAccount as BankAccountType, BankIntegrationAccountContext as BankIntegrationAccountContextType } from '@app/condo/schema'
+import type { Property, BankAccount as BankAccountType } from '@app/condo/schema'
 
 const PROPERTY_CARD_WIDTH_THRESHOLD = 400
 const INTL_DATE_FORMAT = {
@@ -81,16 +81,16 @@ const PropertyCardCss = css`
 `
 
 interface IPropertyCardBalanceContent {
-    ({ bankAccount, bankIntegrationAccountContext, clickCallback }: { bankAccount: BankAccountType, bankIntegrationAccountContext: BankIntegrationAccountContextType, clickCallback: () => void }): React.ReactElement
+    ({ bankAccount, clickCallback }: { bankAccount: BankAccountType, clickCallback: () => void }): React.ReactElement
 }
 
-const PropertyCardBalanceContent: IPropertyCardBalanceContent = ({ bankAccount, bankIntegrationAccountContext, clickCallback }) => {
+const PropertyCardBalanceContent: IPropertyCardBalanceContent = ({ bankAccount,  clickCallback }) => {
     const intl = useIntl()
     const BalanceTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportBalance.title' })
     const BalanceDescription = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportBalance.description' }, {
-        dateUpdated: intl.formatDate(get(bankIntegrationAccountContext, 'meta.amountAt', bankAccount.updatedAt), INTL_DATE_FORMAT),
+        dateUpdated: intl.formatDate(get(bankAccount, 'integrationContext.meta.amountAt', bankAccount.updatedAt), INTL_DATE_FORMAT),
     })
-    const BalanceValue = intl.formatNumber(get(bankIntegrationAccountContext, 'meta.amount', 0), {
+    const BalanceValue = intl.formatNumber(get(bankAccount, 'integrationContext.meta.amount', 0), {
         style: 'currency',
         currency: bankAccount.currencyCode,
     })
@@ -239,12 +239,6 @@ const PropertyReportCard: IPropertyReportCard = ({ organizationId, property, rol
             property: { id: property.id },
         },
     })
-    const { objs: [bankIntegrationAccountContext], loading: loadingIntegrationContext } = BankIntegrationAccountContext.useObjects({
-        where: {
-            id: get(bankAccount, 'integrationContext.id'),
-        },
-        first: 1,
-    })
 
     const setupReportClick = useCallback(async () => {
         await push(asPath + '/report')
@@ -256,12 +250,11 @@ const PropertyReportCard: IPropertyReportCard = ({ organizationId, property, rol
     return (
         <>
             <Card css={PropertyCardCss}>
-                {loading || loadingIntegrationContext ? <Loader fill size='large' /> : (
+                {loading ? <Loader fill size='large' /> : (
                     <PropertyCardContent>
                         {bankAccountCardEnabled && bankAccount && canManageBankAccount
                             ? <PropertyCardBalanceContent
                                 bankAccount={bankAccount}
-                                bankIntegrationAccountContext={bankIntegrationAccountContext}
                                 clickCallback={setupReportClick} />
                             : <PropertyCardInfoContent
                                 hasAccess={canManageBankAccount}
