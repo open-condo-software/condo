@@ -391,7 +391,7 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                     })
                 }
 
-                const valueData = { type: 'value', data: null }
+                const valueData = { type: 'value', data: null, boundaryGap: [0, 0.02] }
                 const categoryData = {
                     type: 'category',
                     data: axisLabels,
@@ -536,7 +536,6 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
         onCompleted: (response) => {
             const { result } = response
             setOverview(result.overview)
-            console.log(result.overview)
         },
         onError: error => {console.log(error)},
     })
@@ -605,12 +604,13 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
                     axisData: {
                         yAxis: [
-                            { type: 'value', data: null },
+                            { type: 'value', data: null, boundaryGap: [0, 0.02] },
                             {
                                 type: 'value',
                                 data: null,
                                 min: 0,
                                 max: maxCount + Math.round(maxCount / 2),
+                                boundaryGap: [0, 0.02],
                                 axisLabel: {
                                     formatter: (value) => {
                                         return value % 1 === 0 ? value : ''
@@ -638,12 +638,14 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                         data: dataset[1].map(receipt => [receipt.dayGroup, Number(receipt.sum).toFixed(2)]),
                         type: viewMode,
                         label: { show: true, position: 'top' },
+                        barMaxWidth: 40,
                     },
                     {
                         name: PaidTitle,
                         data: dataset[0].map(payment => [payment.dayGroup, Number(payment.sum).toFixed(2)]),
                         type: viewMode,
                         label: { show: true, position: 'top' },
+                        barMaxWidth: 40,
                     },
                 ]
 
@@ -651,7 +653,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     legend: [ChargedTitle, PaidTitle],
                     tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
                     axisData: {
-                        yAxis: { type: 'value', data: null },
+                        yAxis: { type: 'value', data: null, boundaryGap: [0, 0.05] },
                         xAxis: {
                             type: 'category',
                             data: null,
@@ -677,13 +679,14 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                         formatter: (e) => e.name,
                         position: 'insideLeft',
                     },
+                    barMaxWidth: 40,
                 }]
                 return {
                     legend: [],
                     tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
                     axisData: {
                         yAxis: { type: 'category', data: null, axisLabel: { show: false } },
-                        xAxis: { type: 'value', data: null },
+                        xAxis: { type: 'value', data: null, boundaryGap: [0, 0.02] },
                     },
                     series,
                 }
@@ -702,13 +705,14 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                         formatter: (e) => e.name,
                         position: 'insideLeft',
                     },
+                    barMaxWidth: 40,
                 }]
                 return {
                     legend: [],
                     tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
                     axisData: {
                         yAxis: { type: 'category', data: null, axisLabel: { show: false } },
-                        xAxis: { type: 'value', data: null },
+                        xAxis: { type: 'value', data: null, boundaryGap: [0, 0.02] },
                     },
                     series,
                 }

@@ -68,7 +68,7 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                         { createdAt_lte: where.dateTo },
                     ],
                 }
-                const ticketWhereFilter = { organization: { id: where.organization }, ...dateFilter }
+                const ticketWhereFilter = { organization: { id: where.organization }, ...dateFilter, deletedAt: null }
 
                 const dataProvider = new AnalyticsDataProvider({
                     entities: {
@@ -109,6 +109,7 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                             queryOptions: {
                                 where: {
                                     organization: { id: where.organization },
+                                    deletedAt: null,
                                     // status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
                                     AND: [
                                         { period_gte: dayjs(where.dateFrom).startOf('month').toISOString() },
@@ -131,6 +132,7 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                             queryOptions: {
                                 where: {
                                     organization: { id: where.organization },
+                                    deletedAt: null,
                                     AND: [
                                         { period_gte: dayjs(where.dateFrom).startOf('month').toISOString() },
                                         { period_lte: dayjs(where.dateTo).endOf('month').toISOString() },
@@ -144,6 +146,7 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                             queryOptions: {
                                 where: {
                                     organization: { id: where.organization },
+                                    deletedAt: null,
                                 },
                                 groupBy: ['address'],
                             },
