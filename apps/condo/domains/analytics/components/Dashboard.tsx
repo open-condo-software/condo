@@ -9,6 +9,7 @@ import Big from 'big.js'
 import dayjs, { Dayjs } from 'dayjs'
 import ReactECharts from 'echarts-for-react'
 import get from 'lodash/get'
+import groupBy from 'lodash/groupBy'
 import isNull from 'lodash/isNull'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
@@ -365,8 +366,10 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                         if (index === 0 && !showAxisLabel) {
                             seriesConfig['label'] = {
                                 show: true,
-                                formatter: (e) => e.name,
-                                position: 'insideLeft',
+                                formatter: (e) => e.data > 0 ? e.name : '',
+                                position: 'top',
+                                align: 'left',
+                                distance: 2,
                             }
                         }
                         axisLabels.forEach(axisLabel => {
@@ -415,7 +418,13 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                     axisLabels.reverse()
                 }
 
-                return { series, legend: [], axisData, tooltip }
+                return {
+                    series,
+                    legend: [],
+                    axisData,
+                    tooltip,
+                    color: [colors.pink['5'], colors.orange['5'], colors.green['5'], colors.brown['5'],  colors.blue['5'], colors.teal['5']],
+                }
             },
             table: () => null,
         },
@@ -671,14 +680,17 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const paymentCreatedByChart = new PaymentChart({
         bar: {
             chart: (viewMode, payments) => {
+                const createdByGroup = groupBy(payments, 'createdBy')
                 const series: Array<EchartsSeries> = [{
                     name: PaidTitle,
-                    data: payments.map(payment => [Number(payment.sum).toFixed(2), payment.createdBy]),
+                    data: Object.entries(createdByGroup).map(([groupLabel, dataObj]) => {
+                        return [dataObj.reduce((p, c) => p + Number(c.sum), 0), groupLabel]
+                    }),
                     type: viewMode,
                     label: {
                         show: true,
                         formatter: (e) => e.name,
-                        position: 'insideLeft',
+                        position: 'top',
                     },
                     barMaxWidth: 40,
                 }]
@@ -704,7 +716,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     label: {
                         show: true,
                         formatter: (e) => e.name,
-                        position: 'insideLeft',
+                        position: 'top',
                     },
                     barMaxWidth: 40,
                 }]
