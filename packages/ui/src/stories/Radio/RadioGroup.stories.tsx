@@ -35,9 +35,15 @@ const radioGroupButtonTemplateArgs = [
     { title: 'Default', customProps: { value: 'value 1' } },
     { title: 'Disabled', customProps: { disabled: true } },
     {
-        title: 'With icon',
+        title: 'Label with icon',
         customProps: { children: Array.from({ length: 3 }, (_, i) => (
             <Radio label={(i + 1).toString()} value={i} icon={<FileText size='small' />} />
+        )) },
+    },
+    {
+        title: 'Only with icon',
+        customProps: { children: Array.from({ length: 3 }, (_, i) => (
+            <Radio value={i} icon={<FileText size='small' />} />
         )) },
     },
 ]

@@ -49,13 +49,17 @@ const Radio: IRadio = (props) => {
             onChange={handleChange}
         >
             {
-                label
+                (label || wrappedIcon)
                     ? (
                         <div className={`${RADIO_CLASS_PREFIX}-label-container`}>
                             {wrappedIcon}
-                            <Typography.Text size='medium' disabled={disabled} {...labelProps}>
-                                {label}
-                            </Typography.Text>
+                            {
+                                label && (
+                                    <Typography.Text size='medium' disabled={disabled}  {...labelProps}>
+                                        {label}
+                                    </Typography.Text>
+                                )
+                            }
                         </div>
                     )
                     : children

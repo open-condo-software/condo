@@ -87,8 +87,11 @@
 
 .condo-radio-icon {
   display: inline-flex;
-  margin-right: @condo-global-spacing-8;
   color: @condo-global-color-black;
+
+  & ~ .condo-typography {
+    margin-left: @condo-global-spacing-8 !important;
+  }
 }
 
 .condo-radio-group {
