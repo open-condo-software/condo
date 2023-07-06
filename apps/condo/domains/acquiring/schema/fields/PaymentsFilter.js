@@ -12,7 +12,7 @@ const PaymentsFilterFields = {
     accountNumber: 'String',
     address: '[String]',
     type: '[String]',
-    order: 'String',
+    paymentTransaction: 'String',
     status: '[String]',
 }
 

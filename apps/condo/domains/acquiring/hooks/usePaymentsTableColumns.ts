@@ -91,10 +91,10 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 dataIndex: 'status',
                 render: getStatusRender(intl, openStatusDescModal, search),
             },
-            order: {
+            paymentTransaction: {
                 title: getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
-                key: 'order',
-                dataIndex: 'order',
+                key: 'paymentTransaction',
+                dataIndex: 'paymentTransaction',
                 render: stringSearch,
             },
             amount: {

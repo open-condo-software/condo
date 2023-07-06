@@ -6,6 +6,7 @@ const { Text, Relationship, DateTimeUtc, Select } = require('@keystonejs/fields'
 const Big = require('big.js')
 const { get } = require('lodash')
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
@@ -25,6 +26,8 @@ const {
     PAYMENT_RECIPIENT_MISMATCH,
     PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME,
     PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT,
+    PAYMENT_NO_PAIRED_FROZEN_ORDER,
+    PAYMENT_NO_PAIRED_ORDER,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     PAYMENT_STATUSES,
@@ -42,6 +45,22 @@ const {
     NON_NEGATIVE_MONEY_FIELD,
     IMPORT_ID_FIELD,
 } = require('@condo/domains/common/schema/fields')
+
+
+const ERRORS = {
+    PAYMENT_NO_PAIRED_FROZEN_ORDER: {
+        code: BAD_USER_INPUT,
+        type: PAYMENT_NO_PAIRED_FROZEN_ORDER,
+        message: 'Input is containing "order", but no "frozenOrder" is not specified',
+        variable: ['data', 'order'],
+    },
+    PAYMENT_NO_PAIRED_ORDER: {
+        code: BAD_USER_INPUT,
+        type: PAYMENT_NO_PAIRED_ORDER,
+        message: 'Input is containing "frozenOrder", but no "order" is not specified',
+        variable: ['data', 'frozenOrder'],
+    },
+}
 
 const Payment = new GQLListSchema('Payment', {
     schemaDoc: 'Information about completed transaction from user to a specific organization',
@@ -139,6 +158,35 @@ const Payment = new GQLListSchema('Payment', {
             },
         },
 
+        order: {
+            schemaDoc: 'Link to the order that the user paid for',
+            type: 'Relationship',
+            ref: 'Order',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            hooks: {
+                validateInput: ({ context, resolvedData, addFieldValidationError, fieldPath }) => {
+                    if (resolvedData[fieldPath] && !resolvedData['frozenOrder']) {
+                        throw new GQLError(ERRORS.PAYMENT_NO_PAIRED_FROZEN_ORDER, context)
+                    }
+                },
+            },
+        },
+
+        frozenOrder: {
+            schemaDoc: 'Frozen order, used to resolving conflicts',
+            type: Json,
+            isRequired: false,
+            access: { read: access.canReadPaymentsSensitiveData },
+            hooks: {
+                validateInput: ({ context, resolvedData, addFieldValidationError, fieldPath }) => {
+                    if (resolvedData[fieldPath] && !resolvedData['order']) {
+                        throw new GQLError(ERRORS.PAYMENT_NO_PAIRED_ORDER, context)
+                    }
+                },
+            },
+        },
+
         multiPayment: {
             schemaDoc: 'Link to a payment related MultiPayment. Required field to update, but initially created unlinked',
             type: Relationship,
@@ -186,8 +234,8 @@ const Payment = new GQLListSchema('Payment', {
             defaultValue: PAYMENT_INIT_STATUS,
         },
 
-        order: {
-            schemaDoc: 'Payment order. A directive to a bank from a bank account holder instructing the bank to make a payment or series of payments to a third party',
+        paymentTransaction: {
+            schemaDoc: 'Payment transaction. A directive to a bank from a bank account holder instructing the bank to make a payment or series of payments to a third party',
             type: Text,
             isRequired: false,
         },

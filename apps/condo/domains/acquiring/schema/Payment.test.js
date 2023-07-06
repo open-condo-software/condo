@@ -408,6 +408,36 @@ describe('Payment', () => {
                     })
                 }, PAYMENT_NO_PAIRED_RECEIPT)
             })
+            test('Order and frozen order should be updated at the same time', async () => {
+                const { admin, organization, billingReceipts } = await makePayer()
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestPayment(admin, organization, {
+                            order: orders[0],
+                            frozenOrder: null,
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: 'PAYMENT_NO_PAIRED_FROZEN_ORDER',
+                        message: 'Input is containing "order", but no "frozenOrder" is not specified',
+                    },
+                )
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestPayment(admin, organization, {
+                            frozenOrder: { dv: 1, data: orders[0] },
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: 'PAYMENT_NO_PAIRED_ORDER',
+                        message: 'Input is containing "frozenOrder", but no "order" is not specified',
+                    },
+                )
+            })
             test('context should should have same organization as payment',  async () => {
                 const { admin, acquiringContext } = await makePayer()
                 const [secondOrganization] = await createTestOrganization(admin)
