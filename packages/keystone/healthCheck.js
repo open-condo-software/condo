@@ -73,7 +73,6 @@ const { getRedisClient } = require('./redis')
 const DEFAULT_HEALTHCHECK_URL = '/server-health'
 const DEFAULT_INTERVAL = 1000 // 1s
 const DEFAULT_TIMEOUT = 5000 // 5s
-const DELIMITER = ','
 const PASS = 'pass'
 const FAIL = 'fail'
 
@@ -142,7 +141,7 @@ class HealthCheck {
     prepareChecks = async ({ keystone }) => {
         for (const check of this.checks) {
             if (this.preparedChecks[check.name]) {
-                throw new Error(`Check ${check.name} is already registered!`)
+                continue
             }
             if (typeof check.prepare === 'function') {
                 await check.prepare({ keystone })
@@ -187,7 +186,7 @@ class HealthCheck {
             let customChecks = null
 
             if (customChecksConfigured) {
-                customChecks = req.query.checks.trim().split(DELIMITER)
+                customChecks = req.query.checks.trim().split(',')
 
                 if (!Array.isArray(customChecks)) {
                     return res.status(BAD_REQUEST).json({ error: 'Can\'t parse custom checks' })
