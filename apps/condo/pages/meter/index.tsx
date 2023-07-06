@@ -438,7 +438,7 @@ export const MeterReportingPeriodPageContent = ({
             else defaultPeriod.current = period
         }))
     }, [reportingPeriods])
-    const DefaultPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.defaultPeriod' }, { startAt: get(defaultPeriod, 'current.startAt'), finishAt: get(defaultPeriod, 'current.finishAt') })
+    const DefaultPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.defaultPeriod' }, { notifyStartDay: get(defaultPeriod, 'current.notifyStartDay'), notifyEndDay: get(defaultPeriod, 'current.notifyEndDay') })
 
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const isNoMeterData = isEmpty(reportingPeriods) && isEmpty(filters) && !periodLoading && !loading

@@ -16,16 +16,16 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const ERRORS = {
     INVALID_FINISH: {
         code: BAD_USER_INPUT,
-        variable: ['data', 'finishAt'],
+        variable: ['data', 'notifyEndDay'],
         type: 'INVALID_FINISH',
-        message: 'The "finishAt" field can take values in the range from 1 to 31',
+        message: 'The "notifyEndDay" field can take values in the range from 1 to 31',
         messageForUser: 'api.meter.MeterReportingPeriod.INVALID_FINISH',
     },
     INVALID_START: {
         code: BAD_USER_INPUT,
-        variable: ['data', 'startAt'],
+        variable: ['data', 'notifyStartDay'],
         type: 'INVALID_START',
-        message: 'The "startAt" field can take values in the range from 1 to 31',
+        message: 'The "notifyStartDay" field can take values in the range from 1 to 31',
         messageForUser: 'api.meter.MeterReportingPeriod.INVALID_START',
     },
     ORGANIZATION_IS_REQUIRED: {
@@ -66,7 +66,7 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
-        startAt: {
+        notifyStartDay: {
             schemaDoc: 'Starting day of the month for sending a push about the need to submit meter readings',
             type: Integer,
             defaultValue: 20,
@@ -74,7 +74,7 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
             hooks: {
                 validateInput: async ({ context, operation, resolvedData }) => {
                     if (operation === 'create' || operation === 'update') {
-                        if (resolvedData.startAt > 31 || resolvedData.startAt < 1) {
+                        if (resolvedData.notifyStartDay > 31 || resolvedData.notifyStartDay < 1) {
                             throw new GQLError(ERRORS.INVALID_START, context)
                         }
                     }
@@ -82,7 +82,7 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
             },
         },
 
-        finishAt: {
+        notifyEndDay: {
             schemaDoc: 'Finish day of the month for sending a push about the need to submit meter readings',
             type: Integer,
             defaultValue: 25,
@@ -90,7 +90,7 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
             hooks: {
                 validateInput: async ({ context, operation, resolvedData }) => {
                     if (operation === 'create' || operation === 'update') {
-                        if (resolvedData.finishAt > 31 || resolvedData.finishAt < 1) {
+                        if (resolvedData.notifyEndDay > 31 || resolvedData.notifyEndDay < 1) {
                             throw new GQLError(ERRORS.INVALID_FINISH, context)
                         } 
                     }

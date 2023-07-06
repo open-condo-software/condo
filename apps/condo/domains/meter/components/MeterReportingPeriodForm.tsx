@@ -46,7 +46,7 @@ const ADDRESS_LAYOUT_PROPS = {
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 const SELECT_POSTFIX_STYLE: CSSProperties = { margin: '0 0 0 10px' }
 const ADDRESS_SEARCH_WRAPPER_COL = { span: 14 }
-const DESCRIPTION_TEXT_STYLE = { alignSelf: 'startAt' }
+const DESCRIPTION_TEXT_STYLE = { alignSelf: 'start' }
 
 interface IMeterReportingPeriodForm {
     mode: 'create' | 'update',
@@ -83,14 +83,14 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
 
     const isCreateMode = mode === 'create'
     const formInitialValues = useMemo(() => ({
-        startAt: isCreateMode ? 20 : get(reportingPeriodRecord, 'startAt'),
-        finishAt: isCreateMode ? 25 : get(reportingPeriodRecord, 'finishAt'),
+        notifyStartDay: isCreateMode ? 20 : get(reportingPeriodRecord, 'notifyStartDay'),
+        notifyEndDay: isCreateMode ? 25 : get(reportingPeriodRecord, 'notifyEndDay'),
         property: isCreateMode ? undefined : get(reportingPeriodRecord, 'property.address'),
         isOrganizationPeriod: isCreateMode ? false : get(reportingPeriodRecord, 'property') === null,
     }), [reportingPeriodRecord, mode])
 
-    const startNumberRef = useRef<number>(formInitialValues.startAt)
-    const finishNumberRef = useRef<number>(formInitialValues.finishAt)
+    const startNumberRef = useRef<number>(formInitialValues.notifyStartDay)
+    const finishNumberRef = useRef<number>(formInitialValues.notifyEndDay)
     const selectedPropertyIdRef = useRef(selectedPropertyId)
 
     useEffect(() => {
@@ -116,8 +116,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
 
     const validations: { [key: string]: Rule[] } = {
         property: [addressValidator(selectedPropertyId, true)],
-        startAt: [requiredValidator, incorrectPeriodValidation(incorrectPeriodError)],
-        finishAt: [requiredValidator, incorrectPeriodValidation(incorrectPeriodError)],
+        notifyStartDay: [requiredValidator, incorrectPeriodValidation(incorrectPeriodError)],
+        notifyEndDay: [requiredValidator, incorrectPeriodValidation(incorrectPeriodError)],
     }
 
     const handleCheckboxChange = useCallback(() => {
@@ -144,7 +144,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     }, [])
 
     useEffect(() => {
-        if (form.isFieldsTouched(['startAt', 'finishAt'])) form.validateFields(['startAt', 'finishAt'])
+        if (form.isFieldsTouched(['notifyStartDay', 'notifyEndDay'])) form.validateFields(['notifyStartDay', 'notifyEndDay'])
     }, [startNumberRef.current, finishNumberRef.current])
 
     const {
@@ -189,8 +189,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                     values.property = { connect: { id: selectedPropertyIdRef.current } }
                 }
                 values.isOrganizationPeriod = undefined
-                values.startAt = parseInt(values.startAt)
-                values.finishAt = parseInt(values.finishAt)
+                values.notifyStartDay = parseInt(values.notifyStartDay)
+                values.notifyEndDay = parseInt(values.notifyEndDay)
 
                 if (isCreateMode) {
                     values.organization = { connect: { id: organizationId } }
@@ -251,8 +251,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                     </Col>
                                     <Col span={24}>
                                         <Form.Item
-                                            name='startAt'
-                                            rules={validations.startAt}
+                                            name='notifyStartDay'
+                                            rules={validations.notifyStartDay}
                                             label={StartLabel}
                                             {...INPUT_LAYOUT_PROPS}
                                             labelAlign='left'
@@ -273,8 +273,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                     </Col>
                                     <Col span={24}>
                                         <Form.Item
-                                            name='finishAt'
-                                            rules={validations.finishAt}
+                                            name='notifyEndDay'
+                                            rules={validations.notifyEndDay}
                                             label={FinishLabel}
                                             {...INPUT_LAYOUT_PROPS}
                                             labelAlign='left'
@@ -296,16 +296,16 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                     <Col span={24}>
                                         <Form.Item
                                             noStyle
-                                            dependencies={['property', 'startAt', 'finishAt', 'isOrganizationPeriod']}
+                                            dependencies={['property', 'notifyStartDay', 'notifyEndDay', 'isOrganizationPeriod']}
                                             shouldUpdate>
                                             {
                                                 ({ getFieldsValue, getFieldError }) => {
-                                                    const { property, startAt, finishAt, isOrganizationPeriod } = getFieldsValue(['property', 'startAt', 'finishAt', 'isOrganizationPeriod'])
+                                                    const { property, notifyStartDay, notifyEndDay, isOrganizationPeriod } = getFieldsValue(['property', 'notifyStartDay', 'notifyEndDay', 'isOrganizationPeriod'])
 
                                                     const messageLabels = []
                                                     if (!property && !isOrganizationPeriod) messageLabels.push(`"${AddressLabel}" ${OrMessage} "${OrganizationLabel}"`)
-                                                    if (!startAt) messageLabels.push(`"${StartLabel}"`)
-                                                    if (!finishAt) messageLabels.push(`"${FinishLabel}"`)
+                                                    if (!notifyStartDay) messageLabels.push(`"${StartLabel}"`)
+                                                    if (!notifyEndDay) messageLabels.push(`"${FinishLabel}"`)
 
                                                     const hasIncorrectPeriodError = incorrectPeriodError ? IncorrectPeriodLabel : undefined
                                                     const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
@@ -313,7 +313,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                         .filter(Boolean)
                                                         .join(', ')
 
-                                                    const isDisabled = (!property && !isOrganizationPeriod) || !startAt || !finishAt || hasIncorrectPeriodError
+                                                    const isDisabled = (!property && !isOrganizationPeriod) || !notifyStartDay || !notifyEndDay || hasIncorrectPeriodError
 
                                                     return (
                                                         <ActionBar
