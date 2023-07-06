@@ -52405,6 +52405,7 @@ type B2BAppHistoryRecord {
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
+  hasDynamicTitle: Boolean
   icon: String
   menuCategory: String
   contextDefaultStatus: String
@@ -52534,6 +52535,8 @@ input B2BAppHistoryRecordWhereInput {
   isHidden_not: Boolean
   isGlobal: Boolean
   isGlobal_not: Boolean
+  hasDynamicTitle: Boolean
+  hasDynamicTitle_not: Boolean
   icon: String
   icon_not: String
   icon_contains: String
@@ -52755,6 +52758,8 @@ enum SortB2BAppHistoryRecordsBy {
   isHidden_DESC
   isGlobal_ASC
   isGlobal_DESC
+  hasDynamicTitle_ASC
+  hasDynamicTitle_DESC
   icon_ASC
   icon_DESC
   menuCategory_ASC
@@ -52797,6 +52802,7 @@ input B2BAppHistoryRecordUpdateInput {
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
+  hasDynamicTitle: Boolean
   icon: String
   menuCategory: String
   contextDefaultStatus: String
@@ -52835,6 +52841,7 @@ input B2BAppHistoryRecordCreateInput {
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
+  hasDynamicTitle: Boolean
   icon: String
   menuCategory: String
   contextDefaultStatus: String
@@ -52917,6 +52924,10 @@ type B2BApp {
   """ Indicates whether the app is global or not. If so, then the application will be opened in hidden mode and receive various notifications from the condo. It's also possible to trigger some condo IFrame methods via global app outside of miniapps CRM section 
   """
   isGlobal: Boolean
+
+  """ Indicates whether the miniapp has its own dynamic title. If so, the miniapp page will have no default title, shifting the responsibility for displaying it to the app itself. Otherwise, there will be a static title above the app iframe that corresponds to the application name. 
+  """
+  hasDynamicTitle: Boolean
 
   """ App icon. The presence of this field means that this app will be pinned to the CRM menu after the connection. 
   """
@@ -53100,6 +53111,8 @@ input B2BAppWhereInput {
   isHidden_not: Boolean
   isGlobal: Boolean
   isGlobal_not: Boolean
+  hasDynamicTitle: Boolean
+  hasDynamicTitle_not: Boolean
   icon: String
   icon_not: String
   icon_in: [String]
@@ -53242,6 +53255,8 @@ enum SortB2BAppsBy {
   isHidden_DESC
   isGlobal_ASC
   isGlobal_DESC
+  hasDynamicTitle_ASC
+  hasDynamicTitle_DESC
   icon_ASC
   icon_DESC
   menuCategory_ASC
@@ -53286,6 +53301,7 @@ input B2BAppUpdateInput {
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
+  hasDynamicTitle: Boolean
   icon: String
   menuCategory: String
   contextDefaultStatus: String
@@ -53322,6 +53338,7 @@ input B2BAppCreateInput {
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
+  hasDynamicTitle: Boolean
   icon: String
   menuCategory: String
   contextDefaultStatus: String
