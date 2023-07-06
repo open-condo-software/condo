@@ -336,24 +336,26 @@ export const LoginWithSBBOLButton: React.FC<{ block?: boolean, redirect?: string
         router.push(authUrl)
     }
 
-    const { loading, checkSSLClientCert, InstallTLSClientCertModal } = useCheckTLSClientCert({
+    function redirectToTlsPage () {
+        router.push('/tls')
+    }
+
+    const { loading, checkSSLClientCert } = useCheckTLSClientCert({
         onSuccess: redirectToAuth,
+        onFail: redirectToTlsPage,
     })
 
     return (
-        <>
-            <Button
-                key='submit'
-                type='sberAction'
-                secondary
-                icon={<SberIconWithoutLabel/>}
-                onClick={checkSSLClientCert}
-                loading={loading}
-                block={block}
-            >
-                {LoginLabel}
-            </Button>
-            <InstallTLSClientCertModal/>
-        </>
+        <Button
+            key='submit'
+            type='sberAction'
+            secondary
+            icon={<SberIconWithoutLabel/>}
+            onClick={checkSSLClientCert}
+            loading={loading}
+            block={block}
+        >
+            {LoginLabel}
+        </Button>
     )
 }

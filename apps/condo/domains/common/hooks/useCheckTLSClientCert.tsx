@@ -8,10 +8,6 @@ const {
 interface IUseCheckSSLClientCert {
     loading: boolean
     checkSSLClientCert: () => void
-
-type UseCheckSSLClientCertProps = {
-    onSuccess: () => void
-    onFail: () => void
 }
 
 export const useCheckTLSClientCert = ({ onSuccess, onFail }: UseCheckSSLClientCertProps): IUseCheckSSLClientCert => {
