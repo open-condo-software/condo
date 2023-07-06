@@ -293,7 +293,6 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
                         fontSize: 28,
                         valueAnimation: true,
                         offsetCenter: [0, '-10%'],
-
                         formatter: function (value) {
                             return Math.round(value * 100) + ' %'
                         },
@@ -345,7 +344,6 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                     Object.keys(aggregatedData.summary)
                         .sort((firstLabel, secondLabel) => aggregatedData.summary[secondLabel] - aggregatedData.summary[firstLabel])
                     : Array.from(new Set(Object.values(aggregatedData).flatMap(e => Object.keys(e))))
-
 
                 const series = []
 
@@ -723,22 +721,19 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
         },
     })
     const residentPropertyChart = new PaymentChart({
-        bar: {
+        pie: {
             chart: (viewMode, residents) => {
                 const series: Array<EchartsSeries> = [{
                     name: ResidentTitle,
-                    data: residents.map(resident => [resident.count, resident.address]),
-                    type: viewMode,
-                    label: {
-                        show: true,
-                        formatter: (e) => e.name,
-                        position: 'top',
-                    },
-                    barMaxWidth: 40,
+                    data: residents.map(resident => ({ value: resident.count, name: resident.address })),
+                    radius: '55%',
+                    center: ['45%', '50%'],
+                    type: 'pie',
+                    label: { show: true, formatter: (e) =>  e.percent + '%' },
                 }]
                 return {
-                    legend: [],
-                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
+                    legend: residents.map(resident => resident.address),
+                    tooltip: { trigger: 'item', axisPointer: { type: 'none' } },
                     axisData: {
                         yAxis: { type: 'category', data: null, axisLabel: { show: false } },
                         xAxis: { type: 'value', data: null, boundaryGap: [0, 0.02] },
@@ -831,7 +826,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                             <CustomChartContainer
                                 title={ResidentTitle + ' ' + TicketsByPropertyTitle.toLowerCase()}
                                 data={residentsData}
-                                viewMode='bar'
+                                viewMode='pie'
                                 mapperInstance={residentPropertyChart}
                             />
                         </Col>

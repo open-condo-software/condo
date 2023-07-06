@@ -13,6 +13,7 @@ import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
 import PaymentChart from './PaymentChart'
 
 import type { PaymentChartType, PaymentDataType } from './PaymentChart'
+import type { ViewModeTypes } from './TicketChart'
 
 interface IPaymentChartViewProps {
     data: null | PaymentDataType
@@ -50,7 +51,7 @@ export const PaymentChartView: React.FC<IPaymentChartViewProps> = (props) => {
         legend,
         tooltip,
         color: CHART_COLOR_SET,
-        viewMode: 'bar',
+        viewMode: viewMode as ViewModeTypes,
         showTitle: false,
         chartOptions: chartConfig.chartOptions || {},
         animationEnabled: chartConfig.animationEnabled,

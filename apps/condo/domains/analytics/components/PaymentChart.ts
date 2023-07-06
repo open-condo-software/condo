@@ -20,6 +20,7 @@ interface IGetChartConfig extends IGetBaseChartConfig<PaymentChartType, PaymentD
 type ChartConfigMapType = {
     barSummary?: { chart: IGetChartConfig }
     bar?: { chart: IGetChartConfig }
+    pie?: { chart: IGetChartConfig }
 }
 
 class PaymentChart extends BaseChart<ChartConfigMapType, ChartConfigResult, unknown, PaymentChartType, PaymentDataType, unknown> {
