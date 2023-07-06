@@ -57,6 +57,14 @@ const B2BApp = new GQLListSchema('B2BApp', {
             defaultValue: false,
             isRequired: true,
         },
+        hasDynamicTitle: {
+            schemaDoc: 'Indicates whether the miniapp has its own dynamic title. ' +
+                'If so, the miniapp page will have no default title, shifting the responsibility for displaying it to the app itself. ' +
+                'Otherwise, there will be a static title above the app iframe that corresponds to the application name.',
+            type: Checkbox,
+            defaultValue: false,
+            isRequired: true,
+        },
         icon: ICON_FIELD,
         menuCategory: MENU_CATEGORY_FIELD,
         contextDefaultStatus: CONTEXT_DEFAULT_STATUS_FIELD,

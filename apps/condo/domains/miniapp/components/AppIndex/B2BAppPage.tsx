@@ -38,6 +38,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
 
     const appUrl = get(context, ['app', 'appUrl'], null)
     const appName = get(context, ['app', 'name'], null)
+    const hasDynamicTitle = get(context, ['app', 'hasDynamicTitle'], false)
 
     // NOTE 1: Page visiting is valid if context exist and app has appUrl
     // NOTE 2: In case of invalid id it will redirect to about page, where appId is checked
@@ -58,7 +59,9 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
                 <title>{appName || FallbackPageTitle}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={<Typography.Title level={1}>{appName || FallbackPageTitle}</Typography.Title>} spaced/>
+                {!hasDynamicTitle && (
+                    <PageHeader title={<Typography.Title level={1}>{appName || FallbackPageTitle}</Typography.Title>} spaced/>
+                )}
                 <PageContent>
                     {appUrl && (
                         <IFrame
