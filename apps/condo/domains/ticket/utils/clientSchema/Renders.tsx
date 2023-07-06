@@ -1,4 +1,4 @@
-import { Property, Ticket } from '@app/condo/schema'
+import { MeterReportingPeriod, Property, Ticket } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
@@ -353,6 +353,16 @@ export const getTicketUserNameRender = (search: FilterValue) => {
         const trimmedUserName = userNameLength > maxUserNameLength ? `${name.substring(0, maxUserNameLength)}…` : name
 
         return getTableCellRenderer({ search, extraTitle: name })(trimmedUserName)
+    }
+}
+
+export const getMeterReportingPeriodRender = (search: FilterValue, intl) => {
+
+    return function render (periodRecord: MeterReportingPeriod) {
+        const startAt = get(periodRecord, 'notifyStartDay')
+        const finishAt = get(periodRecord, 'notifyEndDay')
+        const ReportingPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.Table.reportingPeriod' }, { startAt, finishAt })
+        return getTableCellRenderer({ search })(ReportingPeriodMessage)
     }
 }
 

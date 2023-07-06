@@ -27613,11 +27613,9 @@ export type MeterReportingPeriod = {
   /**  Ref to the property. Will be null if the instance is an installation for all users in the organization  */
   property?: Maybe<Property>;
   /**  Starting day of the month for sending a push about the need to submit meter readings  */
-  start?: Maybe<Scalars['Int']>;
+  notifyStartDay?: Maybe<Scalars['Int']>;
   /**  Finish day of the month for sending a push about the need to submit meter readings  */
-  finish?: Maybe<Scalars['Int']>;
-  /**  Ref to the B2CApp which used to replace default integration in resident's app  */
-  b2cApp?: Maybe<B2CApp>;
+  notifyEndDay?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -27637,9 +27635,8 @@ export type MeterReportingPeriod = {
 export type MeterReportingPeriodCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
-  start?: Maybe<Scalars['Int']>;
-  finish?: Maybe<Scalars['Int']>;
-  b2cApp?: Maybe<B2CAppRelateToOneInput>;
+  notifyStartDay?: Maybe<Scalars['Int']>;
+  notifyEndDay?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27664,9 +27661,8 @@ export type MeterReportingPeriodHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
-  start?: Maybe<Scalars['Int']>;
-  finish?: Maybe<Scalars['Int']>;
-  b2cApp?: Maybe<Scalars['String']>;
+  notifyStartDay?: Maybe<Scalars['Int']>;
+  notifyEndDay?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -27685,9 +27681,8 @@ export type MeterReportingPeriodHistoryRecord = {
 export type MeterReportingPeriodHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
-  start?: Maybe<Scalars['Int']>;
-  finish?: Maybe<Scalars['Int']>;
-  b2cApp?: Maybe<Scalars['String']>;
+  notifyStartDay?: Maybe<Scalars['Int']>;
+  notifyEndDay?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27711,9 +27706,8 @@ export enum MeterReportingPeriodHistoryRecordHistoryActionType {
 export type MeterReportingPeriodHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
-  start?: Maybe<Scalars['Int']>;
-  finish?: Maybe<Scalars['Int']>;
-  b2cApp?: Maybe<Scalars['String']>;
+  notifyStartDay?: Maybe<Scalars['Int']>;
+  notifyEndDay?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27739,26 +27733,22 @@ export type MeterReportingPeriodHistoryRecordWhereInput = {
   property_not?: Maybe<Scalars['String']>;
   property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  start?: Maybe<Scalars['Int']>;
-  start_not?: Maybe<Scalars['Int']>;
-  start_lt?: Maybe<Scalars['Int']>;
-  start_lte?: Maybe<Scalars['Int']>;
-  start_gt?: Maybe<Scalars['Int']>;
-  start_gte?: Maybe<Scalars['Int']>;
-  start_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  start_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  finish?: Maybe<Scalars['Int']>;
-  finish_not?: Maybe<Scalars['Int']>;
-  finish_lt?: Maybe<Scalars['Int']>;
-  finish_lte?: Maybe<Scalars['Int']>;
-  finish_gt?: Maybe<Scalars['Int']>;
-  finish_gte?: Maybe<Scalars['Int']>;
-  finish_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  finish_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  b2cApp?: Maybe<Scalars['String']>;
-  b2cApp_not?: Maybe<Scalars['String']>;
-  b2cApp_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  b2cApp_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  notifyStartDay?: Maybe<Scalars['Int']>;
+  notifyStartDay_not?: Maybe<Scalars['Int']>;
+  notifyStartDay_lt?: Maybe<Scalars['Int']>;
+  notifyStartDay_lte?: Maybe<Scalars['Int']>;
+  notifyStartDay_gt?: Maybe<Scalars['Int']>;
+  notifyStartDay_gte?: Maybe<Scalars['Int']>;
+  notifyStartDay_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  notifyStartDay_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  notifyEndDay?: Maybe<Scalars['Int']>;
+  notifyEndDay_not?: Maybe<Scalars['Int']>;
+  notifyEndDay_lt?: Maybe<Scalars['Int']>;
+  notifyEndDay_lte?: Maybe<Scalars['Int']>;
+  notifyEndDay_gt?: Maybe<Scalars['Int']>;
+  notifyEndDay_gte?: Maybe<Scalars['Int']>;
+  notifyEndDay_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  notifyEndDay_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -27853,9 +27843,8 @@ export type MeterReportingPeriodHistoryRecordsUpdateInput = {
 export type MeterReportingPeriodUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
-  start?: Maybe<Scalars['Int']>;
-  finish?: Maybe<Scalars['Int']>;
-  b2cApp?: Maybe<B2CAppRelateToOneInput>;
+  notifyStartDay?: Maybe<Scalars['Int']>;
+  notifyEndDay?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -27874,24 +27863,22 @@ export type MeterReportingPeriodWhereInput = {
   organization_is_null?: Maybe<Scalars['Boolean']>;
   property?: Maybe<PropertyWhereInput>;
   property_is_null?: Maybe<Scalars['Boolean']>;
-  start?: Maybe<Scalars['Int']>;
-  start_not?: Maybe<Scalars['Int']>;
-  start_lt?: Maybe<Scalars['Int']>;
-  start_lte?: Maybe<Scalars['Int']>;
-  start_gt?: Maybe<Scalars['Int']>;
-  start_gte?: Maybe<Scalars['Int']>;
-  start_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  start_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  finish?: Maybe<Scalars['Int']>;
-  finish_not?: Maybe<Scalars['Int']>;
-  finish_lt?: Maybe<Scalars['Int']>;
-  finish_lte?: Maybe<Scalars['Int']>;
-  finish_gt?: Maybe<Scalars['Int']>;
-  finish_gte?: Maybe<Scalars['Int']>;
-  finish_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  finish_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  b2cApp?: Maybe<B2CAppWhereInput>;
-  b2cApp_is_null?: Maybe<Scalars['Boolean']>;
+  notifyStartDay?: Maybe<Scalars['Int']>;
+  notifyStartDay_not?: Maybe<Scalars['Int']>;
+  notifyStartDay_lt?: Maybe<Scalars['Int']>;
+  notifyStartDay_lte?: Maybe<Scalars['Int']>;
+  notifyStartDay_gt?: Maybe<Scalars['Int']>;
+  notifyStartDay_gte?: Maybe<Scalars['Int']>;
+  notifyStartDay_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  notifyStartDay_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  notifyEndDay?: Maybe<Scalars['Int']>;
+  notifyEndDay_not?: Maybe<Scalars['Int']>;
+  notifyEndDay_lt?: Maybe<Scalars['Int']>;
+  notifyEndDay_lte?: Maybe<Scalars['Int']>;
+  notifyEndDay_gt?: Maybe<Scalars['Int']>;
+  notifyEndDay_gte?: Maybe<Scalars['Int']>;
+  notifyEndDay_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  notifyEndDay_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -66154,10 +66141,10 @@ export enum SortMeterReadingsBy {
 }
 
 export enum SortMeterReportingPeriodHistoryRecordsBy {
-  StartAsc = 'start_ASC',
-  StartDesc = 'start_DESC',
-  FinishAsc = 'finish_ASC',
-  FinishDesc = 'finish_DESC',
+  NotifyStartDayAsc = 'notifyStartDay_ASC',
+  NotifyStartDayDesc = 'notifyStartDay_DESC',
+  NotifyEndDayAsc = 'notifyEndDay_ASC',
+  NotifyEndDayDesc = 'notifyEndDay_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -66181,12 +66168,10 @@ export enum SortMeterReportingPeriodsBy {
   OrganizationDesc = 'organization_DESC',
   PropertyAsc = 'property_ASC',
   PropertyDesc = 'property_DESC',
-  StartAsc = 'start_ASC',
-  StartDesc = 'start_DESC',
-  FinishAsc = 'finish_ASC',
-  FinishDesc = 'finish_DESC',
-  B2cAppAsc = 'b2cApp_ASC',
-  B2cAppDesc = 'b2cApp_DESC',
+  NotifyStartDayAsc = 'notifyStartDay_ASC',
+  NotifyStartDayDesc = 'notifyStartDay_DESC',
+  NotifyEndDayAsc = 'notifyEndDay_ASC',
+  NotifyEndDayDesc = 'notifyEndDay_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

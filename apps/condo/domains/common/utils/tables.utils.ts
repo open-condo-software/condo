@@ -408,7 +408,6 @@ export const getSorterMap: SorterMapType = (sorters) => {
     return Object.assign({}, ...sorters.map((sorter) => ({ [sorter.columnKey]: sorter.order })))
 }
 
-
 export const categoryToSearchQuery: (search: string, translations: Record<string, string>) => FilterType = (search, translations) => {
     if (!search) return () => null
 

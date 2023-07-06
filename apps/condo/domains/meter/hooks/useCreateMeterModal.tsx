@@ -5,16 +5,16 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterModal/BaseMeterModalForm'
-import { PropertyMeter, Meter, MeterTypes, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
+import { PropertyMeter, Meter, MeterPageTypes, METER_PAGE_TYPES } from '@condo/domains/meter/utils/clientSchema'
 
 
-export function useCreateMeterModal (organizationId: string, propertyId: string, meterType: MeterTypes, unitName: string, unitType: BuildingUnitSubType, refetch) {
+export function useCreateMeterModal (organizationId: string, propertyId: string, meterType: MeterPageTypes, unitName: string, unitType: BuildingUnitSubType, refetch) {
     const intl = useIntl()
     const AddMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
 
     const [isCreateMeterModalVisible, setIsCreateMeterModalVisible] = useState<boolean>(false)
 
-    const isPropertyMeter = meterType === METER_TYPES.propertyMeter
+    const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
     const MeterIdentity = isPropertyMeter ? PropertyMeter : Meter
     const createMeterAction = MeterIdentity.useCreate({}, refetch)
 

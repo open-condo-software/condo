@@ -52,6 +52,9 @@ const METER_READING_SOURCE_TYPES = [
     METER_READING_SOURCE_CRM_TYPE,
 ]
 
+const DAY_SELECT_OPTIONS = Array(31).fill(0).map((num, index) => ({ label: String(index + 1), value: index + 1 }))
+const METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG = 'meter-reporting-period-frontend'
+
 module.exports = {
     COLD_WATER_METER_RESOURCE_ID,
     HOT_WATER_METER_RESOURCE_ID,
@@ -76,4 +79,6 @@ module.exports = {
     METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE,
     METER_READING_SOURCE_CRM_TYPE,
     CRM_METER_READING_SOURCE_ID,
+    DAY_SELECT_OPTIONS,
+    METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG,
 }

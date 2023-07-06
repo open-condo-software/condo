@@ -13,7 +13,7 @@ import {
     CreateMeterReadingsForm,
     CreatePropertyMeterReadingsForm,
 } from '@condo/domains/meter/components/CreateMeterReadingsForm'
-import { METER_TYPES, MeterTypes } from '@condo/domains/meter/utils/clientSchema'
+import { METER_PAGE_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 interface ICreateMeterPage extends React.FC {
@@ -31,9 +31,9 @@ const CreateMeterPage: ICreateMeterPage = () => {
 
     const { link: { role = {} }, organization } = useOrganization()
 
-    const [tab, setTab] = useState<MeterTypes>(METER_TYPES.meter)
+    const [tab, setTab] = useState<MeterPageTypes>(METER_PAGE_TYPES.meter)
 
-    const handleTabChange = useCallback((tab: MeterTypes) => {
+    const handleTabChange = useCallback((tab: MeterPageTypes) => {
         setTab(tab)
     }, [])
 
@@ -49,12 +49,12 @@ const CreateMeterPage: ICreateMeterPage = () => {
                             <Typography.Title level={1}>{PageTitle}</Typography.Title>
                         </Col>
                         <Tabs activeKey={tab} onChange={handleTabChange}>
-                            <Tabs.TabPane tab={MeterMessage} key={METER_TYPES.meter} />
-                            <Tabs.TabPane tab={PropertyMeterMessage} key={METER_TYPES.propertyMeter} />
+                            <Tabs.TabPane tab={MeterMessage} key={METER_PAGE_TYPES.meter} />
+                            <Tabs.TabPane tab={PropertyMeterMessage} key={METER_PAGE_TYPES.propertyMeter} />
                         </Tabs>
                         <Col span={24}>
                             {
-                                tab === METER_TYPES.propertyMeter ? (
+                                tab === METER_PAGE_TYPES.propertyMeter ? (
                                     <CreatePropertyMeterReadingsForm
                                         organization={organization}
                                         role={role}

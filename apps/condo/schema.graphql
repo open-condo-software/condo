@@ -46485,9 +46485,8 @@ type MeterReportingPeriodHistoryRecord {
   _label_: String
   organization: String
   property: String
-  start: Int
-  finish: Int
-  b2cApp: String
+  notifyStartDay: Int
+  notifyEndDay: Int
   id: ID!
   v: Int
   createdAt: String
@@ -46514,26 +46513,22 @@ input MeterReportingPeriodHistoryRecordWhereInput {
   property_not: String
   property_in: [String]
   property_not_in: [String]
-  start: Int
-  start_not: Int
-  start_lt: Int
-  start_lte: Int
-  start_gt: Int
-  start_gte: Int
-  start_in: [Int]
-  start_not_in: [Int]
-  finish: Int
-  finish_not: Int
-  finish_lt: Int
-  finish_lte: Int
-  finish_gt: Int
-  finish_gte: Int
-  finish_in: [Int]
-  finish_not_in: [Int]
-  b2cApp: String
-  b2cApp_not: String
-  b2cApp_in: [String]
-  b2cApp_not_in: [String]
+  notifyStartDay: Int
+  notifyStartDay_not: Int
+  notifyStartDay_lt: Int
+  notifyStartDay_lte: Int
+  notifyStartDay_gt: Int
+  notifyStartDay_gte: Int
+  notifyStartDay_in: [Int]
+  notifyStartDay_not_in: [Int]
+  notifyEndDay: Int
+  notifyEndDay_not: Int
+  notifyEndDay_lt: Int
+  notifyEndDay_lte: Int
+  notifyEndDay_gt: Int
+  notifyEndDay_gte: Int
+  notifyEndDay_in: [Int]
+  notifyEndDay_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -46617,10 +46612,10 @@ input MeterReportingPeriodHistoryRecordWhereUniqueInput {
 }
 
 enum SortMeterReportingPeriodHistoryRecordsBy {
-  start_ASC
-  start_DESC
-  finish_ASC
-  finish_DESC
+  notifyStartDay_ASC
+  notifyStartDay_DESC
+  notifyEndDay_ASC
+  notifyEndDay_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -46642,9 +46637,8 @@ enum SortMeterReportingPeriodHistoryRecordsBy {
 input MeterReportingPeriodHistoryRecordUpdateInput {
   organization: String
   property: String
-  start: Int
-  finish: Int
-  b2cApp: String
+  notifyStartDay: Int
+  notifyEndDay: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -46667,9 +46661,8 @@ input MeterReportingPeriodHistoryRecordsUpdateInput {
 input MeterReportingPeriodHistoryRecordCreateInput {
   organization: String
   property: String
-  start: Int
-  finish: Int
-  b2cApp: String
+  notifyStartDay: Int
+  notifyEndDay: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -46710,15 +46703,11 @@ type MeterReportingPeriod {
 
   """ Starting day of the month for sending a push about the need to submit meter readings 
   """
-  start: Int
+  notifyStartDay: Int
 
   """ Finish day of the month for sending a push about the need to submit meter readings 
   """
-  finish: Int
-
-  """ Ref to the B2CApp which used to replace default integration in resident's app 
-  """
-  b2cApp: B2CApp
+  notifyEndDay: Int
   id: ID!
   v: Int
   createdAt: String
@@ -46749,24 +46738,22 @@ input MeterReportingPeriodWhereInput {
   organization_is_null: Boolean
   property: PropertyWhereInput
   property_is_null: Boolean
-  start: Int
-  start_not: Int
-  start_lt: Int
-  start_lte: Int
-  start_gt: Int
-  start_gte: Int
-  start_in: [Int]
-  start_not_in: [Int]
-  finish: Int
-  finish_not: Int
-  finish_lt: Int
-  finish_lte: Int
-  finish_gt: Int
-  finish_gte: Int
-  finish_in: [Int]
-  finish_not_in: [Int]
-  b2cApp: B2CAppWhereInput
-  b2cApp_is_null: Boolean
+  notifyStartDay: Int
+  notifyStartDay_not: Int
+  notifyStartDay_lt: Int
+  notifyStartDay_lte: Int
+  notifyStartDay_gt: Int
+  notifyStartDay_gte: Int
+  notifyStartDay_in: [Int]
+  notifyStartDay_not_in: [Int]
+  notifyEndDay: Int
+  notifyEndDay_not: Int
+  notifyEndDay_lt: Int
+  notifyEndDay_lte: Int
+  notifyEndDay_gt: Int
+  notifyEndDay_gte: Int
+  notifyEndDay_in: [Int]
+  notifyEndDay_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -46834,12 +46821,10 @@ enum SortMeterReportingPeriodsBy {
   organization_DESC
   property_ASC
   property_DESC
-  start_ASC
-  start_DESC
-  finish_ASC
-  finish_DESC
-  b2cApp_ASC
-  b2cApp_DESC
+  notifyStartDay_ASC
+  notifyStartDay_DESC
+  notifyEndDay_ASC
+  notifyEndDay_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -46861,9 +46846,8 @@ enum SortMeterReportingPeriodsBy {
 input MeterReportingPeriodUpdateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
-  start: Int
-  finish: Int
-  b2cApp: B2CAppRelateToOneInput
+  notifyStartDay: Int
+  notifyEndDay: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -46883,9 +46867,8 @@ input MeterReportingPeriodsUpdateInput {
 input MeterReportingPeriodCreateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
-  start: Int
-  finish: Int
-  b2cApp: B2CAppRelateToOneInput
+  notifyStartDay: Int
+  notifyEndDay: Int
   v: Int
   createdAt: String
   updatedAt: String
