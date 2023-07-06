@@ -1,3 +1,4 @@
+import { ExclamationCircleOutlined } from '@ant-design/icons'
 import {
     TicketStatusTypeType,
     TicketAnalyticsGroupBy,
@@ -173,6 +174,7 @@ const IncidentDashboard = ({ organizationId }) => {
                     title={<Typography.Text>
                         {intl.formatMessage({ id: 'pages.reports.activeIncidents' }, { count })}
                     </Typography.Text>}
+                    icon={count > 0 ? <ExclamationCircleOutlined /> : null}
                 />
             </Col>
         </Row>
@@ -362,6 +364,7 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                                 focus: 'none',
                                 blurScope: 'none',
                             },
+                            barMaxWidth: 40,
                         }
                         if (index === 0 && !showAxisLabel) {
                             seriesConfig['label'] = {
@@ -390,6 +393,8 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                                 focus: 'none',
                                 blurScope: 'none',
                             },
+                            barMaxWidth: 40,
+
                         })
                     })
                 }
@@ -416,6 +421,17 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                 if (isYValue && isStacked) {
                     series.forEach(s => s.data.reverse())
                     axisLabels.reverse()
+                }
+
+                if (topValues && isYValue) {
+                    for (let i = 0; i < axisLabels.length; i++) {
+                        if (series.map(s => s.data[0]).every(e => e === 0 || e === undefined || e === null)) {
+                            series.forEach(s => {
+                                s.data.splice(0, 1)
+                            })
+                            axisLabels.splice(0, 1)
+                        }
+                    }
                 }
 
                 return {
