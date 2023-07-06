@@ -21,7 +21,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography, Space, Select } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import TicketChart, { EchartsSeries } from '@condo/domains/analytics/components/TicketChart'
+import TicketChart, { EchartsSeries, ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
 import { OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
 import { getAggregatedData } from '@condo/domains/analytics/utils/helpers'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
@@ -330,8 +330,43 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
     )
 }
 
-const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = false, title, topValues = 0, sliceWords = false, showAxisLabel = true, sortBySummary = true }) => {
+const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = false, title, topValues = 0, sliceWords = false, showAxisLabel = true, sortBySummary = true, viewMode = 'bar' }) => {
     const mapperInstance = new TicketChart({
+        line: {
+            chart: (viewMode, ticketGroupedCounter) => {
+                const series = []
+                const aggregatedData = getAggregatedData(ticketGroupedCounter, groupBy, false)
+                const axisLabels = Array.from(new Set(Object.values(aggregatedData).flatMap(e => Object.keys(e))))
+                const colorSet = [colors.pink['5'], colors.orange['5'], colors.green['5'], colors.brown['5'],  colors.blue['5'], colors.teal['5']]
+
+                Object.entries(aggregatedData).map(([groupBy, dataObj], index) => {
+                    series.push({
+                        name: groupBy,
+                        type: viewMode,
+                        symbol: 'none',
+                        stack: false,
+                        data: Object.values(dataObj),
+                        smooth: true,
+                        lineStyle: { color: colorSet[index] },
+                        areaStyle: { color: colorSet[index] },
+                        emphasis: {
+                            focus: 'series',
+                        },
+                    })
+                })
+
+                return {
+                    legend: [],
+                    axisData: {
+                        xAxis: { type: 'category', data: axisLabels },
+                        yAxis: { type: 'value', data: null },
+                    },
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
+                    series,
+                }
+            },
+            table: () => null,
+        },
         bar: {
             chart: (viewMode, ticketGroupedCounter) => {
                 const aggregatedData = getAggregatedData(
@@ -453,7 +488,7 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                 <TicketChartView
                     data={data}
                     mainGroup='status'
-                    viewMode='bar'
+                    viewMode={viewMode as ViewModeTypes}
                     mapperInstance={mapperInstance}
                     chartConfig={{ animationEnabled: false, chartOptions: { renderer: 'canvas', height: 300 } }}
                 />
@@ -552,7 +587,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const PaymentsByPropertyTitle = intl.formatMessage({ id: 'pages.reports.paymentsByProperty' })
 
     const [overview, setOverview] = useState(null)
-    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(3, 'month'), dayjs()])
+    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
     const [aggregatePeriod, setAggregatePeriod] = useState<'day' | 'week' | 'month'>('day')
 
     const [loadDashboardData, { loading }] = useLazyQuery(OVERVIEW_DASHBOARD_MUTATION, {
@@ -589,9 +624,6 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     ], [])
 
     const newTickets = get(overview, 'ticketByDay.ticketCounts', [])
-        .filter(e => e.status === get(overview, 'ticketByDay.translates.status', [])
-            .find(e => e.type === TicketStatusTypeType.NewOrReopened).label)
-
     const propertyTickets = get(overview, 'ticketByProperty.ticketCounts')
     const categoryTickets = get(overview, 'ticketByCategory.ticketCounts', [])
     const executorTickets = get(overview, 'ticketByExecutor.ticketCounts', [])
@@ -783,6 +815,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                                 data={newTickets}
                                 groupBy={[TicketAnalyticsGroupBy.Status, TicketAnalyticsGroupBy.Day]}
                                 sortBySummary={false}
+                                viewMode='line'
                             />
                         </Col>
                         <Col lg={12} md={24}>
