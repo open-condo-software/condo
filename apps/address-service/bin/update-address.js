@@ -9,13 +9,13 @@
 const path = require('path')
 
 const get = require('lodash/get')
+const { v4 } = require('uuid')
 
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
-
 
 const dv = 1
 const sender = { dv, fingerprint: 'update-address-script' }
@@ -44,7 +44,7 @@ async function main (args) {
 
     console.log(`Address found. key=${addressItem.key}, address=${addressItem.address}`)
 
-    const searchProvider = getSearchProvider()
+    const searchProvider = getSearchProvider({ req: { id: v4() } })
 
     if (!searchProvider) {
         throw new Error('Can not detect which provider to use')
