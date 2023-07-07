@@ -17,6 +17,7 @@ export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'on
     placeholder?: string
     allowClear?: boolean
     loading: boolean
+    disabled?: boolean
     eventName?: string
     eventProperties?: TrackingEventPropertiesType
     mode?: UnitInfoMode
@@ -103,7 +104,7 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
     const CommercialGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.commercial' })
     const ApartmentGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.apartment' })
     const {
-        placeholder, property, loading, mode, selectedFloorName, selectedSectionName, selectedSections, multiple, ...restInputProps
+        placeholder, property, loading, disabled = false, mode, selectedFloorName, selectedSectionName, selectedSections, multiple, ...restInputProps
     } = props
 
     const sections = get(property, 'map.sections', [])
@@ -125,7 +126,7 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
             placeholder={placeholder}
             optionFilterProp='title'
             loading={loading}
-            disabled={loading}
+            disabled={disabled}
             {...restInputProps}
         >
             {getOptionGroupBySectionType({
