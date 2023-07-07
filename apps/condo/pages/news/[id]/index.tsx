@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import { Col, Row, RowProps } from 'antd'
+import { Col, notification, Row, RowProps } from 'antd'
 import dayjs from 'dayjs'
 import every from 'lodash/every'
 import get from 'lodash/get'
@@ -174,6 +174,7 @@ const NewsItemCard: React.FC = () => {
 
     const softDeleteNews = NewsItem.useSoftDelete(() => push('/news/'))
     const handleDeleteButtonClick = useCallback(async () => {
+        notification.close(newsItem.id)
         await softDeleteNews(newsItem)
     }, [softDeleteNews, newsItem])
 
