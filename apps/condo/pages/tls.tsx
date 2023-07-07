@@ -13,6 +13,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback } from 'react'
 
+import { QuestionCircle } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Markdown, Typography } from '@open-condo/ui'
@@ -25,7 +26,6 @@ import { Logo } from '@condo/domains/common/components/Logo'
 import { Poster } from '@condo/domains/common/components/Poster'
 import { antGlobalVariables, fontSizes } from '@condo/domains/common/constants/style'
 import { PosterWrapper } from '@condo/domains/user/components/containers/styles'
-import { QuestionCircle } from '@open-condo/icons'
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }
@@ -78,19 +78,19 @@ const CenteredText = styled.div`
 `
 
 const PosterFooterSpace = styled(Space)`
-  padding: 10px 0 73px;
+    padding: 10px 0 73px;
 `
 
 /**
  * Does not adds extra elements around anchor component
  */
 const BlankAnchor = styled(Anchor)`
-  .ant-anchor-ink {
-    display: none;
-  }
-  .ant-anchor-link {
-    padding: 0;
-  }
+    .ant-anchor-ink {
+        display: none;
+    }
+    .ant-anchor-link {
+        padding: 0;
+    }
 `
 
 const PosterFooterCard = ({ logoSrc, description, href, buttonLabel }) => (
@@ -122,8 +122,8 @@ const MoreLinkStyle = {
 }
 
 const StyledQuestionCircle = styled(QuestionCircle)`
-  position: relative;
-  top: 3px;
+    position: relative;
+    top: 3px;
 `
 
 const PosterHeader = () => {
@@ -212,26 +212,30 @@ const TlsPagePoster = () => (
  * NOTE(antonal): since it is not possible to render raw HTML with current implementation of Markdown (plugin "rehype-raw" seems not to work), a button is represented as a bold link, like `**[label](url)**` and styled as a button
  */
 const MarkdownWrapper = styled.div`
-  img {
-    display: block;
-    max-width: 627px;
-  }
+    img {
+        display: block;
+        max-width: 627px;
+    }
   
-  ol {
-    padding-left: 0;
-  }
+    ol {
+        padding-left: 0;
+    }
   
-  strong a {
-    display: inline-block;
-    border-radius: 8px;
-    border: thin solid ${antGlobalVariables['@label-color']};
-    box-sizing: border-box;
-    height: 48px;
-    line-height: 24px;
-    padding: 11px 19px !important;
-    text-decoration: none;
-    margin-bottonm: 24px;
-  }
+    strong a {
+        display: inline-block;
+        border-radius: 8px;
+        border: thin solid ${antGlobalVariables['@label-color']};
+        box-sizing: border-box;
+        height: 48px;
+        line-height: 24px;
+        padding: 11px 19px !important;
+        text-decoration: none;
+        margin-bottonm: 24px;
+    }
+  
+    h3 {
+        color: ${colors.gray[7]};
+    }
 `
 
 const TlsPageGuideSection = ({ name }) => {
@@ -244,6 +248,22 @@ const TlsPageGuideSection = ({ name }) => {
         </MarkdownWrapper>
     )
 }
+
+const StyledCollapse = styled(Collapse)`
+    background: none;
+  
+    .ant-collapse-header {
+        padding: 24px;
+
+        .ant-collapse-expand-icon {
+            order: 2;
+
+            > .ant-collapse-arrow {
+                margin-right: 0 !important;
+            }
+        }
+    }
+`
 
 const TlsPageGuide = () => {
     const intl = useIntl()
@@ -261,14 +281,14 @@ const TlsPageGuide = () => {
                 <Typography.Text type='secondary'>
                     {DescriptionMessage}
                 </Typography.Text>
-                <Collapse defaultActiveKey={['windows']} style={{ width: '100%' }}>
-                    <Collapse.Panel key='windows' header={SectionWindowsTitle}>
+                <StyledCollapse defaultActiveKey={['windows']} style={{ width: '100%' }}>
+                    <Collapse.Panel key='windows' header={<Typography.Title level={3}>{SectionWindowsTitle}</Typography.Title>}>
                         <TlsPageGuideSection name='windows'/>
                     </Collapse.Panel>
-                    <Collapse.Panel key='macos' header={SectionMacosTitle}>
+                    <Collapse.Panel key='macos' header={<Typography.Title level={3}>{SectionMacosTitle}</Typography.Title>}>
                         <TlsPageGuideSection name='macos'/>
                     </Collapse.Panel>
-                </Collapse>
+                </StyledCollapse>
 
             </Space>
         </div>
