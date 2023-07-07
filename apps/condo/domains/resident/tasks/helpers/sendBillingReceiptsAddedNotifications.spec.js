@@ -87,7 +87,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             expect(message.organization.id).toEqual(resident.organization.id)
         })
 
-        it('sends notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE for toPay = 0.0', async () => {
+        it('does not send notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT for toPay = 0.0', async () => {
             const admin = await makeLoggedInAdminClient()
             const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '0.0' })
 
@@ -100,10 +100,10 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message).not.toBeUndefined()
+            expect(message).toBeUndefined()
         })
 
-        it('sends notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE for toPay < 0', async () => {
+        it('does not send notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT for toPay < 0', async () => {
             const admin = await makeLoggedInAdminClient()
             const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '-1.0' })
 
@@ -116,8 +116,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message).not.toBeUndefined()
-            expect(message.organization.id).toEqual(resident.organization.id)
+            expect(message).toBeUndefined()
         })
 
         it('sends only one notification for same receipt', async () => {
