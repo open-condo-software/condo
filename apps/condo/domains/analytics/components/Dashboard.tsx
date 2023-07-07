@@ -29,7 +29,6 @@ import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangeP
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { Resident } from '@condo/domains/resident/utils/clientSchema'
 import { useLightWeightTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { Incident, Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
@@ -55,7 +54,7 @@ const DataCard: React.FC<{ label: string, value: string | number }> = ({ label, 
     </Col>
 )
 
-const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoading }) => {
+const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData, paymentLoading }) => {
     const intl = useIntl()
     const DoneLabel = intl.formatMessage({ id: 'Done' })
     const InWorkLabel = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
@@ -66,10 +65,8 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoadin
     const [completionPercent, setCompletionPercent] = useState('—')
     const [paymentsAmountPercent, setPaymentsAmountPercent] = useState('—')
     const ticketCounts = useRef(null)
+    const residentsCount = useRef(null)
 
-    const { count: residentsCount, loading: residentsLoading } = Resident.useCount({
-        where: { organization: { id: organizationId } },
-    })
     const [loadTicketCounts, { loading: ticketCountLoading }] = useLazyQuery(GET_TICKETS_COUNT_QUERY, {
         onCompleted: (result) => {
             ticketCounts.current = result
@@ -111,11 +108,17 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoadin
         }
     }, [receiptSum, paymentSum, paymentLoading])
 
+    useEffect(() => {
+        if (residentsData.length) {
+            residentsCount.current = residentsData.reduce((p, c) => p + Number(c.count), 0)
+        }
+    }, [residentsData])
+
     const loading = monthTicketLoading || ticketCountLoading || isNull(ticketCounts.current)
 
     return (
         <Card title={<Typography.Title level={3}>Сводка сегодня</Typography.Title>}>
-            {loading || residentsLoading || paymentLoading ? (
+            {loading || paymentLoading ? (
                 <Skeleton loading paragraph={{ rows: 3 }} />
             ) : (
                 <Row gutter={DASHBOARD_ROW_GUTTER}>
@@ -141,7 +144,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, paymentLoadin
                             />
                             <DataCard
                                 label={ResidentsInApp}
-                                value={residentsCount}
+                                value={residentsCount.current}
                             />
                         </Row>
                     </Col>
@@ -344,10 +347,10 @@ const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = fal
                         name: groupBy,
                         type: viewMode,
                         symbol: 'none',
-                        stack: false,
+                        stack: 'total',
                         data: Object.values(dataObj),
                         smooth: true,
-                        lineStyle: { color: colorSet[index] },
+                        lineStyle: { color: 'transparent' },
                         areaStyle: { color: colorSet[index] },
                         emphasis: {
                             focus: 'series',
@@ -604,7 +607,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                 where: {
                     organization: organizationId,
                     dateFrom: dateRange[0].toISOString(),
-                    dateTo: dateRange[1].toISOString(),
+                    dateTo: dayjs(dateRange[1]).endOf('day').toISOString(),
                 },
                 groupBy: {
                     aggregatePeriod,
@@ -779,7 +782,13 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     return (
         <Row gutter={DASHBOARD_ROW_GUTTER}>
             <Col lg={12} md={24}>
-                <PerformanceCard organizationId={organizationId} paymentSum={paymentSum} receiptSum={receiptSum} paymentLoading={false} />
+                <PerformanceCard
+                    organizationId={organizationId}
+                    paymentSum={paymentSum}
+                    receiptSum={receiptSum}
+                    residentsData={residentsData}
+                    paymentLoading={false}
+                />
             </Col>
             <Col lg={6} md={24}>
                 <IncidentDashboard organizationId={organizationId} />
