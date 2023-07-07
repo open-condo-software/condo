@@ -92,11 +92,11 @@ const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-
 
 export const ResendNewsButton = ({ intl, newsItem }) => {
     const ResendMessage = intl.formatMessage({ id: 'pages.condo.news.resend' })
-    
+
     const handleClick = useCallback((e) => {
         e.stopPropagation()
     }, [])
-    
+
 
     return (
         <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>

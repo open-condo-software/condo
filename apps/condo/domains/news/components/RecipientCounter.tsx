@@ -5,7 +5,8 @@ import { ButtonProps, Col, notification, Row } from 'antd'
 import every from 'lodash/every'
 import filter from 'lodash/filter'
 import get from 'lodash/get'
-import intersection from 'lodash/intersection'
+import intersectionWith from 'lodash/intersectionWith'
+import isEqual from 'lodash/isEqual'
 import map from 'lodash/map'
 import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
@@ -22,7 +23,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION } from '@condo/domains/news/gql'
 import { useNewsItemRecipientsExportToExcelTask } from '@condo/domains/news/hooks/useNewsItemRecipientsExportToExcelTask'
 
-import { TNewsItemScopeNoInstance } from './types'
+import { TNewsItemScopeNoInstance, TUnit } from './types'
 
 interface CounterProps {
     label: string
@@ -66,17 +67,31 @@ const isAllOrganization = (newsItemScopes: TNewsItemScopeNoInstance[]) => {
     return filter(newsItemScopes, { property: null, unitType: null, unitName: null }).length > 0
 }
 
-const getUnitsFromSection = (section: BuildingSection): string[] => section.floors.flatMap(floor => floor.units.map(unit => unit.label))
+const getUnitsFromSection = (section: BuildingSection): TUnit[] => section.floors.flatMap(floor => floor.units.map(unit => ({
+    unitType: unit.unitType,
+    unitName: unit.label,
+})))
 
-export const detectTargetedSections = (newsItemScopes: NewsItemScope[], property: PropertyType): BuildingSection[] => (
-    property.map?.sections?.filter(section => {
+export const detectTargetedSections = (newsItemScopes: NewsItemScope[], property: PropertyType): {
+    sections: BuildingSection[],
+    parking: BuildingSection[]
+} => {
+    const newsItemScopesUnits = map(newsItemScopes, ({ unitType, unitName }) => ({ unitType, unitName }))
+
+    const sections = property.map?.sections?.filter(section => {
         const sectionUnits = getUnitsFromSection(section)
-        const newsItemScopesUnits = map(newsItemScopes, 'unitName')
-        return intersection(sectionUnits, newsItemScopesUnits).length === sectionUnits.length
+        return intersectionWith(sectionUnits, newsItemScopesUnits, isEqual).length === sectionUnits.length
     }) || []
-)
 
-const areTargetedToOneProperty = (newsItemScopes): boolean => uniq(map(newsItemScopes, ['property', 'id'])).length === 1
+    const parking = property.map?.parking?.filter(section => {
+        const sectionUnits = getUnitsFromSection(section)
+        return intersectionWith(sectionUnits, newsItemScopesUnits, isEqual).length === sectionUnits.length
+    }) || []
+
+    return { sections, parking }
+}
+
+const areTargetedToOneProperty = (newsItemScopes: TNewsItemScopeNoInstance[]): boolean => uniq(map(newsItemScopes, ['property', 'id'])).length === 1
 
 const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
     if (isAllOrganization(newsItemScopes)) {
@@ -97,7 +112,9 @@ const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
     } else if (areTargetedToOneProperty(newsItemScopes) && every(newsItemScopes, isTargetedToUnitName)) {
         const displayCount = 4
         const property: PropertyType = newsItemScopes[0].property
-        const targetedSections = detectTargetedSections(newsItemScopes, property)
+        const { sections, parking } = detectTargetedSections(newsItemScopes, property)
+        // Here we can split sections by location: house or parking
+        const targetedSections = [...sections, ...parking]
         if (targetedSections.length === 1) {
             return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertySection' }, {
                 section: targetedSections[0].name,

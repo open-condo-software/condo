@@ -323,17 +323,24 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         if (initialHasAllProperties) return []
         if (initialProperties.length !== 1) return []
 
-        const targetedSections = detectTargetedSections(initialNewsItemScopes, initialProperties[0])
-        return targetedSections.map(section => {
-            const sectionName = section.name
-            if (sectionName) return `section-${sectionName}`
-        }).filter(Boolean)
+        const { sections, parking } = detectTargetedSections(initialNewsItemScopes, initialProperties[0])
+        return [
+            ...sections.map(section => {
+                const sectionName = section.name
+                if (sectionName) return `section-${sectionName}`
+            }).filter(Boolean),
+            ...parking.map(section => {
+                const sectionName = section.name
+                if (sectionName) return `${PARKING_SECTION_TYPE}-${sectionName}`
+            }).filter(Boolean),
+        ]
     }, [initialHasAllProperties, initialNewsItemScopes, initialProperties])
     const initialSectionIds = useMemo(() => {
         if (initialHasAllProperties) return []
         if (initialProperties.length !== 1) return []
 
-        const targetedSections = detectTargetedSections(initialNewsItemScopes, initialProperties[0])
+        const { sections, parking } = detectTargetedSections(initialNewsItemScopes, initialProperties[0])
+        const targetedSections = [...sections, ...parking]
         return targetedSections.map(section => {
             const sectionName = section.name
             if (sectionName) return sectionName
@@ -957,7 +964,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                     <UnitNameInput
                                                                         multiple={true}
                                                                         property={selectedProperties[0]}
-                                                                        loading={selectedPropertiesLoading || !isEmpty(selectedSectionKeys)}
+                                                                        loading={selectedPropertiesLoading}
+                                                                        disabled={selectedPropertiesLoading || !isEmpty(selectedSectionKeys)}
                                                                         onChange={handleChangeUnitNameInput}
                                                                     />
                                                                 </Form.Item>
