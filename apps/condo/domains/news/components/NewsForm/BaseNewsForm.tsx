@@ -690,8 +690,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
 
         await updateNewsItem({ isPublished: true }, newsItem)
-        if (!isNull(OnCompletedMsg)) {
-            notification.info(OnCompletedMsg(newsItem))
+        if (isFunction(OnCompletedMsg)) {
+            const completedMsgData = OnCompletedMsg(newsItem)
+            !!completedMsgData && notification.info(completedMsgData)
         }
         if (isFunction(afterAction) && !initialSentAt) {
             await afterAction()
