@@ -14,6 +14,7 @@ const {
     expectToThrowAuthenticationErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
+const { DEBUG_APP_ID } = require('@condo/domains/miniapp/constants')
 const {
     createTestB2CApp,
     sendB2CAppPushMessageByTestClient, createTestMessageAppBlackList,
@@ -26,13 +27,8 @@ const {
     PUSH_TRANSPORT_APPLE,
 } = require('@condo/domains/notification/constants/constants')
 const { syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
-const {
-    getRandomTokenData,
-    getRandomFakeSuccessToken,
-} = require('@condo/domains/notification/utils/testSchema/helpers')
-const {
-    makeClientWithRegisteredOrganization,
-} = require('@condo/domains/organization/utils/testSchema/Organization')
+const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const {
@@ -69,6 +65,15 @@ describe('SendB2CAppPushMessageService', () => {
     describe('access checks', () => {
         it('Admin can SendB2CAppPushMessageService', async () => {
             const [message] = await sendB2CAppPushMessageByTestClient(admin, appAttrs)
+
+            expect(message.id).toMatch(UUID_RE)
+        })
+
+        it('Admin can with debug app id', async () => {
+            const [message] = await sendB2CAppPushMessageByTestClient(admin, {
+                ...appAttrs,
+                app: { id: DEBUG_APP_ID },
+            })
 
             expect(message.id).toMatch(UUID_RE)
         })

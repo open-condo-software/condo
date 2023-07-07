@@ -40,6 +40,9 @@ const ALL_APPS_CATEGORIES = [
     ...B2B_APP_CATEGORIES,
 ]
 
+// There is special app with fixed ID that is used for debugging on mobile side
+const DEBUG_APP_ID = 'kDomaLocalMiniappId'
+
 const APP_FREE_LABEL = 'FREE'
 const APP_DISCOUNT_LABEL = 'DISCOUNT'
 const APP_POPULAR_LABEL = 'POPULAR'
@@ -133,4 +136,5 @@ module.exports = {
     RESIDENT_OR_PROPERTY_ID_MISSING_ERROR,
     APP_NOT_FOUND_ERROR,
     APP_BLACK_LIST_ERROR,
+    DEBUG_APP_ID,
 }

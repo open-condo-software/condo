@@ -9,7 +9,7 @@ const { WRONG_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/con
 const access = require('@condo/domains/miniapp/access/SendB2CAppPushMessageService')
 const {
     USER_NOT_FOUND_ERROR, RESIDENT_NOT_FOUND_ERROR,
-    APP_NOT_FOUND_ERROR, APP_BLACK_LIST_ERROR,
+    APP_NOT_FOUND_ERROR, APP_BLACK_LIST_ERROR, DEBUG_APP_ID,
 } = require('@condo/domains/miniapp/constants')
 const { MessageAppBlackList } = require('@condo/domains/miniapp/utils/serverSchema')
 const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
@@ -21,7 +21,6 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-
 
 const CACHE_TTL = {
     DEFAULT: 3600,
@@ -134,15 +133,20 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
 
                 if (!residentExisted) throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
 
-                const appExisted = await B2CApp.getOne(context, { id: app.id, deletedAt: null })
+                let B2CAppName = 'Debug app'
 
-                if (!appExisted)  throw new GQLError(ERRORS.APP_NOT_FOUND, context)
+                // App requested to send notification to is not a DEBUG one
+                if (app.id !== DEBUG_APP_ID) {
+                    const appExisted = await B2CApp.getOne(context, { id: app.id, deletedAt: null })
 
-                const B2CAppName = appExisted.name
-                const where = { app: { id: app.id }, type, deletedAt: null }
-                const appInBlackList = await MessageAppBlackList.getOne(context, where)
+                    if (!appExisted) throw new GQLError(ERRORS.APP_NOT_FOUND, context)
 
-                if (appInBlackList) throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
+                    B2CAppName = appExisted.name
+                    const where = { app: { id: app.id }, type, deletedAt: null }
+                    const appInBlackList = await MessageAppBlackList.getOne(context, where)
+
+                    if (appInBlackList) throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
+                }
 
                 const searchKey = `${type}_${app.id}_${user.id}`
                 const ttl = CACHE_TTL[type] || CACHE_TTL['DEFAULT']
