@@ -9,8 +9,12 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const access = require('@condo/domains/resident/access/DiscoverServiceConsumersService')
+const { RESIDENT_DISCOVER_CONSUMERS_WINDOW, MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW } = require('@condo/domains/resident/constants/constants')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 const logger = getLogger('DiscoverServiceConsumersMutation')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+
+const redisGuard = new RedisGuard()
 
 const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceConsumersService', {
     schemaDoc: 'Mutation to create Service Consumers for all residents for address, unitType, unitName, and BillingAccounts for said address' +
@@ -36,6 +40,19 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 const { data } = args
                 const { address, unitName, unitType, billingAccount, resident, dv, sender } = data
 
+                const checkLimits = async (phone) => {
+                    await redisGuard.checkCustomLimitCounters(
+                        `discover-service-consumers-${phone}`,
+                        RESIDENT_DISCOVER_CONSUMERS_WINDOW,
+                        MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW,
+                    )
+                }
+
+                if (resident) {
+                    const residentObj = await Resident.getOne(context, { id: resident.id })
+                    await checkLimits(residentObj.user.phone)
+                }
+
                 const residents = await Resident.getAll(context,
                     resident ? { id: resident.id, deletedAt: null } : {
                         address: address,
@@ -45,7 +62,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     })
 
                 const billingAccounts = await BillingAccount.getAll(context,
-                    billingAccount ? { id: billingAccount.id, deletedAt: null } : {
+                    billingAccount ? { id: billingAccount.id, deletedAt: null, context: { status: 'Finished', deletedAt: null } } : {
                         context: { status: 'Finished', deletedAt: null },
                         property: { address: address, deletedAt: null  },
                         unitName: unitName,

@@ -4,7 +4,7 @@
 const { faker } = require('@faker-js/faker')
 
 const { makeLoggedInAdminClient, makeClient, expectToThrowAccessDeniedErrorToResult,
-    expectToThrowAuthenticationErrorToResult,
+    expectToThrowAuthenticationErrorToResult, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -13,6 +13,7 @@ const {
     createTestBillingAccount,
 } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW } = require('@condo/domains/resident/constants/constants')
 const { discoverServiceConsumersByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { createTestResident, updateTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -21,8 +22,6 @@ describe('DiscoverServiceConsumersService', () => {
     let admin
     let support
     let anonymous
-    let user
-    let user2
 
     const randomPayload = {
         address: faker.random.alphaNumeric(32),
@@ -34,11 +33,10 @@ describe('DiscoverServiceConsumersService', () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
-        user = await makeClientWithProperty()
-        user2 = await makeClientWithProperty()
     })
     describe('admin can:', () => {
         test('discover one service consumer (case without accountNumber or resident passed)', async () => {
+            const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
                 {}, {}, { status: 'Finished' }
             )
@@ -68,6 +66,8 @@ describe('DiscoverServiceConsumersService', () => {
         })
 
         test('discover multiple service consumers (case without accountNumber or resident passed)', async () => {
+            const user = await makeClientWithProperty()
+            const user2 = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
                 {}, {}, { status: 'Finished' }
             )
@@ -111,6 +111,7 @@ describe('DiscoverServiceConsumersService', () => {
         })
 
         test('discover one service consumer for specific resident', async () => {
+            const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
                 {}, {}, { status: 'Finished' }
             )
@@ -141,6 +142,7 @@ describe('DiscoverServiceConsumersService', () => {
         })
 
         test('discover multiple service consumers for specific resident', async () => {
+            const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
                 {}, {}, { status: 'Finished' }
             )
@@ -179,6 +181,7 @@ describe('DiscoverServiceConsumersService', () => {
         })
 
         test('discover one service consumer for specific accountNumber', async () => {
+            const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
                 {}, {}, { status: 'Finished' }
             )
@@ -213,6 +216,8 @@ describe('DiscoverServiceConsumersService', () => {
         })
 
         test('discover multiple service consumers for specific accountNumber', async () => {
+            const user = await makeClientWithProperty()
+            const user2 = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
                 {}, {}, { status: 'Finished' }
             )
@@ -251,6 +256,49 @@ describe('DiscoverServiceConsumersService', () => {
             expect(accountNumbers).toContain(billingAccount.number)
         })
 
+        test('should throw if limit of calls is exceeded for resident', async () => {
+            const user = await makeClientWithProperty()
+            const admin = await makeLoggedInAdminClient()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
+                {}, {}, { status: 'Finished' }
+            )
+
+            const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
+            const [resident] = await createTestResident(admin, user.user, user.property,
+                { address: billingProperty.address }
+            )
+            await createTestBillingAccount(admin, context, billingProperty,
+                { unitName: resident.unitName, unitType: resident.unitType }
+            )
+
+            const payload = {
+                address: resident.address,
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+                resident: { id: resident.id },
+            }
+
+            for await (const i of Array.from(Array(MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW + 1).keys())) {
+                if (i === MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW) {
+                    await catchErrorFrom(async () => {
+                        await discoverServiceConsumersByTestClient(admin, payload)
+                    }, ({ errors }) => {
+
+                        expect(errors).toMatchObject([{
+                            path: ['result'],
+                            extensions: {
+                                code: 'BAD_USER_INPUT',
+                                type: 'TOO_MANY_REQUESTS',
+                                message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+                            },
+                        }])
+                    })
+                } else {
+                    await discoverServiceConsumersByTestClient(admin, payload)
+                }
+            }
+        })
+
         test('discover no service consumers if there are none', async () => {
             const [{ createdServiceConsumersTotal }] = await discoverServiceConsumersByTestClient(admin, randomPayload)
             expect(createdServiceConsumersTotal).toBe(0)
@@ -258,6 +306,7 @@ describe('DiscoverServiceConsumersService', () => {
     })
 
     test('user cannot discover service consumers', async () => {
+        const user = await makeClientWithProperty()
         await expectToThrowAccessDeniedErrorToResult(async () => {
             await discoverServiceConsumersByTestClient(user, randomPayload)
         })

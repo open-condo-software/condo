@@ -91,7 +91,11 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     id = resident.id
                 }
 
-                await discoverServiceConsumers(context, { dv, sender, address, unitName, unitType, resident: { id }  })
+                try {
+                    await discoverServiceConsumers(context, { dv, sender, address, unitName, unitType, resident: { id }  })
+                } catch (e) {
+                    console.error(e)
+                }
 
                 // Hack that helps to resolve all subfields in result of this mutation
                 const result = await getById('Resident', id)
