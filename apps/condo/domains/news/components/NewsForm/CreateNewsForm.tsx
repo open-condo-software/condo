@@ -161,6 +161,10 @@ export const CreateNewsForm: React.FC = () => {
 
     const softDeleteNewsItem = NewsItem.useSoftDelete()
     const OnCompletedMsg = useCallback((newsItem) => {
+        if (newsItem.sendAt) {
+            // No notification with deleting button for delayed news items.
+            return null
+        }
         return getCompletedNotification(
             intl,
             async () => {
