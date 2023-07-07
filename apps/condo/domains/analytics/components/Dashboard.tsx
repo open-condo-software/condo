@@ -64,8 +64,8 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
 
     const [completionPercent, setCompletionPercent] = useState('—')
     const [paymentsAmountPercent, setPaymentsAmountPercent] = useState('—')
+    const [residentsCount, setResidentsCount] = useState(0)
     const ticketCounts = useRef(null)
-    const residentsCount = useRef(null)
 
     const [loadTicketCounts, { loading: ticketCountLoading }] = useLazyQuery(GET_TICKETS_COUNT_QUERY, {
         onCompleted: (result) => {
@@ -110,7 +110,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
 
     useEffect(() => {
         if (residentsData.length) {
-            residentsCount.current = residentsData.reduce((p, c) => p + Number(c.count), 0)
+            setResidentsCount(residentsData.reduce((p, c) => p + Number(c.count), 0))
         }
     }, [residentsData])
 
@@ -144,7 +144,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                             />
                             <DataCard
                                 label={ResidentsInApp}
-                                value={residentsCount.current}
+                                value={residentsCount}
                             />
                         </Row>
                     </Col>
