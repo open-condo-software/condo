@@ -12,6 +12,7 @@ const {
     createTestBillingProperty,
     createTestBillingAccount,
 } = require('@condo/domains/billing/utils/testSchema')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW } = require('@condo/domains/resident/constants/constants')
 const { discoverServiceConsumersByTestClient } = require('@condo/domains/resident/utils/testSchema')
@@ -113,7 +114,7 @@ describe('DiscoverServiceConsumersService', () => {
         test('discover one service consumer for specific resident', async () => {
             const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: 'Finished' }
+                {}, {}, { status: CONTEXT_FINISHED_STATUS }
             )
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
@@ -144,7 +145,7 @@ describe('DiscoverServiceConsumersService', () => {
         test('discover multiple service consumers for specific resident', async () => {
             const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: 'Finished' }
+                {}, {}, { status: CONTEXT_FINISHED_STATUS }
             )
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
@@ -183,7 +184,7 @@ describe('DiscoverServiceConsumersService', () => {
         test('discover one service consumer for specific accountNumber', async () => {
             const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: 'Finished' }
+                {}, {}, { status: CONTEXT_FINISHED_STATUS }
             )
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
@@ -219,7 +220,7 @@ describe('DiscoverServiceConsumersService', () => {
             const user = await makeClientWithProperty()
             const user2 = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: 'Finished' }
+                {}, {}, { status: CONTEXT_FINISHED_STATUS }
             )
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
@@ -260,7 +261,7 @@ describe('DiscoverServiceConsumersService', () => {
             const user = await makeClientWithProperty()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: 'Finished' }
+                {}, {}, { status: CONTEXT_FINISHED_STATUS }
             )
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
