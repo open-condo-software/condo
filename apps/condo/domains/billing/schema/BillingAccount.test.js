@@ -28,6 +28,7 @@ const {
     updateTestBillingAccounts,
 } = require('@condo/domains/billing/utils/testSchema')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -518,6 +519,13 @@ describe('BillingAccount', () => {
     })
 
     describe('DiscoverServiceConsumers hook', () => {
+        let context
+        beforeAll(async ()=>{
+            const { context: billingContext }  = await makeContextWithOrganizationAndIntegrationAsAdmin(
+                {}, {}, { status: CONTEXT_FINISHED_STATUS }
+            )
+            context = billingContext
+        })
         test('should create one ServiceConsumer when BillingAccount is created', async () => {
             const user = await makeClientWithResidentUser()
             const unitName = faker.random.alphaNumeric(8)

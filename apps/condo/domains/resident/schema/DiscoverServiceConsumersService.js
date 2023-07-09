@@ -6,8 +6,10 @@ const { get, _ } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const access = require('@condo/domains/resident/access/DiscoverServiceConsumersService')
 const { RESIDENT_DISCOVER_CONSUMERS_WINDOW, MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW } = require('@condo/domains/resident/constants/constants')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
@@ -50,7 +52,8 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
 
                 if (resident) {
                     const residentObj = await Resident.getOne(context, { id: resident.id })
-                    await checkLimits(residentObj.user.phone)
+                    const user = await getById('User', residentObj.user.id)
+                    await checkLimits(user.phone)
                 }
 
                 const residents = await Resident.getAll(context,
@@ -62,8 +65,8 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     })
 
                 const billingAccounts = await BillingAccount.getAll(context,
-                    billingAccount ? { id: billingAccount.id, deletedAt: null, context: { status: 'Finished', deletedAt: null } } : {
-                        context: { status: 'Finished', deletedAt: null },
+                    billingAccount ? { id: billingAccount.id, deletedAt: null, context: { status: CONTEXT_FINISHED_STATUS, deletedAt: null } } : {
+                        context: { status: CONTEXT_FINISHED_STATUS, deletedAt: null },
                         property: { address: address, deletedAt: null  },
                         unitName: unitName,
                         unitType: unitType,
