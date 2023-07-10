@@ -8,7 +8,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { getRedirectUrl } from '../hooks/useDownloadFileFromServer'
+import { getRedirectUrl } from '@condo/domains/common/hooks/useDownloadFileFromServer'
 
 const { Option } = Select
 
@@ -60,6 +60,8 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
     const [currentSeconds, setCurrentSeconds] = useState(0)
     const [totalTime, setTotalTime] = useState('00:00')
     const [speed, setSpeed] = useState(1)
+    const [url, setUrl] = useState<string>()
+
     const waveformRef = useRef<HTMLDivElement>(null)
     const waveform = useRef(null)
 
@@ -75,7 +77,9 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
         setSpeed(value)
 
         if (waveform.current) {
-            waveform.current.setPlaybackRate(value, false)
+            waveform.current.pause()
+            waveform.current.setPlaybackRate(value, true)
+            waveform.current.play()
         }
     }, [])
 
@@ -135,8 +139,6 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
         waveform.current.load(track)
     }, [autoPlay, formatTime, trackId])
 
-    const [url, setUrl] = useState<string>()
-
     useEffect(() => {
         (async () => {
             const firstResponse = await fetch(src, {
@@ -145,17 +147,18 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
                     'shallow-redirect': 'true',
                 },
             })
-            console.log('firstResponse', firstResponse)
             if (!firstResponse.ok) throw new Error('Failed to download file')
 
             const redirectUrl = await getRedirectUrl(firstResponse)
-            setUrl(redirectUrl)
-
             const secondResponse = await fetch(redirectUrl, {
                 credentials: 'include',
             })
 
-            console.log('secondResponse', secondResponse)
+            if (secondResponse.status !== 200) {
+                setUrl(src)
+            } else {
+                setUrl(redirectUrl)
+            }
         })()
     }, [src])
 
@@ -174,8 +177,6 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
     if (!url) {
         return null
     }
-
-    console.log(url)
 
     const PlayerIcon = playing ? PauseFilled : PlayFilled
 
