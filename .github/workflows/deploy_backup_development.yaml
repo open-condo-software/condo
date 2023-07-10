@@ -1,4 +1,4 @@
-name: [development] Deploy
+name: "[development] Deploy"
 
 concurrency: deploy_develop.yaml
 
