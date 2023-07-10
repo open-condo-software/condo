@@ -8,6 +8,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { getRedirectUrl } from '../hooks/useDownloadFileFromServer'
+
 const { Option } = Select
 
 const WAVE_WRAPPER_STYLE: CSSProperties = { width: '100%', height: '28px' }
@@ -133,8 +135,32 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
         waveform.current.load(track)
     }, [autoPlay, formatTime, trackId])
 
+    const [url, setUrl] = useState<string>()
+
     useEffect(() => {
-        if (typeof document !== 'undefined' && self !== undefined) {
+        (async () => {
+            const firstResponse = await fetch(src, {
+                credentials: 'include',
+                headers: {
+                    'shallow-redirect': 'true',
+                },
+            })
+            console.log('firstResponse', firstResponse)
+            if (!firstResponse.ok) throw new Error('Failed to download file')
+
+            const redirectUrl = await getRedirectUrl(firstResponse)
+            setUrl(redirectUrl)
+
+            const secondResponse = await fetch(redirectUrl, {
+                credentials: 'include',
+            })
+
+            console.log('secondResponse', secondResponse)
+        })()
+    }, [src])
+
+    useEffect(() => {
+        if (typeof document !== 'undefined' && self !== undefined && url) {
             initWaveSurfer()
 
             return () => {
@@ -143,7 +169,13 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
                 }
             }
         }
-    }, [autoPlay, initWaveSurfer, trackId])
+    }, [autoPlay, initWaveSurfer, trackId, url])
+
+    if (!url) {
+        return null
+    }
+
+    console.log(url)
 
     const PlayerIcon = playing ? PauseFilled : PlayFilled
 
@@ -153,7 +185,7 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
                 <PlayerIcon color={colors.gray[7]} size='auto' onClick={handlePlay}/>
                 <div style={WAVEFORM_CONTAINER_STYLE}>
                     <div id='waveform' ref={waveformRef} style={WAVE_WRAPPER_STYLE}/>
-                    <audio id={trackId} src={src}/>
+                    <audio id={trackId} src={url}/>
                 </div>
                 <Typography.Text size='small'>
                     {`${formatTime(currentSeconds)}/${totalTime}`}

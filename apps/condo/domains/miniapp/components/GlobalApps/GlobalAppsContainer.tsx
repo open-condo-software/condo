@@ -99,25 +99,25 @@ export const GlobalAppsContainer: React.FC = () => {
         removeFeatureHandler,
     ])
 
-    useEffect(() => {
-        if (organizationId) {
-            for (const iframe of iframeRefs.current) {
-                if (iframe) {
-                    const iframeWindow = get(iframe, 'contentWindow', null)
-                    const iframeOrigin = extractOrigin(iframe.src)
-                    if (iframeOrigin && iframeWindow) {
-                        iframeWindow.postMessage({
-                            type: ORGANIZATION_CHANGE_MESSAGE_NAME,
-                            data: {
-                                // TODO(DOMA-5194): May be condoOrganizationId to be consistent with query-params?
-                                organizationId,
-                            },
-                        }, iframeOrigin)
-                    }
-                }
-            }
-        }
-    }, [organizationId])
+    // useEffect(() => {
+    //     if (organizationId) {
+    //         for (const iframe of iframeRefs.current) {
+    //             if (iframe) {
+    //                 const iframeWindow = get(iframe, 'contentWindow', null)
+    //                 const iframeOrigin = extractOrigin(iframe.src)
+    //                 if (iframeOrigin && iframeWindow) {
+    //                     iframeWindow.postMessage({
+    //                         type: ORGANIZATION_CHANGE_MESSAGE_NAME,
+    //                         data: {
+    //                             // TODO(DOMA-5194): May be condoOrganizationId to be consistent with query-params?
+    //                             organizationId,
+    //                         },
+    //                     }, iframeOrigin)
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }, [organizationId])
 
     useEffect(() => {
         if (!isGlobalAppsFetched.current && !loading && !isNull(user)) {
