@@ -36,6 +36,8 @@ export type EchartsSeries = {
     yAxisIndex?: number
     radius?: string
     center?: Array<string>
+    itemStyle?: Record<string, unknown>
+    color?: string
 }
 
 export type AxisData = {

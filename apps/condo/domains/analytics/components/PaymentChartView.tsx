@@ -5,10 +5,10 @@ import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { getChartOptions } from '@condo/domains/analytics/utils/helpers'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
 
 import PaymentChart from './PaymentChart'
 
@@ -19,20 +19,32 @@ interface IPaymentChartViewProps {
     data: null | PaymentDataType
     viewMode: PaymentChartType
     mapperInstance: PaymentChart
-    loading: boolean
+    loading?: boolean
     chartConfig: { animationEnabled: boolean, chartOptions?: ReactECharts['props']['opts'] }
 }
 
+const COLOR_SET = [
+    colors.purple['7'],
+    colors.purple['5'],
+    colors.blue['7'],
+    colors.blue['5'],
+    colors.green['7'],
+    colors.green['5'],
+    colors.teal['5'],
+    colors.cyan['5'],
+    colors.cyan['3'],
+]
+
 export const PaymentChartView: React.FC<IPaymentChartViewProps> = (props) => {
-    const { viewMode, data, mapperInstance, loading, chartConfig } = props
+    const { viewMode, data, mapperInstance, chartConfig } = props
 
     const intl = useIntl()
     const NoData = intl.formatMessage({ id: 'NoData' })
 
     let legend = [], tooltip = null
 
-    if (data === null || loading) {
-        return <Skeleton loading={loading} active paragraph={{ rows: 12 }} />
+    if (data === null) {
+        return <Skeleton loading active paragraph={{ rows: 12 }} />
     }
 
     if (data.length === 0) {
@@ -50,7 +62,7 @@ export const PaymentChartView: React.FC<IPaymentChartViewProps> = (props) => {
     const { opts, option } = getChartOptions({
         legend,
         tooltip,
-        color: CHART_COLOR_SET,
+        color: COLOR_SET,
         viewMode: viewMode as ViewModeTypes,
         showTitle: false,
         chartOptions: chartConfig.chartOptions || {},

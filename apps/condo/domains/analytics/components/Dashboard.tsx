@@ -1,66 +1,76 @@
-import { ExclamationCircleOutlined } from '@ant-design/icons'
 import {
     TicketStatusTypeType,
     TicketAnalyticsGroupBy,
     IncidentStatusType,
     TicketQualityControlValueType,
 } from '@app/condo/schema'
-import { Row, Col, Skeleton, Result } from 'antd'
+import { Row, Col, Skeleton } from 'antd'
 import Big from 'big.js'
 import dayjs, { Dayjs } from 'dayjs'
-import ReactECharts from 'echarts-for-react'
 import get from 'lodash/get'
-import groupBy from 'lodash/groupBy'
 import isNull from 'lodash/isNull'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 
-import { Wallet, LayoutList } from '@open-condo/icons'
+import { Wallet, LayoutList, Smile, Frown } from '@open-condo/icons'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { Card, Typography, Space, Select } from '@open-condo/ui'
+import { Card, Typography, Space, Radio, RadioGroup } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import TicketChart, { EchartsSeries, ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
+import {
+    TicketByPropertyChart,
+    TicketByExecutorChart,
+    ResidentByPropertyChart,
+    AllTicketsChart,
+    PaymentByPropertyChart,
+    PaymentReceiptChart,
+    TicketByCategoryChart,
+    PaymentTotalChart,
+} from '@condo/domains/analytics/components/charts'
+import TicketChart, { ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
 import { OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
 import { getAggregatedData } from '@condo/domains/analytics/utils/helpers'
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { Table } from '@condo/domains/common/components/Table/Index'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { useLightWeightTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { Incident, Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 
-import PaymentChart from './PaymentChart'
 import { PaymentChartView } from './PaymentChartView'
 import TicketChartView from './TicketChartView'
 
 import type { RowProps } from 'antd'
 
 const DASHBOARD_ROW_GUTTER: RowProps['gutter'] = [20, 40]
+const CARD_STYLE: React.CSSProperties = { height: '216px' }
 
-const DataCard: React.FC<{ label: string, value: string | number }> = ({ label, value }) => (
+const DataCard: React.FC<{ label: string, value: string | number, secondaryLabel?: string }> = ({ label, value, secondaryLabel }) => (
     <Col>
         <Space direction='vertical' align='center' size={8}>
-            <Space size={8} direction='horizontal' align='start'>
-                <Typography.Title level={3} type='primary'>{value}</Typography.Title>
-            </Space>
-            <Row>
-                <Typography.Text type='secondary'>{label}</Typography.Text>
-            </Row>
+            <Typography.Title level={3} type='primary'>{value}</Typography.Title>
+            <Typography.Text type='primary'>{label}</Typography.Text>
+            {secondaryLabel && (
+                <Typography.Text type='secondary' size='small'>{secondaryLabel}</Typography.Text>
+            )}
         </Space>
     </Col>
 )
 
 const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData, paymentLoading }) => {
     const intl = useIntl()
+    const SummaryTitle = intl.formatMessage({ id: 'pages.reports.summary' })
     const DoneLabel = intl.formatMessage({ id: 'Done' })
     const InWorkLabel = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
     const PaymentsAmountPercent = intl.formatMessage({ id: 'pages.reports.paymentsAmountPercent' })
     const PaymentsAmount = intl.formatMessage({ id: 'pages.reports.paymentsAmount' })
     const ResidentsInApp = intl.formatMessage({ id: 'pages.reports.residentsWithApp' })
+    const TodayTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.today' })
+    const MonthTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.month' })
+    const TotalTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.total' })
 
     const [completionPercent, setCompletionPercent] = useState('—')
     const [paymentsAmountPercent, setPaymentsAmountPercent] = useState('—')
@@ -117,7 +127,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
     const loading = monthTicketLoading || ticketCountLoading || isNull(ticketCounts.current)
 
     return (
-        <Card title={<Typography.Title level={3}>Сводка сегодня</Typography.Title>}>
+        <Card title={<Typography.Title level={3}>{SummaryTitle}</Typography.Title>}>
             {loading || paymentLoading ? (
                 <Skeleton loading paragraph={{ rows: 3 }} />
             ) : (
@@ -125,10 +135,26 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                     <Col span={24}>
                         <Row align='middle' justify='space-between'>
                             <LayoutList />
-                            <DataCard label={DoneLabel} value={completionPercent} />
-                            <DataCard label='Новые' value={ticketCounts.current.new_or_reopened.count} />
-                            <DataCard label={InWorkLabel} value={ticketCounts.current.processing.count} />
-                            <DataCard label='Закрытые' value={ticketCounts.current.closed.count} />
+                            <DataCard
+                                label={DoneLabel}
+                                secondaryLabel={MonthTitle}
+                                value={completionPercent}
+                            />
+                            <DataCard
+                                label='Новые'
+                                secondaryLabel={TodayTitle}
+                                value={ticketCounts.current.new_or_reopened.count}
+                            />
+                            <DataCard
+                                label={InWorkLabel}
+                                secondaryLabel={TodayTitle}
+                                value={ticketCounts.current.processing.count}
+                            />
+                            <DataCard
+                                label='Закрытые'
+                                secondaryLabel={TodayTitle}
+                                value={ticketCounts.current.closed.count}
+                            />
                         </Row>
                     </Col>
                     <Col span={24}>
@@ -136,14 +162,17 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                             <Wallet />
                             <DataCard
                                 label={PaymentsAmountPercent}
+                                secondaryLabel={MonthTitle}
                                 value={paymentsAmountPercent}
                             />
                             <DataCard
                                 label={PaymentsAmount}
+                                secondaryLabel={MonthTitle}
                                 value={intl.formatNumber(paymentSum, { style: 'currency', currency: 'Rub' })}
                             />
                             <DataCard
                                 label={ResidentsInApp}
+                                secondaryLabel={TotalTitle}
                                 value={residentsCount}
                             />
                         </Row>
@@ -157,6 +186,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
 const IncidentDashboard = ({ organizationId }) => {
     const intl = useIntl()
     const IncidentsTitle = intl.formatMessage({ id: 'pages.reports.incidentsTitle' })
+    const IncidentDescription = intl.formatMessage({ id: 'pages.reports.incidentsDescription' })
 
     const { push } = useRouter()
 
@@ -169,26 +199,23 @@ const IncidentDashboard = ({ organizationId }) => {
     }, [push])
 
     const incidentCardContent = useMemo(() => (
-        <Row style={{ minHeight: '158px' }}>
+        <Row style={CARD_STYLE} align='middle'>
             <Col span={24}>
-                <Result
-                    style={{ padding: '26px 32px' }}
-                    status={count > 0 ? 'error' : 'success'}
-                    title={<Typography.Text>
-                        {intl.formatMessage({ id: 'pages.reports.activeIncidents' }, { count })}
-                    </Typography.Text>}
-                    icon={count > 0 ? <ExclamationCircleOutlined /> : null}
-                />
+                <Space direction='vertical' size={12} align='center'>
+                    <Typography.Title level={1} type={count > 0 ? 'danger' : 'success'}>{count}</Typography.Title>
+                    <Typography.Paragraph type='secondary' size='medium'>
+                        {IncidentDescription}
+                    </Typography.Paragraph>
+                </Space>
             </Col>
         </Row>
-    ), [count, intl])
+    ), [count, IncidentDescription])
 
     return (
         <Card
             title={<Typography.Title level={3}>{IncidentsTitle}</Typography.Title>}
             onClick={onCardClick}
             hoverable
-            bodyPadding={8}
         >
             {loading ? <Skeleton active paragraph={{ rows: 3 }} /> : incidentCardContent}
         </Card>
@@ -198,7 +225,7 @@ const IncidentDashboard = ({ organizationId }) => {
 const TicketQualityControlDashboard = ({ organizationId }) => {
     const intl = useIntl()
     const QualityControlTitle = intl.formatMessage({ id: 'ticket.qualityControl' })
-    const NoDataTitle = intl.formatMessage({ id: 'NoData' })
+    const TicketFeedbackTitle = intl.formatMessage({ id: 'pages.reports.ticketFeedbackCount' })
 
     const { count: goodCount, loading: goodLoading } = Ticket.useCount({
         where: {
@@ -224,109 +251,48 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
     })
 
     const ticketCardContent = useMemo(() => {
-        if (badCount === 0 && goodCount === 0) {
-            return <BasicEmptyListView image='/dino/searching@2x.png' imageStyle={{ height: '152px' }}>
-                <Typography.Title level={4}>
-                    {NoDataTitle}
-                </Typography.Title>
-            </BasicEmptyListView>
-        }
+        const goodPercent = goodCount / (goodCount + badCount) * 100
+        const badPercent = badCount / (goodCount + badCount) * 100
 
-        const option = {
-            series: [
-                {
-                    type: 'gauge',
-                    startAngle: 180,
-                    endAngle: 0,
-                    center: ['50%', '75%'],
-                    radius: '100%',
-                    min: 0,
-                    max: 1,
-                    splitNumber: 8,
-                    axisLine: {
-                        lineStyle: {
-                            width: 6,
-                            color: [
-                                [0.5, colors.red['5']],
-                                [1, colors.green['5']],
-                            ],
-                        },
-                    },
-                    pointer: {
-                        icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
-                        length: '12%',
-                        width: 20,
-                        offsetCenter: [0, '-60%'],
-                        itemStyle: {
-                            color: '#222',
-                        },
-                    },
-                    axisTick: {
-                        length: 12,
-                        lineStyle: {
-                            color: 'inherit',
-                            width: 2,
-                        },
-                    },
-                    splitLine: { show: false },
-                    axisLabel: {
-                        show: false,
-                        color: '#222',
-                        fontSize: 20,
-                        distance: -60,
-                        rotate: 'tangential',
-                        formatter: function (value) {
-                            if (value === 0.875) {
-                                return 'Grade A'
-                            } else if (value === 0.625) {
-                                return 'Grade B'
-                            } else if (value === 0.375) {
-                                return 'Grade C'
-                            } else if (value === 0.125) {
-                                return 'Grade D'
-                            }
-                            return ''
-                        },
-                    },
-                    title: {
-                        offsetCenter: [0, '25%'],
-                        fontSize: 16,
-                    },
-                    detail: {
-                        fontSize: 28,
-                        valueAnimation: true,
-                        offsetCenter: [0, '-10%'],
-                        formatter: function (value) {
-                            return Math.round(value * 100) + ' %'
-                        },
-                        color: 'inherit',
-                    },
-                    data: [
-                        {
-                            value: goodCount / (badCount + goodCount),
-                            name: intl.formatMessage({ id: 'pages.reports.ticketFeedbackCount' }, { count: goodCount + badCount }),
-                        },
-                    ],
-                },
-            ],
-        }
         return (
-            <Row style={{ height: '182px' }}>
+            <Row style={CARD_STYLE} align='middle'>
                 <Col span={24}>
-                    <ReactECharts
-                        opts={{ renderer: 'svg' }}
-                        option={option}
-                        style={{ height: '100%', width: '100%' }}
-                    />
+                    <Row justify='space-evenly' gutter={[0, 12]}>
+                        <Col>
+                            <Space size={8} direction='horizontal'>
+                                <Smile />
+                                <Typography.Title level={3} type='success'>
+                                    {goodPercent}%
+                                </Typography.Title>
+                            </Space>
+                        </Col>
+                        <Col>
+                            <Space size={8} direction='horizontal'>
+                                <Frown />
+                                <Typography.Title level={3} type='danger'>
+                                    {badPercent}%
+                                </Typography.Title>
+                            </Space>
+                        </Col>
+                        {/* @ts-ignore */}
+                        <Col span={24} align='center'>
+                            <Typography.Text type='secondary' size='medium'>
+                                {TicketFeedbackTitle} {goodCount + badCount}&nbsp;(
+                                <Typography.Text type='success' size='medium'>{goodCount}</Typography.Text>
+                                    /
+                                <Typography.Text type='danger' size='medium'>{badCount}</Typography.Text>
+                                    )
+                            </Typography.Text>
+                        </Col>
+                    </Row>
                 </Col>
             </Row>
         )
-    }, [goodCount, badCount, intl, NoDataTitle])
+    }, [goodCount, badCount, TicketFeedbackTitle])
 
     return (
         <Card
             title={<Typography.Title level={3}>{QualityControlTitle}</Typography.Title>}
-            bodyPadding={12}
         >
             {goodLoading || badLoading ? <Skeleton active paragraph={{ rows: 3 }} /> : ticketCardContent}
         </Card>
@@ -576,18 +542,11 @@ const TicketTableView = ({ organizationId, dateRange }) => {
 
 export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId }) => {
     const intl = useIntl()
-    const NewTicketsTitle = intl.formatMessage({ id: 'pages.reports.newTicketsTitle' })
     const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
     const TicketsByPropertyTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })
-    const TicketsByCategory = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
     const TicketsByExecutor = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })
-    const PaymentsTotalTitle = intl.formatMessage({ id: 'pages.reports.paymentsTotal' })
-    const ResidentTitle = intl.formatMessage({ id: 'global.section.contacts' })
-    const SumTitle = intl.formatMessage({ id: 'global.sum' })
-    const PaymentCountTitle = intl.formatMessage({ id: 'pages.reports.paymentCount' })
-    const ChargedTitle = intl.formatMessage({ id: 'Charged' })
-    const PaidTitle = intl.formatMessage({ id: 'PaymentPaid' })
-    const PaymentsByPropertyTitle = intl.formatMessage({ id: 'pages.reports.paymentsByProperty' })
+    const PerDayTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.day' })
+    const PerWeekTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.week' })
 
     const [overview, setOverview] = useState(null)
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
@@ -617,14 +576,8 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     }, [organizationId, loadDashboardData, dateRange, aggregatePeriod])
 
     const onAggregatePeriodChange = useCallback((aggregatePeriod) => {
-        setAggregatePeriod(aggregatePeriod)
+        setAggregatePeriod(aggregatePeriod.target.value)
     }, [])
-
-    const aggregateOptions = useMemo(() => [
-        { label: 'День', value: 'day' },
-        { label: 'Неделя', value: 'week' },
-        // { label: 'Месяц', value: 'month' },
-    ], [])
 
     const newTickets = get(overview, 'ticketByDay.ticketCounts', [])
     const propertyTickets = get(overview, 'ticketByProperty.ticketCounts')
@@ -637,148 +590,6 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const residentsData = get(overview, 'resident.residents', [])
     const chargedToPaidData = paymentsData.length > 0 && receiptsData.length > 0 ? [paymentsData, receiptsData] : []
 
-    const paymentChart = new PaymentChart({
-        barSummary: {
-            chart: (viewMode, payments) => {
-                const paymentsCount = payments.map(payment => [payment.dayGroup, Number(payment.count)])
-                const maxCount = Math.max(...paymentsCount.map(([, value]) => value))
-                const series: Array<EchartsSeries> = [
-                    {
-                        name: SumTitle,
-                        data: payments.map(payment => [payment.dayGroup, Number(payment.sum).toFixed(2)]),
-                        type: 'bar',
-                        label: { show: true, position: 'top' },
-                        barMaxWidth: 40,
-                    },
-                    {
-                        name: PaymentCountTitle,
-                        data: paymentsCount,
-                        type: 'line',
-                        yAxisIndex: 1,
-                    },
-                ]
-
-                return {
-                    legend: [SumTitle, PaymentCountTitle],
-                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
-                    axisData: {
-                        yAxis: [
-                            { type: 'value', data: null, boundaryGap: [0, 0.02] },
-                            {
-                                type: 'value',
-                                data: null,
-                                min: 0,
-                                max: maxCount + Math.round(maxCount / 2),
-                                boundaryGap: [0, 0.02],
-                                axisLabel: {
-                                    formatter: (value) => {
-                                        return value % 1 === 0 ? value : ''
-                                    },
-                                },
-                            },
-                        ],
-                        xAxis: {
-                            type: 'category',
-                            data: null,
-                            axisLabel: {
-                                formatter: (value) => dayjs(value).format('MMM, YYYY'),
-                            },
-                        },
-                    },
-                    series,
-                }
-            },
-        },
-        bar: {
-            chart: (viewMode, dataset) => {
-                const series: Array<EchartsSeries> = [
-                    {
-                        name: ChargedTitle,
-                        data: dataset[1].map(receipt => [receipt.dayGroup, Number(receipt.sum).toFixed(2)]),
-                        type: viewMode,
-                        label: { show: true, position: 'top' },
-                        barMaxWidth: 40,
-                    },
-                    {
-                        name: PaidTitle,
-                        data: dataset[0].map(payment => [payment.dayGroup, Number(payment.sum).toFixed(2)]),
-                        type: viewMode,
-                        label: { show: true, position: 'top' },
-                        barMaxWidth: 40,
-                    },
-                ]
-
-                return {
-                    legend: [ChargedTitle, PaidTitle],
-                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
-                    axisData: {
-                        yAxis: { type: 'value', data: null, boundaryGap: [0, 0.05] },
-                        xAxis: {
-                            type: 'category',
-                            data: Array.from(new Set(...dataset.map(e => e.map(q => q.dayGroup)))) as Array<string>,
-                            axisLabel: {
-                                formatter: (value) => dayjs(value).format('MMM, YYYY'),
-                            },
-                        },
-                    },
-                    series,
-                }
-            },
-        },
-    })
-    const paymentCreatedByChart = new PaymentChart({
-        bar: {
-            chart: (viewMode, payments) => {
-                const createdByGroup = groupBy(payments, 'createdBy')
-                const series: Array<EchartsSeries> = [{
-                    name: PaidTitle,
-                    data: Object.entries(createdByGroup).map(([groupLabel, dataObj]) => {
-                        return [dataObj.reduce((p, c) => p + Number(c.sum), 0), groupLabel]
-                    }),
-                    type: viewMode,
-                    label: {
-                        show: true,
-                        formatter: (e) => e.name,
-                        position: 'top',
-                    },
-                    barMaxWidth: 40,
-                }]
-                return {
-                    legend: [],
-                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
-                    axisData: {
-                        yAxis: { type: 'category', data: null, axisLabel: { show: false } },
-                        xAxis: { type: 'value', data: null, boundaryGap: [0, 0.02] },
-                    },
-                    series,
-                }
-            },
-        },
-    })
-    const residentPropertyChart = new PaymentChart({
-        pie: {
-            chart: (viewMode, residents) => {
-                const series: Array<EchartsSeries> = [{
-                    name: ResidentTitle,
-                    data: residents.map(resident => ({ value: resident.count, name: resident.address })),
-                    radius: '55%',
-                    center: ['45%', '50%'],
-                    type: 'pie',
-                    label: { show: true, formatter: (e) =>  e.percent + '%' },
-                }]
-                return {
-                    legend: residents.map(resident => resident.address),
-                    tooltip: { trigger: 'item', axisPointer: { type: 'none' } },
-                    axisData: {
-                        yAxis: { type: 'category', data: null, axisLabel: { show: false } },
-                        xAxis: { type: 'value', data: null, boundaryGap: [0, 0.02] },
-                    },
-                    series,
-                }
-            },
-        },
-    })
-
     return (
         <Row gutter={DASHBOARD_ROW_GUTTER}>
             <Col lg={12} md={24}>
@@ -790,28 +601,31 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     paymentLoading={false}
                 />
             </Col>
-            <Col lg={6} md={24}>
+            <Col lg={6} md={12}>
                 <IncidentDashboard organizationId={organizationId} />
             </Col>
-            <Col lg={6} md={24}>
+            <Col lg={6} md={12}>
                 <TicketQualityControlDashboard organizationId={organizationId} />
             </Col>
             <Col span={24}>
-                <Space direction='horizontal' size={16}>
-                    <DateRangePicker
-                        value={dateRange}
-                        onChange={setDateRange}
-                        allowClear={false}
-                        disabledDate={(current) => {
-                            return current && current < dayjs().startOf('year')
-                        }}
-                    />
-                    <Select
-                        value={aggregatePeriod}
-                        onChange={onAggregatePeriodChange}
-                        options={aggregateOptions}
-                    />
-                </Space>
+                <TableFiltersContainer>
+                    <Space direction='horizontal' size={24}>
+                        <DateRangePicker
+                            value={dateRange}
+                            onChange={setDateRange}
+                            allowClear={false}
+                            disabledDate={(current) => {
+                                return current && current < dayjs().startOf('year')
+                            }}
+                        />
+                        <RadioGroup value={aggregatePeriod} onChange={onAggregatePeriodChange}>
+                            <Space direction='horizontal' size={24}>
+                                <Radio value='day' label={PerDayTitle} />
+                                <Radio value='week' label={PerWeekTitle} />
+                            </Space>
+                        </RadioGroup>
+                    </Space>
+                </TableFiltersContainer>
             </Col>
             {loading || overview === null ? (
                 <Skeleton paragraph={{ rows: 5 }} />
@@ -819,58 +633,25 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                 <Col span={24}>
                     <Row gutter={DASHBOARD_ROW_GUTTER}>
                         <Col lg={12} md={24}>
-                            <TicketChartContainer
-                                title={NewTicketsTitle}
-                                data={newTickets}
-                                groupBy={[TicketAnalyticsGroupBy.Status, TicketAnalyticsGroupBy.Day]}
-                                sortBySummary={false}
-                                viewMode='line'
-                            />
+                            <AllTicketsChart data={newTickets} />
                         </Col>
                         <Col lg={12} md={24}>
-                            <TicketChartContainer
-                                title={TicketTitle + ' ' + TicketsByCategory.toLowerCase()}
-                                data={categoryTickets}
-                                groupBy={[TicketAnalyticsGroupBy.Status, TicketAnalyticsGroupBy.CategoryClassifier]}
-                                isStacked
-                                topValues={5}
-                                sliceWords
-                            />
+                            <TicketByCategoryChart data={categoryTickets} />
                         </Col>
                         <Col span={24}>
                             <TicketTableView organizationId={organizationId} dateRange={dateRange} />
                         </Col>
                         <Col lg={12} md={24}>
-                            <CustomChartContainer
-                                title={PaymentsTotalTitle}
-                                data={paymentsData}
-                                viewMode='barSummary'
-                                mapperInstance={paymentChart}
-                            />
+                            <PaymentTotalChart data={paymentsData} />
                         </Col>
                         <Col lg={12} md={24}>
-                            <CustomChartContainer
-                                title={`${ChargedTitle} / ${PaidTitle}`}
-                                data={chargedToPaidData}
-                                viewMode='bar'
-                                mapperInstance={paymentChart}
-                            />
+                            <PaymentReceiptChart data={chargedToPaidData} />
                         </Col>
                         <Col lg={12} md={24}>
-                            <CustomChartContainer
-                                title={PaymentsByPropertyTitle}
-                                data={paymentsData}
-                                viewMode='bar'
-                                mapperInstance={paymentCreatedByChart}
-                            />
+                            <PaymentByPropertyChart data={paymentsData} />
                         </Col>
                         <Col lg={12} md={24}>
-                            <CustomChartContainer
-                                title={ResidentTitle + ' ' + TicketsByPropertyTitle.toLowerCase()}
-                                data={residentsData}
-                                viewMode='pie'
-                                mapperInstance={residentPropertyChart}
-                            />
+                            <ResidentByPropertyChart data={residentsData} />
                         </Col>
                         <Col lg={12} md={24}>
                             <TicketChartContainer

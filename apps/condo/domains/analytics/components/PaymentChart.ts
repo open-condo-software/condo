@@ -6,7 +6,7 @@ import { ChartConfigResult, AxisData } from './TicketChart'
 
 
 export type PaymentDataType = Array<Pick<Payment, 'id' | 'amount' | 'createdAt'>>
-export type PaymentChartType = 'barSummary' | 'bar'
+export type PaymentChartType = 'bar' | 'pie'
 
 interface IGetChartConfig extends IGetBaseChartConfig<PaymentChartType, PaymentDataType, ChartConfigResult> {
     (viewMode: 'bar', data: PaymentDataType): {

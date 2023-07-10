@@ -46,7 +46,7 @@ class ResidentGqlKnexLoader extends GqlToKnexBaseAdapter {
 
         this.result = await query.groupBy(this.aggregateBy)
             .where(knexWhere)
-            .orderBy('count', 'asc')
+            .orderBy('count', 'desc')
     }
 }
 
