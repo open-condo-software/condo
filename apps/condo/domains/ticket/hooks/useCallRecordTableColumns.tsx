@@ -4,6 +4,7 @@ import { useCallback, useMemo } from 'react'
 
 import { Download, Play } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Space, Tag, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -48,6 +49,9 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
     const sorterMap = useMemo(() => getSorterMap(sorters), [sorters])
     const search = useMemo(() => getFilteredValue(filters, 'search'), [filters])
     const render = useMemo(() => getTableCellRenderer({ search }), [search])
+
+    const userOrganization = useOrganization()
+    const canDownloadCallRecords = useMemo(() => get(userOrganization, ['link', 'role', 'canDownloadCallRecords']), [userOrganization])
 
     const phoneRender = useCallback(({ callRecord }) => {
         const phonePrefix = get(callRecord, 'organization.phoneNumberPrefix')
@@ -129,16 +133,20 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
                         />
                     </div>
                 </Tooltip>
-                <Tooltip title={DownloadMessage}>
-                    <div>
-                        <Download
-                            onClick={handleDownloadFile}
-                        />
-                    </div>
-                </Tooltip>
+                {
+                    canDownloadCallRecords && (
+                        <Tooltip title={DownloadMessage}>
+                            <div>
+                                <Download
+                                    onClick={handleDownloadFile}
+                                />
+                            </div>
+                        </Tooltip>
+                    )
+                }
             </Space>
         )
-    }, [DownloadMessage, PlayMessage, downloadFile, setAutoPlay, setSelectedCallRecordFragment])
+    }, [DownloadMessage, PlayMessage, canDownloadCallRecords, downloadFile, setAutoPlay, setSelectedCallRecordFragment])
 
     return useMemo(() => ([
         {

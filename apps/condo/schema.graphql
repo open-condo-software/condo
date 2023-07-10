@@ -4630,6 +4630,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
+  canDownloadCallRecords: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4768,6 +4769,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageNewsItemTemplates_not: Boolean
   canManageCallRecords: Boolean
   canManageCallRecords_not: Boolean
+  canDownloadCallRecords: Boolean
+  canDownloadCallRecords_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4905,6 +4908,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageNewsItemTemplates_DESC
   canManageCallRecords_ASC
   canManageCallRecords_DESC
+  canDownloadCallRecords_ASC
+  canDownloadCallRecords_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4957,6 +4962,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
+  canDownloadCallRecords: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5010,6 +5016,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
+  canDownloadCallRecords: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5092,6 +5099,7 @@ type OrganizationEmployeeRole {
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
+  canDownloadCallRecords: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5218,6 +5226,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageNewsItemTemplates_not: Boolean
   canManageCallRecords: Boolean
   canManageCallRecords_not: Boolean
+  canDownloadCallRecords: Boolean
+  canDownloadCallRecords_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5337,6 +5347,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageNewsItemTemplates_DESC
   canManageCallRecords_ASC
   canManageCallRecords_DESC
+  canDownloadCallRecords_ASC
+  canDownloadCallRecords_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5388,6 +5400,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
+  canDownloadCallRecords: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5437,6 +5450,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
+  canDownloadCallRecords: Boolean
   v: Int
   createdAt: String
   updatedAt: String

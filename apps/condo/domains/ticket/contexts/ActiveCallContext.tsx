@@ -36,7 +36,7 @@ const ActiveCallContextProvider = ({ children = {} }) => {
         if (isUndefined(window)) {
             return
         }
-        
+
         addEventHandler('CondoWebSetActiveCall', '*', ({
             isCallActive: newCallState, connectedTickets, error,
         }) => {
@@ -52,7 +52,7 @@ const ActiveCallContextProvider = ({ children = {} }) => {
                     notification.info({
                         message: SavedNotificationMessage,
                         description: (
-                            <Typography.Text>
+                            <Typography.Text size='medium'>
                                 {SavedNotificationDescription}&nbsp;
                                 <Typography.Link href='/callRecord'>{SavedNotificationDescriptionLink}</Typography.Link>
                             </Typography.Text>
