@@ -15,7 +15,7 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { PAYMENT_CATEGORIES_META } = require('@condo/domains/resident/constants')
-const { sendMessageToResidentScopes } = require('@condo/domains/resident/utils/serverSchema')
+const { Resident, sendMessageToResidentScopes } = require('@condo/domains/resident/utils/serverSchema')
 
 const { isValidDateValue } = require('../utils/validation.utils')
 
@@ -110,21 +110,38 @@ const validateAndNormalizeData = async (context, data) => {
     const billingProperties = await loadListByChunks({ context, list: BillingProperty, where: billingPropertiesWhere })
     const loadedBillingPropertyIds = billingProperties.map(billingProperty => billingProperty.id)
     const loadedBillingPropertyUniqIds = uniq(compact(loadedBillingPropertyIds))
+    const propertiesMapping = {}
 
     /** Make sure all billing property items contain property with id */
     if (loadedBillingPropertyUniqIds.length !== uniqBillingPropertyIds.length) throw new GQLError(ERRORS.INVALID_BILLING_PROPERTY_PROVIDED, context)
 
-    /** Map billing property ids to property ids */
-    const propertiesMapping = billingProperties.reduce((result, { id, property }) => {
-        if (!property || !property.id) throw new GQLError(ERRORS.INVALID_BILLING_PROPERTY_PROVIDED, context)
+    /**
+     * Map billing property ids to property ids by finding first non-deleted resident within non-deleted property with same address.
+     * This should work because all residents are always connected to actual properties in actual organizations.
+     * */
+    for (const billingProperty of billingProperties) {
+        const residentWhere = {
+            deletedAt: null,
+            property: {
+                deletedAt: null,
+                OR: [
+                    { address_i: billingProperty.address.toLowerCase() },
+                    { addressKey: billingProperty.addressKey },
+                ],
+            },
+        }
+        const [resident] = await Resident.getAll(context, residentWhere, { sortBy: ['createdAt_ASC'], first: 1 })
 
-        result[id] = property.id
-
-        return result
-    }, {})
+        if (!isEmpty(get(resident, 'residentProperty'))) propertiesMapping[billingProperty.id] = resident.residentProperty.id
+    }
 
     /** replace billing properties with corresponding properties in scopes */
     const scopesData = scopes.map(scope => {
+        /**
+         * If billingProperty to property mapping is missing, we should skip whole scope, because there were no residents found for the address
+         * */
+        if (!propertiesMapping[scope.billingProperty.id]) return undefined
+
         const scopeItem = {
             ...omit(scope, ['billingProperty', 'skipAccountNumbers']),
             property: { id: propertiesMapping[scope.billingProperty.id] },
@@ -135,7 +152,9 @@ const validateAndNormalizeData = async (context, data) => {
         return scopeItem
     })
 
-    return { categoryData, period: period.format(DATE_FORMAT), scopesData }
+    // TODO: validate non empty scopes
+
+    return { categoryData, period: period.format(DATE_FORMAT), scopesData: compact(scopesData) }
 }
 
 const SendNewReceiptMessagesToResidentScopesService = new GQLCustomSchema('SendNewReceiptMessagesToResidentScopesService', {

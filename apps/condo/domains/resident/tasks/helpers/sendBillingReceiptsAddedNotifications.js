@@ -56,7 +56,8 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
 
     // Temporarily disabled checking toPayCharge value (it's temporarily not used by now)
     // if (isNull(toPay) || isNull(toPayCharge)) return 0
-    if (isNull(toPay)) return 0
+    // Disabled notifications of BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE type due to DOMA-6589
+    if (isNull(toPay) || toPay <= 0) return 0
 
     const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge)
     const data = {
@@ -171,7 +172,8 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
 
                 const success = await prepareAndSendNotification(context, receipt, resident)
 
-                notifiedUsers.add(resident.user.id)
+                if (success) notifiedUsers.add(resident.user.id)
+
                 successConsumerCount += success
             }
 

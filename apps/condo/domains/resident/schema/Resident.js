@@ -99,13 +99,13 @@ const Resident = new GQLListSchema('Resident', {
         residentProperty: {
             schemaDoc: 'Property data, that is returned for current resident in mobile client',
             type: Virtual,
-            extendGraphQLTypes: ['type ResidentProperty { id: ID!, name: String, address: String! }'],
+            extendGraphQLTypes: ['type ResidentProperty { id: ID!, name: String, address: String!, addressKey: String }'],
             graphQLReturnType: 'ResidentProperty',
             graphQLReturnFragment: `{ ${RESIDENT_PROPERTY_FIELDS} }`,
             resolver: async (item) => {
                 if (item.property) {
                     const property = await getById('Property', item.property)
-                    return pick(property, ['id', 'name', 'address'])
+                    return pick(property, ['id', 'name', 'address', 'addressKey'])
                 } else {
                     return null
                 }

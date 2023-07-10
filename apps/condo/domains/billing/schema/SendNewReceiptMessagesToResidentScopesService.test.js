@@ -28,9 +28,9 @@ const {
     DEVICE_PLATFORM_ANDROID, APP_MASTER_ID_ANDROID, MESSAGE_SENT_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { syncRemoteClientWithPushTokenByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { Resident, registerResidentByTestClient, registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { Resident, registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -49,7 +49,7 @@ const CATEGORY_HOUSING_KEY = 'billing.category.housing.name.declined'
 describe('SendNewReceiptMessagesToResidentScopesService', () => {
 
     let adminClient, supportClient, serviceClient, integrationServiceClient,
-        anonymousClient, userClient, residentClient,
+        anonymousClient, userClient0, userClient, residentClient,
         sender, property, organization,
         integration, integrationContext, billingProperty,
         dates
@@ -58,22 +58,32 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
         dates = getStartDates()
         adminClient = await makeLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
+        userClient0 = await makeClientWithProperty()
         userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymousClient = await makeClient()
-        sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-        const organizationData = await createTestOrganization(adminClient)
-        organization = organizationData[0]
-        const propertyData = await createTestProperty(adminClient, organization)
-        property = propertyData[0]
         residentClient = await makeClientWithResidentUser()
         serviceClient = await makeClientWithServiceUser()
+        sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+        organization = userClient0.organization
+        property = userClient0.property
+
+        const [resident0] = await createTestResident(adminClient, userClient0.user, userClient0.property)
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient0.property)
         const integrationData = await createTestBillingIntegration(adminClient)
+
         integration = integrationData[0]
         integrationServiceClient = await makeServiceUserForIntegration(integration)
+
         const contextData = await createTestBillingIntegrationOrganizationContext(adminClient, organization, integration, { status: CONTEXT_FINISHED_STATUS })
+
         integrationContext = contextData[0]
+
         const billingPropertyData = await createTestBillingProperty(adminClient, integrationContext, { address: property.address })
+
         billingProperty = billingPropertyData[0]
+
+        const [billingAccount] = await createTestBillingAccount(adminClient, integrationContext, billingProperty)
+        const [consumer0] = await createTestServiceConsumer(adminClient, resident0, userClient0.organization, { billingAccount: { connect: { id: billingAccount.id } } })
     })
 
     describe('sendNewReceiptMessagesToResidentScopes tests', () => {
@@ -96,6 +106,7 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
             })
 
             test('admin can', async () => {
+                console.log('payload:', JSON.stringify(payload, null, 2))
                 const [data] = await sendNewReceiptMessagesToResidentScopesByTestClient(adminClient, payload)
 
                 expect(data.status).toEqual(SUCCESS_STATUS)
@@ -548,21 +559,29 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
     //     - generate billing receipt for billing account +
     //     - wait for proper notification to be sent to resident's user +
     describe.skip('Non CI complex manual testing for sendNewReceiptMessagesToResidentScopes', () => {
-        it('generates billing receipts and waits till mutation is triggered from integrated service manually', async () => {
+        let billingIntegration
+
+        beforeAll(async () => {
             const { integration: integrationId } = conf['EPS_INTEGRATION'] ? JSON.parse(conf['EPS_INTEGRATION']) : {}
 
             if (!integrationId) throw new Error('Missing integration in EPS_INTEGRATION entity of .env')
 
-            const billingIntegration = await BillingIntegration.getOne(adminClient, { id: integrationId })
+            billingIntegration = await BillingIntegration.getOne(adminClient, { id: integrationId })
 
             if (!billingIntegration) throw new Error('Provided integration id in EPS_INTEGRATION entity of .env is invalid')
+        })
 
+        it('generates RSO billing receipts and checks that mutation is triggered from integrated service and proper notifications sent to users without billing accounts', async () => {
             const remoteClientPayload = { devicePlatform: DEVICE_PLATFORM_ANDROID, appId: APP_MASTER_ID_ANDROID }
             const userClient = await makeClientWithProperty()
             const userClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
             const userClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
             const userClient3 = await makeClientWithNewRegisteredAndLoggedInUser()
             const userClient4 = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            await syncRemoteClientWithPushTokenByTestClient(userClient3, remoteClientPayload)
+            await syncRemoteClientWithPushTokenByTestClient(userClient4, remoteClientPayload)
+
             const [billingContext] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
             const [billingProperty] = await createTestBillingProperty(adminClient, billingContext, { address: userClient.property.address })
             const [billingAccount] = await createTestBillingAccount(adminClient, billingContext, billingProperty)
@@ -581,9 +600,6 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
             const [receipt1] = await createTestBillingReceipt(adminClient, billingContext, billingProperty, billingAccount1, receiptExtraData)
             const [receipt2] = await createTestBillingReceipt(adminClient, billingContext, billingProperty, billingAccount2, receiptExtraData)
 
-            await syncRemoteClientWithPushTokenByTestClient(userClient3, remoteClientPayload)
-            await syncRemoteClientWithPushTokenByTestClient(userClient4, remoteClientPayload)
-
             /**
              * to trigger new receipts notifications run manually at this point
              * yarn workspace @app/eps node ./bin/triggerEpsNewReceiptsNotifications.js
@@ -601,9 +617,6 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
             await waitFor(async () => {
                 const messages = await Message.getAll(adminClient, messageWhere)
 
-                console.log('messages[0].user:', messages[0].user)
-                console.log('messages[1].user:', messages[1].user)
-
                 expect(isEmpty(messages)).toBeFalsy()
                 expect(messages).toHaveLength(2)
                 expect(messages[0].status).toEqual(MESSAGE_SENT_STATUS)
@@ -612,7 +625,52 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
 
                 expect(userIds.includes(resident3.user.id)).toBeTruthy()
                 expect(userIds.includes(resident4.user.id)).toBeTruthy()
-            }, { interval: 1000, delay: 3000, timeout: 1000 * 60 * 5 })
+            }, { interval: 1000, delay: 500, timeout: 1000 * 60 * 5 })
+        })
+
+        it('checks that new billing receipts for RSO integrations trigger sending proper notifications to users in ordinary organizations and without billing accounts', async () => {
+            const remoteClientPayload = { devicePlatform: DEVICE_PLATFORM_ANDROID, appId: APP_MASTER_ID_ANDROID }
+
+            const userClient = await makeClientWithProperty()
+            const userClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
+            const [resident1] = await createTestResident(adminClient, userClient1.user, userClient.property)
+            const [resident2] = await createTestResident(adminClient, userClient2.user, userClient.property)
+
+            await syncRemoteClientWithPushTokenByTestClient(userClient, remoteClientPayload)
+            await syncRemoteClientWithPushTokenByTestClient(userClient1, remoteClientPayload)
+
+            const [organizationRSO] = await registerNewOrganization(adminClient)
+            const [billingContextRSO] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
+            const [billingPropertyRSO] = await createTestBillingProperty(adminClient, billingContextRSO, { address: userClient.property.address })
+            const [billingAccount] = await createTestBillingAccount(adminClient, billingContextRSO, billingPropertyRSO, { unitType: resident.unitType, unitName: resident.unitName })
+            const [serviceConsumer] = await createTestServiceConsumer(adminClient, resident, organizationRSO, { billingAccount: { connect: { id: billingAccount.id } } })
+            const receiptExtraData = { period: dates.thisMonthStart, category: { connect: { id: CATEGORY_HOUSING_ID } } }
+            const [billingReceipt] = await createTestBillingReceipt(adminClient, billingContextRSO, billingPropertyRSO, billingAccount, receiptExtraData)
+
+            /**
+             * to trigger new receipts notifications run manually at this point
+             * yarn workspace @app/eps node ./bin/triggerEpsNewReceiptsNotifications.js
+             */
+
+            const messageWhere = {
+                user: { id_in: [resident.user.id, resident1.user.id, resident2.user.id] },
+                type: BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE,
+            }
+
+            await waitFor(async () => {
+                const messages = await Message.getAll(adminClient, messageWhere)
+
+                expect(isEmpty(messages)).toBeFalsy()
+                expect(messages).toHaveLength(2)
+                expect(messages[0].status).toEqual(MESSAGE_SENT_STATUS)
+
+                const userIds = [messages[0].user.id, messages[1].user.id]
+
+                expect(userIds.includes(resident1.user.id)).toBeTruthy()
+                expect(userIds.includes(resident2.user.id)).toBeTruthy()
+            }, { interval: 1000, delay: 500, timeout: 1000 * 60 * 5 })
 
         })
     })
