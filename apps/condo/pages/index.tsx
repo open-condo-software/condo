@@ -5,7 +5,7 @@ import React, { useEffect } from 'react'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
+import { ASSIGNED_TICKET_VISIBILITY, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 
 
 const IndexPage = () => {
@@ -13,7 +13,9 @@ const IndexPage = () => {
     const organization = useOrganization()
 
     useEffect(() => {
-        if (get(organization, ['link', 'role', 'ticketVisibilityType']) !== ASSIGNED_TICKET_VISIBILITY) {
+        if (get(organization, ['organization', 'type'], MANAGING_COMPANY_TYPE) === SERVICE_PROVIDER_TYPE) {
+            router.push('/billing')
+        } else if (get(organization, ['link', 'role', 'ticketVisibilityType']) !== ASSIGNED_TICKET_VISIBILITY) {
             router.push('/reports')
         }
     }, [organization, router])

@@ -210,7 +210,7 @@ const MenuItems: React.FC = () => {
                     path: 'employee',
                     icon: AllIcons['Employee'],
                     label: 'global.section.employees',
-                    access: !isAssignedVisibilityType && isManagingCompany,
+                    access: !isAssignedVisibilityType,
                 },
             ].filter(checkItemAccess),
         },
