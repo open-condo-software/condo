@@ -4,6 +4,7 @@ import get from 'lodash/get'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { Readings, NewAppeal, Smartphone, Plus } from '@open-condo/icons'
+import type { IconProps } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button } from '@open-condo/ui'
@@ -122,6 +123,7 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     ), [setIsSearchByPhoneModalVisible, isAssignedVisibilityType, setDropdownVisible])
 
     const trigger: DropDownProps['trigger'] = useMemo(() => isMobile ? ['click'] : ['hover'], [isMobile])
+    const iconSize: IconProps['size'] = minified ? 'medium' : 'small'
 
     return (
         <div id={DROPDOWN_POPUP_CONTAINER_ID}>
@@ -136,7 +138,7 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
             >
                 {/* NOTE: you need to use `div` wrapper because of warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef() */}
                 <div>
-                    <Button type='secondary' block icon={<Plus size='small'/>} className='appeals-button'>
+                    <Button type='secondary' block icon={<Plus size={iconSize}/>} className='appeals-button'>
                         {!minified && ResidentAppealMessage}
                     </Button>
                 </div>
