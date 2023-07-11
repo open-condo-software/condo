@@ -88,6 +88,7 @@ describe('NewsItemTemplate', () => {
                 expect(obj.organization).toBeNull()
                 expect(obj.title).toEqual(attrs.title)
                 expect(obj.body).toEqual(attrs.body)
+                expect(obj.type).toEqual(attrs.type)
             })
 
             test('support can', async () => {
