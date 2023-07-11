@@ -26,7 +26,6 @@ import EmptyLayout from '@condo/domains/common/components/containers/EmptyLayout
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { Poster } from '@condo/domains/common/components/Poster'
-import { antGlobalVariables, fontSizes } from '@condo/domains/common/constants/style'
 import { PosterWrapper } from '@condo/domains/user/components/containers/styles'
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
@@ -81,7 +80,6 @@ export const Header: React.FC = (): JSX.Element => {
 }
 
 const CenteredText = styled.div`
-    font-size: ${fontSizes.content};
     text-align: center;
 `
 
@@ -265,7 +263,7 @@ const MarkdownWrapper = styled(TextWrapper)`
     strong a {
         display: inline-block;
         border-radius: 8px;
-        border: thin solid ${antGlobalVariables['@label-color']};
+        border: thin solid ${colors.black};
         box-sizing: border-box;
         height: 48px;
         line-height: 24px;
