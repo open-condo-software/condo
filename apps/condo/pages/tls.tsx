@@ -1,22 +1,12 @@
-// @ts-ignore
 import enAndroid from '@condo/lang/en/pages/tls/android.md'
-// @ts-ignore
 import enIos from '@condo/lang/en/pages/tls/ios.md'
-// @ts-ignore
 import enLinux from '@condo/lang/en/pages/tls/linux.md'
-// @ts-ignore
 import enMacos from '@condo/lang/en/pages/tls/macos.md'
-// @ts-ignore
 import enWindows from '@condo/lang/en/pages/tls/windows.md'
-// @ts-ignore
 import ruAndroid from '@condo/lang/ru/pages/tls/android.md'
-// @ts-ignore
 import ruIos from '@condo/lang/ru/pages/tls/ios.md'
-// @ts-ignore
 import ruLinux from '@condo/lang/ru/pages/tls/linux.md'
-// @ts-ignore
 import ruMacos from '@condo/lang/ru/pages/tls/macos.md'
-// @ts-ignore
 import ruWindows from '@condo/lang/ru/pages/tls/windows.md'
 import styled from '@emotion/styled'
 import { Anchor, Col, Collapse, Image, Row } from 'antd'
