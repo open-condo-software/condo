@@ -61,6 +61,7 @@ import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/Gl
 import {
     useNewsItemRecipientsExportTaskUIInterface,
 } from '@condo/domains/news/hooks/useNewsItemRecipientsExportTaskUIInterface'
+import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { OnBoardingProvider } from '@condo/domains/onboarding/components/OnBoardingContext'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
@@ -130,8 +131,8 @@ const MenuItems: React.FC = () => {
     const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
     const hasAccessToBilling = (get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)) && !isAssignedVisibilityType
     const isManagingCompany = get(organization, 'type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
-    // The menu item is hidden until release
-    const canManageNewsItems = false && get<boolean>(role, 'canManageNewsItems', false)
+
+    const { canRead: canManageNewsItems } = useNewsItemsAccess()
 
     const { contextsByCategories, connectedAppsIds } = useConnectedAppsWithIconsContext()
 
