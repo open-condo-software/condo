@@ -1,7 +1,19 @@
 // @ts-ignore
+import enAndroid from '@condo/lang/en/pages/tls/android.md'
+// @ts-ignore
+import enIos from '@condo/lang/en/pages/tls/ios.md'
+// @ts-ignore
+import enLinux from '@condo/lang/en/pages/tls/linux.md'
+// @ts-ignore
 import enMacos from '@condo/lang/en/pages/tls/macos.md'
 // @ts-ignore
 import enWindows from '@condo/lang/en/pages/tls/windows.md'
+// @ts-ignore
+import ruAndroid from '@condo/lang/ru/pages/tls/android.md'
+// @ts-ignore
+import ruIos from '@condo/lang/ru/pages/tls/ios.md'
+// @ts-ignore
+import ruLinux from '@condo/lang/ru/pages/tls/linux.md'
 // @ts-ignore
 import ruMacos from '@condo/lang/ru/pages/tls/macos.md'
 // @ts-ignore
@@ -34,14 +46,20 @@ const guidesContent = {
     ru: {
         windows: ruWindows,
         macos: ruMacos,
+        linux: ruLinux,
+        android: ruAndroid,
+        ios: ruIos,
     },
     en: {
         windows: enWindows,
         macos: enMacos,
+        linux: enLinux,
+        android: enAndroid,
+        ios: enIos,
     },
 }
 
-export const Header = () => {
+export const Header: React.FC = (): JSX.Element => {
     const intl = useIntl()
     const BackMessage = intl.formatMessage( { id: 'pages.condo.tls.back' })
 
@@ -93,7 +111,14 @@ const BlankAnchor = styled(Anchor)`
     }
 `
 
-const PosterFooterCard = ({ logoSrc, description, href, buttonLabel }) => (
+type PosterFooterCardProps = {
+    logoSrc: string
+    description: string
+    href: string
+    buttonLabel: string
+}
+
+const PosterFooterCard: React.FC<PosterFooterCardProps> = ({ logoSrc, description, href, buttonLabel }): JSX.Element => (
     <Card>
         <Space size={24} direction='horizontal'>
             <Image src={logoSrc} preview={false}/>
@@ -126,7 +151,7 @@ const StyledQuestionCircle = styled(QuestionCircle)`
     top: 3px;
 `
 
-const PosterHeader = () => {
+const PosterHeader: React.FC = (): JSX.Element => {
     const intl = useIntl()
     const MoreLinkMessage = intl.formatMessage( { id: 'pages.condo.tls.poster.more' })
     return (
@@ -145,7 +170,7 @@ const PosterHeader = () => {
     )
 }
 
-const PosterFooter = () => {
+const PosterFooter: React.FC = (): JSX.Element => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage( { id: 'pages.condo.tls.title' })
     const DescriptionLine1Message = intl.formatMessage({ id: 'pages.condo.tls.description.line1' })
@@ -194,7 +219,7 @@ const IMAGE_STYLE: CSSProperties = { maxWidth: '300px', maxHeight: '300px', heig
 const IMAGE_WRAPPER_STYLE: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center', maxHeight: '50%' }
 const POSTER_CONTENT_STYLE: CSSProperties = { padding: '24px', height: '100%', display: 'flex', flexFlow: 'column', justifyContent: 'space-between' }
 
-const TlsPagePoster = () => (
+const TlsPagePoster: React.FC = (): JSX.Element => (
     <PosterWrapper>
         <Poster
             src='/dino/searching.png'
@@ -208,10 +233,17 @@ const TlsPagePoster = () => (
     </PosterWrapper>
 )
 
+const TextWrapper = styled.div`
+  h3 {
+    color: ${colors.gray[7]};
+  }
+`
+
 /**
  * NOTE(antonal): since it is not possible to render raw HTML with current implementation of Markdown (plugin "rehype-raw" seems not to work), a button is represented as a bold link, like `**[label](url)**` and styled as a button
+ * NOTE(antonal): with out of the box styles of Typography, markers of `<ol>` elements are positioned as block-level elements, pushing list item content below. That's why custom styles are implemented
  */
-const MarkdownWrapper = styled.div`
+const MarkdownWrapper = styled(TextWrapper)`
     img {
         display: block;
         max-width: 627px;
@@ -219,6 +251,25 @@ const MarkdownWrapper = styled.div`
   
     ol {
         padding-left: 0;
+        list-style: none;
+        position: relative;
+        counter-reset: olCounter;
+        
+        li {
+          padding-left: 2ex;
+          
+          &:before {
+            counter-increment: olCounter;
+            content: counter(olCounter)".";
+            display: inline-block;
+            position: absolute;
+            left: 0;
+          }
+          
+          &::marker {
+            display: none;
+          }
+        }
     }
   
     strong a {
@@ -230,15 +281,17 @@ const MarkdownWrapper = styled.div`
         line-height: 24px;
         padding: 11px 19px !important;
         text-decoration: none;
-        margin-bottonm: 24px;
-    }
-  
-    h3 {
-        color: ${colors.gray[7]};
+        margin-bottom: 24px;
     }
 `
 
-const TlsPageGuideSection = ({ name }) => {
+type TlsPageGuideSectionProps = {
+    name: string
+}
+
+
+
+const TlsPageGuideSection: React.FC<TlsPageGuideSectionProps> = ({ name }): JSX.Element => {
     const intl = useIntl()
     return (
         <MarkdownWrapper>
@@ -265,12 +318,15 @@ const StyledCollapse = styled(Collapse)`
     }
 `
 
-const TlsPageGuide = () => {
+const TlsPageGuide: React.FC = (): JSX.Element => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage( { id: 'pages.condo.tls.guide.title' })
     const DescriptionMessage = intl.formatMessage( { id: 'pages.condo.tls.guide.description' })
     const SectionWindowsTitle = intl.formatMessage( { id: 'pages.condo.tls.guide.section.windows.title' })
     const SectionMacosTitle = intl.formatMessage( { id: 'pages.condo.tls.guide.section.macos.title' })
+    const SectionLinuxTitle = intl.formatMessage( { id: 'pages.condo.tls.guide.section.linux.title' })
+    const SectionAndroidTitle = intl.formatMessage( { id: 'pages.condo.tls.guide.section.android.title' })
+    const SectionIosTitle = intl.formatMessage( { id: 'pages.condo.tls.guide.section.ios.title' })
 
     return (
         <div id='guide'>
@@ -281,26 +337,56 @@ const TlsPageGuide = () => {
                 <Typography.Text type='secondary'>
                     {DescriptionMessage}
                 </Typography.Text>
-                <StyledCollapse defaultActiveKey={['windows']} style={{ width: '100%' }}>
+                <StyledCollapse style={{ width: '100%' }}>
                     <Collapse.Panel key='windows' header={<Typography.Title level={3}>{SectionWindowsTitle}</Typography.Title>}>
                         <TlsPageGuideSection name='windows'/>
                     </Collapse.Panel>
                     <Collapse.Panel key='macos' header={<Typography.Title level={3}>{SectionMacosTitle}</Typography.Title>}>
                         <TlsPageGuideSection name='macos'/>
                     </Collapse.Panel>
+                    <Collapse.Panel key='linux' header={<Typography.Title level={3}>{SectionLinuxTitle}</Typography.Title>}>
+                        <TlsPageGuideSection name='linux'/>
+                    </Collapse.Panel>
+                    <Collapse.Panel key='android' header={<Typography.Title level={3}>{SectionAndroidTitle}</Typography.Title>}>
+                        <TlsPageGuideSection name='android'/>
+                    </Collapse.Panel>
+                    <Collapse.Panel key='ios' header={<Typography.Title level={3}>{SectionIosTitle}</Typography.Title>}>
+                        <TlsPageGuideSection name='ios'/>
+                    </Collapse.Panel>
                 </StyledCollapse>
-
             </Space>
         </div>
     )
 }
 
-const TlsPage = () => {
+const TlsPageEpilog: React.FC = (): JSX.Element => {
+    const intl = useIntl()
+    const EpilogTitle = intl.formatMessage({ id: 'pages.condo.tls.epilog.title' })
+    const EpilogDescription = intl.formatMessage({ id: 'pages.condo.tls.epilog.description' })
+
+    return (
+        <TextWrapper>
+            <Space direction='vertical' size={16}>
+                <Typography.Title level={3}>
+                    {EpilogTitle}
+                </Typography.Title>
+                <Typography.Paragraph type='secondary'>
+                    {EpilogDescription}
+                </Typography.Paragraph>
+            </Space>
+        </TextWrapper>
+    )
+}
+
+function TlsPage (): React.ReactElement {
     return (
         <Space direction='vertical' size={20}>
             <Header/>
-            <TlsPagePoster/>
-            <TlsPageGuide/>
+            <Space direction='vertical' size={60}>
+                <TlsPagePoster/>
+                <TlsPageGuide/>
+                <TlsPageEpilog/>
+            </Space>
         </Space>
     )
 }

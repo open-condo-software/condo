@@ -4,21 +4,21 @@
 
 1. [Скачайте сертификаты для MacOS](/tls/macos/russiantrustedca.pem) → перейдите в «Загрузки» → выберите «RussianTrustedCA.pem» → в приложении «Связка ключей» введите имя пользователя и пароль → нажмите «Изменить связку ключей»
 
-**[Скачать сертификаты](/tls/macos/russiantrustedca.pem)**
+   **[Скачать сертификаты](/tls/macos/russiantrustedca.pem)**
 
-![Image1](/tls/macos/macos-import-cert.webp "Импорт сертификата")
+   ![Image1](/tls/macos/macos-import-cert.webp "Импорт сертификата")
 
 2. В приложении «Связка ключей» выберите «Вход» → перейдите во вкладку «Сертификаты» → найдите файлы «Russian Trusted Root CA» и «Russian Trusted Sub CA». Это и есть установленные сертификаты
 
-![Image2](/tls/macos/macos-view-cert.webp "Просмотр сертификатов в Связке ключей")
+   ![Image2](/tls/macos/macos-view-cert.webp "Просмотр сертификатов в Связке ключей")
 
 3. Выберите сертификат «Russian Trusted Root CA» → раскройте вкладку «Доверие» → нажмите «Всегда доверять»
 
-![Image3](/tls/macos/macos-trust-root-ca.webp "Установка \"Всегда доверять\" сертификату \"Russian Trusted Root CA\"")
+   ![Image3](/tls/macos/macos-trust-root-ca.webp "Установка \"Всегда доверять\" сертификату \"Russian Trusted Root CA\"")
 
 4. Введите имя пользователя и пароль → нажмите «Обновить настройки»
 
-![Image4](/tls/macos/macos-enter-password.webp "Ввод пароля для обновления настроек")
+   ![Image4](/tls/macos/macos-enter-password.webp "Ввод пароля для обновления настроек")
 
 ### Повторите действия для второго сертификата
 
