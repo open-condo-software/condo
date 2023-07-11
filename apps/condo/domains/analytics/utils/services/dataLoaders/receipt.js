@@ -90,7 +90,10 @@ class ReceiptDataLoader extends AbstractDataLoader {
         }, groupBy)
 
         await receiptsLoader.loadData()
-        const receipts = receiptsLoader.getResult()
+        const receipts = receiptsLoader.getResult(({ dayGroup, ...searchResult }) => ({
+            dayGroup: dayjs(dayGroup).format('DD.MM.YYYY'),
+            ...searchResult,
+        }))
 
         return { sum, receipts }
     }

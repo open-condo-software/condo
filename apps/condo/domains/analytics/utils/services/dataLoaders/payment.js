@@ -87,7 +87,10 @@ class PaymentDataLoader extends AbstractDataLoader {
 
         const paymentGqlKnexLoader = new PaymentGqlKnexLoader(where, groupBy)
         await paymentGqlKnexLoader.loadData()
-        const payments = paymentGqlKnexLoader.getResult()
+        const payments = paymentGqlKnexLoader.getResult(({ dayGroup, ...searchResult }) => ({
+            dayGroup: dayjs(dayGroup).format('DD.MM.YYYY'),
+            ...searchResult,
+        }))
 
         for (const group of groupBy) {
             let groupByLabels = []
