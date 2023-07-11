@@ -2,6 +2,7 @@
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Row, Col, Image, Divider } from 'antd'
+import truncate from 'lodash/truncate'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -38,6 +39,9 @@ const RADIO_GROUP_CONTAINER_STYLE: React.CSSProperties = { maxWidth: '360px' }
 const PUSH_PARAGRAPH_ELLIPSIS_CONFIG = { rows: 2 }
 const PREVIEW_CONTENT_WIDTH = 360
 const STYLE_WIDTH_100P: React.CSSProperties = { width: '100%' }
+
+const TITLE_MAX_LEN = 20
+const BODY_MAX_LEN = 160
 
 // TODO(DOMA-6153): rewrite to css-modules after migrating from custom style loader plugins
 const NewsPreviewContainer = styled.div`
@@ -167,7 +171,12 @@ const NewsPreview: INewsPreview = ({ title, body, validBefore }) => {
         if (activeKey === NewsPreviewTabTypes.App) {
             return <NewsAppPreview title={title} body={body} validBefore={validBefore} />
         }
-        return <NewsPushPreview title={title} body={body} />
+        return (
+            <NewsPushPreview
+                title={truncate(title, { length: TITLE_MAX_LEN, separator: ' ', omission: '...' })}
+                body={truncate(body, { length: BODY_MAX_LEN, separator: ' ', omission: '...' })}
+            />
+        )
     }, [activeKey, title, body, validBefore])
 
     const onChange = useCallback((event) => {
