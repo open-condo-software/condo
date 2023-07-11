@@ -42,7 +42,9 @@ import type { RowProps } from 'antd'
 const DASHBOARD_ROW_GUTTER: RowProps['gutter'] = [20, 40]
 const CARD_STYLE: React.CSSProperties = { height: '216px' }
 
-const DataCard: React.FC<{ label: string, value: string | number, secondaryLabel?: string }> = ({ label, value, secondaryLabel }) => (
+type DataCardProps = { label: string, value: string | number, secondaryLabel?: string }
+
+const DataCard: React.FC<DataCardProps> = ({ label, value, secondaryLabel }) => (
     <Col>
         <Space direction='vertical' align='center' size={8}>
             <Typography.Title level={3} type='primary'>{value}</Typography.Title>
@@ -59,6 +61,9 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
     const SummaryTitle = intl.formatMessage({ id: 'pages.reports.summary' })
     const DoneLabel = intl.formatMessage({ id: 'Done' })
     const InWorkLabel = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
+    const NewTicketsLabel = intl.formatMessage({ id: 'ticket.status.OPEN.many' })
+    const ClosedTicketsLabel = intl.formatMessage({ id: 'ticket.status.CLOSED.many' })
+
     const PaymentsAmountPercent = intl.formatMessage({ id: 'pages.reports.paymentsAmountPercent' })
     const PaymentsAmount = intl.formatMessage({ id: 'pages.reports.paymentsAmount' })
     const ResidentsInApp = intl.formatMessage({ id: 'pages.reports.residentsWithApp' })
@@ -135,7 +140,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                                 value={completionPercent}
                             />
                             <DataCard
-                                label='Новые'
+                                label={NewTicketsLabel}
                                 secondaryLabel={TodayTitle}
                                 value={ticketCounts.current.new_or_reopened.count}
                             />
@@ -145,7 +150,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                                 value={ticketCounts.current.processing.count}
                             />
                             <DataCard
-                                label='Закрытые'
+                                label={ClosedTicketsLabel}
                                 secondaryLabel={TodayTitle}
                                 value={ticketCounts.current.closed.count}
                             />
@@ -419,11 +424,12 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                             value={dateRange}
                             onChange={setDateRange}
                             allowClear={false}
+                            disabled={loading}
                             disabledDate={(current) => {
                                 return current && current < dayjs().startOf('year')
                             }}
                         />
-                        <RadioGroup value={aggregatePeriod} onChange={onAggregatePeriodChange}>
+                        <RadioGroup value={aggregatePeriod} onChange={onAggregatePeriodChange} disabled={loading}>
                             <Space direction='horizontal' size={24}>
                                 <Radio value='day' label={PerDayTitle} />
                                 <Radio value='week' label={PerWeekTitle} />
@@ -433,7 +439,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                 </TableFiltersContainer>
             </Col>
             {loading || overview === null ? (
-                <Skeleton paragraph={{ rows: 5 }} />
+                <Skeleton paragraph={{ rows: 10 }} />
             ) : (
                 <Col span={24}>
                     <Row gutter={DASHBOARD_ROW_GUTTER}>

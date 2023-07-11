@@ -51,6 +51,13 @@ const ScrollContainer = styled.div<{ height: string }>`
   height: ${({ height }) => height};
 `
 
+const EMPTY_CONTAINER_STYLE: React.CSSProperties = {
+    height: '300px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+}
+
 const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
     const {
         children,
@@ -170,9 +177,9 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
         return <ChartViewContainer>
             {isEmptyDataSet ? (
                 <>
-                    <BasicEmptyListView image='/dino/searching@2x.png'>
+                    <div style={EMPTY_CONTAINER_STYLE}>
                         <Typography.Text>{NoData}</Typography.Text>
-                    </BasicEmptyListView>
+                    </div>
                     {children}
                 </>
             ) : (

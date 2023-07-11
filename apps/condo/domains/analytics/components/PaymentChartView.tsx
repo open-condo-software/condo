@@ -35,6 +35,13 @@ const COLOR_SET = [
     colors.cyan['3'],
 ]
 
+const EMPTY_CONTAINER_STYLE: React.CSSProperties = {
+    height: '300px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+}
+
 export const PaymentChartView: React.FC<IPaymentChartViewProps> = (props) => {
     const { viewMode, data, mapperInstance, chartConfig } = props
 
@@ -49,9 +56,9 @@ export const PaymentChartView: React.FC<IPaymentChartViewProps> = (props) => {
 
     if (data.length === 0) {
         return (
-            <BasicEmptyListView image='/dino/searching@2x.png'>
+            <div style={EMPTY_CONTAINER_STYLE}>
                 <Typography.Text>{NoData}</Typography.Text>
-            </BasicEmptyListView>
+            </div>
         )
     }
 

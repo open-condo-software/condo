@@ -29,7 +29,7 @@ const TicketByPropertyChart: ITicketChartCard = ({ data }) => {
                     mainGroup='status'
                     mapperInstance={mapperInstance}
                     viewMode='bar'
-                    chartConfig={{ chartOptions: { height: 300 }, animationEnabled: true }}
+                    chartConfig={{ chartOptions: { height: 350 }, animationEnabled: true }}
                 />
             </Col>
         </Row>

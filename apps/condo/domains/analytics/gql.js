@@ -22,7 +22,73 @@ const GET_EXTERNAL_REPORT_IFRAME_URL_QUERY = gql`
 
 const OVERVIEW_DASHBOARD_MUTATION = gql`
     query overviewDashboard ($data: OverviewDashboardInput!) {
-        result: overviewDashboard(data: $data) { overview }
+        result: overviewDashboard(data: $data) { 
+            overview { 
+                ticketByDay {
+                    tickets {
+                        categoryClassifier
+                        count
+                        dayGroup
+                        executor
+                        property
+                        status
+                    }
+                }
+                ticketByProperty {
+                    tickets {
+                        categoryClassifier
+                        count
+                        dayGroup
+                        executor
+                        property
+                        status
+                    }
+                }
+                ticketByExecutor {
+                    tickets {
+                        categoryClassifier
+                        count
+                        dayGroup
+                        executor
+                        property
+                        status
+                    }
+                }
+                ticketByCategory {
+                    tickets {
+                        categoryClassifier
+                        count
+                        dayGroup
+                        executor
+                        property
+                        status
+                    }
+                }
+                payment {
+                    payments {
+                        dayGroup
+                        count
+                        createdBy
+                        sum
+                    }
+                    sum
+                }
+                resident {
+                    residents {
+                        count
+                        address
+                    }
+                }
+                receipt {
+                    receipts {
+                        count
+                        dayGroup
+                        sum
+                    }
+                    sum
+                }
+            } 
+        }
     }
 `
 
