@@ -83,10 +83,6 @@ const CenteredText = styled.div`
     text-align: center;
 `
 
-const PosterFooterSpace = styled(Space)`
-    padding: 10px 0 73px;
-`
-
 /**
  * Does not adds extra elements around anchor component
  */
@@ -171,8 +167,8 @@ const PosterFooter: React.FC = (): JSX.Element => {
     const { breakpoints } = useLayoutContext()
 
     return (
-        <Space direction='vertical' align='center' size={8}>
-            <PosterFooterSpace direction='vertical' align='center' size={20}>
+        <Space direction='vertical' align='center' size={100}>
+            <Space direction='vertical' align='center' size={20}>
                 <Typography.Title level={2}>
                     {TitleMessage}
                 </Typography.Title>
@@ -183,7 +179,7 @@ const PosterFooter: React.FC = (): JSX.Element => {
                         {DescriptionLine2Message}
                     </Typography.Paragraph>
                 </CenteredText>
-            </PosterFooterSpace>
+            </Space>
             <Space size={20} direction={breakpoints.DESKTOP_SMALL ? 'horizontal' : 'vertical'}>
                 <PosterFooterCard
                     logoSrc='/yandex-browser.png'
