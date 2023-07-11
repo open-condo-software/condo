@@ -1,6 +1,5 @@
 import {
     TicketStatusTypeType,
-    TicketAnalyticsGroupBy,
     IncidentStatusType,
     TicketQualityControlValueType,
 } from '@app/condo/schema'
@@ -16,7 +15,6 @@ import { Wallet, LayoutList, Smile, Frown } from '@open-condo/icons'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography, Space, Radio, RadioGroup } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
 
 import {
     TicketByPropertyChart,
@@ -28,9 +26,7 @@ import {
     TicketByCategoryChart,
     PaymentTotalChart,
 } from '@condo/domains/analytics/components/charts'
-import TicketChart, { ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
 import { OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
-import { getAggregatedData } from '@condo/domains/analytics/utils/helpers'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
@@ -39,9 +35,6 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { useLightWeightTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { Incident, Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
-
-import { PaymentChartView } from './PaymentChartView'
-import TicketChartView from './TicketChartView'
 
 import type { RowProps } from 'antd'
 
@@ -251,8 +244,9 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
     })
 
     const ticketCardContent = useMemo(() => {
-        const goodPercent = goodCount / (goodCount + badCount) * 100
-        const badPercent = badCount / (goodCount + badCount) * 100
+        const totalCount = goodCount + badCount
+        const goodPercent = totalCount  > 0 ? goodCount / totalCount * 100 : 0
+        const badPercent = totalCount > 0 ? badCount / totalCount * 100 : 0
 
         return (
             <Row style={CARD_STYLE} align='middle'>
@@ -296,193 +290,6 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
         >
             {goodLoading || badLoading ? <Skeleton active paragraph={{ rows: 3 }} /> : ticketCardContent}
         </Card>
-    )
-}
-
-const TicketChartContainer = ({ data, groupBy, isStacked = false, isYValue = false, title, topValues = 0, sliceWords = false, showAxisLabel = true, sortBySummary = true, viewMode = 'bar' }) => {
-    const mapperInstance = new TicketChart({
-        line: {
-            chart: (viewMode, ticketGroupedCounter) => {
-                const series = []
-                const aggregatedData = getAggregatedData(ticketGroupedCounter, groupBy, false)
-                const axisLabels = Array.from(new Set(Object.values(aggregatedData).flatMap(e => Object.keys(e))))
-                const colorSet = [colors.pink['5'], colors.orange['5'], colors.green['5'], colors.brown['5'],  colors.blue['5'], colors.teal['5']]
-
-                Object.entries(aggregatedData).map(([groupBy, dataObj], index) => {
-                    series.push({
-                        name: groupBy,
-                        type: viewMode,
-                        symbol: 'none',
-                        stack: 'total',
-                        data: Object.values(dataObj),
-                        smooth: true,
-                        lineStyle: { color: 'transparent' },
-                        areaStyle: { color: colorSet[index] },
-                        emphasis: {
-                            focus: 'series',
-                        },
-                    })
-                })
-
-                return {
-                    legend: [],
-                    axisData: {
-                        xAxis: { type: 'category', data: axisLabels },
-                        yAxis: { type: 'value', data: null },
-                    },
-                    tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
-                    series,
-                }
-            },
-            table: () => null,
-        },
-        bar: {
-            chart: (viewMode, ticketGroupedCounter) => {
-                const aggregatedData = getAggregatedData(
-                    ticketGroupedCounter,
-                    groupBy,
-                    sortBySummary
-                )
-
-                let axisLabels = sortBySummary ?
-                    Object.keys(aggregatedData.summary)
-                        .sort((firstLabel, secondLabel) => aggregatedData.summary[secondLabel] - aggregatedData.summary[firstLabel])
-                    : Array.from(new Set(Object.values(aggregatedData).flatMap(e => Object.keys(e))))
-
-                const series = []
-
-                if (topValues) {
-                    axisLabels = axisLabels.slice(0, topValues)
-
-                    Object.entries(aggregatedData).map(([groupBy, dataObj], index) => {
-
-                        const seriesConfig = {
-                            name: groupBy,
-                            type: viewMode,
-                            symbol: 'none',
-                            data: [],
-                            stack: isStacked ? 'total' : groupBy,
-                            emphasis: {
-                                focus: 'none',
-                                blurScope: 'none',
-                            },
-                            barMaxWidth: 40,
-                        }
-                        if (index === 0 && !showAxisLabel) {
-                            seriesConfig['label'] = {
-                                show: true,
-                                formatter: (e) => e.data > 0 ? e.name : '',
-                                position: 'top',
-                                align: 'left',
-                                distance: 2,
-                            }
-                        }
-                        axisLabels.forEach(axisLabel => {
-                            seriesConfig.data.push(dataObj[axisLabel])
-                        })
-
-                        series.push(seriesConfig)
-                    })
-                } else {
-                    Object.entries(aggregatedData).map(([groupBy, dataObj]) => {
-                        series.push({
-                            name: groupBy,
-                            type: viewMode,
-                            symbol: 'none',
-                            stack: isStacked ? 'total' : groupBy,
-                            data: Object.values(dataObj),
-                            emphasis: {
-                                focus: 'none',
-                                blurScope: 'none',
-                            },
-                            barMaxWidth: 40,
-
-                        })
-                    })
-                }
-
-                const valueData = { type: 'value', data: null, boundaryGap: [0, 0.02] }
-                const categoryData = {
-                    type: 'category',
-                    data: axisLabels,
-                    axisLabel: {
-                        show: showAxisLabel,
-                        formatter: (val) => {
-                            return val.length > 12 && sliceWords ? val.slice(0, 12) + '\n' + val.slice(12, val.length) : val
-                        },
-                    },
-                    axisTick: { alignWithLabel: true },
-                }
-
-                const axisData = {
-                    yAxis: isYValue ? categoryData : valueData,
-                    xAxis: isYValue ? valueData : categoryData,
-                }
-                const tooltip = { trigger: 'axis', axisPointer: { type: 'line' } }
-
-                if (isYValue && isStacked) {
-                    series.forEach(s => s.data.reverse())
-                    axisLabels.reverse()
-                }
-
-                if (topValues && isYValue) {
-                    for (let i = 0; i < axisLabels.length; i++) {
-                        if (series.map(s => s.data[0]).every(e => e === 0 || e === undefined || e === null)) {
-                            series.forEach(s => {
-                                s.data.splice(0, 1)
-                            })
-                            axisLabels.splice(0, 1)
-                        }
-                    }
-                }
-
-                return {
-                    series,
-                    legend: [],
-                    axisData,
-                    tooltip,
-                    color: [colors.pink['5'], colors.orange['5'], colors.green['5'], colors.brown['5'],  colors.blue['5'], colors.teal['5']],
-                }
-            },
-            table: () => null,
-        },
-    })
-
-    return (
-        <Row gutter={[0, 16]}>
-            <Col span={24}>
-                <Typography.Title level={3}>{title}</Typography.Title>
-            </Col>
-            <Col span={24}>
-                <TicketChartView
-                    data={data}
-                    mainGroup='status'
-                    viewMode={viewMode as ViewModeTypes}
-                    mapperInstance={mapperInstance}
-                    chartConfig={{ animationEnabled: false, chartOptions: { renderer: 'canvas', height: 300 } }}
-                />
-            </Col>
-        </Row>
-    )
-}
-
-const CustomChartContainer = ({ data, title, viewMode, mapperInstance }) => {
-
-    return (
-        <Row gutter={[0, 16]}>
-            <Col span={24}>
-                <Typography.Title level={3}>{title}</Typography.Title>
-            </Col>
-            <Col span={24}>
-                <PaymentChartView
-                    data={data}
-                    viewMode={viewMode}
-                    mapperInstance={mapperInstance}
-                    loading={false}
-                    chartConfig={{ chartOptions: { height: 300 }, animationEnabled: true }}
-                />
-            </Col>
-        </Row>
     )
 }
 
@@ -542,9 +349,6 @@ const TicketTableView = ({ organizationId, dateRange }) => {
 
 export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId }) => {
     const intl = useIntl()
-    const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
-    const TicketsByPropertyTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })
-    const TicketsByExecutor = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })
     const PerDayTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.day' })
     const PerWeekTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.week' })
 
@@ -654,26 +458,10 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                             <ResidentByPropertyChart data={residentsData} />
                         </Col>
                         <Col lg={12} md={24}>
-                            <TicketChartContainer
-                                title={TicketTitle + ' ' + TicketsByExecutor.toLowerCase()}
-                                data={executorTickets}
-                                groupBy={[TicketAnalyticsGroupBy.Status, TicketAnalyticsGroupBy.Executor]}
-                                isStacked
-                                isYValue
-                                topValues={5}
-                                showAxisLabel={false}
-                            />
+                            <TicketByExecutorChart data={executorTickets} />
                         </Col>
                         <Col lg={12} md={24}>
-                            <TicketChartContainer
-                                title={TicketTitle + ' ' + TicketsByPropertyTitle.toLowerCase()}
-                                data={propertyTickets}
-                                groupBy={[TicketAnalyticsGroupBy.Status, TicketAnalyticsGroupBy.Property]}
-                                isStacked
-                                isYValue
-                                topValues={5}
-                                showAxisLabel={false}
-                            />
+                            <TicketByPropertyChart data={propertyTickets} />
                         </Col>
                     </Row>
                 </Col>
