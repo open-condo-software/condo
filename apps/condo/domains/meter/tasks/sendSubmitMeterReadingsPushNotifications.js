@@ -1,5 +1,6 @@
 const dayjs = require('dayjs')
-const { get, uniq, isNull } = require('lodash')
+const isBetween = require('dayjs/plugin/isBetween')
+const { get, uniq, isNull, isEmpty, compact } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -9,7 +10,7 @@ const { getLocalized } = require('@open-condo/locales/loader')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { rightJoin, joinResidentsToMeters } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
-const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
+const { Meter, MeterReading, MeterReportingPeriod } = require('@condo/domains/meter/utils/serverSchema')
 const {
     METER_SUBMIT_READINGS_REMINDER_TYPE,
     METER_VERIFICATION_DATE_EXPIRED_TYPE,
@@ -18,6 +19,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 
+dayjs.extend(isBetween)
 const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
 
 const readMetersPage = async ({ context, offset, pageSize }) => {
@@ -67,6 +69,28 @@ const readOrganizations = async ({ context, meters }) => {
     })
 }
 
+const readMeterReportingPeriods = async ({ context, organizations }) => {
+    const organizationIds = organizations.map(org => org.id)
+    return await loadListByChunks({
+        context,
+        list: MeterReportingPeriod,
+        where: {
+            organization: {
+                id_in: organizationIds,
+            },
+        },
+    })
+}
+
+const checkIsDateInPeriod = (date, today, start, end) => {
+    return dayjs(date).isBetween(
+        today.format('YYYY-MM-DD').slice(0, -2) + (start.toString().length === 1 ? '0' + start : start),
+        today.format('YYYY-MM-DD').slice(0, -2) + (end.toString().length === 1 ? '0' + end : end),
+        null,
+        '[]'
+    )
+}
+
 const sendSubmitMeterReadingsPushNotifications = async () => {
     // task implementation algorithm
     // * Read all meter resources for all supported languages
@@ -112,40 +136,61 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
             offset: state.offset,
             pageSize: state.pageSize,
         })
-        const meterReadings = await readMeterReadings({ context, meters })
         const organizations = await readOrganizations({ context, meters })
+        const reportingPeriods = await readMeterReportingPeriods({ context, organizations })
+        const meterReadings = await readMeterReadings({ context, meters, reportingPeriods })
 
-        // right join data to metersPage
-        const metersWithoutReadings = rightJoin(
-            meters,
-            meterReadings,
-            (meter, item) => meter.id === item.meter.id,
-            (meter, readings) => ({ meter, readings })
-        )
-            .filter(({ readings }) => readings.length === 0)
-            .map(({ meter }) => meter)
+        const metersWithoutReadings = []
+        const periodsByProperty = []
+        const periodsByOrganization = []
+        let defaultPeriod = null
+
+        for (let period of reportingPeriods) {
+            if (!period.organization) defaultPeriod = period
+            else if (!period.property) periodsByOrganization.push(period)
+            else periodsByProperty.push(period)
+        }
+
+        for (let meter of meters) {
+            const period = periodsByProperty.find(({ property }) => property.id === meter.property.id) ??
+                periodsByOrganization.find(({ organization }) => organization.id === meter.organization.id) ??
+                defaultPeriod
+
+            const readingsOfCurrentMeter = compact(meterReadings.map(reading => {
+                if (
+                    reading.meter.id === meter.id &&
+                    (period !== null && checkIsDateInPeriod(reading.date, state.startTime, period.notifyStartDay, period.notifyEndDay))
+                ) {
+                    return reading
+                }
+            }
+            ))
+
+            const isTodayInPeriod = period !== null && checkIsDateInPeriod(state.startTime, state.startTime, period.notifyStartDay, period.notifyEndDay)
+            const isEndPeriodNotification = period !== null && state.startTime.format('YYYY-MM-DD') === state.startTime.format('YYYY-MM-DD').slice(0, -2) + period.notifyStartDay
+
+            if (isTodayInPeriod) metersWithoutReadings.push({ meter, isEndPeriodNotification, isEmptyReadings: isEmpty(readingsOfCurrentMeter) })
+        }
 
         // right join organizations
-        const metersWithoutPeriod = rightJoin(
+        const metersToSendNotification = rightJoin(
             metersWithoutReadings,
             organizations,
-            (meter, organization) => meter.organization.id === organization.id,
-            (meter, organization) => {
+            ({ meter }, organization) => meter.organization.id === organization.id,
+            ({ meter, isEndPeriodNotification, isEmptyReadings }, organization) => {
                 /**
                  * Detect message language
                  * Use DEFAULT_LOCALE if organization.country is unknown
                  * (not defined within @condo/domains/common/constants/countries)
                  */
                 const lang = get(COUNTRIES, [get(organization, 'country', conf.DEFAULT_LOCALE), 'locale'], conf.DEFAULT_LOCALE)
-                const period = null // TODO calculate this prop after implementation submit period in organisation
-                return { ...meter, period, lang }
+                return { ...meter, isEndPeriodNotification, isEmptyReadings, lang }
             }
         )
-            .filter(({ period }) => period == null) // pick meters without organisation default period
-        state.metersWithoutReadings += metersWithoutPeriod.length
+        state.metersWithoutReadings += metersToSendNotification.length
 
         // Join residents
-        const metersWithResident = await joinResidentsToMeters({ context, meters: metersWithoutPeriod })
+        const metersWithResident = await joinResidentsToMeters({ context, meters: metersToSendNotification })
         state.metersWithoutReadingsAndWithResidents += metersWithResident.length
 
         // Send message with specific unique key for set up readings
@@ -201,7 +246,7 @@ const sendMessagesForSetUpReadings = async ({ context, metersWithResident }) => 
             const message = {
                 sender: { dv: 1, fingerprint: 'meters-readings-submit-reminder-cron-push' },
                 to: { user: { id: resident.user.id } },
-                type: METER_SUBMIT_READINGS_REMINDER_TYPE,
+                type: METER_SUBMIT_READINGS_REMINDER_TYPE, //meter.isEndPeriodNotification ? METER_SUBMIT_READINGS_REMINDER_TYPE : 'here-need-notification-type',
                 lang,
                 uniqKey,
                 meta: {
@@ -216,7 +261,7 @@ const sendMessagesForSetUpReadings = async ({ context, metersWithResident }) => 
                 organization: { id: meter.organization.id },
             }
 
-            await sendMessageSafely({ context, message })
+            if (meter.isEmptyReadings) await sendMessageSafely({ context, message })
         }))
     }))
 }
@@ -248,7 +293,7 @@ const sendMessagesForExpiredMeterVerificationDate = async ({ context, metersWith
                 organization: meter.organization && { id: meter.organization.id },
             }
 
-            await sendMessageSafely({ context, message })
+            if (meter.isEmptyReadings) await sendMessageSafely({ context, message })
         }))
     }))
 }
