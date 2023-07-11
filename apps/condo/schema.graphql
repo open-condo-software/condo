@@ -63611,8 +63611,54 @@ input OverviewDashboardInput {
   groupBy: OverviewDashboardGroupByInput!
 }
 
+type TicketOverviewResult {
+  tickets: [TicketGroupedCounter!]
+}
+
+type PaymentGroupedCounter {
+  count: String!
+  sum: String!
+  createdBy: ID!
+  dayGroup: String!
+}
+
+type PaymentOverviewResult {
+  payments: [PaymentGroupedCounter!]
+  sum: String!
+}
+
+type ReceiptGroupedCounter {
+  count: String!
+  sum: String!
+  dayGroup: String!
+}
+
+type ReceiptOverviewResult {
+  receipts: [ReceiptGroupedCounter!]
+  sum: String!
+}
+
+type ResidentGroupedCounter {
+  count: String!
+  address: String!
+}
+
+type ResidentOverviewResult {
+  residents: [ResidentGroupedCounter!]
+}
+
+type OverviewData {
+  ticketByProperty: TicketOverviewResult
+  ticketByDay: TicketOverviewResult
+  ticketByCategory: TicketOverviewResult
+  ticketByExecutor: TicketOverviewResult
+  payment: PaymentOverviewResult
+  receipt: ReceiptOverviewResult
+  resident: ResidentOverviewResult
+}
+
 type OverviewDashboardOutput {
-  overview: JSON!
+  overview: OverviewData!
 }
 
 input ExportPropertyScopeToExcelInput {

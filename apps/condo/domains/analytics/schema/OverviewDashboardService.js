@@ -44,8 +44,39 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
         },
         {
             access: true,
-            // TODO(codegen): write OverviewDashboardService output !
-            type: 'type OverviewDashboardOutput { overview: JSON! }',
+            type: 'type TicketOverviewResult { tickets: [TicketGroupedCounter!] }',
+        },
+        {
+            access: true,
+            type: 'type PaymentGroupedCounter { count: String!, sum: String!, createdBy: ID!, dayGroup: String! }',
+        },
+        {
+            access: true,
+            type: 'type PaymentOverviewResult { payments: [PaymentGroupedCounter!], sum: String! }',
+        },
+        {
+            access: true,
+            type: 'type ReceiptGroupedCounter { count: String!, sum: String!, dayGroup: String! }',
+        },
+        {
+            access: true,
+            type: 'type ReceiptOverviewResult { receipts: [ReceiptGroupedCounter!], sum: String! }',
+        },
+        {
+            access: true,
+            type: 'type ResidentGroupedCounter { count: String!, address: String! }',
+        },
+        {
+            access: true,
+            type: 'type ResidentOverviewResult { residents: [ResidentGroupedCounter!] }',
+        },
+        {
+            access: true,
+            type: 'type OverviewData { ticketByProperty: TicketOverviewResult, ticketByDay: TicketOverviewResult, ticketByCategory: TicketOverviewResult, ticketByExecutor: TicketOverviewResult, payment: PaymentOverviewResult, receipt: ReceiptOverviewResult, resident: ResidentOverviewResult }',
+        },
+        {
+            access: true,
+            type: 'type OverviewDashboardOutput { overview: OverviewData! }',
         },
     ],
 

@@ -36,6 +36,7 @@ import { useLightWeightTableColumns } from '@condo/domains/ticket/hooks/useTable
 import { Incident, Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 
+import type { OverviewData } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
 const DASHBOARD_ROW_GUTTER: RowProps['gutter'] = [20, 40]
@@ -352,7 +353,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const PerDayTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.day' })
     const PerWeekTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.week' })
 
-    const [overview, setOverview] = useState(null)
+    const [overview, setOverview] = useState<OverviewData>(null)
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
     const [aggregatePeriod, setAggregatePeriod] = useState<'day' | 'week' | 'month'>('day')
 
@@ -383,10 +384,10 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
         setAggregatePeriod(aggregatePeriod.target.value)
     }, [])
 
-    const newTickets = get(overview, 'ticketByDay.ticketCounts', [])
-    const propertyTickets = get(overview, 'ticketByProperty.ticketCounts')
-    const categoryTickets = get(overview, 'ticketByCategory.ticketCounts', [])
-    const executorTickets = get(overview, 'ticketByExecutor.ticketCounts', [])
+    const newTickets = get(overview, 'ticketByDay.tickets', [])
+    const propertyTickets = get(overview, 'ticketByProperty.tickets')
+    const categoryTickets = get(overview, 'ticketByCategory.tickets', [])
+    const executorTickets = get(overview, 'ticketByExecutor.tickets', [])
     const paymentsData = get(overview, 'payment.payments', [])
     const paymentSum = get(overview, 'payment.sum', null)
     const receiptsData = get(overview, 'receipt.receipts', [])
