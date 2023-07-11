@@ -75,7 +75,7 @@ const PaymentReceiptDataMapper = (chargedTitle: string, paidTitle: string): Paym
                         type: 'category',
                         data: Array.from(new Set(...dataset.map(e => e.map(q => q.dayGroup)))) as Array<string>,
                         axisLabel: {
-                            formatter: (value) => dayjs(value).format('MMM, YYYY'),
+                            formatter: (value) => dayjs(value, 'DD.MM.YYYY').format('MMM, YYYY'),
                         },
                     },
                 },
@@ -123,7 +123,7 @@ const PaymentTotalDataMapper = (sumTitle: string, paymentCountTitle: string): Pa
                         type: 'category',
                         data: null,
                         axisLabel: {
-                            formatter: (value) => dayjs(value).format('MMM, YYYY'),
+                            formatter: (value) => dayjs(value, 'DD.MM.YYYY').format('MMM, YYYY'),
                         },
                     },
                 },
