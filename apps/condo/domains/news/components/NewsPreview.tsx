@@ -40,7 +40,7 @@ const PUSH_PARAGRAPH_ELLIPSIS_CONFIG = { rows: 2 }
 const PREVIEW_CONTENT_WIDTH = 360
 const STYLE_WIDTH_100P: React.CSSProperties = { width: '100%' }
 
-const TITLE_MAX_LEN = 20
+const TITLE_MAX_LEN = 30
 const BODY_MAX_LEN = 160
 
 // TODO(DOMA-6153): rewrite to css-modules after migrating from custom style loader plugins
@@ -173,8 +173,8 @@ const NewsPreview: INewsPreview = ({ title, body, validBefore }) => {
         }
         return (
             <NewsPushPreview
-                title={truncate(title, { length: TITLE_MAX_LEN, separator: ' ', omission: '...' })}
-                body={truncate(body, { length: BODY_MAX_LEN, separator: ' ', omission: '...' })}
+                title={truncate(title, { length: TITLE_MAX_LEN, omission: '...' })}
+                body={truncate(body, { length: BODY_MAX_LEN, omission: '...' })}
             />
         )
     }, [activeKey, title, body, validBefore])
