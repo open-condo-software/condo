@@ -330,14 +330,14 @@ export const LoginWithSBBOLButton: React.FC<{ block?: boolean, redirect?: string
     const LoginLabel = intl.formatMessage({ id: 'LoginBySBBOL' })
     const router = useRouter()
 
-    function redirectToAuth () {
+    const redirectToAuth = async () => {
         const queryParams = redirect ? `?redirectUrl=${encodeURIComponent(redirect)}` : ''
         const authUrl = `/api/sbbol/auth${queryParams}`
-        router.push(authUrl)
+        await router.push(authUrl)
     }
 
-    function redirectToTlsPage () {
-        router.push('/tls')
+    const redirectToTlsPage = async () => {
+        await router.push('/tls')
     }
 
     const { loading, checkSSLClientCert } = useCheckTLSClientCert({
