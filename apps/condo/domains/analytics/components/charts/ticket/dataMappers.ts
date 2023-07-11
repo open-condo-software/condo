@@ -125,8 +125,8 @@ const TicketHorizontalBarDataMapper = (groupBy: [TicketGroupBy, TicketGroupBy]):
 
             const aggregatedData = getAggregatedData(data, groupBy, true)
             const axisLabels = Object.keys(aggregatedData.summary)
-                .sort((firstLabel, secondLabel) => aggregatedData.summary[firstLabel] - aggregatedData.summary[secondLabel])
-                .slice(0, TOP_VALUES)
+                .sort((firstLabel, secondLabel) => aggregatedData.summary[secondLabel] - aggregatedData.summary[firstLabel])
+                .slice(0, TOP_VALUES).reverse()
 
             Object.entries(aggregatedData).map(([groupBy, dataObj]) => {
                 const seriesConfig = {

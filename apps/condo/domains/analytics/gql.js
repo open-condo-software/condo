@@ -26,31 +26,22 @@ const OVERVIEW_DASHBOARD_MUTATION = gql`
             overview { 
                 ticketByDay {
                     tickets {
-                        categoryClassifier
                         count
                         dayGroup
-                        executor
-                        property
                         status
                     }
                 }
                 ticketByProperty {
                     tickets {
-                        categoryClassifier
                         count
-                        dayGroup
-                        executor
                         property
                         status
                     }
                 }
                 ticketByExecutor {
                     tickets {
-                        categoryClassifier
                         count
-                        dayGroup
                         executor
-                        property
                         status
                     }
                 }
@@ -58,9 +49,6 @@ const OVERVIEW_DASHBOARD_MUTATION = gql`
                     tickets {
                         categoryClassifier
                         count
-                        dayGroup
-                        executor
-                        property
                         status
                     }
                 }
