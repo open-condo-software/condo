@@ -8,6 +8,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { getRedirectUrl } from '@condo/domains/common/hooks/useDownloadFileFromServer'
+
 const { Option } = Select
 
 const WAVE_WRAPPER_STYLE: CSSProperties = { width: '100%', height: '28px' }
@@ -22,6 +24,7 @@ const PLAYER_ROW_STYLE: CSSProperties = {
     whiteSpace: 'nowrap',
 }
 const WAVEFORM_CONTAINER_STYLE: CSSProperties = { flex: 'auto' }
+const SELECT_STYLE: CSSProperties = { width: '75px' }
 
 interface IAudioPlayerProps {
     src: string
@@ -57,6 +60,8 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
     const [currentSeconds, setCurrentSeconds] = useState(0)
     const [totalTime, setTotalTime] = useState('00:00')
     const [speed, setSpeed] = useState(1)
+    const [url, setUrl] = useState<string>()
+
     const waveformRef = useRef<HTMLDivElement>(null)
     const waveform = useRef(null)
 
@@ -72,7 +77,9 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
         setSpeed(value)
 
         if (waveform.current) {
-            waveform.current.setPlaybackRate(value)
+            waveform.current.pause()
+            waveform.current.setPlaybackRate(value, true)
+            waveform.current.play()
         }
     }, [])
 
@@ -133,7 +140,30 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
     }, [autoPlay, formatTime, trackId])
 
     useEffect(() => {
-        if (typeof document !== 'undefined' && self !== undefined) {
+        (async () => {
+            const firstResponse = await fetch(src, {
+                credentials: 'include',
+                headers: {
+                    'shallow-redirect': 'true',
+                },
+            })
+            if (!firstResponse.ok) throw new Error('Failed to download file')
+
+            const redirectUrl = await getRedirectUrl(firstResponse)
+            const secondResponse = await fetch(redirectUrl, {
+                credentials: 'include',
+            })
+
+            if (secondResponse.status !== 200) {
+                setUrl(src)
+            } else {
+                setUrl(redirectUrl)
+            }
+        })()
+    }, [src])
+
+    useEffect(() => {
+        if (typeof document !== 'undefined' && self !== undefined && url) {
             initWaveSurfer()
 
             return () => {
@@ -142,7 +172,11 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
                 }
             }
         }
-    }, [autoPlay, initWaveSurfer, trackId])
+    }, [autoPlay, initWaveSurfer, trackId, url])
+
+    if (!url) {
+        return null
+    }
 
     const PlayerIcon = playing ? PauseFilled : PlayFilled
 
@@ -152,7 +186,7 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
                 <PlayerIcon color={colors.gray[7]} size='auto' onClick={handlePlay}/>
                 <div style={WAVEFORM_CONTAINER_STYLE}>
                     <div id='waveform' ref={waveformRef} style={WAVE_WRAPPER_STYLE}/>
-                    <audio id={trackId} src={src}/>
+                    <audio id={trackId} src={url}/>
                 </div>
                 <Typography.Text size='small'>
                     {`${formatTime(currentSeconds)}/${totalTime}`}
@@ -160,7 +194,7 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
             </div>
             <Space size={8}>
                 <Typography.Text size='medium' type='secondary'>{SpeedMessage}</Typography.Text>
-                <Select value={speed} onChange={handleSpeedChange}>
+                <Select value={speed} onChange={handleSpeedChange} style={SELECT_STYLE}>
                     {
                         SPEED_OPTIONS.map((value) => (
                             <Option key={value} value={value}>{value}x</Option>

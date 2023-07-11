@@ -4,6 +4,7 @@ import { useCallback, useMemo } from 'react'
 
 import { Download, Play } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Space, Tag, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -49,6 +50,9 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
     const search = useMemo(() => getFilteredValue(filters, 'search'), [filters])
     const render = useMemo(() => getTableCellRenderer({ search }), [search])
 
+    const userOrganization = useOrganization()
+    const canDownloadCallRecords = useMemo(() => get(userOrganization, ['link', 'role', 'canDownloadCallRecords']), [userOrganization])
+
     const phoneRender = useCallback(({ callRecord }) => {
         const phonePrefix = get(callRecord, 'organization.phoneNumberPrefix')
         const phone = callRecord.isIncomingCall ? callRecord.callerPhone : callRecord.destCallerPhone
@@ -80,7 +84,7 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
             return '—'
         }
 
-        return getTableCellRenderer({ search, href: `/ticket/${ticketId}` })(ticketNumber)
+        return getTableCellRenderer({ search, href: `/ticket/${ticketId}`, target: '_blank' })(ticketNumber)
     }
     , [search])
 
@@ -114,25 +118,35 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
 
         const url = get(callRecordFragment, 'callRecord.file.publicUrl')
         const name = get(callRecordFragment, 'callRecord.file.originalFilename')
-        const handleDownloadFile = () => {
+        const handleDownloadFile = (e) => {
+            e.stopPropagation()
+
             downloadFile({ url, name })
         }
 
         return (
             <Space size={20}>
                 <Tooltip title={PlayMessage}>
-                    <Play
-                        onClick={handlePlay}
-                    />
+                    <div>
+                        <Play
+                            onClick={handlePlay}
+                        />
+                    </div>
                 </Tooltip>
-                <Tooltip title={DownloadMessage}>
-                    <Download
-                        onClick={handleDownloadFile}
-                    />
-                </Tooltip>
+                {
+                    canDownloadCallRecords && (
+                        <Tooltip title={DownloadMessage}>
+                            <div>
+                                <Download
+                                    onClick={handleDownloadFile}
+                                />
+                            </div>
+                        </Tooltip>
+                    )
+                }
             </Space>
         )
-    }, [DownloadMessage, PlayMessage, downloadFile, setAutoPlay, setSelectedCallRecordFragment])
+    }, [DownloadMessage, PlayMessage, canDownloadCallRecords, downloadFile, setAutoPlay, setSelectedCallRecordFragment])
 
     return useMemo(() => ([
         {
@@ -170,13 +184,10 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
         {
             title: TalkTimeMessage,
             sortOrder: get(sorterMap, 'talkTime'),
-            filteredValue: getFilteredValue<IFilters>(filters, 'talkTime'),
             key: 'talkTime',
             dataIndex: ['callRecord', 'talkTime'],
             width: COLUMNS_WIDTH.talkTime,
             render: talkTimeRender,
-            filterDropdown: getFilterDropdownByKey(filterMetas, 'talkTime'),
-            filterIcon: getFilterIcon,
         },
         {
             title: ClientMessage,
@@ -191,13 +202,13 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
         },
         {
             title: AddressMessage,
-            sortOrder: get(sorterMap, 'address'),
-            filteredValue: getFilteredValue<IFilters>(filters, 'address'),
-            key: 'address',
+            sortOrder: get(sorterMap, 'property'),
+            filteredValue: getFilteredValue<IFilters>(filters, 'property'),
+            key: 'property',
             dataIndex: ['ticket', 'property'],
             width: COLUMNS_WIDTH.address,
             render: addressRender,
-            filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
+            filterDropdown: getFilterDropdownByKey(filterMetas, 'property'),
             filterIcon: getFilterIcon,
         },
         {

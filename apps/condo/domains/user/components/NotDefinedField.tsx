@@ -1,9 +1,8 @@
-import { Typography } from 'antd'
 import React, { ReactElement } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
-import { fontSizes } from '@condo/domains/common/constants/style'
 
 type DisplayValue = string | any[]
 
@@ -29,5 +28,5 @@ export const NotDefinedField: React.FC<INotDefinedFieldProps> = (props) => {
 
     return render
         ? render(value)
-        : <Typography.Text style={{ fontSize: fontSizes.content }}>{value}</Typography.Text>
+        : <Typography.Text>{value}</Typography.Text>
 }

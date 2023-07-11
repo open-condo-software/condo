@@ -33,8 +33,8 @@ export const FieldPairRow: React.FC<FieldPairRowProps> = (props) => {
             <Col {...valueColProps}>
                 {
                     href ? (
-                        <Typography.Link href={href}>
-                            <NotDefinedField value={fieldValue}/>
+                        <Typography.Link href={href} size='large'>
+                            {fieldValue}
                         </Typography.Link>
                     ) : <NotDefinedField value={fieldValue}/>
                 }

@@ -15,6 +15,7 @@ import isString from 'lodash/isString'
 import omit from 'lodash/omit'
 import pick from 'lodash/pick'
 import Head from 'next/head'
+import Link from 'next/link'
 import { NextRouter, useRouter } from 'next/router'
 import { TableComponents } from 'rc-table/lib/interface'
 import React, { CSSProperties, Key, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -1078,12 +1079,14 @@ const TicketsPage: ITicketIndexPage = () => {
                                             <Space size={40}>
                                                 {
                                                     callRecordsCount > 0 && (
-                                                        <Typography.Link size='large' href='/callRecord'>
-                                                            <Space size={8}>
-                                                                <Phone size='medium'/>
-                                                                {CallRecordsLogMessage}
-                                                            </Space>
-                                                        </Typography.Link>
+                                                        <Link href='/callRecord'>
+                                                            <Typography.Link size='large'>
+                                                                <Space size={8}>
+                                                                    <Phone size='medium'/>
+                                                                    {CallRecordsLogMessage}
+                                                                </Space>
+                                                            </Typography.Link>
+                                                        </Link>
                                                     )
                                                 }
                                                 {

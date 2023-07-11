@@ -304,12 +304,25 @@ const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, sho
     return (
         <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
             <Col span={24}>
-                <Typography.Title level={2}>{name}</Typography.Title>
-                {
-                    lastTicket && (
-                        <TicketResidentFeatures ticket={lastTicket}/>
-                    )
-                }
+                <Row justify='space-between'>
+                    <Typography.Title level={2}>{name}</Typography.Title>
+                    <Col>
+                        <Space size={24}>
+                            {
+                                showOrganizationMessage && (
+                                    <Typography.Text strong type='secondary' size='medium'>
+                                        {organizationName}
+                                    </Typography.Text>
+                                )
+                            }
+                            {
+                                lastTicket && (
+                                    <TicketResidentFeatures ticket={lastTicket}/>
+                                )
+                            }
+                        </Space>
+                    </Col>
+                </Row>
             </Col>
             {
                 (email || count > 0) && (
@@ -330,6 +343,7 @@ const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, sho
                                     <Typography.Link
                                         size='large'
                                         onClick={handleCallRecordLinkClick}
+                                        target='_blank'
                                     >
                                         <Space size={8} align='center'>
                                             <History size='medium'/>
@@ -339,15 +353,6 @@ const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, sho
                                 )
                             }
                         </Space>
-                    </Col>
-                )
-            }
-            {
-                showOrganizationMessage && (
-                    <Col span={24}>
-                        <Typography.Text size='large'>
-                            {organizationName}
-                        </Typography.Text>
                     </Col>
                 )
             }

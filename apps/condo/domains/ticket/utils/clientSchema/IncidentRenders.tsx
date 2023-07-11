@@ -45,7 +45,7 @@ const MAX_CELL_CONTENT_LENGTH = 150
 
 
 export const getRenderNumber: GetRenderNumberType = () => (number, incident) =>
-    getTableCellRenderer({ href: `/incident/${incident.id}` })(number)
+    getTableCellRenderer({ href: `/incident/${incident.id}`, underline: false })(number)
 
 export const getRenderOrganization: GetRenderOrganizationType = () => getTableCellRenderer()
 

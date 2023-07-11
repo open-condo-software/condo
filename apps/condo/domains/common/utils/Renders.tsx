@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import React from 'react'
 
-import { Typography } from '@open-condo/ui'
+import { Typography, TypographyLinkProps } from '@open-condo/ui'
 
 
 export const renderPhone = (value) => {
@@ -11,14 +11,16 @@ export const renderPhone = (value) => {
 }
 
 
-type renderLinkType = (content: JSX.Element | string, href: string, underline?: boolean) => React.ReactElement
+type renderLinkType =
+    (content: JSX.Element | string, href: string, underline?: boolean, target?: TypographyLinkProps['target'])
+    => React.ReactElement
 
 const handleStopPropagation = (e) => e.stopPropagation()
-export const renderLink: renderLinkType = (content, href, underline = true) => {
+export const renderLink: renderLinkType = (content, href, underline = true, target) => {
     const LinkComponent = underline ? Typography.Link : Link
 
     return (
-        <LinkComponent href={href}>
+        <LinkComponent href={href} target={target}>
             <a onClick={handleStopPropagation}>
                 {content}
             </a>

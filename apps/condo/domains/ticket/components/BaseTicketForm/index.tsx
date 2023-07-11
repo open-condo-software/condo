@@ -720,7 +720,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                         )
                                                                                     }
                                                                                     {
-                                                                                        isCallActive && (
+                                                                                        !isExisted && isCallActive && (
                                                                                             <Col span={24}>
                                                                                                 <Form.Item name='attachCallRecord' valuePropName='checked' initialValue={true}>
                                                                                                     <Checkbox

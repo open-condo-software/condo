@@ -7,17 +7,16 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Button, Typography, Space } from '@open-condo/ui'
 
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { getAddressRender } from '@condo/domains/common/components/Table/Renders'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
 import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
 import { getOrganizationTickets } from '@condo/domains/ticket/utils/clientSchema/search'
 
 import { CallRecordCard } from './CallRecordCard'
-
-import { getAddressRender } from '../../common/components/Table/Renders'
-
 
 
 const DROPDOWN_POPUP_CONTAINER_ID = 'attach-tickets-to-call-record'
@@ -29,7 +28,6 @@ function getPopupContainer (): HTMLElement {
 
 const MAIN_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const RECORD_INFO_ROW_GUTTER: RowProps['gutter'] = [0, 24]
-const CLIENT_INFO_ROW_GUTTER: RowProps['gutter'] = [0, 12]
 const CALL_RECORD_ROW_GUTTER: RowProps['gutter'] = [0, 16]
 const ATTACH_TICKETS_ROW_GUTTER: RowProps['gutter'] = [0, 20]
 
@@ -46,6 +44,9 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
     const AttachTicketsMessage = intl.formatMessage({ id: 'callRecord.modal.attachTicketsToCall' })
     const AttachTicketsPlaceholder = intl.formatMessage({ id: 'callRecord.modal.attachTicketsToCall.placeholder' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
+
+    const userOrganization = useOrganization()
+    const canDownloadCallRecords = useMemo(() => get(userOrganization, ['link', 'role', 'canDownloadCallRecords']), [userOrganization])
 
     const callRecordId = get(selectedCallRecordFragment, 'callRecord.id', null)
     const { objs: initialCallRecordFragments, loading } = CallRecordFragment.useObjects({
@@ -150,8 +151,6 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
     const clientName = get(ticket, 'clientName') || EmptyClientMessage
     const property = get(ticket, 'property') || EmptyAddressMessage
 
-    console.log('clientName', clientName)
-
     return (
         <Modal
             open={!!selectedCallRecordFragment}
@@ -188,14 +187,18 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
                                         autoPlay={autoPlay}
                                     />
                                 </Col>
-                                <Col span={24}>
-                                    <Typography.Link size='large' onClick={handleDownloadFile}>
-                                        <Space size={8}>
-                                            <Download size='medium' />
-                                            {DownloadCallRecordMessage}
-                                        </Space>
-                                    </Typography.Link>
-                                </Col>
+                                {
+                                    canDownloadCallRecords && (
+                                        <Col span={24}>
+                                            <Typography.Link size='large' onClick={handleDownloadFile}>
+                                                <Space size={8}>
+                                                    <Download size='medium' />
+                                                    {DownloadCallRecordMessage}
+                                                </Space>
+                                            </Typography.Link>
+                                        </Col>
+                                    )
+                                }
                             </Row>
                         </Col>
                     </Row>

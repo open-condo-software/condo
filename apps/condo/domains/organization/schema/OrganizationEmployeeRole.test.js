@@ -30,6 +30,8 @@ describe('OrganizationEmployeeRole', () => {
             expect(obj.canManageIntegrations).toBeFalsy()
             expect(obj.canManageProperties).toBeFalsy()
             expect(obj.canManageTickets).toBeFalsy()
+            expect(obj.canManageCallRecords).toBeFalsy()
+            expect(obj.canDownloadCallRecords).toBeFalsy()
             expect(obj.canManageContacts).toBeFalsy()
             expect(obj.canManageContactRoles).toBeFalsy()
             expect(obj.canManageTicketComments).toBeTruthy()
