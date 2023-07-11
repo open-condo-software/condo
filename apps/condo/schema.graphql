@@ -60095,6 +60095,7 @@ type NewsItemTemplateHistoryRecord {
    4. As an alias to the 'id' field on the NewsItemTemplateHistoryRecord List.
   """
   _label_: String
+  type: String
   organization: String
   title: String
   body: String
@@ -60116,6 +60117,24 @@ type NewsItemTemplateHistoryRecord {
 input NewsItemTemplateHistoryRecordWhereInput {
   AND: [NewsItemTemplateHistoryRecordWhereInput]
   OR: [NewsItemTemplateHistoryRecordWhereInput]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
   organization: String
   organization_not: String
   organization_in: [String]
@@ -60239,6 +60258,8 @@ input NewsItemTemplateHistoryRecordWhereUniqueInput {
 }
 
 enum SortNewsItemTemplateHistoryRecordsBy {
+  type_ASC
+  type_DESC
   title_ASC
   title_DESC
   body_ASC
@@ -60262,6 +60283,7 @@ enum SortNewsItemTemplateHistoryRecordsBy {
 }
 
 input NewsItemTemplateHistoryRecordUpdateInput {
+  type: String
   organization: String
   title: String
   body: String
@@ -60285,6 +60307,7 @@ input NewsItemTemplateHistoryRecordsUpdateInput {
 }
 
 input NewsItemTemplateHistoryRecordCreateInput {
+  type: String
   organization: String
   title: String
   body: String
@@ -60306,6 +60329,11 @@ input NewsItemTemplateHistoryRecordsCreateInput {
   data: NewsItemTemplateHistoryRecordCreateInput
 }
 
+enum NewsItemTemplateTypeType {
+  common
+  emergency
+}
+
 """ The news item template for quick composing a news item """
 type NewsItemTemplate {
   """
@@ -60316,6 +60344,9 @@ type NewsItemTemplate {
    4. As an alias to the 'id' field on the NewsItemTemplate List.
   """
   _label_: String
+
+  """ The news item template type. """
+  type: NewsItemTemplateTypeType
 
   """ Organization who creates the template. A common template if there is no organization 
   """
@@ -60352,6 +60383,10 @@ type NewsItemTemplate {
 input NewsItemTemplateWhereInput {
   AND: [NewsItemTemplateWhereInput]
   OR: [NewsItemTemplateWhereInput]
+  type: NewsItemTemplateTypeType
+  type_not: NewsItemTemplateTypeType
+  type_in: [NewsItemTemplateTypeType]
+  type_not_in: [NewsItemTemplateTypeType]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   title: String
@@ -60453,6 +60488,8 @@ input NewsItemTemplateWhereUniqueInput {
 }
 
 enum SortNewsItemTemplatesBy {
+  type_ASC
+  type_DESC
   organization_ASC
   organization_DESC
   title_ASC
@@ -60478,6 +60515,7 @@ enum SortNewsItemTemplatesBy {
 }
 
 input NewsItemTemplateUpdateInput {
+  type: NewsItemTemplateTypeType
   organization: OrganizationRelateToOneInput
   title: String
   body: String
@@ -60498,6 +60536,7 @@ input NewsItemTemplatesUpdateInput {
 }
 
 input NewsItemTemplateCreateInput {
+  type: NewsItemTemplateTypeType
   organization: OrganizationRelateToOneInput
   title: String
   body: String

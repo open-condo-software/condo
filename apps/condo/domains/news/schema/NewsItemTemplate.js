@@ -6,11 +6,19 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemTemplate')
+const { NEWS_TYPES } = require('@condo/domains/news/constants/newsTypes')
 
 
 const NewsItemTemplate = new GQLListSchema('NewsItemTemplate', {
     schemaDoc: 'The news item template for quick composing a news item',
     fields: {
+
+        type: {
+            schemaDoc: 'The news item template type.',
+            type: 'Select',
+            options: NEWS_TYPES,
+            isRequired: true,
+        },
 
         organization: {
             schemaDoc: 'Organization who creates the template. A common template if there is no organization',

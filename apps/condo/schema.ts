@@ -42579,6 +42579,8 @@ export type NewsItemTemplate = {
    *  4. As an alias to the 'id' field on the NewsItemTemplate List.
    */
   _label_?: Maybe<Scalars['String']>;
+  /**  The news item template type.  */
+  type?: Maybe<NewsItemTemplateTypeType>;
   /**  Organization who creates the template. A common template if there is no organization  */
   organization?: Maybe<Organization>;
   /**  The title of a future news item  */
@@ -42602,6 +42604,7 @@ export type NewsItemTemplate = {
 };
 
 export type NewsItemTemplateCreateInput = {
+  type?: Maybe<NewsItemTemplateTypeType>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
@@ -42627,6 +42630,7 @@ export type NewsItemTemplateHistoryRecord = {
    *  4. As an alias to the 'id' field on the NewsItemTemplateHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
@@ -42646,6 +42650,7 @@ export type NewsItemTemplateHistoryRecord = {
 };
 
 export type NewsItemTemplateHistoryRecordCreateInput = {
+  type?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
@@ -42670,6 +42675,7 @@ export enum NewsItemTemplateHistoryRecordHistoryActionType {
 }
 
 export type NewsItemTemplateHistoryRecordUpdateInput = {
+  type?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
@@ -42690,6 +42696,24 @@ export type NewsItemTemplateHistoryRecordUpdateInput = {
 export type NewsItemTemplateHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<NewsItemTemplateHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<NewsItemTemplateHistoryRecordWhereInput>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization?: Maybe<Scalars['String']>;
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -42821,7 +42845,13 @@ export type NewsItemTemplateHistoryRecordsUpdateInput = {
   data?: Maybe<NewsItemTemplateHistoryRecordUpdateInput>;
 };
 
+export enum NewsItemTemplateTypeType {
+  Common = 'common',
+  Emergency = 'emergency'
+}
+
 export type NewsItemTemplateUpdateInput = {
+  type?: Maybe<NewsItemTemplateTypeType>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
@@ -42839,6 +42869,10 @@ export type NewsItemTemplateUpdateInput = {
 export type NewsItemTemplateWhereInput = {
   AND?: Maybe<Array<Maybe<NewsItemTemplateWhereInput>>>;
   OR?: Maybe<Array<Maybe<NewsItemTemplateWhereInput>>>;
+  type?: Maybe<NewsItemTemplateTypeType>;
+  type_not?: Maybe<NewsItemTemplateTypeType>;
+  type_in?: Maybe<Array<Maybe<NewsItemTemplateTypeType>>>;
+  type_not_in?: Maybe<Array<Maybe<NewsItemTemplateTypeType>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   title?: Maybe<Scalars['String']>;
@@ -66540,6 +66574,8 @@ export enum SortNewsItemScopesBy {
 }
 
 export enum SortNewsItemTemplateHistoryRecordsBy {
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   TitleAsc = 'title_ASC',
   TitleDesc = 'title_DESC',
   BodyAsc = 'body_ASC',
@@ -66563,6 +66599,8 @@ export enum SortNewsItemTemplateHistoryRecordsBy {
 }
 
 export enum SortNewsItemTemplatesBy {
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
   TitleAsc = 'title_ASC',
