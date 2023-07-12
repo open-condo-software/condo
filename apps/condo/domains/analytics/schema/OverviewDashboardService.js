@@ -27,6 +27,8 @@ const ERRORS = {
     },
 }
 
+const TICKET_REMAPPING_OPTIONS = { ticketCounts: 'tickets' }
+
 
 const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService', {
     types: [
@@ -110,6 +112,7 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                                 groupBy: ['property', 'status'],
                                 nullReplaces: ticketNullReplaces,
                             },
+                            remappingOptions: TICKET_REMAPPING_OPTIONS,
                         },
                         ticketByDay: {
                             provider: new TicketDataLoader({ context }),
@@ -118,6 +121,7 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                                 groupBy: [groupBy.aggregatePeriod, 'status'],
                                 nullReplaces: ticketNullReplaces,
                             },
+                            remappingOptions: TICKET_REMAPPING_OPTIONS,
                         },
                         ticketByCategory: {
                             provider: new TicketDataLoader({ context }),
@@ -126,6 +130,7 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                                 groupBy: ['categoryClassifier', 'status'],
                                 nullReplaces: ticketNullReplaces,
                             },
+                            remappingOptions: TICKET_REMAPPING_OPTIONS,
                         },
                         ticketByExecutor: {
                             provider: new TicketDataLoader({ context }),
@@ -134,6 +139,7 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                                 groupBy: ['executor', 'status'],
                                 nullReplaces: ticketNullReplaces,
                             },
+                            remappingOptions: TICKET_REMAPPING_OPTIONS,
                         },
                         payment: {
                             provider: new PaymentDataLoader({ context }),
@@ -146,9 +152,6 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                                         { period_gte: dayjs(where.dateFrom).startOf('month').toISOString() },
                                         { period_lte: dayjs(where.dateTo).endOf('month').toISOString() },
                                         { status: PAYMENT_DONE_STATUS },
-                                        // { period_gte: dayjs(where.dateFrom).startOf('month').format('YYYY-MM-DD') },
-                                        // { period_lte: dayjs(where.dateTo).endOf('month').format('YYYY-MM-DD') },
-                                        // { status: PAYMENT_WITHDRAWN_STATUS },
                                     ],
                                     // OR: [
                                     //     { status: PAYMENT_DONE_STATUS },

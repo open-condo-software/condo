@@ -214,7 +214,7 @@ class TicketDataLoader extends AbstractDataLoader {
             .sort((a, b) =>
                 dayjs(a.dayGroup, DATE_DISPLAY_FORMAT).unix() - dayjs(b.dayGroup, DATE_DISPLAY_FORMAT).unix(),
             )
-        return { tickets: ticketCounts }
+        return { ticketCounts, translates }
     }
 }
 
