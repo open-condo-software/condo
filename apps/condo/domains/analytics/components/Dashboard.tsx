@@ -40,7 +40,14 @@ import type { OverviewData } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
 const DASHBOARD_ROW_GUTTER: RowProps['gutter'] = [20, 40]
-const CARD_STYLE: React.CSSProperties = { height: '216px' }
+const CARD_STYLE: React.CSSProperties = { height: '200px' }
+const TEXT_CENTER_STYLE: React.CSSProperties = { textAlign: 'center' }
+const DATA_CARD_DESCRIPTION_CONTAINER_STYLE: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+}
 
 type DataCardProps = { label: string, value: string | number, secondaryLabel?: string }
 
@@ -48,10 +55,12 @@ const DataCard: React.FC<DataCardProps> = ({ label, value, secondaryLabel }) => 
     <Col>
         <Space direction='vertical' align='center' size={8}>
             <Typography.Title level={3} type='primary'>{value}</Typography.Title>
-            <Typography.Text type='primary'>{label}</Typography.Text>
-            {secondaryLabel && (
-                <Typography.Text type='secondary' size='small'>{secondaryLabel}</Typography.Text>
-            )}
+            <div style={DATA_CARD_DESCRIPTION_CONTAINER_STYLE}>
+                <Typography.Text type='primary'>{label}</Typography.Text>
+                {secondaryLabel && (
+                    <Typography.Text type='secondary' size='small'>{secondaryLabel}</Typography.Text>
+                )}
+            </div>
         </Space>
     </Col>
 )
@@ -132,7 +141,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
             ) : (
                 <Row gutter={DASHBOARD_ROW_GUTTER}>
                     <Col span={24}>
-                        <Row align='middle' justify='space-between'>
+                        <Row align='middle' justify='space-around'>
                             <LayoutList />
                             <DataCard
                                 label={DoneLabel}
@@ -202,9 +211,11 @@ const IncidentDashboard = ({ organizationId }) => {
             <Col span={24}>
                 <Space direction='vertical' size={12} align='center'>
                     <Typography.Title level={1} type={count > 0 ? 'danger' : 'success'}>{count}</Typography.Title>
-                    <Typography.Paragraph type='secondary' size='medium'>
-                        {IncidentDescription}
-                    </Typography.Paragraph>
+                    <div style={TEXT_CENTER_STYLE}>
+                        <Typography.Paragraph type='secondary' size='medium'>
+                            {IncidentDescription}
+                        </Typography.Paragraph>
+                    </div>
                 </Space>
             </Col>
         </Row>

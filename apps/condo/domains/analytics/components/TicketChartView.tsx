@@ -54,8 +54,8 @@ const ScrollContainer = styled.div<{ height: string }>`
 const EMPTY_CONTAINER_STYLE: React.CSSProperties = {
     height: '300px',
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'start',
+    alignItems: 'start',
 }
 
 const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {

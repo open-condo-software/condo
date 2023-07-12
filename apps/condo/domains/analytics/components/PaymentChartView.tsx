@@ -8,7 +8,6 @@ import { Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { getChartOptions } from '@condo/domains/analytics/utils/helpers'
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 
 import PaymentChart from './PaymentChart'
 
@@ -38,8 +37,8 @@ const COLOR_SET = [
 const EMPTY_CONTAINER_STYLE: React.CSSProperties = {
     height: '300px',
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'start',
+    alignItems: 'start',
 }
 
 export const PaymentChartView: React.FC<IPaymentChartViewProps> = (props) => {
