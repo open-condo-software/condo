@@ -77,11 +77,15 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
         setSpeed(value)
 
         if (waveform.current) {
-            waveform.current.pause()
-            waveform.current.setPlaybackRate(value, true)
-            waveform.current.play()
+            if (playing) {
+                waveform.current.pause()
+                waveform.current.setPlaybackRate(value, true)
+                waveform.current.play()
+            } else {
+                waveform.current.setPlaybackRate(value, true)
+            }
         }
-    }, [])
+    }, [playing])
 
     const formatTime = useCallback((time: number): string => {
         const hours = Math.floor(time / 3600).toString().padStart(2, '0')
