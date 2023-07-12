@@ -2,10 +2,10 @@
 const debug = require('debug')('@open-condo/keystone/schema')
 const Emittery = require('emittery')
 const { pickBy, identity, isFunction, isArray } = require('lodash')
+const get = require('lodash/get')
 const ow = require('ow')
 
 const { GQL_SCHEMA_PLUGIN } = require('./plugins/utils/typing')
-const get = require("lodash/get");
 
 let EVENTS = new Emittery()
 let SCHEMAS = new Map()
@@ -173,7 +173,7 @@ async function getSchemaCtx (schemaObjOrName) {
     }
 }
 
-const getDepsGraphEdgeFromKeystoneField = (keystoneField) => {
+const keystoneFieldToGraphEdge = (keystoneField) => {
     const { path, listKey, refListKey, config } = keystoneField
     const onDelete = get(config, ['kmigratorOptions', 'on_delete'])
     return {
@@ -184,6 +184,12 @@ const getDepsGraphEdgeFromKeystoneField = (keystoneField) => {
     }
 }
 
+/**
+ * Outputs the list of edges
+ * @param {string} schemaName
+ * @param visited
+ * @returns {*[]}
+ */
 function getSchemaDependenciesGraph (schemaName, visited = new Set()) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
@@ -200,8 +206,7 @@ function getSchemaDependenciesGraph (schemaName, visited = new Set()) {
     fields.forEach(
         field => {
             if (field.isRelationship) {
-                const rel = getDepsGraphEdgeFromKeystoneField(field)
-                const relKey = `${rel.from}->${rel.to}:${rel.path}`
+                const rel = keystoneFieldToGraphEdge(field)
                 rels.push(rel)
                 const refRels = getSchemaDependenciesGraph(rel.to, visited)
                 rels = rels.concat(refRels)
