@@ -22,7 +22,7 @@ How to install certificates on Android phone or tablet. For correct working inst
 
 1. Download [issuer certificate «Russian Trusted Sub CA.cer»](russian_trusted_sub_ca.cer) → open «Settings» → in searh enter «Certificate» → select «Cerficate CA» (or «Certificate of certificate authority») →  in the prompt select «Install anyway».
 
-   ![Image21](/tls/android/android-search-certificate-setting.jpg)]
+   ![Image21](/tls/android/android-search-certificate-setting.jpg)
 
 2. Enter pin-code of your device → «Confirm» → in «Downloads» select «Russian Trusted Sub CA.cer».
 

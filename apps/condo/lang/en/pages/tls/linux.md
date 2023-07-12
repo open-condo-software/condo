@@ -1,4 +1,4 @@
-1. Download [root](https://gu-st.ru/content/lending/russian_trusted_root_ca_pem.crt) и [выпускающий](https://gu-st.ru/content/lending/russian_trusted_sub_ca_pem.crt) certificate into Downloads folder.
+1. Download [root](https://gu-st.ru/content/lending/russian_trusted_root_ca_pem.crt) and [issuer](https://gu-st.ru/content/lending/russian_trusted_sub_ca_pem.crt) certificate into Downloads folder.
 
 2. Open terminal, pressing Activities → Terminal
 
@@ -16,7 +16,7 @@
 
    ![Image4](/tls/linux/linux-copy-issuer-cert.jpg)
 
-6. Check that certiifcates from Mintsifry Проверьте has been installed into trusted certificate storage with command: `trust list`.
+6. Check that certiifcates from Mintsifry has been installed into trusted certificate storage with command: `trust list`.
 
    ![Image5](/tls/linux/linux-trust-list.jpg)
 
