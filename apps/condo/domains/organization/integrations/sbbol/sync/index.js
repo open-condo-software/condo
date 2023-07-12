@@ -99,7 +99,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
         ...dvSenderFields,
         name: userInfo.name || userInfo.OrgName,
         email: normalizeEmail(userInfo.email),
-        phone: normalizePhone(userInfo.phone_number),
+        phone: normalizePhone(userInfo.phone_number) || userInfo.phone_number,
         isPhoneVerified: true,
         isEmailVerified: true,
         password: faker.internet.password(),
