@@ -234,12 +234,13 @@ const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {
         const mimetype = get(file, 'mimetype')
         const url = get(file, 'publicUrl')
         const TextWrapComponent = mimetype.startsWith('image') ? Typography.Paragraph : Typography.Link
+        const extraProps = { href: url }
 
         return (
             <TextWrapComponent
-                href={url}
                 key={index}
                 style={TEXT_WRAP_COMPONENT_STYLES}
+                {...extraProps}
             >
                 {getFilePreviewByMimetype(mimetype, url)}
                 <Typography.Paragraph ellipsis={ELLIPSIS_CONFIG} style={FILENAME_TEXT_STYLES}>
