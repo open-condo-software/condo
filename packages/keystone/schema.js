@@ -175,57 +175,6 @@ function getSchemaCtx (schemaObjOrName) {
     }
 }
 
-const keystoneFieldToRelation = (keystoneField) => {
-    const { path, listKey, refListKey, config } = keystoneField
-    const onDelete = get(config, ['kmigratorOptions', 'on_delete'])
-    return {
-        from: listKey,
-        to: refListKey,
-        path,
-        onDelete,
-    }
-}
-
-function getSchemaGraphEdges (schemaName, recursive, visited = new Set()) {
-    if (visited.has(schemaName)) {
-        return []
-    }
-    visited.add(schemaName)
-
-    const fields = get(getSchemaCtx(schemaName), ['list', 'fields'], [])
-
-    let rels = []
-    fields.forEach(
-        field => {
-            if (field.isRelationship) {
-                const rel = keystoneFieldToRelation(field)
-                rels.push(rel)
-                if (recursive) {
-                    const refRels = getSchemaGraphEdges(rel.to, true, visited)
-                    rels = rels.concat(refRels)
-                }
-            }
-        }
-    )
-
-    return rels
-}
-
-/**
- * Outputs list of dependent relations
- * @param {string} schemaName
- * @param { recursive: boolean } options
- * @returns {*[]}
- */
-function getSchemaDependencies (schemaName, options = {}) {
-    const schema = getSchemaCtx(schemaName)
-    if (schema.type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
-
-    const { recursive = false } = options
-
-    return getSchemaGraphEdges(schemaName, recursive)
-}
-
 /**
  * Outputs gql schema
  */
@@ -247,7 +196,6 @@ module.exports = {
     find,
     getById,
     getByCondition,
-    getSchemaDependencies,
     getSchema,
     GQL_SCHEMA_TYPES,
     GQL_CUSTOM_SCHEMA_TYPE,
