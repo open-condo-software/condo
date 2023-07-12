@@ -240,7 +240,7 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
     const { count: goodCount, loading: goodLoading } = Ticket.useCount({
         where: {
             organization: { id: organizationId },
-            status: { type: TicketStatusTypeType.Completed },
+            status: { OR: [{ type: TicketStatusTypeType.Completed }, { type: TicketStatusTypeType.Closed }] },
             qualityControlValue: TicketQualityControlValueType.Good,
             AND: [
                 { createdAt_gte: dayjs().startOf('month').toISOString() },
@@ -251,7 +251,7 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
     const { count: badCount, loading: badLoading } = Ticket.useCount({
         where: {
             organization: { id: organizationId },
-            status: { type: TicketStatusTypeType.Completed },
+            status: { OR: [{ type: TicketStatusTypeType.Completed }, { type: TicketStatusTypeType.Closed }] },
             qualityControlValue: TicketQualityControlValueType.Bad,
             AND: [
                 { createdAt_gte: dayjs().startOf('month').toISOString() },
