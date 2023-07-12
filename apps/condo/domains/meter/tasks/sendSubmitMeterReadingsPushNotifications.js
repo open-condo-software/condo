@@ -12,8 +12,7 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { rightJoin, joinResidentsToMeters } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 const { Meter, MeterReading, MeterReportingPeriod } = require('@condo/domains/meter/utils/serverSchema')
 const {
-    METER_SUBMIT_READINGS_REMINDER_TYPE,
-    METER_VERIFICATION_DATE_EXPIRED_TYPE,
+    METER_VERIFICATION_DATE_EXPIRED_TYPE, METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE, METER_SUBMIT_READINGS_REMINDER_START_PERIOD_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
@@ -241,12 +240,12 @@ const sendMessagesForSetUpReadings = async ({ context, metersWithResident }) => 
     await Promise.all(metersWithResident.map(async ({ meter, residents }) => {
         await Promise.all(residents.map(async (resident) => {
             const { lang } = meter
-            const uniqKey = `${meter.id}_${resident.id}_${dayjs().format('YYYY-MM')}`
+            const uniqKey = `${resident.user.id}_${meter.isEndPeriodNotification ? 'end' : 'start'}_${dayjs().format('YYYY-MM')}`
 
             const message = {
                 sender: { dv: 1, fingerprint: 'meters-readings-submit-reminder-cron-push' },
                 to: { user: { id: resident.user.id } },
-                type: METER_SUBMIT_READINGS_REMINDER_TYPE, //meter.isEndPeriodNotification ? METER_SUBMIT_READINGS_REMINDER_TYPE : 'here-need-notification-type',
+                type: meter.isEndPeriodNotification ? METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE : METER_SUBMIT_READINGS_REMINDER_START_PERIOD_TYPE,
                 lang,
                 uniqKey,
                 meta: {
