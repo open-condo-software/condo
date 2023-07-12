@@ -90,7 +90,7 @@ const getRedisHealthCheck = (clientName = 'healthcheck') => {
             try {
                 const client = this.redisClient
                 const res = await client.ping()
-                if (res === 'PONG') { return true }
+                return res === 'PONG'
             } catch (e) { return false }
         },
     }
