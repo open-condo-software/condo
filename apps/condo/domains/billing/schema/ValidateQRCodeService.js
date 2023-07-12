@@ -10,6 +10,7 @@ const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/
 const { BankAccount } = require('@condo/domains/banking/utils/serverSchema')
 const access = require('@condo/domains/billing/access/ValidateQRCodeService')
 const { WRONG_FORMAT, NOT_FOUND } = require('@condo/domains/common/constants/errors')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 /**
@@ -22,7 +23,7 @@ const ERRORS = {
         variable: ['data', 'qrCode'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: 'Provided QR code does\'nt have one of required fields: PersonalAcc, payerAddress, lastName, paymPeriod or Sum',
+        message: 'Provided QR code doesn\'t have one of required fields: PersonalAcc, payerAddress, lastName, paymPeriod or Sum',
     },
     NO_ORGANIZATION: {
         mutation: 'validateQRCode',
@@ -79,7 +80,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                     
                     const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
                         organization: { id: organizations[0].id, deletedAt: null },
-                        status: 'Finished',
+                        status: CONTEXT_FINISHED_STATUS,
                         deletedAt: null,
                     })
 

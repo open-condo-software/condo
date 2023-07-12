@@ -43,7 +43,6 @@ async function registerBillingReceipts (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write registerBillingReceipts serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: REGISTER_BILLING_RECEIPTS_MUTATION,
@@ -98,7 +97,6 @@ async function validateQRCode (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write validateQRCode serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: VALIDATE_QRCODE_MUTATION,
