@@ -1,113 +1,67 @@
-import { green } from '@ant-design/colors'
-import { RestFilled } from '@ant-design/icons'
-import styled from '@emotion/styled'
-import { Dropdown, Space, Menu } from 'antd'
-import Router from 'next/router'
-import React, { useMemo } from 'react'
+import { Dropdown } from 'antd'
+import get from 'lodash/get'
+import { useRouter } from 'next/router'
+import React, { useCallback, useMemo } from 'react'
 
+import { MoreVertical } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { Typography, Space } from '@open-condo/ui'
 
-
-import { Button } from '@condo/domains/common/components/Button'
-import {
-    TopMenuItem,
-    StyledMenuItem,
-    MENU_ICON_STYLES,
-} from '@condo/domains/common/components/containers/BaseLayout/components/styles'
-import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-
-function goToSignin () {
-    Router.push('/auth/signin')
-}
-
-function goToUserProfile () {
-    Router.push('/user')
-}
+import type { DropdownProps } from 'antd'
 
 function formatUserName (name) {
     const splittedName = name.split(' ')
     return splittedName[0]
 }
 
-export const StyledMenu = styled(Menu)`
-  padding: 20px;
-  width: 210px;
-  box-sizing: border-box;
-  border-radius: 8px;
-  transform: translate(-5%, 10px);
-`
-
-const AvatarContainer = styled.div`
-  width: 24px;
-  height: 24px;
-`
-
-const UserMenuWrapper = styled.div`
-`
-
-const UserMenuContainer = styled.div`
-  height: 24px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  box-sizing: border-box;
-`
-
 export const DesktopUserMenu: React.FC = () => {
     const intl = useIntl()
-    const SignInMessage = intl.formatMessage({ id: 'SignIn' })
-    const GuestUsernameMessage = intl.formatMessage({ id: 'baselayout.menuheader.GuestUsername' })
+    const MyProfileMessage = intl.formatMessage({ id: 'profile' })
     const SignOutMessage = intl.formatMessage({ id: 'SignOut' })
     const auth = useAuth()
+    const router = useRouter()
+    const userName = formatUserName(get(auth, ['user', 'name'], ''))
 
-    const userName = useMemo(() => {
-        if (auth.user) {
-            return formatUserName(auth.user.name)
-        } else {
-            return GuestUsernameMessage
+    const handleProfileClick = useCallback(() => {
+        router.push('/user')
+    }, [router])
+
+    const handleSignOutClick = useCallback(() => {
+        auth.signout()
+    }, [auth])
+
+    const menu = useMemo<DropdownProps['menu']>(() => {
+        return {
+            items: [
+                {
+                    key: 'profile',
+                    label: (
+                        <Typography.Text size='medium' type='inherit' onClick={handleProfileClick}>{MyProfileMessage}</Typography.Text>
+                    ),
+                },
+                {
+                    key: 'signOut',
+                    label: (
+                        <Typography.Text size='medium' type='inherit' onClick={handleSignOutClick}>{SignOutMessage}</Typography.Text>
+                    ),
+                },
+            ],
         }
-    }, [auth.user])
+    }, [MyProfileMessage, SignOutMessage, handleProfileClick, handleSignOutClick])
 
-    const DropdownOverlay = (
-        <StyledMenu>
-            <StyledMenuItem key='signout' onClick={auth.signout}>
-                <Space size={16}>
-                    <RestFilled style={MENU_ICON_STYLES}/>
-                    {SignOutMessage}
-                </Space>
-            </StyledMenuItem>
-        </StyledMenu>
-    )
+
 
     return (
-        <UserMenuWrapper>
-            {
-                auth.isAuthenticated
-                    ? (
-                        <Dropdown overlay={DropdownOverlay} placement='bottom'>
-                            <UserMenuContainer>
-                                <Button
-                                    type='link'
-                                    style={{ paddingRight: 0, color: green[6], fontSize: '12px' }}
-                                    onClick={goToUserProfile}
-                                    eventName='MenuClickUserProfile'
-                                >
-                                    <Space size={16}>
-                                        <AvatarContainer>
-                                            <UserAvatar iconSize='6px'/>
-                                        </AvatarContainer>
-                                        {userName}
-                                    </Space>
-                                </Button>
-                            </UserMenuContainer>
-                        </Dropdown>
-                    )
-                    : <TopMenuItem onClick={goToSignin}>
-                        <span className='link'>{SignInMessage}</span>
-                    </TopMenuItem>
-            }
-        </UserMenuWrapper>
+        <Dropdown placement='bottom' menu={menu} overlayClassName='user-dropdown-overlay'>
+            <Space size={8} direction='horizontal' className='user-dropdown'>
+                <Typography.Text size='medium' onClick={handleProfileClick}>
+                    {userName}
+                </Typography.Text>
+                <div className='expand-icon-wrapper'>
+                    <MoreVertical size='small'/>
+                </div>
+            </Space>
+        </Dropdown>
     )
 }

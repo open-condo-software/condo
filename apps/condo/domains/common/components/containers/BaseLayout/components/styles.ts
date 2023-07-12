@@ -90,11 +90,6 @@ export const TopMenuItem = styled.div`
   }
 `
 
-export const MENU_ICON_STYLES = {
-    color: colors.black,
-    fontSize: '24px',
-}
-
 export const StyledMenuItem = styled(Menu.Item)`
   border-bottom: 1px solid ${colors.defaultWhite[6]};
   padding: 14px 0;

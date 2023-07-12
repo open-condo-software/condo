@@ -80,6 +80,40 @@
   color: var(--condo-global-color-black);
 }
 
+/* Header */
+.desktop-header {
+  z-index: 9;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 1600px;
+  height: 96px;
+  padding: 24px 40px;
+  line-height: 1.5;
+  background: var(--condo-global-color-white);
+}
+
+.desktop-header .top-menu-items {
+  margin-left: auto;
+}
+
+.user-dropdown {
+  cursor: pointer;
+}
+
+.user-dropdown .expand-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-dropdown-overlay .ant-dropdown-menu-item-active {
+  background: var(--condo-global-color-gray-1);
+}
+
+/* Appeals special button */
+
 .appeals-dropdown-menu .condo-typography,
 .menu .menu-item .condo-typography {
   color: inherit;

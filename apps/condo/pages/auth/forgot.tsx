@@ -202,7 +202,7 @@ const ResetPage: AuthPage = () => {
         <RegisterContextProvider><ResetPageView /></RegisterContextProvider>
     )
 }
-ResetPage.headerAction = <></>
+
 ResetPage.container = AuthLayout
 
 export default ResetPage

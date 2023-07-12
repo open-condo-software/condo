@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react'
 import { Select, SelectProps } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -8,73 +6,14 @@ import React, { useRef, useEffect, useCallback } from 'react'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Typography } from '@open-condo/ui'
 
 import { Button } from '@condo/domains/common/components/Button'
-import { colors, gradients } from '@condo/domains/common/constants/style'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 
 import { ASSIGNED_TICKET_VISIBILITY } from '../constants/common'
-
-
-const blackSelectCss = css`
-  width: 200px;
-  font-size: 16px;
-  font-weight: 600;
-
-  &.ant-select .ant-select-selector {
-    background: ${colors.white};
-  }
-
-  &.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-    height: 40px;
-  }
-
-  &.ant-select-single:not(.ant-select-customize-input) .ant-select-selection-item {
-    line-height: 38px;
-    transition: none;
-  }
-  
-  & .ant-select-arrow {
-    color: ${colors.black};
-  }
-
-  &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector,
-  &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
-  &.ant-select.ant-select-single.ant-select-open .ant-select-selector,
-  &.ant-select.ant-select-single.ant-select-focused .ant-select-selector {
-    background: ${gradients.sberActionGradient};
-    border: 1px solid transparent;
-    box-shadow: none;
-  }
-  &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selection-item,
-  &.ant-select:not(.ant-select-disabled):hover .ant-select-selection-item,
-  &.ant-select.ant-select-single.ant-select-open .ant-select-selection-item {
-    color: ${colors.white};
-  }
-  &.ant-select:not(.ant-select-disabled):hover .ant-select-arrow,
-  &.ant-select.ant-select-single.ant-select-open .ant-select-arrow {
-    color: ${colors.white};
-  }
-
-  &.ant-select:not(.ant-select-disabled):active .ant-select-selector {
-    background: ${gradients.sberActionInversed};
-    border: 1px solid transparent;
-  }
-
-  &.ant-select.ant-select-single.ant-select-open .ant-select-selector {
-    background: ${gradients.sberActionGradient};
-    border: 1px solid transparent;
-  }
-`
-
-// TODO(zuch): can't use emotion css here
-const optionStyle: React.CSSProperties = {
-    fontSize: '14px',
-    lineHeight: '20px',
-    backgroundColor: colors.white,
-}
 
 const ORGANIZATION_SELECT_SHOW_ACTIONS: SelectProps<string>['showAction'] = ['focus', 'click']
 
@@ -111,12 +50,13 @@ export const OrganizationSelect: React.FC = () => {
             return (
                 <Select.Option
                     data-cy='organization-select-item'
-                    style={optionStyle}
                     key={value}
                     value={value}
                     title={label}
                 >
-                    {label}
+                    <Typography.Paragraph size='medium' ellipsis={{ rows: 2 }}>
+                        {label}
+                    </Typography.Paragraph>
                 </Select.Option>
             )
         })
@@ -163,13 +103,15 @@ export const OrganizationSelect: React.FC = () => {
             {!(organizationLoading || organizationLinksLoading) && (
                 <>
                     <Select
+                        open
                         ref={selectRef}
-                        css={blackSelectCss}
+                        style={{ width: 220 }}
+                        prefixCls='condo-select'
                         size='middle'
                         showAction={ORGANIZATION_SELECT_SHOW_ACTIONS}
                         filterSort={filterSort}
                         dropdownRender={menu => (
-                            <div>
+                            <div style={{ width: 300 }}>
                                 {menu}
                                 <Button
                                     type='inlineLink'
