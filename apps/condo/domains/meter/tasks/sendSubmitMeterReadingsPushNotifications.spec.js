@@ -15,6 +15,8 @@ const {
 } = require('@condo/domains/meter/utils/testSchema')
 const {
     METER_SUBMIT_READINGS_REMINDER_TYPE,
+    METER_SUBMIT_READINGS_REMINDER_START_PERIOD_TYPE,
+    METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE,
     METER_VERIFICATION_DATE_EXPIRED_TYPE,
     CALL_METER_READING_SOURCE_ID,
 } = require('@condo/domains/notification/constants/constants')
@@ -43,7 +45,6 @@ const prepareUserAndMeter = async ({ nextVerificationDate }) => {
     client.reportingPeriod = await createTestMeterReportingPeriod(adminClient, client.meter.organization, {
         notifyStartDay: 1,
         notifyEndDay: 31,
-        property: { connect: { id: client.meter.property.id } },
     })
 
     return client
@@ -65,7 +66,12 @@ const prepareReadings = async (client) => {
 const getNewMessages = async ({ userId, meterId }) => {
     const messages = await MessageApi.getAll(keystone, {
         user: { id: userId },
-        type_in: [METER_SUBMIT_READINGS_REMINDER_TYPE, METER_VERIFICATION_DATE_EXPIRED_TYPE],
+        type_in: [
+            METER_SUBMIT_READINGS_REMINDER_TYPE,
+            METER_SUBMIT_READINGS_REMINDER_START_PERIOD_TYPE,
+            METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE,
+            METER_VERIFICATION_DATE_EXPIRED_TYPE,
+        ],
     })
     return messages.filter(message => message.meta.data.meterId === meterId)
 }

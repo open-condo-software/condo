@@ -9,6 +9,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { getLocalized } = require('@open-condo/locales/loader')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
+const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { rightJoin, joinResidentsToMeters } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 const { Meter, MeterReading, MeterReportingPeriod } = require('@condo/domains/meter/utils/serverSchema')
@@ -17,7 +18,6 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 
 
 dayjs.extend(isBetween)
@@ -169,8 +169,9 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
 
             const isTodayInPeriod = period !== null && checkIsDateInPeriod(state.startTime, state.startTime, period.notifyStartDay, period.notifyEndDay)
             const isEndPeriodNotification = period !== null && state.startTime.format('YYYY-MM-DD') === state.startTime.format('YYYY-MM-DD').slice(0, -2) + period.notifyStartDay
+            const periodKey = `${state.startTime.format('YYYY-MM-DD').slice(0, -2) + period.notifyStartDay}-${state.startTime.format('YYYY-MM-DD').slice(0, -2) + period.notifyEndDay}`
 
-            if (isTodayInPeriod) metersWithoutReadings.push({ meter, isEndPeriodNotification, isEmptyReadings: isEmpty(readingsOfCurrentMeter) })
+            if (isTodayInPeriod) metersWithoutReadings.push({ meter, periodKey, isEndPeriodNotification, isEmptyReadings: isEmpty(readingsOfCurrentMeter) })
         }
 
         // right join organizations
@@ -178,14 +179,14 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
             metersWithoutReadings,
             organizations,
             ({ meter }, organization) => meter.organization.id === organization.id,
-            ({ meter, isEndPeriodNotification, isEmptyReadings }, organization) => {
+            ({ meter, isEndPeriodNotification, isEmptyReadings, periodKey }, organization) => {
                 /**
                  * Detect message language
                  * Use DEFAULT_LOCALE if organization.country is unknown
                  * (not defined within @condo/domains/common/constants/countries)
                  */
                 const lang = get(COUNTRIES, [get(organization, 'country', conf.DEFAULT_LOCALE), 'locale'], conf.DEFAULT_LOCALE)
-                return { ...meter, isEndPeriodNotification, isEmptyReadings, lang }
+                return { ...meter, isEndPeriodNotification, isEmptyReadings, periodKey, lang }
             }
         )
         state.metersWithoutReadings += metersToSendNotification.length
@@ -241,9 +242,9 @@ const sendMessageSafely = async ({ context, message }) => {
 const sendMessagesForSetUpReadings = async ({ context, metersWithResident }) => {
     await Promise.all(metersWithResident.map(async ({ meter, residents }) => {
         await Promise.all(residents.map(async (resident) => {
-            const { lang } = meter
+            const { lang, periodKey } = meter
             const now = dayjs()
-            const uniqKey = `${resident.user.id}_${meter.isEndPeriodNotification ? 'end' : 'start'}_${now.format('YYYY-MM')}`
+            const uniqKey = `${resident.user.id}_${periodKey}_${meter.isEndPeriodNotification ? 'end' : 'start'}`
 
             const message = {
                 sender: { dv: 1, fingerprint: 'meters-readings-submit-reminder-cron-push' },
