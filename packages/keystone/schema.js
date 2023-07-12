@@ -155,7 +155,7 @@ async function getById (schemaName, id) {
     return await getByCondition(schemaName, { id })
 }
 
-async function getSchemaCtx (schemaObjOrName) {
+function getSchemaCtx (schemaObjOrName) {
     let name
     if (typeof schemaObjOrName === 'object' && GQL_SCHEMA_TYPES.includes(schemaObjOrName._type) && schemaObjOrName.name) {
         name = schemaObjOrName.name
@@ -168,12 +168,14 @@ async function getSchemaCtx (schemaObjOrName) {
     if (!SCHEMAS.has(name)) throw new Error(`Schema ${name} is not registered yet`)
     const schema = SCHEMAS.get(name)
     return {
+        type: schema._type,
         name: schema.name,
+        list: get(schema, ['_keystone', 'lists', schema.name], null),
         keystone: schema._keystone,
     }
 }
 
-const keystoneFieldToGraphEdge = (keystoneField) => {
+const keystoneFieldToRelation = (keystoneField) => {
     const { path, listKey, refListKey, config } = keystoneField
     const onDelete = get(config, ['kmigratorOptions', 'on_delete'])
     return {
@@ -184,36 +186,56 @@ const keystoneFieldToGraphEdge = (keystoneField) => {
     }
 }
 
-/**
- * Outputs the list of edges
- * @param {string} schemaName
- * @param visited
- * @returns {*[]}
- */
-function getSchemaDependenciesGraph (schemaName, visited = new Set()) {
-    if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
-    if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
-    const schemaList = SCHEMAS.get(schemaName)
-
+function getSchemaGraphEdges (schemaName, recursive, visited = new Set()) {
     if (visited.has(schemaName)) {
         return []
     }
     visited.add(schemaName)
 
-    const fields = schemaList._keystone.lists[schemaName].fields
+    const fields = get(getSchemaCtx(schemaName), ['list', 'fields'], [])
 
     let rels = []
     fields.forEach(
         field => {
             if (field.isRelationship) {
-                const rel = keystoneFieldToGraphEdge(field)
+                const rel = keystoneFieldToRelation(field)
                 rels.push(rel)
-                const refRels = getSchemaDependenciesGraph(rel.to, visited)
-                rels = rels.concat(refRels)
+                if (recursive) {
+                    const refRels = getSchemaGraphEdges(rel.to, true, visited)
+                    rels = rels.concat(refRels)
+                }
             }
         }
     )
+
     return rels
+}
+
+/**
+ * Outputs list of dependent relations
+ * @param {string} schemaName
+ * @param { recursive: boolean } options
+ * @returns {*[]}
+ */
+function getSchemaDependencies (schemaName, options = {}) {
+    const schema = getSchemaCtx(schemaName)
+    if (schema.type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
+
+    const { recursive = false } = options
+
+    return getSchemaGraphEdges(schemaName, recursive)
+}
+
+/**
+ * Outputs gql schema
+ */
+function getSchema () {
+    if (SCHEMAS.size === 0) throw new Error('Schemas are not registered yet')
+    const result = new Map()
+    for (const [name] of SCHEMAS) {
+        result[name] = getSchemaCtx(name)
+    }
+    return result
 }
 
 module.exports = {
@@ -225,7 +247,8 @@ module.exports = {
     find,
     getById,
     getByCondition,
-    getSchemaDependenciesGraph,
+    getSchemaDependencies,
+    getSchema,
     GQL_SCHEMA_TYPES,
     GQL_CUSTOM_SCHEMA_TYPE,
     GQL_LIST_SCHEMA_TYPE,
