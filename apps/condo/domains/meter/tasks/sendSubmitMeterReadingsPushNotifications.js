@@ -1,4 +1,5 @@
 const dayjs = require('dayjs')
+const locale_ru = require('dayjs/locale/ru')
 const isBetween = require('dayjs/plugin/isBetween')
 const { get, uniq, isNull, isEmpty, compact } = require('lodash')
 
@@ -16,6 +17,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 
 
 dayjs.extend(isBetween)
@@ -240,7 +242,8 @@ const sendMessagesForSetUpReadings = async ({ context, metersWithResident }) => 
     await Promise.all(metersWithResident.map(async ({ meter, residents }) => {
         await Promise.all(residents.map(async (resident) => {
             const { lang } = meter
-            const uniqKey = `${resident.user.id}_${meter.isEndPeriodNotification ? 'end' : 'start'}_${dayjs().format('YYYY-MM')}`
+            const now = dayjs()
+            const uniqKey = `${resident.user.id}_${meter.isEndPeriodNotification ? 'end' : 'start'}_${now.format('YYYY-MM')}`
 
             const message = {
                 sender: { dv: 1, fingerprint: 'meters-readings-submit-reminder-cron-push' },
@@ -251,6 +254,7 @@ const sendMessagesForSetUpReadings = async ({ context, metersWithResident }) => 
                 meta: {
                     dv: 1,
                     data: {
+                        monthName: lang === RU_LOCALE ? now.locale_ru('ru').format('MMMM') : now.format('MMMM'),
                         meterId: meter.id,
                         userId: resident.user.id,
                         residentId: resident.id,
