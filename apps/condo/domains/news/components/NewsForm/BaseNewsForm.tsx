@@ -21,6 +21,7 @@ import includes from 'lodash/includes'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
+import transform from 'lodash/transform'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
@@ -376,27 +377,19 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }).filter(Boolean)
     }, [initialHasAllProperties, initialNewsItemScopes, initialProperties.length, initialSectionKeys])
     const commonTemplates = useMemo(() => {
-        const commonTemplates = {}
-
-        for (const id in templates) {
-            if (templates[id].type === NEWS_TYPE_COMMON || isNull(templates[id].type)) {
-                commonTemplates[id] = templates[id]
+        return transform(templates, (result, value, key) => {
+            if (value.type === NEWS_TYPE_COMMON || isNull(value.type)) {
+                result[key] = value
             }
-        }
-
-        return commonTemplates
+        }, {})
     }, [templates])
 
     const emergencyTemplates = useMemo(() => {
-        const commonTemplates = {}
-
-        for (const id in templates) {
-            if (templates[id].type === NEWS_TYPE_EMERGENCY || isNull(templates[id].type)) {
-                commonTemplates[id] = templates[id]
+        return transform(templates, (result, value, key) => {
+            if (value.type === NEWS_TYPE_EMERGENCY || isNull(value.type)) {
+                result[key] = value
             }
-        }
-
-        return commonTemplates
+        }, {})
     }, [templates])
 
     const [sendPeriod, setSendPeriod] = useState<string>(get(initialValues, 'sendPeriod', 'now'))
