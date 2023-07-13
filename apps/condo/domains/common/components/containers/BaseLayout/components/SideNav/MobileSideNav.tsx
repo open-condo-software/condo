@@ -8,7 +8,6 @@ import { Close } from '@open-condo/icons'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { OrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 
 import {
     MobileMenuItemsContainer,
@@ -56,7 +55,7 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
             <MobileSideNavHeader>
                 <Close size='medium' onClick={toggleCollapsed}/>
                 <OrganizationSelectWrapper>
-                    <OrganizationSelect/>
+                    {/*<OrganizationSelect/>*/}
                 </OrganizationSelectWrapper>
             </MobileSideNavHeader>
             <MobileMenuItemsContainer>

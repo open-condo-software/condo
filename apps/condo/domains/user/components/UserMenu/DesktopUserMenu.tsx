@@ -37,14 +37,16 @@ export const DesktopUserMenu: React.FC = () => {
                 {
                     key: 'profile',
                     label: (
-                        <Typography.Text size='medium' type='inherit' onClick={handleProfileClick}>{MyProfileMessage}</Typography.Text>
+                        <Typography.Text size='medium' type='inherit'>{MyProfileMessage}</Typography.Text>
                     ),
+                    onClick: handleProfileClick,
                 },
                 {
                     key: 'signOut',
                     label: (
-                        <Typography.Text size='medium' type='inherit' onClick={handleSignOutClick}>{SignOutMessage}</Typography.Text>
+                        <Typography.Text size='medium' type='inherit'>{SignOutMessage}</Typography.Text>
                     ),
+                    onClick: handleSignOutClick,
                 },
             ],
         }

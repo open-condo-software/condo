@@ -98,6 +98,23 @@
   margin-left: auto;
 }
 
+.organization-dropdown.ant-dropdown-open .arrow-icon {
+  transform: rotate(180deg);
+}
+
+.organization-dropdown-overlay {
+  z-index: 100;
+}
+
+.organization-selector .condo-typography {
+  display: inline-block;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+
 .user-dropdown {
   cursor: pointer;
 }
@@ -108,6 +125,7 @@
   justify-content: center;
 }
 
+.organization-dropdown-overlay .ant-dropdown-menu-item-active,
 .user-dropdown-overlay .ant-dropdown-menu-item-active {
   background: var(--condo-global-color-gray-1);
 }

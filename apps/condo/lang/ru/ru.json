@@ -993,7 +993,7 @@
   "pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Assignee": "Ответственный не назначен",
   "pages.condo.analytics.TicketAnalyticsPage.TicketChartView.LoadMoreTitle": "Загрузить больше {entity}",
   "pages.condo.phone.table.lastComment": "Последний комментарий",
-  "pages.organizations.CreateOrganizationButtonLabel": "Создать организацию",
+  "pages.organizations.CreateOrganizationButtonLabel": "Добавить организацию",
   "pages.organizations.CreateOrganizationModalTitle": "Создание организации",
   "pages.organizations.CreateOrganizationPlaceholder": "Например, ООО «УК №1»",
   "pages.organizations.EditOrganizationModalTitle": "Редактирование организации",
