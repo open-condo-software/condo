@@ -5,6 +5,7 @@ import React, { ComponentProps, useCallback, useEffect, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { GraphQlSearchInputOption } from '@condo/domains/common/components/GraphQlSearchInput/GraphQlSearchInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 import Checkbox from './antd/Checkbox'
@@ -22,6 +23,7 @@ export type InputWithCheckAllProps = {
     form: FormInstance
     checkBoxEventName?: string
     disabled?: boolean
+    onDataLoaded?: (data: GraphQlSearchInputOption['data']) => void
 }
 
 const CheckAllCheckboxFormItem = styled(Form.Item)`
@@ -42,6 +44,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         checkBoxOffset,
         checkBoxEventName,
         disabled,
+        onDataLoaded,
     }
 ) => {
     const intl = useIntl()
@@ -60,7 +63,12 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
             onCheckBoxChange(value)
         }
     }, [onCheckBoxChange])
-    const handleOnDataLoaded = useCallback((data) => setAllDataLength(data.length), [])
+    const handleOnDataLoaded = useCallback((data) => {
+        setAllDataLength(data.length)
+        if (isFunction(onDataLoaded)) {
+            onDataLoaded(data)
+        }
+    }, [onDataLoaded])
     const handleOnChange = useCallback((data) => {
         const selectedDataLength = data.length
 
