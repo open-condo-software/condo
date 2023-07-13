@@ -3,6 +3,7 @@
  */
 
 const get = require('lodash/get')
+const isArray = require('lodash/isArray')
 const isEmpty = require('lodash/isEmpty')
 const omit = require('lodash/omit')
 
@@ -48,11 +49,7 @@ async function canReadTickets ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput, context }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-    if (user.isAdmin) return true
-
+async function canManageTicket ({ user, context, operation, itemId, originalInput }) {
     if (user.type === RESIDENT) {
         const changedInaccessibleFields = Object.keys(originalInput).some(field => INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_RESIDENT.includes(field))
         if (changedInaccessibleFields) return false
@@ -120,6 +117,30 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
     }
 
     return false
+}
+
+async function canManageTickets (data) {
+    const { authentication: { item: user }, operation, itemId, itemIds, originalInput, context } = data
+
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
+
+    if (isArray(itemIds)) {
+        for (const { id, data } of originalInput) {
+            console.log({ id, data })
+
+            const hasAccess = await canManageTicket({
+                user, context, operation, itemId: id, originalInput: data,
+            })
+
+            if (!hasAccess) return false
+        }
+
+        return true
+    }
+
+    return await canManageTicket({ user, operation, itemId, context, originalInput })
 }
 
 /*

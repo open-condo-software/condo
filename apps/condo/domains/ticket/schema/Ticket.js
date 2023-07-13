@@ -56,7 +56,7 @@ const {
     calculateStatusUpdatedAt,
     calculateDeferredUntil,
     setDeadline, updateStatusAfterResidentFeedback,
-    updateStatusAfterResidentReview, classifyTicket,
+    classifyTicket,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const {
     createTicketChange,
@@ -666,6 +666,8 @@ const Ticket = new GQLListSchema('Ticket', {
             const userId = get(user, 'id')
             const isCreateOperation = operation === 'create'
             const isUpdateOperation = operation === 'update'
+
+            console.log('{ operation, resolvedData, existingItem }', operation, resolvedData)
 
             if (isCreateOperation && !resolvedData.status) {
                 resolvedData.status = STATUS_IDS.OPEN
