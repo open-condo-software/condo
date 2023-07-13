@@ -9,9 +9,13 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BankAccount } = require('@condo/domains/banking/utils/serverSchema')
 const access = require('@condo/domains/billing/access/ValidateQRCodeService')
+const { BILLING_VALIDATE_QR_CODE_WINDOW, MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW } = require('@condo/domains/billing/constants')
 const { WRONG_FORMAT, NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+
+const redisGuard = new RedisGuard()
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -64,6 +68,17 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { qrCode } = data
+
+                const checkLimits = async (ip) => {
+                    await redisGuard.checkCustomLimitCounters(
+                        `validate-QR-code-${ip}`,
+                        BILLING_VALIDATE_QR_CODE_WINDOW,
+                        MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW,
+                    )
+                }
+
+                const ip = context.req.headers['x-forwarded-for'] || context.req.socket.remoteAddress
+                await checkLimits(ip)
 
                 const qrCodeFields = Object.fromEntries(qrCode.split('|').map(part => part.split('=')))
                 const { PersonalAcc, payerAddress, lastName, paymPeriod, Sum, PayeeINN } = qrCodeFields

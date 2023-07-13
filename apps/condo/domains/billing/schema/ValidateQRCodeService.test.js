@@ -9,6 +9,7 @@ const { expectToThrowAuthenticationErrorToResult } = require('@open-condo/keysto
 const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
+const { MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW } = require('@condo/domains/billing/constants')
 const { validateQRCodeByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
@@ -170,6 +171,31 @@ describe('ValidateQRCodeService', () => {
             })
             await updateTestAcquiringIntegrationContext(adminClient, acquiringContext.id, { deletedAt: faker.date.past() })
         })
+    })
+
+    test('should throw limit exceeded error on too many calls', async () => {
+        const [integration] = await createTestAcquiringIntegration(adminClient)
+        await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: 'Finished' })
+        
+        for await (const i of Array.from(Array(MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW + 1).keys())) {
+            if (i === MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW) {
+                await catchErrorFrom(async () => {
+                    await validateQRCodeByTestClient(userClient, { qrCode: qrCodeString })
+                }, ({ errors }) => {
+
+                    expect(errors).toMatchObject([{
+                        path: ['result'],
+                        extensions: {
+                            code: 'BAD_USER_INPUT',
+                            type: 'TOO_MANY_REQUESTS',
+                            message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+                        },
+                    }])
+                })
+            } else {
+                await validateQRCodeByTestClient(userClient, { qrCode: qrCodeString })
+            }
+        }
     })
 
 
