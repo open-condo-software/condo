@@ -44,7 +44,7 @@
     "jest-jasmine2": "^29.4.0",
     "mono-pub": "^1.0.1",
     "postcss-less": "^6.0.0",
-    "stylelint": "^14.11.0",
+    "stylelint": "^15.0.0",
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^28.0.0",
     "turbo": "^1.9.8",
