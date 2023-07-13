@@ -429,6 +429,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [selectedSectionKeys, setSelectedSectionKeys] = useState(initialSectionIds)
 
     const countPropertiesAvaliableToSelect = useRef(null)
+    const onlyPropertyThatCanBeSelected = useRef(null)
 
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
         where: { id_in: selectedPropertiesId },
@@ -507,6 +508,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const handleAllPropertiesDataLoading = useCallback((data) => {
         countPropertiesAvaliableToSelect.current = data.length
+        if (data.length === 1) {
+            onlyPropertyThatCanBeSelected.current = data[0]
+        }
     }, [])
 
     const Title = useInputWithCounter(Input.TextArea, 150)
@@ -537,6 +541,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             if (value) setSelectedPropertiesId(selectedPropertiesId => {
                 if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 1) 
                     return selectedPropertiesId
+                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 0 && has(onlyPropertyThatCanBeSelected, 'current.value')) {
+                    return [onlyPropertyThatCanBeSelected.current.value]
+                }
                 return []
             })
             if (countPropertiesAvaliableToSelect.current === 1 && !value) {
@@ -761,7 +768,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
 
     const newsItemScopesNoInstance = useMemo<TNewsItemScopeNoInstance[]>(() => {
-        if (isAllPropertiesChecked) {
+        if (isAllPropertiesChecked && countPropertiesAvaliableToSelect.current !== 1) {
             return [{ property: null, unitType: null, unitName: null }]
         }
 
