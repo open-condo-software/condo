@@ -32,7 +32,7 @@ const Button: React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<
         ? <span className={`${BUTTON_CLASS_PREFIX}-icon`}>{icon}</span>
         : null
 
-    const handleClick = useCallback<React.MouseEventHandler<HTMLElement>>((event) => {
+    const handleClick = useCallback((event: React.MouseEvent<HTMLButtonElement> & React.MouseEvent<HTMLAnchorElement>) => {
         const stringContent = extractChildrenContent(children)
         if (stringContent) {
             sendAnalyticsClickEvent('Button', { value: stringContent, type, id })
