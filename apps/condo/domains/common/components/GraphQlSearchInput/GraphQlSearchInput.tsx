@@ -24,7 +24,7 @@ import { WhereType } from '../../utils/tables.utils'
 import { Loader } from '../Loader'
 
 
-type GraphQlSearchInputOption = {
+export type GraphQlSearchInputOption = {
     value: string
     text: string
     data?: any

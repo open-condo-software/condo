@@ -17,6 +17,7 @@ import dayjs from 'dayjs'
 import difference from 'lodash/difference'
 import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
+import has from 'lodash/has'
 import includes from 'lodash/includes'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
@@ -25,7 +26,7 @@ import transform from 'lodash/transform'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ComponentProps, useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
@@ -86,12 +87,13 @@ export type BaseNewsFormProps = {
 }
 
 export const StyledTabs = styled(Tabs)`
-    color: red;
     > .condo-tabs-nav {
+        margin: 0;
+
         .condo-tabs-ink-bar {
           display: none;
         }
-  
+
         .condo-tabs-tab {
           padding: 12px;
           border: 1px solid ${colors.gray[3]};
@@ -101,22 +103,19 @@ export const StyledTabs = styled(Tabs)`
             background-color: ${colors.gray[3]};
             transition: background-color 0.3s ease-out;
           }
-  
+
           & + .condo-tabs-tab {
             margin-left: 8px;
+          }
+
+          & .condo-tabs-tab-label {
+            font-size: 14px;
+            line-height: 22px;
           }
         }
     }
 `
-const COUNTER_COL_STYLE: React.CSSProperties = {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    margin: '12px',
-    padding: '2px 10px',
-    backgroundColor: 'black',
-    borderRadius: '100px',
-}
+
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
 export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
@@ -127,6 +126,30 @@ const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX = /\[[^\]]*?\]/g
 const ADDITIONAL_DISABLED_MINUTES_COUNT = 5
+
+const buildCounterStyle = (textLength: number, type: 'Body' | 'Title'): React.CSSProperties => {
+    const style: React.CSSProperties = {
+        position: 'absolute',
+        right: 0,
+        margin: '12px',
+        padding: '2px 10px',
+        borderRadius: '100px',
+        backgroundColor: `${colors.gray[7]}`,
+    }
+
+    if (textLength > 0) {
+        style.backgroundColor = `${colors.black}`
+    }
+
+    if (type === 'Body') {
+        style.top = '198px'
+    }
+    if (type === 'Title') {
+        style.top = '123px'
+    }
+
+    return style
+}
 
 const getTypeAndNameByKey = (unitKey) => {
     const indexOfFirst = unitKey.indexOf('-')
@@ -400,10 +423,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
     const [isValidBeforeAfterSendAt, setIsValidBeforeAfterSendAt] = useState<boolean>(true)
     const [newsItemCountAtSameDay, setNewsItemCountAtSameDay] = useState(getNewsItemCountAtSameDay(null, allNews))
-    const [selectedUnitNameKeys, setSelectedUnitNameKeys] = useState(initialUnitTypes)
+    const [selectedUnitNameKeys, setSelectedUnitNameKeys] = useState(initialUnitKeys)
     const [selectedPropertiesId, setSelectedPropertiesId] = useState(initialPropertyIds)
     const [isAllPropertiesChecked, setIsAllPropertiesChecked] = useState(initialHasAllProperties)
     const [selectedSectionKeys, setSelectedSectionKeys] = useState(initialSectionIds)
+
+    const countPropertiesAvaliableToSelect = useRef(null)
+    const onlyPropertyThatCanBeSelected = useRef(null)
 
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
         where: { id_in: selectedPropertiesId },
@@ -480,6 +506,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [])
 
+    const handleAllPropertiesDataLoading = useCallback((data) => {
+        countPropertiesAvaliableToSelect.current = data.length
+        if (data.length === 1) {
+            onlyPropertyThatCanBeSelected.current = data[0]
+        }
+    }, [])
+
     const Title = useInputWithCounter(Input.TextArea, 150)
     const Body = useInputWithCounter(Input.TextArea, 800)
 
@@ -505,7 +538,17 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [Body, Title, templates])
     const propertyCheckboxChange = (form) => {
         return (value) => {
-            if (value) setSelectedPropertiesId([])
+            if (value) setSelectedPropertiesId(selectedPropertiesId => {
+                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 1) 
+                    return selectedPropertiesId
+                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 0 && has(onlyPropertyThatCanBeSelected, 'current.value')) {
+                    return [onlyPropertyThatCanBeSelected.current.value]
+                }
+                return []
+            })
+            if (countPropertiesAvaliableToSelect.current === 1 && !value) {
+                setSelectedPropertiesId([])
+            }
             setIsAllPropertiesChecked(value)
             form.setFieldsValue({ 'unitNames': [] })
             form.setFieldsValue({ 'sectionIds': [] })
@@ -523,9 +566,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             required: true,
             placeholder: SelectAddressPlaceholder,
             onChange: (propIds: string[]) => {
+                setSelectedPropertiesId(propIds)
                 form.setFieldsValue({ 'unitNames': [] })
                 form.setFieldsValue({ 'sectionIds': [] })
-                setSelectedPropertiesId(propIds)
                 setSelectedUnitNameKeys([])
                 setSelectedSectionKeys([])
             },
@@ -725,7 +768,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
 
     const newsItemScopesNoInstance = useMemo<TNewsItemScopeNoInstance[]>(() => {
-        if (isAllPropertiesChecked) {
+        if (isAllPropertiesChecked && countPropertiesAvaliableToSelect.current !== 1) {
             return [{ property: null, unitType: null, unitName: null }]
         }
 
@@ -801,6 +844,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                     formValuesToMutationDataPreprocessor={(values) => {
                         values.property = selectedProperties[0]
 
+                        if (get(values, 'hasAllProperties', null) && get(values, 'property', null)) {
+                            values.properties = has(values.property, 'id') ? [values.property.id] : []
+                        }
+
                         return values
                     }}
                     children={({ handleSave, isLoading, form }) => (
@@ -824,7 +871,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 required
                                                             >
                                                                 <RadioGroup onChange={handleTypeChange(form)}>
-                                                                    <Space size={24} wrap>
+                                                                    <Space size={8} wrap>
                                                                         <Radio value={NEWS_TYPE_COMMON}>
                                                                             {CommonTypeLabel}
                                                                         </Radio>
@@ -920,7 +967,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 onChange={handleTitleChange}
                                                             />
                                                         </Form.Item>
-                                                        <Col style={COUNTER_COL_STYLE}>
+                                                        <Col style={buildCounterStyle(Title.textLength, 'Title')}>
                                                             <Title.Counter type='inverted'/>
                                                         </Col>
                                                     </Col>
@@ -939,7 +986,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 onChange={handleBodyChange}
                                                             />
                                                         </Form.Item>
-                                                        <Col style={COUNTER_COL_STYLE}>
+                                                        <Col style={buildCounterStyle(Body.textLength, 'Body')}>
                                                             <Body.Counter type='inverted'/>
                                                         </Col>
                                                     </Col>
@@ -972,6 +1019,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         selectProps={propertySelectProps(form)}
                                                         onCheckBoxChange={propertyCheckboxChange(form)}
                                                         CheckAllMessage={CheckAllLabel}
+                                                        onDataLoaded={handleAllPropertiesDataLoading}
                                                         form={form}
                                                     />
                                                 </Col>
